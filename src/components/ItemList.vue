@@ -3,12 +3,7 @@
     <v-card>
       <div class="d-flex px-5 pt-2">
         <div class="align-self-center">
-          <v-text-field
-            label="図鑑No 名称検索"
-            v-model="keyword"
-            @input="filter()"
-            prepend-inner-icon="mdi-magnify"
-          ></v-text-field>
+          <v-text-field label="図鑑No 名称検索" v-model="keyword" @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
         </div>
         <div class="ml-5 align-self-center">
           <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
@@ -28,7 +23,7 @@
       <div class="d-flex flex-wrap mx-3">
         <div
           class="type-selector d-flex"
-          :class="{ active: type === 0 }"
+          :class="{ active: type === 0, disabled: keyword.length > 0 }"
           v-ripple="{ class: 'info--text' }"
           @click="changeType(0)"
         >
@@ -39,7 +34,7 @@
           :key="i.id"
           v-ripple="{ class: 'info--text' }"
           class="type-selector"
-          :class="{ active: type === i.id }"
+          :class="{ active: type === i.id, disabled: keyword.length > 0 }"
           @click="changeType(i.id)"
         >
           <v-img :src="`/img/type/type${i.id}.png`" height="32" width="32"></v-img>
@@ -48,13 +43,7 @@
       <v-divider></v-divider>
       <div id="item-table-body">
         <div class="pa-3" :class="{ 'd-md-flex flex-wrap': multiLine }">
-          <div
-            v-ripple="{ class: 'info--text' }"
-            v-for="(item, i) in items"
-            :key="i"
-            class="list-item"
-            @click="clickedItem(item)"
-          >
+          <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
             <div class="item-icon">
               <img :src="`/img/type/icon${item.iconTypeId}.png`" :alt="item.iconTypeId" />
             </div>
@@ -84,6 +73,11 @@
 .type-selector.active {
   border-color: rgba(33, 150, 243, 0.4);
   background-color: rgba(33, 150, 243, 0.1);
+}
+.type-selector.disabled {
+  opacity: 0.4;
+  background-color: transparent;
+  pointer-events: none;
 }
 .type-all-text {
   width: 32px;
@@ -206,15 +200,15 @@ export default Vue.extend({
         result = result.filter((v) => v.id < 500);
       }
 
-      // カテゴリ検索
-      const t = this.types.find((v) => v.id === this.type);
-      if (this.type && t) {
-        result = result.filter((v) => t.types.includes(v.apiTypeId));
-      }
-
-      // 検索語句
+      // 検索語句あれば最優先 カテゴリ検索を飛ばす
       if (word) {
         result = result.filter((v) => v.id === +word || v.name.indexOf(word) >= 0);
+      }
+
+      // カテゴリ検索
+      const t = this.types.find((v) => v.id === this.type);
+      if (!word && this.type && t) {
+        result = result.filter((v) => t.types.includes(v.apiTypeId));
       }
 
       this.items = result;

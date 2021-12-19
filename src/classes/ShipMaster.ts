@@ -66,35 +66,35 @@ export default class ShipMaster {
    * @memberof ShipMaster
    */
   constructor(...row: (number | string)[]) {
-    this.id = row[0] ? +row[0] as number : 0;
-    this.albumId = row[1] ? +row[1] as number : 0;
+    this.id = row[0] ? +row[0] : 0;
+    this.albumId = row[1] ? +row[1] : 0;
     this.name = row[2] ? row[2] as string : '';
-    this.type = row[3] ? +row[3] as number : 0;
-    this.type2 = row[4] ? +row[4] as number : 0;
-    this.slotCount = row[5] ? +row[5] as number : 0;
-    this.slot1 = row[6] ? +row[6] as number : 0;
-    this.slot2 = row[7] ? +row[7] as number : 0;
-    this.slot3 = row[8] ? +row[8] as number : 0;
-    this.slot4 = row[9] ? +row[9] as number : 0;
-    this.slot5 = row[10] ? +row[10] as number : 0;
-    this.version = row[11] ? +row[11] as number : 0;
+    this.type = row[3] ? +row[3] : 0;
+    this.type2 = row[4] ? +row[4] : 0;
+    this.slotCount = row[5] ? +row[5] : 0;
+    this.slot1 = row[6] ? +row[6] : 0;
+    this.slot2 = row[7] ? +row[7] : 0;
+    this.slot3 = row[8] ? +row[8] : 0;
+    this.slot4 = row[9] ? +row[9] : 0;
+    this.slot5 = row[10] ? +row[10] : 0;
+    this.version = row[11] ? +row[11] : 0;
     this.isFinal = !!row[12];
-    this.originalId = row[13] ? +row[13] as number : 0;
-    this.range = row[14] ? +row[14] as number : 0;
-    this.hp = row[15] ? +row[15] as number : 0;
-    this.hp2 = row[16] ? +row[16] as number : 0;
-    this.maxHp = row[17] ? +row[17] as number : 0;
-    this.fire = row[18] ? +row[18] as number : 0;
-    this.torpedo = row[19] ? +row[19] as number : 0;
-    this.antiAir = row[20] ? +row[20] as number : 0;
-    this.armor = row[21] ? +row[21] as number : 0;
-    this.luck = row[22] ? +row[22] as number : 0;
-    this.maxLuck = row[23] ? +row[23] as number : 0;
-    this.minScout = row[24] ? +row[24] as number : 0;
-    this.maxScout = row[25] ? +row[25] as number : 0;
-    this.minAsw = row[26] ? +row[26] as number : 0;
-    this.maxAsw = row[27] ? +row[27] as number : 0;
-    this.minAvoid = row[28] ? +row[28] as number : 0;
-    this.maxAvoid = row[29] ? +row[29] as number : 0;
+    this.originalId = row[13] ? +row[13] : 0;
+    this.range = row[14] ? +row[14] : 0;
+    this.hp = row[15] ? +row[15] : 0;
+    this.hp2 = row[16] ? +row[16] : 0;
+    this.maxHp = row[17] ? +row[17] : 0;
+    this.fire = row[18] ? +row[18] : 0;
+    this.torpedo = row[19] ? +row[19] : 0;
+    this.antiAir = row[20] ? +row[20] : 0;
+    this.armor = row[21] ? +row[21] : 0;
+    this.luck = row[22] ? +row[22] : 0;
+    this.maxLuck = row[23] ? +row[23] : 0;
+    this.minScout = row[24] ? +row[24] : 0;
+    this.maxScout = row[25] ? +row[25] : 0;
+    this.minAsw = row[26] ? +row[26] : 0;
+    this.maxAsw = row[27] ? +row[27] : 0;
+    this.minAvoid = row[28] ? +row[28] : 0;
+    this.maxAvoid = row[29] ? +row[29] : 0;
   }
 }

@@ -2,7 +2,8 @@
   <div
     v-ripple="{ class: 'info--text' }"
     class="item-input"
-    :draggable="item.data.id > 0"
+    :class="{ readonly: readonly }"
+    :draggable="item.data.id > 0 && !readonly"
     @dragstart="dragStart(item, $event)"
     @dragend="dragEnd($event)"
     @dragover.prevent
@@ -10,7 +11,7 @@
     @dragleave.prevent="dragLeave($event)"
     @drop="dropItem($event)"
   >
-    <v-menu offset-y :close-on-content-click="false" transition="slide-y-transition" bottom right>
+    <v-menu offset-y :close-on-content-click="false" transition="slide-y-transition" bottom right :disabled="readonly">
       <!-- 搭載数 -->
       <template v-slot:activator="{ on, attrs }">
         <div v-ripple="{ class: 'info--text' }" v-bind="attrs" v-on="on" class="item-slot">
@@ -19,16 +20,8 @@
       </template>
       <v-card class="px-5 py-1">
         <div class="d-flex pl-1 pr-2">
-          <v-text-field
-            class="slot-input"
-            type="number"
-            :max="item.max"
-            min="0"
-            v-model="item.slot"
-          ></v-text-field>
-          <v-btn depressed class="ml-2 align-self-center" @click="item.slot = item.init"
-            >初期値</v-btn
-          >
+          <v-text-field class="slot-input" type="number" :max="item.max" min="0" v-model="item.slot"></v-text-field>
+          <v-btn depressed class="ml-2 align-self-center" @click="item.slot = item.init">初期値</v-btn>
         </div>
         <v-slider :max="item.max" min="0" v-model="item.slot"></v-slider>
       </v-card>
@@ -42,14 +35,14 @@
       {{ item.data && item.data.name ? item.data.name : "未装備" }}
     </div>
     <!-- 改修値 -->
-    <v-menu offset-y transition="slide-y-transition" left>
+    <v-menu offset-y transition="slide-y-transition" left :disabled="readonly">
       <template v-slot:activator="{ on, attrs }">
         <div v-ripple="{ class: 'info--text' }" class="item-remodel" v-bind="attrs" v-on="on">
           <v-icon small color="teal accent-4">mdi-star</v-icon>
           <span class="teal--text text--accent-4">{{ item.remodel }}</span>
         </div>
       </template>
-      <v-card class="px-2 py-1">
+      <v-card>
         <div class="d-flex">
           <div v-for="i in 11" :key="i" @click="item.remodel = i - 1" class="remodel-list-item">
             <v-icon small color="teal accent-4">mdi-star</v-icon>
@@ -59,22 +52,16 @@
       </v-card>
     </v-menu>
     <!-- 熟練度 -->
-    <v-menu offset-y transition="slide-y-transition" left>
+    <v-menu offset-y transition="slide-y-transition" left :disabled="readonly">
       <template v-slot:activator="{ on, attrs }">
         <div v-ripple="{ class: 'info--text' }" class="item-level" v-bind="attrs" v-on="on">
           <v-img :src="`/img/util/prof${level}.png`" height="24" width="18"></v-img>
           <span class="level-value">{{ item.level }}</span>
         </div>
       </template>
-      <v-card class="px-2 py-1">
+      <v-card>
         <div class="d-flex">
-          <div
-            v-for="i in 8"
-            :key="i - 1"
-            v-ripple="{ class: 'info--text' }"
-            class="level-list-item"
-            @click="setLevel(i - 1)"
-          >
+          <div v-for="i in 8" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
             <v-img :src="`/img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
             <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
           </div>
@@ -87,7 +74,7 @@
     </v-menu>
     <!-- 解除 -->
     <div class="item-remove align-self-start">
-      <v-btn v-show="item.data.id" icon x-small @click="removeItem()">
+      <v-btn v-show="item.data.id > 0 && !readonly" icon x-small @click="removeItem()">
         <v-icon small>mdi-close</v-icon>
       </v-btn>
     </div>
@@ -156,10 +143,13 @@
 }
 .remodel-list-item,
 .level-list-item {
-  padding: 0.5rem 0.4rem;
+  padding: 0.5rem 0.75rem;
   transition: 0.2s;
   cursor: pointer;
   position: relative;
+}
+.remodel-list-item {
+  padding: 0.5rem 0.3rem;
 }
 .remodel-list-item:hover,
 .level-list-item:hover {
@@ -176,13 +166,13 @@
   width: 30px;
   right: 1px;
   z-index: 1;
-  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff,
-    1px 0px 1px #fff, -1px -0px 1px #fff, 0px 1px 1px #fff, 0px -1px 1px #fff;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
+    0px 1px 1px #fff, 0px -1px 1px #fff;
 }
 .theme--dark .level-value,
 .theme--dark .level-list-value {
-  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000,
-    1px 0px 1px #000, -1px -0px 1px #000, 0px 1px 1px #000, 0px -1px 1px #000;
+  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000,
+    0px 1px 1px #000, 0px -1px 1px #000;
 }
 .level-value {
   text-align: right;
@@ -195,6 +185,13 @@
 }
 .item-input:hover .level-value {
   opacity: 1;
+}
+
+.readonly .item-slot,
+.readonly .item-name,
+.readonly .item-level,
+.readonly .item-remodel {
+  cursor: default;
 }
 </style>
 
@@ -217,12 +214,14 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    readonly: {
+      type: Boolean,
+    },
   },
   watch: {
     item: {
       handler() {
-        this.item.updateBonusAirPower();
-        this.item.updateBonusAntiAir();
+        this.item.updateStatus();
       },
       deep: true,
     },

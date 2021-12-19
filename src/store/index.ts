@@ -3,6 +3,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import ShipMaster from '@/classes/ShipMaster';
 import ItemMaster from '@/classes/ItemMaster';
+import EnemyMaster from '@/classes/EnemyMaster';
 
 Vue.use(Vuex);
 
@@ -10,11 +11,15 @@ export default new Vuex.Store({
   state: {
     ships: [] as ShipMaster[],
     items: [] as ItemMaster[],
+    enemies: [] as EnemyMaster[],
     completed: false,
   },
   mutations: {
     setShips: (state, values: ShipMaster[]) => {
       state.ships = values;
+    },
+    setEnemies: (state, values: EnemyMaster[]) => {
+      state.enemies = values;
     },
     setItems: (state, values: ItemMaster[]) => {
       state.items = values;
@@ -40,6 +45,21 @@ export default new Vuex.Store({
           console.log(error);
         });
 
+      const loadEnemy = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/enemies?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
+        .then((response) => {
+          const enemies: EnemyMaster[] = [];
+          for (let i = 1; i < response.data.values.length; i += 1) {
+            const enemy = new EnemyMaster(...response.data.values[i]);
+            if (enemy.id) {
+              enemies.push(enemy);
+            }
+          }
+          context.commit('setEnemies', enemies);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
       const loadItem = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/items?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
         .then((response) => {
           const items: ItemMaster[] = [];
@@ -55,7 +75,7 @@ export default new Vuex.Store({
           console.log(error);
         });
 
-      const loader = [loadShip, loadItem];
+      const loader = [loadShip, loadEnemy, loadItem];
       Promise.all(loader).then(() => {
         context.commit('completed', true);
       });

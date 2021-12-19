@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ma-5 px-1 py-2 land-base-all">
+  <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
     <div class="pa-2">基地航空隊</div>
     <v-divider></v-divider>
     <div class="d-flex">
@@ -22,7 +22,7 @@
           :handle-show-item-list="showItemList"
         />
       </draggable>
-      <v-dialog v-model="itemListDialog" width="1200" class="item-list-dialog">
+      <v-dialog v-model="itemListDialog" width="1200">
         <item-list ref="itemList" :handle-equip-item="equipItem" />
       </v-dialog>
     </div>

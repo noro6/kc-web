@@ -117,6 +117,9 @@
 .theme--dark.v-application {
   background-color: rgb(23, 24, 31);
 }
+.v-input--dense .v-select__selection {
+  font-size: 0.85em;
+}
 </style>
 
 <script lang="ts">
