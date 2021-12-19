@@ -7,9 +7,13 @@
       <v-btn depressed><v-icon>mdi-content-duplicate</v-icon>別名保存</v-btn>
       <v-btn depressed><v-icon>mdi-share-variant</v-icon>編成共有</v-btn>
       <v-spacer></v-spacer>
-      <v-btn @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
-      <v-btn @click="$route.path !== '/aircalc' && $router.push('aircalc')">制空計算</v-btn>
-      <v-btn @click="$route.path !== '/manager' && $router.push('manager')">所持管理</v-btn>
+      <v-btn depressed @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
+      <v-btn depressed @click="$route.path !== '/aircalc' && $router.push('aircalc')"
+        >制空計算</v-btn
+      >
+      <v-btn depressed @click="$route.path !== '/manager' && $router.push('manager')"
+        >所持管理</v-btn
+      >
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
@@ -74,14 +78,20 @@
             <v-btn
               @click="$vuetify.theme.dark = false"
               color="grey"
-              :class="{ primary: !$vuetify.theme.dark, secondary: $vuetify.theme.dark }"
+              :class="{
+                primary: !$vuetify.theme.dark,
+                secondary: $vuetify.theme.dark,
+              }"
             >
               <span class="pr-5">Light</span><v-icon>mdi-weather-sunny</v-icon>
             </v-btn>
             <span class="mx-1"></span>
             <v-btn
               @click="$vuetify.theme.dark = true"
-              :class="{ primary: $vuetify.theme.dark, secondary: !$vuetify.theme.dark }"
+              :class="{
+                primary: $vuetify.theme.dark,
+                secondary: !$vuetify.theme.dark,
+              }"
             >
               <span class="pr-5">Dark</span><v-icon>mdi-moon-waxing-crescent</v-icon>
             </v-btn>
@@ -89,8 +99,25 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="loading" persistent width="300">
+      <v-card dark>
+        <v-card-text>
+          マスターデータ読込中...
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
+
+<style>
+.theme--light.v-application {
+  background-color: rgb(255, 246, 240);
+}
+.theme--dark.v-application {
+  background-color: rgb(23, 24, 31);
+}
+</style>
 
 <script lang="ts">
 import Vue from 'vue';
@@ -100,7 +127,18 @@ export default Vue.extend({
   data: () => ({
     drawer: null,
     config: false,
+    loading: true,
     confirmTabClose: false,
   }),
+  computed: {
+    completed() {
+      return this.$store.getters.getCompleted;
+    },
+  },
+  watch: {
+    completed(value) {
+      this.loading = !value;
+    },
+  },
 });
 </script>
