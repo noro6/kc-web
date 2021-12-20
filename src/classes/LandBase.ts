@@ -17,8 +17,6 @@ export default class LandBase {
     let sum = 0;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
-      const antiAir = item.actualAntiAir + item.bonusAntiAir;
-      item.airPower = Math.floor(antiAir * Math.sqrt(item.slot) + item.bonusAirPower);
       sum += item.airPower;
     }
     return sum;

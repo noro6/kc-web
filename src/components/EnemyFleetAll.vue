@@ -51,7 +51,7 @@ import BattleInfo from '@/classes/BattleInfo';
 import ItemMaster from '@/classes/ItemMaster';
 import Const from '@/classes/Const';
 import Enemy from '@/classes/Enemy';
-import Item from '@/classes/Item';
+import Item, { ItemBuilder } from '@/classes/Item';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -85,16 +85,18 @@ export default Vue.extend({
       const battle = this.dialogTarget[0];
       const index = this.dialogTarget[1];
 
-      const newEnemy = new Enemy(enemy);
+      // 6隻目以降なら連合随伴として
+      const isEscort = this.battleInfo.fleets[battle].isUnion && index >= 6;
+      const newEnemy = new Enemy(enemy, [], isEscort);
+
       // 装備マスタより装備を解決
       const allItems = this.$store.state.items as ItemMaster[];
       for (let i = 0; i < newEnemy.data.slotCount; i += 1) {
         const item = allItems.find((v) => v.id === newEnemy.data.items[i]);
         if (item) {
+          const builder: ItemBuilder = { master: item, slot: newEnemy.data.slots[i] > 0 ? newEnemy.data.slots[i] : 0 };
           // 装備をセット
-          newEnemy.items.push(new Item(item));
-          // 搭載数もセット
-          newEnemy.items[i].slot = newEnemy.data.slots[i] > 0 ? newEnemy.data.slots[i] : 0;
+          newEnemy.items.push(new Item(builder));
         } else {
           newEnemy.items.push(new Item());
         }

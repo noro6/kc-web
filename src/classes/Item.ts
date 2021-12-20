@@ -1,105 +1,103 @@
 import Const from './Const';
 import ItemMaster from './ItemMaster';
 
+export interface ItemBuilder {
+  // eslint-disable-next-line no-use-before-define
+  item?: Item | undefined;
+  /** 装備マスタ情報 未指定ならitem内のdataで作成 */
+  master?: ItemMaster;
+  /** 搭載数 未指定ならitemの搭載数で作成 */
+  slot?: number;
+  /** 熟練度 未指定ならitemの熟練度で作成 */
+  level?: number;
+  /** 改修値 未指定ならitemの改修値で作成 */
+  remodel?: number;
+}
+
 export default class Item {
-  public data: ItemMaster;
+  public readonly data: ItemMaster;
 
-  public level = 0;
+  /** 改修値 */
+  public readonly level: number;
 
-  public remodel = 0;
+  /** 改修値 */
+  public readonly remodel: number;
 
-  public slot = 0;
+  /** 搭載数 */
+  public readonly slot: number;
 
-  public max = 99;
+  /** 改修値による対空値増分 */
+  public readonly bonusAntiAir: number;
 
-  public init = 99;
+  /** 熟練度による制空値増分 */
+  public readonly bonusAirPower: number;
 
-  public actualAntiAir = 0;
+  /** 装備加重対空値 */
+  public readonly antiAirWeight: number;
 
-  public bonusAntiAir = 0;
+  /** 装備防空ボーナス */
+  public readonly antiAirBonus: number;
 
-  public bonusAirPower = 0;
+  /** 制空値計算時に適用される実対空値 */
+  public readonly actualAntiAir: number;
 
-  public antiAirWeight = 0;
+  /** 制空値計算時に適用される実対空値(防空時) */
+  public readonly actualDefenseAntiAir: number;
 
-  public antiAirBonus = 0;
+  /** 装備制空値 */
+  public readonly airPower: number;
 
-  public isFighter = false;
+  /** 装備制空値(防空時) */
+  public readonly defenseAirPower: number;
 
-  public isRecon = false;
+  /** 艦戦フラグ */
+  public readonly isFighter: boolean
 
-  public airPower = 0;
+  /** 偵察機フラグ */
+  public readonly isRecon: boolean;
 
-  constructor(itemMaster: ItemMaster = new ItemMaster()) {
-    this.data = itemMaster;
-    this.level = 0;
-    this.remodel = 0;
-    this.slot = 0;
-    this.max = 99;
-    this.init = 99;
-    this.isFighter = Const.FIGHTERS.includes(itemMaster.apiTypeId);
-    this.isRecon = Const.RECONNAISSANCES.includes(itemMaster.apiTypeId);
-    this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception;
-    this.updateStatus();
+  constructor(builder: ItemBuilder = {}) {
+    if (builder.item) {
+      // ItemBuilderより生成
+      this.data = builder.master ? builder.master : builder.item.data;
+      this.slot = builder.slot ? builder.slot : builder.item.slot;
+      this.remodel = builder.remodel ? builder.remodel : builder.item.remodel;
+      this.level = builder.level ? builder.level : builder.item.level;
+    } else {
+      this.data = new ItemMaster();
+      this.slot = 0;
+      this.remodel = 0;
+      this.level = 0;
+    }
+
+    this.isFighter = Const.FIGHTERS.includes(this.data.apiTypeId);
+    this.isRecon = Const.RECONNAISSANCES.includes(this.data.apiTypeId);
+
+    // 計算により算出するステータス
+    this.bonusAirPower = this.getBonusAirPower();
+    this.antiAirWeight = this.getAntiAirWeight();
+    this.bonusAntiAir = this.getBonusAntiAir();
+    this.antiAirBonus = this.getAntiAirBonus();
+
+    // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
+    this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
+    // 防空対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
+    this.actualDefenseAntiAir = this.data.antiAir + 2 * this.data.antiBomer + this.bonusAntiAir;
+
+    // 制空値更新
+    this.airPower = Math.floor(this.actualAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
+    this.defenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
   }
 
   /**
-   * 未装備状態に戻す
+   * 熟練度によるボーナス制空値を返却
+   * @private
+   * @returns {number}
    * @memberof Item
    */
-  public clear(): void {
-    this.data = new ItemMaster();
-    this.level = 0;
-    this.remodel = 0;
-    this.slot = 0;
-    this.max = 99;
-    this.init = 99;
-    this.isFighter = false;
-    this.isRecon = false;
-    this.actualAntiAir = 0;
-    this.updateStatus();
-  }
-
-  /**
-   * 別のインスタンスでこのインスタンスを上書きする
-   * ただし、搭載数が0ではない場合は据え置く
-   * @param {Item} item
-   * @memberof Item
-   */
-  public setItem(item: Item): void {
-    this.data = item.data;
-    this.level = item.level;
-    this.remodel = item.remodel;
-    this.slot = this.slot > 0 ? this.slot : item.slot;
-    this.max = item.max;
-    this.init = item.init;
-    this.isFighter = item.isFighter;
-    this.isRecon = item.isRecon;
-    this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception;
-    this.updateStatus();
-  }
-
-  /**
-   * 基本ステータス以外の更新
-   * 改修値や熟練度変更時に呼び出すこと
-   * @memberof Item
-   */
-  public updateStatus(): void {
-    this.updateBonusAntiAir();
-    this.updateBonusAirPower();
-    this.updateAntiAirWeight();
-    this.updateAntiAirBonus();
-  }
-
-  /**
-   * 熟練度によるボーナス制空値を更新
-   * @returns {void}
-   * @memberof Item
-   */
-  private updateBonusAirPower(): void {
+  private getBonusAirPower(): number {
     if (this.data.id === 0 || this.slot === 0 || !Const.PLANE_TYPES.includes(this.data.apiTypeId)) {
-      this.bonusAirPower = 0;
-      return;
+      return 0;
     }
     const type = this.data.apiTypeId;
     let sum = 0;
@@ -147,14 +145,16 @@ export default class Item {
       sum += (this.remodel >= 4 && this.slot === 4 ? 1 : 0);
     }
 
-    this.bonusAirPower = sum;
+    return sum;
   }
 
   /**
-   * 改修値によるボーナス対空を更新
+   * 改修値によるボーナス対空を返却
+   * @private
+   * @returns {number}
    * @memberof Item
    */
-  private updateBonusAntiAir(): void {
+  private getBonusAntiAir(): number {
     const itemId = this.data.id;
     const type = this.data.apiTypeId;
     let aa = 0;
@@ -168,81 +168,91 @@ export default class Item {
       // 陸攻
       aa = 0.5 * Math.sqrt(this.remodel);
     }
-    this.bonusAntiAir = aa;
+    return aa;
   }
 
   /**
-   * この装備の加重対空値を更新する
+   * この装備の加重対空値を返却
+   * @private
+   * @returns {number}
    * @memberof Item
    */
-  private updateAntiAirWeight(): void {
+  private getAntiAirWeight(): number {
+    let antiAirWeight = 0;
     // 加重対空値部品 => 装備対空値 * 装備倍率
     if (this.data.iconTypeId === 16) {
       // 高角砲(緑)
-      this.antiAirWeight = this.data.antiAir * 2;
+      antiAirWeight = this.data.antiAir * 2;
     } else if (this.data.apiTypeId === 36) {
       // 高射装置
-      this.antiAirWeight = this.data.antiAir * 2;
+      antiAirWeight = this.data.antiAir * 2;
     } else if (this.data.apiTypeId === 21) {
       // 機銃
-      this.antiAirWeight = this.data.antiAir * 3;
+      antiAirWeight = this.data.antiAir * 3;
     } else if (this.data.iconTypeId === 11) {
       // 電探
-      this.antiAirWeight = this.data.antiAir * 1.5;
+      antiAirWeight = this.data.antiAir * 1.5;
     }
 
     // 艦船対空改修補正 = 装備倍率(ブラウザ版採用[2倍]) * √★
     if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir <= 7) {
       // 対空値7以下の高角砲 高射装置
-      this.antiAirWeight += 1 * Math.sqrt(this.remodel);
+      antiAirWeight += 1 * Math.sqrt(this.remodel);
     } else if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir > 7) {
       // 対空値8以上の高角砲 高射装置
-      this.antiAirWeight += 1.5 * Math.sqrt(this.remodel);
+      antiAirWeight += 1.5 * Math.sqrt(this.remodel);
     } else if (this.data.apiTypeId === 21 && this.data.antiAir <= 7) {
       // 対空値7以下の機銃
-      this.antiAirWeight += 2 * Math.sqrt(this.remodel);
+      antiAirWeight += 2 * Math.sqrt(this.remodel);
     } else if (this.data.apiTypeId === 21 && this.data.antiAir > 7) {
       // 対空値8以上の機銃
-      this.antiAirWeight += 3 * Math.sqrt(this.remodel);
+      antiAirWeight += 3 * Math.sqrt(this.remodel);
     }
+
+    return antiAirWeight;
   }
 
   /**
-   * この装備の艦隊防空ボーナスを更新する
+   * この装備の艦隊防空ボーナスを返却
+   * @private
+   * @returns {number}
    * @memberof Item
    */
-  private updateAntiAirBonus(): void {
+  private getAntiAirBonus(): number {
+    let antiAirBonus = 0;
     // 艦隊防空ボーナス
     if (this.data.iconTypeId === 16) {
       // 高角砲(緑)
-      this.antiAirBonus = this.data.antiAir * 0.35;
+      antiAirBonus = this.data.antiAir * 0.35;
     } else if (this.data.apiTypeId === 36) {
       // 高射装置
-      this.antiAirBonus = this.data.antiAir * 0.35;
+      antiAirBonus = this.data.antiAir * 0.35;
     } else if (this.data.apiTypeId === 18) {
       // 対空強化弾(三式)
-      this.antiAirBonus = this.data.antiAir * 0.6;
+      antiAirBonus = this.data.antiAir * 0.6;
     } else if (this.data.iconTypeId === 11) {
       // 電探
-      this.antiAirBonus = this.data.antiAir * 0.4;
+      antiAirBonus = this.data.antiAir * 0.4;
     } else if (this.data.id === 9) {
       // 46cm三連装砲
-      this.antiAirBonus = this.data.antiAir * 0.25;
+      antiAirBonus = this.data.antiAir * 0.25;
     } else {
       // その他
-      this.antiAirBonus = this.data.antiAir * 0.2;
+      antiAirBonus = this.data.antiAir * 0.2;
     }
 
     // 艦隊防空装備改修補正 = 装備倍率 * √★
     if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir <= 7) {
       // 対空値7以下の高角砲 高射装置
-      this.antiAirBonus += 2 * Math.sqrt(this.remodel);
+      antiAirBonus += 2 * Math.sqrt(this.remodel);
     } else if (this.data.iconTypeId === 16 || this.data.apiTypeId === 36) {
       // 対空値8以上の高角砲 高射装置
-      this.antiAirBonus += 3 * Math.sqrt(this.remodel);
+      antiAirBonus += 3 * Math.sqrt(this.remodel);
     } else if (this.data.iconTypeId === 11 && this.data.antiAir > 1) {
       // 対空値2以上の電探
-      this.antiAirBonus += 1.5 * Math.sqrt(this.remodel);
+      antiAirBonus += 1.5 * Math.sqrt(this.remodel);
     }
+
+    return antiAirBonus;
   }
 }

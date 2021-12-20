@@ -9,12 +9,7 @@
       <v-spacer></v-spacer>
     </div>
     <div class="d-flex">
-      <draggable
-        class="d-flex"
-        v-model="landBaseInfo.landBases"
-        :options="{ handle: '.land-base-title', animation: 150 }"
-        @end="dragEnd()"
-      >
+      <draggable class="d-flex" v-model="landBaseInfo.landBases" :options="{ handle: '.land-base-title', animation: 150 }" @end="dragEnd()">
         <land-base
           v-for="(landBase, index) in landBaseInfo.landBases"
           :key="index"
@@ -47,7 +42,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import draggable from 'vuedraggable';
-import Item from '@/classes/Item';
+import Item, { ItemBuilder } from '@/classes/Item';
 import Const from '@/classes/Const';
 import ItemMaster from '@/classes/ItemMaster';
 import LandBaseInfo from '@/classes/LandBaseInfo';
@@ -92,25 +87,21 @@ export default Vue.extend({
       const base = this.landBaseInfo.landBases.find((v) => v.no === no);
       if (base) {
         if (slot < base.items.length) {
-          this.$set(base.items, slot, new Item(item));
+          // インスタンス化用のいろいろ用意
+          let initialSlot = base.items[slot].slot ? base.items[slot].slot : 18;
+          let initialLevel = 0;
+
           if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
-            // 偵察機の場合4機
-            base.items[slot].max = 4;
-            base.items[slot].slot = 4;
-            base.items[slot].init = 4;
-          } else {
-            // それ以外は18機
-            base.items[slot].max = 18;
-            base.items[slot].init = 18;
-            if (!base.items[slot].slot) {
-              base.items[slot].slot = 18;
-            }
+            // 偵察機の場合、搭載数関係はすべて4機制限
+            initialSlot = 4;
           }
           if (Const.FIGHTERS.includes(item.apiTypeId)) {
             // 戦闘機系設置時は熟練度最大
-            base.items[slot].level = 120;
+            initialLevel = 120;
           }
 
+          const builder: ItemBuilder = { master: item, slot: initialSlot, level: initialLevel };
+          this.$set(base.items, slot, new Item(builder));
           this.itemListDialog = false;
         }
 

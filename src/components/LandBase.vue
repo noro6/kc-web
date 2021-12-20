@@ -8,7 +8,7 @@
       </div>
       <div class="mr-1 mt-1" :class="{ opacity6: landBase.mode === -1 }">
         <v-btn color="info" icon small>
-          <v-icon>mdi-information</v-icon>
+          <v-icon>mdi-information-outline</v-icon>
         </v-btn>
         <v-btn icon small @click="resetItems()">
           <v-icon>mdi-trash-can-outline</v-icon>
@@ -27,12 +27,16 @@
         </div>
       </div>
       <div>
+        {{ landBase.items.map(v => v.data.name) }}
         <item-input
           v-for="(item, index) in landBase.items"
           :key="index"
-          :item="item"
+          :item="landBase.items[index]"
           :index="index"
           :handle-show-item-list="showItemList"
+          :max="item.isRecon ? 4 : 18"
+          :init="item.isRecon ? 4 : 18"
+          @input="childForm($event)"
         />
       </div>
       <div class="mx-1 mt-3">
@@ -165,6 +169,7 @@ import Vue from 'vue';
 import ItemInput from './ItemInput.vue';
 import LandBase from '@/classes/LandBase';
 import Const from '@/classes/Const';
+import Item from '@/classes/Item';
 
 export default Vue.extend({
   components: { ItemInput },
@@ -225,8 +230,11 @@ export default Vue.extend({
     resetItems() {
       this.landBase.mode = Const.MODE_WAIT;
       for (let i = 0; i < this.landBase.items.length; i += 1) {
-        this.landBase.items[i].clear();
+        this.landBase.items[i] = new Item();
       }
+    },
+    childForm(value: Item) {
+      console.log(value);
     },
   },
 });

@@ -20,10 +20,10 @@
       </template>
       <v-card class="px-5 py-1">
         <div class="d-flex pl-1 pr-2">
-          <v-text-field class="slot-input" type="number" :max="item.max" min="0" v-model="item.slot"></v-text-field>
-          <v-btn depressed class="ml-2 align-self-center" @click="item.slot = item.init">初期値</v-btn>
+          <v-text-field class="slot-input" type="number" :max="max" min="0" v-model="item.slot"></v-text-field>
+          <v-btn depressed class="ml-2 align-self-center" @click="item.slot = init">初期値</v-btn>
         </div>
-        <v-slider :max="item.max" min="0" v-model="item.slot"></v-slider>
+        <v-slider :max="max" min="0" v-model="item.slot"></v-slider>
       </v-card>
     </v-menu>
     <!-- 装備種別 -->
@@ -44,7 +44,7 @@
       </template>
       <v-card>
         <div class="d-flex">
-          <div v-for="i in 11" :key="i" @click="item.remodel = i - 1" class="remodel-list-item">
+          <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" class="remodel-list-item">
             <v-icon small color="teal accent-4">mdi-star</v-icon>
             <span class="teal--text text--accent-4">{{ i - 1 }}</span>
           </div>
@@ -65,7 +65,7 @@
             <v-img :src="`/img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
             <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
           </div>
-          <div v-ripple="{ class: 'info--text' }" class="level-list-item" @click="item.level = 120">
+          <div v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(8)">
             <v-img :src="`/img/util/prof7.png`" width="18" height="24"></v-img>
             <span class="level-list-value">120</span>
           </div>
@@ -197,7 +197,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Item from '@/classes/Item';
+import Item, { ItemBuilder } from '@/classes/Item';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -217,13 +217,13 @@ export default Vue.extend({
     readonly: {
       type: Boolean,
     },
-  },
-  watch: {
-    item: {
-      handler() {
-        this.item.updateStatus();
-      },
-      deep: true,
+    max: {
+      type: Number,
+      required: true,
+    },
+    init: {
+      type: Number,
+      required: true,
     },
   },
   computed: {
@@ -254,11 +254,21 @@ export default Vue.extend({
     },
   },
   methods: {
+    setItem(value: Item) {
+      console.log('do Emit');
+
+      this.$emit('input', value);
+    },
     removeItem() {
-      this.item.clear();
+      this.setItem(new Item());
     },
     setLevel(value: number) {
-      this.item.level = [0, 10, 25, 40, 55, 70, 85, 100][value];
+      const builder: ItemBuilder = { item: this.item, level: [0, 10, 25, 40, 55, 70, 85, 100, 120][value] };
+      this.setItem(new Item(builder));
+    },
+    setRemodel(value: number) {
+      const builder: ItemBuilder = { item: this.item, remodel: value };
+      this.setItem(new Item(builder));
     },
     getLevelValue(value: number) {
       return [0, 10, 25, 40, 55, 70, 85, 100][value];
@@ -285,10 +295,10 @@ export default Vue.extend({
 
       if (detData) {
         // 交換
-        this.item.setItem(JSON.parse(detData) as Item);
+        this.setItem(new Item({ item: JSON.parse(detData) as Item }));
       } else {
         // 交換できないのでクリア
-        this.item.clear();
+        this.setItem(new Item());
       }
 
       // 消していたマウスイベントを復帰させる
@@ -319,9 +329,9 @@ export default Vue.extend({
       } else {
         (e.dataTransfer as DataTransfer).setData('text/plain', '');
       }
-      // ドロップされたデータで上書きす
+      // ドロップされたデータで上書きする
       if (droppedData) {
-        this.item.setItem(JSON.parse(droppedData) as Item);
+        this.setItem(new Item({ item: JSON.parse(droppedData) as Item }));
       }
       console.log((e.dataTransfer as DataTransfer).getData('text/plain'));
     },

@@ -1,3 +1,15 @@
+export interface Formation {
+  text: string;
+  value: number;
+  correction: number;
+}
+export interface AvoidType {
+  text: string;
+  value: number;
+  c1: number;
+  c2: number;
+}
+
 export default class Const {
   /**
    * 艦載機 or 陸上機
@@ -141,7 +153,7 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static FORMATIONS = [
+  public static FORMATIONS: Formation[] = [
     { text: '単縦陣', value: Const.LINE_AHEAD, correction: 1.0 },
     { text: '複縦陣', value: Const.DOUBLE_LINE, correction: 1.2 },
     { text: '輪形陣', value: Const.DIAMOND, correction: 1.6 },
@@ -192,12 +204,24 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static AVOID_TYPE = [
-    { value: 0, text: 'なし', adj: [1.0, 1.0] },
-    { value: 1, text: '弱', adj: [0.6, 1.0] },
-    { value: 2, text: '中', adj: [0.6, 0.7] },
-    { value: 3, text: '強', adj: [0.5, 0.7] },
-    { value: 4, text: '超', adj: [0.5, 0.5] },
-    { value: Const.MANUAL_AVOID, text: '任意', adj: [1.0, 1.0] },
+  public static AVOID_TYPE: AvoidType[] = [
+    {
+      value: 0, text: 'なし', c1: 1.0, c2: 1.0,
+    },
+    {
+      value: 1, text: '弱', c1: 0.6, c2: 1.0,
+    },
+    {
+      value: 2, text: '中', c1: 0.6, c2: 0.7,
+    },
+    {
+      value: 3, text: '強', c1: 0.5, c2: 0.7,
+    },
+    {
+      value: 4, text: '超', c1: 0.5, c2: 0.5,
+    },
+    {
+      value: Const.MANUAL_AVOID, text: '任意', c1: 1.0, c2: 1.0,
+    },
   ];
 }

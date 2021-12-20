@@ -2,25 +2,19 @@ import EnemyMaster from './EnemyMaster';
 import Item from './Item';
 
 export default class Enemy {
-  public data: EnemyMaster;
+  public readonly data: EnemyMaster;
 
-  public items: Item[] = [];
+  public readonly items: Item[];
 
-  /**
-   * 装備対空値合計
-   * @memberof Enemy
-   */
-  public sumItemAA = 0;
+  public readonly antiAirBonus: number;
 
-  /**
-   * 連合艦隊の随伴かどうか
-   * @memberof Enemy
-   */
-  public isEscort = false;
+  public readonly isEscort: boolean;
 
-  constructor(enemy = new EnemyMaster()) {
+  constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
-    this.isEscort = false;
+    this.items = items;
+    this.isEscort = isEscort;
+    this.antiAirBonus = this.getAntiAirBonus();
   }
 
   /**
@@ -33,9 +27,25 @@ export default class Enemy {
     let sum = 0;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
+      // 搭載数0と偵察機を除外
+      if (item.slot > 0 && !item.isRecon) {
+        sum += item.airPower;
+      }
+    }
+    return sum;
+  }
+
+  /**
+   * この敵艦の基地制空値を返却
+   * @readonly
+   * @type {number}
+   * @memberof Enemy
+   */
+  get landBaseairPower(): number {
+    let sum = 0;
+    for (let i = 0; i < this.items.length; i += 1) {
+      const item = this.items[i];
       if (item.slot > 0) {
-        const antiAir = item.actualAntiAir + item.bonusAntiAir;
-        item.airPower = Math.floor(antiAir * Math.sqrt(item.slot) + item.bonusAirPower);
         sum += item.airPower;
       }
     }
@@ -44,15 +54,14 @@ export default class Enemy {
 
   /**
    * この敵艦の艦隊防空ボーナスを返却
-   * @readonly
-   * @type {number}
+   * @private
    * @memberof Enemy
    */
-  get antiAirBonus(): number {
+  private getAntiAirBonus(): number {
     let sum = 0;
     for (let i = 0; i < this.items.length; i += 1) {
       sum += this.items[i].antiAirBonus;
     }
-    return sum;
+    return Math.floor(sum);
   }
 }
