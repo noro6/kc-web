@@ -4,34 +4,85 @@
     <v-divider></v-divider>
     <div class="mx-2 mt-1">
       <v-tabs v-model="tab">
-        <v-tab href="#fleet1">艦隊情報{{ fleet.isUnion ? "#1" : "" }}</v-tab>
-        <v-tab v-show="fleet.isUnion" href="#fleet2">艦隊情報#2</v-tab>
+        <v-tab href="#fleet">艦隊情報</v-tab>
         <v-tab href="#stage2">対空砲火</v-tab>
       </v-tabs>
     </div>
-    <v-divider></v-divider>
+    <v-divider class="mx-2"></v-divider>
     <div class="detail-body ma-2">
       <v-tabs-items v-model="tab">
-        <v-tab-item value="fleet1">
-          <div class="d-flex body-2 px-2">
-            <div class="text--secondary">総制空値:</div>
-            <div class="ml-1">{{ airPower }}</div>
-            <div class="ml-3 text--secondary">艦隊制空値:</div>
-            <div class="ml-1">{{ mainAirPower }}</div>
+        <v-tab-item value="fleet">
+          <div class="body-1 my-3">
+            <div class="d-flex air-power-info flex-wrap">
+              <div class="text--secondary label-text">制空値:</div>
+              <div class="value-text mr-3">{{ airPower }}</div>
+              <div>
+                <v-chip class="mr-1" color="green" label outlined>
+                  <span>確保:</span>
+                  <span class="v-chip-value">{{ airPowerBorders[0] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="light-green" label outlined>
+                  <span>優勢:</span>
+                  <span class="v-chip-value">{{ airPowerBorders[1] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="orange" label outlined>
+                  <span>拮抗:</span>
+                  <span class="v-chip-value">{{ airPowerBorders[2] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="deep-orange" label outlined>
+                  <span>劣勢:</span>
+                  <span class="v-chip-value">{{ airPowerBorders[3] }}</span>
+                </v-chip>
+              </div>
+            </div>
+            <div v-if="airPower !== landbaseAirPower" class="mt-1 d-flex air-power-info flex-wrap">
+              <div class="text--secondary label-text">基地制空値:</div>
+              <div class="value-text mr-3">{{ landbaseAirPower }}</div>
+              <div>
+                <v-chip class="mr-1" color="green" label outlined>
+                  <span>確保:</span>
+                  <span class="v-chip-value">{{ landbaseAirPowerBorders[0] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="light-green" label outlined>
+                  <span>優勢:</span>
+                  <span class="v-chip-value">{{ landbaseAirPowerBorders[1] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="orange" label outlined>
+                  <span>拮抗:</span>
+                  <span class="v-chip-value">{{ landbaseAirPowerBorders[2] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="deep-orange" label outlined>
+                  <span>劣勢:</span>
+                  <span class="v-chip-value">{{ landbaseAirPowerBorders[3] }}</span>
+                </v-chip>
+              </div>
+            </div>
           </div>
-          <div class="d-flex flex-wrap">
-            <enemy-input v-for="(enemy, i) in enemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+          <v-divider></v-divider>
+          <div class="mt-3 mb-5">
+            <div v-if="fleet.isUnion" class="px-2 primary--text">第1艦隊</div>
+            <div v-if="fleet.isUnion" class="px-2 my-1 d-flex body-2">
+              <div class="text--secondary">制空:</div>
+              <div class="ml-1">{{ mainAirPower }}</div>
+              <div class="ml-4 text--secondary">基地制空:</div>
+              <div class="ml-1">{{ mainLBAirPower }}</div>
+            </div>
+            <div class="enemy-inputs-container">
+              <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+            </div>
           </div>
-        </v-tab-item>
-        <v-tab-item value="fleet2">
-          <div class="d-flex body-2 px-2">
-            <span class="text--secondary">総制空値:</span>
-            <span class="ml-1">{{ airPower }}</span>
-            <div class="ml-3 text--secondary">艦隊制空値:</div>
-            <div class="ml-1">{{ escortAirPower }}</div>
-          </div>
-          <div class="d-flex flex-wrap">
-            <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+          <v-divider v-if="fleet.isUnion"></v-divider>
+          <div v-if="fleet.isUnion" class="my-3">
+            <div class="px-2 success--text">第2艦隊</div>
+            <div class="px-2 my-1 d-flex body-2">
+              <div class="text--secondary">制空:</div>
+              <div class="ml-1">{{ escortAirPower }}</div>
+              <div class="ml-4 text--secondary">基地制空値:</div>
+              <div class="ml-1">{{ escortLBAirPower }}</div>
+            </div>
+            <div class="enemy-inputs-container">
+              <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+            </div>
           </div>
         </v-tab-item>
         <v-tab-item value="stage2">
@@ -103,37 +154,37 @@
                 ></v-text-field>
               </div>
             </div>
-            <div class="mt-2 mb-1">
-              <span class="body-2 mr-2">艦隊防空値:</span>
+            <div class="mt-3 mb-2">
+              <span class="text--secondary mr-2">艦隊防空値:</span>
               <span>{{ fleetAntiAir }}</span>
             </div>
-            <v-card outlined elevation="2">
-              <div class="stage2-row header px-1 px-md-2">
-                <div class="flex-grow-1">敵艦</div>
-                <div class="stage2-col">割合撃墜</div>
-                <div class="stage2-col">割合撃墜</div>
-                <div class="stage2-col">両成功</div>
-              </div>
-              <div
-                v-for="(item, i) in stage2Data"
-                :key="i"
-                class="stage2-row px-1 px-md-2"
-                :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum > attackerSlot }"
-              >
-                <div class="d-flex flex-grow-1">
-                  <div class="align-self-center mr-2">
-                    <v-img :src="`/img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
-                  </div>
-                  <div class="align-self-center d-none d-md-block">
-                    <div class="stage2-id primary--text">id:{{ item.id }}</div>
+            <div class="stage2-row header px-1 px-md-2">
+              <div class="flex-grow-1">敵艦</div>
+              <div class="stage2-col">割合撃墜</div>
+              <div class="stage2-col">割合撃墜</div>
+              <div class="stage2-col">両成功</div>
+            </div>
+            <div
+              v-for="(item, i) in stage2Data"
+              :key="i"
+              class="stage2-row px-1 px-md-2"
+              :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum > attackerSlot }"
+            >
+              <div class="d-flex flex-grow-1">
+                <div class="align-self-center mr-2">
+                  <v-img :src="`/img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
+                </div>
+                <div class="align-self-center d-none d-sm-block flex-grow-1">
+                  <div class="stage2-id primary--text">id:{{ item.id }}</div>
+                  <div class="d-flex">
                     <div class="stage2-name text-truncate">{{ item.name }}</div>
                   </div>
                 </div>
-                <div class="stage2-col">{{ item.rate }}({{ item.rateDown }}機)</div>
-                <div class="stage2-col">{{ item.fix }}</div>
-                <div class="stage2-col">{{ item.sum }}</div>
               </div>
-            </v-card>
+              <div class="stage2-col">{{ item.rate }}({{ item.rateDown }}機)</div>
+              <div class="stage2-col">{{ item.fix }}</div>
+              <div class="stage2-col">{{ item.sum }}</div>
+            </div>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -147,12 +198,38 @@
 }
 .detail-body {
   overflow-y: auto;
-  height: 64vh;
+  /* height: 65vh; */
+}
+.air-power-info > * {
+  align-self: center;
+}
+.air-power-info .label-text {
+  width: 96px;
+}
+.air-power-info .value-text {
+  width: 40px;
+  text-align: right;
+}
+
+.enemy-inputs-container {
+  grid-template-columns: 1fr;
+  display: grid;
+}
+@media (min-width: 660px) {
+  .enemy-inputs-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1060px) {
+  .enemy-inputs-container {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 .form-control {
   width: 136px;
   align-self: center;
+  margin-top: 0.5rem;
   margin-right: 0.25rem;
 }
 
@@ -161,12 +238,12 @@
   padding-top: 0.15rem;
   padding-bottom: 0.15rem;
   transition: 0.1s;
-  border-top: 1px solid rgba(128, 128, 128, 0.4);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 }
 .header.stage2-row {
-  border-top: none;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
   background-color: rgba(128, 128, 128, 0.05);
-  font-size: 0.75em;
+  font-size: 12px !important;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -178,15 +255,19 @@
 }
 .stage2-col {
   width: 20%;
-  font-size: 0.9em;
   text-align: right;
+}
+.stage2-row:not(.header) .stage2-col {
+  font-size: 0.9em;
 }
 .stage2-id {
   font-size: 11px;
-  height: 12px;
+  height: 14px;
 }
 .stage2-name {
+  flex-grow: 1;
   font-size: 12px;
+  width: 10px;
 }
 .stage2-row.warn {
   background-color: rgba(255, 255, 10, 0.1);
@@ -258,7 +339,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    tab: 'fleet1',
+    tab: 'fleet',
     formations: Const.FORMATIONS,
     formation: 1,
     avoids: Const.AVOID_TYPE,
@@ -269,8 +350,15 @@ export default Vue.extend({
     fleetAntiAir: 0,
     stage2Data: [] as Stage2Row[],
   }),
+  mounted() {
+    this.formation = this.fleet.formation;
+    this.updateTable();
+  },
   computed: {
     enemies() {
+      return this.fleet.enemies.filter((v) => v.data.id > 0);
+    },
+    mainEnemies() {
       return this.fleet.enemies.filter((v) => v.data.id > 0 && !v.isEscort);
     },
     escorts() {
@@ -279,11 +367,34 @@ export default Vue.extend({
     airPower() {
       return this.fleet.airPower;
     },
+    airPowerBorders() {
+      const ap = this.fleet.airPower;
+      if (ap) {
+        return [ap * 3, Math.ceil(ap * 1.5), Math.floor(ap / 1.5) + 1, Math.floor(ap / 3) + 1];
+      }
+      return [0, 0, 0, 0];
+    },
+    landbaseAirPowerBorders() {
+      const ap = this.fleet.landBaseAirPower;
+      if (ap) {
+        return [ap * 3, Math.ceil(ap * 1.5), Math.floor(ap / 1.5) + 1, Math.floor(ap / 3) + 1];
+      }
+      return [0, 0, 0, 0];
+    },
     mainAirPower() {
       return this.fleet.mainAirPower;
     },
     escortAirPower() {
       return this.fleet.escortAirPower;
+    },
+    landbaseAirPower() {
+      return this.fleet.landBaseAirPower;
+    },
+    mainLBAirPower() {
+      return this.fleet.mainLBAirPower;
+    },
+    escortLBAirPower() {
+      return this.fleet.escortLBAirPower;
     },
     isManual() {
       return this.avoid === Const.MANUAL_AVOID;
@@ -316,9 +427,8 @@ export default Vue.extend({
       const stage2 = this.fleet.getStage2(formation, manualAvoid);
       const d = stage2[stage2.length - 1];
       this.stage2Data = [];
-      const enemies = this.fleet.enemies.concat();
-      for (let i = 0; i < enemies.length; i += 1) {
-        const enemy = enemies[i];
+      for (let i = 0; i < this.enemies.length; i += 1) {
+        const enemy = this.enemies[i];
         const rate = d.rateDownList[i];
         const rateDown = Math.floor(this.attackerSlot * rate);
         const fix = d.fixDownList[i];

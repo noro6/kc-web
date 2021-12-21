@@ -2,66 +2,53 @@ import EnemyMaster from './EnemyMaster';
 import Item from './Item';
 
 export default class Enemy {
+  /** 敵マスタ情報 */
   public readonly data: EnemyMaster;
 
+  /** 装備一覧 */
   public readonly items: Item[];
 
+  /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
+  /** 随伴艦フラグ */
   public readonly isEscort: boolean;
+
+  /** 制空値(搭載数満タン) */
+  public readonly fullAirPower: number;
+
+  /** 制空値【対基地】(搭載数満タン) */
+  public readonly fullLBAirPower: number;
+
+  /** 制空値【対基地】(搭載数満タン) */
+  public readonly sumItemAccuracy: number;
 
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
     this.items = items;
     this.isEscort = isEscort;
-    this.antiAirBonus = this.getAntiAirBonus();
-  }
 
-  /**
-   * この敵艦の制空値を返却
-   * @readonly
-   * @type {number}
-   * @memberof Enemy
-   */
-  get airPower(): number {
-    let sum = 0;
+    this.sumItemAccuracy = 0;
+    this.fullLBAirPower = 0;
+    this.fullAirPower = 0;
+    this.antiAirBonus = 0;
+    // 計算により算出するステータス
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
-      // 搭載数0と偵察機を除外
-      if (item.slot > 0 && !item.isRecon) {
-        sum += item.airPower;
-      }
-    }
-    return sum;
-  }
-
-  /**
-   * この敵艦の基地制空値を返却
-   * @readonly
-   * @type {number}
-   * @memberof Enemy
-   */
-  get landBaseairPower(): number {
-    let sum = 0;
-    for (let i = 0; i < this.items.length; i += 1) {
-      const item = this.items[i];
+      // 装備命中
+      this.sumItemAccuracy += item.data.accuracy;
+      // 装備防空ボーナス
+      this.antiAirBonus += item.antiAirBonus;
       if (item.slot > 0) {
-        sum += item.airPower;
+        // 基地制空値
+        this.fullLBAirPower += item.airPower;
+        if (!item.isRecon) {
+          // 通常制空値
+          this.fullAirPower += item.airPower;
+        }
       }
     }
-    return sum;
-  }
 
-  /**
-   * この敵艦の艦隊防空ボーナスを返却
-   * @private
-   * @memberof Enemy
-   */
-  private getAntiAirBonus(): number {
-    let sum = 0;
-    for (let i = 0; i < this.items.length; i += 1) {
-      sum += this.items[i].antiAirBonus;
-    }
-    return Math.floor(sum);
+    this.antiAirBonus = Math.floor(this.antiAirBonus);
   }
 }

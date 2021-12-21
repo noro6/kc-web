@@ -8,19 +8,45 @@
       </div>
       <v-spacer></v-spacer>
     </div>
-    <div class="d-flex">
-      <draggable class="d-flex" v-model="landBaseInfo.landBases" :options="{ handle: '.land-base-title', animation: 150 }" @end="dragEnd()">
-        <land-base
-          v-for="(landBase, index) in landBaseInfo.landBases"
-          :key="index"
-          :land-base="landBase"
-          :handle-show-item-list="showItemList"
-        />
-      </draggable>
-      <v-dialog v-model="itemListDialog" width="1200">
-        <item-list ref="itemList" :handle-equip-item="equipItem" />
-      </v-dialog>
-    </div>
+    <v-tabs class="small-landbases" v-model="tab" vertical>
+      <v-tab href="#base1">
+        <div class="land-base-tab-text d-none d-sm-block">第1基地航空隊</div>
+        <div class="land-base-tab-text d-sm-none">第1航空隊</div>
+      </v-tab>
+      <v-tab href="#base2">
+        <div class="land-base-tab-text d-none d-sm-block">第2基地航空隊</div>
+        <div class="land-base-tab-text d-sm-none">第2航空隊</div>
+      </v-tab>
+      <v-tab href="#base3">
+        <div class="land-base-tab-text d-none d-sm-block">第3基地航空隊</div>
+        <div class="land-base-tab-text d-sm-none">第3航空隊</div>
+      </v-tab>
+      <v-tab-item value="base1" class="py-1">
+        <land-base :land-base="landBaseInfo.landBases[0]" :handle-show-item-list="showItemList"></land-base>
+      </v-tab-item>
+      <v-tab-item value="base2" class="py-1">
+        <land-base :land-base="landBaseInfo.landBases[1]" :handle-show-item-list="showItemList"></land-base>
+      </v-tab-item>
+      <v-tab-item value="base3" class="py-1">
+        <land-base :land-base="landBaseInfo.landBases[2]" :handle-show-item-list="showItemList"></land-base>
+      </v-tab-item>
+    </v-tabs>
+    <draggable
+      class="normal-landbases"
+      v-model="landBaseInfo.landBases"
+      :options="{ handle: '.land-base-title', animation: 150 }"
+      @end="dragEnd()"
+    >
+      <land-base
+        v-for="(landBase, index) in landBaseInfo.landBases"
+        :key="index"
+        :land-base="landBase"
+        :handle-show-item-list="showItemList"
+      />
+    </draggable>
+    <v-dialog v-model="itemListDialog" width="1200">
+      <item-list ref="itemList" :handle-equip-item="equipItem" />
+    </v-dialog>
   </v-card>
 </template>
 
@@ -28,14 +54,47 @@
 .theme--dark.v-card {
   background-color: rgb(25, 25, 28);
 }
-.land-base-all {
-  display: inline-block;
-}
 .switch-defense .v-label {
   font-size: 1em;
 }
 .v-input--selection-controls {
   margin: 0.6rem 0.5rem;
+}
+
+.normal-landbases {
+  display: none;
+}
+.small-landbases {
+  display: flex;
+}
+@media (min-width: 960px) {
+  .small-landbases {
+    display: none;
+  }
+  .normal-landbases {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 600px) {
+  .v-tabs--vertical > .v-tabs-bar .v-tab {
+    width: 150px;
+  }
+}
+@media (min-width: 660px) {
+  .v-tabs--vertical > .v-tabs-bar .v-tab {
+    width: 225px;
+  }
+}
+@media (min-width: 720px) {
+  .v-tabs--vertical > .v-tabs-bar .v-tab {
+    width: 300px;
+  }
+}
+@media (min-width: 780px) {
+  .v-tabs--vertical > .v-tabs-bar .v-tab {
+    width: 375px;
+  }
 }
 </style>
 
@@ -61,6 +120,7 @@ export default Vue.extend({
     itemListDialog: false,
     isDefenseMode: false,
     dialogTarget: [-1, -1],
+    tab: 0,
   }),
   mounted() {
     const info = this.landBaseInfo;

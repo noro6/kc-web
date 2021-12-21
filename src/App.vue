@@ -102,7 +102,7 @@
     <v-dialog v-model="loading" persistent width="300">
       <v-card dark>
         <v-card-text>
-          マスターデータ読込中...
+          <div class="pt-2">マスターデータ読込中...</div>
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
@@ -119,6 +119,12 @@
 }
 .v-input--dense .v-select__selection {
   font-size: 0.85em;
+}
+.v-card .theme--dark.v-tabs > .v-tabs-bar {
+  background-color: rgb(25, 25, 28);
+}
+.v-dialog .theme--dark.v-tabs > .v-tabs-bar {
+  background-color: #1E1E1E;
 }
 </style>
 

@@ -5,34 +5,41 @@
         <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
       </div>
       <div class="flex-grow-1">
-        <div class="d-flex caption">
+        <div class="d-flex caption flex-wrap">
           <div class="enemy-id ml-2 primary--text">id:{{ enemy.data.id }}</div>
           <div class="ml-2">
             <span class="text--secondary">耐久:</span>
             <span class="ml-1 font-weight-medium">{{ enemy.data.hp }}</span>
-          </div>
-          <div class="ml-2">
-            <span class="text--secondary">装甲:</span>
+            <span class="ml-2 text--secondary">装甲:</span>
             <span class="ml-1 font-weight-medium">{{ enemy.data.armor }}</span>
           </div>
         </div>
-        <div class="enemy-name ml-2 text-truncate">
-          {{ enemy.data.name }}
+        <div class="d-flex">
+          <div class="enemy-name ml-2 text-truncate">{{ enemy.data.name }}</div>
         </div>
       </div>
     </div>
-    <div class="d-flex caption px-2">
-      <div>
+    <div class="d-flex caption px-1 flex-wrap">
+      <div v-if="enemy.fullAirPower > 0">
         <span class="text--secondary">制空:</span>
-        <span class="ml-1 font-weight-medium">{{ enemy.airPower }}</span>
+        <span class="ml-1 font-weight-medium">{{ enemy.fullAirPower }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail() }}</span>
       </div>
-      <div class="ml-1 text--secondary">{{ airPowerDetail() }}</div>
+      <div v-if="enemy.fullLBAirPower && enemy.fullLBAirPower !== enemy.fullAirPower">
+        <span class="text--secondary">基地制空:</span>
+        <span class="ml-1 font-weight-medium">{{ enemy.fullLBAirPower }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail() }}</span>
+      </div>
+    </div>
+    <div class="d-flex caption px-1">
+      <span class="text--secondary">装備命中:</span>
+      <span class="ml-1 font-weight-medium">{{ enemy.sumItemAccuracy }}</span>
     </div>
     <div>
       <item-input
         v-for="(item, j) in enemy.items"
         :key="j"
-        :item="item"
+        v-model="enemy.items[j]"
         :index="j"
         :max="999"
         :init="999"
@@ -45,7 +52,8 @@
 
 <style scoped>
 .enemy-name {
-  width: 191px;
+  flex-grow: 1;
+  width: 100px;
   font-size: 0.8em;
 }
 </style>

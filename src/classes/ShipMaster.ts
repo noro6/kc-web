@@ -11,15 +11,7 @@ export default class ShipMaster {
 
   public slotCount = 0;
 
-  public slot1 = 0;
-
-  public slot2 = 0;
-
-  public slot3 = 0;
-
-  public slot4 = 0;
-
-  public slot5 = 0;
+  public slots: number[];
 
   public version = 0;
 
@@ -72,11 +64,6 @@ export default class ShipMaster {
     this.type = row[3] ? +row[3] : 0;
     this.type2 = row[4] ? +row[4] : 0;
     this.slotCount = row[5] ? +row[5] : 0;
-    this.slot1 = row[6] ? +row[6] : 0;
-    this.slot2 = row[7] ? +row[7] : 0;
-    this.slot3 = row[8] ? +row[8] : 0;
-    this.slot4 = row[9] ? +row[9] : 0;
-    this.slot5 = row[10] ? +row[10] : 0;
     this.version = row[11] ? +row[11] : 0;
     this.isFinal = !!row[12];
     this.originalId = row[13] ? +row[13] : 0;
@@ -96,5 +83,12 @@ export default class ShipMaster {
     this.maxAsw = row[27] ? +row[27] : 0;
     this.minAvoid = row[28] ? +row[28] : 0;
     this.maxAvoid = row[29] ? +row[29] : 0;
+
+    const slot1 = row[6] ? +row[6] : 0;
+    const slot2 = row[7] ? +row[7] : 0;
+    const slot3 = row[8] ? +row[8] : 0;
+    const slot4 = row[9] ? +row[9] : 0;
+    const slot5 = row[10] ? +row[10] : 0;
+    this.slots = [slot1, slot2, slot3, slot4, slot5];
   }
 }

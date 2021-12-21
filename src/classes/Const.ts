@@ -224,4 +224,7 @@ export default class Const {
       value: Const.MANUAL_AVOID, text: '任意', c1: 1.0, c2: 1.0,
     },
   ];
+
+  /** 補強増設を識別するindex */
+  public static EXPAND_SLOT_INDEX = 99;
 }

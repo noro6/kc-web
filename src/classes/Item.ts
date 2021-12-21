@@ -58,11 +58,17 @@ export default class Item {
 
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
-      // ItemBuilderより生成
+      // ItemBuilderより生成 Itemインスタンスを引継ぎ
       this.data = builder.master ? builder.master : builder.item.data;
-      this.slot = builder.slot ? builder.slot : builder.item.slot;
-      this.remodel = builder.remodel ? builder.remodel : builder.item.remodel;
-      this.level = builder.level ? builder.level : builder.item.level;
+      this.slot = builder.slot !== undefined ? builder.slot : builder.item.slot;
+      this.remodel = builder.remodel !== undefined ? builder.remodel : builder.item.remodel;
+      this.level = builder.level !== undefined ? builder.level : builder.item.level;
+    } else if (builder.master) {
+      // ItemBuilderより生成 Itemマスタ情報を引継ぎ
+      this.data = builder.master ? builder.master : builder.master;
+      this.slot = builder.slot !== undefined ? builder.slot : 0;
+      this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
+      this.level = builder.level !== undefined ? builder.level : 0;
     } else {
       this.data = new ItemMaster();
       this.slot = 0;
@@ -85,8 +91,13 @@ export default class Item {
     this.actualDefenseAntiAir = this.data.antiAir + 2 * this.data.antiBomer + this.bonusAntiAir;
 
     // 制空値更新
-    this.airPower = Math.floor(this.actualAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
-    this.defenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
+    if (Const.PLANE_TYPES.includes(this.data.apiTypeId)) {
+      this.airPower = Math.floor(this.actualAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
+      this.defenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.slot) + this.bonusAirPower);
+    } else {
+      this.airPower = 0;
+      this.defenseAirPower = 0;
+    }
   }
 
   /**

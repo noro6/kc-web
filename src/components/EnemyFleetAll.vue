@@ -14,14 +14,14 @@
       </div>
     </div>
     <div class="d-flex flex-wrap">
-      <enemy-fleet
+      <enemy-fleet-component
         v-for="(i, index) in battleInfo.battleCount"
         :key="i"
+        v-model="battleInfo.fleets[index]"
         :index="index"
-        :fleet="battleInfo.fleets[index]"
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
-      ></enemy-fleet>
+      ></enemy-fleet-component>
     </div>
     <v-dialog v-model="enemyListDialog" width="1200">
       <enemy-list :handle-decide-enemy="putEnemy" />
@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import EnemyFleet from '@/components/EnemyFleet.vue';
+import EnemyFleetComponent from '@/components/EnemyFleet.vue';
 import EnemyList from '@/components/EnemyList.vue';
 import ItemList from '@/components/ItemList.vue';
 import EnemyMaster from '@/classes/EnemyMaster';
@@ -52,13 +52,14 @@ import ItemMaster from '@/classes/ItemMaster';
 import Const from '@/classes/Const';
 import Enemy from '@/classes/Enemy';
 import Item, { ItemBuilder } from '@/classes/Item';
+import EnemyFleet, { EnemyFleetBuilder } from '@/classes/EnemyFleet';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default Vue.extend({
   name: 'EnemyFleetAll',
   components: {
-    EnemyFleet,
+    EnemyFleetComponent,
     EnemyList,
     ItemList,
   },
@@ -82,26 +83,31 @@ export default Vue.extend({
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
-      const battle = this.dialogTarget[0];
+      const fleetIndex = this.dialogTarget[0];
       const index = this.dialogTarget[1];
-
-      // 6隻目以降なら連合随伴として
-      const isEscort = this.battleInfo.fleets[battle].isUnion && index >= 6;
-      const newEnemy = new Enemy(enemy, [], isEscort);
+      const fleet = this.battleInfo.fleets[fleetIndex];
 
       // 装備マスタより装備を解決
       const allItems = this.$store.state.items as ItemMaster[];
-      for (let i = 0; i < newEnemy.data.slotCount; i += 1) {
-        const item = allItems.find((v) => v.id === newEnemy.data.items[i]);
+      const items: Item[] = [];
+      for (let i = 0; i < enemy.slotCount; i += 1) {
+        const item = allItems.find((v) => v.id === enemy.items[i]);
         if (item) {
-          const builder: ItemBuilder = { master: item, slot: newEnemy.data.slots[i] > 0 ? newEnemy.data.slots[i] : 0 };
+          const slot = enemy.slots[i] > 0 ? enemy.slots[i] : 0;
+          const builder: ItemBuilder = { master: item, slot };
           // 装備をセット
-          newEnemy.items.push(new Item(builder));
+          items.push(new Item(builder));
         } else {
-          newEnemy.items.push(new Item());
+          items.push(new Item());
         }
       }
-      this.$set(this.battleInfo.fleets[battle].enemies, index, newEnemy);
+      // 6隻目以降なら連合随伴とする
+      const isEscort = fleet.isUnion && index >= 6;
+      const enemies = fleet.enemies.concat();
+      enemies[index] = new Enemy(enemy, items, isEscort);
+      const builder: EnemyFleetBuilder = { fleet, enemies };
+      // 敵編成が更新されたため、敵艦隊を再インスタンス化し更新
+      this.$set(this.battleInfo.fleets, fleetIndex, new EnemyFleet(builder));
     },
     equipItem(item: ItemMaster) {
       console.log(item);

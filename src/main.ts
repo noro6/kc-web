@@ -13,7 +13,7 @@ new Vue({
   render: (h) => h(App),
   created() {
     this.$store.dispatch('loadData').then(() => {
-      console.log('data initialized');
+      console.log('loading...');
     });
   },
 }).$mount('#app');

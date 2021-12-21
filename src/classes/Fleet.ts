@@ -1,19 +1,15 @@
-import Enemy from './Enemy';
+import Ship from './Ship';
 import Const, { AvoidType, Formation } from './Const';
 
-export interface EnemyFleetBuilder {
+export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
-  fleet?: EnemyFleet | undefined;
+  fleet?: Fleet | undefined;
   /** 敵一覧 未指定ならfleetの敵一覧で作成 */
-  enemies?: Enemy[];
+  ships?: Ship[];
   /** 陣形 未指定ならfleetの陣形で作成 */
   formation?: number;
-  /** 戦闘形式 未指定ならfleetの戦闘形式で作成 */
-  cellType?: number;
   /** 連合フラグ 未指定ならfleetの連合フラグで作成 */
   isUnion?: boolean;
-  /** 半径 未指定ならfleetの半径で作成 */
-  range?: number;
 }
 
 interface Stage2Table {
@@ -21,40 +17,37 @@ interface Stage2Table {
   fixDownList: number[];
 }
 
-export default class EnemyFleet {
-  public readonly enemies: Enemy[];
+export default class Fleet {
+  /** この艦隊を構成する艦娘一覧 */
+  public readonly ships: Ship[];
 
+  /** 陣形 */
   public readonly formation: number;
 
-  public readonly cellType: number;
-
+  /** 連合艦隊フラグ */
   public readonly isUnion: boolean;
 
-  public readonly range: number;
-
+  /** 連合艦隊フラグ */
   public readonly isAllSubmarine: boolean;
 
+  /** 艦隊防空値 */
   public readonly fleetAntiAir: number;
 
-  constructor(builder: EnemyFleetBuilder = {}) {
+  constructor(builder: FleetBuilder = {}) {
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ
-      this.enemies = builder.enemies ? builder.enemies.concat() : builder.fleet.enemies.concat();
+      this.ships = builder.ships ? builder.ships.concat() : builder.fleet.ships.concat();
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
-      this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.fleet.isUnion;
-      this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
     } else {
-      this.enemies = builder.enemies ? builder.enemies.concat() : [];
+      this.ships = builder.ships ? builder.ships.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
-      this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
-      this.range = builder.range !== undefined ? builder.range : 0;
 
-      if (this.enemies.length === 0) {
+      if (this.ships.length === 0) {
         // 0隻だった場合は6隻で初期化してやる
         for (let i = 0; i < 6; i += 1) {
-          this.enemies.push(new Enemy());
+          this.ships.push(new Ship());
         }
       }
     }
@@ -69,90 +62,24 @@ export default class EnemyFleet {
    * この艦隊総制空値を返却 搭載数減衰なし
    * @readonly
    * @type {number}
-   * @memberof EnemyFleet
+   * @memberof Fleet
    */
   get airPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies);
+    return Fleet.getSumAirPower(this.ships);
   }
 
   /**
-   * この艦隊の主力艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get mainAirPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies.filter((v) => !v.isEscort));
-  }
-
-  /**
-   * この艦隊の随伴艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get escortAirPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies.filter((v) => v.isEscort));
-  }
-
-  /**
-   * この艦隊総制空値【対基地】を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get landBaseAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies);
-  }
-
-  /**
-   * この艦隊の主力艦制空値【対基地】を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get mainLBAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies.filter((v) => !v.isEscort));
-  }
-
-  /**
-   * この艦隊の随伴艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get escortLBAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies.filter((v) => v.isEscort));
-  }
-
-  /**
-   * Enemy配列から総制空値を合計するだけのメソッド
+   * Ship配列から制空値を合計するだけのメソッド
    * @private
    * @static
-   * @param {Enemy[]} enemies
+   * @param {Ship[]} ships
    * @returns {number} 制空値合計
-   * @memberof EnemyFleet
+   * @memberof Fleet
    */
-  private static getSumAirPower(enemies: Enemy[]): number {
+  private static getSumAirPower(ships: Ship[]): number {
     let sum = 0;
-    for (let i = 0; i < enemies.length; i += 1) {
-      sum += enemies[i].fullAirPower;
-    }
-    return sum;
-  }
-
-  /**
-   * Enemy配列から総制空値【対基地】を合計するだけのメソッド
-   * @private
-   * @static
-   * @param {Enemy[]} enemies
-   * @returns {number} 制空値【対基地】合計
-   * @memberof EnemyFleet
-   */
-  private static getSumLBAirPower(enemies: Enemy[]): number {
-    let sum = 0;
-    for (let i = 0; i < enemies.length; i += 1) {
-      sum += enemies[i].fullLBAirPower;
+    for (let i = 0; i < ships.length; i += 1) {
+      sum += ships[i].fullAirPower;
     }
     return sum;
   }
@@ -162,14 +89,14 @@ export default class EnemyFleet {
    * @param {Formation} [formation] 陣形 なければ単縦と一緒
    * @param {AvoidType} [avoid] 回避補正
    * @returns {number} 艦隊防空値
-   * @memberof EnemyFleet
+   * @memberof Fleet
    */
   public getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
     // 各艦の艦隊対空ボーナス合計
     let sumAntiAirBonus = 0;
-    const enemyCount = this.enemies.length;
+    const enemyCount = this.ships.length;
     for (let i = 0; i < enemyCount; i += 1) {
-      sumAntiAirBonus += this.enemies[i].antiAirBonus;
+      sumAntiAirBonus += this.ships[i].antiAirBonus;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
 
@@ -186,15 +113,15 @@ export default class EnemyFleet {
   }
 
   /**
-   * stage2撃墜数テーブルを返却 -敵側式
+   * stage2撃墜数テーブルを返却 -味方側式
    * @param {Formation} [formation] 陣形 未指定で単縦
    * @param {AvoidType} [avoid] 射撃回避 未指定で通常
    * @return {*}  {Stage2Table[]} 各回避補正毎のstage2情報
-   * @memberof EnemyFleet
+   * @memberof Fleet
    */
   public getStage2(formation?: Formation, avoid?: AvoidType): Stage2Table[] {
     const stage2: Stage2Table[] = [];
-    const enemyCount = this.enemies.length;
+    const enemyCount = this.ships.length;
     if (enemyCount === 0) {
       return stage2;
     }
@@ -207,7 +134,7 @@ export default class EnemyFleet {
     // 艦隊防空ボーナス合計
     let sumAntiAirBonus = 0;
     for (let i = 0; i < enemyCount; i += 1) {
-      sumAntiAirBonus += this.enemies[i].antiAirBonus;
+      sumAntiAirBonus += this.ships[i].antiAirBonus;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
 
@@ -215,7 +142,7 @@ export default class EnemyFleet {
     const fleetAntiAir = Math.floor(sumAntiAirBonus * aj1);
 
     for (let i = 0; i < enemyCount; i += 1) {
-      const enm = this.enemies[i];
+      const enm = this.ships[i];
       if (enm.data.id === 0) continue;
 
       const isEscort = this.isUnion && i >= 6;
@@ -271,8 +198,8 @@ export default class EnemyFleet {
 
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
-        // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 敵補正(0.75) * 連合補正)
-        stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * 0.75 * unionFactor));
+        // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 自軍補正(0.8) * 連合補正)
+        stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * 0.8 * unionFactor));
       }
     }
 

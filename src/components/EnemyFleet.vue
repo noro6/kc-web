@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="2" class="mx-1 py-2">
+  <v-card elevation="2" class="ma-1 py-2">
     <div class="d-flex">
       <div class="ml-2 align-self-center">{{ index + 1 }}戦目</div>
       <v-spacer></v-spacer>
@@ -17,10 +17,10 @@
     </div>
     <div class="d-flex mb-1 justify-space-between mx-2">
       <div class="cell-type-select">
-        <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCellType()"></v-select>
+        <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()"></v-select>
       </div>
       <div class="formation-select">
-        <v-select dense v-model="fleet.formation" hide-details :items="formations"></v-select>
+        <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()"></v-select>
       </div>
     </div>
     <div class="d-flex mx-2">
@@ -58,11 +58,11 @@
           {{ enemy.data.name ? enemy.data.name : "敵艦選択" }}
         </div>
         <div class="mx-1 caption text--secondary">制空:</div>
-        <div class="body-2 enemy-air-power">{{ enemy.airPower }}</div>
+        <div class="body-2 enemy-air-power">{{ enemy.fullAirPower }}</div>
       </div>
     </div>
-    <v-dialog v-model="enemyDetailDialog" width="1100">
-      <enemy-detail ref="enemyDetail" :handle-show-item-list="showItemList" :fleet="fleet" />
+    <v-dialog width="1100" v-model="detailDialog" @input="toggleDetailDialog">
+      <enemy-detail v-if="!destroyDialog" ref="enemyDetail" :handle-show-item-list="showItemList" :fleet="fleet" />
     </v-dialog>
   </v-card>
 </template>
@@ -121,7 +121,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Const from '@/classes/Const';
-import EnemyFleet from '@/classes/EnemyFleet';
+import EnemyFleet, { EnemyFleetBuilder } from '@/classes/EnemyFleet';
 import EnemyDetail from '@/components/EnemyDetail.vue';
 import Enemy from '@/classes/Enemy';
 
@@ -131,7 +131,7 @@ export default Vue.extend({
     EnemyDetail,
   },
   props: {
-    fleet: {
+    value: {
       type: EnemyFleet,
       required: true,
     },
@@ -151,11 +151,15 @@ export default Vue.extend({
   data: () => ({
     formations: Const.FORMATIONS,
     cellTypes: Const.CELL_TYPES,
-    enemyDetailDialog: false,
+    detailDialog: false,
+    destroyDialog: false,
   }),
   computed: {
+    fleet(): EnemyFleet {
+      return this.value;
+    },
     airPower() {
-      return this.fleet.airPower;
+      return this.value.airPower;
     },
   },
   methods: {
@@ -166,26 +170,40 @@ export default Vue.extend({
       this.handleShowEnemyList(this.index, index);
     },
     async clickedInfo() {
-      await (this.enemyDetailDialog = true);
-      const enemyDetail = this.$refs.enemyDetail as InstanceType<typeof EnemyDetail>;
-      enemyDetail.formation = this.fleet.formation;
-      enemyDetail.updateTable();
+      this.detailDialog = true;
+      this.destroyDialog = false;
+    },
+    setFleet(fleet: EnemyFleet) {
+      this.$emit('input', fleet);
     },
     resetFleet() {
-      this.fleet.clear();
+      this.setFleet(new EnemyFleet());
     },
-    changedCellType() {
-      this.fleet.isUnion = this.fleet.cellType === Const.CELL_GRAND;
-      if (this.fleet.isUnion && this.fleet.enemies.length <= 6) {
+    changedCombo() {
+      const isUnion = this.fleet.cellType === Const.CELL_GRAND;
+      const enemies = this.fleet.enemies.concat();
+      if (isUnion && this.fleet.enemies.length <= 6) {
         for (let i = 0; i < 6; i += 1) {
-          this.fleet.enemies.push(new Enemy());
+          enemies.push(new Enemy());
         }
-      } else {
-        this.fleet.enemies = this.fleet.enemies.slice(0, 6);
       }
+      const builder: EnemyFleetBuilder = { fleet: this.fleet, enemies, isUnion };
+      this.setFleet(new EnemyFleet(builder));
     },
     removeEnemy(index: number) {
-      this.$set(this.fleet.enemies, index, new Enemy());
+      const enemies = this.fleet.enemies.concat();
+      enemies[index] = new Enemy();
+      const builder: EnemyFleetBuilder = { fleet: this.fleet, enemies };
+      this.setFleet(new EnemyFleet(builder));
+    },
+    toggleDetailDialog() {
+      if (!this.detailDialog) {
+        setTimeout(() => {
+          this.destroyDialog = true;
+        }, 100);
+      } else {
+        this.destroyDialog = false;
+      }
     },
   },
 });

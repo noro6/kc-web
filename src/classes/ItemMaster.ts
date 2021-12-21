@@ -19,7 +19,7 @@ export default class ItemMaster {
 
   public armor = 0;
 
-  public antiSubmarine = 0;
+  public asw = 0;
 
   public antiBomer = 0;
 
@@ -27,7 +27,7 @@ export default class ItemMaster {
 
   public interception = 0;
 
-  public avoid2 = 0;
+  public avoid = 0;
 
   public scout = 0;
 
@@ -62,11 +62,11 @@ export default class ItemMaster {
     this.bomber = row[7] ? +row[7] : 0;
     this.antiAir = row[8] ? +row[8] : 0;
     this.armor = row[9] ? +row[9] : 0;
-    this.antiSubmarine = row[10] ? +row[10] : 0;
+    this.asw = row[10] ? +row[10] : 0;
     this.antiBomer = row[11] ? +row[11] : 0;
     this.accuracy = row[12] ? +row[12] : 0;
     this.interception = row[13] ? +row[13] : 0;
-    this.avoid2 = row[14] ? +row[14] : 0;
+    this.avoid = row[14] ? +row[14] : 0;
     this.scout = row[15] ? +row[15] : 0;
     this.range = row[16] ? +row[16] : 0;
     this.radius = row[17] ? +row[17] : 0;

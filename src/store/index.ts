@@ -26,6 +26,7 @@ export default new Vuex.Store({
     },
     completed: (state, value: boolean) => {
       state.completed = value;
+      console.log('master initialized!');
     },
   },
   actions: {

@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="2" class="mx-1 py-2">
+  <v-card elevation="2" class="mx-1 py-2 land-base-content">
     <div class="d-flex">
       <div class="ml-2 align-self-center land-base-title">第{{ landBase.no }}基地航空隊</div>
       <v-spacer></v-spacer>
@@ -27,16 +27,14 @@
         </div>
       </div>
       <div>
-        {{ landBase.items.map(v => v.data.name) }}
         <item-input
           v-for="(item, index) in landBase.items"
           :key="index"
-          :item="landBase.items[index]"
+          v-model="landBase.items[index]"
           :index="index"
           :handle-show-item-list="showItemList"
           :max="item.isRecon ? 4 : 18"
           :init="item.isRecon ? 4 : 18"
-          @input="childForm($event)"
         />
       </div>
       <div class="mx-1 mt-3">
@@ -228,13 +226,12 @@ export default Vue.extend({
       return 'red';
     },
     resetItems() {
+      // 待機札に変更
       this.landBase.mode = Const.MODE_WAIT;
       for (let i = 0; i < this.landBase.items.length; i += 1) {
+        // 全装備初期化
         this.landBase.items[i] = new Item();
       }
-    },
-    childForm(value: Item) {
-      console.log(value);
     },
   },
 });
