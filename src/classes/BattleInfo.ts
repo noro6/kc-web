@@ -7,8 +7,6 @@ export default class BattleInfo {
 
   constructor() {
     this.fleets = [];
-    for (let i = 0; i < 10; i += 1) {
-      this.fleets.push(new EnemyFleet());
-    }
+    this.fleets.push(new EnemyFleet());
   }
 }

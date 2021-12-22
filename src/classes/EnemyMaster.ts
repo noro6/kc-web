@@ -43,7 +43,7 @@ export default class EnemyMaster {
     const item3 = row[14] ? +row[14] : 0;
     const item4 = row[15] ? +row[15] : 0;
     const item5 = row[16] ? +row[16] : 0;
-    this.isLandBase = +row[17] > 0;
+    this.isLandBase = row[17] > 0;
 
     this.slots = [slot1, slot2, slot3, slot4, slot5];
     this.items = [item1, item2, item3, item4, item5];

@@ -42,13 +42,21 @@
       </div>
       <v-divider></v-divider>
       <div id="item-table-body">
-        <div class="pa-3" :class="{ 'd-md-flex flex-wrap': multiLine }">
+        <div class="pa-3" :class="{ 'multi': multiLine }">
           <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
             <div class="item-icon">
               <img :src="`/img/type/icon${item.iconTypeId}.png`" :alt="item.iconTypeId" />
             </div>
             <div class="item-name text-truncate">
               {{ item.name }}
+            </div>
+            <div class="item-remodel caption">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ i % 11 }}</span>
+            </div>
+            <div class="item-count red--text caption">
+              <span>&times;</span>
+              <span>{{ i % 20 }}</span>
             </div>
           </div>
         </div>
@@ -87,10 +95,33 @@
   align-self: center;
 }
 
+.multi {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 660px) {
+  .multi {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 880px) {
+  .multi {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 1100px) {
+  .multi {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
 .list-item {
   display: flex;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding-left: 0.25rem;
+  padding-right: 0.1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
   transition: 0.1s;
   border-radius: 0.2rem;
 }
@@ -108,11 +139,19 @@
   height: 24px;
 }
 .item-name {
-  font-size: 0.8em;
-  width: 240px;
+  flex-grow: 1;
+  font-size: 0.75em;
+  width: 10px;
   margin-left: 0.1rem;
   overflow: hidden;
   white-space: nowrap;
+}
+.item-remodel {
+  width: 32px;
+}
+.item-count {
+  margin-left: 1px;
+  width: 22px;
 }
 </style>
 

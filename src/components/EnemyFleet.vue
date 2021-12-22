@@ -120,7 +120,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Const from '@/classes/Const';
+import Const, { CELL_TYPE } from '@/classes/Const';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/EnemyFleet';
 import EnemyDetail from '@/components/EnemyDetail.vue';
 import Enemy from '@/classes/Enemy';
@@ -180,7 +180,7 @@ export default Vue.extend({
       this.setFleet(new EnemyFleet());
     },
     changedCombo() {
-      const isUnion = this.fleet.cellType === Const.CELL_GRAND;
+      const isUnion = this.fleet.cellType === CELL_TYPE.GRAND;
       const enemies = this.fleet.enemies.concat();
       if (isUnion && this.fleet.enemies.length <= 6) {
         for (let i = 0; i < 6; i += 1) {

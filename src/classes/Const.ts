@@ -10,108 +10,76 @@ export interface AvoidType {
   c2: number;
 }
 
+/** 基地札種類 */
+export const LB_MODE = {
+  WAIT: -1,
+  DEFFENSE: 0,
+  BATTLE: 2,
+} as const;
+type LB_MODE = typeof LB_MODE[keyof typeof LB_MODE];
+
+/** 陣形 */
+export const FORMATION = {
+  LINE_AHEAD: 1,
+  DOUBLE_LINE: 2,
+  DIAMOND: 3,
+  ECHELON: 4,
+  LINE_ABREAST: 5,
+  VANGUARD: 6,
+  FORMATION1: 15,
+  FORMATION2: 12,
+  FORMATION3: 13,
+  FORMATION4: 11,
+} as const;
+type FORMATION = typeof FORMATION[keyof typeof FORMATION];
+
+/** 戦闘マス形式 */
+export const CELL_TYPE = {
+  NORMAL: 1,
+  GRAND: 2,
+  AIR_RAID: 3,
+  NIGHT: 4,
+  HIGH_AIR_RAID: 5,
+  AERIAL_COMBAT: 6,
+} as const;
+type CELL_TYPE = typeof CELL_TYPE[keyof typeof CELL_TYPE];
+
 export default class Const {
-  /**
-   * 艦載機 or 陸上機
-   * @static
-   * @memberof public static
-   */
-  public static PLANE_TYPES = [6, 7, 8, 9, 10, 11, 41, 45, 47, 48, 49, 53, 57];
-
-  /**
-   * 艦載機
-   * @static
-   * @memberof Const
-   */
-  public static CB_PLANE_TYPES = [6, 7, 8, 9, 57];
-
-  /**
-   * 水上機系
-   * @static
-   * @memberof Const
-   */
-  public static SP_PLANE_TYPES = [10, 11, 41, 45];
-
-  /**
-   * 陸上機系
-   * @static
-   * @memberof Const
-   */
-  public static LB_PLANE_TYPES = [47, 48, 49, 53];
-
-  /**
-   * 艦戦系
-   * @static
-   * @memberof Const
-   */
-  public static FIGHTERS = [6, 45, 48];
-
-  /**
-   * 攻撃機系
-   * @static
-   * @memberof Const
-   */
-  public static ATTACKERS = [7, 8, 11, 47, 53, 57];
-
-  /**
-   * 偵察機
-   * @static
-   * @memberof Const
-   */
-  public static RECONNAISSANCES = [9, 10, 41, 49];
-
-  /**
-   * 陸上攻撃機系統
-   * @static
-   * @memberof Const
-   */
-  public static LB_ATTACKERS = [47, 53];
-
-  /**
-   * ロケット戦闘機 api_id 配列
-   * @static
-   * @memberof Const
-   */
-  public static ROCKETS = [350, 351, 352];
-
-  public static MODE_WAIT = -1
-
-  public static MODE_DEFENSE = 0
-
-  public static MODE_BATTLE = 2
-
   /**
    * 基地航空隊札一覧
    * @static
    * @memberof Const
    */
-  public static LANDBASE_MODES = [
-    { text: '出撃', value: Const.MODE_BATTLE },
-    { text: '防空', value: Const.MODE_DEFENSE },
-    { text: '待機', value: Const.MODE_WAIT },
+  public static readonly LB_MODE_ITEMS = [
+    { text: '出撃', value: LB_MODE.BATTLE },
+    { text: '防空', value: LB_MODE.DEFFENSE },
+    { text: '待機', value: LB_MODE.WAIT },
   ];
 
-  public static LINE_AHEAD = 1;
+  public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 41, 45, 47, 48, 49, 53, 57];
 
-  public static DOUBLE_LINE = 2;
+  public static readonly CB_PLANE_TYPES = [6, 7, 8, 9, 57];
 
-  public static DIAMOND = 3;
+  public static readonly SP_PLANE_TYPES = [10, 11, 41, 45];
 
-  public static ECHELON = 4;
+  public static readonly LB_PLANE_TYPES = [47, 48, 49, 53];
 
-  public static LINE_ABREAST = 5;
+  public static readonly FIGHTERS = [6, 45, 48];
 
-  public static VANGUARD = 6;
+  public static readonly ATTACKERS = [7, 8, 11, 47, 53, 57];
 
-  public static FORMATION1 = 15;
+  public static readonly RECONNAISSANCES = [9, 10, 41, 49];
 
-  public static FORMATION2 = 12;
+  public static readonly LB_ATTACKERS = [47, 53];
 
-  public static FORMATION3 = 13;
+  public static readonly ROCKET = [350, 351, 352];
 
-  public static FORMATION4 = 11;
-
-  public static API_SHIP_TYPE = [
+  /**
+   * 艦種一覧
+   * @static
+   * @memberof Const
+   */
+  public static readonly API_SHIP_TYPE = [
     { id: 1, name: '海防艦' },
     { id: 2, name: '駆逐艦' },
     { id: 3, name: '軽巡洋艦' },
@@ -136,7 +104,12 @@ export default class Const {
     { id: 22, name: '補給艦' },
   ];
 
-  public static SHIP_TYPES_ALT = [
+  /**
+   * 艦種一覧 省略系と含む艦種
+   * @static
+   * @memberof Const
+   */
+  public static readonly SHIP_TYPES_ALT = [
     { text: '空母', types: [11, 18] },
     { text: '軽空母', types: [7] },
     { text: '戦艦級', types: [8, 9, 10] },
@@ -153,43 +126,31 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static FORMATIONS: Formation[] = [
-    { text: '単縦陣', value: Const.LINE_AHEAD, correction: 1.0 },
-    { text: '複縦陣', value: Const.DOUBLE_LINE, correction: 1.2 },
-    { text: '輪形陣', value: Const.DIAMOND, correction: 1.6 },
-    { text: '梯形陣', value: Const.ECHELON, correction: 1.0 },
-    { text: '単横陣', value: Const.LINE_ABREAST, correction: 1.0 },
-    { text: '警戒陣', value: Const.VANGUARD, correction: 1.1 },
-    { text: '第一警戒', value: Const.FORMATION1, correction: 1.1 },
-    { text: '第二警戒', value: Const.FORMATION2, correction: 1.0 },
-    { text: '第三警戒', value: Const.FORMATION3, correction: 1.5 },
-    { text: '第四警戒', value: Const.FORMATION4, correction: 1.0 },
+  public static readonly FORMATIONS: Formation[] = [
+    { text: '単縦陣', value: FORMATION.LINE_AHEAD, correction: 1.0 },
+    { text: '複縦陣', value: FORMATION.DOUBLE_LINE, correction: 1.2 },
+    { text: '輪形陣', value: FORMATION.DIAMOND, correction: 1.6 },
+    { text: '梯形陣', value: FORMATION.ECHELON, correction: 1.0 },
+    { text: '単横陣', value: FORMATION.LINE_ABREAST, correction: 1.0 },
+    { text: '警戒陣', value: FORMATION.VANGUARD, correction: 1.1 },
+    { text: '第一警戒', value: FORMATION.FORMATION1, correction: 1.1 },
+    { text: '第二警戒', value: FORMATION.FORMATION2, correction: 1.0 },
+    { text: '第三警戒', value: FORMATION.FORMATION3, correction: 1.5 },
+    { text: '第四警戒', value: FORMATION.FORMATION4, correction: 1.0 },
   ];
-
-  public static CELL_NORMAL = 1;
-
-  public static CELL_GRAND = 2;
-
-  public static CELL_AIR_RAID = 3;
-
-  public static CELL_NIGHT = 4;
-
-  public static CELL_HIGH_AIR_RAID = 5;
-
-  public static CELL_AERIAL_COMBAT = 6;
 
   /**
    * 戦闘マス形式
    * @static
    * @memberof Const
    */
-  public static CELL_TYPES = [
-    { text: '通常', value: Const.CELL_NORMAL },
-    { text: '連合', value: Const.CELL_GRAND },
-    { text: '空襲', value: Const.CELL_AIR_RAID },
-    { text: '夜戦', value: Const.CELL_NIGHT },
-    { text: '重爆', value: Const.CELL_HIGH_AIR_RAID },
-    { text: '航空戦', value: Const.CELL_AERIAL_COMBAT },
+  public static readonly CELL_TYPES = [
+    { text: '通常', value: CELL_TYPE.NORMAL },
+    { text: '連合', value: CELL_TYPE.GRAND },
+    { text: '空襲', value: CELL_TYPE.AIR_RAID },
+    { text: '夜戦', value: CELL_TYPE.NIGHT },
+    { text: '重爆', value: CELL_TYPE.HIGH_AIR_RAID },
+    { text: '航空戦', value: CELL_TYPE.AERIAL_COMBAT },
   ];
 
   /**
@@ -197,14 +158,21 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static MANUAL_AVOID = 99;
+  public static readonly MANUAL_AVOID = 99;
+
+  /**
+   * 補強増設を識別するindex
+   * @static
+   * @memberof Const
+   */
+  public static readonly EXPAND_SLOT_INDEX = 99;
 
   /**
    * 対空射撃回避
    * @static
    * @memberof Const
    */
-  public static AVOID_TYPE: AvoidType[] = [
+  public static readonly AVOID_TYPE: AvoidType[] = [
     {
       value: 0, text: 'なし', c1: 1.0, c2: 1.0,
     },
@@ -224,7 +192,4 @@ export default class Const {
       value: Const.MANUAL_AVOID, text: '任意', c1: 1.0, c2: 1.0,
     },
   ];
-
-  /** 補強増設を識別するindex */
-  public static EXPAND_SLOT_INDEX = 99;
 }

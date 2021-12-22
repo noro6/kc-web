@@ -102,7 +102,7 @@
               <div class="form-control">
                 <v-text-field
                   type="number"
-                  v-model="attackerSlot"
+                  v-model.number="attackerSlot"
                   min="0"
                   max="999"
                   label="攻撃機搭載数"
@@ -129,7 +129,7 @@
                   min="0"
                   max="2"
                   step="0.1"
-                  v-model="adj1"
+                  v-model.number="adj1"
                   label="加重対空補正"
                   hide-details
                   outlined
@@ -144,7 +144,7 @@
                   min="0"
                   max="2"
                   step="0.1"
-                  v-model="adj2"
+                  v-model.number="adj2"
                   label="艦隊防空補正"
                   hide-details
                   outlined

@@ -63,9 +63,9 @@ export default class ShipMaster {
     this.name = row[2] ? row[2] as string : '';
     this.type = row[3] ? +row[3] : 0;
     this.type2 = row[4] ? +row[4] : 0;
-    this.slotCount = row[5] ? +row[5] : 0;
+    this.slotCount = row[5] ? +row[5] : 4;
     this.version = row[11] ? +row[11] : 0;
-    this.isFinal = !!row[12];
+    this.isFinal = row[12] > 0;
     this.originalId = row[13] ? +row[13] : 0;
     this.range = row[14] ? +row[14] : 0;
     this.hp = row[15] ? +row[15] : 0;

@@ -64,12 +64,20 @@ export default Vue.extend({
     ItemList,
   },
   data: () => ({
-    items: BattleCountItems,
     battleInfo: new BattleInfo(),
+    items: BattleCountItems,
     enemyListDialog: false,
     itemListDialog: false,
     dialogTarget: [-1, -1],
   }),
+  watch: {
+    battleInfo: {
+      handler() {
+        console.log('★ watch battleInfo ★');
+      },
+      deep: true,
+    },
+  },
   methods: {
     async showItemList(fleetIndex: number, index: number) {
       this.dialogTarget = [fleetIndex, index];

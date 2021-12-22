@@ -6,24 +6,22 @@
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">
-          <div class="ml-2 primary--text">id:{{ ship.data.id }}</div>
+          <div class="ml-2 primary--text">Lv:{{ ship.level }}</div>
           <div class="ml-2">
-            <span class="text--secondary">耐久:</span>
-            <span class="ml-1 font-weight-medium">{{ ship.data.hp }}</span>
-            <span class="ml-2 text--secondary">装甲:</span>
-            <span class="ml-1 font-weight-medium">{{ ship.data.armor }}</span>
+            <span class="text--secondary">運:</span>
+            <span class="ml-1 font-weight-medium">{{ ship.data.luck }}</span>
           </div>
         </div>
-        <div class="d-flex">
-          <div class="ship-name ml-2 text-truncate">{{ ship.data.name }}</div>
+        <div class="d-flex pl-2" v-ripple="{ class: 'info--text' }" @click="showShipList">
+          <div class="ship-name text-truncate">{{ ship.data.name ? ship.data.name : '艦娘変更' }}</div>
         </div>
       </div>
     </div>
     <div class="d-flex caption px-1 flex-wrap">
-      <div v-if="ship.fullAirPower > 0">
+      <div>
         <span class="text--secondary">制空:</span>
         <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
-        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail() }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>
     </div>
     <div>
@@ -39,13 +37,7 @@
     </div>
     <div>
       <!-- 補強増設枠 -->
-      <item-input
-        v-model="ship.exItem"
-        :index="99"
-        :max="0"
-        :init="0"
-        :handle-show-item-list="showItemList"
-      />
+      <item-input v-if="ship.data.id" v-model="ship.exItem" :index="99" :max="0" :init="0" :handle-show-item-list="showItemList" />
     </div>
   </v-card>
 </template>
@@ -55,6 +47,11 @@
   flex-grow: 1;
   width: 100px;
   font-size: 0.8em;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.ship-name:hover {
+  background-color: rgba(128, 128, 128, 0.2);
 }
 </style>
 
@@ -71,6 +68,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleShowShipList: {
+      type: Function,
+      required: true,
+    },
     ship: {
       type: Ship,
       required: true,
@@ -80,14 +81,20 @@ export default Vue.extend({
       required: true,
     },
   },
-  methods: {
+  computed: {
     airPowerDetail(): string {
       const airPowers = this.ship.items.map((v) => v.airPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
+  },
+  methods: {
     showItemList(slotIndex: number): void {
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.handleShowItemList(this.index, slotIndex);
+    },
+    showShipList(): void {
+      // 艦娘indexを付与してFleet.vueへスルーパス
+      this.handleShowShipList(this.index);
     },
   },
 });

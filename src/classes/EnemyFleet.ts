@@ -37,6 +37,7 @@ export default class EnemyFleet {
   public readonly fleetAntiAir: number;
 
   constructor(builder: EnemyFleetBuilder = {}) {
+    console.log('EnemyFleet initialize');
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ
       this.enemies = builder.enemies ? builder.enemies.concat() : builder.fleet.enemies.concat();

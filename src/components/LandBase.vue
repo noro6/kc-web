@@ -18,20 +18,20 @@
     <div class="land-base-body" :class="{ opacity6: landBase.mode === -1 }">
       <div class="d-flex caption px-2">
         <div>
-          制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
+          制空:<span class="ml-1 font-weight-medium">{{ landBase.airPower }}</span>
         </div>
         <div class="ml-1 text--secondary">{{ airPowerDetail }}</div>
         <v-spacer></v-spacer>
         <div>
-          半径:<span class="ml-1 font-weight-medium">{{ range }}</span>
+          半径:<span class="ml-1 font-weight-medium">{{ landBase.range }}</span>
         </div>
       </div>
       <div>
         <item-input
-          v-for="(item, index) in landBase.items"
-          :key="index"
-          v-model="landBase.items[index]"
-          :index="index"
+          v-for="(item, i) in landBase.items"
+          :key="i"
+          v-model="landBase.items[i]"
+          :index="i"
           :handle-show-item-list="showItemList"
           :max="item.isRecon ? 4 : 18"
           :init="item.isRecon ? 4 : 18"
@@ -166,8 +166,7 @@
 import Vue from 'vue';
 import ItemInput from './ItemInput.vue';
 import LandBase from '@/classes/LandBase';
-import Const from '@/classes/Const';
-import Item from '@/classes/Item';
+import Const, { LB_MODE } from '@/classes/Const';
 
 export default Vue.extend({
   components: { ItemInput },
@@ -177,36 +176,29 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
-    landBase: {
+    value: {
       type: LandBase,
       required: true,
     },
   },
   data: () => ({
-    airPower: 0,
-    range: 0,
     wave1: 0,
     wave2: 0,
-    modes: Const.LANDBASE_MODES,
+    modes: Const.LB_MODE_ITEMS,
   }),
-  watch: {
-    landBase: {
-      handler() {
-        this.airPower = this.landBase.airPower;
-        this.range = this.landBase.range;
-        this.wave1 = Math.floor(Math.random() * 101);
-        this.wave2 = Math.floor(Math.random() * 101);
-      },
-      deep: true,
-    },
-  },
   computed: {
+    landBase(): LandBase {
+      return this.value;
+    },
     airPowerDetail() {
-      const airPowers = this.landBase.items.map((v) => v.airPower);
+      const airPowers = this.value.items.map((v) => v.airPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
   },
   methods: {
+    setLandBase(value: LandBase) {
+      this.$emit('input', value);
+    },
     showItemList(index: number) {
       this.handleShowItemList(this.landBase.no, index);
     },
@@ -225,13 +217,8 @@ export default Vue.extend({
       }
       return 'red';
     },
-    resetItems() {
-      // 待機札に変更
-      this.landBase.mode = Const.MODE_WAIT;
-      for (let i = 0; i < this.landBase.items.length; i += 1) {
-        // 全装備初期化
-        this.landBase.items[i] = new Item();
-      }
+    resetItems(): void {
+      this.setLandBase(new LandBase(this.landBase.no, LB_MODE.WAIT));
     },
   },
 });

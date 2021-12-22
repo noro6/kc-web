@@ -34,6 +34,7 @@ export default class Fleet {
   public readonly fleetAntiAir: number;
 
   constructor(builder: FleetBuilder = {}) {
+    console.log('Fleet initialize');
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ
       this.ships = builder.ships ? builder.ships.concat() : builder.fleet.ships.concat();
@@ -45,10 +46,8 @@ export default class Fleet {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
 
       if (this.ships.length === 0) {
-        // 0隻だった場合は6隻で初期化してやる
-        for (let i = 0; i < 6; i += 1) {
-          this.ships.push(new Ship());
-        }
+        // 0隻だった場合は空の艦娘を1隻つっこむ
+        this.ships.push(new Ship());
       }
     }
 

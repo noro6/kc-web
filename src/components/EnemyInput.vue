@@ -23,12 +23,12 @@
       <div v-if="enemy.fullAirPower > 0">
         <span class="text--secondary">制空:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullAirPower }}</span>
-        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail() }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>
       <div v-if="enemy.fullLBAirPower && enemy.fullLBAirPower !== enemy.fullAirPower">
         <span class="text--secondary">基地制空:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullLBAirPower }}</span>
-        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail() }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>
     </div>
     <div class="d-flex caption px-1">
@@ -76,11 +76,13 @@ export default Vue.extend({
       required: true,
     },
   },
-  methods: {
-    airPowerDetail(): string {
+  computed: {
+    airPowerDetail() {
       const airPowers = this.enemy.items.map((v) => v.airPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
+  },
+  methods: {
     showItemList(): void {
       // 装備変更は許可しない
       // this.handleShowItemList(index, index);

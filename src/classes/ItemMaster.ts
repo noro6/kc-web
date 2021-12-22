@@ -71,7 +71,7 @@ export default class ItemMaster {
     this.range = row[16] ? +row[16] : 0;
     this.radius = row[17] ? +row[17] : 0;
     this.cost = row[18] ? +row[18] : 0;
-    this.canRemodel = !!row[19];
+    this.canRemodel = row[19] > 0;
     this.avoidId = row[20] ? +row[20] : 0;
     this.range2 = row[21] ? +row[21] : 0;
     this.grow = row[22] ? +row[22] : 0;

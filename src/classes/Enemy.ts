@@ -24,6 +24,7 @@ export default class Enemy {
   public readonly sumItemAccuracy: number;
 
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
+    console.log('Enemy initialize');
     this.data = enemy;
     this.items = items;
     this.isEscort = isEscort;

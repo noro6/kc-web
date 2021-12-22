@@ -57,23 +57,18 @@ export default class Item {
   public readonly isRecon: boolean;
 
   constructor(builder: ItemBuilder = {}) {
+    console.log('Item initialize');
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
       this.data = builder.master ? builder.master : builder.item.data;
       this.slot = builder.slot !== undefined ? builder.slot : builder.item.slot;
       this.remodel = builder.remodel !== undefined ? builder.remodel : builder.item.remodel;
       this.level = builder.level !== undefined ? builder.level : builder.item.level;
-    } else if (builder.master) {
-      // ItemBuilderより生成 Itemマスタ情報を引継ぎ
-      this.data = builder.master ? builder.master : builder.master;
+    } else {
+      this.data = builder.master ? builder.master : new ItemMaster();
       this.slot = builder.slot !== undefined ? builder.slot : 0;
       this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
       this.level = builder.level !== undefined ? builder.level : 0;
-    } else {
-      this.data = new ItemMaster();
-      this.slot = 0;
-      this.remodel = 0;
-      this.level = 0;
     }
 
     this.isFighter = Const.FIGHTERS.includes(this.data.apiTypeId);

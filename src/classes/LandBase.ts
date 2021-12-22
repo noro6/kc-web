@@ -1,25 +1,48 @@
+import { LB_MODE } from './Const';
 import Item from './Item';
 
 export default class LandBase {
-  public no = 1;
+  /** 第X基地航空隊 ここを変えてもステータスには影響しないので not readonly */
+  public no: number;
 
-  public items: Item[] = [];
+  /** 装備一覧 */
+  public readonly items: Item[];
 
-  public mode = -1;
+  /** 基地お札 */
+  public readonly mode: number;
 
-  /**
-   * 航空隊の制空値を返却
-   * @readonly
-   * @type {number}
-   * @memberof LandBase
-   */
-  get airPower(): number {
-    let sum = 0;
-    for (let i = 0; i < this.items.length; i += 1) {
-      const item = this.items[i];
-      sum += item.airPower;
+  /** 基地半径 */
+  public readonly range: number;
+
+  /** 出撃制空値 */
+  public readonly airPower: number;
+
+  /** 防空制空値 */
+  public readonly defenseAirPower: number;
+
+  constructor(no: number, mode:number = LB_MODE.WAIT, item: Item[] = []) {
+    console.log('LandBase initialize');
+    this.no = no;
+    this.items = item.concat();
+    this.mode = mode;
+
+    if (!this.items.length) {
+      for (let i = 0; i < 4; i += 1) {
+        // 第4隊まで自動生成
+        this.items.push(new Item());
+      }
     }
-    return sum;
+
+    // 半径取得
+    this.range = this.getRange();
+
+    // 制空値
+    this.airPower = 0;
+    this.defenseAirPower = 0;
+    for (let i = 0; i < this.items.length; i += 1) {
+      this.airPower += this.items[i].airPower;
+      this.defenseAirPower += this.items[i].defenseAirPower;
+    }
   }
 
   /**
@@ -28,7 +51,7 @@ export default class LandBase {
    * @type {number}
    * @memberof LandBase
    */
-  get range(): number {
+  private getRange(): number {
     let minRange = 999;
     let maxLos = 1;
     for (let i = 0; i < this.items.length; i += 1) {

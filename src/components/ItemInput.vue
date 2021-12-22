@@ -13,7 +13,7 @@
         v-on="on"
         v-ripple="{ class: 'info--text' }"
         class="item-input"
-        :class="{ readonly: readonly }"
+        :class="{ readonly: readonly, expand: isExpandSlot }"
         :draggable="item.data.id > 0 && !readonly"
         @dragstart="dragStart(item, $event)"
         @dragend="dragEnd($event)"
@@ -29,7 +29,7 @@
           transition="slide-y-transition"
           bottom
           right
-          :disabled="readonly"
+          :disabled="readonly || isExpandSlot"
           v-model="slotMenu"
           @input="onMenuToggle"
         >
@@ -40,7 +40,7 @@
           </template>
           <v-card class="px-5 py-1">
             <div class="d-flex pl-1 pr-2">
-              <v-text-field class="slot-input" type="number" :max="max" min="0" v-model="slotValue"></v-text-field>
+              <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
               <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">初期値</v-btn>
             </div>
             <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
@@ -78,7 +78,7 @@
           </v-card>
         </v-menu>
         <!-- 熟練度 -->
-        <v-menu offset-y transition="slide-y-transition" left :disabled="readonly">
+        <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || isExpandSlot">
           <template v-slot:activator="{ on, attrs }">
             <div v-ripple="{ class: 'info--text' }" class="item-level" v-bind="attrs" v-on="on">
               <v-img :src="`/img/util/prof${level}.png`" height="24" width="18"></v-img>
@@ -95,7 +95,7 @@
           </v-card>
         </v-menu>
         <!-- 解除 -->
-        <div class="item-remove align-self-start">
+        <div class="item-remove align-self-center">
           <v-btn v-show="item.data.id > 0 && !readonly" icon x-small @click="removeItem()">
             <v-icon small>mdi-close</v-icon>
           </v-btn>
@@ -171,6 +171,9 @@
   width: 24px;
   white-space: nowrap;
 }
+.expand .item-slot {
+  opacity: 0 !important;
+}
 .item-icon.draggable {
   cursor: move;
 }
@@ -180,7 +183,8 @@
   height: 28px;
 }
 .item-icon i {
-  font-size: 1.3em;
+  font-size: 1.2em;
+  opacity: 0.8;
 }
 .item-name {
   flex-grow: 1;
@@ -202,6 +206,9 @@
 }
 .item-level {
   position: relative;
+}
+.expand .item-level {
+  opacity: 0;
 }
 
 .slot-input,
@@ -375,7 +382,7 @@ export default Vue.extend({
     onMenuToggle() {
       if (!this.slotMenu) {
         // 搭載数メニューCloseイベント
-        const builder: ItemBuilder = { item: this.item, slot: this.slotValue };
+        const builder: ItemBuilder = { item: this.item, slot: Math.floor(this.slotValue) };
         this.setItem(new Item(builder));
       } else {
         // 搭載数メニューOpenイベント
@@ -426,6 +433,8 @@ export default Vue.extend({
         delete draggingDiv.dataset.item;
       } else {
         // 交換できないのでクリア
+        console.log('clear item');
+
         this.setItem(new Item());
       }
 

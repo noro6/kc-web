@@ -22,13 +22,13 @@
         <div class="land-base-tab-text d-sm-none">第3航空隊</div>
       </v-tab>
       <v-tab-item value="base1" class="py-1">
-        <land-base :land-base="landBaseInfo.landBases[0]" :handle-show-item-list="showItemList"></land-base>
+        <land-base-comp v-model="landBaseInfo.landBases[0]" :handle-show-item-list="showItemList" />
       </v-tab-item>
       <v-tab-item value="base2" class="py-1">
-        <land-base :land-base="landBaseInfo.landBases[1]" :handle-show-item-list="showItemList"></land-base>
+        <land-base-comp v-model="landBaseInfo.landBases[1]" :handle-show-item-list="showItemList" />
       </v-tab-item>
       <v-tab-item value="base3" class="py-1">
-        <land-base :land-base="landBaseInfo.landBases[2]" :handle-show-item-list="showItemList"></land-base>
+        <land-base-comp v-model="landBaseInfo.landBases[2]" :handle-show-item-list="showItemList" />
       </v-tab-item>
     </v-tabs>
     <draggable
@@ -37,10 +37,10 @@
       :options="{ handle: '.land-base-title', animation: 150 }"
       @end="dragEnd()"
     >
-      <land-base
-        v-for="(landBase, index) in landBaseInfo.landBases"
-        :key="index"
-        :land-base="landBase"
+      <land-base-comp
+        v-for="(lb, i) in landBaseInfo.landBases"
+        :key="i"
+        v-model="landBaseInfo.landBases[i]"
         :handle-show-item-list="showItemList"
       />
     </draggable>
@@ -102,16 +102,17 @@
 import Vue from 'vue';
 import draggable from 'vuedraggable';
 import Item, { ItemBuilder } from '@/classes/Item';
-import Const from '@/classes/Const';
+import Const, { LB_MODE } from '@/classes/Const';
 import ItemMaster from '@/classes/ItemMaster';
 import LandBaseInfo from '@/classes/LandBaseInfo';
-import LandBase from '@/components/LandBase.vue';
+import LandBaseComp from '@/components/LandBase.vue';
 import ItemList from '@/components/ItemList.vue';
+import LandBase from '@/classes/LandBase';
 
 export default Vue.extend({
   name: 'LandBaseAll',
   components: {
-    LandBase,
+    LandBaseComp,
     ItemList,
     draggable,
   },
@@ -122,12 +123,18 @@ export default Vue.extend({
     dialogTarget: [-1, -1],
     tab: 0,
   }),
+  watch: {
+    landBaseInfo: {
+      handler() {
+        console.log('★ watch LandBaseInfo ★');
+      },
+      deep: true,
+    },
+  },
   mounted() {
     const info = this.landBaseInfo;
-    for (let i = 0; i < info.landBases.length; i += 1) {
-      const base = info.landBases[i];
-      base.no = i + 1;
-      base.items = [new Item(), new Item(), new Item(), new Item()];
+    for (let i = 0; i < 3; i += 1) {
+      info.landBases.push(new LandBase(i + 1, LB_MODE.WAIT));
     }
   },
   methods: {
@@ -144,7 +151,9 @@ export default Vue.extend({
     equipItem(item: ItemMaster) {
       const no = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
-      const base = this.landBaseInfo.landBases.find((v) => v.no === no);
+      const index = this.landBaseInfo.landBases.findIndex((v) => v.no === no);
+
+      const base = this.landBaseInfo.landBases[index];
       if (base) {
         if (slot < base.items.length) {
           // インスタンス化用のいろいろ用意
@@ -165,8 +174,12 @@ export default Vue.extend({
           this.itemListDialog = false;
         }
 
-        if (base.mode === Const.MODE_WAIT && base.items.some((v) => v.data.id > 0 && v.slot > 0)) {
-          base.mode = Const.MODE_BATTLE;
+        if (base.mode === LB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.slot > 0)) {
+          // 待機札だった場合は出撃札に変更してインスタンス化
+          this.landBaseInfo.landBases[index] = new LandBase(base.no, this.isDefenseMode ? LB_MODE.DEFFENSE : LB_MODE.BATTLE, base.items);
+        } else {
+          // 特に札は変更せずインスタンス化
+          this.landBaseInfo.landBases[index] = new LandBase(base.no, base.mode, base.items);
         }
       }
     },

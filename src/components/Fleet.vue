@@ -22,12 +22,17 @@
     <v-divider></v-divider>
     <div class="ship-inputs-container">
       <ship-input
-        v-for="(ship, i) in fleet.ships"
+        v-for="i in dispalyCount"
         :key="i"
-        :ship="fleet.ships[i]"
-        :index="i"
+        :ship="fleet.ships[i - 1]"
+        :index="i - 1"
+        :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
       ></ship-input>
+      <!-- 艦娘追加用フォーム -->
+      <div v-ripple="{ class: 'info--text' }" class="empty-ship ma-1" @click="showShipList(dispalyCount)">
+        <div>&plus;艦娘追加</div>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +54,22 @@
   .ship-inputs-container {
     grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+.empty-ship {
+  display: flex;
+  cursor: pointer;
+  min-height: 100px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 0.25rem;
+  justify-content: center;
+  transition: 0.2s;
+}
+.empty-ship:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.empty-ship div {
+  align-self: center;
 }
 </style>
 
@@ -87,6 +108,7 @@ export default Vue.extend({
     cellTypes: Const.CELL_TYPES,
     detailDialog: false,
     destroyDialog: false,
+    displayMax: 5,
   }),
   computed: {
     fleet(): Fleet {
@@ -94,6 +116,9 @@ export default Vue.extend({
     },
     airPower() {
       return this.value.airPower;
+    },
+    dispalyCount() {
+      return Math.min(this.value.ships.length, this.displayMax);
     },
   },
   methods: {
