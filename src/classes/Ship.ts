@@ -14,6 +14,8 @@ export interface ShipBuilder {
   level?: number;
   /** 随伴艦フラグ */
   isEscort?: boolean;
+  /** 有効フラグ */
+  isActive?: boolean
 }
 
 export default class Ship {
@@ -29,6 +31,9 @@ export default class Ship {
   /** 練度 */
   public readonly level: number;
 
+  /** 練度 */
+  public readonly isActive: boolean;
+
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
@@ -43,15 +48,17 @@ export default class Ship {
     if (builder.ship) {
       this.data = builder.master !== undefined ? builder.master : builder.ship.data;
       this.level = builder.level !== undefined ? builder.level : builder.ship.level;
-      this.isEscort = builder.isEscort !== undefined ? builder.isEscort : builder.ship.isEscort;
-      this.exItem = builder.exItem !== undefined ? builder.exItem : builder.ship.exItem;
       this.items = builder.items !== undefined ? builder.items.concat() : builder.ship.items.concat();
+      this.exItem = builder.exItem !== undefined ? builder.exItem : builder.ship.exItem;
+      this.isActive = builder.isActive !== undefined ? builder.isActive : builder.ship.isActive;
+      this.isEscort = builder.isEscort !== undefined ? builder.isEscort : builder.ship.isEscort;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
-      this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
-      this.exItem = builder.exItem !== undefined ? builder.exItem : new Item();
       this.items = builder.items !== undefined ? builder.items.concat() : [];
+      this.exItem = builder.exItem !== undefined ? builder.exItem : new Item();
+      this.isActive = builder.isActive !== undefined ? builder.isActive : true;
+      this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
     }
 
     // 装備が空だったらマスタのスロット数だけ作成

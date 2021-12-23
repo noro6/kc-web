@@ -22,6 +22,7 @@
       </div>
       <div class="d-flex flex-wrap mx-3">
         <div
+          v-if="displayAllType"
           class="type-selector d-flex"
           :class="{ active: type === 0, disabled: keyword.length > 0 }"
           v-ripple="{ class: 'info--text' }"
@@ -42,7 +43,7 @@
       </div>
       <v-divider></v-divider>
       <div id="item-table-body">
-        <div class="pa-3" :class="{ 'multi': multiLine }">
+        <div class="pa-3" :class="{ multi: multiLine }">
           <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
             <div class="item-icon">
               <img :src="`/img/type/icon${item.iconTypeId}.png`" :alt="item.iconTypeId" />
@@ -74,6 +75,7 @@
   border: 1px solid transparent;
   padding: 0.25rem 0.6rem;
   cursor: pointer;
+  transition: 0.2s;
 }
 .type-selector:hover {
   background-color: rgba(128, 128, 128, 0.2);
@@ -158,6 +160,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemMaster from '@/classes/ItemMaster';
+import Ship from '@/classes/Ship';
+import Enemy from '@/classes/Enemy';
+import LandBase from '@/classes/LandBase';
+import Const from '@/classes/Const';
 
 export default Vue.extend({
   name: 'ItemList',
@@ -176,6 +182,7 @@ export default Vue.extend({
     multiLine: true,
     keyword: '',
     isEnemyMode: false,
+    displayAllType: true,
   }),
   mounted() {
     const items = this.$store.state.items as ItemMaster[];
@@ -223,8 +230,53 @@ export default Vue.extend({
       this.type = type;
       this.filter();
     },
-    initialFilter(types: number[]) {
+    initialFilter(parent: Ship | Enemy | LandBase, isExpandSlot = false) {
       // 装備可能フィルタ
+      let types: number[] = [];
+      if (parent instanceof Ship && parent.data.id) {
+        // 渡された艦娘情報より装備可能種別を取得
+
+        const special = Const.SHIP_ITEM_LINK.find((v) => v.id === parent.data.id);
+        if (special) {
+          types = special.itemType;
+        } else {
+          // 汎用
+          const info = Const.SHIP_TYPES_INFO.find((v) => v.id === parent.data.type);
+          if (info) {
+            types = info.itemType;
+          }
+        }
+      } else if (parent instanceof Ship) {
+        // 空の艦娘 全部盛り
+        for (let i = 1; i <= 60; i += 1) {
+          if (Const.LB_PLANE_TYPES.includes(i)) {
+            continue;
+          }
+          types.push(i);
+          // カテゴリ全ては重いので削除
+          this.displayAllType = false;
+          if (this.type === 0) {
+            this.type = 1;
+          }
+        }
+      } else if (parent instanceof LandBase) {
+        // 基地航空隊 全艦載機装備可能
+        types = Const.PLANE_TYPES.concat();
+      } else if (parent instanceof Enemy) {
+        // 渡された敵艦種より装備可能種別を取得
+        const info = Const.SHIP_TYPES_INFO.find((v) => v.id === parent.data.type);
+        if (info) {
+          types = info.itemType;
+        }
+      }
+
+      if (isExpandSlot) {
+        // 補強増設枠フィルタ
+        const enableds = Const.EXPANDED_ITEM_TYPE;
+        types = types.filter((v) => enableds.includes(v));
+      }
+
+      console.log(types);
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
       this.filter();
     },

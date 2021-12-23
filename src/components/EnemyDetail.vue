@@ -19,41 +19,41 @@
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
-                  <span class="v-chip-value">{{ airPowerBorders[0] }}</span>
+                  <span class="chip-value">{{ airPowerBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
                   <span>優勢:</span>
-                  <span class="v-chip-value">{{ airPowerBorders[1] }}</span>
+                  <span class="chip-value">{{ airPowerBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
                   <span>拮抗:</span>
-                  <span class="v-chip-value">{{ airPowerBorders[2] }}</span>
+                  <span class="chip-value">{{ airPowerBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
                   <span>劣勢:</span>
-                  <span class="v-chip-value">{{ airPowerBorders[3] }}</span>
+                  <span class="chip-value">{{ airPowerBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
-            <div v-if="airPower !== landbaseAirPower" class="mt-1 d-flex air-power-info flex-wrap">
+            <div class="mt-1 d-flex air-power-info flex-wrap" v-if="airPower !== landbaseAirPower">
               <div class="text--secondary label-text">基地制空値:</div>
               <div class="value-text mr-3">{{ landbaseAirPower }}</div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
-                  <span class="v-chip-value">{{ landbaseAirPowerBorders[0] }}</span>
+                  <span class="chip-value">{{ landbaseAirPowerBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
                   <span>優勢:</span>
-                  <span class="v-chip-value">{{ landbaseAirPowerBorders[1] }}</span>
+                  <span class="chip-value">{{ landbaseAirPowerBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
                   <span>拮抗:</span>
-                  <span class="v-chip-value">{{ landbaseAirPowerBorders[2] }}</span>
+                  <span class="chip-value">{{ landbaseAirPowerBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
                   <span>劣勢:</span>
-                  <span class="v-chip-value">{{ landbaseAirPowerBorders[3] }}</span>
+                  <span class="chip-value">{{ landbaseAirPowerBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
@@ -224,6 +224,10 @@
   .enemy-inputs-container {
     grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+.chip-value {
+  font-weight: 500;
 }
 
 .form-control {

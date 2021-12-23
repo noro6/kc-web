@@ -2,33 +2,23 @@
   <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
     <div class="pa-2">基地航空隊</div>
     <v-divider></v-divider>
-    <div class="d-flex">
-      <div class="align-self-center switch-defense">
-        <v-switch v-model="isDefenseMode" hide-details :label="'防空計算モード'"></v-switch>
+    <div>
+      <div class="switch-defense d-flex">
+        <v-switch v-model="isDefenseMode" hide-details :label="'防空計算モード'" @change="changedMode"></v-switch>
+        <v-spacer></v-spacer>
       </div>
-      <v-spacer></v-spacer>
+      <div class="ml-3 mb-2" v-show="isDefenseMode">
+        <span class="text--secondary">防空時制空値:</span>
+        <span class="ml-1 font-weight-medium">{{ landBaseInfo.defenseAirPower }}</span>
+      </div>
     </div>
     <v-tabs class="small-landbases" v-model="tab" vertical>
-      <v-tab href="#base1">
-        <div class="land-base-tab-text d-none d-sm-block">第1基地航空隊</div>
-        <div class="land-base-tab-text d-sm-none">第1航空隊</div>
+      <v-tab v-for="i in 3" :key="i" :href="`#base${i}`">
+        <div class="land-base-tab-text d-none d-sm-block">第{{ i }}基地航空隊</div>
+        <div class="land-base-tab-text d-sm-none">第{{ i }}航空隊</div>
       </v-tab>
-      <v-tab href="#base2">
-        <div class="land-base-tab-text d-none d-sm-block">第2基地航空隊</div>
-        <div class="land-base-tab-text d-sm-none">第2航空隊</div>
-      </v-tab>
-      <v-tab href="#base3">
-        <div class="land-base-tab-text d-none d-sm-block">第3基地航空隊</div>
-        <div class="land-base-tab-text d-sm-none">第3航空隊</div>
-      </v-tab>
-      <v-tab-item value="base1" class="py-1">
-        <land-base-comp v-model="landBaseInfo.landBases[0]" :handle-show-item-list="showItemList" />
-      </v-tab-item>
-      <v-tab-item value="base2" class="py-1">
-        <land-base-comp v-model="landBaseInfo.landBases[1]" :handle-show-item-list="showItemList" />
-      </v-tab-item>
-      <v-tab-item value="base3" class="py-1">
-        <land-base-comp v-model="landBaseInfo.landBases[2]" :handle-show-item-list="showItemList" />
+      <v-tab-item v-for="(lb, i) in landBaseInfo.landBases" :key="i" :value="`base${i + 1}`" class="py-1">
+        <land-base-comp v-model="landBaseInfo.landBases[i]" :handle-show-item-list="showItemList" />
       </v-tab-item>
     </v-tabs>
     <draggable
@@ -40,6 +30,7 @@
       <land-base-comp
         v-for="(lb, i) in landBaseInfo.landBases"
         :key="i"
+        :class="{ unmatch: unmatchModes[i] }"
         v-model="landBaseInfo.landBases[i]"
         :handle-show-item-list="showItemList"
       />
@@ -59,6 +50,10 @@
 }
 .v-input--selection-controls {
   margin: 0.6rem 0.5rem;
+}
+
+.unmatch {
+  opacity: 0.6;
 }
 
 .normal-landbases {
@@ -126,22 +121,31 @@ export default Vue.extend({
   watch: {
     landBaseInfo: {
       handler() {
-        console.log('★ watch LandBaseInfo ★');
+        console.log('★ watch LandBaseInfo Updated');
       },
       deep: true,
     },
   },
-  mounted() {
-    const info = this.landBaseInfo;
-    for (let i = 0; i < 3; i += 1) {
-      info.landBases.push(new LandBase(i + 1, LB_MODE.WAIT));
-    }
+  computed: {
+    unmatchModes(): boolean[] {
+      const modes = this.landBaseInfo.landBases.map((v) => v.mode);
+      if (this.landBaseInfo.isDefense) {
+        return modes.map((v) => v !== LB_MODE.DEFFENSE);
+      }
+
+      return modes.map((v) => v !== LB_MODE.BATTLE);
+    },
   },
   methods: {
     async showItemList(no: number, slot: number) {
       this.dialogTarget = [no, slot];
+      const index = this.landBaseInfo.landBases.findIndex((v) => v.no === no);
+      const base = this.landBaseInfo.landBases[index];
       await (this.itemListDialog = true);
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(Const.PLANE_TYPES);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base);
+    },
+    changedMode() {
+      this.landBaseInfo = new LandBaseInfo(this.isDefenseMode, this.landBaseInfo.landBases.concat());
     },
     dragEnd() {
       for (let i = 0; i < this.landBaseInfo.landBases.length; i += 1) {
@@ -174,13 +178,16 @@ export default Vue.extend({
           this.itemListDialog = false;
         }
 
+        let landBase: LandBase;
         if (base.mode === LB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.slot > 0)) {
           // 待機札だった場合は出撃札に変更してインスタンス化
-          this.landBaseInfo.landBases[index] = new LandBase(base.no, this.isDefenseMode ? LB_MODE.DEFFENSE : LB_MODE.BATTLE, base.items);
+          landBase = new LandBase(base.no, this.isDefenseMode ? LB_MODE.DEFFENSE : LB_MODE.BATTLE, base.items);
         } else {
           // 特に札は変更せずインスタンス化
-          this.landBaseInfo.landBases[index] = new LandBase(base.no, base.mode, base.items);
+          landBase = new LandBase(base.no, base.mode, base.items);
         }
+        // リアクティブ再登録
+        this.$set(this.landBaseInfo.landBases, index, landBase);
       }
     },
   },

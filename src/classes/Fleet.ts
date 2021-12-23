@@ -30,6 +30,9 @@ export default class Fleet {
   /** 連合艦隊フラグ */
   public readonly isAllSubmarine: boolean;
 
+  /** 艦隊制空値 */
+  public readonly fullAirPower: number;
+
   /** 艦隊防空値 */
   public readonly fleetAntiAir: number;
 
@@ -55,32 +58,15 @@ export default class Fleet {
     this.isAllSubmarine = false;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
-  }
 
-  /**
-   * この艦隊総制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof Fleet
-   */
-  get airPower(): number {
-    return Fleet.getSumAirPower(this.ships);
-  }
-
-  /**
-   * Ship配列から制空値を合計するだけのメソッド
-   * @private
-   * @static
-   * @param {Ship[]} ships
-   * @returns {number} 制空値合計
-   * @memberof Fleet
-   */
-  private static getSumAirPower(ships: Ship[]): number {
-    let sum = 0;
-    for (let i = 0; i < ships.length; i += 1) {
-      sum += ships[i].fullAirPower;
+    // 制空値合計
+    this.fullAirPower = 0;
+    for (let i = 0; i < this.ships.length; i += 1) {
+      const ship = this.ships[i];
+      if (ship.isActive) {
+        this.fullAirPower += this.ships[i].fullAirPower;
+      }
     }
-    return sum;
   }
 
   /**

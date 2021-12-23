@@ -10,7 +10,7 @@
     </div>
     <div class="d-flex mx-2 mt-5">
       <div class="align-self-center" id="battle-count-select">
-        <v-select dense v-model="battleInfo.battleCount" :items="items" label="戦闘回数"></v-select>
+        <v-select dense v-model="battleCount" :items="items" label="戦闘回数" @input="changedBattleCount"></v-select>
       </div>
     </div>
     <div class="d-flex flex-wrap">
@@ -49,7 +49,6 @@ import ItemList from '@/components/ItemList.vue';
 import EnemyMaster from '@/classes/EnemyMaster';
 import BattleInfo from '@/classes/BattleInfo';
 import ItemMaster from '@/classes/ItemMaster';
-import Const from '@/classes/Const';
 import Enemy from '@/classes/Enemy';
 import Item, { ItemBuilder } from '@/classes/Item';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/EnemyFleet';
@@ -65,6 +64,7 @@ export default Vue.extend({
   },
   data: () => ({
     battleInfo: new BattleInfo(),
+    battleCount: 1,
     items: BattleCountItems,
     enemyListDialog: false,
     itemListDialog: false,
@@ -73,21 +73,25 @@ export default Vue.extend({
   watch: {
     battleInfo: {
       handler() {
-        console.log('★ watch battleInfo ★');
+        console.log('★ watch BattleInfo Updated');
       },
       deep: true,
     },
   },
   methods: {
-    async showItemList(fleetIndex: number, index: number) {
-      this.dialogTarget = [fleetIndex, index];
+    async showItemList(fleetIndex: number, enemyIndex: number) {
+      this.dialogTarget = [fleetIndex, enemyIndex];
+      const enemy = this.battleInfo.fleets[fleetIndex].enemies[enemyIndex];
       await (this.itemListDialog = true);
       this.itemListDialog = true;
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(Const.PLANE_TYPES);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(enemy);
     },
     showEnemyList(battle: number, index: number) {
       this.dialogTarget = [battle, index];
       this.enemyListDialog = true;
+    },
+    changedBattleCount() {
+      this.battleInfo = new BattleInfo(this.battleInfo.fleets, this.battleCount);
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
@@ -114,6 +118,7 @@ export default Vue.extend({
       const enemies = fleet.enemies.concat();
       enemies[index] = new Enemy(enemy, items, isEscort);
       const builder: EnemyFleetBuilder = { fleet, enemies };
+
       // 敵編成が更新されたため、敵艦隊を再インスタンス化し更新
       this.$set(this.battleInfo.fleets, fleetIndex, new EnemyFleet(builder));
     },

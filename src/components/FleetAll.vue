@@ -2,22 +2,42 @@
   <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
     <div class="pa-2">自艦隊</div>
     <v-divider></v-divider>
-    <v-tabs class="small-landbases" v-model="tab">
-      <v-tab v-for="(fleet, i) in fleetInfo.fleets" :key="i" :href="`#fleet${i}`">第{{ i + 1 }}艦隊</v-tab>
+    <v-row align="center" class="mt-1 ml-4" dense>
+      <div class="admiral-level align-self-center">
+        <v-text-field
+          type="number"
+          dense
+          hide-details
+          label="司令部Lv"
+          max="120"
+          min="1"
+          v-model.number="fleetInfo.admiralLevel"
+          @input="changedAdmiralLv"
+        ></v-text-field>
+      </div>
+      <div class="ml-4">
+        <v-checkbox v-model="fleetInfo.isUnion" label="連合艦隊" @change="changedIsUnion"></v-checkbox>
+      </div>
+    </v-row>
+    <v-tabs v-model="tab" class="px-2">
+      <v-tab v-for="i in 4" :key="i" :href="`#fleet${i - 1}`">
+        <template v-if="fleetInfo.isUnion && i === 1">主力艦隊</template>
+        <template v-else-if="fleetInfo.isUnion && i === 2">随伴艦隊</template>
+        <template v-else>第{{ i }}艦隊</template>
+      </v-tab>
+      <v-tab href="#fleet4">機動部隊(航空)友軍</v-tab>
     </v-tabs>
-    <v-divider></v-divider>
-    <div>
-      <v-tabs-items v-model="tab">
-        <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`">
-          <fleet-component
-            v-model="fleetInfo.fleets[i]"
-            :index="i"
-            :handle-show-ship-list="showShipList"
-            :handle-show-item-list="showItemList"
-          ></fleet-component>
-        </v-tab-item>
-      </v-tabs-items>
-    </div>
+    <v-divider class="mx-2"></v-divider>
+    <v-tabs-items v-model="tab">
+      <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`">
+        <fleet-component
+          v-model="fleetInfo.fleets[i]"
+          :index="i"
+          :handle-show-ship-list="showShipList"
+          :handle-show-item-list="showItemList"
+        ></fleet-component>
+      </v-tab-item>
+    </v-tabs-items>
     <v-dialog v-model="shipListDialog" width="1200">
       <ship-list :handle-decide-ship="putShip" />
     </v-dialog>
@@ -33,6 +53,10 @@
 }
 .theme--dark.v-tabs-items {
   background-color: transparent;
+}
+
+.admiral-level {
+  width: 120px;
 }
 </style>
 
@@ -67,17 +91,17 @@ export default Vue.extend({
   watch: {
     fleetInfo: {
       handler() {
-        console.log('★ watch fleetInfo ★');
+        console.log('★ watch FleetInfo Updated');
       },
       deep: true,
     },
   },
   methods: {
     async showItemList(fleetIndex: number, shipIndex: number, slotIndex: number) {
+      const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.itemDialogTarget = [fleetIndex, shipIndex, slotIndex];
       await (this.itemListDialog = true);
-      this.itemListDialog = true;
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(Const.PLANE_TYPES);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex === Const.EXPAND_SLOT_INDEX);
     },
     showShipList(fleetIndex: number, shipIndex: number) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
@@ -168,6 +192,12 @@ export default Vue.extend({
       // 再生成した艦娘インスタンスで該当艦娘を置き換えた艦隊インスタンスを設定
       const builder: FleetBuilder = { fleet, ships: fleet.ships.concat() };
       this.$set(this.fleetInfo.fleets, fleetIndex, new Fleet(builder));
+    },
+    changedAdmiralLv() {
+      // 索敵値を再計算
+    },
+    changedIsUnion() {
+      // 連合非連合かわった
     },
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <div class="my-5">
+  <div class="my-5" @dragover.prevent @drop="dropItem">
     <div id="landbase-frame">
       <land-base-all></land-base-all>
     </div>
@@ -33,6 +33,13 @@ export default Vue.extend({
     LandBaseAll,
     FleetAll,
     EnemyFleetAll,
+  },
+  methods: {
+    dropItem() {
+      // ドラッグ中itemをドロップ時消すフラグを建てる
+      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
+      draggingDiv.classList.add('delete-flg');
+    },
   },
 });
 </script>

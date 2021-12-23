@@ -1,12 +1,12 @@
 <template>
-  <v-card elevation="2" class="mx-1 py-2 land-base-content">
+  <v-card elevation="2" class="mx-1 py-2 land-base-content" @dragover.prevent @drop.stop>
     <div class="d-flex">
       <div class="ml-2 align-self-center land-base-title">第{{ landBase.no }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
         <v-select dense v-model="landBase.mode" :items="modes"></v-select>
       </div>
-      <div class="mr-1 mt-1" :class="{ opacity6: landBase.mode === -1 }">
+      <div class="mr-1 mt-1">
         <v-btn color="info" icon small>
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
@@ -15,7 +15,7 @@
         </v-btn>
       </div>
     </div>
-    <div class="land-base-body" :class="{ opacity6: landBase.mode === -1 }">
+    <div class="land-base-body">
       <div class="d-flex caption px-2">
         <div>
           制空:<span class="ml-1 font-weight-medium">{{ landBase.airPower }}</span>
@@ -26,17 +26,15 @@
           半径:<span class="ml-1 font-weight-medium">{{ landBase.range }}</span>
         </div>
       </div>
-      <div>
-        <item-input
-          v-for="(item, i) in landBase.items"
-          :key="i"
-          v-model="landBase.items[i]"
-          :index="i"
-          :handle-show-item-list="showItemList"
-          :max="item.isRecon ? 4 : 18"
-          :init="item.isRecon ? 4 : 18"
-        />
-      </div>
+      <item-input
+        v-for="(item, i) in landBase.items"
+        :key="i"
+        v-model="landBase.items[i]"
+        :index="i"
+        :handle-show-item-list="showItemList"
+        :max="item.isRecon ? 4 : 18"
+        :init="item.isRecon ? 4 : 18"
+      />
       <div class="mx-1 mt-3">
         <div class="d-flex">
           <div class="mr-1 status-reuslt">
@@ -108,9 +106,6 @@
 </template>
 
 <style scoped>
-.opacity6 {
-  opacity: 0.6;
-}
 .land-base-title {
   cursor: move;
 }

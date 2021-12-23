@@ -18,6 +18,6 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'linebreak-style': 0,
-    'max-len': ["error", { "code": 200 }]
+    'max-len': 'off',
   },
 };
