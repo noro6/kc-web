@@ -1,15 +1,31 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" app temporary> </v-navigation-drawer>
-    <v-app-bar app dense dark class="pr-2">
+    <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-btn depressed><v-icon>mdi-content-save</v-icon>編成保存</v-btn>
-      <v-btn depressed><v-icon>mdi-content-duplicate</v-icon>別名保存</v-btn>
-      <v-btn depressed><v-icon>mdi-share-variant</v-icon>編成共有</v-btn>
-      <v-spacer></v-spacer>
-      <v-btn depressed @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
-      <v-btn depressed @click="$route.path !== '/aircalc' && $router.push('aircalc')">制空計算</v-btn>
-      <v-btn depressed @click="$route.path !== '/manager' && $router.push('manager')">所持管理</v-btn>
+      <v-btn class="header-btn" depressed><v-icon small>mdi-content-save</v-icon>編成保存</v-btn>
+      <v-btn class="header-btn" depressed><v-icon small>mdi-content-duplicate</v-icon>別名保存</v-btn>
+      <v-btn class="header-btn" depressed><v-icon small>mdi-share-variant</v-icon>編成共有</v-btn>
+      <div id="multipurpose-textarea">
+        <v-textarea
+          v-model.trim="somethingText"
+          outlined
+          dense
+          hide-details
+          no-resize
+          placeholder="デッキビルダー形式データ:{version:4,hqlv:120,f1:{s1:..."
+          rows="1"
+          :color="getTextareaColor"
+          :append-icon="somethingText ? 'mdi-send' : ''"
+          clear-icon="mdi-close-circle"
+          clearable
+          :loading="readState"
+          @click:append="readSomethingText"
+        ></v-textarea>
+      </div>
+      <v-btn class="header-btn" depressed @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
+      <v-btn class="header-btn" depressed @click="$route.path !== '/aircalc' && $router.push('aircalc')">制空計算</v-btn>
+      <v-btn class="header-btn" depressed @click="$route.path !== '/manager' && $router.push('manager')">所持管理</v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
@@ -90,25 +106,60 @@
 </template>
 
 <style>
+/** 基本背景色変更 */
 .theme--light.v-application {
   background-color: rgb(240, 235, 230) !important;
 }
+/** ダークテーマ 基本背景色変更 */
 .theme--dark.v-application {
   background-color: rgb(20, 22, 28) !important;
 }
+/** セレクトボックス dense適用時フォントを小さく */
 .v-input--dense .v-select__selection {
   font-size: 0.85em;
 }
-.v-card .theme--dark.v-tabs > .v-tabs-bar {
-  background-color: rgb(25, 25, 28);
+
+/** ダークテーマ card1層目 */
+.theme--dark.v-card {
+  background-color: rgb(25, 25, 28) !important;
 }
-.v-dialog .theme--dark.v-tabs > .v-tabs-bar {
-  background-color: #1e1e1e;
+/** ダークテーマ card2層目 */
+.theme--dark.v-card .v-card {
+  background-color: rgb(32, 32, 35) !important;
+}
+/** ダークテーマ card3層目 */
+.theme--dark.v-card .v-card .v-card {
+  background-color: rgb(40, 40, 43) !important;
+}
+
+/** タブ内背景色を裏と合わせる */
+.v-tabs-bar,
+.v-tabs-items {
+  background-color: transparent !important;
+}
+
+#multipurpose-textarea {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  flex-grow: 1;
+}
+#multipurpose-textarea textarea {
+  font-size: 0.8em;
+  overflow: hidden !important;
+}
+</style>
+
+<style scoped>
+.header-btn {
+  font-size: 0.8em;
+  padding-right: 0.2rem !important;
+  padding-left: 0.2rem !important;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import Convert from '@/classes/Convert';
 
 export default Vue.extend({
   name: 'App',
@@ -117,15 +168,39 @@ export default Vue.extend({
     config: false,
     loading: true,
     confirmTabClose: false,
+    somethingText: '',
+    textareaHasError: false,
+    readState: false as boolean | string,
   }),
   computed: {
     completed() {
       return this.$store.getters.getCompleted;
     },
+    getTextareaColor() {
+      return this.somethingText && this.textareaHasError ? 'red darken-4' : 'primary';
+    },
   },
   watch: {
     completed(value) {
       this.loading = !value;
+    },
+  },
+  methods: {
+    readSomethingText() {
+      this.readState = 'primary';
+
+      try {
+        const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+        const newManager = converter.loadDeckBuilder(this.somethingText);
+        this.somethingText = '';
+        this.readState = false;
+
+        this.$store.dispatch('setCalcManager', newManager);
+      } catch (error) {
+        console.error(error);
+        this.readState = false;
+        this.textareaHasError = true;
+      }
     },
   },
 });

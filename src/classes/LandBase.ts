@@ -1,10 +1,16 @@
 import { LB_MODE } from './Const';
 import Item from './Item';
 
-export default class LandBase {
-  /** 第X基地航空隊 ここを変えてもステータスには影響しないので not readonly */
-  public no: number;
+export interface LandBaseBuilder {
+  // eslint-disable-next-line no-use-before-define
+  landbase?: LandBase | undefined;
+  /** 装備 未指定ならshipの装備で作成 */
+  items?: Item[];
+  /** 基地お札 */
+  mode?: number;
+}
 
+export default class LandBase {
   /** 装備一覧 */
   public readonly items: Item[];
 
@@ -20,14 +26,19 @@ export default class LandBase {
   /** 防空制空値 */
   public readonly defenseAirPower: number;
 
-  constructor(no: number, mode:number = LB_MODE.WAIT, item: Item[] = []) {
+  constructor(builder: LandBaseBuilder = {}) {
     console.log('LandBase initialize');
-    this.no = no;
-    this.items = item.concat();
-    this.mode = mode;
+    if (builder.landbase) {
+      this.items = builder.items !== undefined ? builder.items : builder.landbase.items.concat();
+      this.mode = builder.mode !== undefined ? builder.mode : builder.landbase.mode;
+    } else {
+      this.items = builder.items !== undefined ? builder.items : [];
+      this.mode = builder.mode !== undefined ? builder.mode : LB_MODE.WAIT;
+    }
 
-    if (!this.items.length) {
-      for (let i = 0; i < 4; i += 1) {
+    const itemCount = this.items.length;
+    if (itemCount < 4) {
+      for (let i = 0; i < 4 - itemCount; i += 1) {
         // 第4隊まで自動生成
         this.items.push(new Item());
       }

@@ -183,7 +183,7 @@ export default class EnemyFleet {
     }
 
     // 艦隊防空補正 => 艦隊防空
-    return fleetAntiAir;
+    return 2 * fleetAntiAir;
   }
 
   /**

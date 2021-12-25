@@ -3,14 +3,23 @@
     <div class="pa-2">基地航空隊</div>
     <v-divider></v-divider>
     <div>
-      <div class="switch-defense d-flex">
-        <v-switch v-model="isDefenseMode" hide-details :label="'防空計算モード'" @change="changedMode"></v-switch>
+      <div class="d-flex mb-2">
+        <v-switch v-model="isDefenseMode" hide-details :label="'防空計算モード'" @change="setInfo"></v-switch>
         <v-spacer></v-spacer>
       </div>
-      <div class="ml-3 mb-2" v-show="isDefenseMode">
-        <span class="text--secondary">防空時制空値:</span>
-        <span class="ml-1 font-weight-medium">{{ landBaseInfo.defenseAirPower }}</span>
-      </div>
+      <template v-if="isDefenseMode">
+        <div class="ml-3">
+          <span class="text--secondary">防空時制空値:</span>
+          <span class="ml-1 font-weight-medium">{{ landBaseInfo.defenseAirPower }}</span>
+        </div>
+        <div class="ml-3 my-3 d-flex">
+          <div class="align-self-center text--secondary">対重爆制空値:</div>
+          <div class="align-self-center ml-1 font-weight-medium">{{ landBaseInfo.highDefenseAirPower }}</div>
+          <div class="ml-8 difficulty-select">
+            <v-select dense v-model="difficultyLevel" hide-details :items="difficultyLevelItem" label="難易度" @change="setInfo"></v-select>
+          </div>
+        </div>
+      </template>
     </div>
     <v-tabs class="small-landbases" v-model="tab" vertical>
       <v-tab v-for="i in 3" :key="i" :href="`#base${i}`">
@@ -18,21 +27,23 @@
         <div class="land-base-tab-text d-sm-none">第{{ i }}航空隊</div>
       </v-tab>
       <v-tab-item v-for="(lb, i) in landBaseInfo.landBases" :key="i" :value="`base${i + 1}`" class="py-1">
-        <land-base-comp v-model="landBaseInfo.landBases[i]" :handle-show-item-list="showItemList" />
+        <land-base-comp v-model="landBaseInfo.landBases[i]" :index="i" :handle-show-item-list="showItemList" @input="setInfo" />
       </v-tab-item>
     </v-tabs>
     <draggable
       class="normal-landbases"
       v-model="landBaseInfo.landBases"
       :options="{ handle: '.land-base-title', animation: 150 }"
-      @end="dragEnd()"
+      @end="setInfo"
     >
       <land-base-comp
         v-for="(lb, i) in landBaseInfo.landBases"
         :key="i"
         :class="{ unmatch: unmatchModes[i] }"
         v-model="landBaseInfo.landBases[i]"
+        :index="i"
         :handle-show-item-list="showItemList"
+        @input="setInfo"
       />
     </draggable>
     <v-dialog v-model="itemListDialog" width="1200">
@@ -42,14 +53,12 @@
 </template>
 
 <style scoped>
-.theme--dark.v-card {
-  background-color: rgb(25, 25, 28);
-}
-.switch-defense .v-label {
-  font-size: 1em;
-}
 .v-input--selection-controls {
   margin: 0.6rem 0.5rem;
+}
+
+.difficulty-select {
+  width: 80px;
 }
 
 .unmatch {
@@ -97,12 +106,12 @@
 import Vue from 'vue';
 import draggable from 'vuedraggable';
 import Item, { ItemBuilder } from '@/classes/Item';
-import Const, { LB_MODE } from '@/classes/Const';
+import Const, { LB_MODE, DIFFICULTY_LEVEL } from '@/classes/Const';
 import ItemMaster from '@/classes/ItemMaster';
-import LandBaseInfo from '@/classes/LandBaseInfo';
+import LandBaseInfo, { LandBaseInfoBuilder } from '@/classes/LandBaseInfo';
 import LandBaseComp from '@/components/LandBase.vue';
 import ItemList from '@/components/ItemList.vue';
-import LandBase from '@/classes/LandBase';
+import LandBase, { LandBaseBuilder } from '@/classes/LandBase';
 
 export default Vue.extend({
   name: 'LandBaseAll',
@@ -111,22 +120,24 @@ export default Vue.extend({
     ItemList,
     draggable,
   },
+  props: {
+    value: {
+      type: LandBaseInfo,
+      required: true,
+    },
+  },
   data: () => ({
-    landBaseInfo: new LandBaseInfo(),
     itemListDialog: false,
     isDefenseMode: false,
+    difficultyLevel: DIFFICULTY_LEVEL.HARD,
+    difficultyLevelItem: Const.DIFFICULTY_LEVELS,
     dialogTarget: [-1, -1],
     tab: 0,
   }),
-  watch: {
-    landBaseInfo: {
-      handler() {
-        console.log('★ watch LandBaseInfo Updated');
-      },
-      deep: true,
-    },
-  },
   computed: {
+    landBaseInfo(): LandBaseInfo {
+      return this.value;
+    },
     unmatchModes(): boolean[] {
       const modes = this.landBaseInfo.landBases.map((v) => v.mode);
       if (this.landBaseInfo.isDefense) {
@@ -137,26 +148,23 @@ export default Vue.extend({
     },
   },
   methods: {
-    async showItemList(no: number, slot: number) {
-      this.dialogTarget = [no, slot];
-      const index = this.landBaseInfo.landBases.findIndex((v) => v.no === no);
+    setInfo() {
+      const builder: LandBaseInfoBuilder = {
+        info: this.landBaseInfo,
+        isDefense: this.isDefenseMode,
+        difficultyLevel: this.difficultyLevel,
+      };
+      this.$emit('input', new LandBaseInfo(builder));
+    },
+    async showItemList(index: number, slot: number) {
+      this.dialogTarget = [index, slot];
       const base = this.landBaseInfo.landBases[index];
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base);
     },
-    changedMode() {
-      this.landBaseInfo = new LandBaseInfo(this.isDefenseMode, this.landBaseInfo.landBases.concat());
-    },
-    dragEnd() {
-      for (let i = 0; i < this.landBaseInfo.landBases.length; i += 1) {
-        this.landBaseInfo.landBases[i].no = i + 1;
-      }
-    },
     equipItem(item: ItemMaster) {
-      const no = this.dialogTarget[0];
+      const index = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
-      const index = this.landBaseInfo.landBases.findIndex((v) => v.no === no);
-
       const base = this.landBaseInfo.landBases[index];
       if (base) {
         if (slot < base.items.length) {
@@ -174,20 +182,18 @@ export default Vue.extend({
           }
 
           const builder: ItemBuilder = { master: item, slot: initialSlot, level: initialLevel };
-          this.$set(base.items, slot, new Item(builder));
+          base.items[slot] = new Item(builder);
           this.itemListDialog = false;
         }
 
-        let landBase: LandBase;
+        const builder: LandBaseBuilder = { landbase: base };
         if (base.mode === LB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.slot > 0)) {
-          // 待機札だった場合は出撃札に変更してインスタンス化
-          landBase = new LandBase(base.no, this.isDefenseMode ? LB_MODE.DEFFENSE : LB_MODE.BATTLE, base.items);
-        } else {
-          // 特に札は変更せずインスタンス化
-          landBase = new LandBase(base.no, base.mode, base.items);
+          // 待機札だった場合は出撃か防空札に変更
+          builder.mode = this.isDefenseMode ? LB_MODE.DEFFENSE : LB_MODE.BATTLE;
         }
         // リアクティブ再登録
-        this.$set(this.landBaseInfo.landBases, index, landBase);
+        this.landBaseInfo.landBases[index] = new LandBase(builder);
+        this.setInfo();
       }
     },
   },

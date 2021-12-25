@@ -3,12 +3,7 @@
     <v-card>
       <div class="d-flex px-5 pt-2">
         <div class="align-self-center">
-          <v-text-field
-            label="id 名称検索"
-            v-model="keyword"
-            @input="filter()"
-            prepend-inner-icon="mdi-magnify"
-          ></v-text-field>
+          <v-text-field label="id 名称検索" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
         </div>
         <div class="ml-5 align-self-center">
           <v-checkbox v-model="isLandBase" @change="filter()" label="地上施設"></v-checkbox>
@@ -21,7 +16,7 @@
           :key="index"
           v-ripple="{ class: 'info--text' }"
           class="type-selector"
-          :class="{ active: index === type, disabled: keyword.length > 0 || isLandBase }"
+          :class="{ active: index === type, disabled: keyword || isLandBase }"
           @click="changeType(index)"
         >
           {{ i.text }}
@@ -30,13 +25,7 @@
       <v-divider></v-divider>
       <div class="enemy-table-body">
         <div class="pa-3 d-flex flex-wrap">
-          <div
-            v-ripple="{ class: 'info--text' }"
-            v-for="(enemy, i) in enemies"
-            :key="i"
-            class="enemy-list"
-            @click="clickedEnemy(enemy)"
-          >
+          <div v-ripple="{ class: 'info--text' }" v-for="(enemy, i) in enemies" :key="i" class="enemy-list" @click="clickedEnemy(enemy)">
             <div>
               <v-img :src="`/img/enemy/${enemy.id - 1500}.png`" height="30" width="120"></v-img>
             </div>
@@ -149,7 +138,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword.trim();
+      const word = this.keyword;
       let result = this.all.concat();
       const t = this.types[this.type];
 

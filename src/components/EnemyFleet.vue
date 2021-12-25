@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="2" class="ma-1 py-2">
+  <v-card class="ma-1 py-2">
     <div class="d-flex">
       <div class="ml-2 align-self-center">{{ index + 1 }}戦目</div>
       <v-spacer></v-spacer>
@@ -68,9 +68,6 @@
 </template>
 
 <style scoped>
-.v-card .theme--dark.v-card {
-  background-color: rgb(35, 35, 38);
-}
 .v-btn--outlined {
   padding: 0 0.25rem !important;
 }
@@ -173,8 +170,12 @@ export default Vue.extend({
       this.detailDialog = true;
       this.destroyDialog = false;
     },
-    setFleet(fleet: EnemyFleet) {
-      this.$emit('input', fleet);
+    setFleet(fleet?: EnemyFleet) {
+      if (fleet === undefined) {
+        this.$emit('input', new EnemyFleet({ fleet: this.fleet }));
+      } else {
+        this.$emit('input', fleet);
+      }
     },
     resetFleet() {
       this.setFleet(new EnemyFleet());

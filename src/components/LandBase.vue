@@ -1,10 +1,10 @@
 <template>
-  <v-card elevation="2" class="mx-1 py-2 land-base-content" @dragover.prevent @drop.stop>
+  <v-card class="mx-1 py-2 land-base-content" @dragover.prevent @drop.stop>
     <div class="d-flex">
-      <div class="ml-2 align-self-center land-base-title">第{{ landBase.no }}基地航空隊</div>
+      <div class="ml-2 align-self-center land-base-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
-        <v-select dense v-model="landBase.mode" :items="modes"></v-select>
+        <v-select dense v-model="landBase.mode" :items="modes" @change="updateItem" ></v-select>
       </div>
       <div class="mr-1 mt-1">
         <v-btn color="info" icon small>
@@ -26,6 +26,7 @@
           半径:<span class="ml-1 font-weight-medium">{{ landBase.range }}</span>
         </div>
       </div>
+      <v-divider></v-divider>
       <item-input
         v-for="(item, i) in landBase.items"
         :key="i"
@@ -34,6 +35,7 @@
         :handle-show-item-list="showItemList"
         :max="item.isRecon ? 4 : 18"
         :init="item.isRecon ? 4 : 18"
+        @input="updateItem"
       />
       <div class="mx-1 mt-3">
         <div class="d-flex">
@@ -109,10 +111,6 @@
 .land-base-title {
   cursor: move;
 }
-.v-card .theme--dark.v-card {
-  background-color: rgb(35, 35, 38);
-}
-
 .mode-select {
   width: 80px;
 }
@@ -120,20 +118,23 @@
 .status-reuslt {
   width: 26px;
   position: relative;
+  opacity: 0.8;
 }
 .status-reuslt-label {
+  text-align: center;
   position: relative;
   white-space: nowrap;
-  font-size: 12px;
-  bottom: 5px;
+  font-size: 11px;
+  width: 100%;
+  bottom: 4px;
 }
 .status-reuslt-rate {
   position: absolute;
   white-space: nowrap;
   text-align: right;
-  font-size: 11px;
+  font-size: 10px;
   width: 100%;
-  top: 10px;
+  top: 7px;
 }
 
 .status-bar-label {
@@ -143,6 +144,7 @@
   position: relative;
 }
 .status-bar-label > div {
+  opacity: 0.8;
   bottom: -2px;
   width: 100%;
   font-size: 11px;
@@ -161,7 +163,7 @@
 import Vue from 'vue';
 import ItemInput from './ItemInput.vue';
 import LandBase from '@/classes/LandBase';
-import Const, { LB_MODE } from '@/classes/Const';
+import Const from '@/classes/Const';
 
 export default Vue.extend({
   components: { ItemInput },
@@ -173,6 +175,10 @@ export default Vue.extend({
     },
     value: {
       type: LandBase,
+      required: true,
+    },
+    index: {
+      type: Number,
       required: true,
     },
   },
@@ -191,11 +197,18 @@ export default Vue.extend({
     },
   },
   methods: {
-    setLandBase(value: LandBase) {
-      this.$emit('input', value);
+    updateItem() {
+      this.setLandBase();
+    },
+    setLandBase(value?: LandBase) {
+      if (value === undefined) {
+        this.$emit('input', new LandBase({ landbase: this.landBase }));
+      } else {
+        this.$emit('input', value);
+      }
     },
     showItemList(index: number) {
-      this.handleShowItemList(this.landBase.no, index);
+      this.handleShowItemList(this.index, index);
     },
     getStatusColor(value: number) {
       if (value >= 90) {
@@ -213,7 +226,7 @@ export default Vue.extend({
       return 'red';
     },
     resetItems(): void {
-      this.setLandBase(new LandBase(this.landBase.no, LB_MODE.WAIT));
+      this.setLandBase(new LandBase());
     },
   },
 });

@@ -12,11 +12,10 @@
       <div
         v-on="on"
         v-ripple="{ class: 'info--text' }"
-        class="item-input"
-        :class="{ readonly: readonly, expand: isExpandSlot, 'no-item': isNoItem, 'not-plane': !isPlane }"
+        :class="itemClass"
         :draggable="isDraggabe"
         @dragstart="dragStart(item, $event)"
-        @dragenter="dragEnter(item, $event)"
+        @dragenter="dragEnter($event)"
         @dragleave="dragLeave($event)"
         @drop.stop="dropItem($event)"
         @dragend="dragEnd($event)"
@@ -57,10 +56,10 @@
           <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
         </div>
         <!-- 装備名称 -->
-        <div class="item-name text-truncate" @click.stop="showItemList()">
-          {{ item.data && item.data.name ? item.data.name : "未装備" }}
+        <div class="item-name text-truncate" :class="{ 'secondary--text': isNoItem }" @click.stop="showItemList()">
+          {{ isNoItem ? "未装備" : item.data.name }}
         </div>
-        <template v-if="!isNoItem">
+        <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
           <!-- 改修値 -->
           <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow">
             <template v-slot:activator="{ on, attrs }">
@@ -155,14 +154,206 @@
 <style scoped>
 .item-input {
   display: flex;
-  margin-left: 0.1rem;
-  margin-right: 0.1rem;
   transition: 0.1s;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.24);
 }
 .item-input:hover {
-  background-color: rgba(128, 128, 128, 0.1);
+  box-shadow: inset 0 0 24px rgba(128, 128, 128, 0.3);
 }
+.item-input > * {
+  user-select: none;
+}
+
+/** アイコン毎の背景色 */
+.item-input.type-1,
+.item-input.type-2,
+.item-input.type-3,
+.item-input.type-7 {
+  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.15);
+}
+.item-input.type-1:hover,
+.item-input.type-2:hover,
+.item-input.type-3:hover,
+.item-input.type-7:hover {
+  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.4);
+}
+.item-input.type-4,
+.item-input.type-9,
+.item-input.type-19,
+.item-input.type-27,
+.item-input.type-39,
+.item-input.type-40 {
+  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15);
+}
+.item-input.type-4:hover,
+.item-input.type-9:hover,
+.item-input.type-19:hover,
+.item-input.type-27:hover,
+.item-input.type-39:hover,
+.item-input.type-40:hover {
+  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4);
+}
+.item-input.type-5,
+.item-input.type-8 {
+  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15);
+}
+.item-input.type-5:hover,
+.item-input.type-8:hover {
+  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.4);
+}
+.item-input.type-6,
+.item-input.type-12,
+.item-input.type-15,
+.item-input.type-16,
+.item-input.type-21,
+.item-input.type-44 {
+  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15);
+}
+.item-input.type-6:hover,
+.item-input.type-12:hover,
+.item-input.type-15:hover,
+.item-input.type-16:hover,
+.item-input.type-21:hover,
+.item-input.type-44:hover {
+  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4);
+}
+.item-input.type-10,
+.item-input.type-33,
+.item-input.type-43 {
+  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15);
+}
+.item-input.type-10:hover,
+.item-input.type-33:hover,
+.item-input.type-43:hover {
+  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.4);
+}
+.item-input.type-11 {
+  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15);
+}
+.item-input.type-11:hover {
+  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4);
+}
+.item-input.type-13 {
+  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15);
+}
+.item-input.type-13:hover {
+  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4);
+}
+.item-input.type-14,
+.item-input.type-34 {
+  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25);
+}
+.item-input.type-14:hover,
+.item-input.type-34:hover {
+  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4);
+}
+.item-input.type-17,
+.item-input.type-18,
+.item-input.type-22 {
+  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15);
+}
+.item-input.type-17:hover,
+.item-input.type-18:hover,
+.item-input.type-22:hover {
+  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.4);
+}
+.item-input.type-20,
+.item-input.type-36 {
+  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.15);
+}
+.item-input.type-20:hover,
+.item-input.type-36:hover {
+  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.4);
+}
+.item-input.type-23 {
+  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.25);
+}
+.item-input.type-23:hover {
+  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5);
+}
+.item-input.type-24 {
+  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15);
+}
+.item-input.type-24:hover {
+  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4);
+}
+.item-input.type-25 {
+  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25);
+}
+.item-input.type-25:hover {
+  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5);
+}
+.item-input.type-26,
+.item-input.type-29 {
+  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.15);
+}
+.item-input.type-26:hover,
+.item-input.type-29:hover {
+  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.4);
+}
+.item-input.type-28 {
+  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.15);
+}
+.item-input.type-28:hover {
+  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.4);
+}
+.item-input.type-30 {
+  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.15);
+}
+.item-input.type-30:hover {
+  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4);
+}
+.item-input.type-31 {
+  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15);
+}
+.item-input.type-31:hover {
+  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4);
+}
+.item-input.type-32 {
+  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.15);
+}
+.item-input.type-32:hover {
+  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.4);
+}
+.item-input.type-35 {
+  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.15);
+}
+.item-input.type-35:hover {
+  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.4);
+}
+.item-input.type-37,
+.item-input.type-38,
+.item-input.type-41,
+.item-input.type-49 {
+  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15);
+}
+.item-input.type-37:hover,
+.item-input.type-38:hover,
+.item-input.type-41:hover,
+.item-input.type-49:hover {
+  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.4);
+}
+.item-input.type-44 {
+  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.15);
+}
+.item-input.type-44:hover {
+  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4);
+}
+.item-input.type-45,
+.item-input.type-46 {
+  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.15);
+}
+.item-input.type-45:hover,
+.item-input.type-46:hover {
+  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.4);
+}
+.item-input.type-47 {
+  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15);
+}
+.item-input.type-47:hover {
+  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4);
+}
+
 .item-input > div {
   align-self: center;
 }
@@ -178,7 +369,6 @@
   width: 24px;
   white-space: nowrap;
   transition: 0.3s ease-out;
-  font-weight: 500;
 }
 .item-slot:hover {
   filter: drop-shadow(0 0 2px #000);
@@ -222,7 +412,7 @@
   transition: 0.1s;
   opacity: 0;
 }
-.item-input:hover .item-remodel.no-remodel.value-0 {
+.item-input:not(.readonly):hover .item-remodel.no-remodel.value-0 {
   opacity: 1;
 }
 
@@ -329,6 +519,7 @@
 .tooltip-item-id {
   color: #6098ff;
   font-size: 12px;
+  height: 17px;
 }
 .item-status-grid {
   display: grid;
@@ -353,6 +544,8 @@
 import Vue from 'vue';
 import Item, { ItemBuilder } from '@/classes/Item';
 import Const from '@/classes/Const';
+import Ship from '@/classes/Ship';
+import ItemMaster from '@/classes/ItemMaster';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -379,6 +572,14 @@ export default Vue.extend({
     init: {
       type: Number,
       required: true,
+    },
+    dragSlot: {
+      type: Boolean,
+      default: true,
+    },
+    itemParent: {
+      type: Ship,
+      default: undefined,
     },
   },
   data: () => ({
@@ -441,6 +642,25 @@ export default Vue.extend({
       }
       return 'red--text text--lighten-2';
     },
+    itemClass() {
+      const classes = ['item-input', `type-${this.value.data.iconTypeId}`];
+      if (this.readonly) {
+        classes.push('readonly');
+      }
+      if (this.isExpandSlot) {
+        classes.push('expand');
+      }
+      if (this.isNoItem) {
+        classes.push('no-item');
+      }
+      if (!this.isPlane) {
+        classes.push('not-plane');
+      }
+      if (!this.isDraggabe) {
+        classes.push('disabled-draggable');
+      }
+      return classes.join(' ');
+    },
   },
   methods: {
     setItem(value: Item) {
@@ -461,7 +681,7 @@ export default Vue.extend({
       this.setItem(new Item());
     },
     setLevel(value: number) {
-      const builder: ItemBuilder = { item: this.item, level: [0, 10, 25, 40, 55, 70, 85, 100, 120][value] };
+      const builder: ItemBuilder = { item: this.item, level: Const.PROF_LEVEL_BORDER[value] };
       this.setItem(new Item(builder));
     },
     setRemodel(value: number) {
@@ -469,15 +689,23 @@ export default Vue.extend({
       this.setItem(new Item(builder));
     },
     getLevelValue(value: number) {
-      return [0, 10, 25, 40, 55, 70, 85, 100, 120][value];
+      return Const.PROF_LEVEL_BORDER[value];
     },
     showItemList() {
       this.handleShowItemList(this.index);
     },
     dragStart(item: Item, e: DragEvent) {
+      const target = e.target as HTMLDivElement;
+      if (!this.isDraggabe || !target || !target.classList || !target.classList.contains('item-input') || !target.draggable) {
+        console.log('変な要素がドラッグ開始されようとしましたよ =>');
+        console.log(target);
+        return;
+      }
       (e.dataTransfer as DataTransfer).setData('text/plain', JSON.stringify(item));
       // ドラッグ元を一意識別するためのclassを追加
-      (e.target as HTMLDivElement).id = 'dragging-item';
+      target.id = 'dragging-item';
+      target.dataset.itemId = `${this.value.data.id}`;
+      target.dataset.apiType = `${this.value.data.apiTypeId}`;
 
       // 一時的に全てのitem inputの子要素マウスイベントを消す
       const itemInputs = document.getElementsByClassName('item-input');
@@ -488,47 +716,60 @@ export default Vue.extend({
       this.draggingNow = true;
       this.tooltipState = false;
     },
-    dragEnd(e: DragEvent) {
-      const draggingDiv = e.target as HTMLDivElement;
-      // ドラッグ元を一意識別するためのidを削除
-      draggingDiv.id = '';
-
-      // 受け渡された対象の装備データ あれば。
-      const itemData = draggingDiv.dataset.item;
-      if (itemData) {
-        // 交換
-        this.setItem(new Item({ item: JSON.parse(itemData) as Item }));
-        delete draggingDiv.dataset.item;
-      } else if (draggingDiv.classList.contains('delete-flg')) {
-        // 外す処理
-        draggingDiv.classList.remove('delete-flg');
-        this.setItem(new Item());
-      }
-
-      // 消していたマウスイベントを復帰させる
-      const itemInputs = document.getElementsByClassName('item-input');
-      for (let i = 0; i < itemInputs.length; i += 1) {
-        itemInputs[i].classList.remove('dragging');
-      }
-      this.draggingNow = false;
-    },
-    dragEnter(item: Item, e: DragEvent) {
+    dragEnter(e: DragEvent): void {
+      const draggingDiv = document.getElementById('dragging-item');
       const target = e.target as HTMLDivElement;
-      // todo 装備搭載可能制限
-      if (target && target.classList.contains('item-input')) {
-        target.style.backgroundColor = 'rgba(0, 128, 255, 0.4)';
+      if (!draggingDiv || !target || !target.classList || !target.classList.contains('item-input')) {
+        return;
+      }
+      if (target.classList.contains('disabled-drop')) {
+        // 判定済み -搭載不可
+        target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
+        return;
+      }
+      if (target.classList.contains('enabled-drop')) {
+        // 判定済み -搭載可
+        target.style.backgroundColor = 'rgba(80, 160, 255, 0.6)';
+        return;
+      }
+      // 装備搭載可能チェック
+      if (!draggingDiv || !draggingDiv.dataset.itemId || !draggingDiv.dataset.apiType) {
+        return;
+      }
+      const item = new ItemMaster();
+      item.id = +draggingDiv.dataset.itemId;
+      item.apiTypeId = +draggingDiv.dataset.apiType;
+      if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(item, this.index)) {
+        // 搭載不可なので背景色を変な色にする
+        target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
+        // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
+        target.classList.add('disabled-drop');
+      } else {
+        // 受け入れ可能 背景色を青っぽく
+        target.style.backgroundColor = 'rgba(80, 160, 255, 0.6)';
+        // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
+        target.classList.add('enabled-drop');
       }
     },
     dragLeave(e: DragEvent) {
       (e.target as HTMLDivElement).style.backgroundColor = '';
     },
     dropItem(e: DragEvent) {
-      (e.target as HTMLDivElement).style.backgroundColor = '';
+      const draggingDiv = document.getElementById('dragging-item');
+      // そもそもドラッグ開始が正常になされているか？
+      if (!draggingDiv || !draggingDiv.classList.contains('item-input')) {
+        return;
+      }
+      const target = e.target as HTMLDivElement;
+      target.style.backgroundColor = '';
+
+      if (!target.classList.contains('enabled-drop')) {
+        // ドロップ不可なのでとりやめ
+        return;
+      }
       // 受け渡されたデータ
       const droppedData = (e.dataTransfer as DataTransfer).getData('text/plain');
-
       // 元々あったitem情報があれば、ドロップ元のdataに一時保管
-      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       if (!this.isNoItem && draggingDiv) {
         const prevData = JSON.stringify(this.item);
         draggingDiv.dataset.item = prevData;
@@ -540,8 +781,69 @@ export default Vue.extend({
 
       // ドロップされたデータで上書きする
       if (droppedData) {
-        this.setItem(new Item({ item: JSON.parse(droppedData) as Item }));
+        const builder: ItemBuilder = { item: JSON.parse(droppedData) as Item };
+        if (!this.dragSlot) {
+          // 搭載数変更しないオプションがついているなら搭載数は据え置く
+          builder.slot = this.value.slot;
+        }
+        this.setItem(new Item(builder));
       }
+    },
+    dragEnd() {
+      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
+      if (!draggingDiv || !draggingDiv.draggable) {
+        // そもそもドラッグ不可ならなんもせず終わる
+        return;
+      }
+      // ドラッグ元を一意識別するためのidを削除
+      draggingDiv.id = '';
+      delete draggingDiv.dataset.itemId;
+      delete draggingDiv.dataset.apiType;
+
+      const builder: ItemBuilder = {};
+      if (!this.dragSlot) {
+        // 搭載数変更しないオプションがついているなら搭載数は据え置く
+        builder.slot = this.value.slot;
+      }
+
+      // 受け渡された対象の装備データ あれば。
+      const itemData = draggingDiv.dataset.item;
+      if (itemData) {
+        // 交換
+        builder.item = JSON.parse(itemData) as Item;
+        // 交換前にチェック
+        if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(builder.item.data, this.index)) {
+          // 搭載不可なので外す
+          builder.item = undefined;
+          this.setItem(new Item(builder));
+        } else {
+          this.setItem(new Item(builder));
+          delete draggingDiv.dataset.item;
+        }
+      } else if (draggingDiv.classList.contains('delete-flg')) {
+        // 外す処理
+        draggingDiv.classList.remove('delete-flg');
+        this.setItem(new Item(builder));
+      }
+
+      // 消していたマウスイベントを復帰させる
+      const itemInputs = document.getElementsByClassName('item-input');
+      for (let i = 0; i < itemInputs.length; i += 1) {
+        itemInputs[i].classList.remove('dragging');
+      }
+
+      // 判定されていた全てのitem-input情報から判定を解除
+      const elements1 = document.getElementsByClassName('enabled-drop');
+      for (let i = 0; i < elements1.length; i += 1) {
+        elements1[i].classList.remove('enabled-drop');
+      }
+      const elements2 = document.getElementsByClassName('disabled-drop');
+      for (let i = 0; i < elements2.length; i += 1) {
+        elements2[i].classList.remove('disabled-drop');
+      }
+
+      // drag処理の終了
+      this.draggingNow = false;
     },
     toggleTooltip() {
       if (!this.tooltipState) {

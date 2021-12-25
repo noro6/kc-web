@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import ShipMaster from '@/classes/ShipMaster';
 import ItemMaster from '@/classes/ItemMaster';
 import EnemyMaster from '@/classes/EnemyMaster';
+import CalcManager from '@/classes/CalcManager';
 
 Vue.use(Vuex);
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
     items: [] as ItemMaster[],
     enemies: [] as EnemyMaster[],
     completed: false,
+    calcManager: undefined as CalcManager | undefined,
   },
   mutations: {
     setShips: (state, values: ShipMaster[]) => {
@@ -24,12 +26,18 @@ export default new Vuex.Store({
     setItems: (state, values: ItemMaster[]) => {
       state.items = values;
     },
+    setCalcManager: (state, values: CalcManager) => {
+      state.calcManager = values;
+    },
     completed: (state, value: boolean) => {
       state.completed = value;
       console.log('master initialized!');
     },
   },
   actions: {
+    setCalcManager(context, value: CalcManager) {
+      context.commit('setCalcManager', value);
+    },
     loadData: async (context) => {
       const loadShip = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/ships?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
         .then((response) => {

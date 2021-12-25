@@ -1,15 +1,17 @@
 <template>
-  <div elevation="2" class="ma-1 py-2">
-    <div class="d-flex ml-2">
+  <div class="ma-1 py-2">
+    <div class="d-flex ml-2 fleet-header">
       <div class="caption text--secondary">制空:</div>
       <div class="ml-1 body-2">{{ fleet.fullAirPower }}</div>
       <div class="ml-3 caption text--secondary">艦隊防空:</div>
-      <div class="ml-1 body-2">{{ fleet.fleetAntiAir }}</div>
+      <div class="ml-1 body-2">{{ fleetAntiAir }}</div>
+      <div class="ml-3 caption text--secondary">撃墜テーブル:</div>
+      <div class="ml-1 body-2">{{ stage2 }}</div>
       <v-spacer></v-spacer>
-      <div class="align-self-center display-select">
+      <div class="display-select">
         <v-select dense v-model="displayMax" hide-details :items="displayItems" label="最大表示隻数"></v-select>
       </div>
-      <div class="align-self-center pr-1">
+      <div class="pr-1">
         <v-btn icon @click="resetFleet()">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
@@ -23,6 +25,7 @@
         :index="i - 1"
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
+        @input="updateShip"
       ></ship-input>
       <!-- 艦娘追加用フォーム -->
       <div v-show="dispalyCount < displayMax" v-ripple class="empty-ship ma-1" @click="showShipList(dispalyCount)">
@@ -33,8 +36,8 @@
 </template>
 
 <style scoped>
-.v-card .theme--dark.v-card {
-  background-color: rgb(35, 35, 38);
+.fleet-header > div {
+  align-self: center;
 }
 
 .display-select {
@@ -121,6 +124,12 @@ export default Vue.extend({
     dispalyCount() {
       return Math.min(this.value.ships.length, this.displayMax);
     },
+    fleetAntiAir() {
+      return this.value.fleetAntiAir.toFixed(2);
+    },
+    stage2() {
+      return this.value.getStage2()[0];
+    },
   },
   methods: {
     showItemList(shipIndex: number, slotIndex: number) {
@@ -134,8 +143,15 @@ export default Vue.extend({
       this.detailDialog = true;
       this.destroyDialog = false;
     },
-    setFleet(fleet: Fleet) {
-      this.$emit('input', fleet);
+    updateShip() {
+      this.setFleet();
+    },
+    setFleet(fleet?: Fleet) {
+      if (fleet === undefined) {
+        this.$emit('input', new Fleet({ fleet: this.fleet }));
+      } else {
+        this.$emit('input', fleet);
+      }
     },
     resetFleet() {
       this.setFleet(new Fleet());

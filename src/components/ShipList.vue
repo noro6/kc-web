@@ -3,7 +3,13 @@
     <v-card>
       <div class="d-flex px-5 pt-2">
         <div class="align-self-center">
-          <v-text-field label="id 名称検索" v-model.trim="keyword" @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
+          <v-text-field
+            label="id 名称検索"
+            v-model.trim="keyword"
+            @input="filter()"
+            clearable
+            prepend-inner-icon="mdi-magnify"
+          ></v-text-field>
         </div>
         <div class="ml-5 align-self-center">
           <v-checkbox v-model="isFinal" @change="filter()" label="最終改造"></v-checkbox>
@@ -26,7 +32,7 @@
           :key="index"
           v-ripple="{ class: 'info--text' }"
           class="type-selector"
-          :class="{ active: index === type, disabled: keyword.length > 0 }"
+          :class="{ active: index === type, disabled: keyword }"
           @click="changeType(index)"
         >
           {{ i.text }}
@@ -170,7 +176,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword.trim();
+      const word = this.keyword;
       let result = this.all.concat();
       const t = this.types[this.type];
 

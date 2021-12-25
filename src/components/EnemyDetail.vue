@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="2" class="pa-2">
+  <v-card class="pa-2">
     <div class="pa-2">敵艦隊詳細</div>
     <v-divider></v-divider>
     <div class="mx-2 mt-1">
@@ -193,9 +193,6 @@
 </template>
 
 <style scoped>
-.v-card .theme--dark.v-card {
-  background-color: rgb(35, 35, 38);
-}
 .detail-body {
   overflow-y: auto;
   /* height: 65vh; */
@@ -439,7 +436,7 @@ export default Vue.extend({
         this.stage2Data.push({
           id: enemy.data.id,
           name: enemy.data.name,
-          rate: `${Math.round(1000 * rate) / 10}%`,
+          rate: `${(100 * rate).toFixed(1)}%`,
           rateDown,
           fix,
           sum: rateDown + fix,

@@ -1,13 +1,13 @@
 <template>
   <div class="my-5" @dragover.prevent @drop="dropItem">
     <div id="landbase-frame">
-      <land-base-all></land-base-all>
+      <land-base-all v-model="calcManager.landBaseInfo"></land-base-all>
     </div>
     <div id="fleet-frame">
-      <fleet-all></fleet-all>
+      <fleet-all v-model="calcManager.fleetInfo"></fleet-all>
     </div>
     <div id="enemy-frame">
-      <enemy-fleet-all></enemy-fleet-all>
+      <enemy-fleet-all v-model="calcManager.battleInfo"></enemy-fleet-all>
     </div>
   </div>
 </template>
@@ -26,6 +26,7 @@ import Vue from 'vue';
 import LandBaseAll from '@/components/LandBaseAll.vue';
 import FleetAll from '@/components/FleetAll.vue';
 import EnemyFleetAll from '@/components/EnemyFleetAll.vue';
+import CalcManager from '@/classes/CalcManager';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -33,6 +34,33 @@ export default Vue.extend({
     LandBaseAll,
     FleetAll,
     EnemyFleetAll,
+  },
+  data: () => ({
+    calcManager: new CalcManager(),
+  }),
+  mounted() {
+    this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'setCalcManager') {
+        this.calcManager = state.calcManager;
+      }
+    });
+  },
+  watch: {
+    'calcManager.landBaseInfo': {
+      handler() {
+        console.log('★ watch landBaseInfo Updated');
+      },
+    },
+    'calcManager.fleetInfo': {
+      handler() {
+        console.log('★ watch fleetInfo Updated');
+      },
+    },
+    'calcManager.battleInfo': {
+      handler() {
+        console.log('★ watch battleInfo Updated');
+      },
+    },
   },
   methods: {
     dropItem() {

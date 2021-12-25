@@ -35,16 +35,19 @@
       <span class="text--secondary">装備命中:</span>
       <span class="ml-1 font-weight-medium">{{ enemy.sumItemAccuracy }}</span>
     </div>
-    <item-input
-      v-for="(item, j) in enemy.items"
-      :key="j"
-      v-model="enemy.items[j]"
-      :index="j"
-      :max="999"
-      :init="999"
-      :handle-show-item-list="showItemList"
-      :readonly="true"
-    />
+    <v-divider></v-divider>
+    <div>
+      <item-input
+        v-for="(item, j) in enemy.items"
+        :key="j"
+        v-model="enemy.items[j]"
+        :index="j"
+        :max="999"
+        :init="999"
+        :handle-show-item-list="showItemList"
+        :readonly="true"
+      />
+    </div>
   </v-card>
 </template>
 

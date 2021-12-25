@@ -10,8 +10,12 @@ export interface ShipBuilder {
   items?: Item[];
   /** 補強増設 未指定ならshipの補強増設で作成 */
   exItem?: Item;
-  /** 練度 未指定ならshipの練度で作成 */
+  /** 練度 */
   level?: number;
+  /** 運 */
+  luck?: number;
+  /** 対空 */
+  antiAir?: number;
   /** 随伴艦フラグ */
   isEscort?: boolean;
   /** 有効フラグ */
@@ -31,7 +35,13 @@ export default class Ship {
   /** 練度 */
   public readonly level: number;
 
-  /** 練度 */
+  /** 計算で適用する運 */
+  public readonly luck: number;
+
+  /** 計算で適用する対空 */
+  public readonly antiAir: number;
+
+  /** 有効無効 */
   public readonly isActive: boolean;
 
   /** 防空ボーナス */
@@ -48,6 +58,8 @@ export default class Ship {
     if (builder.ship) {
       this.data = builder.master !== undefined ? builder.master : builder.ship.data;
       this.level = builder.level !== undefined ? builder.level : builder.ship.level;
+      this.luck = builder.luck !== undefined ? builder.luck : builder.ship.luck;
+      this.antiAir = builder.antiAir !== undefined ? builder.antiAir : builder.ship.antiAir;
       this.items = builder.items !== undefined ? builder.items.concat() : builder.ship.items.concat();
       this.exItem = builder.exItem !== undefined ? builder.exItem : builder.ship.exItem;
       this.isActive = builder.isActive !== undefined ? builder.isActive : builder.ship.isActive;
@@ -55,6 +67,8 @@ export default class Ship {
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
+      this.luck = builder.luck !== undefined ? builder.luck : this.data.luck;
+      this.antiAir = builder.antiAir !== undefined ? builder.antiAir : this.data.antiAir;
       this.items = builder.items !== undefined ? builder.items.concat() : [];
       this.exItem = builder.exItem !== undefined ? builder.exItem : new Item();
       this.isActive = builder.isActive !== undefined ? builder.isActive : true;
@@ -80,5 +94,10 @@ export default class Ship {
         this.fullAirPower += item.airPower;
       }
     }
+
+    // 補強増設分の防空ボーナス
+    this.antiAirBonus += this.exItem.antiAirBonus;
+
+    this.antiAirBonus = Math.floor(this.antiAirBonus);
   }
 }

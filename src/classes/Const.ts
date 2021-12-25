@@ -39,9 +39,9 @@ type SHIP_TYPE = typeof SHIP_TYPE[keyof typeof SHIP_TYPE];
 
 /** 基地札種類 */
 export const LB_MODE = {
-  WAIT: -1,
-  DEFFENSE: 0,
-  BATTLE: 2,
+  WAIT: 0,
+  BATTLE: 1,
+  DEFFENSE: 2,
 } as const;
 type LB_MODE = typeof LB_MODE[keyof typeof LB_MODE];
 
@@ -70,6 +70,15 @@ export const CELL_TYPE = {
   AERIAL_COMBAT: 6,
 } as const;
 type CELL_TYPE = typeof CELL_TYPE[keyof typeof CELL_TYPE];
+
+/** 難易度 */
+export const DIFFICULTY_LEVEL = {
+  HARD: 0,
+  MEDIUM: 1,
+  EASY: 2,
+  CASUAL: 3,
+} as const;
+type DIFFICULTY_LEVEL = typeof DIFFICULTY_LEVEL[keyof typeof DIFFICULTY_LEVEL];
 
 export default class Const {
   /**
@@ -290,6 +299,58 @@ export default class Const {
     { id: 885, itemType: [4, 6, 7, 8, 9, 12, 13, 14, 16, 17, 20, 21, 23, 25, 28, 34, 35, 36, 40, 43, 50, 94] },
   ];
 
+  // 特定の艦娘が特定スロットに装備『できない！』やつ
+  public static readonly FORBIDDEN_LINK_SHIP_ITEM = [
+    // 伊勢改二 第3，4，5スロットに 主砲系
+    {
+      shipId: 553, index: [3, 4, 5], itemType: [2, 3], itemIDs: [0],
+    },
+    // 日向改二 第3，4，5スロットに 主砲系
+    {
+      shipId: 554, index: [3, 4, 5], itemType: [2, 3], itemIDs: [0],
+    },
+    // 夕張改二 4スロットに 主砲系 魚雷系 不可
+    {
+      shipId: 622, index: [4], itemType: [1, 2, 5], itemIDs: [0],
+    },
+    // 夕張改二特 4スロットに 主砲系 魚雷系 不可
+    {
+      shipId: 623, index: [4], itemType: [1, 2, 5, 22], itemIDs: [0],
+    },
+    // 夕張改二丁 4スロットに 主砲系 魚雷系 不可
+    {
+      shipId: 624, index: [4], itemType: [1, 2, 5], itemIDs: [0],
+    },
+    // 夕張改二 5スロットに いろいろ装備不可
+    {
+      shipId: 622, index: [5], itemType: [1, 2, 5, 14, 15, 17, 20, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 46], itemIDs: [0],
+    },
+    // 夕張改二特 5スロットに いろいろ装備不可
+    {
+      shipId: 623, index: [5], itemType: [1, 2, 5, 14, 15, 17, 20, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 46], itemIDs: [0],
+    },
+    // 夕張改二丁 5スロットに いろいろ装備不可
+    {
+      shipId: 624, index: [5], itemType: [1, 2, 5, 14, 15, 17, 20, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 46], itemIDs: [0],
+    },
+    // 能代改二 4スロットに 魚雷系 不可
+    {
+      shipId: 662, index: [4], itemType: [5, 22], itemIDs: [0],
+    },
+    // 矢矧改二 4スロットに 魚雷系 不可
+    {
+      shipId: 663, index: [4], itemType: [5, 22], itemIDs: [0],
+    },
+    // 矢矧改二乙 4スロットに 魚雷系 不可
+    {
+      shipId: 668, index: [4], itemType: [5], itemIDs: [0],
+    },
+    // Richelieu改 全スロットに 瑞雲系
+    {
+      shipId: 392, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369],
+    },
+  ];
+
   /**
    * 艦種一覧 省略系と含む艦種
    * @static
@@ -326,6 +387,35 @@ export default class Const {
   ];
 
   /**
+   * 装備一覧 ちょっとまとめたやつ
+   * @static
+   * @memberof Const
+   */
+  public static readonly ITEM_TYPES_ALT = [
+    { id: 1, text: '大口径主砲', types: [1] },
+    { id: 2, text: '中口径主砲', types: [2] },
+    { id: 3, text: '小口径主砲', types: [3] },
+    { id: 6, text: '艦戦', types: [6] },
+    { id: 7, text: '艦爆', types: [7] },
+    { id: 8, text: '艦攻', types: [8] },
+    { id: 9, text: '艦偵', types: [9] },
+    { id: 57, text: '噴式機', types: [57] },
+    { id: 5, text: '魚雷', types: [5, 22, 32] },
+    { id: 10, text: '水上機', types: [10, 11] },
+    { id: 45, text: '水戦', types: [45] },
+    { id: 41, text: '大型飛行艇', types: [41] },
+    { id: 12, text: '電探', types: [12, 13] },
+    { id: 14, text: '対潜装備', types: [14, 15, 40] },
+    { id: 4, text: '副砲', types: [4] },
+    { id: 21, text: '機銃', types: [21] },
+    { id: 24, text: '上陸用舟艇', types: [24, 30, 46] },
+    { id: 17, text: 'その他', types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51] },
+    { id: 47, text: '陸攻', types: [47, 53] },
+    { id: 48, text: '局戦', types: [48] },
+    { id: 49, text: '陸偵', types: [49] },
+  ]
+
+  /**
    * 戦闘マス形式
    * @static
    * @memberof Const
@@ -338,6 +428,25 @@ export default class Const {
     { text: '重爆', value: CELL_TYPE.HIGH_AIR_RAID },
     { text: '航空戦', value: CELL_TYPE.AERIAL_COMBAT },
   ];
+
+  /**
+   * 戦闘マス形式
+   * @static
+   * @memberof Const
+   */
+  public static readonly DIFFICULTY_LEVELS = [
+    { text: '甲', value: DIFFICULTY_LEVEL.HARD },
+    { text: '乙', value: DIFFICULTY_LEVEL.MEDIUM },
+    { text: '丙', value: DIFFICULTY_LEVEL.EASY },
+    { text: '丁', value: DIFFICULTY_LEVEL.CASUAL },
+  ];
+
+  /**
+   * 艦載機熟練度ボーダー
+   * @static
+   * @memberof Const
+   */
+  public static readonly PROF_LEVEL_BORDER = [0, 10, 25, 40, 55, 70, 85, 100, 120];
 
   /**
    * 対空射撃回避 任意

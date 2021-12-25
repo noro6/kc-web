@@ -10,7 +10,7 @@
     </div>
     <div class="d-flex mx-2 mt-5">
       <div class="align-self-center" id="battle-count-select">
-        <v-select dense v-model="battleCount" :items="items" label="戦闘回数" @input="changedBattleCount"></v-select>
+        <v-select dense v-model="battleCount" :items="items" label="戦闘回数" @input="setInfo"></v-select>
       </div>
     </div>
     <div class="d-flex flex-wrap">
@@ -21,6 +21,7 @@
         :index="index"
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
+        @input="setInfo"
       ></enemy-fleet-component>
     </div>
     <v-dialog v-model="enemyListDialog" width="1200">
@@ -33,9 +34,6 @@
 </template>
 
 <style scoped>
-.theme--dark.v-card {
-  background-color: rgb(25, 25, 28);
-}
 #battle-count-select {
   width: 100px;
 }
@@ -62,23 +60,28 @@ export default Vue.extend({
     EnemyList,
     ItemList,
   },
+  props: {
+    value: {
+      type: BattleInfo,
+      required: true,
+    },
+  },
   data: () => ({
-    battleInfo: new BattleInfo(),
     battleCount: 1,
     items: BattleCountItems,
     enemyListDialog: false,
     itemListDialog: false,
     dialogTarget: [-1, -1],
   }),
-  watch: {
-    battleInfo: {
-      handler() {
-        console.log('★ watch BattleInfo Updated');
-      },
-      deep: true,
+  computed: {
+    battleInfo(): BattleInfo {
+      return this.value;
     },
   },
   methods: {
+    setInfo() {
+      this.$emit('input', new BattleInfo(this.battleInfo.fleets, this.battleCount));
+    },
     async showItemList(fleetIndex: number, enemyIndex: number) {
       this.dialogTarget = [fleetIndex, enemyIndex];
       const enemy = this.battleInfo.fleets[fleetIndex].enemies[enemyIndex];
@@ -89,9 +92,6 @@ export default Vue.extend({
     showEnemyList(battle: number, index: number) {
       this.dialogTarget = [battle, index];
       this.enemyListDialog = true;
-    },
-    changedBattleCount() {
-      this.battleInfo = new BattleInfo(this.battleInfo.fleets, this.battleCount);
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
@@ -120,7 +120,8 @@ export default Vue.extend({
       const builder: EnemyFleetBuilder = { fleet, enemies };
 
       // 敵編成が更新されたため、敵艦隊を再インスタンス化し更新
-      this.$set(this.battleInfo.fleets, fleetIndex, new EnemyFleet(builder));
+      this.battleInfo.fleets[fleetIndex] = new EnemyFleet(builder);
+      this.setInfo();
     },
     equipItem(item: ItemMaster) {
       console.log(item);

@@ -6,6 +6,7 @@ export default class BattleInfo {
   public readonly fleets: EnemyFleet[];
 
   constructor(fleets: EnemyFleet[] = [], battleCount = 1) {
+    console.log('BattleInfo initialize');
     this.battleCount = battleCount;
     this.fleets = fleets.concat();
 

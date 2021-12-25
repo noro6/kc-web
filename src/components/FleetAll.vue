@@ -12,11 +12,11 @@
           max="120"
           min="1"
           v-model.number="fleetInfo.admiralLevel"
-          @input="changedAdmiralLv"
+          @input="changedInfo"
         ></v-text-field>
       </div>
       <div class="ml-4">
-        <v-checkbox v-model="fleetInfo.isUnion" label="連合艦隊" @change="changedIsUnion"></v-checkbox>
+        <v-checkbox label="連合艦隊" v-model="fleetInfo.isUnion" @change="changedInfo"></v-checkbox>
       </div>
     </v-row>
     <v-tabs v-model="tab" class="px-2">
@@ -35,6 +35,7 @@
           :index="i"
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
+          @input="changedInfo"
         ></fleet-component>
       </v-tab-item>
     </v-tabs-items>
@@ -48,13 +49,6 @@
 </template>
 
 <style scoped>
-.theme--dark.v-card {
-  background-color: rgb(25, 25, 28);
-}
-.theme--dark.v-tabs-items {
-  background-color: transparent;
-}
-
 .admiral-level {
   width: 120px;
 }
@@ -67,10 +61,10 @@ import ItemList from '@/components/ItemList.vue';
 import ShipList from '@/components/ShipList.vue';
 import ShipMaster from '@/classes/ShipMaster';
 import ItemMaster from '@/classes/ItemMaster';
-import FleetInfo from '@/classes/FleetInfo';
+import FleetInfo, { FleetInfoBuilder } from '@/classes/FleetInfo';
 import Const from '@/classes/Const';
 import Ship, { ShipBuilder } from '@/classes/Ship';
-import Item, { ItemBuilder } from '@/classes/Item';
+import Item from '@/classes/Item';
 import Fleet, { FleetBuilder } from '@/classes/Fleet';
 
 export default Vue.extend({
@@ -80,28 +74,33 @@ export default Vue.extend({
     ItemList,
     ShipList,
   },
+  props: {
+    value: {
+      type: FleetInfo,
+      required: true,
+    },
+  },
   data: () => ({
-    fleetInfo: new FleetInfo(),
     shipListDialog: false,
     itemListDialog: false,
     itemDialogTarget: [-1, -1, -1],
     shipDialogTarget: [-1, -1],
     tab: 'fleet0',
   }),
-  watch: {
-    fleetInfo: {
-      handler() {
-        console.log('★ watch FleetInfo Updated');
-      },
-      deep: true,
+  computed: {
+    fleetInfo(): FleetInfo {
+      return this.value;
     },
   },
   methods: {
+    setInfo(value: FleetInfo) {
+      this.$emit('input', value);
+    },
     async showItemList(fleetIndex: number, shipIndex: number, slotIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.itemDialogTarget = [fleetIndex, shipIndex, slotIndex];
       await (this.itemListDialog = true);
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex === Const.EXPAND_SLOT_INDEX);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex);
     },
     showShipList(fleetIndex: number, shipIndex: number) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
@@ -114,45 +113,57 @@ export default Vue.extend({
       const fleet = this.fleetInfo.fleets[fleetIndex];
 
       if (index === fleet.ships.length) {
+        // 新規作成時
         fleet.ships.push(new Ship());
       }
 
-      // 装備マスタより装備を解決
-      const allItems = this.$store.state.items as ItemMaster[];
-      const items: Item[] = [];
+      // もともとここに配備されていた艦娘の装備情報を抜き取る
+      const oldShip = fleet.ships[index];
+      const oldItems: Item[] = oldShip.items.concat();
+      const newItems: Item[] = [];
 
-      // もともとここに装備されていた艦娘を取得
-      const ships = fleet.ships.concat();
-      const orgShip = ships[index];
-
-      for (let i = 0; i < ship.slotCount; i += 1) {
-        const slot = ship.slots[i] > 0 ? ship.slots[i] : 0;
-        if (i < orgShip.items.length) {
-          const item = allItems.find((v) => v.id === orgShip.items[i].data.id);
-          if (item) {
-            const builder: ItemBuilder = { master: item, slot };
-            // 装備をセット
-            items.push(new Item(builder));
+      for (let slotIndex = 0; slotIndex < ship.slotCount; slotIndex += 1) {
+        const slot = ship.slots[slotIndex] > 0 ? ship.slots[slotIndex] : 0;
+        if (slotIndex < oldItems.length) {
+          const itemMaster = oldItems[slotIndex].data;
+          if (ship.isValidItem(itemMaster, slotIndex)) {
+            // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
+            newItems.push(new Item({ master: itemMaster, slot }));
           } else {
-            items.push(new Item({ slot }));
+            // マスタ情報なし or 装備条件を満たさなかった装備は搭載数だけセット
+            newItems.push(new Item({ slot }));
           }
         } else {
-          items.push(new Item({ slot }));
+          // スロット数があっていない場合も空の装備で搭載数だけセット
+          newItems.push(new Item({ slot }));
         }
       }
-      // 連合フラグかつ6隻目以降なら連合随伴とする todo 第2艦隊固定など
-      const isEscort = fleet.isUnion && index >= 6;
+
+      // 補強増設チェック
+      const oldExItem = oldShip.exItem.data;
+      let exItem;
+      if (oldExItem.id && ship.isValidItem(oldExItem, Const.EXPAND_SLOT_INDEX)) {
+        exItem = new Item({ master: oldExItem });
+      } else {
+        exItem = new Item();
+      }
+
+      // 連合フラグかつ第2艦隊(fleetIndex: 1)なら連合随伴とする
+      const isEscort = fleet.isUnion && fleetIndex === 1;
       // 元々いた艦娘を置き換える
-      ships[index] = new Ship({
-        ship: orgShip,
+      fleet.ships[index] = new Ship({
         master: ship,
-        items,
+        items: newItems,
         isEscort,
+        exItem,
+        isActive: oldShip.isActive,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新
-      const builder: FleetBuilder = { fleet, ships };
-      this.$set(this.fleetInfo.fleets, fleetIndex, new Fleet(builder));
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+
+      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
+      this.setInfo(new FleetInfo(infoBuilder));
     },
     equipItem(selectedItem: ItemMaster) {
       this.itemListDialog = false;
@@ -191,13 +202,14 @@ export default Vue.extend({
 
       // 再生成した艦娘インスタンスで該当艦娘を置き換えた艦隊インスタンスを設定
       const builder: FleetBuilder = { fleet, ships: fleet.ships.concat() };
-      this.$set(this.fleetInfo.fleets, fleetIndex, new Fleet(builder));
+      this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
+
+      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
+      this.setInfo(new FleetInfo(infoBuilder));
     },
-    changedAdmiralLv() {
-      // 索敵値を再計算
-    },
-    changedIsUnion() {
-      // 連合非連合かわった
+    changedInfo() {
+      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
+      this.setInfo(new FleetInfo(infoBuilder));
     },
   },
 });
