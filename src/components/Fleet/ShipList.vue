@@ -132,7 +132,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ShipMaster from '@/classes/ShipMaster';
+import ShipMaster from '@/classes/Fleet/ShipMaster';
 import Const from '@/classes/Const';
 
 export default Vue.extend({

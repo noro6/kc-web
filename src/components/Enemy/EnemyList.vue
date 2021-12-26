@@ -95,7 +95,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import EnemyMaster from '@/classes/EnemyMaster';
+import EnemyMaster from '@/classes/Enemy/EnemyMaster';
 import Const from '@/classes/Const';
 
 export default Vue.extend({

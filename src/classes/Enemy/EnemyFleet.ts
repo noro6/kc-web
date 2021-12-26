@@ -1,5 +1,5 @@
 import Enemy from './Enemy';
-import Const, { AvoidType, Formation } from './Const';
+import Const, { AvoidType, Formation } from '../Const';
 
 export interface EnemyFleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -36,6 +36,18 @@ export default class EnemyFleet {
 
   public readonly fleetAntiAir: number;
 
+  public readonly airPower: number;
+
+  public readonly mainAirPower: number;
+
+  public readonly escortAirPower: number;
+
+  public readonly landbaseAirPower: number;
+
+  public readonly mainLandbaseAirPower: number;
+
+  public readonly escortLandbaseAirPower: number;
+
   constructor(builder: EnemyFleetBuilder = {}) {
     console.log('EnemyFleet initialize');
     if (builder.fleet) {
@@ -64,98 +76,28 @@ export default class EnemyFleet {
     this.isAllSubmarine = false;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
-  }
 
-  /**
-   * この艦隊総制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get airPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies);
-  }
+    // 制空値合計
+    this.airPower = 0;
+    this.mainAirPower = 0;
+    this.escortAirPower = 0;
+    this.landbaseAirPower = 0;
+    this.mainLandbaseAirPower = 0;
+    this.escortLandbaseAirPower = 0;
 
-  /**
-   * この艦隊の主力艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get mainAirPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies.filter((v) => !v.isEscort));
-  }
+    for (let i = 0; i < this.enemies.length; i += 1) {
+      const enemy = this.enemies[i];
+      this.airPower += enemy.fullAirPower;
+      this.landbaseAirPower += enemy.fullLBAirPower;
 
-  /**
-   * この艦隊の随伴艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get escortAirPower(): number {
-    return EnemyFleet.getSumAirPower(this.enemies.filter((v) => v.isEscort));
-  }
-
-  /**
-   * この艦隊総制空値【対基地】を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get landBaseAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies);
-  }
-
-  /**
-   * この艦隊の主力艦制空値【対基地】を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get mainLBAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies.filter((v) => !v.isEscort));
-  }
-
-  /**
-   * この艦隊の随伴艦制空値を返却 搭載数減衰なし
-   * @readonly
-   * @type {number}
-   * @memberof EnemyFleet
-   */
-  get escortLBAirPower(): number {
-    return EnemyFleet.getSumLBAirPower(this.enemies.filter((v) => v.isEscort));
-  }
-
-  /**
-   * Enemy配列から総制空値を合計するだけのメソッド
-   * @private
-   * @static
-   * @param {Enemy[]} enemies
-   * @returns {number} 制空値合計
-   * @memberof EnemyFleet
-   */
-  private static getSumAirPower(enemies: Enemy[]): number {
-    let sum = 0;
-    for (let i = 0; i < enemies.length; i += 1) {
-      sum += enemies[i].fullAirPower;
+      if (!enemy.isEscort) {
+        this.mainAirPower += enemy.fullAirPower;
+        this.mainLandbaseAirPower += enemy.fullLBAirPower;
+      } else {
+        this.escortAirPower += enemy.fullAirPower;
+        this.escortLandbaseAirPower += enemy.fullLBAirPower;
+      }
     }
-    return sum;
-  }
-
-  /**
-   * Enemy配列から総制空値【対基地】を合計するだけのメソッド
-   * @private
-   * @static
-   * @param {Enemy[]} enemies
-   * @returns {number} 制空値【対基地】合計
-   * @memberof EnemyFleet
-   */
-  private static getSumLBAirPower(enemies: Enemy[]): number {
-    let sum = 0;
-    for (let i = 0; i < enemies.length; i += 1) {
-      sum += enemies[i].fullLBAirPower;
-    }
-    return sum;
   }
 
   /**

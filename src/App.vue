@@ -94,7 +94,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="loading" persistent width="300">
+    <v-dialog v-model="loading" width="300">
       <v-card dark>
         <v-card-text>
           <div class="pt-2">マスターデータ読込中...</div>
@@ -104,58 +104,6 @@
     </v-dialog>
   </v-app>
 </template>
-
-<style>
-/** 基本背景色変更 */
-.theme--light.v-application {
-  background-color: rgb(240, 235, 230) !important;
-}
-/** ダークテーマ 基本背景色変更 */
-.theme--dark.v-application {
-  background-color: rgb(20, 22, 28) !important;
-}
-/** セレクトボックス dense適用時フォントを小さく */
-.v-input--dense .v-select__selection {
-  font-size: 0.85em;
-}
-
-/** ダークテーマ card1層目 */
-.theme--dark.v-card {
-  background-color: rgb(25, 25, 28) !important;
-}
-/** ダークテーマ card2層目 */
-.theme--dark.v-card .v-card {
-  background-color: rgb(32, 32, 35) !important;
-}
-/** ダークテーマ card3層目 */
-.theme--dark.v-card .v-card .v-card {
-  background-color: rgb(40, 40, 43) !important;
-}
-
-/** タブ内背景色を裏と合わせる */
-.v-tabs-bar,
-.v-tabs-items {
-  background-color: transparent !important;
-}
-
-#multipurpose-textarea {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
-  flex-grow: 1;
-}
-#multipurpose-textarea textarea {
-  font-size: 0.8em;
-  overflow: hidden !important;
-}
-</style>
-
-<style scoped>
-.header-btn {
-  font-size: 0.8em;
-  padding-right: 0.2rem !important;
-  padding-left: 0.2rem !important;
-}
-</style>
 
 <script lang="ts">
 import Vue from 'vue';
@@ -205,3 +153,246 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.header-btn {
+  font-size: 0.8em;
+  padding-right: 0.2rem !important;
+  padding-left: 0.2rem !important;
+}
+</style>
+
+<style>
+/** 基本背景色変更 */
+.theme--light.v-application {
+  background-color: rgb(240, 235, 230) !important;
+}
+/** ダークテーマ 基本背景色変更 */
+.theme--dark.v-application {
+  background-color: rgb(20, 22, 28) !important;
+}
+/** dense適用時フォントを小さく */
+.v-input--dense .v-select__selection,
+.v-input--dense.v-input--selection-controls .v-label{
+  font-size: 0.85em;
+}
+
+/** ダークテーマ card1層目 */
+.theme--dark.v-card {
+  background-color: rgb(25, 25, 28) !important;
+}
+/** ダークテーマ card2層目 */
+.theme--dark.v-card .v-card {
+  background-color: rgb(32, 32, 35) !important;
+}
+/** ダークテーマ card3層目 */
+.theme--dark.v-card .v-card .v-card {
+  background-color: rgb(40, 40, 43) !important;
+}
+
+/** タブ内背景色を裏と合わせる */
+.v-tabs-bar,
+.v-tabs-items {
+  background-color: transparent !important;
+}
+
+#multipurpose-textarea {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  flex-grow: 1;
+}
+#multipurpose-textarea textarea {
+  font-size: 0.8em;
+  overflow: hidden !important;
+}
+
+/** アイコン毎の背景色 */
+.item-input.type-1,
+.item-input.type-2,
+.item-input.type-3,
+.item-input.type-7 {
+  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.15) !important;
+}
+.item-input.type-1:hover,
+.item-input.type-2:hover,
+.item-input.type-3:hover,
+.item-input.type-7:hover {
+  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.4) !important;
+}
+.item-input.type-4,
+.item-input.type-9,
+.item-input.type-19,
+.item-input.type-27,
+.item-input.type-39,
+.item-input.type-40 {
+  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15) !important;
+}
+.item-input.type-4:hover,
+.item-input.type-9:hover,
+.item-input.type-19:hover,
+.item-input.type-27:hover,
+.item-input.type-39:hover,
+.item-input.type-40:hover {
+  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4) !important;
+}
+.item-input.type-5,
+.item-input.type-8 {
+  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15) !important;
+}
+.item-input.type-5:hover,
+.item-input.type-8:hover {
+  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.4) !important;
+}
+.item-input.type-6,
+.item-input.type-12,
+.item-input.type-15,
+.item-input.type-16,
+.item-input.type-21,
+.item-input.type-44 {
+  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
+}
+.item-input.type-6:hover,
+.item-input.type-12:hover,
+.item-input.type-15:hover,
+.item-input.type-16:hover,
+.item-input.type-21:hover,
+.item-input.type-44:hover {
+  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4) !important;
+}
+.item-input.type-10,
+.item-input.type-33,
+.item-input.type-43 {
+  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15) !important;
+}
+.item-input.type-10:hover,
+.item-input.type-33:hover,
+.item-input.type-43:hover {
+  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.4) !important;
+}
+.item-input.type-11 {
+  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15) !important;
+}
+.item-input.type-11:hover {
+  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4) !important;
+}
+.item-input.type-13 {
+  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15) !important;
+}
+.item-input.type-13:hover {
+  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4) !important;
+}
+.item-input.type-14,
+.item-input.type-34 {
+  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25) !important;
+}
+.item-input.type-14:hover,
+.item-input.type-34:hover {
+  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4) !important;
+}
+.item-input.type-17,
+.item-input.type-18,
+.item-input.type-22 {
+  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15) !important;
+}
+.item-input.type-17:hover,
+.item-input.type-18:hover,
+.item-input.type-22:hover {
+  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.4) !important;
+}
+.item-input.type-20,
+.item-input.type-36 {
+  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.15) !important;
+}
+.item-input.type-20:hover,
+.item-input.type-36:hover {
+  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.4) !important;
+}
+.item-input.type-23 {
+  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.25) !important;
+}
+.item-input.type-23:hover {
+  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5) !important;
+}
+.item-input.type-24 {
+  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15) !important;
+}
+.item-input.type-24:hover {
+  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4) !important;
+}
+.item-input.type-25 {
+  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25) !important;
+}
+.item-input.type-25:hover {
+  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5) !important;
+}
+.item-input.type-26,
+.item-input.type-29 {
+  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.15) !important;
+}
+.item-input.type-26:hover,
+.item-input.type-29:hover {
+  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.4) !important;
+}
+.item-input.type-28 {
+  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.15) !important;
+}
+.item-input.type-28:hover {
+  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.4) !important;
+}
+.item-input.type-30 {
+  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.15) !important;
+}
+.item-input.type-30:hover {
+  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4) !important;
+}
+.item-input.type-31 {
+  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15) !important;
+}
+.item-input.type-31:hover {
+  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4) !important;
+}
+.item-input.type-32 {
+  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.15) !important;
+}
+.item-input.type-32:hover {
+  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.4) !important;
+}
+.item-input.type-35 {
+  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.15) !important;
+}
+.item-input.type-35:hover {
+  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.4) !important;
+}
+.item-input.type-37,
+.item-input.type-38,
+.item-input.type-41,
+.item-input.type-49 {
+  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15) !important;
+}
+.item-input.type-37:hover,
+.item-input.type-38:hover,
+.item-input.type-41:hover,
+.item-input.type-49:hover {
+  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.4) !important;
+}
+.item-input.type-44 {
+  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.15) !important;
+}
+.item-input.type-44:hover {
+  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4) !important;
+}
+.item-input.type-45,
+.item-input.type-46 {
+  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.15) !important;
+}
+.item-input.type-45:hover,
+.item-input.type-46:hover {
+  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.4) !important;
+}
+.item-input.type-47 {
+  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15) !important;
+}
+.item-input.type-47:hover {
+  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4) !important;
+}
+</style>

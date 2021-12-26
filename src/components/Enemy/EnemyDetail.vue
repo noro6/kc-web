@@ -288,9 +288,10 @@
 import Vue from 'vue';
 import { ThisTypedComponentOptionsWithRecordProps } from 'vue/types/options';
 import EnemyInput from './EnemyInput.vue';
-import EnemyFleet from '@/classes/EnemyFleet';
+import EnemyFleet from '@/classes/Enemy/EnemyFleet';
 import Const, { AvoidType, Formation } from '@/classes/Const';
-import Enemy from '@/classes/Enemy';
+import Enemy from '@/classes/Enemy/Enemy';
+import CalcManager from '@/classes/CalcManager';
 
 interface Stage2Row {
   id: number;
@@ -371,14 +372,14 @@ export default Vue.extend({
     airPowerBorders() {
       const ap = this.fleet.airPower;
       if (ap) {
-        return [ap * 3, Math.ceil(ap * 1.5), Math.floor(ap / 1.5) + 1, Math.floor(ap / 3) + 1];
+        return CalcManager.getAirStatusBorder(ap);
       }
       return [0, 0, 0, 0];
     },
     landbaseAirPowerBorders() {
-      const ap = this.fleet.landBaseAirPower;
+      const ap = this.fleet.landbaseAirPower;
       if (ap) {
-        return [ap * 3, Math.ceil(ap * 1.5), Math.floor(ap / 1.5) + 1, Math.floor(ap / 3) + 1];
+        return CalcManager.getAirStatusBorder(ap);
       }
       return [0, 0, 0, 0];
     },
@@ -389,13 +390,13 @@ export default Vue.extend({
       return this.fleet.escortAirPower;
     },
     landbaseAirPower() {
-      return this.fleet.landBaseAirPower;
+      return this.fleet.landbaseAirPower;
     },
     mainLBAirPower() {
-      return this.fleet.mainLBAirPower;
+      return this.fleet.mainLandbaseAirPower;
     },
     escortLBAirPower() {
-      return this.fleet.escortLBAirPower;
+      return this.fleet.escortLandbaseAirPower;
     },
     isManual() {
       return this.avoid === Const.MANUAL_AVOID;

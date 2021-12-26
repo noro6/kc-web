@@ -35,6 +35,7 @@
           :index="i"
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
+          :fleet-scouts="fleetScouts[i]"
           @input="changedInfo"
         ></fleet-component>
       </v-tab-item>
@@ -56,16 +57,16 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import FleetComponent from '@/components/Fleet.vue';
-import ItemList from '@/components/ItemList.vue';
-import ShipList from '@/components/ShipList.vue';
-import ShipMaster from '@/classes/ShipMaster';
-import ItemMaster from '@/classes/ItemMaster';
-import FleetInfo, { FleetInfoBuilder } from '@/classes/FleetInfo';
+import FleetComponent from '@/components/Fleet/Fleet.vue';
+import ItemList from '@/components/Item/ItemList.vue';
+import ShipList from '@/components/Fleet/ShipList.vue';
+import ShipMaster from '@/classes/Fleet/ShipMaster';
+import ItemMaster from '@/classes/Item/ItemMaster';
+import FleetInfo, { FleetInfoBuilder } from '@/classes/Fleet/FleetInfo';
 import Const from '@/classes/Const';
-import Ship, { ShipBuilder } from '@/classes/Ship';
-import Item from '@/classes/Item';
-import Fleet, { FleetBuilder } from '@/classes/Fleet';
+import Ship, { ShipBuilder } from '@/classes/Fleet/Ship';
+import Item from '@/classes/Item/Item';
+import Fleet, { FleetBuilder } from '@/classes/Fleet/Fleet';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -90,6 +91,24 @@ export default Vue.extend({
   computed: {
     fleetInfo(): FleetInfo {
       return this.value;
+    },
+    fleetScouts(): number[][] {
+      const scouts = [];
+      const fleetInfo = this.value;
+      const { fleets } = this.value;
+      for (let i = 0; i < fleets.length; i += 1) {
+        scouts.push(fleetInfo.getScoutScore(i));
+      }
+      // 連合艦隊なら第1と第2を合算
+      if (this.value.isUnion) {
+        const [scouts1, scouts2] = scouts;
+        for (let i = 0; i < scouts1.length; i += 1) {
+          // 第1と第2を合算した値で置き換え
+          scouts[0][i] = scouts1[i] + scouts2[i];
+          scouts[1][i] = scouts1[i] + scouts2[i];
+        }
+      }
+      return scouts;
     },
   },
   methods: {

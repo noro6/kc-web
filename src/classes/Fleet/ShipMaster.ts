@@ -1,5 +1,5 @@
-import Const, { SHIP_TYPE } from './Const';
-import ItemMaster from './ItemMaster';
+import Const, { SHIP_TYPE } from '../Const';
+import ItemMaster from '../Item/ItemMaster';
 
 export default class ShipMaster {
   public id = 0;

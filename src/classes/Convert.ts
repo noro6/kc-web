@@ -1,13 +1,13 @@
 import CalcManager from './CalcManager';
 import Const from './Const';
-import Fleet from './Fleet';
-import FleetInfo from './FleetInfo';
-import Item from './Item';
-import ItemMaster from './ItemMaster';
-import LandBase from './LandBase';
-import LandBaseInfo from './LandBaseInfo';
-import Ship from './Ship';
-import ShipMaster from './ShipMaster';
+import Fleet from './Fleet/Fleet';
+import FleetInfo from './Fleet/FleetInfo';
+import Item from './Item/Item';
+import ItemMaster from './Item/ItemMaster';
+import LandBase from './LandBase/LandBase';
+import LandBaseInfo from './LandBase/LandBaseInfo';
+import Ship from './Fleet/Ship';
+import ShipMaster from './Fleet/ShipMaster';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -143,6 +143,8 @@ export default class Convert {
    */
   private convertDeckToShip(s: DeckBuilderShip): Ship {
     const master = this.shipMasters.find((v) => v.id === +s.id) || new ShipMaster();
+    const shipLv = s.lv || 99;
+    const luck = (s.luck && s.luck) > 0 ? s.luck : master.luck;
     const items: Item[] = [];
     let exItem = new Item();
     Object.keys(s.items).forEach((key, index) => {
@@ -158,6 +160,8 @@ export default class Convert {
         }));
       }
     });
-    return new Ship({ master, items, exItem });
+    return new Ship({
+      master, level: shipLv, luck, items, exItem,
+    });
   }
 }

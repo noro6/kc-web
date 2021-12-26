@@ -4,7 +4,7 @@
       <div class="ml-2 align-self-center land-base-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
-        <v-select dense v-model="landBase.mode" :items="modes" @change="updateItem" ></v-select>
+        <v-select dense v-model="landBase.mode" hide-details :items="modes" @change="updateItem"></v-select>
       </div>
       <div class="mr-1 mt-1">
         <v-btn color="info" icon small>
@@ -18,7 +18,8 @@
     <div class="land-base-body">
       <div class="d-flex caption px-2">
         <div>
-          制空:<span class="ml-1 font-weight-medium">{{ landBase.airPower }}</span>
+          制空:
+          <span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
         <div class="ml-1 text--secondary">{{ airPowerDetail }}</div>
         <v-spacer></v-spacer>
@@ -33,14 +34,14 @@
         v-model="landBase.items[i]"
         :index="i"
         :handle-show-item-list="showItemList"
-        :max="item.isRecon ? 4 : 18"
-        :init="item.isRecon ? 4 : 18"
+        :max="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
+        :init="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
         @input="updateItem"
       />
-      <div class="mx-1 mt-3">
-        <div class="d-flex">
+      <div class="mx-1" v-if="!isDefense">
+        <div v-for="i in 2" :key="i" class="d-flex mt-3">
           <div class="mr-1 status-reuslt">
-            <div class="status-reuslt-label">拮抗</div>
+            <div class="status-reuslt-label">{{ resultLabel[i] }}</div>
             <div class="status-reuslt-rate">100%</div>
           </div>
           <div class="align-self-center flex-grow-1">
@@ -66,39 +67,7 @@
               </div>
             </div>
             <div>
-              <v-progress-linear :color="getStatusColor(wave1)" :value="wave1"></v-progress-linear>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex mt-3">
-          <div class="mr-1 status-reuslt">
-            <div class="status-reuslt-label">拮抗</div>
-            <div class="status-reuslt-rate">80%</div>
-          </div>
-          <div class="align-self-center flex-grow-1">
-            <div class="d-flex">
-              <div class="status-bar-label" style="width: 10%">
-                <div>喪失</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 10%">
-                <div>劣勢</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 25%">
-                <div>拮抗</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 45%">
-                <div>優勢</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 10%">
-                <div>確保</div>
-              </div>
-            </div>
-            <div>
-              <v-progress-linear :color="getStatusColor(wave2)" :value="wave2"></v-progress-linear>
+              <v-progress-linear :color="getStatusColor(resultBarValue[i - 1])" :value="resultBarValue[i - 1]"></v-progress-linear>
             </div>
           </div>
         </div>
@@ -136,7 +105,6 @@
   width: 100%;
   top: 7px;
 }
-
 .status-bar-label {
   margin-bottom: 2px;
   text-align: center;
@@ -161,9 +129,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ItemInput from './ItemInput.vue';
-import LandBase from '@/classes/LandBase';
-import Const from '@/classes/Const';
+import ItemInput from '@/components/Item/ItemInput.vue';
+import LandBase from '@/classes/LandBase/LandBase';
+import Const, { LB_MODE } from '@/classes/Const';
 
 export default Vue.extend({
   components: { ItemInput },
@@ -181,6 +149,10 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    isDefense: {
+      type: Boolean,
+      required: true,
+    },
   },
   data: () => ({
     wave1: 0,
@@ -191,9 +163,29 @@ export default Vue.extend({
     landBase(): LandBase {
       return this.value;
     },
+    airPower() {
+      if (this.isDefense && this.value.mode === LB_MODE.DEFFENSE) {
+        return this.value.defenseAirPower;
+      }
+      return this.value.airPower;
+    },
     airPowerDetail() {
+      if (this.isDefense && this.value.mode === LB_MODE.DEFFENSE) {
+        const airPowers = this.value.items.map((v) => v.defenseAirPower);
+        return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
+      }
       const airPowers = this.value.items.map((v) => v.airPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
+    },
+    resultLabel() {
+      const wave1State = this.value.resultWave1.airState;
+      const wave2State = this.value.resultWave2.airState;
+      const statusWave1 = Const.AIR_STATUS.find((v) => v.value === wave1State);
+      const statusWave2 = Const.AIR_STATUS.find((v) => v.value === wave2State);
+      return [statusWave1 ? statusWave1.text : '', statusWave2 ? statusWave2.text : ''];
+    },
+    resultBarValue() {
+      return [this.value.resultWave1.airStateBarWidth, this.value.resultWave2.airStateBarWidth];
     },
   },
   methods: {
@@ -218,7 +210,7 @@ export default Vue.extend({
         return 'light-green';
       }
       if (value >= 20) {
-        return 'yellow darken-1';
+        return 'yellow';
       }
       if (value >= 10) {
         return 'orange';

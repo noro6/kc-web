@@ -10,7 +10,17 @@ export interface AvoidType {
   c2: number;
 }
 
-/** 陣形 */
+export const AIR_STATE = {
+  KAKUHO: 0,
+  YUSEI: 1,
+  KINKO: 2,
+  RESSEI: 3,
+  SOSHITSU: 4,
+  NONE: -1,
+} as const;
+type AIR_STATE = typeof AIR_STATE[keyof typeof AIR_STATE];
+
+/** 艦種 */
 export const SHIP_TYPE = {
   DE: 1,
   DD: 2,
@@ -81,6 +91,20 @@ export const DIFFICULTY_LEVEL = {
 type DIFFICULTY_LEVEL = typeof DIFFICULTY_LEVEL[keyof typeof DIFFICULTY_LEVEL];
 
 export default class Const {
+  /**
+ * 基地航空隊札一覧
+ * @static
+ * @memberof Const
+ */
+  public static readonly AIR_STATUS = [
+    { text: '確保', value: AIR_STATE.KAKUHO },
+    { text: '優勢', value: AIR_STATE.YUSEI },
+    { text: '拮抗', value: AIR_STATE.KINKO },
+    { text: '劣勢', value: AIR_STATE.RESSEI },
+    { text: '喪失', value: AIR_STATE.SOSHITSU },
+    { text: '-', value: -1 },
+  ];
+
   /**
    * 基地航空隊札一覧
    * @static
@@ -367,6 +391,44 @@ export default class Const {
     { text: '潜水', types: [13, 14] },
     { text: 'その他', types: [15, 16, 17, 19, 20, 22] },
   ];
+
+  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114];
+
+  public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
+
+  public static readonly GBR = [67, 78, 82, 88, 108, 112];
+
+  public static readonly DEU = [47, 48, 55, 57, 63];
+
+  public static readonly FRA = [70, 79];
+
+  public static readonly RUS = [73, 81];
+
+  public static readonly SWE = [89];
+
+  public static readonly AUS = [96];
+
+  public static readonly NLD = [98];
+
+  /**
+   * 日本艦かどうか判定
+   * @static
+   * @param {number} type
+   * @returns {boolean}
+   * @memberof Const
+   */
+  public static isJPN(type: number): boolean {
+    let others = Const.USA.concat();
+    others = others.concat(Const.ITA);
+    others = others.concat(Const.GBR);
+    others = others.concat(Const.DEU);
+    others = others.concat(Const.FRA);
+    others = others.concat(Const.RUS);
+    others = others.concat(Const.SWE);
+    others = others.concat(Const.AUS);
+    others = others.concat(Const.NLD);
+    return !others.includes(type);
+  }
 
   /**
    * 陣形一覧

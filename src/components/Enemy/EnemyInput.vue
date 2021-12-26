@@ -11,7 +11,7 @@
             <span class="text--secondary">耐久:</span>
             <span class="ml-1 font-weight-medium">{{ enemy.data.hp }}</span>
             <span class="ml-2 text--secondary">装甲:</span>
-            <span class="ml-1 font-weight-medium">{{ enemy.data.armor }}</span>
+            <span class="ml-1 font-weight-medium">{{ enemy.actualArmor }}</span>
           </div>
         </div>
         <div class="d-flex">
@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="d-flex caption px-1 flex-wrap">
-      <div v-if="enemy.fullAirPower > 0">
+      <div v-if="enemy.fullAirPower > 0 || !enemy.fullLBAirPower">
         <span class="text--secondary">制空:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullAirPower }}</span>
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
@@ -61,8 +61,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ItemInput from './ItemInput.vue';
-import Enemy from '@/classes/Enemy';
+import ItemInput from '@/components/Item/ItemInput.vue';
+import Enemy from '@/classes/Enemy/Enemy';
 
 export default Vue.extend({
   components: { ItemInput },

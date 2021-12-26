@@ -1,3 +1,4 @@
+import { DIFFICULTY_LEVEL, LB_MODE } from '../Const';
 import LandBase from './LandBase';
 
 export interface LandBaseInfoBuilder {
@@ -41,6 +42,13 @@ export default class LandBaseInfo {
   public readonly defenseAirPower: number;
 
   /**
+   * 適用される対重爆補正
+   * @type {number}
+   * @memberof LandBaseInfo
+   */
+  public readonly highDeffenseCoefficient: number;
+
+  /**
    * 防空時(重爆)制空値
    * @type {number}
    * @memberof LandBaseInfo
@@ -67,12 +75,30 @@ export default class LandBaseInfo {
 
     this.defenseAirPower = 0;
     this.highDefenseAirPower = 0;
+
+    let rocketCount = 0;
+
     for (let i = 0; i < this.landBases.length; i += 1) {
-      this.defenseAirPower = this.landBases[i].defenseAirPower;
-      this.highDefenseAirPower = this.landBases[i].defenseAirPower;
+      const landbase = this.landBases[i];
+      if (landbase.mode === LB_MODE.DEFFENSE) {
+        this.defenseAirPower += landbase.defenseAirPower;
+        this.highDefenseAirPower += landbase.defenseAirPower;
+        rocketCount += landbase.rocketCount;
+      }
     }
 
     // 重爆補正
-    this.highDefenseAirPower = Math.floor(this.highDefenseAirPower * 0.5);
+    this.highDeffenseCoefficient = 1.0;
+    const isHardorMedium = this.difficultyLevel === DIFFICULTY_LEVEL.HARD || this.difficultyLevel === DIFFICULTY_LEVEL.MEDIUM;
+    if (rocketCount >= 3) {
+      this.highDeffenseCoefficient = 1.2;
+    } else if (rocketCount === 2) {
+      this.highDeffenseCoefficient = 1.1;
+    } else if (rocketCount === 1 && isHardorMedium) {
+      this.highDeffenseCoefficient = 0.8;
+    } else if (rocketCount === 0 && isHardorMedium) {
+      this.highDeffenseCoefficient = 0.5;
+    }
+    this.highDefenseAirPower = Math.floor(this.highDefenseAirPower * this.highDeffenseCoefficient);
   }
 }

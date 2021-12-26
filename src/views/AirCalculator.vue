@@ -3,11 +3,11 @@
     <div id="landbase-frame">
       <land-base-all v-model="calcManager.landBaseInfo"></land-base-all>
     </div>
-    <div id="fleet-frame">
+    <div id="fleet-frame" v-show="!calcManager.isDefense">
       <fleet-all v-model="calcManager.fleetInfo"></fleet-all>
     </div>
     <div id="enemy-frame">
-      <enemy-fleet-all v-model="calcManager.battleInfo"></enemy-fleet-all>
+      <enemy-fleet-all v-model="calcManager.battleInfo" :is-defense="calcManager.isDefense"></enemy-fleet-all>
     </div>
   </div>
 </template>
@@ -23,9 +23,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import LandBaseAll from '@/components/LandBaseAll.vue';
-import FleetAll from '@/components/FleetAll.vue';
-import EnemyFleetAll from '@/components/EnemyFleetAll.vue';
+import LandBaseAll from '@/components/LandBase/LandBaseAll.vue';
+import FleetAll from '@/components/Fleet/FleetAll.vue';
+import EnemyFleetAll from '@/components/Enemy/EnemyFleetAll.vue';
 import CalcManager from '@/classes/CalcManager';
 
 export default Vue.extend({
@@ -49,16 +49,19 @@ export default Vue.extend({
     'calcManager.landBaseInfo': {
       handler() {
         console.log('★ watch landBaseInfo Updated');
+        this.calcManager.updateInfo();
       },
     },
     'calcManager.fleetInfo': {
       handler() {
         console.log('★ watch fleetInfo Updated');
+        this.calcManager.updateInfo();
       },
     },
     'calcManager.battleInfo': {
       handler() {
         console.log('★ watch battleInfo Updated');
+        this.calcManager.updateInfo();
       },
     },
   },

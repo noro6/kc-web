@@ -1,4 +1,4 @@
-import Const from './Const';
+import Const from '../Const';
 import ItemMaster from './ItemMaster';
 
 export interface ItemBuilder {
@@ -17,7 +17,7 @@ export interface ItemBuilder {
 export default class Item {
   public readonly data: ItemMaster;
 
-  /** 改修値 */
+  /** 熟練度 */
   public readonly level: number;
 
   /** 改修値 */
@@ -29,8 +29,14 @@ export default class Item {
   /** 改修値による対空値増分 */
   public readonly bonusAntiAir: number;
 
+  /** 改修値による索敵値増分 */
+  public readonly bonusScout: number;
+
   /** 熟練度による制空値増分 */
   public readonly bonusAirPower: number;
+
+  /** 装備索敵 計算で利用 (装備の素の索敵値 + 改修係数×√★)×装備係数 */
+  public readonly actualScout: number;
 
   /** 装備加重対空値 */
   public readonly antiAirWeight: number;
@@ -50,11 +56,23 @@ export default class Item {
   /** 装備制空値(防空時) */
   public readonly defenseAirPower: number;
 
+  /** 装備制空値(防空時) */
+  public readonly tp: number;
+
+  /** 航空機フラグ */
+  public readonly isPlane: boolean
+
   /** 艦戦フラグ */
   public readonly isFighter: boolean
 
+  /** ロケット戦闘機フラグ */
+  public readonly isRocket: boolean;
+
   /** 偵察機フラグ */
   public readonly isRecon: boolean;
+
+  /** 大型陸上機フラグ */
+  public readonly isShinzan: boolean;
 
   constructor(builder: ItemBuilder = {}) {
     console.log('Item initialize');
@@ -70,20 +88,27 @@ export default class Item {
       this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
       this.level = builder.level !== undefined ? builder.level : 0;
     }
-
+    this.isPlane = Const.PLANE_TYPES.includes(this.data.apiTypeId);
     this.isFighter = Const.FIGHTERS.includes(this.data.apiTypeId);
     this.isRecon = Const.RECONNAISSANCES.includes(this.data.apiTypeId);
+    this.isRocket = Const.ROCKET.includes(this.data.id);
+    this.isShinzan = this.data.apiTypeId === 53;
 
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();
     this.antiAirWeight = this.getAntiAirWeight();
     this.bonusAntiAir = this.getBonusAntiAir();
+    this.bonusScout = this.getBonusScout();
     this.antiAirBonus = this.getAntiAirBonus();
+    this.tp = this.getTransportPower();
+
+    // (装備の素の索敵値 + 改修係数×√★)×装備係数
+    this.actualScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
 
     // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
     this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
-    // 防空対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
-    this.actualDefenseAntiAir = this.data.antiAir + 2 * this.data.antiBomer + this.bonusAntiAir;
+    // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
+    this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomer + this.bonusAntiAir;
 
     // 制空値更新
     if (Const.PLANE_TYPES.includes(this.data.apiTypeId)) {
@@ -178,6 +203,55 @@ export default class Item {
   }
 
   /**
+   * 改修値によるボーナス索敵を返却
+   * @private
+   * @returns
+   * @memberof Item
+   */
+  private getBonusScout() {
+    let bonus = 0;
+    if (this.data.apiTypeId === 12) {
+      // 小型電探
+      bonus = 1.25 * Math.sqrt(this.remodel);
+    } else if (this.data.apiTypeId === 13) {
+      // 大型電探
+      bonus = 1.4 * Math.sqrt(this.remodel);
+    } else if ([9, 10, 41].includes(this.data.apiTypeId)) {
+      // 偵察機
+      bonus = 1.2 * Math.sqrt(this.remodel);
+    } else if (this.data.apiTypeId === 11) {
+      // 水上爆撃機
+      bonus = 1.15 * Math.sqrt(this.remodel);
+    }
+    return bonus;
+  }
+
+  /**
+   * 装備索敵係数を返却
+   * @private
+   * @returns {number}
+   * @memberof Item
+   */
+  private getItemScoutCoefficient(): number {
+    let value = 0.6;
+    if (this.data.apiTypeId === 8) {
+      // 艦上攻撃機
+      value = 0.8;
+    } else if (this.data.apiTypeId === 9) {
+      // 艦上偵察機
+      value = 1.0;
+    } else if (this.data.apiTypeId === 10) {
+      // 水上偵察機
+      value = 1.2;
+    } else if (this.data.apiTypeId === 11) {
+      // 水上爆撃機
+      value = 1.1;
+    }
+
+    return value;
+  }
+
+  /**
    * この装備の加重対空値を返却
    * @private
    * @returns {number}
@@ -260,5 +334,30 @@ export default class Item {
     }
 
     return antiAirBonus;
+  }
+
+  /**
+   * 輸送量を返却
+   * @private
+   * @returns {number}
+   * @memberof Item
+   */
+  private getTransportPower(): number {
+    switch (this.data.apiTypeId) {
+      case 24:
+        // 上陸用舟艇
+        return 8;
+      case 30:
+        // 簡易輸送部材
+        return 5;
+      case 34:
+        // おにぎり
+        return 1;
+      case 36:
+        // 特型内火艇
+        return 2;
+      default:
+        return 0;
+    }
   }
 }

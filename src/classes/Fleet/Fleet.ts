@@ -1,5 +1,5 @@
 import Ship from './Ship';
-import Const, { AvoidType, Formation } from './Const';
+import Const, { AvoidType, Formation } from '../Const';
 
 export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -33,6 +33,9 @@ export default class Fleet {
   /** 艦隊制空値 */
   public readonly fullAirPower: number;
 
+  /** 輸送量 */
+  public readonly tp: number;
+
   /** 艦隊防空値(ブラウザ版表示値) */
   public readonly fleetAntiAir: number;
 
@@ -49,8 +52,10 @@ export default class Fleet {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
 
       if (this.ships.length === 0) {
-        // 0隻だった場合は空の艦娘を1隻つっこむ
-        this.ships.push(new Ship());
+        // 0隻だった場合は空の艦娘を6隻つっこむ
+        for (let i = 0; i < 6; i += 1) {
+          this.ships.push(new Ship());
+        }
       }
     }
 
@@ -58,43 +63,16 @@ export default class Fleet {
     this.isAllSubmarine = false;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
-
-    // 制空値合計
+    this.tp = 0;
     this.fullAirPower = 0;
+
     for (let i = 0; i < this.ships.length; i += 1) {
       const ship = this.ships[i];
       if (ship.isActive) {
-        this.fullAirPower += this.ships[i].fullAirPower;
+        this.fullAirPower += ship.fullAirPower;
+        this.tp += ship.tp;
       }
     }
-  }
-
-  /**
-   * 引数の条件下での艦隊防空値を返却(表示値 実計算では別)
-   * @param {Formation} [formation] 陣形 なければ単縦と一緒
-   * @param {AvoidType} [avoid] 回避補正
-   * @returns {number} 艦隊防空値
-   * @memberof Fleet
-   */
-  private getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
-    // 各艦の艦隊対空ボーナス合計
-    let sumAntiAirBonus = 0;
-    const enemyCount = this.ships.length;
-    for (let i = 0; i < enemyCount; i += 1) {
-      sumAntiAirBonus += this.ships[i].antiAirBonus;
-    }
-    sumAntiAirBonus = Math.floor(sumAntiAirBonus);
-
-    // 艦隊防空 => int(陣形補正 * 各艦の艦隊対空ボーナス合計)
-    const fleetAntiAir = Math.floor(sumAntiAirBonus * (formation ? formation.correction : 1));
-
-    if (avoid && avoid.c2 !== 1.0) {
-      // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
-      return Math.floor(fleetAntiAir * avoid.c2);
-    }
-
-    // 最終艦隊防空補正 / ブラウザ版(1.3)
-    return 2 * (fleetAntiAir / 1.3);
   }
 
   /**
@@ -106,7 +84,8 @@ export default class Fleet {
    */
   public getStage2(formation?: Formation, avoid?: AvoidType): Stage2Table[] {
     const stage2: Stage2Table[] = [];
-    const shipCount = this.ships.length;
+    const ships = this.ships.filter((v) => v.isActive);
+    const shipCount = ships.length;
     if (shipCount === 0) {
       return stage2;
     }
@@ -119,7 +98,7 @@ export default class Fleet {
     // 艦隊防空ボーナス合計
     let sumAntiAirBonus = 0;
     for (let i = 0; i < shipCount; i += 1) {
-      sumAntiAirBonus += this.ships[i].antiAirBonus;
+      sumAntiAirBonus += ships[i].antiAirBonus;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
 
@@ -127,7 +106,7 @@ export default class Fleet {
     const fleetAntiAir = Math.floor((sumAntiAirBonus * aj1) / 1.3);
 
     for (let i = 0; i < shipCount; i += 1) {
-      const ship = this.ships[i];
+      const ship = ships[i];
       if (ship.data.id === 0) continue;
 
       const isEscort = this.isUnion && i >= 6;
@@ -188,5 +167,34 @@ export default class Fleet {
     }
 
     return stage2;
+  }
+
+  /**
+   * 引数の条件下での艦隊防空値を返却(表示値 実計算では別)
+   * @param {Formation} [formation] 陣形 なければ単縦と一緒
+   * @param {AvoidType} [avoid] 回避補正
+   * @returns {number} 艦隊防空値
+   * @memberof Fleet
+   */
+  private getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
+    // 各艦の艦隊対空ボーナス合計
+    let sumAntiAirBonus = 0;
+    const ships = this.ships.filter((v) => v.isActive);
+    const shipCount = ships.length;
+    for (let i = 0; i < shipCount; i += 1) {
+      sumAntiAirBonus += ships[i].antiAirBonus;
+    }
+    sumAntiAirBonus = Math.floor(sumAntiAirBonus);
+
+    // 艦隊防空 => int(陣形補正 * 各艦の艦隊対空ボーナス合計)
+    const fleetAntiAir = Math.floor(sumAntiAirBonus * (formation ? formation.correction : 1));
+
+    if (avoid && avoid.c2 !== 1.0) {
+      // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
+      return Math.floor(fleetAntiAir * avoid.c2);
+    }
+
+    // 最終艦隊防空補正 / ブラウザ版(1.3)
+    return 2 * (fleetAntiAir / 1.3);
   }
 }

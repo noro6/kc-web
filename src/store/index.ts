@@ -1,9 +1,9 @@
 import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import ShipMaster from '@/classes/ShipMaster';
-import ItemMaster from '@/classes/ItemMaster';
-import EnemyMaster from '@/classes/EnemyMaster';
+import ShipMaster from '@/classes/Fleet/ShipMaster';
+import ItemMaster from '@/classes/Item/ItemMaster';
+import EnemyMaster from '@/classes/Enemy/EnemyMaster';
 import CalcManager from '@/classes/CalcManager';
 
 Vue.use(Vuex);

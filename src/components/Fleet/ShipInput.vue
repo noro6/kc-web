@@ -2,11 +2,19 @@
   <v-card class="ma-1 py-2" :class="{ disabled: !ship.isActive }" @dragover.prevent @drop.stop>
     <div class="d-flex ship-header px-2">
       <div class="align-self-center" v-if="!isNoShip">
-        <v-img :src="`/img/ship/${ship.data.albumId}.png`" height="36" width="144"></v-img>
+        <v-img :src="`/img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">
-          <v-menu offset-y v-model="levelMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLevelMenuToggle">
+          <v-menu
+            offset-y
+            v-model="levelMenu"
+            :close-on-content-click="false"
+            transition="slide-y-transition"
+            bottom
+            right
+            @input="onLevelMenuToggle"
+          >
             <template v-slot:activator="{ on, attrs }">
               <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                 Lv:{{ ship.level }}
@@ -29,8 +37,16 @@
               </div>
             </v-card>
           </v-menu>
-          <div class="mr-6 d-flex">
-            <v-menu offset-y v-model="luckMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLuckMenuToggle">
+          <div class="d-flex mr-2">
+            <v-menu
+              offset-y
+              v-model="luckMenu"
+              :close-on-content-click="false"
+              transition="slide-y-transition"
+              bottom
+              right
+              @input="onLuckMenuToggle"
+            >
               <template v-slot:activator="{ on, attrs }">
                 <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                   <span class="text--secondary">運:</span>
@@ -51,7 +67,15 @@
                 ></v-text-field>
               </v-card>
             </v-menu>
-            <v-menu offset-y v-model="antiAirMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onAAMenuToggle">
+            <v-menu
+              offset-y
+              v-model="antiAirMenu"
+              :close-on-content-click="false"
+              transition="slide-y-transition"
+              bottom
+              right
+              @input="onAAMenuToggle"
+            >
               <template v-slot:activator="{ on, attrs }">
                 <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                   <span class="text--secondary">対空:</span>
@@ -79,9 +103,9 @@
         </div>
       </div>
       <!-- 艦娘解除 -->
-      <div class="ship-remove">
+      <div class="ship-remove pr-1">
         <v-btn icon @click="removeShip()">
-          <v-icon>mdi-trash-can-outline</v-icon>
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
     </div>
@@ -131,6 +155,7 @@
         :dragSlot="false"
         :handle-show-item-list="showItemList"
         :item-parent="ship"
+        @input="updateItem"
       />
     </div>
   </v-card>
@@ -138,7 +163,7 @@
 
 <style scoped>
 .disabled {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .ship-header {
@@ -221,9 +246,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ItemInput from './ItemInput.vue';
-import Ship, { ShipBuilder } from '@/classes/Ship';
-import Item from '@/classes/Item';
+import ItemInput from '@/components/Item/ItemInput.vue';
+import Ship, { ShipBuilder } from '@/classes/Fleet/Ship';
+import Item from '@/classes/Item/Item';
 
 export default Vue.extend({
   components: { ItemInput },
@@ -234,6 +259,10 @@ export default Vue.extend({
       required: true,
     },
     handleShowShipList: {
+      type: Function,
+      required: true,
+    },
+    handleCloseShip: {
       type: Function,
       required: true,
     },
@@ -308,7 +337,7 @@ export default Vue.extend({
       this.setShip(new Ship({ ship: this.value, items: [], exItem: new Item() }));
     },
     removeShip() {
-      this.setShip(new Ship({ isEscort: this.ship.isEscort }));
+      this.handleCloseShip(this.index);
     },
     showItemList(slotIndex: number): void {
       // 艦娘indexを付与してFleet.vueへスルーパス

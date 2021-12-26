@@ -6,7 +6,7 @@
       <div class="align-self-center mr-1">
         <v-btn outlined small color="primary">海域選択</v-btn>
       </div>
-      <div class="align-self-center pr-1">
+      <div class="align-self-center pr-1" v-if="existEnemy">
         <v-btn color="info" icon small @click="clickedInfo()">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
@@ -26,13 +26,16 @@
     <div class="d-flex mx-2">
       <div class="caption text--secondary">艦隊防空:</div>
       <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
-      <div class="ml-2 caption text--secondary">半径:</div>
-      <div class="ml-1 caption">{{ fleet.range }}</div>
-    </div>
-    <div class="d-flex mx-2">
       <v-spacer></v-spacer>
       <div class="mx-1 caption text--secondary">制空:</div>
-      <div class="body-2 enemy-air-power">{{ airPower }}</div>
+      <div class="body-2 enemy-air-power">{{ fleet.airPower }}</div>
+    </div>
+    <div class="d-flex mx-2">
+      <div class="caption text--secondary">半径:</div>
+      <div class="ml-1 caption">{{ fleet.range }}</div>
+      <v-spacer></v-spacer>
+      <div class="mx-1 caption text--secondary">基地制空:</div>
+      <div class="body-2 enemy-air-power">{{ fleet.landbaseAirPower }}</div>
     </div>
     <v-divider></v-divider>
     <div class="enemy-list mt-1">
@@ -118,9 +121,9 @@
 <script lang="ts">
 import Vue from 'vue';
 import Const, { CELL_TYPE } from '@/classes/Const';
-import EnemyFleet, { EnemyFleetBuilder } from '@/classes/EnemyFleet';
-import EnemyDetail from '@/components/EnemyDetail.vue';
-import Enemy from '@/classes/Enemy';
+import EnemyFleet, { EnemyFleetBuilder } from '@/classes/Enemy/EnemyFleet';
+import EnemyDetail from '@/components/Enemy/EnemyDetail.vue';
+import Enemy from '@/classes/Enemy/Enemy';
 
 export default Vue.extend({
   name: 'EnemyFleet',
@@ -155,8 +158,8 @@ export default Vue.extend({
     fleet(): EnemyFleet {
       return this.value;
     },
-    airPower() {
-      return this.value.airPower;
+    existEnemy() {
+      return this.value.enemies.find((v) => v.data.id);
     },
   },
   methods: {

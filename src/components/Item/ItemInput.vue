@@ -2,15 +2,14 @@
   <v-tooltip
     :disabled="isNoItem || draggingNow"
     bottom
-    open-delay="500"
+    open-delay="100"
     v-model="tooltipState"
     color="black"
     @input="toggleTooltip"
     transition="scroll-y-transition"
   >
-    <template v-slot:activator="{ on }">
+    <template v-slot:activator="{ on: tooltip }">
       <div
-        v-on="on"
         v-ripple="{ class: 'info--text' }"
         :class="itemClass"
         :draggable="isDraggabe"
@@ -28,7 +27,7 @@
           transition="slide-y-transition"
           bottom
           right
-          :disabled="!isPlane || isExpandSlot || readonly || draggingNow"
+          :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow"
           v-model="slotMenu"
           @input="onSlotMenuToggle"
         >
@@ -56,7 +55,7 @@
           <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
         </div>
         <!-- 装備名称 -->
-        <div class="item-name text-truncate" :class="{ 'secondary--text': isNoItem }" @click.stop="showItemList()">
+        <div class="item-name text-truncate" :class="{ 'secondary--text': isNoItem }" @click.stop="showItemList()" v-on="{ ...tooltip }">
           {{ isNoItem ? "未装備" : item.data.name }}
         </div>
         <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
@@ -83,7 +82,7 @@
             </v-card>
           </v-menu>
           <!-- 熟練度 -->
-          <v-menu offset-y transition="slide-y-transition" left :disabled="!isPlane || isExpandSlot || readonly || draggingNow">
+          <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
             <template v-slot:activator="{ on, attrs }">
               <div class="item-level" v-bind="attrs" v-on="on">
                 <v-img :src="`/img/util/prof${level}.png`" height="24" width="18"></v-img>
@@ -162,196 +161,6 @@
 }
 .item-input > * {
   user-select: none;
-}
-
-/** アイコン毎の背景色 */
-.item-input.type-1,
-.item-input.type-2,
-.item-input.type-3,
-.item-input.type-7 {
-  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.15);
-}
-.item-input.type-1:hover,
-.item-input.type-2:hover,
-.item-input.type-3:hover,
-.item-input.type-7:hover {
-  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.4);
-}
-.item-input.type-4,
-.item-input.type-9,
-.item-input.type-19,
-.item-input.type-27,
-.item-input.type-39,
-.item-input.type-40 {
-  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15);
-}
-.item-input.type-4:hover,
-.item-input.type-9:hover,
-.item-input.type-19:hover,
-.item-input.type-27:hover,
-.item-input.type-39:hover,
-.item-input.type-40:hover {
-  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4);
-}
-.item-input.type-5,
-.item-input.type-8 {
-  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15);
-}
-.item-input.type-5:hover,
-.item-input.type-8:hover {
-  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.4);
-}
-.item-input.type-6,
-.item-input.type-12,
-.item-input.type-15,
-.item-input.type-16,
-.item-input.type-21,
-.item-input.type-44 {
-  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15);
-}
-.item-input.type-6:hover,
-.item-input.type-12:hover,
-.item-input.type-15:hover,
-.item-input.type-16:hover,
-.item-input.type-21:hover,
-.item-input.type-44:hover {
-  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4);
-}
-.item-input.type-10,
-.item-input.type-33,
-.item-input.type-43 {
-  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15);
-}
-.item-input.type-10:hover,
-.item-input.type-33:hover,
-.item-input.type-43:hover {
-  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.4);
-}
-.item-input.type-11 {
-  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15);
-}
-.item-input.type-11:hover {
-  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4);
-}
-.item-input.type-13 {
-  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15);
-}
-.item-input.type-13:hover {
-  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4);
-}
-.item-input.type-14,
-.item-input.type-34 {
-  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25);
-}
-.item-input.type-14:hover,
-.item-input.type-34:hover {
-  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4);
-}
-.item-input.type-17,
-.item-input.type-18,
-.item-input.type-22 {
-  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15);
-}
-.item-input.type-17:hover,
-.item-input.type-18:hover,
-.item-input.type-22:hover {
-  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.4);
-}
-.item-input.type-20,
-.item-input.type-36 {
-  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.15);
-}
-.item-input.type-20:hover,
-.item-input.type-36:hover {
-  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.4);
-}
-.item-input.type-23 {
-  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.25);
-}
-.item-input.type-23:hover {
-  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5);
-}
-.item-input.type-24 {
-  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15);
-}
-.item-input.type-24:hover {
-  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4);
-}
-.item-input.type-25 {
-  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25);
-}
-.item-input.type-25:hover {
-  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5);
-}
-.item-input.type-26,
-.item-input.type-29 {
-  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.15);
-}
-.item-input.type-26:hover,
-.item-input.type-29:hover {
-  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.4);
-}
-.item-input.type-28 {
-  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.15);
-}
-.item-input.type-28:hover {
-  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.4);
-}
-.item-input.type-30 {
-  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.15);
-}
-.item-input.type-30:hover {
-  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4);
-}
-.item-input.type-31 {
-  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15);
-}
-.item-input.type-31:hover {
-  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4);
-}
-.item-input.type-32 {
-  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.15);
-}
-.item-input.type-32:hover {
-  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.4);
-}
-.item-input.type-35 {
-  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.15);
-}
-.item-input.type-35:hover {
-  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.4);
-}
-.item-input.type-37,
-.item-input.type-38,
-.item-input.type-41,
-.item-input.type-49 {
-  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15);
-}
-.item-input.type-37:hover,
-.item-input.type-38:hover,
-.item-input.type-41:hover,
-.item-input.type-49:hover {
-  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.4);
-}
-.item-input.type-44 {
-  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.15);
-}
-.item-input.type-44:hover {
-  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4);
-}
-.item-input.type-45,
-.item-input.type-46 {
-  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.15);
-}
-.item-input.type-45:hover,
-.item-input.type-46:hover {
-  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.4);
-}
-.item-input.type-47 {
-  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15);
-}
-.item-input.type-47:hover {
-  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4);
 }
 
 .item-input > div {
@@ -517,9 +326,9 @@
 }
 
 .tooltip-item-id {
-  color: #6098ff;
+  color: #60c5ff;
   font-size: 12px;
-  height: 17px;
+  height: 18px;
 }
 .item-status-grid {
   display: grid;
@@ -533,7 +342,7 @@
   width: 24px;
   display: inline-block;
   text-align: right;
-  color: #60d2ff;
+  color: #60c5ff;
 }
 .item-status-grid span.bad-status {
   color: #ff7979;
@@ -542,10 +351,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Item, { ItemBuilder } from '@/classes/Item';
+import Item, { ItemBuilder } from '@/classes/Item/Item';
 import Const from '@/classes/Const';
-import Ship from '@/classes/Ship';
-import ItemMaster from '@/classes/ItemMaster';
+import Ship from '@/classes/Fleet/Ship';
+import ItemMaster from '@/classes/Item/ItemMaster';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -599,9 +408,6 @@ export default Vue.extend({
     isNoItem() {
       return this.value.data.id === 0;
     },
-    isPlane() {
-      return Const.PLANE_TYPES.includes(this.value.data.apiTypeId);
-    },
     isDraggabe() {
       return this.value.data.id > 0 && !this.readonly;
     },
@@ -653,7 +459,7 @@ export default Vue.extend({
       if (this.isNoItem) {
         classes.push('no-item');
       }
-      if (!this.isPlane) {
+      if (!this.value.isPlane) {
         classes.push('not-plane');
       }
       if (!this.isDraggabe) {

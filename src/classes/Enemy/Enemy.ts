@@ -1,5 +1,5 @@
 import EnemyMaster from './EnemyMaster';
-import Item from './Item';
+import Item from '../Item/Item';
 
 export default class Enemy {
   /** 敵マスタ情報 */
@@ -10,6 +10,9 @@ export default class Enemy {
 
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
+
+  /** 実装甲値 */
+  public readonly actualArmor: number;
 
   /** 随伴艦フラグ */
   public readonly isEscort: boolean;
@@ -29,6 +32,7 @@ export default class Enemy {
     this.items = items;
     this.isEscort = isEscort;
 
+    this.actualArmor = this.data.armor;
     this.sumItemAccuracy = 0;
     this.fullLBAirPower = 0;
     this.fullAirPower = 0;
@@ -40,6 +44,8 @@ export default class Enemy {
       this.sumItemAccuracy += item.data.accuracy;
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
+      // 装備装甲値加算
+      this.actualArmor += item.data.armor;
       if (item.slot > 0) {
         // 基地制空値
         this.fullLBAirPower += item.airPower;

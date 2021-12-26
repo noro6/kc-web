@@ -166,10 +166,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ItemMaster from '@/classes/ItemMaster';
-import Ship from '@/classes/Ship';
-import Enemy from '@/classes/Enemy';
-import LandBase from '@/classes/LandBase';
+import ItemMaster from '@/classes/Item/ItemMaster';
+import Ship from '@/classes/Fleet/Ship';
+import Enemy from '@/classes/Enemy/Enemy';
+import LandBase from '@/classes/LandBase/LandBase';
 import Const from '@/classes/Const';
 
 export default Vue.extend({

@@ -1,5 +1,6 @@
-import { LB_MODE } from './Const';
-import Item from './Item';
+import AirCalcResult from '../AirCalcResult';
+import { LB_MODE } from '../Const';
+import Item from '../Item/Item';
 
 export interface LandBaseBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -8,6 +9,8 @@ export interface LandBaseBuilder {
   items?: Item[];
   /** 基地お札 */
   mode?: number;
+  /** 基地出撃戦闘番号 */
+  battleTarget?: number[];
 }
 
 export default class LandBase {
@@ -16,6 +19,9 @@ export default class LandBase {
 
   /** 基地お札 */
   public readonly mode: number;
+
+  /** 出撃戦闘 1波 2波 */
+  public readonly battleTarget: number[];
 
   /** 基地半径 */
   public readonly range: number;
@@ -26,14 +32,25 @@ export default class LandBase {
   /** 防空制空値 */
   public readonly defenseAirPower: number;
 
+  /** ロケット戦闘機の数 */
+  public readonly rocketCount: number
+
+  /** 計算結果の各制空状態の割合 */
+  public resultWave1 = new AirCalcResult();
+
+  /** 計算結果の各制空状態の割合 */
+  public resultWave2 = new AirCalcResult();
+
   constructor(builder: LandBaseBuilder = {}) {
     console.log('LandBase initialize');
     if (builder.landbase) {
       this.items = builder.items !== undefined ? builder.items : builder.landbase.items.concat();
       this.mode = builder.mode !== undefined ? builder.mode : builder.landbase.mode;
+      this.battleTarget = builder.battleTarget !== undefined ? builder.battleTarget : builder.landbase.battleTarget;
     } else {
       this.items = builder.items !== undefined ? builder.items : [];
       this.mode = builder.mode !== undefined ? builder.mode : LB_MODE.WAIT;
+      this.battleTarget = builder.battleTarget !== undefined ? builder.battleTarget : [0, 0];
     }
 
     const itemCount = this.items.length;
@@ -47,12 +64,17 @@ export default class LandBase {
     // 半径取得
     this.range = this.getRange();
 
-    // 制空値
+    // 制空値とか
     this.airPower = 0;
     this.defenseAirPower = 0;
+    this.rocketCount = 0;
     for (let i = 0; i < this.items.length; i += 1) {
-      this.airPower += this.items[i].airPower;
-      this.defenseAirPower += this.items[i].defenseAirPower;
+      const item = this.items[i];
+      this.airPower += item.airPower;
+      this.defenseAirPower += item.defenseAirPower;
+      if (item.isRocket) {
+        this.rocketCount += 1;
+      }
     }
   }
 
