@@ -107,7 +107,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Convert from '@/classes/Convert';
+import Convert from '@/classes/convert';
 
 export default Vue.extend({
   name: 'App',
