@@ -9,7 +9,7 @@
       </v-tabs>
     </div>
     <v-divider class="mx-2"></v-divider>
-    <div class="detail-body ma-2">
+    <div class="ma-2">
       <v-tabs-items v-model="tab">
         <v-tab-item value="fleet">
           <div class="body-1 my-3">
@@ -19,19 +19,19 @@
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
-                  <span class="chip-value">{{ airPowerBorders[0] }}</span>
+                  <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
                   <span>優勢:</span>
-                  <span class="chip-value">{{ airPowerBorders[1] }}</span>
+                  <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
                   <span>拮抗:</span>
-                  <span class="chip-value">{{ airPowerBorders[2] }}</span>
+                  <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
                   <span>劣勢:</span>
-                  <span class="chip-value">{{ airPowerBorders[3] }}</span>
+                  <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
@@ -41,47 +41,49 @@
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
-                  <span class="chip-value">{{ landbaseAirPowerBorders[0] }}</span>
+                  <span class="chip-value">{{ fleet.fullLandbaseBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
                   <span>優勢:</span>
-                  <span class="chip-value">{{ landbaseAirPowerBorders[1] }}</span>
+                  <span class="chip-value">{{ fleet.fullLandbaseBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
                   <span>拮抗:</span>
-                  <span class="chip-value">{{ landbaseAirPowerBorders[2] }}</span>
+                  <span class="chip-value">{{ fleet.fullLandbaseBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
                   <span>劣勢:</span>
-                  <span class="chip-value">{{ landbaseAirPowerBorders[3] }}</span>
+                  <span class="chip-value">{{ fleet.fullLandbaseBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
           </div>
           <v-divider></v-divider>
-          <div class="mt-3 mb-5">
-            <div v-if="fleet.isUnion" class="px-2 primary--text">第1艦隊</div>
-            <div v-if="fleet.isUnion" class="px-2 my-1 d-flex body-2">
-              <div class="text--secondary">制空:</div>
-              <div class="ml-1">{{ mainAirPower }}</div>
-              <div class="ml-4 text--secondary">基地制空:</div>
-              <div class="ml-1">{{ mainLBAirPower }}</div>
+          <div class="detail-fleet">
+            <div class="mt-3 mb-5">
+              <div v-if="fleet.isUnion" class="px-2 primary--text">第1艦隊</div>
+              <div v-if="fleet.isUnion" class="px-2 my-1 d-flex body-2">
+                <div class="text--secondary">制空:</div>
+                <div class="ml-1">{{ mainAirPower }}</div>
+                <div class="ml-4 text--secondary">基地制空:</div>
+                <div class="ml-1">{{ mainLBAirPower }}</div>
+              </div>
+              <div class="enemy-inputs-container">
+                <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              </div>
             </div>
-            <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
-            </div>
-          </div>
-          <v-divider v-if="fleet.isUnion"></v-divider>
-          <div v-if="fleet.isUnion" class="my-3">
-            <div class="px-2 success--text">第2艦隊</div>
-            <div class="px-2 my-1 d-flex body-2">
-              <div class="text--secondary">制空:</div>
-              <div class="ml-1">{{ escortAirPower }}</div>
-              <div class="ml-4 text--secondary">基地制空値:</div>
-              <div class="ml-1">{{ escortLBAirPower }}</div>
-            </div>
-            <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+            <v-divider v-if="fleet.isUnion"></v-divider>
+            <div v-if="fleet.isUnion" class="my-3">
+              <div class="px-2 success--text">第2艦隊</div>
+              <div class="px-2 my-1 d-flex body-2">
+                <div class="text--secondary">制空:</div>
+                <div class="ml-1">{{ escortAirPower }}</div>
+                <div class="ml-4 text--secondary">基地制空値:</div>
+                <div class="ml-1">{{ escortLBAirPower }}</div>
+              </div>
+              <div class="enemy-inputs-container">
+                <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              </div>
             </div>
           </div>
         </v-tab-item>
@@ -193,9 +195,9 @@
 </template>
 
 <style scoped>
-.detail-body {
+.detail-fleet {
   overflow-y: auto;
-  /* height: 65vh; */
+  max-height: 60vh;
 }
 .air-power-info > * {
   align-self: center;
@@ -291,7 +293,6 @@ import EnemyInput from './EnemyInput.vue';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Const, { AvoidType, Formation } from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
-import Calculator from '@/classes/calculator';
 
 interface Stage2Row {
   id: number;
@@ -333,7 +334,6 @@ export default Vue.extend({
   props: {
     handleShowItemList: {
       type: Function,
-      required: true,
     },
     fleet: {
       type: EnemyFleet,
@@ -368,20 +368,6 @@ export default Vue.extend({
     },
     airPower() {
       return this.fleet.fullAirPower;
-    },
-    airPowerBorders() {
-      const ap = this.fleet.fullAirPower;
-      if (ap) {
-        return Calculator.getAirStatusBorder(ap);
-      }
-      return [0, 0, 0, 0];
-    },
-    landbaseAirPowerBorders() {
-      const ap = this.fleet.fullLandbaseAirPower;
-      if (ap) {
-        return Calculator.getAirStatusBorder(ap);
-      }
-      return [0, 0, 0, 0];
     },
     mainAirPower() {
       return this.fleet.mainAirPower;

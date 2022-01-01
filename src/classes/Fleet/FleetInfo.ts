@@ -1,4 +1,5 @@
 import Fleet from './fleet';
+import Ship from './ship';
 
 export interface FleetInfoBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -9,6 +10,8 @@ export interface FleetInfoBuilder {
   isUnion?: boolean;
   /** 司令部レベル */
   admiralLevel?: number;
+  /** 計算を行う艦隊インデックス */
+  mainFleetIndex?: number;
 }
 
 export default class FleetInfo {
@@ -21,15 +24,22 @@ export default class FleetInfo {
   /** 司令部レベル */
   public readonly admiralLevel: number;
 
+  /** 計算を行う艦隊番号 */
+  public readonly mainFleetIndex: number;
+
+  /** 計算を行う艦娘配列 */
+  public readonly calcTargetShips: Ship[];
+
   constructor(builder: FleetInfoBuilder = {}) {
     if (builder.info) {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.info.isUnion;
       this.admiralLevel = builder.admiralLevel !== undefined ? builder.admiralLevel : builder.info.admiralLevel;
-
+      this.mainFleetIndex = builder.mainFleetIndex !== undefined ? builder.mainFleetIndex : builder.info.mainFleetIndex;
       this.fleets = builder.fleets !== undefined ? builder.fleets : builder.info.fleets.concat();
     } else {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
       this.admiralLevel = builder.admiralLevel !== undefined ? builder.admiralLevel : 120;
+      this.mainFleetIndex = builder.mainFleetIndex !== undefined ? builder.mainFleetIndex : 0;
 
       this.fleets = builder.fleets !== undefined ? builder.fleets : [];
     }
@@ -40,6 +50,12 @@ export default class FleetInfo {
       for (let i = 0; i < 5 - fleetCount; i += 1) {
         this.fleets.push(new Fleet());
       }
+    }
+
+    this.calcTargetShips = this.fleets[this.mainFleetIndex].ships;
+    if (this.isUnion && (this.mainFleetIndex === 0 || this.mainFleetIndex === 1)) {
+      this.calcTargetShips = this.fleets[0].ships;
+      this.calcTargetShips = this.calcTargetShips.concat(this.fleets[1].ships);
     }
   }
 
@@ -70,7 +86,7 @@ export default class FleetInfo {
       }
       scoutScores.push(block1 + block2 - Math.ceil(block3) + (2 * (6 - ships.length)));
     }
-
-    return scoutScores;
+    // 小数点3桁目切捨て
+    return scoutScores.map((v) => Math.floor(100 * v) / 100);
   }
 }

@@ -5,6 +5,7 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import ItemMaster from '@/classes/item/itemMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CalcManager from '@/classes/calcManager';
+import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 
 Vue.use(Vuex);
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
   state: {
     ships: [] as ShipMaster[],
     items: [] as ItemMaster[],
+    cells: [] as CellMaster[],
     enemies: [] as EnemyMaster[],
     completed: false,
     calcManager: undefined as CalcManager | undefined,
@@ -25,6 +27,9 @@ export default new Vuex.Store({
     },
     setItems: (state, values: ItemMaster[]) => {
       state.items = values;
+    },
+    setCells: (state, values: CellMaster[]) => {
+      state.cells = values;
     },
     setCalcManager: (state, values: CalcManager) => {
       state.calcManager = values;
@@ -84,7 +89,20 @@ export default new Vuex.Store({
           console.log(error);
         });
 
-      const loader = [loadShip, loadEnemy, loadItem];
+      const loadCell = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/cells?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
+        .then((response) => {
+          const cells: CellMaster[] = [];
+          for (let i = 1; i < response.data.values.length; i += 1) {
+            const raw = JSON.parse(`${response.data.values[i][0]}`.slice(0, -1)) as RawCell;
+            cells.push(new CellMaster(raw));
+          }
+          context.commit('setCells', cells);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      const loader = [loadShip, loadEnemy, loadItem, loadCell];
       Promise.all(loader).then(() => {
         context.commit('completed', true);
       });

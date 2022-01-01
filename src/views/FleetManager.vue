@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Manager</h1>
-  </div>
+  <div class="ma-10">ぬるぽ</div>
 </template>
 
 <script lang="ts">

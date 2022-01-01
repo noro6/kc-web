@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
+  <v-card class="my-2 px-1 py-2">
     <div class="pa-2">基地航空隊</div>
     <v-divider></v-divider>
     <div>
@@ -51,36 +51,10 @@
         @input="setInfo"
       />
     </draggable>
-    <div v-if="isDefenseMode" class="d-flex mt-3">
-      <div class="mx-1 text--secondary body-2">{{ resultLabel }}</div>
-      <div class="align-self-center flex-grow-1">
-        <div class="d-flex">
-          <div class="status-bar-label" style="width: 10%">
-            <div>喪失</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 10%">
-            <div>劣勢</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 25%">
-            <div>拮抗</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 45%">
-            <div>優勢</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 10%">
-            <div>確保</div>
-          </div>
-        </div>
-        <div>
-          <v-progress-linear :color="resultBarColor" :value="resultBarValue"></v-progress-linear>
-        </div>
-      </div>
+    <div v-if="isDefenseMode" class="mx-1 mb-1">
+      <air-status-result-bar :result="landbaseInfo.landbases[0].resultWave1" />
     </div>
-    <v-dialog v-model="itemListDialog" width="1200">
+    <v-dialog v-model="itemListDialog" width="1200" transition="scroll-x-transition">
       <item-list ref="itemList" :handle-equip-item="equipItem" />
     </v-dialog>
   </v-card>
@@ -134,40 +108,12 @@
     width: 375px;
   }
 }
-
-.status-reuslt-label {
-  text-align: center;
-  position: relative;
-  white-space: nowrap;
-  font-size: 11px;
-  width: 100%;
-  bottom: 4px;
-}
-.status-bar-label {
-  margin-bottom: 2px;
-  text-align: center;
-  border-bottom: 1px solid #888;
-  position: relative;
-}
-.status-bar-label > div {
-  opacity: 0.8;
-  bottom: -2px;
-  width: 100%;
-  font-size: 11px;
-  white-space: nowrap;
-  position: absolute;
-}
-.status-bar-divide {
-  align-self: flex-end;
-  height: 10px;
-  border-right: 1px solid #888;
-  margin-bottom: 2px;
-}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import draggable from 'vuedraggable';
+import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import LandbaseComp from '@/components/landbase/Landbase.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import LandbaseInfo, { LandbaseInfoBuilder } from '@/classes/landbase/landbaseInfo';
@@ -182,6 +128,7 @@ export default Vue.extend({
     LandbaseComp,
     ItemList,
     draggable,
+    AirStatusResultBar,
   },
   props: {
     value: {
@@ -208,30 +155,6 @@ export default Vue.extend({
       }
 
       return modes.map((v) => v !== LB_MODE.BATTLE);
-    },
-    resultLabel() {
-      const { airState } = this.value.landbases[0].resultWave1;
-      const status = Const.AIR_STATUS.find((v) => v.value === airState);
-      return status ? status.text : '';
-    },
-    resultBarValue() {
-      return this.value.landbases[0].resultWave1.airStateBarWidth;
-    },
-    resultBarColor() {
-      const value = this.value.landbases[0].resultWave1.airStateBarWidth;
-      if (value >= 90) {
-        return 'success';
-      }
-      if (value >= 45) {
-        return 'light-green';
-      }
-      if (value >= 20) {
-        return 'yellow';
-      }
-      if (value >= 10) {
-        return 'orange';
-      }
-      return 'red';
     },
   },
   methods: {

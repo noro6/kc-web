@@ -1,6 +1,7 @@
 import Enemy from './enemy';
-import Const, { AvoidType, Formation } from '../const';
+import Const, { AvoidType, CELL_TYPE, Formation } from '../const';
 import Item from '../item/item';
+import CommonCalc from '../commonCalc';
 
 export interface EnemyFleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -11,8 +12,6 @@ export interface EnemyFleetBuilder {
   formation?: number;
   /** 戦闘形式 未指定ならfleetの戦闘形式で作成 */
   cellType?: number;
-  /** 連合フラグ 未指定ならfleetの連合フラグで作成 */
-  isUnion?: boolean;
   /** 半径 未指定ならfleetの半径で作成 */
   range?: number;
 }
@@ -41,11 +40,17 @@ export default class EnemyFleet {
   /** 全員潜水艦かどうか */
   public readonly isAllSubmarine: boolean;
 
+  /** 全員潜水艦かどうか */
+  public readonly hasPlane: boolean;
+
   /** 艦隊防空値 */
   public readonly fleetAntiAir: number;
 
   /** 制空値 -減衰なし最大 */
   public readonly fullAirPower: number;
+
+  /** 制空値 -減衰なし各種ボーダー */
+  public readonly fullBorders: number[];
 
   /** 主力艦制空値 */
   public readonly mainAirPower: number;
@@ -56,6 +61,9 @@ export default class EnemyFleet {
   /** 制空値【対基地】-減衰なし最大 */
   public readonly fullLandbaseAirPower: number;
 
+  /** 制空値 -減衰なし各種ボーダー */
+  public readonly fullLandbaseBorders: number[];
+
   /** 主力艦制空値【対基地】 */
   public readonly mainLandbaseAirPower: number;
 
@@ -64,6 +72,12 @@ export default class EnemyFleet {
 
   /** stage2 撃墜テーブル */
   public readonly stage2: Stage2Table[];
+
+  /** 敵主力艦隊一覧 */
+  public readonly mainEnemies: Enemy[];
+
+  /** 敵随伴艦隊一覧 */
+  public readonly escortEnemies: Enemy[];
 
   /** 制空値 計算用 */
   public airPower: number;
@@ -80,13 +94,11 @@ export default class EnemyFleet {
       this.enemies = builder.enemies ? builder.enemies.concat() : builder.fleet.enemies.concat();
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
       this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
-      this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.fleet.isUnion;
       this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
     } else {
       this.enemies = builder.enemies ? builder.enemies.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
       this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
-      this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
       this.range = builder.range !== undefined ? builder.range : 0;
 
       if (this.enemies.length === 0) {
@@ -99,6 +111,8 @@ export default class EnemyFleet {
 
     // 計算により算出するステータス
     this.isAllSubmarine = false;
+    this.hasPlane = false;
+    this.isUnion = this.cellType === CELL_TYPE.GRAND;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
     // 陣形は決まっているため、計算で使うstage2はここで算出
@@ -113,6 +127,8 @@ export default class EnemyFleet {
     this.escortLandbaseAirPower = 0;
 
     this.allPlanes = [];
+    this.mainEnemies = [];
+    this.escortEnemies = [];
     for (let i = 0; i < this.enemies.length; i += 1) {
       const enemy = this.enemies[i];
       this.fullAirPower += enemy.fullAirPower;
@@ -121,19 +137,27 @@ export default class EnemyFleet {
       if (!enemy.isEscort) {
         this.mainAirPower += enemy.fullAirPower;
         this.mainLandbaseAirPower += enemy.fullLBAirPower;
+        this.mainEnemies.push(enemy);
       } else {
         this.escortAirPower += enemy.fullAirPower;
         this.escortLandbaseAirPower += enemy.fullLBAirPower;
+        this.escortEnemies.push(enemy);
       }
 
       // 艦載機を持つ敵のみ格納
       if (enemy.hasPlane) {
-        this.allPlanes = this.allPlanes.concat(enemy.items.filter((v) => v.isPlane));
+        const planes = enemy.items.filter((v) => v.isPlane);
+        this.allPlanes = this.allPlanes.concat(planes);
+        if (!this.hasPlane && planes.find((v) => !v.isRecon)) {
+          this.hasPlane = true;
+        }
       }
     }
 
     this.airPower = this.fullAirPower;
     this.landbaseAirPower = this.fullLandbaseAirPower;
+    this.fullBorders = CommonCalc.getAirStatusBorder(this.fullAirPower);
+    this.fullLandbaseBorders = CommonCalc.getAirStatusBorder(this.fullLandbaseAirPower);
   }
 
   /**

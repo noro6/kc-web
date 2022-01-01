@@ -4,7 +4,7 @@
       <div class="ml-2 align-self-center">{{ index + 1 }}戦目</div>
       <v-spacer></v-spacer>
       <div class="align-self-center mr-1">
-        <v-btn outlined small color="primary">海域選択</v-btn>
+        <v-btn outlined small color="primary" @click.stop="showWorldList">海域選択</v-btn>
       </div>
       <div class="align-self-center pr-1" v-if="existEnemy">
         <v-btn color="info" icon small @click="clickedInfo()">
@@ -52,7 +52,7 @@
               <v-icon small>mdi-close</v-icon>
             </v-btn>
           </div>
-          <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ index + 1 }}</div>
+          <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ (index % 6) + 1 }}</div>
         </div>
         <div v-show="enemy.data.id > 0">
           <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
@@ -61,11 +61,12 @@
           {{ enemy.data.name ? enemy.data.name : "敵艦選択" }}
         </div>
         <div class="mx-1 caption text--secondary">制空:</div>
-        <div class="body-2 enemy-air-power">{{ enemy.fullAirPower }}</div>
+        <div class="body-2 enemy-air-power" v-if="enemy.fullAirPower === enemy.fullLBAirPower">{{ enemy.fullAirPower }}</div>
+        <div class="body-2 enemy-air-power" v-else>({{ enemy.fullLBAirPower }})</div>
       </div>
     </div>
-    <v-dialog width="1100" v-model="detailDialog" @input="toggleDetailDialog">
-      <enemy-detail v-if="!destroyDialog" ref="enemyDetail" :handle-show-item-list="showItemList" :fleet="fleet" />
+    <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
+      <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" />
     </v-dialog>
   </v-card>
 </template>
@@ -124,6 +125,7 @@ import EnemyDetail from '@/components/enemy/EnemyDetail.vue';
 import Const, { CELL_TYPE } from '@/classes/const';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import Enemy from '@/classes/enemy/enemy';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
 
 export default Vue.extend({
   name: 'EnemyFleet',
@@ -144,6 +146,10 @@ export default Vue.extend({
       required: true,
     },
     handleShowItemList: {
+      type: Function,
+      required: true,
+    },
+    handleShowWorldList: {
       type: Function,
       required: true,
     },
@@ -184,14 +190,19 @@ export default Vue.extend({
       this.setFleet(new EnemyFleet());
     },
     changedCombo() {
-      const isUnion = this.fleet.cellType === CELL_TYPE.GRAND;
-      const enemies = this.fleet.enemies.concat();
-      if (isUnion && this.fleet.enemies.length <= 6) {
+      const enemyFleet = this.fleet;
+      const isUnion = enemyFleet.cellType === CELL_TYPE.GRAND;
+      const enemies = enemyFleet.enemies.concat();
+      if (isUnion && enemyFleet.enemies.length <= 6) {
         for (let i = 0; i < 6; i += 1) {
-          enemies.push(new Enemy());
+          enemies.push(new Enemy(new EnemyMaster(), [], true));
+        }
+      } else if (!isUnion && enemyFleet.enemies.length > 6) {
+        for (let i = 0; i < 6; i += 1) {
+          enemies.pop();
         }
       }
-      const builder: EnemyFleetBuilder = { fleet: this.fleet, enemies, isUnion };
+      const builder: EnemyFleetBuilder = { fleet: enemyFleet, enemies };
       this.setFleet(new EnemyFleet(builder));
     },
     removeEnemy(index: number) {
@@ -208,6 +219,9 @@ export default Vue.extend({
       } else {
         this.destroyDialog = false;
       }
+    },
+    showWorldList() {
+      this.handleShowWorldList(this.index);
     },
   },
 });

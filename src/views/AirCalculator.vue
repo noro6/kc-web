@@ -1,21 +1,22 @@
 <template>
   <div class="my-5" @dragover.prevent @drop="dropItem">
-    <div id="landbase-frame">
-      <landbase-all v-model="calcManager.landbaseInfo"></landbase-all>
+    <div class="content-frame">
+      <landbase-all v-model="calcManager.landbaseInfo" />
     </div>
-    <div id="fleet-frame" v-show="!calcManager.isDefense">
-      <fleet-all v-model="calcManager.fleetInfo"></fleet-all>
+    <div class="content-frame" v-show="!calcManager.isDefense">
+      <fleet-all v-model="calcManager.fleetInfo" />
     </div>
-    <div id="enemy-frame">
-      <enemy-fleet-all v-model="calcManager.battleInfo" :is-defense="calcManager.isDefense"></enemy-fleet-all>
+    <div class="content-frame">
+      <enemy-fleet-all v-model="calcManager.battleInfo" :landbase-info="calcManager.landbaseInfo" :is-defense="calcManager.isDefense" />
+    </div>
+    <div class="content-frame">
+      <main-result v-model="calcManager" v-show="!calcManager.isDefense" />
     </div>
   </div>
 </template>
 
 <style scoped>
-#landbase-frame,
-#fleet-frame,
-#enemy-frame {
+.content-frame {
   margin: 0 auto;
   max-width: 1200px;
 }
@@ -25,6 +26,7 @@
 import Vue from 'vue';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
 import LandbaseAll from '@/components/landbase/LandbaseAll.vue';
+import MainResult from '@/components/result/MainResult.vue';
 import FleetAll from '@/components/fleet/FleetAll.vue';
 import CalcManager from '@/classes/calcManager';
 
@@ -34,6 +36,7 @@ export default Vue.extend({
     LandbaseAll,
     FleetAll,
     EnemyFleetAll,
+    MainResult,
   },
   data: () => ({
     calcManager: new CalcManager(),
@@ -41,7 +44,19 @@ export default Vue.extend({
   mounted() {
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setCalcManager') {
-        this.calcManager = state.calcManager;
+        const newManager = state.calcManager as CalcManager;
+        if (!newManager) {
+          return;
+        }
+
+        if (newManager.landbaseInfo.landbases.some((v) => v.items.some((i) => i.data.id > 0))) {
+          this.calcManager.landbaseInfo = newManager.landbaseInfo;
+        }
+        if (newManager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
+          this.calcManager.fleetInfo = newManager.fleetInfo;
+        }
+
+        this.calcManager.updateInfo();
       }
     });
   },

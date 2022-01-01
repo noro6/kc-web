@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-1">
+  <div class="mx-1 pb-2">
     <div class="d-flex ml-2 fleet-header flex-wrap">
       <div class="mt-1 caption text--secondary">制空:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
@@ -56,38 +56,7 @@
         @input="updateShip"
       ></ship-input>
     </div>
-    <div class="d-flex mt-3 mb-2">
-      <div class="mr-1 status-reuslt">
-        <div class="status-reuslt-label">{{ resultLabel }}</div>
-        <div class="status-reuslt-rate">{{ resultStateRate }}%</div>
-      </div>
-      <div class="align-self-center flex-grow-1">
-        <div class="d-flex">
-          <div class="status-bar-label" style="width: 10%">
-            <div>喪失</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 10%">
-            <div>劣勢</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 25%">
-            <div>拮抗</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 45%">
-            <div>優勢</div>
-          </div>
-          <div class="status-bar-divide"></div>
-          <div class="status-bar-label" style="width: 10%">
-            <div>確保</div>
-          </div>
-        </div>
-        <div>
-          <v-progress-linear :color="resultBarColor" :value="resultBarValue"></v-progress-linear>
-        </div>
-      </div>
-    </div>
+    <air-status-result-bar :result="fleet.mainResult" />
   </div>
 </template>
 
@@ -138,52 +107,12 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
-
-.status-reuslt {
-  width: 36px;
-  position: relative;
-  opacity: 0.8;
-  font-size: 12px;
-}
-.status-reuslt-label {
-  text-align: center;
-  position: relative;
-  white-space: nowrap;
-  width: 100%;
-  bottom: 6px;
-}
-.status-reuslt-rate {
-  position: absolute;
-  white-space: nowrap;
-  text-align: right;
-  width: 100%;
-  top: 10px;
-}
-.status-bar-label {
-  margin-bottom: 2px;
-  text-align: center;
-  border-bottom: 1px solid #888;
-  position: relative;
-}
-.status-bar-label > div {
-  opacity: 0.8;
-  bottom: -2px;
-  width: 100%;
-  font-size: 11px;
-  white-space: nowrap;
-  position: absolute;
-}
-.status-bar-divide {
-  align-self: flex-end;
-  height: 10px;
-  border-right: 1px solid #888;
-  margin-bottom: 2px;
-}
 </style>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue';
 import ShipInput from '@/components/fleet/ShipInput.vue';
+import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
@@ -192,6 +121,7 @@ export default Vue.extend({
   name: 'Fleet',
   components: {
     ShipInput,
+    AirStatusResultBar,
   },
   props: {
     value: {
@@ -236,33 +166,6 @@ export default Vue.extend({
     },
     tpA() {
       return Math.floor(this.value.tp * 0.7);
-    },
-    resultLabel() {
-      const { airState } = this.value.result;
-      const status = Const.AIR_STATUS.find((v) => v.value === airState);
-      return status ? status.text : '';
-    },
-    resultBarValue() {
-      return this.value.result.airStateBarWidth;
-    },
-    resultStateRate() {
-      return this.value.result.rates[this.value.result.airState];
-    },
-    resultBarColor() {
-      const value = this.value.result.airStateBarWidth;
-      if (value >= 90) {
-        return 'success';
-      }
-      if (value >= 45) {
-        return 'light-green';
-      }
-      if (value >= 20) {
-        return 'yellow';
-      }
-      if (value >= 10) {
-        return 'orange';
-      }
-      return 'red';
     },
   },
   methods: {

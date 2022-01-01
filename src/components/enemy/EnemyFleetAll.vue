@@ -1,16 +1,19 @@
 <template>
-  <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
+  <v-card class="my-2 px-1 py-2">
     <div class="pa-2">敵艦隊</div>
     <v-divider></v-divider>
     <div class="d-flex ma-2" v-if="!isDefense">
       <div class="align-self-center">
-        <v-btn color="primary">海域マップから一括入力</v-btn>
+        <v-btn color="primary" @click.stop="showWorldListContinuous">海域マップから一括入力</v-btn>
       </div>
       <v-spacer></v-spacer>
     </div>
     <div class="d-flex mx-2 mt-5" v-if="!isDefense">
       <div class="align-self-center" id="battle-count-select">
-        <v-select dense v-model="battleCount" :items="items" label="戦闘回数" @input="setInfo"></v-select>
+        <v-select dense hide-details v-model="battleCount" :items="items" label="戦闘回数" @input="setInfo"></v-select>
+      </div>
+      <div class="align-self-center ml-3">
+        <v-btn outlined color="success">基地派遣先設定</v-btn>
       </div>
     </div>
     <div class="d-flex flex-wrap" v-if="!isDefense">
@@ -21,6 +24,7 @@
         :index="index"
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
+        :handle-show-world-list="showWorldList"
         @input="setInfo"
       ></enemy-fleet-component>
     </div>
@@ -30,14 +34,18 @@
         :index="0"
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
+        :handle-show-world-list="showWorldList"
         @input="setInfo"
       ></enemy-fleet-component>
     </div>
-    <v-dialog v-model="enemyListDialog" width="1200">
+    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
       <enemy-list :handle-decide-enemy="putEnemy" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" width="1200">
       <item-list ref="itemList" :handle-equip-item="equipItem" />
+    </v-dialog>
+    <v-dialog v-model="worldListDialog" transition="scroll-x-transition" width="600" @input="toggleWorldList">
+      <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" />
     </v-dialog>
   </v-card>
 </template>
@@ -52,12 +60,13 @@
 import Vue from 'vue';
 import EnemyFleetComponent from '@/components/enemy/EnemyFleet.vue';
 import EnemyList from '@/components/enemy/EnemyList.vue';
+import WorldList from '@/components/map/WorldList.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import BattleInfo, { BattleInfoBuilder } from '@/classes/enemy/battleInfo';
+import LandbaseInfo from '@/classes/landbase/landbaseInfo';
 import ItemMaster from '@/classes/item/itemMaster';
 import Enemy from '@/classes/enemy/enemy';
-import Item, { ItemBuilder } from '@/classes/item/item';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -67,11 +76,16 @@ export default Vue.extend({
   components: {
     EnemyFleetComponent,
     EnemyList,
+    WorldList,
     ItemList,
   },
   props: {
     value: {
       type: BattleInfo,
+      required: true,
+    },
+    landbaseInfo: {
+      type: LandbaseInfo,
       required: true,
     },
     isDefense: {
@@ -84,7 +98,9 @@ export default Vue.extend({
     items: BattleCountItems,
     enemyListDialog: false,
     itemListDialog: false,
+    worldListDialog: false,
     dialogTarget: [-1, -1],
+    fleetStock: [] as EnemyFleet[],
   }),
   computed: {
     battleInfo(): BattleInfo {
@@ -105,12 +121,22 @@ export default Vue.extend({
       this.dialogTarget = [fleetIndex, enemyIndex];
       const enemy = this.battleInfo.fleets[fleetIndex].enemies[enemyIndex];
       await (this.itemListDialog = true);
-      this.itemListDialog = true;
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(enemy);
     },
     showEnemyList(battle: number, index: number) {
       this.dialogTarget = [battle, index];
       this.enemyListDialog = true;
+    },
+    async showWorldListContinuous() {
+      this.fleetStock = [];
+      await (this.worldListDialog = true);
+      (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = true;
+    },
+    async showWorldList(index: number) {
+      this.fleetStock = [];
+      this.dialogTarget = [index, 0];
+      await (this.worldListDialog = true);
+      (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = false;
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
@@ -120,25 +146,11 @@ export default Vue.extend({
 
       // 装備マスタより装備を解決
       const allItems = this.$store.state.items as ItemMaster[];
-      const items: Item[] = [];
-
-      // スロット数が機能していないので、有効装備の数も考慮する
-      const slotCount = Math.max(enemy.items.filter((v) => v > 0).length, enemy.slotCount);
-      for (let i = 0; i < slotCount; i += 1) {
-        const item = allItems.find((v) => v.id === enemy.items[i]);
-        if (item) {
-          const slot = enemy.slots[i] > 0 ? enemy.slots[i] : 0;
-          const builder: ItemBuilder = { master: item, slot };
-          // 装備をセット
-          items.push(new Item(builder));
-        } else {
-          items.push(new Item());
-        }
-      }
       // 6隻目以降なら連合随伴とする
       const isEscort = fleet.isUnion && index >= 6;
+      const newEnemy = Enemy.createEnemyFromMaster(enemy, isEscort, allItems);
       const enemies = fleet.enemies.concat();
-      enemies[index] = new Enemy(enemy, items, isEscort);
+      enemies[index] = newEnemy;
       const builder: EnemyFleetBuilder = { fleet, enemies };
 
       // 敵編成が更新されたため、敵艦隊を再インスタンス化し更新
@@ -152,6 +164,31 @@ export default Vue.extend({
     },
     equipItem(item: ItemMaster) {
       console.log(item);
+    },
+    setEnemyFleet(fleet: EnemyFleet, isCoutinue = false) {
+      if (isCoutinue) {
+        this.fleetStock.push(fleet);
+      } else if (this.isDefense) {
+        // 空襲モード時は直で更新かけに行く(setInfoメソッドに頼らない)
+        this.$emit('input', new BattleInfo({ info: this.battleInfo, airRaidFleet: fleet }));
+      } else {
+        const index = this.dialogTarget[0];
+        this.battleInfo.fleets[index] = new EnemyFleet({ fleet });
+        this.setInfo();
+        this.worldListDialog = false;
+      }
+    },
+    toggleWorldList() {
+      if (!this.worldListDialog && this.fleetStock.length) {
+        // 連続入力モード データがあればそれをそのまま登録(setInfoメソッドに頼らない)
+        const builder: BattleInfoBuilder = {
+          info: this.battleInfo,
+          fleets: this.fleetStock,
+          battleCount: this.fleetStock.length,
+        };
+        this.$emit('input', new BattleInfo(builder));
+        this.battleCount = this.fleetStock.length;
+      }
     },
   },
 });

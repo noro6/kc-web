@@ -51,8 +51,8 @@
       <div id="item-table-body">
         <div class="pa-3" :class="{ multi: multiLine }">
           <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
-            <div class="item-icon">
-              <img :src="`/img/type/icon${item.iconTypeId}.png`" :alt="item.iconTypeId" />
+            <div>
+              <v-img :src="`/img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
             </div>
             <div class="item-name text-truncate">
               {{ item.name }}
@@ -139,13 +139,6 @@
 }
 .list-item > div {
   align-self: center;
-}
-.item-icon {
-  height: 24px;
-}
-.item-icon img {
-  width: 24px;
-  height: 24px;
 }
 .item-name {
   flex-grow: 1;

@@ -6,6 +6,7 @@ import Landbase from './landbase/landbase';
 import LandbaseInfo from './landbase/landbaseInfo';
 import Item from './item/item';
 import Calculator from './calculator';
+import CommonCalc from './commonCalc';
 
 export default class CalcManager {
   /** 防空計算モードか否か 基地航空隊欄で制御 */
@@ -46,13 +47,13 @@ export default class CalcManager {
     const maxCount = 5000;
 
     /** 計算対象の基地 */
-    const landbases = calcInfo.landbaseInfo.landbases.filter((v) => v.mode === LB_MODE.BATTLE);
+    const landbases = calcInfo.landbaseInfo.landbases.filter((v) => v.mode === LB_MODE.BATTLE && v.items.find((i) => i.data.id > 0));
 
-    /** 計算対象の艦隊 todo いい感じに選ぶ */
-    const fleet = calcInfo.fleetInfo.fleets.concat()[0];
+    /** 計算対象の艦隊 */
+    const fleet = calcInfo.fleetInfo.fleets[calcInfo.fleetInfo.mainFleetIndex];
 
     /** 敵艦隊 全戦闘分 */
-    const battles = calcInfo.battleInfo.fleets.concat();
+    const battles = calcInfo.battleInfo.fleets;
     const battleCount = battles.length;
 
     // 計算結果表示戦闘
@@ -63,7 +64,18 @@ export default class CalcManager {
       landbases[i].resultWave1 = new AirCalcResult();
       landbases[i].resultWave2 = new AirCalcResult();
     }
-    fleet.result = new AirCalcResult();
+
+    fleet.results = [];
+    for (let i = 0; i < battleCount; i += 1) {
+      fleet.results.push(new AirCalcResult());
+    }
+    // 艦載機の各戦闘開始時搭載数記録用の配列の初期化
+    for (let i = 0; i < fleet.allPlanes.length; i += 1) {
+      const item = fleet.allPlanes[i];
+      for (let j = 0; j < battleCount; j += 1) {
+        item.slotHistories.push(0);
+      }
+    }
 
     for (let count = 0; count < maxCount; count += 1) {
       // 設定された戦闘回数下記の各計算処理を行う
@@ -80,16 +92,18 @@ export default class CalcManager {
         Calculator.shootDownFleetJet(fleet, enemyFleet);
 
         /** ======= 本隊航空戦フェーズ ======= */
-        Calculator.calculateMainPhase(fleet, enemyFleet, battle === mainBattle);
+        Calculator.calculateMainPhase(fleet, enemyFleet, battle, battle === mainBattle);
 
         /** ======= 本隊航空戦フェーズ2回目(航空戦マスなら) ======= */
         if (enemyFleet.cellType === CELL_TYPE.AERIAL_COMBAT) {
-          Calculator.calculateMainPhase(fleet, enemyFleet, battle === mainBattle);
+          Calculator.calculateAerialConbatCellPhase(fleet, enemyFleet);
         }
 
         // 敵艦隊の補給
         for (let i = 0; i < enemyFleet.allPlanes.length; i += 1) {
           Item.supply(enemyFleet.allPlanes[i]);
+          enemyFleet.airPower = enemyFleet.fullAirPower;
+          enemyFleet.landbaseAirPower = enemyFleet.fullLandbaseAirPower;
         }
       }
 
@@ -98,21 +112,42 @@ export default class CalcManager {
         Landbase.supply(landbases[i]);
       }
       for (let i = 0; i < fleet.allPlanes.length; i += 1) {
-        Item.supply(fleet.allPlanes[i]);
+        const item = fleet.allPlanes[i];
+        item.slotResult += item.slot;
+        item.deathRate += item.slot <= 0 ? 1 : 0;
+        Item.supply(item);
       }
       fleet.airPower = fleet.fullAirPower;
     }
 
-    // 結果が返ってきたので各種表示できるように調整
-    fleet.result.airState = fleet.result.rates.indexOf(Math.max(...fleet.result.rates));
-    // 平均値にする
-    fleet.result.loopSumAirPower /= maxCount;
-    fleet.result.loopSumEnemyAirPower /= maxCount;
-    const borders = Calculator.getAirStatusBorder(Math.floor(fleet.result.loopSumEnemyAirPower));
-    fleet.result.setAirStateBarWidth(Math.floor(fleet.result.loopSumAirPower), borders);
-    fleet.result.rates = fleet.result.rates.map((v) => (100 * v) / maxCount);
+    // 基地航空隊計算結果を整形してセット
+    for (let i = 0; i < calcInfo.landbaseInfo.landbases.length; i += 1) {
+      const lb = calcInfo.landbaseInfo.landbases[i];
+      if (lb.mode === LB_MODE.BATTLE && lb.items.find((v) => v.data.id > 0)) {
+        AirCalcResult.formatResult(lb.resultWave1, maxCount);
+        AirCalcResult.formatResult(lb.resultWave2, maxCount);
 
-    this.fleetInfo.fleets[0].result = fleet.result;
+        this.landbaseInfo.landbases[i].resultWave1 = lb.resultWave1;
+        this.landbaseInfo.landbases[i].resultWave2 = lb.resultWave2;
+      }
+    }
+
+    // 本隊計算結果を整形してセット
+    const mainFleet = this.fleetInfo.fleets[this.fleetInfo.mainFleetIndex];
+    for (let i = 0; i < battleCount; i += 1) {
+      AirCalcResult.formatResult(fleet.results[i], maxCount);
+      mainFleet.results = fleet.results;
+    }
+    mainFleet.mainResult = fleet.results[mainBattle];
+
+    for (let i = 0; i < fleet.allPlanes.length; i += 1) {
+      const item = fleet.allPlanes[i];
+      const mainItem = mainFleet.allPlanes[i];
+      mainItem.slotHistories = item.slotHistories.map((v) => Math.round(v / maxCount));
+      mainItem.slotResult = Math.floor(item.slotResult / maxCount);
+      const deathRate = (100 * item.deathRate) / maxCount;
+      mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
+    }
   }
 
   /**
@@ -128,13 +163,15 @@ export default class CalcManager {
     // 相手制空値
     const enemyAirPower = enemy.airPower;
     // 制空値ボーダー
-    const borders = Calculator.getAirStatusBorder(enemyAirPower);
+    const borders = CommonCalc.getAirStatusBorder(enemyAirPower);
     const [b0, b1, b2, b3] = borders;
 
     // 使う制空値を決定
     const airPower = enemy.cellType !== CELL_TYPE.HIGH_AIR_RAID ? lb.defenseAirPower : lb.highDefenseAirPower;
-
     const result = new AirCalcResult();
+    result.loopSumAirPower = airPower;
+    result.loopSumEnemyAirPower = enemyAirPower;
+
     if (enemyAirPower <= 0) {
       // 敵制空値がない場合は確保固定
       result.airState = AIR_STATE.KAKUHO;
@@ -156,11 +193,7 @@ export default class CalcManager {
       result.rates[AIR_STATE.SOSHITSU] = 1;
     }
 
-    result.setAirStateBarWidth(airPower, borders);
-
-    // 計算完了フラグ建て
-    result.isCalculated = true;
-    result.airStateBarWidth = Math.min(result.airStateBarWidth, 100);
+    AirCalcResult.formatResult(result, 1);
     for (let i = 0; i < lb.landbases.length; i += 1) {
       // 全ての航空隊に同じ結果を挿入
       lb.landbases[i].resultWave1 = result;

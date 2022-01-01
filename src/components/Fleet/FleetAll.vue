@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-5 my-2 px-1 py-2 land-base-all">
+  <v-card class="my-2 px-1 py-2">
     <div class="pa-2">自艦隊</div>
     <v-divider></v-divider>
     <v-row align="center" class="mt-1 ml-4" dense>
@@ -20,7 +20,7 @@
       </div>
     </v-row>
     <v-tabs v-model="tab" class="px-2">
-      <v-tab v-for="i in 4" :key="i" :href="`#fleet${i - 1}`">
+      <v-tab v-for="i in 4" :key="i" :href="`#fleet${i - 1}`" @click="changedTab(i - 1)">
         <template v-if="fleetInfo.isUnion && i === 1">主力艦隊</template>
         <template v-else-if="fleetInfo.isUnion && i === 2">随伴艦隊</template>
         <template v-else>第{{ i }}艦隊</template>
@@ -40,10 +40,10 @@
         ></fleet-component>
       </v-tab-item>
     </v-tabs-items>
-    <v-dialog v-model="shipListDialog" width="1200">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" width="1200">
       <ship-list :handle-decide-ship="putShip" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" width="1200">
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" width="1200">
       <item-list ref="itemList" :handle-equip-item="equipItem" />
     </v-dialog>
   </v-card>
@@ -228,6 +228,10 @@ export default Vue.extend({
     },
     changedInfo() {
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
+      this.setInfo(new FleetInfo(infoBuilder));
+    },
+    changedTab(index: number) {
+      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo, mainFleetIndex: index };
       this.setInfo(new FleetInfo(infoBuilder));
     },
   },

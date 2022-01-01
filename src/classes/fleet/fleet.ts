@@ -29,14 +29,14 @@ export default class Fleet {
   /** 連合艦隊フラグ */
   public readonly isUnion: boolean;
 
-  /** 連合艦隊フラグ */
-  public readonly isAllSubmarine: boolean;
-
   /** 艦隊制空値 */
   public readonly fullAirPower: number;
 
   /** 輸送量 */
   public readonly tp: number;
+
+  /** 航空戦が可能な機体ありなし */
+  public readonly hasPlane: boolean;
 
   /** 噴式機ありなし */
   public readonly hasJet: boolean;
@@ -54,7 +54,10 @@ export default class Fleet {
   public airPower: number;
 
   /** 計算結果の各制空状態の割合 */
-  public result = new AirCalcResult();
+  public results: AirCalcResult[] = [new AirCalcResult()];
+
+  /** 表示戦闘の各制空状態の割合 */
+  public mainResult = new AirCalcResult();
 
   constructor(builder: FleetBuilder = {}) {
     if (builder.fleet) {
@@ -76,12 +79,12 @@ export default class Fleet {
     }
 
     // 計算により算出するステータス
-    this.isAllSubmarine = false;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
     this.tp = 0;
     this.fullAirPower = 0;
     this.hasJet = false;
+    this.hasPlane = false;
 
     this.allPlanes = [];
     for (let i = 0; i < this.ships.length; i += 1) {
@@ -93,6 +96,9 @@ export default class Fleet {
         const shipPlanes = ship.items.filter((v) => v.isPlane && v.fullSlot > 0);
         if (shipPlanes.length) {
           this.allPlanes = this.allPlanes.concat(shipPlanes);
+          if (!this.hasPlane && this.allPlanes.find((v) => !v.isRecon)) {
+            this.hasPlane = true;
+          }
         }
         if (!this.hasJet && ship.hasJet) {
           this.hasJet = true;

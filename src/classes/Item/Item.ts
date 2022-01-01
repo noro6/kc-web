@@ -95,6 +95,15 @@ export default class Item {
   /** 現在搭載数 計算用 */
   public slot: number;
 
+  /** 搭載数推移 表示用 */
+  public slotHistories: number[];
+
+  /** 戦闘後搭載数 表示用 */
+  public slotResult = 0;
+
+  /** 全滅率 表示用 */
+  public deathRate = 0;
+
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
@@ -160,6 +169,8 @@ export default class Item {
         this.calculatedAirPower.push(ap);
       }
     }
+
+    this.slotHistories = [];
   }
 
   /**

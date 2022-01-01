@@ -153,11 +153,11 @@
 <style scoped>
 .item-input {
   display: flex;
-  transition: 0.1s;
+  transition: 0.2s;
   border-bottom: 1px solid rgba(128, 128, 128, 0.24);
 }
 .item-input:hover {
-  box-shadow: inset 0 0 24px rgba(128, 128, 128, 0.3);
+  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.2);
 }
 .item-input > * {
   user-select: none;

@@ -38,39 +38,9 @@
         :init="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
         @input="updateItem"
       />
-      <div class="mx-1" v-if="!isDefense">
-        <div v-for="i in 2" :key="i" class="d-flex mt-3">
-          <div class="mr-1 status-reuslt">
-            <div class="status-reuslt-label">{{ resultLabel[i] }}</div>
-            <div class="status-reuslt-rate">100%</div>
-          </div>
-          <div class="align-self-center flex-grow-1">
-            <div class="d-flex">
-              <div class="status-bar-label" style="width: 10%">
-                <div>喪失</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 10%">
-                <div>劣勢</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 25%">
-                <div>拮抗</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 45%">
-                <div>優勢</div>
-              </div>
-              <div class="status-bar-divide"></div>
-              <div class="status-bar-label" style="width: 10%">
-                <div>確保</div>
-              </div>
-            </div>
-            <div>
-              <v-progress-linear :color="getStatusColor(resultBarValue[i - 1])" :value="resultBarValue[i - 1]"></v-progress-linear>
-            </div>
-          </div>
-        </div>
+      <div v-if="!isDefense" class="mx-1">
+        <air-status-result-bar v-if="!isDefense" :result="landbase.resultWave1" :dense="true" />
+        <air-status-result-bar v-if="!isDefense" :result="landbase.resultWave2" :dense="true" />
       </div>
     </div>
   </v-card>
@@ -83,58 +53,17 @@
 .mode-select {
   width: 80px;
 }
-
-.status-reuslt {
-  width: 26px;
-  position: relative;
-  opacity: 0.8;
-}
-.status-reuslt-label {
-  text-align: center;
-  position: relative;
-  white-space: nowrap;
-  font-size: 11px;
-  width: 100%;
-  bottom: 4px;
-}
-.status-reuslt-rate {
-  position: absolute;
-  white-space: nowrap;
-  text-align: right;
-  font-size: 10px;
-  width: 100%;
-  top: 7px;
-}
-.status-bar-label {
-  margin-bottom: 2px;
-  text-align: center;
-  border-bottom: 1px solid #888;
-  position: relative;
-}
-.status-bar-label > div {
-  opacity: 0.8;
-  bottom: -2px;
-  width: 100%;
-  font-size: 11px;
-  white-space: nowrap;
-  position: absolute;
-}
-.status-bar-divide {
-  align-self: flex-end;
-  height: 10px;
-  border-right: 1px solid #888;
-  margin-bottom: 2px;
-}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
+import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import Landbase from '@/classes/landbase/landbase';
 import Const, { LB_MODE } from '@/classes/const';
 
 export default Vue.extend({
-  components: { ItemInput },
+  components: { ItemInput, AirStatusResultBar },
   name: 'Landbase',
   props: {
     handleShowItemList: {
@@ -180,6 +109,11 @@ export default Vue.extend({
     reconCorrString() {
       return this.value.reconCorr > 1 ? `${this.value.reconCorr}` : '';
     },
+    resultStateRate() {
+      const wave1 = this.value.resultWave1;
+      const wave2 = this.value.resultWave2;
+      return [Math.floor(wave1.rates[wave1.airState]), Math.floor(wave2.rates[wave2.airState])];
+    },
     resultLabel() {
       const wave1State = this.value.resultWave1.airState;
       const wave2State = this.value.resultWave2.airState;
@@ -217,6 +151,9 @@ export default Vue.extend({
       }
       if (value >= 10) {
         return 'orange';
+      }
+      if (value === 0) {
+        return 'secondary';
       }
       return 'red';
     },

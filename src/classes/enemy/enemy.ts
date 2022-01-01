@@ -1,5 +1,6 @@
 import EnemyMaster from './enemyMaster';
-import Item from '../item/item';
+import Item, { ItemBuilder } from '../item/item';
+import ItemMaster from '../item/itemMaster';
 
 export default class Enemy {
   /** 敵マスタ情報 */
@@ -64,5 +65,55 @@ export default class Enemy {
     }
 
     this.antiAirBonus = Math.floor(this.antiAirBonus);
+  }
+
+  /**
+   * マスタから敵データ作成
+   * @static
+   * @param {number} id
+   * @param {boolean} isEscort
+   * @param {EnemyMaster[]} allEnemy
+   * @param {ItemMaster[]} allItems
+   * @returns {Enemy}
+   * @memberof Enemy
+   */
+  public static createEnemyFromMasterId(id: number, isEscort: boolean, allEnemy: EnemyMaster[], allItems: ItemMaster[]): Enemy {
+    const enemy = allEnemy.find((v) => v.id === id);
+    if (!enemy) {
+      return new Enemy();
+    }
+    return Enemy.createEnemyFromMaster(enemy, isEscort, allItems);
+  }
+
+  /**
+   * マスタから敵データ作成
+   * @static
+   * @param {EnemyMaster} enemy
+   * @param {boolean} isEscort
+   * @param {ItemMaster[]} allItems
+   * @returns {Enemy}
+   * @memberof Enemy
+   */
+  public static createEnemyFromMaster(enemy: EnemyMaster, isEscort: boolean, allItems: ItemMaster[]): Enemy {
+    if (!enemy) {
+      return new Enemy();
+    }
+    // 装備マスタより装備を解決
+    const items: Item[] = [];
+
+    // スロット数が機能していないので、有効装備の数も考慮する
+    const slotCount = Math.max(enemy.items.filter((v) => v > 0).length, enemy.slotCount);
+    for (let i = 0; i < slotCount; i += 1) {
+      const item = allItems.find((v) => v.id === enemy.items[i]);
+      if (item) {
+        const slot = enemy.slots[i] > 0 ? enemy.slots[i] : 0;
+        const builder: ItemBuilder = { master: item, slot };
+        // 装備をセット
+        items.push(new Item(builder));
+      } else {
+        items.push(new Item());
+      }
+    }
+    return new Enemy(enemy, items, isEscort);
   }
 }
