@@ -55,7 +55,7 @@
           <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ (index % 6) + 1 }}</div>
         </div>
         <div v-show="enemy.data.id > 0">
-          <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
+          <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
         </div>
         <div v-show="enemy.data.id === 0" class="enemy-name text-truncate">
           {{ enemy.data.name ? enemy.data.name : "敵艦選択" }}

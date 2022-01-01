@@ -26,7 +26,7 @@
                     <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.data.name }}</td>
                     <td class="text-left d-flex">
                       <div class="align-self-center d-none d-sm-block">
-                        <v-img :src="`/img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
+                        <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                       </div>
                       <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
                     </td>
@@ -51,12 +51,12 @@
                     <div>
                       <div class="battle-overview-enemies">
                         <div v-for="(enemy, j) in enemyFleet.mainEnemies" :key="j" class="mr-1">
-                          <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="25" width="100"></v-img>
+                          <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="25" width="100"></v-img>
                         </div>
                       </div>
                       <div class="battle-overview-enemies" v-if="enemyFleet.isUnion">
                         <div v-for="(enemy, j) in enemyFleet.escortEnemies" :key="j" class="mr-1">
-                          <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="25" width="100"></v-img>
+                          <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="25" width="100"></v-img>
                         </div>
                       </div>
                     </div>

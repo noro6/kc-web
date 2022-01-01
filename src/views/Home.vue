@@ -1,5 +1,5 @@
 <template>
-  <div class="ma-10">制空権シミュレータ(仮) vx.x.x</div>
+  <div class="ma-10">制空権シミュレータ(仮) v2.x.x</div>
 </template>
 
 <script lang="ts">

@@ -43,7 +43,7 @@
         <div class="pa-3" :class="{ multi: multiLine }">
           <div v-ripple="{ class: 'info--text' }" v-for="(ship, i) in ships" :key="i" class="ship-list" @click="clickedShip(ship)">
             <div>
-              <v-img :src="`/img/ship/${ship.albumId}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${ship.albumId}.png`" height="30" width="120"></v-img>
             </div>
             <div class="flex-grow-1">
               <div class="ship-id primary--text">id:{{ ship.albumId }}</div>

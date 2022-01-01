@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="mt-5 map-img-area">
-        <img usemap="#click_map" class="mx-auto d-block" :src="`/img/map/${area}.png`" height="268" width="467" />
+        <img usemap="#click_map" class="mx-auto d-block" :src="`./img/map/${area}.png`" height="268" width="467" />
         <map name="click_map">
           <area
             class="node"
@@ -75,7 +75,7 @@
               <div class="mx-1" v-if="fleet.isUnion">
                 <div v-for="(enemy, j) in fleet.escortEnemies" :key="j" class="d-flex enemy-info">
                   <div class="align-self-center mr-1">
-                    <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -92,7 +92,7 @@
               <div class="mx-1">
                 <div v-for="(enemy, j) in fleet.mainEnemies" :key="j" class="d-flex enemy-info">
                   <div class="align-self-center mr-1">
-                    <v-img :src="`/img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -113,7 +113,7 @@
                       <div v-for="(item, k) in enemy.items" :key="k" class="mx-3">
                         <v-img
                           v-if="item.data.iconTypeId"
-                          :src="`/img/type/icon${item.data.iconTypeId}.png`"
+                          :src="`./img/type/icon${item.data.iconTypeId}.png`"
                           height="20"
                           width="20"
                         ></v-img>

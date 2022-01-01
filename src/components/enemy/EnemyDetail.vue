@@ -174,7 +174,7 @@
             >
               <div class="d-flex flex-grow-1">
                 <div class="align-self-center mr-2">
-                  <v-img :src="`/img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
                   <div class="stage2-id primary--text">id:{{ item.id }}</div>

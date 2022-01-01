@@ -2,7 +2,7 @@
   <v-card class="ma-1 py-2" :class="{ disabled: !ship.isActive }" @dragover.prevent @drop.stop>
     <div class="d-flex ship-header px-2">
       <div class="align-self-center" v-if="!isNoShip">
-        <v-img :src="`/img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
+        <v-img :src="`./img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">

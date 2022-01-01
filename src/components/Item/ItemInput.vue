@@ -48,7 +48,7 @@
         <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
           <v-img
             v-show="!isExpandSlot || item.data.iconTypeId"
-            :src="`/img/type/icon${item.data.iconTypeId}.png`"
+            :src="`./img/type/icon${item.data.iconTypeId}.png`"
             height="28"
             width="28"
           ></v-img>
@@ -85,14 +85,14 @@
           <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
             <template v-slot:activator="{ on, attrs }">
               <div class="item-level" v-bind="attrs" v-on="on">
-                <v-img :src="`/img/util/prof${level}.png`" height="24" width="18"></v-img>
+                <v-img :src="`./img/util/prof${level}.png`" height="24" width="18"></v-img>
                 <span class="level-value">{{ item.level }}</span>
               </div>
             </template>
             <v-card>
               <div class="d-flex">
                 <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
-                  <v-img :src="`/img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+                  <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
                   <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
                 </div>
               </div>
@@ -110,7 +110,7 @@
     <div v-if="!destroyTooltip" class="item-tooltip">
       <div class="d-flex">
         <div class="align-self-center">
-          <v-img :src="`/img/type/icon${item.data.iconTypeId}.png`" height="32" width="32"></v-img>
+          <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="32" width="32"></v-img>
         </div>
         <div class="ml-1 align-self-center">
           <div class="tooltip-item-id">id:{{ item.data.id }}</div>

@@ -8,7 +8,7 @@
       <!-- 索敵値 -->
       <div class="mt-1 mr-3 d-flex">
         <div class="option-status mr-1" v-for="(scout, i) in fleetScouts" :key="i">
-          <v-img :src="`/img/type/icon11.png`" height="20" width="20"></v-img>
+          <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
           <div class="option-status-label">{{ i + 1 }}</div>
           <div class="ml-2 body-2">: {{ scout.toFixed(2) }}</div>
         </div>
@@ -16,7 +16,7 @@
       <!-- TP -->
       <div class="mt-1 mr-3 d-flex">
         <div class="option-status">
-          <v-img :src="`/img/type/icon25.png`" height="24" width="24"></v-img>
+          <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
           <div class="option-status-label label-tp">TP</div>
           <div class="ml-2 body-2 align-self-center tp">
             <div>: {{ fleet.tp }}</div>

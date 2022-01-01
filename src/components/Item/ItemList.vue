@@ -44,7 +44,7 @@
           :class="{ active: type === i.id, disabled: keyword }"
           @click="changeType(i.id)"
         >
-          <v-img :src="`/img/type/type${i.id}.png`" height="32" width="32"></v-img>
+          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
         </div>
       </div>
       <v-divider class="mx-2"></v-divider>
@@ -52,7 +52,7 @@
         <div class="pa-3" :class="{ multi: multiLine }">
           <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
             <div>
-              <v-img :src="`/img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
+              <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
             </div>
             <div class="item-name text-truncate">
               {{ item.name }}

@@ -27,7 +27,7 @@
         <div class="pa-3 d-flex flex-wrap">
           <div v-ripple="{ class: 'info--text' }" v-for="(enemy, i) in enemies" :key="i" class="enemy-list" @click="clickedEnemy(enemy)">
             <div>
-              <v-img :src="`/img/enemy/${enemy.id - 1500}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/enemy/${enemy.id - 1500}.png`" height="30" width="120"></v-img>
             </div>
             <div>
               <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
