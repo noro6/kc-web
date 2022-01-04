@@ -61,16 +61,16 @@ export default class EnemyFleet {
   public readonly escortAirPower: number;
 
   /** 制空値【対基地】-減衰なし最大 */
-  public readonly fullLandbaseAirPower: number;
+  public readonly fullAirbaseAirPower: number;
 
   /** 制空値 -減衰なし各種ボーダー */
-  public readonly fullLandbaseBorders: number[];
+  public readonly fullAirbaseBorders: number[];
 
   /** 主力艦制空値【対基地】 */
-  public readonly mainLandbaseAirPower: number;
+  public readonly mainAirbaseAirPower: number;
 
   /** 随伴艦制空値【対基地】 */
-  public readonly escortLandbaseAirPower: number;
+  public readonly escortAirbaseAirPower: number;
 
   /** stage2 撃墜テーブル */
   public readonly stage2: Stage2Table[];
@@ -85,7 +85,7 @@ export default class EnemyFleet {
   public airPower: number;
 
   /** 制空値【対基地】 計算用 */
-  public landbaseAirPower: number;
+  public airbaseAirPower: number;
 
   /** 補給処理が要るかどうか 計算用 */
   public needSupply = false;
@@ -127,9 +127,9 @@ export default class EnemyFleet {
     this.fullAirPower = 0;
     this.mainAirPower = 0;
     this.escortAirPower = 0;
-    this.fullLandbaseAirPower = 0;
-    this.mainLandbaseAirPower = 0;
-    this.escortLandbaseAirPower = 0;
+    this.fullAirbaseAirPower = 0;
+    this.mainAirbaseAirPower = 0;
+    this.escortAirbaseAirPower = 0;
 
     this.allPlanes = [];
     this.mainEnemies = [];
@@ -137,15 +137,15 @@ export default class EnemyFleet {
     for (let i = 0; i < this.enemies.length; i += 1) {
       const enemy = this.enemies[i];
       this.fullAirPower += enemy.fullAirPower;
-      this.fullLandbaseAirPower += enemy.fullLBAirPower;
+      this.fullAirbaseAirPower += enemy.fullLBAirPower;
 
       if (!enemy.isEscort) {
         this.mainAirPower += enemy.fullAirPower;
-        this.mainLandbaseAirPower += enemy.fullLBAirPower;
+        this.mainAirbaseAirPower += enemy.fullLBAirPower;
         this.mainEnemies.push(enemy);
       } else {
         this.escortAirPower += enemy.fullAirPower;
-        this.escortLandbaseAirPower += enemy.fullLBAirPower;
+        this.escortAirbaseAirPower += enemy.fullLBAirPower;
         this.escortEnemies.push(enemy);
       }
 
@@ -164,9 +164,9 @@ export default class EnemyFleet {
     }
 
     this.airPower = this.fullAirPower;
-    this.landbaseAirPower = this.fullLandbaseAirPower;
+    this.airbaseAirPower = this.fullAirbaseAirPower;
     this.fullBorders = CommonCalc.getAirStatusBorder(this.fullAirPower);
-    this.fullLandbaseBorders = CommonCalc.getAirStatusBorder(this.fullLandbaseAirPower);
+    this.fullAirbaseBorders = CommonCalc.getAirStatusBorder(this.fullAirbaseAirPower);
   }
 
   /**

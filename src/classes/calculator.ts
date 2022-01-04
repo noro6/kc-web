@@ -1,6 +1,6 @@
 import { AIR_STATE, CELL_TYPE } from './const';
 import EnemyFleet, { Stage2Table } from './enemy/enemyFleet';
-import Landbase from './landbase/landbase';
+import Airbase from './airbase/airbase';
 import Fleet from './fleet/fleet';
 import Item from './item/item';
 import CommonCalc from './commonCalc';
@@ -9,17 +9,17 @@ export default class Calculator {
   /**
    * 基地航空隊フェーズ計算処理
    * @static
-   * @param {Landbase[]} landbases
+   * @param {Airbase[]} airbases
    * @param {EnemyFleet} enemyFleet
    * @param {number} battle
    * @memberof Calculator
    */
-  public static calculateLandbasePhase(landbases: Landbase[], enemyFleet: EnemyFleet, battle: number): void {
+  public static calculateAirbasePhase(airbases: Airbase[], enemyFleet: EnemyFleet, battle: number): void {
     const stage2List = enemyFleet.stage2;
-    for (let i = 0; i < landbases.length; i += 1) {
-      const landbase = landbases[i];
-      const wave1 = landbase.battleTarget[0];
-      const wave2 = landbase.battleTarget[1];
+    for (let i = 0; i < airbases.length; i += 1) {
+      const airbase = airbases[i];
+      const wave1 = airbase.battleTarget[0];
+      const wave2 = airbase.battleTarget[1];
       const isSeparate = wave1 !== wave2;
 
       // 第1波 第2波どちらも担当しないならこの航空隊の計算は飛ばす
@@ -28,23 +28,23 @@ export default class Calculator {
       }
 
       /** ======= 基地噴式強襲 ======= */
-      if (landbase.hasJet) {
-        Calculator.ShootDownLandbaseJet(landbase, stage2List);
+      if (airbase.hasJet) {
+        Calculator.ShootDownAirbaseJet(airbase, stage2List);
       }
 
       /** ======= 基地航空隊 第1波 ======= */
       if (wave1 === battle) {
-        const state = CommonCalc.getAirState(landbase.airPower, enemyFleet.landbaseAirPower);
+        const state = CommonCalc.getAirState(airbase.airPower, enemyFleet.airbaseAirPower);
         // 結果の格納
-        landbase.resultWave1.rates[state] += 1;
-        landbase.resultWave1.loopSumAirPower += landbase.airPower;
-        landbase.resultWave1.loopSumEnemyAirPower += enemyFleet.landbaseAirPower;
+        airbase.resultWave1.rates[state] += 1;
+        airbase.resultWave1.loopSumAirPower += airbase.airPower;
+        airbase.resultWave1.loopSumEnemyAirPower += enemyFleet.airbaseAirPower;
 
         // 敵機撃墜処理
         Calculator.shootDownEnemy(state, enemyFleet);
         if (isSeparate) {
           // 基地撃墜処理
-          Calculator.ShootDownLandbase(state, landbase, stage2List);
+          Calculator.ShootDownAirbase(state, airbase, stage2List);
         }
       }
 
@@ -52,20 +52,20 @@ export default class Calculator {
       if (wave2 === battle) {
         if (isSeparate) {
           // 基地噴式強襲をもう一度
-          Calculator.ShootDownLandbaseJet(landbase, stage2List);
+          Calculator.ShootDownAirbaseJet(airbase, stage2List);
         }
 
-        const state = CommonCalc.getAirState(landbase.airPower, enemyFleet.landbaseAirPower);
+        const state = CommonCalc.getAirState(airbase.airPower, enemyFleet.airbaseAirPower);
         // 結果の格納
-        landbase.resultWave2.rates[state] += 1;
-        landbase.resultWave2.loopSumAirPower += landbase.airPower;
-        landbase.resultWave2.loopSumEnemyAirPower += enemyFleet.landbaseAirPower;
+        airbase.resultWave2.rates[state] += 1;
+        airbase.resultWave2.loopSumAirPower += airbase.airPower;
+        airbase.resultWave2.loopSumEnemyAirPower += enemyFleet.airbaseAirPower;
 
         // 敵機撃墜処理
         Calculator.shootDownEnemy(state, enemyFleet);
         if (isSeparate) {
           // 基地撃墜処理
-          Calculator.ShootDownLandbase(state, landbase, stage2List);
+          Calculator.ShootDownAirbase(state, airbase, stage2List);
         }
       }
     }
@@ -84,11 +84,12 @@ export default class Calculator {
     const stage2List = enemyFleet.stage2;
     const result = fleet.results[battle];
     // todo 連合のとき
-    const state = CommonCalc.getAirState(fleet.airPower, enemyFleet.airPower, fleet.hasPlane || enemyFleet.hasPlane);
+    const airPower = enemyFleet.cellType === CELL_TYPE.GRAND ? fleet.airPower : fleet.airPower;
+    const state = CommonCalc.getAirState(airPower, enemyFleet.airPower, fleet.hasPlane || enemyFleet.hasPlane);
 
     // 戦闘開始時の結果記録
     result.addRates(state);
-    result.loopSumAirPower += fleet.airPower;
+    result.loopSumAirPower += airPower;
     result.loopSumEnemyAirPower += enemyFleet.airPower;
 
     // 結果表示戦闘かどうか
@@ -122,7 +123,7 @@ export default class Calculator {
    * Fleet: airPower
    * Item: airPower, slot
    * @static
-   * @param {Landbase} landbase
+   * @param {Airbase} airbase
    * @param {Stage2Table[]} stage2List
    * @memberof Calculator
    */
@@ -139,35 +140,35 @@ export default class Calculator {
 
   /**
    * 基地噴式強襲フェーズ計算 副作用は次の値の変更
-   * Landbase: airPower
+   * Airbase: airPower
    * Item: airPower, slot
    * @private
    * @static
-   * @param {Landbase} landbase
+   * @param {Airbase} airbase
    * @param {Stage2Table[]} stage2List
    * @memberof Calculator
    */
-  private static ShootDownLandbaseJet(landbase: Landbase, stage2List: Stage2Table[]) {
-    const sumAirPower = Calculator.shootDownJetPhase(landbase.items, stage2List);
+  private static ShootDownAirbaseJet(airbase: Airbase, stage2List: Stage2Table[]) {
+    const sumAirPower = Calculator.shootDownJetPhase(airbase.items, stage2List);
     // 基地噴式強襲フェーズ経過による制空値更新
-    landbase.airPower = Math.floor(sumAirPower * landbase.reconCorr);
-    landbase.needSupply = true;
+    airbase.airPower = Math.floor(sumAirPower * airbase.reconCorr);
+    airbase.needSupply = true;
   }
 
   /**
    * 基地航空隊通常フェーズ計算 副作用は次の値の変更
-   * Landbase: airPower
+   * Airbase: airPower
    * Item: airPower, slot
    * @private
    * @static
-   * @param {Landbase} landbase
+   * @param {Airbase} airbase
    * @param {Stage2Table[]} stage2List
    * @memberof Calculator
    */
-  private static ShootDownLandbase(state: number, landbase: Landbase, stage2List: Stage2Table[]) {
+  private static ShootDownAirbase(state: number, airbase: Airbase, stage2List: Stage2Table[]) {
     let sumAirPower = 0;
     const randomRange = stage2List[0].fixDownList.length;
-    const { items } = landbase;
+    const { items } = airbase;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       // ====== STAGE1 ======
@@ -191,8 +192,8 @@ export default class Calculator {
     }
 
     // 基地噴式強襲フェーズ経過による制空値更新
-    landbase.airPower = Math.floor(sumAirPower * landbase.reconCorr);
-    landbase.needSupply = true;
+    airbase.airPower = Math.floor(sumAirPower * airbase.reconCorr);
+    airbase.needSupply = true;
   }
 
   /**
@@ -296,7 +297,7 @@ export default class Calculator {
 
   /**
    * 航空戦 敵側撃墜処理 副作用は次の値の変更
-   * EnemyFleet: airPower, landbaseAirPower
+   * EnemyFleet: airPower, airbaseAirPower
    * Item: airPower, slot
    * @private
    * @static
@@ -308,7 +309,7 @@ export default class Calculator {
     const items = fleet.allPlanes;
     const randomRange = stage2List ? stage2List[0].fixDownList.length : 0;
     let sumAirPower = 0;
-    let sumLandbaseAirPower = 0;
+    let sumAirbaseAirPower = 0;
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       // ====== STAGE1 ======
@@ -333,11 +334,11 @@ export default class Calculator {
       if (!item.isRecon) {
         sumAirPower += item.airPower;
       }
-      sumLandbaseAirPower += item.airPower;
+      sumAirbaseAirPower += item.airPower;
     }
 
     fleet.airPower = sumAirPower;
-    fleet.landbaseAirPower = sumLandbaseAirPower;
+    fleet.airbaseAirPower = sumAirbaseAirPower;
     fleet.needSupply = true;
   }
 }

@@ -4,8 +4,8 @@ import Fleet from './fleet/fleet';
 import FleetInfo from './fleet/fleetInfo';
 import Item from './item/item';
 import ItemMaster from './item/itemMaster';
-import Landbase from './landbase/landbase';
-import LandbaseInfo from './landbase/landbaseInfo';
+import Airbase from './airbase/airbase';
+import AirbaseInfo from './airbase/airbaseInfo';
 import Ship from './fleet/ship';
 import ShipMaster from './fleet/shipMaster';
 
@@ -32,7 +32,7 @@ interface DeckBuilderShip {
 }
 
 /** デッキビルダー 基地 */
-interface DeckBuilderLandbase {
+interface DeckBuilderAirbase {
   /** 待機 出撃 防空 */
   mode: number,
   /** 装備データ */
@@ -47,9 +47,9 @@ interface DeckBuilder {
   f2: { [name: string]: DeckBuilderShip },
   f3: { [name: string]: DeckBuilderShip },
   f4: { [name: string]: DeckBuilderShip },
-  a1: DeckBuilderLandbase,
-  a2: DeckBuilderLandbase,
-  a3: DeckBuilderLandbase,
+  a1: DeckBuilderAirbase,
+  a2: DeckBuilderAirbase,
+  a3: DeckBuilderAirbase,
 }
 
 export default class Convert {
@@ -69,15 +69,15 @@ export default class Convert {
       const json = JSON.parse(text) as DeckBuilder;
 
       // 基地情報の取得生成
-      const landbases: Landbase[] = [];
+      const airbases: Airbase[] = [];
       if (json.a1) {
-        landbases.push(this.convertDeckToLandbase(json.a1));
+        airbases.push(this.convertDeckToAirbase(json.a1));
       }
       if (json.a2) {
-        landbases.push(this.convertDeckToLandbase(json.a2));
+        airbases.push(this.convertDeckToAirbase(json.a2));
       }
       if (json.a3) {
-        landbases.push(this.convertDeckToLandbase(json.a3));
+        airbases.push(this.convertDeckToAirbase(json.a3));
       }
 
       // 艦娘情報の取得生成 4艦隊分まで取り込む(あれば)
@@ -104,7 +104,7 @@ export default class Convert {
       }
 
       const info = new CalcManager();
-      info.landbaseInfo = new LandbaseInfo({ landbases });
+      info.airbaseInfo = new AirbaseInfo({ airbases });
       info.fleetInfo = new FleetInfo({ fleets, admiralLevel: json.hqlv ? json.hqlv : 120 });
       return info;
     } catch (error) {
@@ -113,14 +113,14 @@ export default class Convert {
   }
 
   /**
-   * デッキビルダー基地情報からLandbaseインスタンスの生成を頑張ってみる
+   * デッキビルダー基地情報からAirbaseインスタンスの生成を頑張ってみる
    * エラー起きてもそのまま投げます
    * @private
-   * @param {DeckBuilderLandbase} a
-   * @returns {Landbase}
+   * @param {DeckBuilderAirbase} a
+   * @returns {Airbase}
    * @memberof Convert
    */
-  private convertDeckToLandbase(a: DeckBuilderLandbase): Landbase {
+  private convertDeckToAirbase(a: DeckBuilderAirbase): Airbase {
     const items: Item[] = [];
     Object.keys(a.items).forEach((key) => {
       const item = a.items[key] || { id: 0, rf: 0, mas: 0 };
@@ -130,7 +130,7 @@ export default class Convert {
         master, remodel: item.rf, level: Const.PROF_LEVEL_BORDER[item.mas], slot,
       }));
     });
-    return new Landbase({ mode: a.mode, items });
+    return new Airbase({ mode: a.mode, items });
   }
 
   /**
@@ -138,7 +138,7 @@ export default class Convert {
    * エラー起きてもそのまま投げます
    * @private
    * @param {DeckBuilderShip} s
-   * @returns {Landbase}
+   * @returns {Airbase}
    * @memberof Convert
    */
   private convertDeckToShip(s: DeckBuilderShip): Ship {

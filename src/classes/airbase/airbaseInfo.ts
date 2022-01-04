@@ -1,74 +1,74 @@
-import { DIFFICULTY_LEVEL, LB_MODE } from '../const';
-import Landbase from './landbase';
+import { DIFFICULTY_LEVEL, AB_MODE } from '../const';
+import Airbase from './airbase';
 
-export interface LandbaseInfoBuilder {
+export interface AirbaseInfoBuilder {
   // eslint-disable-next-line no-use-before-define
-  info?: LandbaseInfo | undefined;
+  info?: AirbaseInfo | undefined;
   /** 基地一覧 */
-  landbases?: Landbase[];
+  airbases?: Airbase[];
   /** 防空モード */
   isDefense?: boolean;
   /** 防空時難易度 */
   difficultyLevel?: 0 | 1 | 2 | 3 | 4;
 }
 
-export default class LandbaseInfo {
+export default class AirbaseInfo {
   /**
    * 基地一覧 基本的には3部隊
-   * @type {Landbase[]}
-   * @memberof LandbaseInfo
+   * @type {Airbase[]}
+   * @memberof AirbaseInfo
    */
-  public readonly landbases: Landbase[];
+  public readonly airbases: Airbase[];
 
   /**
    * 防空モードか否か
    * @type {boolean}
-   * @memberof LandbaseInfo
+   * @memberof AirbaseInfo
    */
   public readonly isDefense: boolean;
 
   /**
    * 選択難易度 専ら防空(重爆)時専用 重爆補正がちがうっぽいね
    * @type {number}
-   * @memberof LandbaseInfo
+   * @memberof AirbaseInfo
    */
   public readonly difficultyLevel: 0 | 1 | 2 | 3 | 4;
 
   /**
    * 防空時制空値
    * @type {number}
-   * @memberof LandbaseInfo
+   * @memberof AirbaseInfo
    */
   public readonly defenseAirPower: number;
 
   /**
    * 適用される対重爆補正
    * @type {number}
-   * @memberof LandbaseInfo
+   * @memberof AirbaseInfo
    */
   public readonly highDeffenseCoefficient: number;
 
   /**
    * 防空時(重爆)制空値
    * @type {number}
-   * @memberof LandbaseInfo
+   * @memberof AirbaseInfo
    */
   public readonly highDefenseAirPower: number;
 
-  constructor(builder: LandbaseInfoBuilder = {}) {
+  constructor(builder: AirbaseInfoBuilder = {}) {
     if (builder.info) {
-      this.landbases = builder.landbases !== undefined ? builder.landbases : builder.info.landbases.concat();
+      this.airbases = builder.airbases !== undefined ? builder.airbases : builder.info.airbases.concat();
       this.isDefense = builder.isDefense !== undefined ? builder.isDefense : builder.info.isDefense;
       this.difficultyLevel = builder.difficultyLevel !== undefined ? builder.difficultyLevel : builder.info.difficultyLevel;
     } else {
       this.isDefense = builder.isDefense !== undefined ? builder.isDefense : false;
-      this.landbases = builder.landbases !== undefined ? builder.landbases : [];
+      this.airbases = builder.airbases !== undefined ? builder.airbases : [];
       this.difficultyLevel = builder.difficultyLevel !== undefined ? builder.difficultyLevel : 0;
     }
 
-    if (this.landbases.length < 3) {
+    if (this.airbases.length < 3) {
       for (let i = 0; i < 3; i += 1) {
-        this.landbases.push(new Landbase());
+        this.airbases.push(new Airbase());
       }
     }
 
@@ -77,12 +77,12 @@ export default class LandbaseInfo {
 
     let rocketCount = 0;
 
-    for (let i = 0; i < this.landbases.length; i += 1) {
-      const landbase = this.landbases[i];
-      if (landbase.mode === LB_MODE.DEFFENSE) {
-        this.defenseAirPower += landbase.defenseAirPower;
-        this.highDefenseAirPower += landbase.defenseAirPower;
-        rocketCount += landbase.rocketCount;
+    for (let i = 0; i < this.airbases.length; i += 1) {
+      const airbase = this.airbases[i];
+      if (airbase.mode === AB_MODE.DEFFENSE) {
+        this.defenseAirPower += airbase.defenseAirPower;
+        this.highDefenseAirPower += airbase.defenseAirPower;
+        rocketCount += airbase.rocketCount;
       }
     }
 

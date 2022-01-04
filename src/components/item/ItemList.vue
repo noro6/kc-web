@@ -160,7 +160,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemMaster from '@/classes/item/itemMaster';
-import Landbase from '@/classes/landbase/landbase';
+import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
@@ -209,7 +209,7 @@ export default Vue.extend({
       this.type = type;
       this.filter();
     },
-    initialFilter(parent: Ship | Enemy | Landbase, slotIndex = 0) {
+    initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
       // 装備可能フィルタ
       let types: number[] = [];
       this.displayAllType = true;
@@ -236,7 +236,7 @@ export default Vue.extend({
             this.type = 1;
           }
         }
-      } else if (parent instanceof Landbase) {
+      } else if (parent instanceof Airbase) {
         // 基地航空隊 全艦載機装備可能
         types = Const.PLANE_TYPES.concat();
       } else if (parent instanceof Enemy) {

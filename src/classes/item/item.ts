@@ -267,8 +267,8 @@ export default class Item {
     if (Const.FIGHTERS.includes(type)) {
       // 艦戦 夜戦 水戦
       aa = 0.2 * this.remodel;
-    } else if (type === 7 && this.data.antiAir > 2 && itemId !== 277 && itemId !== 316) {
-      // 艦爆 (FM-2とRe.2001 CB改は除外)
+    } else if (type === 7 && (itemId === 60 || itemId === 154 || itemId === 219)) {
+      // 艦爆(爆戦って付いてるやつ)
       aa = 0.25 * this.remodel;
     } else if (Const.LB_ATTACKERS.includes(type)) {
       // 陸攻

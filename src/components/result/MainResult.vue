@@ -7,45 +7,43 @@
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#tab${i}`"> {{ i + 1 }}戦目 </v-tab>
       <v-tab-item value="orverview">
         <v-divider class="mb-3"></v-divider>
-        <v-card class="ma-1">
-          <div class="body-2 pa-3">戦闘開始時の搭載数推移</div>
-          <div class="px-1">
-            <table>
-              <thead>
-                <tr>
-                  <th class="text-center">艦娘</th>
-                  <th class="text-left">装備</th>
-                  <th v-for="i in battleCount" :key="i">{{ i }}戦目</th>
-                  <th>出撃後</th>
-                  <th class="pr-1">全滅率</th>
+        <div class="body-2 pa-3">戦闘開始時の搭載数推移</div>
+        <div class="px-1">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-center">艦娘</th>
+                <th class="text-center">装備</th>
+                <th v-for="i in battleCount" :key="i">{{ i }}戦目</th>
+                <th>出撃後</th>
+                <th class="pr-1">全滅率</th>
+              </tr>
+            </thead>
+            <tbody class="overview-tbody">
+              <template v-for="(ship, i) in tableData">
+                <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`">
+                  <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.name }}</td>
+                  <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
+                    <div class="align-self-center d-none d-sm-block">
+                      <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
+                    </div>
+                    <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
+                  </td>
+                  <td v-for="k in battleCount" :key="k">{{ item.slotHistories[k - 1] }}</td>
+                  <td>{{ item.slotResult }}</td>
+                  <td class="pr-1">{{ item.deathRate > 0 ? `${item.deathRate}%` : "-" }}</td>
                 </tr>
-              </thead>
-              <tbody class="overview-tbody">
-                <template v-for="(ship, i) in tableData">
-                  <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`">
-                    <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.data.name }}</td>
-                    <td class="text-left d-flex">
-                      <div class="align-self-center d-none d-sm-block">
-                        <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
-                      </div>
-                      <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
-                    </td>
-                    <td v-for="k in battleCount" :key="k">{{ item.slotHistories[k - 1] }}</td>
-                    <td>{{ item.slotResult }}</td>
-                    <td class="pr-1">{{ item.deathRate > 0 ? `${item.deathRate}%` : "-" }}</td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-        </v-card>
-        <v-divider class="ma-3"></v-divider>
-        <v-card class="ma-1">
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <v-divider class="mb-5 mx-1"></v-divider>
+        <div class="ma-1">
           <div class="body-2 pa-3">制空状態概要</div>
           <div class="pb-3">
             <v-timeline dense class="pt-2 pr-2">
               <v-timeline-item v-for="(enemyFleet, i) in battles" :key="i" :color="resultStatus[i].color" small>
-                <v-card class="pa-2 mr-1" v-ripple @click="tab = `tab${i}`">
+                <v-alert elevation="4" class="pa-2 mr-1" v-ripple @click="tab = `tab${i}`">
                   <div class="battle-timeline">
                     <div class="body-2 mr-3">{{ i + 1 }}戦目</div>
                     <div>
@@ -64,11 +62,11 @@
                   <div class="pb-1">
                     <air-status-result-bar :result="results[i]"></air-status-result-bar>
                   </div>
-                </v-card>
+                </v-alert>
               </v-timeline-item>
             </v-timeline>
           </div>
-        </v-card>
+        </div>
       </v-tab-item>
       <v-tab-item v-for="(enemyFleet, i) in battles" :key="i" :value="`tab${i}`">
         <v-divider></v-divider>
@@ -101,9 +99,16 @@ table th {
 table tr td {
   border-top: 1px solid rgba(128, 128, 128, 0.2);
 }
+table tr:hover {
+  background-color: rgba(128, 128, 128, 0.05);
+}
 .td-ship-name {
   font-size: 12px;
   text-align: center;
+  width: 100px;
+}
+td.item-input {
+  border-right: 1px solid rgba(128, 128, 128, 0.4);
 }
 .item-name {
   margin-left: 0.1rem;
@@ -132,8 +137,8 @@ import CalcManager from '@/classes/calcManager';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
-import Ship from '@/classes/fleet/ship';
 import AirCalcResult from '@/classes/airCalcResult';
+import Item from '@/classes/item/item';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -152,15 +157,15 @@ export default Vue.extend({
       const f = this.value.fleetInfo;
       return f.fleets[f.mainFleetIndex];
     },
-    tableData(): Ship[] {
+    tableData(): { name: string; items: Item[] }[] {
       const f = this.value.fleetInfo;
       const fleet = f.fleets[f.mainFleetIndex];
-      const ships: Ship[] = [];
+      const ships = [];
 
       for (let i = 0; i < fleet.ships.length; i += 1) {
         const planes = fleet.ships[i].items.filter((v) => v.isPlane);
         if (planes.length) {
-          ships.push(new Ship({ ship: fleet.ships[i], items: planes }));
+          ships.push({ name: fleet.ships[i].data.name, items: planes });
         }
       }
       return ships;

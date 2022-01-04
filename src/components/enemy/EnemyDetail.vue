@@ -35,25 +35,25 @@
                 </v-chip>
               </div>
             </div>
-            <div class="mt-1 d-flex air-power-info flex-wrap" v-if="airPower !== landbaseAirPower">
+            <div class="mt-1 d-flex air-power-info flex-wrap" v-if="airPower !== airbaseAirPower">
               <div class="text--secondary label-text">基地制空値:</div>
-              <div class="value-text mr-3">{{ landbaseAirPower }}</div>
+              <div class="value-text mr-3">{{ airbaseAirPower }}</div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
-                  <span class="chip-value">{{ fleet.fullLandbaseBorders[0] }}</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
                   <span>優勢:</span>
-                  <span class="chip-value">{{ fleet.fullLandbaseBorders[1] }}</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
                   <span>拮抗:</span>
-                  <span class="chip-value">{{ fleet.fullLandbaseBorders[2] }}</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
                   <span>劣勢:</span>
-                  <span class="chip-value">{{ fleet.fullLandbaseBorders[3] }}</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
@@ -375,14 +375,14 @@ export default Vue.extend({
     escortAirPower() {
       return this.fleet.escortAirPower;
     },
-    landbaseAirPower() {
-      return this.fleet.fullLandbaseAirPower;
+    airbaseAirPower() {
+      return this.fleet.fullAirbaseAirPower;
     },
     mainLBAirPower() {
-      return this.fleet.mainLandbaseAirPower;
+      return this.fleet.mainAirbaseAirPower;
     },
     escortLBAirPower() {
-      return this.fleet.escortLandbaseAirPower;
+      return this.fleet.escortAirbaseAirPower;
     },
     isManual() {
       return this.avoid === Const.MANUAL_AVOID;

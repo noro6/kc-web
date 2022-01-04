@@ -51,7 +51,7 @@
       <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" :handleClose="closeWorldList" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
-      <landbase-target v-model="landbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
+      <airbase-target v-model="airbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
     </v-dialog>
   </v-card>
 </template>
@@ -64,14 +64,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import LandbaseTarget from '@/components/landbase/LandbaseTarget.vue';
+import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import EnemyFleetComponent from '@/components/enemy/EnemyFleet.vue';
 import EnemyList from '@/components/enemy/EnemyList.vue';
 import WorldList from '@/components/map/WorldList.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import BattleInfo, { BattleInfoBuilder } from '@/classes/enemy/battleInfo';
-import LandbaseInfo from '@/classes/landbase/landbaseInfo';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import ItemMaster from '@/classes/item/itemMaster';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
@@ -85,15 +85,15 @@ export default Vue.extend({
     EnemyList,
     WorldList,
     ItemList,
-    LandbaseTarget,
+    AirbaseTarget,
   },
   props: {
     value: {
       type: BattleInfo,
       required: true,
     },
-    landbaseInfo: {
-      type: LandbaseInfo,
+    airbaseInfo: {
+      type: AirbaseInfo,
       required: true,
     },
     isDefense: {
@@ -125,9 +125,9 @@ export default Vue.extend({
         battleCount: this.battleCount,
       };
       // 基地派遣先の整合性チェック
-      const { landbases } = this.landbaseInfo;
-      for (let i = 0; i < landbases.length; i += 1) {
-        const targets = landbases[i].battleTarget;
+      const { airbases } = this.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        const targets = airbases[i].battleTarget;
         for (let j = 0; j < targets.length; j += 1) {
           const target = targets[j];
           if (target >= this.battleCount) {

@@ -7,12 +7,12 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <div class="px-4 target-buttons" v-for="(lb, i) in info.landbases" :key="i">
+    <div class="px-4 target-buttons" v-for="(lb, i) in info.airbases" :key="i">
       <v-divider></v-divider>
       <div class="py-3">
-        <div v-for="(t, j) in lb.battleTarget" :key="j" class="d-flex ml-5">
+        <div v-for="(t, j) in lb.battleTarget" :key="j" class="d-flex ml-5 pb-1">
           <div class="align-self-center body-2 mr-3">第{{ i + 1 }}基地航空隊 第{{ j + 1 }}波</div>
-          <v-btn-toggle v-model="lb.battleTarget[j]" mandatory dense tile color="success">
+          <v-btn-toggle v-model="lb.battleTarget[j]" mandatory dense tile color="light-blue">
             <v-btn v-for="battle in battleCount" :key="battle" :value="battle - 1">{{ battle }}</v-btn>
           </v-btn-toggle>
         </div>
@@ -35,14 +35,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import LandbaseInfo from '@/classes/landbase/landbaseInfo';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 
 export default Vue.extend({
   components: {},
-  name: 'LandbaseTarget',
+  name: 'AirbaseTarget',
   props: {
     value: {
-      type: LandbaseInfo,
+      type: AirbaseInfo,
       required: true,
     },
     battleCount: {
@@ -55,7 +55,7 @@ export default Vue.extend({
   },
   data: () => ({}),
   computed: {
-    info(): LandbaseInfo {
+    info(): AirbaseInfo {
       return this.value;
     },
   },

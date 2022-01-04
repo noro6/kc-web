@@ -1,13 +1,13 @@
 <template>
   <div class="my-5" @dragover.prevent @drop="dropItem">
     <div class="content-frame">
-      <landbase-all v-model="calcManager.landbaseInfo" :battle-info="calcManager.battleInfo" />
+      <airbase-all v-model="calcManager.airbaseInfo" :battle-info="calcManager.battleInfo" />
     </div>
     <div class="content-frame" v-show="!calcManager.isDefense">
       <fleet-all v-model="calcManager.fleetInfo" />
     </div>
     <div class="content-frame">
-      <enemy-fleet-all v-model="calcManager.battleInfo" :landbase-info="calcManager.landbaseInfo" :is-defense="calcManager.isDefense" />
+      <enemy-fleet-all v-model="calcManager.battleInfo" :airbase-info="calcManager.airbaseInfo" :is-defense="calcManager.isDefense" />
     </div>
     <div class="content-frame">
       <main-result v-model="calcManager" v-show="!calcManager.isDefense" />
@@ -25,7 +25,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
-import LandbaseAll from '@/components/landbase/LandbaseAll.vue';
+import AirbaseAll from '@/components/airbase/AirbaseAll.vue';
 import MainResult from '@/components/result/MainResult.vue';
 import FleetAll from '@/components/fleet/FleetAll.vue';
 import CalcManager from '@/classes/calcManager';
@@ -33,7 +33,7 @@ import CalcManager from '@/classes/calcManager';
 export default Vue.extend({
   name: 'AirCalculator',
   components: {
-    LandbaseAll,
+    AirbaseAll,
     FleetAll,
     EnemyFleetAll,
     MainResult,
@@ -49,8 +49,8 @@ export default Vue.extend({
           return;
         }
 
-        if (newManager.landbaseInfo.landbases.some((v) => v.items.some((i) => i.data.id > 0))) {
-          this.calcManager.landbaseInfo = newManager.landbaseInfo;
+        if (newManager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
+          this.calcManager.airbaseInfo = newManager.airbaseInfo;
         }
         if (newManager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
           this.calcManager.fleetInfo = newManager.fleetInfo;
@@ -61,7 +61,7 @@ export default Vue.extend({
     });
   },
   watch: {
-    'calcManager.landbaseInfo': {
+    'calcManager.airbaseInfo': {
       handler() {
         this.calculate();
       },

@@ -35,7 +35,7 @@
       <div class="ml-1 caption">{{ fleet.range }}</div>
       <v-spacer></v-spacer>
       <div class="mx-1 caption text--secondary">基地制空:</div>
-      <div class="body-2 enemy-air-power">{{ fleet.fullLandbaseAirPower }}</div>
+      <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
     </div>
     <v-divider></v-divider>
     <div class="enemy-list mt-1">

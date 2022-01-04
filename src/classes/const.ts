@@ -48,12 +48,12 @@ export const SHIP_TYPE = {
 type SHIP_TYPE = typeof SHIP_TYPE[keyof typeof SHIP_TYPE];
 
 /** 基地札種類 */
-export const LB_MODE = {
+export const AB_MODE = {
   WAIT: 0,
   BATTLE: 1,
   DEFFENSE: 2,
 } as const;
-type LB_MODE = typeof LB_MODE[keyof typeof LB_MODE];
+type AB_MODE = typeof AB_MODE[keyof typeof AB_MODE];
 
 /** 陣形 */
 export const FORMATION = {
@@ -110,10 +110,10 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static readonly LB_MODE_ITEMS = [
-    { text: '出撃', value: LB_MODE.BATTLE },
-    { text: '防空', value: LB_MODE.DEFFENSE },
-    { text: '待機', value: LB_MODE.WAIT },
+  public static readonly AB_MODE_ITEMS = [
+    { text: '出撃', value: AB_MODE.BATTLE },
+    { text: '防空', value: AB_MODE.DEFFENSE },
+    { text: '待機', value: AB_MODE.WAIT },
   ];
 
   public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 41, 45, 47, 48, 49, 53, 57];

@@ -1,10 +1,10 @@
 import AirCalcResult from '../airCalcResult';
-import { LB_MODE } from '../const';
+import { AB_MODE } from '../const';
 import Item from '../item/item';
 
-export interface LandbaseBuilder {
+export interface AirbaseBuilder {
   // eslint-disable-next-line no-use-before-define
-  landbase?: Landbase | undefined;
+  airbase?: Airbase | undefined;
   /** 装備 未指定ならshipの装備で作成 */
   items?: Item[];
   /** 基地お札 */
@@ -13,7 +13,7 @@ export interface LandbaseBuilder {
   battleTarget?: number[];
 }
 
-export default class Landbase {
+export default class Airbase {
   /** 装備一覧 */
   public readonly items: Item[];
 
@@ -56,14 +56,14 @@ export default class Landbase {
   /** 補給処理が要るかどうか 計算用 */
   public needSupply = false;
 
-  constructor(builder: LandbaseBuilder = {}) {
-    if (builder.landbase) {
-      this.items = builder.items !== undefined ? builder.items : builder.landbase.items.concat();
-      this.mode = builder.mode !== undefined ? builder.mode : builder.landbase.mode;
-      this.battleTarget = builder.battleTarget !== undefined ? builder.battleTarget : builder.landbase.battleTarget;
+  constructor(builder: AirbaseBuilder = {}) {
+    if (builder.airbase) {
+      this.items = builder.items !== undefined ? builder.items : builder.airbase.items.concat();
+      this.mode = builder.mode !== undefined ? builder.mode : builder.airbase.mode;
+      this.battleTarget = builder.battleTarget !== undefined ? builder.battleTarget : builder.airbase.battleTarget;
     } else {
       this.items = builder.items !== undefined ? builder.items : [];
-      this.mode = builder.mode !== undefined ? builder.mode : LB_MODE.WAIT;
+      this.mode = builder.mode !== undefined ? builder.mode : AB_MODE.WAIT;
       this.battleTarget = builder.battleTarget !== undefined ? builder.battleTarget : [0, 0];
     }
 
@@ -119,7 +119,7 @@ export default class Landbase {
    * 航空隊の半径を返却
    * @readonly
    * @type {number}
-   * @memberof Landbase
+   * @memberof Airbase
    */
   private getRange(): number {
     let minRange = 999;
@@ -146,12 +146,12 @@ export default class Landbase {
 
   /**
    * 計算で減衰した各種値を戻す 計算用
-   * @memberof Landbase
+   * @memberof Airbase
    */
-  public static supply(landbase: Landbase): void {
-    landbase.airPower = landbase.fullAirPower;
-    for (let i = 0; i < landbase.items.length; i += 1) {
-      Item.supply(landbase.items[i]);
+  public static supply(airbase: Airbase): void {
+    airbase.airPower = airbase.fullAirPower;
+    for (let i = 0; i < airbase.items.length; i += 1) {
+      Item.supply(airbase.items[i]);
     }
   }
 }

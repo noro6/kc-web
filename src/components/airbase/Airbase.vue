@@ -1,10 +1,10 @@
 <template>
-  <v-card class="mx-1 py-2 land-base-content" @dragover.prevent @drop.stop>
+  <v-card class="mx-1 py-2 airbase-content" @dragover.prevent @drop.stop>
     <div class="d-flex">
-      <div class="ml-2 align-self-center land-base-title">第{{ index + 1 }}基地航空隊</div>
+      <div class="ml-2 align-self-center airbase-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
-        <v-select dense v-model="landbase.mode" hide-details :items="modes" @change="updateItem"></v-select>
+        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem"></v-select>
       </div>
       <div class="mr-1 mt-1">
         <v-btn color="info" icon small>
@@ -15,7 +15,7 @@
         </v-btn>
       </div>
     </div>
-    <div class="land-base-body">
+    <div class="airbase-body">
       <div class="d-flex caption px-2">
         <div>
           制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
@@ -24,14 +24,14 @@
         <div class="ml-1 text--secondary" v-show="reconCorrString">&times;{{ reconCorrString }}</div>
         <v-spacer></v-spacer>
         <div>
-          半径:<span class="ml-1 font-weight-medium">{{ landbase.range }}</span>
+          半径:<span class="ml-1 font-weight-medium">{{ airbase.range }}</span>
         </div>
       </div>
       <v-divider></v-divider>
       <item-input
-        v-for="(item, i) in landbase.items"
+        v-for="(item, i) in airbase.items"
         :key="i"
-        v-model="landbase.items[i]"
+        v-model="airbase.items[i]"
         :index="i"
         :handle-show-item-list="showItemList"
         :max="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
@@ -39,15 +39,15 @@
         @input="updateItem"
       />
       <div v-if="!isDefense" class="mx-1">
-        <air-status-result-bar v-if="!isDefense" :result="landbase.resultWave1" :dense="true" />
-        <air-status-result-bar v-if="!isDefense" :result="landbase.resultWave2" :dense="true" />
+        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" />
+        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" />
       </div>
     </div>
   </v-card>
 </template>
 
 <style scoped>
-.land-base-title {
+.airbase-title {
   cursor: move;
 }
 .mode-select {
@@ -59,19 +59,19 @@
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
-import Landbase from '@/classes/landbase/landbase';
-import Const, { LB_MODE } from '@/classes/const';
+import Airbase from '@/classes/airbase/airbase';
+import Const, { AB_MODE } from '@/classes/const';
 
 export default Vue.extend({
   components: { ItemInput, AirStatusResultBar },
-  name: 'Landbase',
+  name: 'Airbase',
   props: {
     handleShowItemList: {
       type: Function,
       required: true,
     },
     value: {
-      type: Landbase,
+      type: Airbase,
       required: true,
     },
     index: {
@@ -86,20 +86,20 @@ export default Vue.extend({
   data: () => ({
     wave1: 0,
     wave2: 0,
-    modes: Const.LB_MODE_ITEMS,
+    modes: Const.AB_MODE_ITEMS,
   }),
   computed: {
-    landbase(): Landbase {
+    airbase(): Airbase {
       return this.value;
     },
     airPower() {
-      if (this.isDefense && this.value.mode === LB_MODE.DEFFENSE) {
+      if (this.isDefense && this.value.mode === AB_MODE.DEFFENSE) {
         return this.value.defenseAirPower;
       }
       return this.value.fullAirPower;
     },
     airPowerDetail() {
-      if (this.isDefense && this.value.mode === LB_MODE.DEFFENSE) {
+      if (this.isDefense && this.value.mode === AB_MODE.DEFFENSE) {
         const airPowers = this.value.items.map((v) => v.defenseAirPower);
         return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
       }
@@ -127,11 +127,11 @@ export default Vue.extend({
   },
   methods: {
     updateItem() {
-      this.setLandbase();
+      this.setAirbase();
     },
-    setLandbase(value?: Landbase) {
+    setAirbase(value?: Airbase) {
       if (value === undefined) {
-        this.$emit('input', new Landbase({ landbase: this.landbase }));
+        this.$emit('input', new Airbase({ airbase: this.airbase }));
       } else {
         this.$emit('input', value);
       }
@@ -158,7 +158,7 @@ export default Vue.extend({
       return 'red';
     },
     resetItems(): void {
-      this.setLandbase(new Landbase());
+      this.setAirbase(new Airbase());
     },
   },
 });

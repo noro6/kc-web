@@ -87,7 +87,7 @@ export default class Fleet {
     this.allPlanes = [];
     for (let i = 0; i < this.ships.length; i += 1) {
       const ship = this.ships[i];
-      if (ship.isActive) {
+      if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
         this.tp += ship.tp;
 
@@ -119,7 +119,7 @@ export default class Fleet {
    */
   public getStage2(formation?: Formation, avoid?: AvoidType): Stage2Table[] {
     const stage2: Stage2Table[] = [];
-    const ships = this.ships.filter((v) => v.isActive);
+    const ships = this.ships.filter((v) => v.isActive && !v.isEmpty);
     const shipCount = ships.length;
     if (shipCount === 0) {
       // 全てが0のデータ
@@ -217,7 +217,7 @@ export default class Fleet {
   private getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
     // 各艦の艦隊対空ボーナス合計
     let sumAntiAirBonus = 0;
-    const ships = this.ships.filter((v) => v.isActive);
+    const ships = this.ships.filter((v) => v.isActive && !v.isEmpty);
     const shipCount = ships.length;
     for (let i = 0; i < shipCount; i += 1) {
       sumAntiAirBonus += ships[i].antiAirBonus;

@@ -1,9 +1,9 @@
-import { AIR_STATE, CELL_TYPE, LB_MODE } from './const';
+import { AIR_STATE, CELL_TYPE, AB_MODE } from './const';
 import AirCalcResult from './airCalcResult';
 import BattleInfo from './enemy/battleInfo';
 import FleetInfo from './fleet/fleetInfo';
-import Landbase from './landbase/landbase';
-import LandbaseInfo from './landbase/landbaseInfo';
+import Airbase from './airbase/airbase';
+import AirbaseInfo from './airbase/airbaseInfo';
 import Item from './item/item';
 import Calculator from './calculator';
 import CommonCalc from './commonCalc';
@@ -12,21 +12,21 @@ export default class CalcManager {
   /** 防空計算モードか否か 基地航空隊欄で制御 */
   public isDefense: boolean;
 
-  public landbaseInfo: LandbaseInfo;
+  public airbaseInfo: AirbaseInfo;
 
   public battleInfo: BattleInfo;
 
   public fleetInfo: FleetInfo;
 
   constructor() {
-    this.landbaseInfo = new LandbaseInfo();
+    this.airbaseInfo = new AirbaseInfo();
     this.battleInfo = new BattleInfo();
     this.fleetInfo = new FleetInfo();
     this.isDefense = false;
   }
 
   public async updateInfo(): Promise<void> {
-    this.isDefense = this.landbaseInfo.isDefense;
+    this.isDefense = this.airbaseInfo.isDefense;
     console.time('calculated');
 
     if (this.isDefense) {
@@ -48,7 +48,7 @@ export default class CalcManager {
     const maxCount = 5000;
 
     // 計算対象の基地
-    const landbases = calcInfo.landbaseInfo.landbases.filter((v) => v.mode === LB_MODE.BATTLE && v.items.find((i) => i.data.id > 0));
+    const airbases = calcInfo.airbaseInfo.airbases.filter((v) => v.mode === AB_MODE.BATTLE && v.items.find((i) => i.data.id > 0));
 
     // 計算対象の艦隊
     const fleet = calcInfo.fleetInfo.fleets[calcInfo.fleetInfo.mainFleetIndex];
@@ -61,9 +61,9 @@ export default class CalcManager {
     const mainBattle = 0;
 
     // 初期化
-    for (let i = 0; i < landbases.length; i += 1) {
-      landbases[i].resultWave1 = new AirCalcResult();
-      landbases[i].resultWave2 = new AirCalcResult();
+    for (let i = 0; i < airbases.length; i += 1) {
+      airbases[i].resultWave1 = new AirCalcResult();
+      airbases[i].resultWave2 = new AirCalcResult();
     }
 
     fleet.results = [];
@@ -84,7 +84,7 @@ export default class CalcManager {
         const enemyFleet = battles[battle];
 
         /** ======= 基地航空隊フェーズ ======= */
-        Calculator.calculateLandbasePhase(landbases, enemyFleet, battle);
+        Calculator.calculateAirbasePhase(airbases, enemyFleet, battle);
 
         /** ======= 友軍艦隊航空支援フェーズ ======= */
         // todo
@@ -107,18 +107,18 @@ export default class CalcManager {
             Item.supply(enemyFleet.allPlanes[i]);
           }
           enemyFleet.airPower = enemyFleet.fullAirPower;
-          enemyFleet.landbaseAirPower = enemyFleet.fullLandbaseAirPower;
+          enemyFleet.airbaseAirPower = enemyFleet.fullAirbaseAirPower;
           enemyFleet.needSupply = false;
         }
       }
 
       // 次のシミュレーションに備え、減った艦載機や制空値を補給
-      for (let i = 0; i < landbases.length; i += 1) {
-        const landbase = landbases[i];
-        if (landbase.needSupply) {
+      for (let i = 0; i < airbases.length; i += 1) {
+        const airbase = airbases[i];
+        if (airbase.needSupply) {
           // 基地補給
-          Landbase.supply(landbases[i]);
-          landbase.needSupply = false;
+          Airbase.supply(airbases[i]);
+          airbase.needSupply = false;
         }
       }
       for (let i = 0; i < fleet.allPlanes.length; i += 1) {
@@ -132,14 +132,14 @@ export default class CalcManager {
     }
 
     // 基地航空隊計算結果を整形してセット
-    for (let i = 0; i < calcInfo.landbaseInfo.landbases.length; i += 1) {
-      const lb = calcInfo.landbaseInfo.landbases[i];
-      if (lb.mode === LB_MODE.BATTLE && lb.items.find((v) => v.data.id > 0)) {
+    for (let i = 0; i < calcInfo.airbaseInfo.airbases.length; i += 1) {
+      const lb = calcInfo.airbaseInfo.airbases[i];
+      if (lb.mode === AB_MODE.BATTLE && lb.items.find((v) => v.data.id > 0)) {
         AirCalcResult.formatResult(lb.resultWave1, maxCount);
         AirCalcResult.formatResult(lb.resultWave2, maxCount);
 
-        this.landbaseInfo.landbases[i].resultWave1 = lb.resultWave1;
-        this.landbaseInfo.landbases[i].resultWave2 = lb.resultWave2;
+        this.airbaseInfo.airbases[i].resultWave1 = lb.resultWave1;
+        this.airbaseInfo.airbases[i].resultWave2 = lb.resultWave2;
       }
     }
 
@@ -168,7 +168,7 @@ export default class CalcManager {
    */
   private calculateDefenseMode(): void {
     // 防空モード計算
-    const lb = this.landbaseInfo;
+    const lb = this.airbaseInfo;
     const enemy = this.battleInfo.airRaidFleet;
 
     // 相手制空値
@@ -205,10 +205,10 @@ export default class CalcManager {
     }
 
     AirCalcResult.formatResult(result, 1);
-    for (let i = 0; i < lb.landbases.length; i += 1) {
+    for (let i = 0; i < lb.airbases.length; i += 1) {
       // 全ての航空隊に同じ結果を挿入
-      lb.landbases[i].resultWave1 = result;
-      lb.landbases[i].resultWave2 = result;
+      lb.airbases[i].resultWave1 = result;
+      lb.airbases[i].resultWave2 = result;
     }
   }
 }
