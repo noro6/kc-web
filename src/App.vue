@@ -163,6 +163,10 @@ export default Vue.extend({
 </style>
 
 <style>
+/** 日本語フォント設定 */
+/* .v-application {
+  font-family: "游ゴシック", sans-serif !important;
+} */
 /** 基本背景色変更 */
 .theme--light.v-application {
   background-color: rgb(240, 235, 230) !important;
@@ -173,7 +177,7 @@ export default Vue.extend({
 }
 /** dense適用時フォントを小さく */
 .v-input--dense .v-select__selection,
-.v-input--dense.v-input--selection-controls .v-label{
+.v-input--dense.v-input--selection-controls .v-label {
   font-size: 0.85em;
 }
 

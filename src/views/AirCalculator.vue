@@ -1,7 +1,7 @@
 <template>
   <div class="my-5" @dragover.prevent @drop="dropItem">
     <div class="content-frame">
-      <landbase-all v-model="calcManager.landbaseInfo" />
+      <landbase-all v-model="calcManager.landbaseInfo" :battle-info="calcManager.battleInfo" />
     </div>
     <div class="content-frame" v-show="!calcManager.isDefense">
       <fleet-all v-model="calcManager.fleetInfo" />
@@ -56,24 +56,24 @@ export default Vue.extend({
           this.calcManager.fleetInfo = newManager.fleetInfo;
         }
 
-        this.calcManager.updateInfo();
+        this.calculate();
       }
     });
   },
   watch: {
     'calcManager.landbaseInfo': {
       handler() {
-        this.calcManager.updateInfo();
+        this.calculate();
       },
     },
     'calcManager.fleetInfo': {
       handler() {
-        this.calcManager.updateInfo();
+        this.calculate();
       },
     },
     'calcManager.battleInfo': {
       handler() {
-        this.calcManager.updateInfo();
+        this.calculate();
       },
     },
   },
@@ -82,6 +82,12 @@ export default Vue.extend({
       // ドラッグ中itemをドロップ時消すフラグを建てる
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       draggingDiv.classList.add('delete-flg');
+    },
+    calculate() {
+      if (!document.getElementById('dragging-item')) {
+        // ドラッグ完了までは計算を実行しない
+        this.calcManager.updateInfo();
+      }
     },
   },
 });
