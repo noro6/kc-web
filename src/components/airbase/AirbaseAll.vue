@@ -62,7 +62,7 @@
         @input="setInfo"
       />
     </draggable>
-    <div v-if="isDefenseMode" class="mx-1 mb-1">
+    <div v-if="isDefenseMode" class="mx-1 mb-1 mt-3">
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
     <v-dialog v-model="itemListDialog" width="1200" transition="scroll-x-transition">

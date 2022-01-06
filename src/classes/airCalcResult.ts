@@ -1,8 +1,11 @@
-import { AIR_STATE } from './const';
+import Const from './const';
 
 export default class AirCalcResult {
   /** 制空状態（複数ある場合は一番確率が高いやつ） */
-  public airState: number = AIR_STATE.NONE;
+  public airState: { text: string; value: number; color: string; } = Const.AIR_STATUS[Const.AIR_STATUS.length - 1];
+
+  /** 制空状態テキスト */
+  public airStateText = '';
 
   /** 制空ゲージバーの長さ */
   public airStateBarWidth = 0;
@@ -22,6 +25,9 @@ export default class AirCalcResult {
   /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
   public avgEnemyAirPower = 0;
 
+  /** 撃ち落とされた艦載機合計 */
+  public avgDownSlot = 0;
+
   /**
    * 計算結果をいい感じに整形
    * @param {number} maxCount
@@ -29,12 +35,14 @@ export default class AirCalcResult {
    */
   public static formatResult(result: AirCalcResult, maxCount: number): void {
     // 最も高い制空状態を格納
-    result.airState = result.rates.indexOf(Math.max(...result.rates));
+    const state = result.rates.indexOf(Math.max(...result.rates));
+    const airState = Const.AIR_STATUS.find((v) => v.value === state);
+    result.airState = airState || Const.AIR_STATUS[Const.AIR_STATUS.length - 1];
 
     // 平均値にする
-    result.avgAirPower = result.loopSumAirPower / maxCount;
-    result.avgEnemyAirPower = result.loopSumEnemyAirPower / maxCount;
-    const [b0, b1, b2, b3] = AirCalcResult.getBorders(Math.floor(result.avgEnemyAirPower));
+    result.avgAirPower = Math.round(result.loopSumAirPower / maxCount);
+    result.avgEnemyAirPower = Math.round(result.loopSumEnemyAirPower / maxCount);
+    const [b0, b1, b2, b3] = AirCalcResult.getBorders(result.avgEnemyAirPower);
 
     if (b0 <= 0) {
       // 敵制空値がない場合は確保固定

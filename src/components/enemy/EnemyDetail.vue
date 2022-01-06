@@ -1,200 +1,180 @@
 <template>
-  <v-card class="pa-2">
+  <v-card class="pa-2 detail-card">
     <div class="pa-2">敵艦隊詳細</div>
-    <v-divider></v-divider>
-    <div class="mx-2 mt-1">
-      <v-tabs v-model="tab">
-        <v-tab href="#fleet">艦隊情報</v-tab>
-        <v-tab href="#stage2">対空砲火</v-tab>
-      </v-tabs>
-    </div>
-    <v-divider class="mx-2"></v-divider>
-    <div class="ma-2">
-      <v-tabs-items v-model="tab">
-        <v-tab-item value="fleet" class="detail-fleet">
-          <div class="body-1 ma-1">
-            <div class="d-flex air-power-info flex-wrap">
-              <div class="text--secondary label-text">制空値:</div>
-              <div class="value-text mr-3">{{ airPower }}</div>
-              <div>
-                <v-chip class="mr-1" color="green" label outlined>
-                  <span>確保:</span>
-                  <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>優勢:</span>
-                  <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="orange" label outlined>
-                  <span>拮抗:</span>
-                  <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>劣勢:</span>
-                  <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
-                </v-chip>
-              </div>
-            </div>
-            <div class="mt-1 d-flex air-power-info flex-wrap" v-if="airPower !== airbaseAirPower">
-              <div class="text--secondary label-text">基地制空値:</div>
-              <div class="value-text mr-3">{{ airbaseAirPower }}</div>
-              <div>
-                <v-chip class="mr-1" color="green" label outlined>
-                  <span>確保:</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>優勢:</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="orange" label outlined>
-                  <span>拮抗:</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>劣勢:</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
-                </v-chip>
-              </div>
+    <v-divider class="mb-1"></v-divider>
+    <v-tabs v-model="tab">
+      <v-tab href="#fleet">艦隊情報</v-tab>
+      <v-tab href="#stage2">対空砲火</v-tab>
+      <v-tab-item value="fleet" class="detail-fleet">
+        <v-divider></v-divider>
+        <div class="body-1 ma-1">
+          <div class="d-flex air-power-info flex-wrap">
+            <div class="text--secondary label-text">制空値:</div>
+            <div class="value-text mr-3">{{ airPower }}</div>
+            <div>
+              <v-chip class="mr-1" color="green" label outlined>
+                <span>確保:</span>
+                <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="light-green" label outlined>
+                <span>優勢:</span>
+                <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="orange" label outlined>
+                <span>拮抗:</span>
+                <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="deep-orange" label outlined>
+                <span>劣勢:</span>
+                <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
+              </v-chip>
             </div>
           </div>
-          <v-divider></v-divider>
-          <div>
-            <div class="mt-3 mb-5">
-              <div v-if="fleet.isUnion" class="d-flex">
-                <div class="align-self-center px-2 primary--text">第1艦隊</div>
-                <div class="align-self-center body-2 ml-4 text--secondary">制空:</div>
-                <div class="align-self-center body-2 ml-1">{{ mainAirPower }}</div>
-                <div class="align-self-center body-2 ml-4 text--secondary">基地制空:</div>
-                <div class="align-self-center body-2 ml-1">{{ mainLBAirPower }}</div>
-              </div>
-              <div class="enemy-inputs-container">
-                <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
-              </div>
+          <div class="mt-1 d-flex air-power-info flex-wrap" v-if="airPower !== airbaseAirPower">
+            <div class="text--secondary label-text">基地制空値:</div>
+            <div class="value-text mr-3">{{ airbaseAirPower }}</div>
+            <div>
+              <v-chip class="mr-1" color="green" label outlined>
+                <span>確保:</span>
+                <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="light-green" label outlined>
+                <span>優勢:</span>
+                <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="orange" label outlined>
+                <span>拮抗:</span>
+                <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
+              </v-chip>
+              <v-chip class="mr-1" color="deep-orange" label outlined>
+                <span>劣勢:</span>
+                <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
+              </v-chip>
             </div>
-            <v-divider v-if="fleet.isUnion"></v-divider>
-            <div v-if="fleet.isUnion" class="my-3">
+          </div>
+        </div>
+        <v-divider></v-divider>
+        <div>
+          <div class="mt-3 mb-5">
+            <div v-if="fleet.isUnion" class="d-flex">
+              <div class="align-self-center px-2 primary--text">第1艦隊</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">制空:</div>
+              <div class="align-self-center body-2 ml-1">{{ mainAirPower }}</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">基地制空:</div>
+              <div class="align-self-center body-2 ml-1">{{ mainLBAirPower }}</div>
+            </div>
+            <div class="enemy-inputs-container">
+              <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+            </div>
+          </div>
+          <v-divider v-if="fleet.isUnion"></v-divider>
+          <div v-if="fleet.isUnion" class="my-3">
+            <div class="d-flex">
+              <div class="align-self-center px-2 success--text">第2艦隊</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">制空:</div>
+              <div class="align-self-center body-2 ml-1">{{ escortAirPower }}</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">基地制空値:</div>
+              <div class="align-self-center body-2 ml-1">{{ escortLBAirPower }}</div>
+            </div>
+            <div class="enemy-inputs-container">
+              <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+            </div>
+          </div>
+        </div>
+      </v-tab-item>
+      <v-tab-item value="stage2" class="detail-fleet">
+        <v-divider></v-divider>
+        <div class="d-flex flex-wrap">
+          <div class="form-control">
+            <v-select label="陣形" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable()"></v-select>
+          </div>
+          <div class="form-control">
+            <v-text-field
+              type="number"
+              v-model.number="attackerSlot"
+              min="0"
+              max="999"
+              label="攻撃機搭載数"
+              hide-details
+              outlined
+              dense
+              @input="updateTable()"
+            ></v-text-field>
+          </div>
+          <div class="form-control">
+            <v-select label="対空射撃回避" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable()"></v-select>
+          </div>
+          <div class="form-control">
+            <v-text-field
+              type="number"
+              min="0"
+              max="2"
+              step="0.1"
+              v-model.number="adj1"
+              label="加重対空補正"
+              hide-details
+              outlined
+              dense
+              :disabled="!isManual"
+              @input="updateTable()"
+            ></v-text-field>
+          </div>
+          <div class="form-control">
+            <v-text-field
+              type="number"
+              min="0"
+              max="2"
+              step="0.1"
+              v-model.number="adj2"
+              label="艦隊防空補正"
+              hide-details
+              outlined
+              dense
+              :disabled="!isManual"
+              @input="updateTable()"
+            ></v-text-field>
+          </div>
+        </div>
+        <div class="mt-3 mb-2">
+          <span class="text--secondary mr-2">艦隊防空値:</span>
+          <span>{{ fleetAntiAir }}</span>
+        </div>
+        <div class="stage2-row header px-1 px-md-2">
+          <div class="flex-grow-1">敵艦</div>
+          <div class="stage2-col">割合撃墜</div>
+          <div class="stage2-col">割合撃墜</div>
+          <div class="stage2-col">両成功</div>
+        </div>
+        <div
+          v-for="(item, i) in stage2Data"
+          :key="i"
+          class="stage2-row px-1 px-md-2"
+          :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum > attackerSlot }"
+        >
+          <div class="d-flex flex-grow-1">
+            <div class="align-self-center mr-2">
+              <v-img :src="`./img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
+            </div>
+            <div class="align-self-center d-none d-sm-block flex-grow-1">
+              <div class="stage2-id primary--text">id:{{ item.id }}</div>
               <div class="d-flex">
-                <div class="align-self-center px-2 success--text">第2艦隊</div>
-                <div class="align-self-center body-2 ml-4 text--secondary">制空:</div>
-                <div class="align-self-center body-2 ml-1">{{ escortAirPower }}</div>
-                <div class="align-self-center body-2 ml-4 text--secondary">基地制空値:</div>
-                <div class="align-self-center body-2 ml-1">{{ escortLBAirPower }}</div>
-              </div>
-              <div class="enemy-inputs-container">
-                <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+                <div class="stage2-name text-truncate">{{ item.name }}</div>
               </div>
             </div>
           </div>
-        </v-tab-item>
-        <v-tab-item value="stage2" class="detail-fleet">
-          <div class="pa-1">
-            <div class="d-flex flex-wrap">
-              <div class="form-control">
-                <v-select
-                  label="陣形"
-                  v-model="formation"
-                  :items="formations"
-                  hide-details
-                  outlined
-                  dense
-                  @change="updateTable()"
-                ></v-select>
-              </div>
-              <div class="form-control">
-                <v-text-field
-                  type="number"
-                  v-model.number="attackerSlot"
-                  min="0"
-                  max="999"
-                  label="攻撃機搭載数"
-                  hide-details
-                  outlined
-                  dense
-                  @input="updateTable()"
-                ></v-text-field>
-              </div>
-              <div class="form-control">
-                <v-select
-                  label="対空射撃回避"
-                  v-model="avoid"
-                  :items="avoids"
-                  hide-details
-                  outlined
-                  dense
-                  @change="updateTable()"
-                ></v-select>
-              </div>
-              <div class="form-control">
-                <v-text-field
-                  type="number"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  v-model.number="adj1"
-                  label="加重対空補正"
-                  hide-details
-                  outlined
-                  dense
-                  :disabled="!isManual"
-                  @input="updateTable()"
-                ></v-text-field>
-              </div>
-              <div class="form-control">
-                <v-text-field
-                  type="number"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  v-model.number="adj2"
-                  label="艦隊防空補正"
-                  hide-details
-                  outlined
-                  dense
-                  :disabled="!isManual"
-                  @input="updateTable()"
-                ></v-text-field>
-              </div>
-            </div>
-            <div class="mt-3 mb-2">
-              <span class="text--secondary mr-2">艦隊防空値:</span>
-              <span>{{ fleetAntiAir }}</span>
-            </div>
-            <div class="stage2-row header px-1 px-md-2">
-              <div class="flex-grow-1">敵艦</div>
-              <div class="stage2-col">割合撃墜</div>
-              <div class="stage2-col">割合撃墜</div>
-              <div class="stage2-col">両成功</div>
-            </div>
-            <div
-              v-for="(item, i) in stage2Data"
-              :key="i"
-              class="stage2-row px-1 px-md-2"
-              :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum > attackerSlot }"
-            >
-              <div class="d-flex flex-grow-1">
-                <div class="align-self-center mr-2">
-                  <v-img :src="`./img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
-                </div>
-                <div class="align-self-center d-none d-sm-block flex-grow-1">
-                  <div class="stage2-id primary--text">id:{{ item.id }}</div>
-                  <div class="d-flex">
-                    <div class="stage2-name text-truncate">{{ item.name }}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="stage2-col">{{ item.rate }}({{ item.rateDown }}機)</div>
-              <div class="stage2-col">{{ item.fix }}</div>
-              <div class="stage2-col">{{ item.sum }}</div>
-            </div>
-          </div>
-        </v-tab-item>
-      </v-tabs-items>
-    </div>
+          <div class="stage2-col">{{ item.rate }}({{ item.rateDown }}機)</div>
+          <div class="stage2-col">{{ item.fix }}</div>
+          <div class="stage2-col">{{ item.sum }}</div>
+        </div>
+      </v-tab-item>
+    </v-tabs>
   </v-card>
 </template>
 
 <style scoped>
+.detail-card {
+  height: 78vh;
+}
 .detail-fleet {
   overflow-y: auto;
   height: 64vh;

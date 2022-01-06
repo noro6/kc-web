@@ -240,11 +240,13 @@ export default Vue.extend({
   box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4) !important;
 }
 .item-input.type-5,
-.item-input.type-8 {
+.item-input.type-8,
+.item-input.type-46 {
   box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15) !important;
 }
 .item-input.type-5:hover,
-.item-input.type-8:hover {
+.item-input.type-8:hover,
+.item-input.type-46:hover {
   box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.4) !important;
 }
 .item-input.type-6,
@@ -252,7 +254,8 @@ export default Vue.extend({
 .item-input.type-15,
 .item-input.type-16,
 .item-input.type-21,
-.item-input.type-44 {
+.item-input.type-44,
+.item-input.type-45 {
   box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
 }
 .item-input.type-6:hover,
@@ -260,7 +263,8 @@ export default Vue.extend({
 .item-input.type-15:hover,
 .item-input.type-16:hover,
 .item-input.type-21:hover,
-.item-input.type-44:hover {
+.item-input.type-44:hover,
+.item-input.type-45:hover {
   box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4) !important;
 }
 .item-input.type-10,
@@ -385,14 +389,15 @@ export default Vue.extend({
 .item-input.type-44:hover {
   box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4) !important;
 }
-.item-input.type-45,
+/* アイコンで判別つきにくいので背景色を紫にしない */
+/* .item-input.type-45,
 .item-input.type-46 {
   box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.15) !important;
 }
 .item-input.type-45:hover,
 .item-input.type-46:hover {
   box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.4) !important;
-}
+} */
 .item-input.type-47 {
   box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15) !important;
 }

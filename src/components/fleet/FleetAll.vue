@@ -173,13 +173,10 @@ export default Vue.extend({
         exItem = new Item();
       }
 
-      // 連合フラグかつ第2艦隊(fleetIndex: 1)なら連合随伴とする
-      const isEscort = fleet.isUnion && fleetIndex === 1;
       // 元々いた艦娘を置き換える
       fleet.ships[index] = new Ship({
         master: ship,
         items: newItems,
-        isEscort,
         exItem,
         isActive: oldShip.isActive,
       });

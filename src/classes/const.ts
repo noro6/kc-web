@@ -551,6 +551,134 @@ export default class Const {
   ];
 
   /**
+   * 対空CI
+   * @static
+   * @memberof Const
+   */
+  public static readonly ANTIAIR_CUTIN = [
+    {
+      id: 0, text: '不発', adj: [1.0, 0], rate: 100, remarks: '',
+    },
+    {
+      id: 1, text: '1種', adj: [1.7, 7], rate: 65, remarks: '秋月型',
+    },
+    {
+      id: 2, text: '2種', adj: [1.7, 6], rate: 58, remarks: '秋月型',
+    },
+    {
+      id: 3, text: '3種', adj: [1.6, 4], rate: 50, remarks: '秋月型',
+    },
+    {
+      id: 4, text: '4種', adj: [1.5, 6], rate: 52, remarks: '戦艦',
+    },
+    {
+      id: 5, text: '5種', adj: [1.5, 4], rate: 55, remarks: '汎用',
+    },
+    {
+      id: 6, text: '6種', adj: [1.45, 4], rate: 40, remarks: '戦艦',
+    },
+    {
+      id: 7, text: '7種', adj: [1.35, 3], rate: 45, remarks: '汎用',
+    },
+    {
+      id: 8, text: '8種', adj: [1.4, 4], rate: 50, remarks: '汎用',
+    },
+    {
+      id: 9, text: '9種', adj: [1.3, 2], rate: 40, remarks: '汎用',
+    },
+    {
+      id: 10, text: '10種', adj: [1.65, 8], rate: 60, remarks: '摩耶改二',
+    },
+    {
+      id: 11, text: '11種', adj: [1.5, 6], rate: 55, remarks: '摩耶改二',
+    },
+    {
+      id: 12, text: '12種', adj: [1.25, 3], rate: 45, remarks: '汎用',
+    },
+    {
+      id: 14, text: '14種', adj: [1.45, 4], rate: 63, remarks: '五十鈴改二',
+    },
+    {
+      id: 15, text: '15種', adj: [1.3, 3], rate: 54, remarks: '五十鈴改二',
+    },
+    {
+      id: 16, text: '16種', adj: [1.4, 4], rate: 62, remarks: '霞改二乙 / 夕張改二',
+    },
+    {
+      id: 17, text: '17種', adj: [1.25, 2], rate: 57, remarks: '霞改二乙 / 夕張改二',
+    },
+    {
+      id: 18, text: '18種', adj: [1.2, 2], rate: 59, remarks: '皐月改二',
+    },
+    {
+      id: 19, text: '19種', adj: [1.45, 5], rate: 60, remarks: '鬼怒改二',
+    },
+    {
+      id: 20, text: '20種', adj: [1.25, 3], rate: 65, remarks: '鬼怒改二',
+    },
+    {
+      id: 21, text: '21種', adj: [1.45, 5], rate: 60, remarks: '由良改二',
+    },
+    {
+      id: 22, text: '22種', adj: [1.2, 2], rate: 65, remarks: '文月改二',
+    },
+    {
+      id: 23, text: '23種', adj: [1.05, 1], rate: 80, remarks: 'UIT-25 / 伊504',
+    },
+    {
+      id: 24, text: '24種', adj: [1.25, 3], rate: 62, remarks: '天龍型改二',
+    },
+    {
+      id: 25, text: '25種', adj: [1.55, 7], rate: 60, remarks: '伊勢型',
+    },
+    {
+      id: 26, text: '26種', adj: [1.4, 6], rate: 60, remarks: '武蔵改二',
+    },
+    {
+      id: 28, text: '28種', adj: [1.4, 4], rate: 56, remarks: '伊勢型 / 武蔵',
+    },
+    {
+      id: 29, text: '29種', adj: [1.55, 5], rate: 60, remarks: '磯風乙改 / 浜風乙改',
+    },
+    {
+      id: 30, text: '30種', adj: [1.3, 3], rate: 50, remarks: '天龍改二',
+    },
+    {
+      id: 31, text: '31種', adj: [1.25, 2], rate: 50, remarks: '天龍改二',
+    },
+    {
+      id: 32, text: '32種', adj: [1.2, 3], rate: 60, remarks: '金剛型改二 / 英艦',
+    },
+    {
+      id: 33, text: '33種', adj: [1.35, 3], rate: 42, remarks: 'Gotland',
+    },
+    {
+      id: 34, text: '34種', adj: [1.6, 7], rate: 60, remarks: 'Fletcher級',
+    },
+    {
+      id: 35, text: '35種', adj: [1.55, 6], rate: 55, remarks: 'Fletcher級',
+    },
+    {
+      id: 36, text: '36種', adj: [1.55, 6], rate: 50, remarks: 'Fletcher級',
+    },
+    {
+      id: 37, text: '37種', adj: [1.45, 4], rate: 40, remarks: 'Fletcher級',
+    },
+    {
+      id: 38, text: '38種', adj: [1.85, 10], rate: 60, remarks: 'Atlanta',
+    },
+    {
+      id: 39, text: '39種', adj: [1.7, 10], rate: 60, remarks: 'Atlanta',
+    },
+    {
+      id: 40, text: '40種', adj: [1.7, 10], rate: 60, remarks: 'Atlanta',
+    },
+    {
+      id: 41, text: '41種', adj: [1.65, 9], rate: 60, remarks: 'Atlanta',
+    },
+  ];
+
+  /**
    * 海域一覧
    * @static
    * @memberof Const

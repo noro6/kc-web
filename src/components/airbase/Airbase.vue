@@ -39,8 +39,8 @@
         @input="updateItem"
       />
       <div v-if="!isDefense" class="mx-1">
-        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" />
-        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" />
+        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" class="mt-3" />
+        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" class="mt-3" />
       </div>
     </div>
   </v-card>
@@ -112,14 +112,12 @@ export default Vue.extend({
     resultStateRate() {
       const wave1 = this.value.resultWave1;
       const wave2 = this.value.resultWave2;
-      return [Math.floor(wave1.rates[wave1.airState]), Math.floor(wave2.rates[wave2.airState])];
+      return [Math.floor(wave1.rates[wave1.airState.value]), Math.floor(wave2.rates[wave2.airState.value])];
     },
     resultLabel() {
       const wave1State = this.value.resultWave1.airState;
       const wave2State = this.value.resultWave2.airState;
-      const statusWave1 = Const.AIR_STATUS.find((v) => v.value === wave1State);
-      const statusWave2 = Const.AIR_STATUS.find((v) => v.value === wave2State);
-      return [statusWave1 ? statusWave1.text : '', statusWave2 ? statusWave2.text : ''];
+      return [wave1State.text, wave2State.text];
     },
     resultBarValue() {
       return [this.value.resultWave1.airStateBarWidth, this.value.resultWave2.airStateBarWidth];

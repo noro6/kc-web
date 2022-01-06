@@ -21,6 +21,7 @@ export interface EnemyFleetBuilder {
 export interface Stage2Table {
   rateDownList: number[];
   fixDownList: number[];
+  minimumDownList: number[];
 }
 
 export default class EnemyFleet {
@@ -211,12 +212,12 @@ export default class EnemyFleet {
     if (enemyCount === 0) {
       // 全てが0のデータ
       for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-        stage2.push({ fixDownList: [0], rateDownList: [0] });
+        stage2.push({ fixDownList: [0], rateDownList: [0], minimumDownList: [0] });
       }
       return stage2;
     }
     for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-      stage2.push({ fixDownList: [], rateDownList: [] });
+      stage2.push({ fixDownList: [], rateDownList: [], minimumDownList: [] });
     }
     // 陣形補正
     const aj1 = formation ? formation.correction : 1;
@@ -233,8 +234,6 @@ export default class EnemyFleet {
 
     for (let i = 0; i < enemyCount; i += 1) {
       const enm = enemies[i];
-
-      const isEscort = this.isUnion && i >= 6;
       let sumItemAntiAir = 0;
       let sumAntiAirWeight = 0;
 
@@ -248,9 +247,9 @@ export default class EnemyFleet {
 
       // 連合艦隊補正
       let unionFactor = 1.0;
-      if (this.isUnion && isEscort) {
+      if (this.isUnion && enm.isEscort) {
         unionFactor = 0.48;
-      } else if (this.isUnion && !isEscort) {
+      } else if (this.isUnion && !enm.isEscort) {
         unionFactor = 0.8;
       }
 
@@ -289,6 +288,8 @@ export default class EnemyFleet {
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
         // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 敵補正(0.75) * 連合補正)
         stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * 0.75 * unionFactor));
+        // 最低保証 => 敵側0 対空射撃回避持ち機体はここにも補正かかりそう疑惑はあるがいつか検証したいなあ
+        stage2[j].minimumDownList.push(Math.floor(0 * (avoid1 < 1 ? 0.99 : 1)));
       }
     }
 

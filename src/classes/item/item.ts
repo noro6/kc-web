@@ -104,6 +104,9 @@ export default class Item {
   /** 全滅率 表示用 */
   public deathRate = 0;
 
+  /** 第2艦隊搭載機かどうかフラグ 計算用 */
+  public isEscortItem = false;
+
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ

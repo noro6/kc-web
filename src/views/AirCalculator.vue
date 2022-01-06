@@ -10,7 +10,7 @@
       <enemy-fleet-all v-model="calcManager.battleInfo" :airbase-info="calcManager.airbaseInfo" :is-defense="calcManager.isDefense" />
     </div>
     <div class="content-frame">
-      <main-result v-model="calcManager" v-show="!calcManager.isDefense" />
+      <main-result v-model="calcManager" v-show="!calcManager.isDefense" :handle-change-main-battle="changeMainBattle" ref="mainResult" />
     </div>
   </div>
 </template>
@@ -29,6 +29,7 @@ import AirbaseAll from '@/components/airbase/AirbaseAll.vue';
 import MainResult from '@/components/result/MainResult.vue';
 import FleetAll from '@/components/fleet/FleetAll.vue';
 import CalcManager from '@/classes/calcManager';
+import BattleInfo from '@/classes/enemy/battleInfo';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -72,7 +73,11 @@ export default Vue.extend({
       },
     },
     'calcManager.battleInfo': {
-      handler() {
+      handler(current: BattleInfo, old: BattleInfo) {
+        if (current.fleets.length !== old.fleets.length) {
+          // 戦闘回数変更を検知
+          this.calcManager.mainBattle = this.calcManager.battleInfo.fleets.length - 1;
+        }
         this.calculate();
       },
     },
@@ -83,10 +88,20 @@ export default Vue.extend({
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       draggingDiv.classList.add('delete-flg');
     },
+    changeMainBattle(index: number) {
+      this.calcManager.mainBattle = index;
+      this.calculate();
+    },
     calculate() {
+      // ドラッグ完了までは計算を実行しない
       if (!document.getElementById('dragging-item')) {
-        // ドラッグ完了までは計算を実行しない
         this.calcManager.updateInfo();
+
+        const resultForm = this.$refs.mainResult as InstanceType<typeof MainResult>;
+        if (resultForm) {
+          resultForm.displayBattle = this.calcManager.mainBattle;
+          resultForm.tab = `battle${this.calcManager.mainBattle}`;
+        }
       }
     },
   },

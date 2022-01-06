@@ -112,8 +112,8 @@
                       <div class="text-name text-truncate">{{ enemy.data.name }}</div>
                     </div>
                   </div>
-                  <div v-if="!fleet.isUnion" class="align-self-center d-flex">
-                    <div v-for="(item, k) in enemy.items" :key="k" class="mx-1">
+                  <div v-if="!fleet.isUnion" class="item-preview">
+                    <div v-for="(item, k) in enemy.items" :key="k" class="mr-4">
                       <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
                     </div>
                   </div>
@@ -197,6 +197,12 @@
 
 .formation-select {
   width: 94px;
+}
+
+.item-preview {
+  display: flex;
+  align-self: center;
+  width: 180px;
 }
 </style>
 

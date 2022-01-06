@@ -2,6 +2,7 @@ import Ship from './ship';
 import Const, { AvoidType, Formation } from '../const';
 import Item from '../item/item';
 import AirCalcResult from '../airCalcResult';
+import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 
 export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -17,6 +18,7 @@ export interface FleetBuilder {
 interface Stage2Table {
   rateDownList: number[];
   fixDownList: number[];
+  minimumDownList: number[];
 }
 
 export default class Fleet {
@@ -59,6 +61,9 @@ export default class Fleet {
   /** 表示戦闘の各制空状態の割合 */
   public mainResult = new AirCalcResult();
 
+  /** この艦隊の随伴艦隊制空値 連合艦隊専用 */
+  public escortAirPower = 0;
+
   constructor(builder: FleetBuilder = {}) {
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ
@@ -85,14 +90,31 @@ export default class Fleet {
     this.hasPlane = false;
 
     this.allPlanes = [];
+
+    const generalCutin: AntiAirCutIn[] = [];
+    const specialCutin: AntiAirCutIn[] = [];
+
     for (let i = 0; i < this.ships.length; i += 1) {
       const ship = this.ships[i];
       if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
         this.tp += ship.tp;
 
+        for (let j = 0; j < ship.antiAirCutIn.length; j += 1) {
+          const cutIn = ship.antiAirCutIn[j];
+          // 対空カットインを振り分け
+          if (cutIn.id >= 34 && cutIn.id !== 36) specialCutin.push(cutIn);
+          else generalCutin.push(cutIn);
+        }
+
         const shipPlanes = ship.items.filter((v) => v.isPlane && v.fullSlot > 0);
         if (shipPlanes.length) {
+          // 連合かつ第2艦隊なら艦載機の随伴機フラグを挙げる
+          if (this.isUnion && ship.isEscort) {
+            for (let j = 0; j < shipPlanes.length; j += 1) {
+              shipPlanes[j].isEscortItem = true;
+            }
+          }
           this.allPlanes = this.allPlanes.concat(shipPlanes);
           if (!this.hasPlane && this.allPlanes.find((v) => !v.isRecon)) {
             this.hasPlane = true;
@@ -105,6 +127,13 @@ export default class Fleet {
     }
 
     this.airPower = this.fullAirPower;
+
+    // 特殊CIソート => (性能順, 38種以降)
+    specialCutin.sort((a, b) => (a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorr - a.fixCorr));
+    // 通常CIソート => (種別の降順)
+    generalCutin.sort((a, b) => b.id - a.id);
+    // 特殊CIを最優先とし、後続に通常CIを格納した対空CI配列 これで対空CI確定 todo 各対空CIによるstage2情報の生成
+    // const allCutin = specialCutin.concat(generalCutin);
 
     // todo 陣形は決まっていないが…？計算で使うstage2はここで算出
     this.stage2 = this.getStage2(formation);
@@ -124,12 +153,12 @@ export default class Fleet {
     if (shipCount === 0) {
       // 全てが0のデータ
       for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-        stage2.push({ fixDownList: [0], rateDownList: [0] });
+        stage2.push({ fixDownList: [0], rateDownList: [0], minimumDownList: [0] });
       }
       return stage2;
     }
     for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-      stage2.push({ fixDownList: [], rateDownList: [] });
+      stage2.push({ fixDownList: [], rateDownList: [], minimumDownList: [] });
     }
     // 陣形補正
     const aj1 = formation ? formation.correction : 1;
@@ -146,8 +175,6 @@ export default class Fleet {
 
     for (let i = 0; i < shipCount; i += 1) {
       const ship = ships[i];
-
-      const isEscort = this.isUnion && i >= 6;
       let sumAntiAirWeight = 0;
 
       // この艦娘の装備各値の合計
@@ -160,9 +187,9 @@ export default class Fleet {
 
       // 連合艦隊補正
       let unionFactor = 1.0;
-      if (this.isUnion && isEscort) {
+      if (this.isUnion && ship.isEscort) {
         unionFactor = 0.48;
-      } else if (this.isUnion && !isEscort) {
+      } else if (this.isUnion && !ship.isEscort) {
         unionFactor = 0.8;
       }
 
@@ -201,6 +228,8 @@ export default class Fleet {
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
         // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 自軍補正(0.8) * 連合補正)
         stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * 0.8 * unionFactor));
+        // 最低保証 => 一応補正を掛ける 不明だけどとりあえず射撃回避持ちは0になる
+        stage2[j].minimumDownList.push(Math.floor(1 * (avoid1 < 1 ? 0.99 : 1)));
       }
     }
 

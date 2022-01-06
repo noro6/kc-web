@@ -58,7 +58,7 @@
         @input="updateShip"
       ></ship-input>
     </div>
-    <air-status-result-bar :result="fleet.mainResult" />
+    <air-status-result-bar :result="fleet.mainResult" class="mt-3" />
   </div>
 </template>
 

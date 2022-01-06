@@ -83,8 +83,7 @@ export default class Calculator {
   public static calculateMainPhase(fleet: Fleet, enemyFleet: EnemyFleet, battle: number, calcStage2 = false): void {
     const stage2List = enemyFleet.stage2;
     const result = fleet.results[battle];
-    // todo 連合のとき
-    const airPower = enemyFleet.cellType === CELL_TYPE.GRAND ? fleet.airPower : fleet.airPower;
+    const airPower = enemyFleet.cellType === CELL_TYPE.GRAND ? (fleet.airPower + fleet.escortAirPower) : fleet.airPower;
     const state = CommonCalc.getAirState(airPower, enemyFleet.airPower, fleet.hasPlane || enemyFleet.hasPlane);
 
     // 戦闘開始時の結果記録
@@ -97,10 +96,8 @@ export default class Calculator {
       // 敵機撃墜処理
       Calculator.shootDownEnemy(state, enemyFleet, fleet.stage2);
     }
-    // 味方撃墜処理 空襲マスか夜戦マスならstage2を起こさない
-    const disabledStage2 = enemyFleet.cellType === CELL_TYPE.AIR_RAID || enemyFleet.cellType === CELL_TYPE.NIGHT;
-    const skipShootDown = enemyFleet.cellType === CELL_TYPE.NIGHT;
-    Calculator.shootDownFleet(state, fleet, stage2List, battle, skipShootDown, disabledStage2);
+    // 味方撃墜処理
+    Calculator.shootDownFleet(state, fleet, stage2List, enemyFleet.cellType, battle);
   }
 
   /**
@@ -112,14 +109,13 @@ export default class Calculator {
    * @memberof Calculator
    */
   public static calculateAerialConbatCellPhase(fleet: Fleet, enemyFleet: EnemyFleet): void {
-    // todo 連合のとき
     const state = CommonCalc.getAirState(fleet.airPower, enemyFleet.airPower, fleet.hasPlane);
     // 味方撃墜処理
-    Calculator.shootDownFleet(state, fleet, enemyFleet.stage2);
+    Calculator.shootDownFleet(state, fleet, enemyFleet.stage2, CELL_TYPE.AERIAL_COMBAT);
   }
 
   /**
-   * 基地噴式強襲フェーズ計算 副作用は次の値の変更
+   * 噴式強襲フェーズ計算 副作用は次の値の変更
    * Fleet: airPower
    * Item: airPower, slot
    * @static
@@ -133,7 +129,7 @@ export default class Calculator {
       && !enemyFleet.isAllSubmarine) {
       // 通常 / 連合マス 潜水マスでないなら噴式機フェーズ発生
       const sumAirPower = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.stage2);
-      // 基地噴式強襲フェーズ経過による制空値更新
+      // 噴式強襲フェーズ経過による制空値更新
       fleet.airPower = Math.floor(sumAirPower);
     }
   }
@@ -211,7 +207,7 @@ export default class Calculator {
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
-      if (!item.isJet) {
+      if (!item.isJet || item.isEscortItem) {
         sumAirPower += item.airPower;
         continue;
       }
@@ -249,15 +245,20 @@ export default class Calculator {
    * @param {number} state
    * @param {Fleet} fleet
    * @param {Stage2Table[]} stage2List
+   * @param {boolean} [cellType] 戦闘形式 省略で通常マス
    * @param {*} [battle=-1] 戦闘番号(？戦目) 専ら搭載数記録用の引数 省略で搭載数を記録しない
-   * @param {boolean} [skipShootDown=false] 撃墜処理を実行しないフラグ 通常false
-   * @param {boolean} [disabledStage2=false] Stage2を実行しないフラグ 通常false
    * @memberof Calculator
    */
-  private static shootDownFleet(state: number, fleet: Fleet, stage2List: Stage2Table[], battle = -1, skipShootDown = false, disabledStage2 = false) {
+  private static shootDownFleet(state: number, fleet: Fleet, stage2List: Stage2Table[], cellType: number, battle = -1) {
     const items = fleet.allPlanes;
     const randomRange = stage2List ? stage2List[0].fixDownList.length : 0;
+    const isGrand = cellType === CELL_TYPE.GRAND;
+    // 夜戦マスでは航空戦フェーズスキップ
+    const isSkip = cellType === CELL_TYPE.NIGHT;
+    // 空襲マスではstage2をスキップ
+    const isSkipStage2 = cellType === CELL_TYPE.AIR_RAID;
     let sumAirPower = 0;
+    let sumEscortAirPower = 0;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       if (battle >= 0) {
@@ -265,8 +266,15 @@ export default class Calculator {
         item.slotHistories[battle] += item.slot;
       }
 
-      if (skipShootDown || item.isRecon) {
-        // 夜戦マス、または偵察機は制空争いを行わないのでスキップ
+      if (isSkip || item.isRecon || (item.isEscortItem && !isGrand)) {
+        // 夜戦マス、または偵察機、または非連合マスでの随伴機体は制空争いを行わないのでスキップ 制空値だけは加算
+        if (!item.isRecon) {
+          if (item.isEscortItem) {
+            sumEscortAirPower += item.airPower;
+          } else {
+            sumAirPower += item.airPower;
+          }
+        }
         continue;
       }
 
@@ -274,7 +282,7 @@ export default class Calculator {
       item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot));
 
       // ====== STAGE2 ======
-      if (!disabledStage2 && stage2List.length && item.isAttacker) {
+      if (!isSkipStage2 && stage2List.length && item.isAttacker) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
         if (Math.random() >= 0.5) {
@@ -289,10 +297,15 @@ export default class Calculator {
 
       // 制空値を更新
       Item.updateAirPower(item);
-      sumAirPower += item.airPower;
+      if (item.isEscortItem) {
+        sumEscortAirPower += item.airPower;
+      } else {
+        sumAirPower += item.airPower;
+      }
     }
 
     fleet.airPower = sumAirPower;
+    fleet.escortAirPower = sumEscortAirPower;
   }
 
   /**
@@ -319,14 +332,17 @@ export default class Calculator {
       if (stage2List && item.isAttacker) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
+        const { avoidId } = item.data;
         if (Math.random() >= 0.5) {
           // 割合撃墜 50%で成功
-          item.slot -= Math.floor(stage2List[item.data.avoidId].rateDownList[index] * item.slot);
+          item.slot -= Math.floor(stage2List[avoidId].rateDownList[index] * item.slot);
         }
         if (Math.random() >= 0.5) {
           // 固定撃墜 50%で成功
-          item.slot -= stage2List[item.data.avoidId].fixDownList[index];
+          item.slot -= stage2List[avoidId].fixDownList[index];
         }
+        // 最低保証
+        item.slot -= stage2List[avoidId].minimumDownList[index];
       }
 
       // 制空値を更新

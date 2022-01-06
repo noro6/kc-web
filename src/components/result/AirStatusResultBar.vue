@@ -1,11 +1,11 @@
 <template>
-  <div class="d-flex mt-3" :class="{ 'dense': dense }">
-    <div class="mr-1 status-reuslt">
-      <div class="status-reuslt-label">{{ label }}</div>
+  <div class="d-flex" :class="{ dense: dense }">
+    <div class="mr-1 status-reuslt" v-if="!noLabel">
+      <div class="status-reuslt-label">{{ result.airState.text }}</div>
       <div class="status-reuslt-rate">{{ rate }}%</div>
     </div>
     <div class="align-self-center flex-grow-1">
-      <div class="d-flex">
+      <div v-if="!noLabel" class="d-flex">
         <div class="status-bar-label" style="width: 10%">
           <div>喪失</div>
         </div>
@@ -93,7 +93,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import AirCalcResult from '@/classes/airCalcResult';
-import Const, { AIR_STATE } from '@/classes/const';
+import { AIR_STATE } from '@/classes/const';
 
 export default Vue.extend({
   name: 'AirStatusResultBar',
@@ -106,23 +106,25 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    noLabel: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
-    label() {
-      const r = this.result;
-      const status = Const.AIR_STATUS.find((v) => v.value === r.airState);
-      return status ? status.text : '';
-    },
     rate() {
       const r = this.result;
-      return r.airState !== AIR_STATE.NONE ? Math.round(r.rates[r.airState]) : 0;
+      return r.airState.value !== AIR_STATE.NONE ? Math.round(r.rates[r.airState.value]) : 0;
     },
     barWidth() {
       const r = this.result as AirCalcResult;
-      return r.airState !== AIR_STATE.NONE ? r.airStateBarWidth : 0;
+      return r.airState.value !== AIR_STATE.NONE ? r.airStateBarWidth : 0;
     },
     barColor() {
       const r = this.result as AirCalcResult;
+      if (r.airState.value === AIR_STATE.NONE) {
+        return 'secondary';
+      }
       const value = r.airStateBarWidth;
       if (value >= 90) {
         return 'success';

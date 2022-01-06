@@ -1,4 +1,5 @@
 import Fleet, { FleetBuilder } from './fleet';
+import Ship from './ship';
 
 export interface FleetInfoBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -53,11 +54,23 @@ export default class FleetInfo {
 
     if (this.isUnion && (this.mainFleetIndex === 0 || this.mainFleetIndex === 1)) {
       // 連合艦隊にチェックが入っている場合連合艦隊オブジェクトを生成
+
+      const escorts = this.fleets[1].ships;
+      // 第2艦隊全艦を随伴としてインスタンス化
+      for (let i = 0; i < escorts.length; i += 1) {
+        const ship = escorts[i];
+        escorts[i] = new Ship({ ship, isEscort: true });
+      }
+
       const b: FleetBuilder = {
         isUnion: true,
-        ships: this.fleets[0].ships.concat(this.fleets[1].ships),
+        ships: this.fleets[0].ships.concat(escorts),
       };
       this.unionFleet = new Fleet(b);
+
+      // 艦隊別の制空値に初期化
+      this.unionFleet.airPower = this.fleets[0].fullAirPower;
+      this.unionFleet.escortAirPower = this.fleets[1].fullAirPower;
     }
   }
 
@@ -90,5 +103,19 @@ export default class FleetInfo {
     }
     // 小数点3桁目切捨て
     return scoutScores.map((v) => Math.floor(100 * v) / 100);
+  }
+
+  /**
+   * 計算対象の艦隊データを返却
+   * @readonly
+   * @type {Fleet}
+   * @memberof FleetInfo
+   */
+  public get mainFleet(): Fleet {
+    let mainFleet = this.fleets[this.mainFleetIndex];
+    if (this.isUnion) {
+      mainFleet = this.unionFleet as Fleet;
+    }
+    return mainFleet;
   }
 }

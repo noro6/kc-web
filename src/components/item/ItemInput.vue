@@ -2,11 +2,11 @@
   <v-tooltip
     :disabled="isNoItem || draggingNow"
     bottom
-    open-delay="100"
+    open-delay="500"
     v-model="tooltipState"
     color="black"
     @input="toggleTooltip"
-    transition="scroll-y-transition"
+    transition="slide-y-transition"
   >
     <template v-slot:activator="{ on: tooltip }">
       <div
@@ -99,7 +99,7 @@
             </v-card>
           </v-menu>
           <!-- 解除 -->
-          <div class="item-remove align-self-center">
+          <div class="ml-1 item-remove align-self-center">
             <v-btn v-show="isDraggabe" icon x-small @click="removeItem()">
               <v-icon small>mdi-close</v-icon>
             </v-btn>
@@ -238,7 +238,7 @@
   transition: 0.3s ease-out;
 }
 .item-level:hover {
-  filter: drop-shadow(0 0 2px #aaa);
+  filter: drop-shadow(0 0 2px #ccc);
 }
 .theme--dark .item-level:hover {
   filter: drop-shadow(0 0 2px #fff);
@@ -570,7 +570,7 @@ export default Vue.extend({
       target.style.backgroundColor = '';
 
       if (!target.classList.contains('enabled-drop')) {
-        // ドロップ不可なのでとりやめ
+        // ここにはドロップ不可なのでやめやめ！
         return;
       }
       // 受け渡されたデータ
@@ -580,8 +580,8 @@ export default Vue.extend({
         const prevData = JSON.stringify(this.item);
         draggingDiv.dataset.item = prevData;
       }
-      if (draggingDiv) {
-        // ドロップ成功したならドラッグ元を消すつもりでIKEYA
+      if (!e.ctrlKey && draggingDiv) {
+        // ドロップ成功したならドラッグ元を消すつもりでIKEYA！
         draggingDiv.classList.add('delete-flg');
       }
 
@@ -630,6 +630,9 @@ export default Vue.extend({
         // 外す処理
         draggingDiv.classList.remove('delete-flg');
         this.setItem(new Item(builder));
+      } else {
+        // 計算を発火
+        this.setItem(new Item({ item: this.value }));
       }
 
       // 消していたマウスイベントを復帰させる
