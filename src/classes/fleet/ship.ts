@@ -149,10 +149,16 @@ export default class Ship {
     this.tp = this.getTransportPower();
 
     // 装備一覧より取得
-    for (let i = 0; i < this.items.length; i += 1) {
-      const item = this.items[i];
+    const items = this.items.concat(this.exItem);
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
+      // 装備索敵関係
+      this.itemsScout += item.actualScout;
+      // 輸送量
+      this.tp += item.tp;
+
       if (item.fullSlot > 0 && item.isPlane && !item.isRecon) {
         // 通常制空値
         this.fullAirPower += item.fullAirPower;
@@ -187,16 +193,7 @@ export default class Ship {
       if (item.data.apiTypeId === 36) {
         this.koshaCount += 1;
       }
-
-      // 装備索敵関係
-      this.itemsScout += item.actualScout;
-      // 輸送量
-      this.tp += item.tp;
     }
-    // 補強増設分
-    this.antiAirBonus += this.exItem.antiAirBonus;
-    this.itemsScout += this.exItem.actualScout;
-    this.tp += this.exItem.tp;
 
     // 発動可能対空CI取得
     this.antiAirCutIn = this.getAntiAirCutIn();
@@ -485,7 +482,8 @@ export default class Ship {
     // 艦型
     const { type2 } = this.data;
     // 艦娘id
-    const shipId = this.data.id;
+    const shipId = this.data.albumId;
+
     // 高角砲の数
     const allKokaku = kokakuCount + specialKokakuCount;
     // 高角砲の有無
@@ -678,7 +676,7 @@ export default class Ship {
 
       // 発動率があるなら格納
       if (rate > 0) {
-        antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.adj[0], cutIn.adj[1], rate));
+        antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, rate));
       }
     }
     return antiAirCutIns;

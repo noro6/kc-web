@@ -3,6 +3,7 @@ import Const, { AvoidType, Formation } from '../const';
 import Item from '../item/item';
 import AirCalcResult from '../airCalcResult';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
+import ShootDownInfo from '../aerialCombat/shootDownInfo';
 
 export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -13,12 +14,6 @@ export interface FleetBuilder {
   formation?: number;
   /** 連合フラグ 未指定ならfleetの連合フラグで作成 */
   isUnion?: boolean;
-}
-
-interface Stage2Table {
-  rateDownList: number[];
-  fixDownList: number[];
-  minimumDownList: number[];
 }
 
 export default class Fleet {
@@ -50,7 +45,10 @@ export default class Fleet {
   public readonly allPlanes: Item[];
 
   /** stage2 撃墜テーブル */
-  public readonly stage2: Stage2Table[];
+  public readonly shootDownList: ShootDownInfo[];
+
+  /** 発動可能対空CI全種 */
+  public readonly allAntiAirCutIn: AntiAirCutIn[];
 
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
@@ -76,8 +74,10 @@ export default class Fleet {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
 
       if (this.ships.length === 0) {
-        // 0隻だった場合は空の艦娘を隻つっこむ
-        this.ships.push(new Ship());
+        // 0隻だった場合は空の艦娘を2隻つっこむ
+        for (let i = 0; i < 2; i += 1) {
+          this.ships.push(new Ship());
+        }
       }
     }
 
@@ -93,9 +93,10 @@ export default class Fleet {
 
     const generalCutin: AntiAirCutIn[] = [];
     const specialCutin: AntiAirCutIn[] = [];
+    const enabledShips = this.ships.filter((v) => v.isActive && !v.isEmpty);
 
-    for (let i = 0; i < this.ships.length; i += 1) {
-      const ship = this.ships[i];
+    for (let i = 0; i < enabledShips.length; i += 1) {
+      const ship = enabledShips[i];
       if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
         this.tp += ship.tp;
@@ -129,111 +130,26 @@ export default class Fleet {
     this.airPower = this.fullAirPower;
 
     // 特殊CIソート => (性能順, 38種以降)
-    specialCutin.sort((a, b) => (a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorr - a.fixCorr));
+    specialCutin.sort((a, b) => (a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorrA - a.fixCorrA));
     // 通常CIソート => (種別の降順)
     generalCutin.sort((a, b) => b.id - a.id);
-    // 特殊CIを最優先とし、後続に通常CIを格納した対空CI配列 これで対空CI確定 todo 各対空CIによるstage2情報の生成
-    // const allCutin = specialCutin.concat(generalCutin);
+    // 特殊CIを最優先とし、後続に通常CIを格納した対空CI配列 これで対空CI確定
+    this.allAntiAirCutIn = specialCutin.concat(generalCutin);
 
-    // todo 陣形は決まっていないが…？計算で使うstage2はここで算出
-    this.stage2 = this.getStage2(formation);
-  }
+    // 対空砲火情報更新 todo 陣形 空襲情報
+    this.shootDownList = [];
+    let sum = 1;
+    let border = 0;
+    for (let i = 0; i < this.allAntiAirCutIn.length; i += 1) {
+      const cutIn = this.allAntiAirCutIn[i];
+      const rate = sum * cutIn.rate;
+      sum -= rate;
+      border += rate;
 
-  /**
-   * stage2撃墜数テーブルを返却 -味方側式
-   * @param {Formation} [formation] 陣形 未指定で単縦
-   * @param {AvoidType} [avoid] 射撃回避 未指定で通常
-   * @return {*}  {Stage2Table[]} 各回避補正毎のstage2情報
-   * @memberof Fleet
-   */
-  public getStage2(formation?: Formation, avoid?: AvoidType): Stage2Table[] {
-    const stage2: Stage2Table[] = [];
-    const ships = this.ships.filter((v) => v.isActive && !v.isEmpty);
-    const shipCount = ships.length;
-    if (shipCount === 0) {
-      // 全てが0のデータ
-      for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-        stage2.push({ fixDownList: [0], rateDownList: [0], minimumDownList: [0] });
-      }
-      return stage2;
+      this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, cutIn, border));
     }
-    for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-      stage2.push({ fixDownList: [], rateDownList: [], minimumDownList: [] });
-    }
-    // 陣形補正
-    const aj1 = formation ? formation.correction : 1;
-
-    // 艦隊防空ボーナス合計
-    let sumAntiAirBonus = 0;
-    for (let i = 0; i < shipCount; i += 1) {
-      sumAntiAirBonus += ships[i].antiAirBonus;
-    }
-    sumAntiAirBonus = Math.floor(sumAntiAirBonus);
-
-    // 艦隊防空 => int((陣形補正 * 各艦の艦隊対空ボーナス合計) / ブラウザ版補正(1.3))
-    const fleetAntiAir = Math.floor((sumAntiAirBonus * aj1) / 1.3);
-
-    for (let i = 0; i < shipCount; i += 1) {
-      const ship = ships[i];
-      let sumAntiAirWeight = 0;
-
-      // この艦娘の装備各値の合計
-      for (let j = 0; j < ship.items.length; j += 1) {
-        // 装備加重対空値の加算
-        sumAntiAirWeight += ship.items[j].antiAirWeight;
-      }
-      // 補強増設の分を加算
-      sumAntiAirWeight += ship.exItem.antiAirWeight;
-
-      // 連合艦隊補正
-      let unionFactor = 1.0;
-      if (this.isUnion && ship.isEscort) {
-        unionFactor = 0.48;
-      } else if (this.isUnion && !ship.isEscort) {
-        unionFactor = 0.8;
-      }
-
-      // 各回避補正毎にテーブルを作成
-      for (let j = 0; j < Const.AVOID_TYPE.length; j += 1) {
-        let avoid1 = Const.AVOID_TYPE[j].c1;
-        let avoid2 = Const.AVOID_TYPE[j].c2;
-
-        if (j === Const.AVOID_TYPE.length - 1 && avoid) {
-          // 任意の射撃回避補正値を置き換え
-          avoid1 = avoid.c1;
-          avoid2 = avoid.c2;
-        }
-
-        // 艦船加重対空値 -艦娘側式
-        let antiAirWeight = 0;
-        if (avoid1 === 1.0) {
-          // 艦船加重対空値 => 素対空 / 2 + Σ(装備対空値 * 装備倍率)
-          antiAirWeight = ship.antiAir / 2 + sumAntiAirWeight;
-        } else {
-          // 艦船加重対空値 => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
-          antiAirWeight = Math.floor((ship.antiAir / 2 + sumAntiAirWeight) * avoid1);
-        }
-
-        // 艦隊防空補正
-        let fleetAA = 0;
-        if (avoid2 === 1.0) {
-          // 艦隊防空補正 => 艦隊防空
-          fleetAA = fleetAntiAir;
-        } else {
-          // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
-          fleetAA = Math.floor(fleetAntiAir * avoid2);
-        }
-
-        // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
-        stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
-        // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 自軍補正(0.8) * 連合補正)
-        stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * 0.8 * unionFactor));
-        // 最低保証 => 一応補正を掛ける 不明だけどとりあえず射撃回避持ちは0になる
-        stage2[j].minimumDownList.push(Math.floor(1 * (avoid1 < 1 ? 0.99 : 1)));
-      }
-    }
-
-    return stage2;
+    // 対空CI不発データを挿入
+    this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, new AntiAirCutIn(), 1));
   }
 
   /**
@@ -243,7 +159,7 @@ export default class Fleet {
    * @returns {number} 艦隊防空値
    * @memberof Fleet
    */
-  private getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
+  public getFleetAntiAir(formation?: Formation, avoid?: AvoidType): number {
     // 各艦の艦隊対空ボーナス合計
     let sumAntiAirBonus = 0;
     const ships = this.ships.filter((v) => v.isActive && !v.isEmpty);

@@ -38,7 +38,12 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </div>
-      <div class="pl-3 pr-1">
+      <div class="pl-1">
+        <v-btn color="info" icon @click.stop@="showAntiAirViewDialog">
+          <v-icon>mdi-information-outline</v-icon>
+        </v-btn>
+      </div>
+      <div class="px-1">
         <v-btn icon @click="resetFleet()">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
@@ -53,12 +58,17 @@
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
         :handle-close-ship="removeShip"
-        :fix-down="fleet.stage2[0].fixDownList[i]"
-        :rate-down="fleet.stage2[0].rateDownList[i]"
+        :fix-down="fleet.shootDownList[0].shootDownStatusList[0].fixDownList[i]"
+        :rate-down="fleet.shootDownList[0].shootDownStatusList[0].rateDownList[i]"
         @input="updateShip"
       ></ship-input>
     </div>
     <air-status-result-bar :result="fleet.mainResult" class="mt-3" />
+    <v-dialog v-model="antiAirViewDialog" transition="scroll-x-transition" width="1200">
+      <v-card class="pa-4">
+        <anti-air-calculator :fleet="value" ref="antiAirCalculator" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -115,6 +125,7 @@
 import Vue, { PropType } from 'vue';
 import ShipInput from '@/components/fleet/ShipInput.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
+import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
@@ -124,6 +135,7 @@ export default Vue.extend({
   components: {
     ShipInput,
     AirStatusResultBar,
+    AntiAirCalculator,
   },
   props: {
     value: {
@@ -152,6 +164,7 @@ export default Vue.extend({
     cellTypes: Const.CELL_TYPES,
     detailDialog: false,
     destroyDialog: false,
+    antiAirViewDialog: false,
   }),
   computed: {
     fleet(): Fleet {
@@ -217,6 +230,10 @@ export default Vue.extend({
     addEmptyShip() {
       this.fleet.ships.push(new Ship());
       this.setFleet(new Fleet({ fleet: this.fleet }));
+    },
+    async showAntiAirViewDialog() {
+      await (this.antiAirViewDialog = true);
+      (this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>).updateTable();
     },
   },
 });

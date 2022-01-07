@@ -5,16 +5,20 @@ export default class AntiAirCutIn {
   /** 割合撃墜ボーナス */
   public readonly rateCorr: number;
 
-  /** 固定撃墜ボーナス */
-  public readonly fixCorr: number;
+  /** 固定撃墜ボーナスA */
+  public readonly fixCorrA: number;
+
+  /** 固定撃墜ボーナスB */
+  public readonly fixCorrB: number;
 
   /** 発動率 */
   public readonly rate: number;
 
-  constructor(id: number, rateCorr: number, fixCorr: number, rate: number) {
+  constructor(id = 0, rateCorr = 1, fixCorrA = 1, fixCorrB = 0, rate = 1) {
     this.id = id;
     this.rateCorr = rateCorr;
-    this.fixCorr = fixCorr;
+    this.fixCorrA = fixCorrA;
+    this.fixCorrB = fixCorrB;
     this.rate = rate;
   }
 }

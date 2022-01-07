@@ -10,6 +10,12 @@ export default class Enemy {
   /** 装備一覧 */
   public readonly items: Item[];
 
+  /** 補強増設 */
+  public readonly exItem: Item;
+
+  /** 計算で適用する対空 */
+  public readonly antiAir: number;
+
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
@@ -44,7 +50,10 @@ export default class Enemy {
     this.fullLBAirPower = 0;
     this.fullAirPower = 0;
     this.antiAirBonus = 0;
+    this.exItem = new Item();
     this.hasPlane = false;
+    this.antiAir = this.data.antiAir;
+
     // 計算により算出するステータス
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];

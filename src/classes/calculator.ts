@@ -1,9 +1,10 @@
 import { AIR_STATE, CELL_TYPE } from './const';
-import EnemyFleet, { Stage2Table } from './enemy/enemyFleet';
+import EnemyFleet from './enemy/enemyFleet';
 import Airbase from './airbase/airbase';
 import Fleet from './fleet/fleet';
 import Item from './item/item';
 import CommonCalc from './commonCalc';
+import ShootDownInfo, { ShootDownStatus } from './aerialCombat/shootDownInfo';
 
 export default class Calculator {
   /**
@@ -94,7 +95,7 @@ export default class Calculator {
     // 結果表示戦闘かどうか
     if (calcStage2) {
       // 敵機撃墜処理
-      Calculator.shootDownEnemy(state, enemyFleet, fleet.stage2);
+      Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownList);
     }
     // 味方撃墜処理
     Calculator.shootDownFleet(state, fleet, stage2List, enemyFleet.cellType, battle);
@@ -120,7 +121,7 @@ export default class Calculator {
    * Item: airPower, slot
    * @static
    * @param {Airbase} airbase
-   * @param {Stage2Table[]} stage2List
+   * @param {ShootDownStatus[]} stage2List
    * @memberof Calculator
    */
   public static shootDownFleetJet(fleet: Fleet, enemyFleet: EnemyFleet): void {
@@ -141,10 +142,10 @@ export default class Calculator {
    * @private
    * @static
    * @param {Airbase} airbase
-   * @param {Stage2Table[]} stage2List
+   * @param {ShootDownStatus[]} stage2List
    * @memberof Calculator
    */
-  private static ShootDownAirbaseJet(airbase: Airbase, stage2List: Stage2Table[]) {
+  private static ShootDownAirbaseJet(airbase: Airbase, stage2List: ShootDownStatus[]) {
     const sumAirPower = Calculator.shootDownJetPhase(airbase.items, stage2List);
     // 基地噴式強襲フェーズ経過による制空値更新
     airbase.airPower = Math.floor(sumAirPower * airbase.reconCorr);
@@ -158,10 +159,10 @@ export default class Calculator {
    * @private
    * @static
    * @param {Airbase} airbase
-   * @param {Stage2Table[]} stage2List
+   * @param {ShootDownStatus[]} stage2List
    * @memberof Calculator
    */
-  private static ShootDownAirbase(state: number, airbase: Airbase, stage2List: Stage2Table[]) {
+  private static ShootDownAirbase(state: number, airbase: Airbase, stage2List: ShootDownStatus[]) {
     let sumAirPower = 0;
     const randomRange = stage2List[0].fixDownList.length;
     const { items } = airbase;
@@ -198,11 +199,11 @@ export default class Calculator {
    * @private
    * @static
    * @param {Item[]} items
-   * @param {Stage2Table[]} stage2List
+   * @param {ShootDownStatus[]} stage2List
    * @return {number} 噴式強襲フェーズ結果後の制空値
    * @memberof Calculator
    */
-  private static shootDownJetPhase(items: Item[], stage2List: Stage2Table[]): number {
+  private static shootDownJetPhase(items: Item[], stage2List: ShootDownStatus[]): number {
     let sumAirPower = 0;
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
@@ -244,12 +245,12 @@ export default class Calculator {
    * @static
    * @param {number} state
    * @param {Fleet} fleet
-   * @param {Stage2Table[]} stage2List
+   * @param {ShootDownStatus[]} stage2List
    * @param {boolean} [cellType] 戦闘形式 省略で通常マス
    * @param {*} [battle=-1] 戦闘番号(？戦目) 専ら搭載数記録用の引数 省略で搭載数を記録しない
    * @memberof Calculator
    */
-  private static shootDownFleet(state: number, fleet: Fleet, stage2List: Stage2Table[], cellType: number, battle = -1) {
+  private static shootDownFleet(state: number, fleet: Fleet, stage2List: ShootDownStatus[], cellType: number, battle = -1) {
     const items = fleet.allPlanes;
     const randomRange = stage2List ? stage2List[0].fixDownList.length : 0;
     const isGrand = cellType === CELL_TYPE.GRAND;
@@ -318,31 +319,45 @@ export default class Calculator {
    * @param {EnemyFleet} fleet
    * @memberof Calculator
    */
-  private static shootDownEnemy(state: number, fleet: EnemyFleet, stage2List?: Stage2Table[]) {
+  private static shootDownEnemy(state: number, fleet: EnemyFleet, shootDownList?: ShootDownInfo[]) {
     const items = fleet.allPlanes;
-    const randomRange = stage2List ? stage2List[0].fixDownList.length : 0;
+    const itemLength = items.length;
+    let st2List: ShootDownStatus[] = [];
+    let randomRange = 0;
+
+    if (shootDownList) {
+      // 対空CIの発動判定
+      const pickRate = Math.random();
+      const shootDown = shootDownList.find((v) => v.border > pickRate);
+      if (shootDown) {
+        st2List = shootDown.shootDownStatusList;
+        randomRange = shootDown.maxRange;
+      }
+    }
+
     let sumAirPower = 0;
     let sumAirbaseAirPower = 0;
-    for (let i = 0; i < items.length; i += 1) {
+
+    for (let i = 0; i < itemLength; i += 1) {
       const item = items[i];
       // ====== STAGE1 ======
       item.slot -= CommonCalc.getStage1ShootDownValueEnemy(state, item.slot);
 
       // ====== STAGE2 ======
-      if (stage2List && item.isAttacker) {
+      if (randomRange && item.isAttacker) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
         const { avoidId } = item.data;
         if (Math.random() >= 0.5) {
           // 割合撃墜 50%で成功
-          item.slot -= Math.floor(stage2List[avoidId].rateDownList[index] * item.slot);
+          item.slot -= Math.floor(st2List[avoidId].rateDownList[index] * item.slot);
         }
         if (Math.random() >= 0.5) {
           // 固定撃墜 50%で成功
-          item.slot -= stage2List[avoidId].fixDownList[index];
+          item.slot -= st2List[avoidId].fixDownList[index];
         }
         // 最低保証
-        item.slot -= stage2List[avoidId].minimumDownList[index];
+        item.slot -= st2List[avoidId].minimumDownList[index];
       }
 
       // 制空値を更新

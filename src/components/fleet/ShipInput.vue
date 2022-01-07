@@ -1,175 +1,197 @@
 <template>
-  <v-card class="ma-1 py-2" :class="{ disabled: !ship.isActive }" @dragover.prevent @drop.stop>
-    <div class="d-flex ship-header px-2">
-      <div class="align-self-center" v-if="!isNoShip">
-        <v-img :src="`./img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
+  <v-card class="ma-1" :class="{ disabled: !ship.isActive, 'py-2': !ship.isEmpty }" @dragover.prevent @drop.stop>
+    <template v-if="ship.isEmpty">
+      <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click="showShipList">
+        <div class="align-self-center">艦娘選択</div>
       </div>
-      <div class="flex-grow-1">
-        <div class="d-flex caption flex-wrap">
-          <v-menu
-            offset-y
-            v-model="levelMenu"
-            :close-on-content-click="false"
-            transition="slide-y-transition"
-            bottom
-            right
-            @input="onLevelMenuToggle"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                Lv:{{ ship.level }}
-              </div>
-            </template>
-            <v-card class="pa-3">
-              <div class="d-flex mt-1">
-                <v-btn class="mr-1 px-0" small outlined @click="level = 1">Lv1</v-btn>
-                <v-btn class="mr-1 px-0" small outlined @click="level = 50" color="primary">Lv50</v-btn>
-                <v-btn class="mr-1 px-0" small outlined @click="level = 80" color="teal">Lv80</v-btn>
-                <v-btn class="mr-1 px-0" small outlined @click="level = 99" color="teal">Lv99</v-btn>
-                <v-btn class="mr-1 px-0" small outlined @click="level = 145" color="red lighten-2">Lv145</v-btn>
-                <v-btn class="mr-1 px-0" small outlined @click="level = 175" color="red lighten-2">Lv175</v-btn>
-              </div>
-              <div class="d-flex mt-4 pl-2">
-                <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
-                <div class="menu-slider-text">
-                  <v-text-field v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
-                </div>
-              </div>
-            </v-card>
-          </v-menu>
-          <div class="d-flex mr-2">
+    </template>
+    <template v-else>
+      <div class="d-flex ship-header px-2">
+        <div class="align-self-center" v-if="!isNoShip">
+          <v-img :src="`./img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
+        </div>
+        <div class="flex-grow-1">
+          <div class="d-flex caption flex-wrap">
             <v-menu
               offset-y
-              v-model="luckMenu"
+              v-model="levelMenu"
               :close-on-content-click="false"
               transition="slide-y-transition"
               bottom
               right
-              @input="onLuckMenuToggle"
+              @input="onLevelMenuToggle"
             >
               <template v-slot:activator="{ on, attrs }">
-                <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                  <span class="text--secondary">運:</span>
-                  <span class="pl-1 font-weight-medium">{{ ship.luck }}</span>
+                <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+                  Lv:{{ ship.level }}
                 </div>
               </template>
-              <v-card class="pa-5">
+              <v-card class="pa-3">
                 <div class="d-flex mt-1">
-                  <v-btn class="mx-2" @click="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
-                  <v-btn class="mx-2" @click="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 1">Lv1</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 50" color="primary">Lv50</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 80" color="teal">Lv80</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 99" color="teal">Lv99</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 145" color="red lighten-2">Lv145</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click="level = 175" color="red lighten-2">Lv175</v-btn>
                 </div>
-                <v-text-field
-                  v-model.number="luck"
-                  :max="isNoShip ? 100 : ship.data.maxLuck"
-                  :min="ship.data.luck"
-                  hide-details
-                  type="number"
-                ></v-text-field>
+                <div class="d-flex mt-4 pl-2">
+                  <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
+                  <div class="menu-slider-text">
+                    <v-text-field v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
+                  </div>
+                </div>
               </v-card>
             </v-menu>
-            <v-menu
-              offset-y
-              v-model="antiAirMenu"
-              :close-on-content-click="false"
-              transition="slide-y-transition"
-              bottom
-              right
-              @input="onAAMenuToggle"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                  <span class="text--secondary">対空:</span>
-                  <span class="pl-1 font-weight-medium">{{ ship.antiAir }}</span>
-                </div>
-              </template>
-              <v-card class="pa-5">
-                <div class="d-flex mt-1">
-                  <v-btn class="mx-2" @click="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
-                  <v-btn class="mx-2" @click="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
-                </div>
-                <v-text-field
-                  v-model.number="antiAir"
-                  :max="isNoShip ? 200 : ship.data.antiAir"
-                  min="0"
-                  hide-details
-                  type="number"
-                ></v-text-field>
-              </v-card>
-            </v-menu>
+            <div class="d-flex mr-2">
+              <v-menu
+                offset-y
+                v-model="luckMenu"
+                :close-on-content-click="false"
+                transition="slide-y-transition"
+                bottom
+                right
+                @input="onLuckMenuToggle"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+                    <span class="text--secondary">運:</span>
+                    <span class="pl-1 font-weight-medium">{{ ship.luck }}</span>
+                  </div>
+                </template>
+                <v-card class="pa-5">
+                  <div class="d-flex mt-1">
+                    <v-btn class="mx-2" @click="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
+                    <v-btn class="mx-2" @click="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
+                  </div>
+                  <v-text-field
+                    v-model.number="luck"
+                    :max="isNoShip ? 100 : ship.data.maxLuck"
+                    :min="ship.data.luck"
+                    hide-details
+                    type="number"
+                  ></v-text-field>
+                </v-card>
+              </v-menu>
+              <v-menu
+                offset-y
+                v-model="antiAirMenu"
+                :close-on-content-click="false"
+                transition="slide-y-transition"
+                bottom
+                right
+                @input="onAAMenuToggle"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+                    <span class="text--secondary">対空:</span>
+                    <span class="pl-1 font-weight-medium">{{ ship.antiAir }}</span>
+                  </div>
+                </template>
+                <v-card class="pa-5">
+                  <div class="d-flex mt-1">
+                    <v-btn class="mx-2" @click="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
+                    <v-btn class="mx-2" @click="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
+                  </div>
+                  <v-text-field
+                    v-model.number="antiAir"
+                    :max="isNoShip ? 200 : ship.data.antiAir"
+                    min="0"
+                    hide-details
+                    type="number"
+                  ></v-text-field>
+                </v-card>
+              </v-menu>
+            </div>
+          </div>
+          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click="showShipList">
+            <div class="ship-name text-truncate">{{ ship.data.name ? ship.data.name : "艦娘選択" }}</div>
           </div>
         </div>
-        <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click="showShipList">
-          <div class="ship-name text-truncate">{{ ship.data.name ? ship.data.name : "艦娘選択" }}</div>
-        </div>
-      </div>
-      <!-- 艦娘解除 -->
-      <div class="ship-remove pr-1">
-        <v-btn icon @click="removeShip()">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </div>
-    </div>
-    <div class="caption pl-3">
-      <span class="text--secondary">割合撃墜:</span>
-      <span class="ml-1 mr-2 font-weight-medium">{{ rateDownValue }}%</span>
-      <span class="ml-1 text--secondary">固定撃墜:</span>
-      <span class="ml-1 font-weight-medium">{{ fixDown }}機</span>
-    </div>
-    <div class="d-flex caption pr-1 pl-3">
-      <div class="align-self-center">
-        <span class="text--secondary">制空:</span>
-        <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
-        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
-      </div>
-      <v-spacer></v-spacer>
-      <div class="align-self-center d-flex">
-        <v-btn icon small v-show="ship.isActive" @click="changeActive(false)">
-          <v-icon small>mdi-eye</v-icon>
-        </v-btn>
-        <v-btn icon small v-show="!ship.isActive" @click="changeActive(true)">
-          <v-icon small>mdi-eye-off</v-icon>
-        </v-btn>
-        <div class="btn-item-reset">
-          <v-btn icon small color="blue" @click="resetItems()">
-            <v-icon small color="grey">mdi-close</v-icon>
+        <!-- 艦娘解除 -->
+        <div class="ship-remove pr-1">
+          <v-btn icon @click="removeShip()">
+            <v-icon>mdi-close</v-icon>
           </v-btn>
-          <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
         </div>
       </div>
-    </div>
-    <v-divider class="mx-2"></v-divider>
-    <!-- 装備一覧 -->
-    <div class="px-2">
-      <item-input
-        v-for="(item, j) in ship.items"
-        :key="j"
-        v-model="ship.items[j]"
-        :index="j"
-        :max="99"
-        :dragSlot="false"
-        :init="ship.data.slots[j]"
-        :handle-show-item-list="showItemList"
-        :item-parent="ship"
-        @input="updateItem"
-      />
-      <!-- 補強増設枠 -->
-      <item-input
-        v-model="ship.exItem"
-        :index="99"
-        :max="0"
-        :init="0"
-        :dragSlot="false"
-        :handle-show-item-list="showItemList"
-        :item-parent="ship"
-        @input="updateItem"
-      />
-    </div>
+      <div class="caption pl-3">
+        <span class="text--secondary">割合撃墜:</span>
+        <span class="ml-1 mr-2 font-weight-medium">{{ rateDownValue }}%</span>
+        <span class="ml-1 text--secondary">固定撃墜:</span>
+        <span class="ml-1 font-weight-medium">{{ fixDown }}機</span>
+      </div>
+      <div class="d-flex caption pr-1 pl-3">
+        <div class="align-self-center">
+          <span class="text--secondary">制空:</span>
+          <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
+          <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
+        </div>
+        <v-spacer></v-spacer>
+        <div class="align-self-center d-flex">
+          <v-btn icon small v-show="ship.isActive" @click="changeActive(false)">
+            <v-icon small>mdi-eye</v-icon>
+          </v-btn>
+          <v-btn icon small v-show="!ship.isActive" @click="changeActive(true)">
+            <v-icon small>mdi-eye-off</v-icon>
+          </v-btn>
+          <div class="btn-item-reset">
+            <v-btn icon small color="blue" @click="resetItems()">
+              <v-icon small color="grey">mdi-close</v-icon>
+            </v-btn>
+            <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
+          </div>
+        </div>
+      </div>
+      <v-divider class="mx-2"></v-divider>
+      <!-- 装備一覧 -->
+      <div class="px-2" v-if="!ship.isEmpty">
+        <item-input
+          v-for="(item, j) in ship.items"
+          :key="j"
+          v-model="ship.items[j]"
+          :index="j"
+          :max="99"
+          :dragSlot="false"
+          :init="ship.data.slots[j]"
+          :handle-show-item-list="showItemList"
+          :item-parent="ship"
+          @input="updateItem"
+        />
+        <!-- 補強増設枠 -->
+        <item-input
+          v-model="ship.exItem"
+          :index="99"
+          :max="0"
+          :init="0"
+          :dragSlot="false"
+          :handle-show-item-list="showItemList"
+          :item-parent="ship"
+          @input="updateItem"
+        />
+      </div>
+    </template>
   </v-card>
 </template>
 
 <style scoped>
 .disabled {
   opacity: 0.5;
+}
+
+.empty-ship {
+  height: 100%;
+  min-height: 220px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.8;
+  font-size: 12px;
+  transition: 0.3s;
+}
+.empty-ship:hover {
+  opacity: 1;
+  box-shadow: inset 0 0 12px rgba(0, 168, 255, 0.4);
 }
 
 .ship-header {

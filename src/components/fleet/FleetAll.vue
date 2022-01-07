@@ -137,11 +137,6 @@ export default Vue.extend({
       const index = this.shipDialogTarget[1];
       const fleet = this.fleetInfo.fleets[fleetIndex];
 
-      if (index === fleet.ships.length) {
-        // 新規作成時
-        fleet.ships.push(new Ship());
-      }
-
       // もともとここに配備されていた艦娘の装備情報を抜き取る
       const oldShip = fleet.ships[index];
       const oldItems: Item[] = oldShip.items.concat();

@@ -324,11 +324,11 @@ export default Vue.extend({
           for (let j = 0; j < planes.length; j += 1) {
             const plane = planes[j];
             if (plane.isAttacker) {
-              allDeathRate *= plane.deathRate;
+              allDeathRate *= (plane.deathRate / 100);
               plane.deathRate = Math.round(plane.deathRate);
             }
           }
-          enemies.push({ enemy: enemy.data, items: planes, allDeathRate: Math.floor(allDeathRate / 100) });
+          enemies.push({ enemy: enemy.data, items: planes, allDeathRate: Math.floor(100 * allDeathRate) });
         }
       }
       return enemies;
