@@ -1,7 +1,6 @@
 <template>
   <v-card class="my-2 px-1 py-2">
     <div class="pa-2">計算結果</div>
-    <v-divider></v-divider>
     <v-divider class="mb-3"></v-divider>
     <div class="px-1">
       <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
@@ -25,15 +24,15 @@
                 </div>
                 <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
               </td>
-              <td v-for="k in battleCount" :key="k" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
-              <td>{{ item.slotResult }}</td>
+              <td v-for="k in battleCount" :key="k" class="pr-md-1" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
+              <td class="pr-md-1">{{ item.slotResult }}</td>
               <td class="pr-1">{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
             </tr>
           </template>
           <tr>
             <td class="text-center" rowspan="2">制空値(平均)</td>
             <td class="text-center">自艦隊</td>
-            <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
+            <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
             <td class="text-center header-td" colspan="2">
               <div class="d-flex justify-center">
                 <div>
@@ -45,7 +44,7 @@
           </tr>
           <tr>
             <td class="text-center">敵艦隊</td>
-            <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">{{ result.avgEnemyAirPower }}</td>
+            <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgEnemyAirPower }}</td>
             <td class="text-center" colspan="2" rowspan="2">{{ calcBauxite }}</td>
           </tr>
           <tr class="tr-status">
@@ -57,12 +56,12 @@
         </tbody>
       </table>
     </div>
-    <v-divider class="mb-5 mx-1"></v-divider>
+    <v-divider class="mb-2 mx-1"></v-divider>
     <v-tabs v-model="tab" class="px-2">
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)"> {{ i + 1 }}戦目 </v-tab>
     </v-tabs>
     <v-divider></v-divider>
-    <v-card class="ma-2 py-3 pr-4 pl-2">
+    <v-card class="ma-3 py-3 pr-4 pl-2">
       <div class="d-flex mt-1">
         <div class="bar-label"></div>
         <div class="flex-grow-1 d-flex">
@@ -87,17 +86,11 @@
           </div>
         </div>
       </div>
-      <div v-for="(ab, i) in airbases" :key="i">
+      <div v-for="(ab, i) in airbaseWaveResults" :key="i">
         <div class="d-flex">
-          <div class="bar-label">基地{{ i + 1 }} 1波目</div>
+          <div class="bar-label">{{ ab.text }}</div>
           <div class="align-self-center flex-grow-1">
-            <air-status-result-bar :result="ab.resultWave1" :no-label="true"></air-status-result-bar>
-          </div>
-        </div>
-        <div class="d-flex mb-2">
-          <div class="bar-label">基地{{ i + 1 }} 2波目</div>
-          <div class="align-self-center flex-grow-1">
-            <air-status-result-bar :result="ab.resultWave2" :no-label="true"></air-status-result-bar>
+            <air-status-result-bar :result="ab.result" :no-label="true"></air-status-result-bar>
           </div>
         </div>
       </div>
@@ -108,8 +101,46 @@
         </div>
       </div>
     </v-card>
-    <div>
-      <div>敵機残数</div>
+    <v-card class="ma-3 py-3 pr-4 pl-2">
+      <div class="body-2 px-2">各フェーズ制空状態の確率</div>
+      <table>
+        <thead>
+          <tr>
+            <th width="100px"></th>
+            <th width="10%">制空値</th>
+            <th>敵制空値( 確保 / 優勢 / 拮抗 / 劣勢)</th>
+            <th class="pr-sm-1" width="10%">確保</th>
+            <th class="pr-sm-1" width="10%">優勢</th>
+            <th class="pr-sm-1" width="10%">拮抗</th>
+            <th class="pr-sm-1" width="10%">劣勢</th>
+            <th class="pr-sm-1" width="10%">喪失</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(ab, i) in airbaseWaveResults" :key="`${i}`">
+            <td>{{ ab.text }}</td>
+            <td>{{ ab.result.avgAirPower }}</td>
+            <td>{{ airPowerBorders(ab.result.avgEnemyAirPower) }}</td>
+            <td v-for="(rate, j) in ab.result.rates" :key="`${i}-${j}`" class="pr-sm-1">
+              <span v-if="rate">{{ rate }} %</span>
+              <span v-else-if="j < 5">-</span>
+            </td>
+          </tr>
+          <tr>
+            <td>本隊</td>
+            <td>{{ fleet.mainResult.avgAirPower }}</td>
+            <td>{{ airPowerBorders(fleet.mainResult.avgEnemyAirPower) }}</td>
+            <td v-for="(rate, i) in fleet.mainResult.rates" :key="i" class="pr-sm-1">
+              <span v-if="rate">{{ rate }} %</span>
+              <span v-else-if="i < 5">-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <v-divider></v-divider>
+    </v-card>
+    <v-card class="ma-3 py-3 pr-4 pl-2">
+      <div class="body-2 px-2">敵機残数</div>
       <table>
         <thead>
           <tr>
@@ -142,7 +173,7 @@
         </tbody>
       </table>
       <v-divider></v-divider>
-    </div>
+    </v-card>
   </v-card>
 </template>
 
@@ -267,9 +298,9 @@ import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Fleet from '@/classes/fleet/fleet';
 import AirCalcResult from '@/classes/airCalcResult';
 import Item from '@/classes/item/item';
-import Airbase from '@/classes/airbase/airbase';
 import { AB_MODE } from '@/classes/const';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
+import CommonCalc from '@/classes/commonCalc';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -289,13 +320,24 @@ export default Vue.extend({
     displayBattle: 0,
   }),
   computed: {
-    airbases(): Airbase[] {
-      return this.value.airbaseInfo.airbases.filter((v) => {
-        if (v.mode !== AB_MODE.BATTLE) {
-          return false;
+    airbaseWaveResults(): { text: string; result: AirCalcResult }[] {
+      const results: { text: string; result: AirCalcResult }[] = [];
+      for (let i = 0; i < this.value.airbaseInfo.airbases.length; i += 1) {
+        const airbase = this.value.airbaseInfo.airbases[i];
+
+        if (airbase.mode !== AB_MODE.BATTLE) {
+          continue;
         }
-        return v.battleTarget[0] === this.displayBattle || v.battleTarget[1] === this.displayBattle;
-      });
+
+        if (airbase.battleTarget[0] === this.displayBattle) {
+          results.push({ text: `基地${i + 1} 1波目`, result: airbase.resultWave1 });
+        }
+        if (airbase.battleTarget[1] === this.displayBattle) {
+          results.push({ text: `基地${i + 1} 2波目`, result: airbase.resultWave2 });
+        }
+      }
+
+      return results;
     },
     fleet(): Fleet {
       return this.value.fleetInfo.mainFleet;
@@ -324,7 +366,7 @@ export default Vue.extend({
           for (let j = 0; j < planes.length; j += 1) {
             const plane = planes[j];
             if (plane.isAttacker) {
-              allDeathRate *= (plane.deathRate / 100);
+              allDeathRate *= plane.deathRate / 100;
               plane.deathRate = Math.round(plane.deathRate);
             }
           }
@@ -344,6 +386,10 @@ export default Vue.extend({
     },
     calcBauxite(): string {
       return (5 * this.value.fleetInfo.mainFleet.mainResult.avgDownSlot).toFixed();
+    },
+    airPowerBorders: () => (airPower: number) => {
+      CommonCalc.getAirStatusBorder(airPower).join(' / ');
+      return `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`;
     },
   },
   methods: {

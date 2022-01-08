@@ -127,6 +127,9 @@ export default class Item {
     this.isRocket = Const.ROCKET.includes(this.data.id);
     this.isShinzan = this.data.apiTypeId === 53;
     this.isJet = this.data.apiTypeId === 57;
+    if (!this.data.isSpecial) {
+      this.data.isSpecial = this.isRocket;
+    }
 
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();

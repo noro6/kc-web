@@ -54,7 +54,7 @@
             <div>
               <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
             </div>
-            <div class="item-name text-truncate">
+            <div class="item-name text-truncate" :class="{ 'is-special': item.isSpecial }">
               {{ item.name }}
             </div>
             <div class="item-remodel caption">
@@ -147,6 +147,12 @@
   margin-left: 0.1rem;
   overflow: hidden;
   white-space: nowrap;
+}
+.is-special {
+  color: #388e3c;
+}
+.theme--dark .is-special {
+  color: #66BB6A;
 }
 .item-remodel {
   width: 32px;

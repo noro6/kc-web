@@ -2,8 +2,11 @@ import EnemyMaster from './enemyMaster';
 import Item, { ItemBuilder } from '../item/item';
 import ItemMaster from '../item/itemMaster';
 import { SHIP_TYPE } from '../const';
+import { ShipBase } from '../interfaces/shipBase';
+import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
+import ShootDownInfo from '../aerialCombat/shootDownInfo';
 
-export default class Enemy {
+export default class Enemy implements ShipBase {
   /** 敵マスタ情報 */
   public readonly data: EnemyMaster;
 
@@ -40,6 +43,27 @@ export default class Enemy {
   /** 潜水艦かどうか */
   public readonly isSubmarine: boolean;
 
+  /** 発動可能対空CI */
+  public readonly antiAirCutIn: AntiAirCutIn[];
+
+  /** 特殊高角砲所持数 */
+  public readonly specialKokakuCount: number;
+
+  /** 高角砲所持数 */
+  public readonly kokakuCount: number;
+
+  /** 特殊機銃所持数 */
+  public readonly specialKijuCount: number;
+
+  /** 機銃所持数 */
+  public readonly kijuCount: number;
+
+  /** 対空電探所持数 */
+  public readonly antiAirRadarCount: number;
+
+  /** 高射装置所持数 */
+  public readonly koshaCount: number
+
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
     this.items = items;
@@ -54,15 +78,24 @@ export default class Enemy {
     this.hasPlane = false;
     this.antiAir = this.data.antiAir;
 
+    this.specialKokakuCount = 0;
+    this.kokakuCount = 0;
+    this.kijuCount = 0;
+    this.specialKijuCount = 0;
+    this.antiAirRadarCount = 0;
+    this.koshaCount = 0;
+
     // 計算により算出するステータス
-    for (let i = 0; i < this.items.length; i += 1) {
-      const item = this.items[i];
+    const allItems = this.items.concat(this.exItem);
+    for (let i = 0; i < allItems.length; i += 1) {
+      const item = allItems[i];
       // 装備命中
       this.sumItemAccuracy += item.data.accuracy;
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
       // 装備装甲値加算
       this.actualArmor += item.data.armor;
+
       if (item.fullSlot > 0) {
         // 基地制空値
         this.fullLBAirPower += item.fullAirPower;
@@ -75,9 +108,37 @@ export default class Enemy {
       if (!this.hasPlane && item.isPlane) {
         this.hasPlane = true;
       }
+
+      // 高角砲カウント
+      if (item.data.iconTypeId === 16 && !item.data.isSpecial) {
+        this.kokakuCount += 1;
+      }
+      // 特殊高角砲カウント
+      if (item.data.iconTypeId === 16 && item.data.isSpecial) {
+        this.specialKokakuCount += 1;
+      }
+      // 機銃カウント
+      if (item.data.apiTypeId === 21 && !item.data.isSpecial) {
+        this.kijuCount += 1;
+      }
+      // 特殊機銃カウント
+      if (item.data.apiTypeId === 21 && item.data.isSpecial) {
+        this.specialKijuCount += 1;
+      }
+      // 対空電探カウント
+      if (item.data.iconTypeId === 11 && item.data.antiAir > 0) {
+        this.antiAirRadarCount += 1;
+      }
+      // 高射装置カウント
+      if (item.data.apiTypeId === 36) {
+        this.koshaCount += 1;
+      }
     }
     this.isSubmarine = this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV;
     this.antiAirBonus = Math.floor(this.antiAirBonus);
+
+    // 発動可能対空CI取得
+    this.antiAirCutIn = ShootDownInfo.getAntiAirCutIn(this);
   }
 
   /**

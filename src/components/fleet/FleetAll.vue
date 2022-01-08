@@ -42,6 +42,8 @@
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
           :fleet-scouts="fleetScouts[i]"
+          :union-fleet="fleetInfo.unionFleet"
+          :is-union="fleetInfo.isUnion"
           @input="changedInfo"
         ></fleet-component>
       </v-tab-item>
@@ -142,6 +144,11 @@ export default Vue.extend({
       const oldItems: Item[] = oldShip.items.concat();
       const newItems: Item[] = [];
 
+      // 元々が空の艦で、艦娘数と配置番号が一致している場合、自動で空の艦娘を追加するが6隻まで
+      if (oldShip.isEmpty && index === fleet.ships.length - 1 && fleet.ships.length < 6) {
+        fleet.ships.push(new Ship());
+      }
+
       for (let slotIndex = 0; slotIndex < ship.slotCount; slotIndex += 1) {
         const slot = ship.slots[slotIndex] > 0 ? ship.slots[slotIndex] : 0;
         if (slotIndex < oldItems.length) {
@@ -197,23 +204,21 @@ export default Vue.extend({
 
       if (slotIndex < items.length) {
         // 装備を置き換え
-        items[slotIndex] = new Item({ item: items[slotIndex], master: selectedItem });
+        items[slotIndex] = new Item({ item: items[slotIndex], remodel: 0, master: selectedItem });
         // 装備を変更した艦娘インスタンス再生成
         newShip = new Ship({ ship, items });
       } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
         // 補強増設を変更した艦娘インスタンス再生成
-        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master: selectedItem }) };
+        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, remodel: 0, master: selectedItem }) };
         newShip = new Ship(builder);
       } else {
         // 搭載失敗
-        console.log('搭載に失敗 装備スロットインデックス不正', slotIndex);
         return;
       }
 
       if (shipIndex < fleet.ships.length) {
         fleet.ships[shipIndex] = newShip;
       } else {
-        console.log('搭載に失敗 艦娘インデックス不正', shipIndex);
         return;
       }
 

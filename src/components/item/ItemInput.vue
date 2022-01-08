@@ -55,7 +55,12 @@
           <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
         </div>
         <!-- 装備名称 -->
-        <div class="item-name text-truncate" :class="{ 'secondary--text': isNoItem }" @click.stop="showItemList()" v-on="{ ...tooltip }">
+        <div
+          class="item-name text-truncate"
+          :class="{ 'secondary--text': isNoItem, 'is-special': item.data.isSpecial }"
+          @click.stop="showItemList()"
+          v-on="{ ...tooltip }"
+        >
           {{ isNoItem ? "未装備" : item.data.name }}
         </div>
         <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
@@ -204,6 +209,13 @@
   font-size: 0.9em;
   line-height: 25px;
 }
+.is-special {
+  color: #388e3c;
+}
+.theme--dark .is-special {
+  color: #66BB6A;
+}
+
 .item-remodel {
   width: 38px;
   transition: 0.3s ease-out;

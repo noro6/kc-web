@@ -45,6 +45,8 @@ export default class ItemMaster {
 
   public grow = 0;
 
+  public isSpecial = false;
+
   /**
    * Creates an instance of ItemMaster.
    * API取得rowよりクラスにマッピング
@@ -75,5 +77,8 @@ export default class ItemMaster {
     this.avoidId = row[20] ? +row[20] : 0;
     this.range2 = row[21] ? +row[21] : 0;
     this.grow = row[22] ? +row[22] : 0;
+
+    // 特殊機銃 特殊高角砲判定
+    this.isSpecial = (this.apiTypeId === 21 && this.antiAir > 8) || (this.iconTypeId === 16 && this.antiAir > 7);
   }
 }

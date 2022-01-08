@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary> </v-navigation-drawer>
+    <v-navigation-drawer v-model="drawer" app temporary dark> </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-btn class="header-btn" depressed><v-icon small>mdi-content-save</v-icon>編成保存</v-btn>
@@ -26,15 +26,19 @@
       <v-btn class="header-btn" depressed @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
       <v-btn class="header-btn" depressed @click="$route.path !== '/aircalc' && $router.push('aircalc')">制空計算</v-btn>
       <v-btn class="header-btn" depressed @click="$route.path !== '/manager' && $router.push('manager')">所持管理</v-btn>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on" @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
-        </template>
-        <span>設定</span>
-      </v-tooltip>
+      <v-btn icon @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <router-view />
+      <div class="info-area">
+        <v-divider class="mb-2"></v-divider>
+        <div class="caption">
+          著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
+        </div>
+        <div class="caption">
+          また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。
+        </div>
+      </div>
     </v-main>
     <v-footer app dark class="d-flex justify-center">
       <span class="d-md-none text-caption">
@@ -208,6 +212,11 @@ export default Vue.extend({
 #multipurpose-textarea textarea {
   font-size: 0.8em;
   overflow: hidden !important;
+}
+
+.info-area {
+  margin: 2rem auto 0.5rem auto;
+  max-width: 1200px;
 }
 
 /** アイコン毎の背景色 */

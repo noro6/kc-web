@@ -5,6 +5,10 @@ export default class EnemyMaster {
 
   public type = 0;
 
+  public type2 = 0;
+
+  public version = 0;
+
   public hp = 0;
 
   public antiAir = 0;

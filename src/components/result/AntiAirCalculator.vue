@@ -72,7 +72,7 @@
       v-for="(item, i) in stage2Data"
       :key="i"
       class="stage2-row px-1 px-md-2"
-      :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum > attackerSlot }"
+      :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
     >
       <div class="d-flex flex-grow-1">
         <div class="align-self-center mr-2">
@@ -206,22 +206,13 @@ export default Vue.extend({
     },
     antiAirItems(): { text: string; value: number }[] {
       const items = [{ text: '不発', value: 0 }];
-      if (this.fleet instanceof Fleet) {
-        // 使えるCIだけ
-        const cutIns = this.fleet.allAntiAirCutIn;
-        for (let i = 0; i < cutIns.length; i += 1) {
-          const { id } = cutIns[i];
-          const cutin = Const.ANTIAIR_CUTIN.find((v) => v.id === id);
-          if (cutin && !items.some((v) => v.value === id)) {
-            items.push({ text: cutin.text, value: cutin.id });
-          }
-        }
-      } else {
-        for (let i = 0; i < Const.ANTIAIR_CUTIN.length; i += 1) {
-          const cutin = Const.ANTIAIR_CUTIN[i];
-          if (!items.some((v) => v.value === cutin.id)) {
-            items.push({ text: cutin.text, value: cutin.id });
-          }
+      // 使えるCIだけ
+      const cutIns = this.fleet.allAntiAirCutIn;
+      for (let i = 0; i < cutIns.length; i += 1) {
+        const { id } = cutIns[i];
+        const cutin = Const.ANTIAIR_CUTIN.find((v) => v.id === id);
+        if (cutin && !items.some((v) => v.value === id)) {
+          items.push({ text: cutin.text, value: cutin.id });
         }
       }
       return items;
@@ -280,7 +271,7 @@ export default Vue.extend({
         this.stage2Data.push({
           id: ship instanceof Enemy ? ship.data.id : ship.data.albumId,
           name: ship.data.name,
-          rate: `${(100 * rate).toFixed(1)}%`,
+          rate: `${(100 * rate).toFixed(2)}%`,
           rateDown,
           fix,
           min,

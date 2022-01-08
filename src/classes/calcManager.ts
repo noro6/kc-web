@@ -31,7 +31,7 @@ export default class CalcManager {
 
   public async updateInfo(): Promise<void> {
     this.isDefense = this.airbaseInfo.isDefense;
-    console.time('calculated');
+    console.time('mainCalculated');
 
     if (this.isDefense) {
       // 防空モード計算 & 結果格納
@@ -40,7 +40,7 @@ export default class CalcManager {
       // 通常モード計算
       this.calculate();
     }
-    console.timeEnd('calculated');
+    console.timeEnd('mainCalculated');
   }
 
   private calculate(): void {

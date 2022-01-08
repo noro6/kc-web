@@ -10,8 +10,11 @@
       </div>
       <v-divider></v-divider>
       <div class="d-flex mt-6 px-4">
-        <div class="flex-grow-1">
-          <v-select dense v-model="area" hide-details :items="areaItems" @change="worldChanged" label="海域"></v-select>
+        <div class="world-select">
+          <v-select dense v-model="world" hide-details :items="worlds" @change="worldChanged" label="海域"></v-select>
+        </div>
+        <div class="world-select">
+          <v-select dense v-model="area" hide-details :items="areas" @change="worldChanged" label="マップ"></v-select>
         </div>
         <div v-show="isEvent">
           <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" label="難易度"></v-select>
@@ -146,6 +149,9 @@
 </template>
 
 <style scoped>
+.world-select {
+  max-width: 35%;
+}
 .map-img-area {
   user-select: none;
 }
@@ -212,6 +218,7 @@
   position: absolute;
   opacity: 0.6;
   font-size: 12px;
+  font-weight: 600;
   bottom: -5px;
   left: 28px;
 }
@@ -247,8 +254,10 @@ export default Vue.extend({
     tab: 'fleet0',
     formations: Const.FORMATIONS,
     allCells: [] as CellMaster[],
+    worlds: Const.WORLDS,
+    world: 1,
+    areas: Const.MAPS,
     area: 11,
-    areaItems: [] as unknown,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
@@ -269,28 +278,6 @@ export default Vue.extend({
     for (let i = 0; i < cells.length; i += 1) {
       this.allCells.push(cells[i]);
     }
-
-    // 海域セレクトボックス初期化
-    const items = [];
-    const worlds = Const.WORLDS;
-    for (let i = 0; i < worlds.length; i += 1) {
-      const world = worlds[i];
-      const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
-      if (!maps.length) {
-        continue;
-      }
-      if (i > 0) {
-        items.push({ divider: true });
-      }
-
-      items.push({ header: world.text });
-      for (let j = 0; j < maps.length; j += 1) {
-        const map = maps[j];
-        const worldText = world.value > 40 ? 'E' : `${world.value}`;
-        items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
-      }
-    }
-    this.areaItems = items;
     this.worldChanged();
   },
   computed: {
@@ -304,6 +291,11 @@ export default Vue.extend({
   methods: {
     worldChanged() {
       const lv = this.rawLevel;
+      this.areas = Const.MAPS.filter((v) => Math.floor(v.value / 10) === this.world);
+      if (!this.areas.some((v) => v.value === this.area)) {
+        this.area = this.areas[0] ? this.areas[0].value : 0;
+      }
+
       const cells = this.allCells.filter((v) => v.area === this.area && (this.isEvent ? v.level === lv : true));
       const array: CellMaster[] = [];
       const cellItems: { text: string; value: number }[] = [];

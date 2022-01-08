@@ -74,10 +74,8 @@ export default class Fleet {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
 
       if (this.ships.length === 0) {
-        // 0隻だった場合は空の艦娘を2隻つっこむ
-        for (let i = 0; i < 2; i += 1) {
-          this.ships.push(new Ship());
-        }
+        // 0隻だった場合は空の艦娘を1隻つっこむ
+        this.ships.push(new Ship());
       }
     }
 
@@ -129,6 +127,7 @@ export default class Fleet {
 
     this.airPower = this.fullAirPower;
 
+    // 対空砲火情報を更新
     // 特殊CIソート => (性能順, 38種以降)
     specialCutin.sort((a, b) => (a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorrA - a.fixCorrA));
     // 通常CIソート => (種別の降順)
@@ -169,15 +168,14 @@ export default class Fleet {
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
 
-    // 艦隊防空 => int(陣形補正 * 各艦の艦隊対空ボーナス合計)
-    const fleetAntiAir = Math.floor(sumAntiAirBonus * (formation ? formation.correction : 1));
+    // 艦隊防空 => int(陣形補正 * 各艦の艦隊対空ボーナス合計) / ブラウザ版(1.3)
+    const fleetAntiAir = Math.floor(sumAntiAirBonus * (formation ? formation.correction : 1)) / 1.3;
 
     if (avoid && avoid.c2 !== 1.0) {
       // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
-      return Math.floor(fleetAntiAir * avoid.c2);
+      return 2 * Math.floor(fleetAntiAir * avoid.c2);
     }
-
-    // 最終艦隊防空補正 / ブラウザ版(1.3)
-    return 2 * (fleetAntiAir / 1.3);
+    // 最終艦隊防空補正 ブラウザ版式表示値
+    return 2 * fleetAntiAir;
   }
 }

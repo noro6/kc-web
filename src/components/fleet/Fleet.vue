@@ -63,10 +63,10 @@
         @input="updateShip"
       ></ship-input>
     </div>
-    <air-status-result-bar :result="fleet.mainResult" class="mt-3" />
+    <air-status-result-bar :result="(isUnion ? unionFleet : fleet).mainResult" class="mt-3" />
     <v-dialog v-model="antiAirViewDialog" transition="scroll-x-transition" width="1200">
       <v-card class="pa-4">
-        <anti-air-calculator :fleet="value" ref="antiAirCalculator" />
+        <anti-air-calculator :fleet="isUnion ? unionFleet : value" ref="antiAirCalculator" />
       </v-card>
     </v-dialog>
   </div>
@@ -158,6 +158,13 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    unionFleet: {
+      type: Fleet,
+    },
+    isUnion: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     formations: Const.FORMATIONS,
@@ -233,7 +240,9 @@ export default Vue.extend({
     },
     async showAntiAirViewDialog() {
       await (this.antiAirViewDialog = true);
-      (this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>).updateTable();
+      const dialog = this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>;
+      dialog.cutInId = 0;
+      dialog.updateTable();
     },
   },
 });
