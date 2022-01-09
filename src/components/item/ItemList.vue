@@ -1,76 +1,68 @@
 <template>
-  <div class="item-list">
-    <v-card>
-      <div class="d-flex px-5 pt-2">
-        <div class="align-self-center">
-          <v-text-field
-            label="図鑑No 名称検索"
-            clearable
-            v-model="keyword"
-            @input="filter()"
-            prepend-inner-icon="mdi-magnify"
-          ></v-text-field>
-        </div>
-        <div class="ml-5 align-self-center">
-          <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
-        </div>
-        <v-spacer></v-spacer>
-        <div class="align-self-center d-none d-md-block">
-          <v-btn depressed :class="{ info: !multiLine }" @click="multiLine = false">
-            <v-icon>mdi-view-headline</v-icon>
-            <span>一列</span>
-          </v-btn>
-          <v-btn depressed class="ml-2" :class="{ info: multiLine }" @click="multiLine = true">
-            <v-icon>mdi-view-comfy</v-icon>
-            <span>複数列</span>
-          </v-btn>
-        </div>
+  <v-card>
+    <div class="d-flex px-5 pt-2">
+      <div class="align-self-center">
+        <v-text-field label="図鑑No 名称検索" clearable v-model="keyword" @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
       </div>
-      <div class="d-flex flex-wrap mx-3">
-        <div
-          v-if="displayAllType"
-          class="type-selector d-flex"
-          :class="{ active: type === 0, disabled: keyword }"
-          v-ripple="{ class: 'info--text' }"
-          @click="changeType(0)"
-        >
-          <div class="type-all-text">ALL</div>
-        </div>
-        <div
-          v-for="i in enabledTypes"
-          :key="i.id"
-          v-ripple="{ class: 'info--text' }"
-          class="type-selector"
-          :class="{ active: type === i.id, disabled: keyword }"
-          @click="changeType(i.id)"
-        >
-          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
-        </div>
+      <div class="ml-5 align-self-center">
+        <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
       </div>
-      <v-divider class="mx-2"></v-divider>
-      <div id="item-table-body">
-        <div class="pa-3" :class="{ multi: multiLine }">
-          <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
-            <div>
-              <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
-            </div>
-            <div class="item-name text-truncate" :class="{ 'is-special': item.isSpecial }">
-              {{ item.name }}
-            </div>
-            <div class="item-remodel caption">
-              <v-icon small color="teal accent-4">mdi-star</v-icon>
-              <span class="teal--text text--accent-4">{{ i % 11 }}</span>
-            </div>
-            <div class="item-count red--text caption">
-              <span>&times;</span>
-              <span>{{ i % 20 }}</span>
-            </div>
+      <v-spacer></v-spacer>
+      <div class="align-self-center d-none d-md-block">
+        <v-btn depressed :class="{ info: !multiLine }" @click="multiLine = false">
+          <v-icon>mdi-view-headline</v-icon>
+          <span>一列</span>
+        </v-btn>
+        <v-btn depressed class="ml-2" :class="{ info: multiLine }" @click="multiLine = true">
+          <v-icon>mdi-view-comfy</v-icon>
+          <span>複数列</span>
+        </v-btn>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap mx-3">
+      <div
+        v-if="displayAllType"
+        class="type-selector d-flex"
+        :class="{ active: type === 0, disabled: keyword }"
+        v-ripple="{ class: 'info--text' }"
+        @click="changeType(0)"
+      >
+        <div class="type-all-text">ALL</div>
+      </div>
+      <div
+        v-for="i in enabledTypes"
+        :key="i.id"
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector"
+        :class="{ active: type === i.id, disabled: keyword }"
+        @click="changeType(i.id)"
+      >
+        <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
+      </div>
+    </div>
+    <v-divider class="mx-2"></v-divider>
+    <div id="item-table-body">
+      <div class="pa-3" :class="{ multi: multiLine }">
+        <div v-ripple="{ class: 'info--text' }" v-for="(item, i) in items" :key="i" class="list-item" @click="clickedItem(item)">
+          <div>
+            <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="24" width="24"></v-img>
+          </div>
+          <div class="item-name text-truncate" :class="{ 'is-special': item.isSpecial }">
+            {{ item.name }}
+          </div>
+          <div class="item-remodel caption">
+            <v-icon small color="teal accent-4">mdi-star</v-icon>
+            <span class="teal--text text--accent-4">{{ i % 11 }}</span>
+          </div>
+          <div class="item-count red--text caption">
+            <span>&times;</span>
+            <span>{{ i % 20 }}</span>
           </div>
         </div>
-        <div v-show="items.length === 0" class="caption text-center">搭載可能な装備が見つかりませんでした。</div>
       </div>
-    </v-card>
-  </div>
+      <div v-show="items.length === 0" class="caption text-center">搭載可能な装備が見つかりませんでした。</div>
+    </div>
+  </v-card>
 </template>
 
 <style scoped>
@@ -152,7 +144,7 @@
   color: #388e3c;
 }
 .theme--dark .is-special {
-  color: #66BB6A;
+  color: #66bb6a;
 }
 .item-remodel {
   width: 32px;

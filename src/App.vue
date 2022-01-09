@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary dark> </v-navigation-drawer>
+    <v-navigation-drawer v-model="drawer" app temporary dark :width="360">
+      <save-data-view />
+    </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-btn class="header-btn" depressed><v-icon small>mdi-content-save</v-icon>編成保存</v-btn>
@@ -112,9 +114,13 @@
 <script lang="ts">
 import Vue from 'vue';
 import Convert from '@/classes/convert';
+import SaveDataView from '@/components/saveData/SaveDataView.vue';
 
 export default Vue.extend({
   name: 'App',
+  components: {
+    SaveDataView,
+  },
   data: () => ({
     drawer: null,
     config: false,
