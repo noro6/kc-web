@@ -21,16 +21,20 @@ export default class CalcManager {
 
   public mainBattle: number;
 
+  public resetAll: boolean;
+
   constructor() {
     this.airbaseInfo = new AirbaseInfo();
     this.battleInfo = new BattleInfo();
     this.fleetInfo = new FleetInfo();
     this.isDefense = false;
     this.mainBattle = 0;
+    this.resetAll = false;
   }
 
   public async updateInfo(): Promise<void> {
     this.isDefense = this.airbaseInfo.isDefense;
+    this.mainBattle = this.mainBattle < 0 ? 0 : this.mainBattle;
     console.time('mainCalculated');
 
     if (this.isDefense) {
@@ -61,6 +65,7 @@ export default class CalcManager {
     const { fleetInfo } = calcInfo;
     let fleet = fleetInfo.fleets[calcInfo.fleetInfo.mainFleetIndex];
     if (fleetInfo.isUnion && fleetInfo.mainFleetIndex <= 1) {
+      // 連合艦隊にチェックが入っており、第1または第2艦隊が選択されている場合は連合艦隊をメイン計算艦隊にする
       fleet = fleetInfo.unionFleet as Fleet;
     }
     const fullAirPower = fleet.airPower;

@@ -56,6 +56,9 @@ export default class Item {
   /** 装備制空値(防空時) */
   public readonly defenseAirPower: number;
 
+  /** 触接選択率 [確保時, 優勢時, 劣勢時] */
+  public readonly contactSelectRates: number[];
+
   /** 輸送量 */
   public readonly tp: number;
 
@@ -140,6 +143,7 @@ export default class Item {
     this.tp = this.getTransportPower();
     this.reconCorr = this.getReconCorr();
     this.reconCorrDeff = this.getReconCorrDeff();
+    this.contactSelectRates = this.getContancSelectRates();
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.actualScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
@@ -490,5 +494,56 @@ export default class Item {
       return 1.1;
     }
     return 1;
+  }
+
+  /**
+   * 触接選択率を返却
+   * @private
+   * @returns {number[]}
+   * @memberof Item
+   */
+  private getContancSelectRates(): number[] {
+    if ([8, 9, 10, 41, 49].includes(this.data.apiTypeId)) {
+      const { remodel } = this;
+      let { scout } = this.data;
+      switch (this.data.id) {
+        case 102:
+          // 九八式水上偵察機(夜偵)
+          scout = Math.ceil(scout + 0.1 * remodel);
+          break;
+        case 25:
+        case 138:
+        case 163:
+        case 304:
+        case 370:
+        case 239:
+          // 零式水上偵察機
+          // 二式大艇
+          // Ro.43水偵
+          // S9 Osprey
+          // Swordfish Mk.II改(水偵型)
+          // 零式水上偵察機11型乙(熟練)
+          scout = Math.ceil(scout + 0.14 * remodel);
+          break;
+        case 59:
+          // 零式水上観測機
+          scout = Math.ceil(scout + 0.2 * remodel);
+          break;
+        case 61:
+          // 二式艦上偵察機
+          scout = Math.ceil(scout + 0.25 * remodel);
+          break;
+        case 151:
+          // 試製景雲(艦偵型)
+          scout = Math.ceil(scout + 0.4 * remodel);
+          break;
+        default:
+          break;
+      }
+
+      // 触接選択率 => 20 - (2 * 制空定数[3, 2, 1])
+      return [scout / 14, scout / 16, scout / 18];
+    }
+    return [0, 0, 0];
   }
 }

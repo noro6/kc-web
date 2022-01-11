@@ -238,7 +238,7 @@ export default class Ship implements ShipBase {
   private getBonusScout() {
     let sumBonus = 0;
     const { id, type, type2 } = this.data;
-    const { items } = this;
+    const items = this.items.concat(this.exItem);
     const isAmerica = Const.USA.includes(type2);
     const isJapanese = Const.isJPN(type2);
 

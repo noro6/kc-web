@@ -142,6 +142,7 @@ import Const, { AB_MODE, DIFFICULTY_LEVEL } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import BattleInfo from '@/classes/enemy/battleInfo';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'AirbaseAll',
@@ -219,43 +220,59 @@ export default Vue.extend({
       const index = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
       const base = this.airbaseInfo.airbases[index];
-      if (base) {
-        if (slot < base.items.length) {
-          // インスタンス化用のいろいろ用意
-          let initialSlot = base.items[slot].fullSlot ? base.items[slot].fullSlot : 18;
-          let initialLevel = 0;
 
-          if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
-            // 偵察機の場合、搭載数関係はすべて4機制限
-            initialSlot = 4;
-          } else if (item.apiTypeId === 53) {
-            // 大型陸上機は9機
-            initialSlot = 9;
-          }
-          if (Const.FIGHTERS.includes(item.apiTypeId)) {
-            // 戦闘機系設置時は熟練度最大
-            initialLevel = 100;
-          }
-
-          const builder: ItemBuilder = { master: item, slot: initialSlot, level: initialLevel };
-          base.items[slot] = new Item(builder);
-          this.itemListDialog = false;
-        }
-
-        const builder: AirbaseBuilder = { airbase: base };
-        if (base.mode === AB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
-          // 待機札だった場合は出撃か防空札に変更
-          builder.mode = this.isDefenseMode ? AB_MODE.DEFFENSE : AB_MODE.BATTLE;
-          // 派遣先を最終戦闘にオート設定
-          const lastBattle = this.battleInfo.battleCount - 1;
-          builder.battleTarget = [lastBattle, lastBattle];
-        }
-        // リアクティブ再登録
-        this.airbaseInfo.airbases[index] = new Airbase(builder);
-        this.setInfo();
+      if (!base) {
+        return;
       }
+
+      const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+      if (slot < base.items.length) {
+        // インスタンス化用のいろいろ用意
+        let initialSlot = base.items[slot].fullSlot ? base.items[slot].fullSlot : 18;
+        let initialLevel = 0;
+
+        if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
+          // 偵察機の場合、搭載数関係はすべて4機制限
+          initialSlot = 4;
+        } else if (item.apiTypeId === 53) {
+          // 大型陸上機は9機
+          initialSlot = 9;
+        }
+        if (initialLevels) {
+          // 設定情報より初期熟練度を解決
+          const initData = initialLevels.find((v) => v.id === item.apiTypeId);
+          if (initData) {
+            initialLevel = initData.level;
+          }
+
+          if (item.id === 312 && initialLevel > 25) {
+            // 陸上偵察機(熟練)の制御
+            initialLevel = 25;
+          } else if (item.id === 311) {
+            // 陸上偵察機無印の制御
+            initialLevel = 0;
+          }
+        }
+
+        const builder: ItemBuilder = { master: item, slot: initialSlot, level: initialLevel };
+        base.items[slot] = new Item(builder);
+        this.itemListDialog = false;
+      }
+
+      const builder: AirbaseBuilder = { airbase: base };
+      if (base.mode === AB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
+        // 待機札だった場合は出撃か防空札に変更
+        builder.mode = this.isDefenseMode ? AB_MODE.DEFFENSE : AB_MODE.BATTLE;
+        // 派遣先を最終戦闘にオート設定
+        const lastBattle = this.battleInfo.battleCount - 1;
+        builder.battleTarget = [lastBattle, lastBattle];
+      }
+      // リアクティブ再登録
+      this.airbaseInfo.airbases[index] = new Airbase(builder);
+      this.setInfo();
     },
     resetAirbaseAll() {
+      this.isDefenseMode = false;
       this.$emit('input', new AirbaseInfo());
     },
     toggleTargetDialog() {

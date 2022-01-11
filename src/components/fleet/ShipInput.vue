@@ -102,6 +102,7 @@
                   ></v-text-field>
                 </v-card>
               </v-menu>
+              <div>{{ ship.scout }}</div>
             </div>
           </div>
           <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click="showShipList">

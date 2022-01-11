@@ -6,17 +6,23 @@ import ItemMaster from '@/classes/item/itemMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CalcManager from '@/classes/calcManager';
 import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
+import SaveData from '@/classes/saveData/saveData';
+import Const from '@/classes/const';
+import SiteSetting from '@/classes/siteSetting';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    ships: [] as ShipMaster[],
     items: [] as ItemMaster[],
+    ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
     enemies: [] as EnemyMaster[],
     completed: false,
     calcManager: undefined as CalcManager | undefined,
+    saveData: new SaveData(),
+    mainSaveData: new SaveData(),
+    siteSetting: new SiteSetting(),
   },
   mutations: {
     setShips: (state, values: ShipMaster[]) => {
@@ -31,8 +37,14 @@ export default new Vuex.Store({
     setCells: (state, values: CellMaster[]) => {
       state.cells = values;
     },
-    setCalcManager: (state, values: CalcManager) => {
-      state.calcManager = values;
+    updateSaveData: (state, value: SaveData) => {
+      state.saveData = value;
+    },
+    setMainSaveData: (state, value: SaveData) => {
+      state.mainSaveData = value;
+    },
+    updateSetting: (state, value: SiteSetting) => {
+      state.siteSetting = value;
     },
     completed: (state, value: boolean) => {
       state.completed = value;
@@ -40,8 +52,14 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    setCalcManager(context, value: CalcManager) {
-      context.commit('setCalcManager', value);
+    updateSaveData(context, value: SaveData) {
+      context.commit('updateSaveData', value);
+    },
+    setMainSaveData(context, value: SaveData) {
+      context.commit('setMainSaveData', value);
+    },
+    updateSetting: (context, value: SiteSetting) => {
+      context.commit('updateSetting', value);
     },
     loadData: async (context) => {
       const loadShip = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/ships?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
@@ -101,6 +119,33 @@ export default new Vuex.Store({
         .catch((error) => {
           console.log(error);
         });
+
+      // todo DBから編成セーブデータよみこみ
+      const rootData = new SaveData();
+      rootData.isDirectory = true;
+      rootData.isReadonly = true;
+
+      const folder = new SaveData();
+      folder.name = '保存されたデータ';
+      folder.isDirectory = true;
+      folder.isReadonly = true;
+      folder.isOpen = true;
+      rootData.childItems.push(folder);
+
+      // 初期データ てきとう
+      for (let i = 0; i < 7; i += 1) {
+        const world = Const.WORLDS[i];
+        const newFolder = new SaveData();
+        newFolder.name = world.text;
+        newFolder.isDirectory = true;
+        newFolder.isUnsaved = false;
+        folder.childItems.push(newFolder);
+      }
+      folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+      context.commit('updateSaveData', rootData);
+
+      // todo DBから設定データ読み込み
+      context.commit('updateSetting', new SiteSetting());
 
       const loader = [loadShip, loadEnemy, loadItem, loadCell];
       Promise.all(loader).then(() => {

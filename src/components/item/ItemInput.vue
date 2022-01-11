@@ -268,10 +268,6 @@
 .item-input:hover .item-remove {
   opacity: 1;
 }
-.v-list-item {
-  min-height: 28px;
-  height: 28px;
-}
 .remodel-list-item,
 .level-list-item {
   padding: 0.5rem 0.75rem;

@@ -92,7 +92,7 @@
 
 <style scoped>
 .detail-card {
-  height: 78vh;
+  overflow-y: auto;
 }
 .detail-fleet {
   overflow-y: auto;

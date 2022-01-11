@@ -18,6 +18,12 @@ export default class BattleInfo {
 
   public readonly airRaidFleet: EnemyFleet;
 
+  /** 計算済みフラグ */
+  public calculated = false;
+
+  /** 履歴に追加しなくてもいいフラグ */
+  public ignoreHistory = false;
+
   constructor(builder: BattleInfoBuilder = {}) {
     if (builder.info) {
       this.battleCount = builder.battleCount !== undefined ? builder.battleCount : builder.info.battleCount;

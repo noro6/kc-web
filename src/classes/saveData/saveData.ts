@@ -1,32 +1,131 @@
+import * as _ from 'lodash';
 import CalcManager from '../calcManager';
+import Airbase from '../airbase/airbase';
+import AirbaseInfo from '../airbase/airbaseInfo';
+import BattleInfo from '../enemy/battleInfo';
+import EnemyFleet from '../enemy/enemyFleet';
+import FleetInfo from '../fleet/fleetInfo';
+import Fleet from '../fleet/fleet';
+import Enemy from '../enemy/enemy';
+import Ship from '../fleet/ship';
+import Item from '../item/item';
+import ShipMaster from '../fleet/shipMaster';
+import EnemyMaster from '../enemy/enemyMaster';
+import ItemMaster from '../item/itemMaster';
+
+interface SavedItem {
+  /** 装備id */
+  i: number,
+  /** 搭載数 */
+  s?: number,
+  /** 改修値 */
+  r?: number,
+  /** 熟練度 0～120 */
+  l?: number,
+}
+
+interface SavedShip {
+  /** id */
+  i: number,
+  /** 装備 */
+  is: Item[],
+  /** 対空値 */
+  aa?: number,
+  /** レベル */
+  lv?: number,
+  /** 運 */
+  lu?: number,
+  /** 補強増設装備 */
+  ex?: Item,
+  /** アクティブ状態 */
+  ac?: boolean,
+  /** 随伴かどうか */
+  es?: boolean,
+}
 
 export default class SaveData {
+  /** 一意識別用id */
   public readonly id: string;
 
-  public isDirectory = false;
+  /** ディレクトリかどうか */
+  public isDirectory: boolean;
 
-  public name = '';
+  /** 名称 */
+  public name: string;
 
-  public saveData: CalcManager | undefined;
+  /** セーブデータ本体 非ディレクトリのみ有効 */
+  public manager: string;
 
-  public selected = false;
+  /** 選択状態 専らファイル追加時のパス取得用 */
+  public selected: boolean;
 
-  public isOpen = false;
+  /** 展開状態 ディレクトリのみ有効 */
+  public isOpen: boolean;
 
+  /** 編成タブとして出力状態かどうか 非ディレクトリのみ有効 */
+  public isActive: boolean;
+
+  /** 計算状態 アプリケーションで1つのみ */
+  public isMain: boolean;
+
+  /** 保存されていないデータ 新規追加されたやつ アプリ終了時に消しとばす */
+  public isUnsaved: boolean;
+
+  /** 読み取り専用 専らルートディレクトリ直下の「保存されたデータ」アレだけ */
+  public isReadonly: boolean;
+
+  /** 子要素セーブデータ ディレクトリのみ有効 */
   public childItems: SaveData[] = [];
 
-  constructor(name = '無題', isDirectory = false, items: SaveData[] = [], saveData?: CalcManager, isOpen = false, id?: string) {
-    this.id = id || new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
-    this.name = name;
-    this.isDirectory = isDirectory;
-    this.childItems = [];
-    this.isOpen = isOpen;
-    this.saveData = saveData;
+  /** 一時保存データ DBへの登録は行わない */
+  public temporaryData: CalcManager[];
 
-    for (let i = 0; i < items.length; i += 1) {
-      const data = items[i];
-      this.childItems.push(new SaveData(data.name, data.isDirectory, data.childItems, data.saveData, data.isOpen, data.id));
+  /** 一時保存データ カーソル */
+  public temporaryIndex: number;
+
+  /**
+   * インスタンス化 未指定で通常編成ファイル
+   * @param {SaveData} [data]
+   * @memberof SaveData
+   */
+  constructor(data?: SaveData) {
+    if (!data) {
+      // インスタンス指定なし生成
+      this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
+      this.name = '無題';
+      this.isDirectory = false;
+      this.isOpen = false;
+      this.selected = false;
+      this.isActive = false;
+      this.isMain = false;
+      this.manager = '';
+      this.childItems = [];
+      this.temporaryData = [];
+      this.temporaryIndex = -1;
+      this.isUnsaved = true;
+    } else {
+      // クローンのごとき
+      this.id = data.id || new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
+      this.name = data.name;
+      this.isDirectory = data.isDirectory;
+      this.childItems = [];
+      this.isOpen = data.isOpen;
+      this.manager = data.manager;
+      this.selected = data.selected;
+      this.isActive = data.isActive;
+      this.isMain = data.isMain;
+      this.temporaryData = data.temporaryData;
+      this.temporaryIndex = data.temporaryIndex;
+      this.isUnsaved = data.isUnsaved;
+
+      for (let i = 0; i < data.childItems.length; i += 1) {
+        const item = data.childItems[i];
+        this.childItems.push(new SaveData(item));
+        this.childItems.sort((a, b) => a.name.localeCompare(b.name));
+      }
     }
+
+    this.isReadonly = false;
   }
 
   /**
@@ -52,6 +151,17 @@ export default class SaveData {
   }
 
   /**
+   * 計算状態解除 再帰呼び出し
+   * @memberof SaveData
+   */
+  public disabledMain(): void {
+    this.isMain = false;
+    for (let i = 0; i < this.childItems.length; i += 1) {
+      this.childItems[i].disabledMain();
+    }
+  }
+
+  /**
    * 選択状態にあるデータを取得 再帰呼び出し
    * @returns {(SaveData | undefined)}
    * @memberof SaveData
@@ -72,19 +182,61 @@ export default class SaveData {
   }
 
   /**
-   * 引数のデータを、選択状態にあるフォルダの子要素として追加を試みる
+   * アクティブデータを一覧で取得 再帰呼び出し
+   * @returns {SaveData[]}
+   * @memberof SaveData
+   */
+  public fetchActiveData(): SaveData[] {
+    let activeData: SaveData[] = [];
+    if (this.isActive) {
+      activeData.push(this);
+    }
+
+    for (let i = 0; i < this.childItems.length; i += 1) {
+      const data = this.childItems[i].fetchActiveData();
+      if (data.length) {
+        activeData = activeData.concat(data);
+      }
+    }
+
+    return activeData;
+  }
+
+  /**
+   * 計算画面で適用されている編成データを取得 なければundefined
+   * @returns {(SaveData | undefined)}
+   * @memberof SaveData
+   */
+  public getMainData(): SaveData | undefined {
+    if (this.isMain && !this.isDirectory) {
+      return this;
+    }
+
+    for (let i = 0; i < this.childItems.length; i += 1) {
+      const data = this.childItems[i].getMainData();
+      if (data) {
+        return data;
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * 引数のデータを、選択状態にあるディレクトリの子要素として追加を試みる
    * @param {SaveData} saveData
    * @returns {boolean} 失敗時false
    * @memberof SaveData
    */
   public addNewFileToSelectedData(saveData: SaveData): boolean {
     if (!this.isDirectory) {
-      // 自身がフォルダでない時点で検索終了
+      // 自身がディレクトリでない時点で検索終了
       return false;
     }
     // 自身が選択状態ならここに追加して終了
     if (this.selected) {
       this.childItems.push(saveData);
+      this.childItems.sort((a, b) => a.name.localeCompare(b.name));
       this.selected = true;
       this.isOpen = true;
       return true;
@@ -92,6 +244,7 @@ export default class SaveData {
     // 子要素のファイルの中で選択状態のものがあるならここに追加
     if (this.childItems.some((v) => !v.isDirectory && v.selected)) {
       this.childItems.push(saveData);
+      this.childItems.sort((a, b) => a.name.localeCompare(b.name));
       this.isOpen = true;
       return true;
     }
@@ -120,5 +273,221 @@ export default class SaveData {
     }
 
     return ids;
+  }
+
+  /**
+   * 現在展開中のデータで上書き保存
+   * @memberof SaveData
+   */
+  public saveManagerData(): void {
+    const replacer = (key: unknown, v: unknown) => {
+      if (v instanceof Item) {
+        const data = { i: v.data.id } as SavedItem;
+        if (v.level) data.l = v.level;
+        if (v.remodel) data.r = v.remodel;
+        if (v.fullSlot) data.s = v.fullSlot;
+        return data;
+      }
+      if (v instanceof ItemMaster || v instanceof EnemyMaster || v instanceof ShipMaster) {
+        return { id: v.id };
+      }
+      if (v instanceof Enemy) {
+        const data = { i: v.data.id, is: v.items } as SavedShip;
+        if (v.isEscort) data.es = v.isEscort;
+        return data;
+      }
+      if (v instanceof Ship) {
+        const data = {
+          i: v.data.id, is: v.items, ac: v.isActive, es: v.isEscort,
+        } as SavedShip;
+        if (v.luck) data.lu = v.luck;
+        if (v.level) data.lv = v.level;
+        if (v.exItem) data.ex = v.exItem;
+        if (v.antiAir) data.aa = v.antiAir;
+        return data;
+      }
+      if (v instanceof EnemyFleet) {
+        return {
+          enemies: v.enemies, cellType: v.cellType, formation: v.formation, range: v.range,
+        };
+      }
+      if (v instanceof Fleet) {
+        return { ships: v.ships, formation: v.formation, isUnion: v.isUnion };
+      }
+      if (v instanceof Airbase) {
+        return { items: v.items, battleTarget: v.battleTarget, mode: v.mode };
+      }
+      if (v instanceof AirbaseInfo) {
+        return { airbases: v.airbases, difficultyLevel: v.difficultyLevel, isDefense: v.isDefense };
+      }
+      if (v instanceof BattleInfo) {
+        return { fleets: v.fleets, battleCount: v.battleCount };
+      }
+      if (v instanceof FleetInfo) {
+        return {
+          fleets: v.fleets, admiralLevel: v.admiralLevel, isUnion: v.isUnion, mainFleetIndex: v.mainFleetIndex,
+        };
+      }
+      return v;
+    };
+
+    // 現在のインデックスのデータ
+    const managerData = this.temporaryData[this.temporaryIndex];
+    // JSONにパースして保存
+    const data = JSON.stringify(managerData, replacer);
+    // 一度復元してチェック
+    JSON.parse(data);
+    this.manager = data;
+  }
+
+  /**
+   * この編成データに保存されているデータからcalcManagerインスタンスを生成
+   * なければ初期データ いずれもcloneDeep適用済み
+   * @returns {CalcManager}
+   * @memberof SaveData
+   */
+  public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
+    if (this.temporaryData.length) {
+      // 一時保存領域にデータがあればそちら
+      if (this.temporaryIndex >= this.temporaryData.length) {
+        // 一応範囲外チェック
+        this.temporaryIndex = this.temporaryData.length - 1;
+      }
+      return _.cloneDeep(this.temporaryData[this.temporaryIndex]);
+    }
+
+    if (!this.manager) {
+      const newData = new CalcManager();
+      newData.resetAll = true;
+      // 一時保存データにこの情報を突っ込む
+      this.temporaryData = [_.cloneDeep(newData)];
+      this.temporaryIndex = 0;
+      return newData;
+    }
+
+    // セーブデータ内文字列データから編成を復元 重いので本当に初回だけ呼ぶようにする
+    const manager = JSON.parse(this.manager) as CalcManager;
+
+    // 基地復元
+    const airbases: Airbase[] = [];
+    const rawAirbases = manager.airbaseInfo.airbases;
+    for (let i = 0; i < rawAirbases.length; i += 1) {
+      const airbase = rawAirbases[i];
+      const rawItems = airbase.items;
+      const items: Item[] = [];
+
+      for (let j = 0; j < rawItems.length; j += 1) {
+        const item = rawItems[j] as unknown as SavedItem;
+        const itemMaster = itemMasters.find((v) => v.id === item.i);
+        if (itemMaster) {
+          items.push(new Item({
+            master: itemMaster, slot: item.s, level: item.l, remodel: item.r,
+          }));
+        } else {
+          // マスタにない装備は空で生成
+          items.push(new Item({ slot: item.s }));
+        }
+      }
+      airbases.push(new Airbase({ airbase, items }));
+    }
+    manager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo, airbases });
+
+    // 艦隊復元
+    const fleets: Fleet[] = [];
+    const rawFleets = manager.fleetInfo.fleets;
+    for (let i = 0; i < rawFleets.length; i += 1) {
+      const fleet = rawFleets[i];
+      const rawShips = fleet.ships;
+      const ships: Ship[] = [];
+
+      for (let j = 0; j < rawShips.length; j += 1) {
+        const ship = rawShips[j] as unknown as SavedShip;
+        const rawItems = ship.is;
+        const items: Item[] = [];
+        for (let k = 0; k < rawItems.length; k += 1) {
+          const item = rawItems[k] as unknown as SavedItem;
+          const itemMaster = itemMasters.find((v) => v.id === item.i);
+          if (itemMaster) {
+            items.push(new Item({
+              master: itemMaster, slot: item.s, level: item.l, remodel: item.r,
+            }));
+          } else {
+            // マスタにない装備は空で生成
+            items.push(new Item({ slot: item.s }));
+          }
+        }
+        // 補強増設の解決
+        const item = ship.ex as unknown as SavedItem;
+        const exItemMaster = itemMasters.find((v) => v.id === item.i);
+        let expandItem: Item;
+        if (exItemMaster) {
+          expandItem = new Item({ master: exItemMaster, level: item.l, remodel: item.r });
+        } else {
+          expandItem = new Item();
+        }
+
+        // 現行マスタから艦娘情報を取得
+        const shipMaster = shipMasters.find((v) => v.id === ship.i);
+        if (shipMaster) {
+          ships.push(new Ship({
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es,
+          }));
+        } else {
+          // いなければ空データ 装備は引き継ぐが…
+          ships.push(new Ship({
+            items, exItem: expandItem, level: ship.lv, isEscort: ship.es,
+          }));
+        }
+      }
+      fleets.push(new Fleet({ fleet, ships }));
+    }
+    manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets });
+
+    // 敵艦隊復元
+    const enemyFleet: EnemyFleet[] = [];
+    const rawEnemyFleets = manager.battleInfo.fleets;
+    for (let i = 0; i < rawEnemyFleets.length; i += 1) {
+      const fleet = rawEnemyFleets[i];
+      const rawShips = fleet.enemies;
+      const enemies: Enemy[] = [];
+      for (let j = 0; j < rawShips.length; j += 1) {
+        const enemy = rawShips[j] as unknown as SavedShip;
+        const rawItems = enemy.is;
+        const items: Item[] = [];
+        for (let k = 0; k < rawItems.length; k += 1) {
+          const item = rawItems[k] as unknown as SavedItem;
+          const itemMaster = itemMasters.find((v) => v.id === item.i);
+          if (itemMaster) {
+            items.push(new Item({
+              master: itemMaster, slot: item.s, level: item.l, remodel: item.r,
+            }));
+          } else {
+            // マスタにない装備は空で生成
+            items.push(new Item());
+          }
+        }
+        const enemyMaster = enemyMasters.find((v) => v.id === enemy.i);
+        if (enemyMaster) {
+          enemies.push(new Enemy(enemyMaster, items, enemy.es));
+        } else {
+          enemies.push(new Enemy(new EnemyMaster(), [], enemy.es));
+        }
+      }
+      enemyFleet.push(new EnemyFleet({ fleet, enemies }));
+    }
+    manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet });
+
+    const resultData = new CalcManager();
+    resultData.airbaseInfo = manager.airbaseInfo;
+    resultData.fleetInfo = manager.fleetInfo;
+    resultData.battleInfo = manager.battleInfo;
+    // タブ切り替えは全ての情報をリセットする
+    resultData.resetAll = true;
+
+    // 一時保存データにこの情報を突っ込む
+    this.temporaryData = [_.cloneDeep(resultData)];
+    this.temporaryIndex = 0;
+
+    return resultData;
   }
 }

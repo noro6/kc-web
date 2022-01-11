@@ -1,13 +1,53 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" app temporary dark :width="360">
-      <save-data-view />
+      <save-data-view :save-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-btn class="header-btn" depressed><v-icon small>mdi-content-save</v-icon>編成保存</v-btn>
-      <v-btn class="header-btn" depressed><v-icon small>mdi-content-duplicate</v-icon>別名保存</v-btn>
-      <v-btn class="header-btn" depressed><v-icon small>mdi-share-variant</v-icon>編成共有</v-btn>
+      <template>
+        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
+          <v-icon small>mdi-content-save</v-icon>編成保存
+        </v-btn>
+        <v-btn
+          class="header-btn"
+          :disabled="$route.path !== '/aircalc' || mainSaveData.isUnsaved"
+          text
+          @click.stop="handleSaveAndRenameCurrentData"
+        >
+          <v-icon small>mdi-content-duplicate</v-icon>別名保存
+        </v-btn>
+        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text> <v-icon small>mdi-share-variant</v-icon>編成共有</v-btn>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="arrow-btn"
+              text
+              :disabled="$route.path !== '/aircalc' || !enabledUndo"
+              v-bind="attrs"
+              v-on="on"
+              @click="undoClicked"
+              ><v-icon small>mdi-undo</v-icon></v-btn
+            >
+          </template>
+          <span>元に戻す</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="arrow-btn"
+              text
+              :disabled="$route.path !== '/aircalc' || !enabledRedo"
+              v-bind="attrs"
+              v-on="on"
+              @click="redoClicked"
+            >
+              <v-icon small>mdi-redo</v-icon>
+            </v-btn>
+          </template>
+          <span>やり直す</span>
+        </v-tooltip>
+      </template>
       <div id="multipurpose-textarea">
         <v-textarea
           v-model.trim="somethingText"
@@ -25,10 +65,13 @@
           @click:append="readSomethingText"
         ></v-textarea>
       </div>
-      <v-btn class="header-btn" depressed @click="$route.path !== '/' && $router.push({ path: '/' })">Home</v-btn>
-      <v-btn class="header-btn" depressed @click="$route.path !== '/aircalc' && $router.push('aircalc')">制空計算</v-btn>
-      <v-btn class="header-btn" depressed @click="$route.path !== '/manager' && $router.push('manager')">所持管理</v-btn>
+      <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
       <v-btn icon @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
+      <template v-slot:extension>
+        <save-data-tab :save-data="saveData" :setting="setting" />
+      </template>
     </v-app-bar>
     <v-main>
       <router-view />
@@ -41,6 +84,12 @@
           また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。
         </div>
       </div>
+      <v-snackbar v-model="readInform" :color="readResult" top>
+        {{ readInformText }}
+        <template v-slot:action="{ attrs }">
+          <v-btn icon v-bind="attrs" @click="readInform = false"><v-icon>mdi-close</v-icon></v-btn>
+        </template>
+      </v-snackbar>
     </v-main>
     <v-footer app dark class="d-flex justify-center">
       <span class="d-md-none text-caption">
@@ -64,38 +113,47 @@
         >から。
       </span>
     </v-footer>
-    <v-dialog v-model="config" width="600">
+    <v-dialog v-model="config" width="500">
       <v-card>
         <div class="px-10 py-5">
           <div class="my-5">
-            <div>タブを閉じる際の挙動</div>
-            <div>
-              <v-checkbox v-model="confirmTabClose" label="確認ダイアログを表示する"></v-checkbox>
-            </div>
-          </div>
-          <v-divider></v-divider>
-          <div class="my-5">
-            <div class="mb-2">テーマ</div>
+            <div class="mb-2">カラーテーマ</div>
             <v-btn
-              @click="$vuetify.theme.dark = false"
+              @click="toggleSiteTheme(false)"
               color="grey"
               :class="{
                 primary: !$vuetify.theme.dark,
                 secondary: $vuetify.theme.dark,
               }"
             >
-              <span class="pr-5">Light</span><v-icon>mdi-weather-sunny</v-icon>
+              <span class="pr-2">Light</span><v-icon>mdi-brightness-5</v-icon>
             </v-btn>
             <span class="mx-1"></span>
             <v-btn
-              @click="$vuetify.theme.dark = true"
+              @click="toggleSiteTheme(true)"
               :class="{
                 primary: $vuetify.theme.dark,
                 secondary: !$vuetify.theme.dark,
               }"
             >
-              <span class="pr-5">Dark</span><v-icon>mdi-moon-waxing-crescent</v-icon>
+              <span class="pr-2">Dark</span><v-icon>mdi-moon-waxing-crescent</v-icon>
             </v-btn>
+          </div>
+          <v-divider></v-divider>
+          <div class="my-5">
+            <div>未保存の編成タブを閉じる際の挙動</div>
+            <div class="d-flex">
+              <v-checkbox v-model="setting.confirmCloseTab" hide-details dense label="確認ダイアログを表示する"></v-checkbox>
+              <v-spacer></v-spacer>
+            </div>
+          </div>
+          <v-divider></v-divider>
+          <div class="my-5">
+            <div class="mb-1">装備選択時のデフォルト熟練度</div>
+            <div class="initial-level-items">
+              <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
+              <setting-initial-level :index="-1" :setting="setting" />
+            </div>
           </div>
         </div>
       </v-card>
@@ -108,27 +166,53 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="400">
+      <v-card class="pa-3">
+        <div class="mx-4 mt-4">
+          <v-text-field v-model="editedName" maxlength="100" counter label="編成データ名"></v-text-field>
+          <div class="d-flex mt-3">
+            <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">別名保存</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import * as _ from 'lodash';
 import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
+import SaveDataTab from './components/saveData/saveDataTab.vue';
+import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
+import SaveData from './classes/saveData/saveData';
+import SiteSetting from './classes/siteSetting';
 
 export default Vue.extend({
   name: 'App',
   components: {
     SaveDataView,
+    SaveDataTab,
+    SettingInitialLevel,
   },
   data: () => ({
+    saveData: new SaveData(),
+    mainSaveData: new SaveData(),
     drawer: null,
     config: false,
     loading: true,
-    confirmTabClose: false,
     somethingText: '',
     textareaHasError: false,
     readState: false as boolean | string,
+    readInform: false,
+    readInformText: '',
+    readResult: 'success',
+    setting: new SiteSetting(),
+    editDialog: false,
+    editedName: '',
+    unsbscribe: undefined as unknown,
   }),
   computed: {
     completed() {
@@ -137,11 +221,37 @@ export default Vue.extend({
     getTextareaColor() {
       return this.somethingText && this.textareaHasError ? 'red darken-4' : 'primary';
     },
+    enabledUndo(): boolean {
+      const data = this.mainSaveData;
+      return data ? data.temporaryIndex > 0 : false;
+    },
+    enabledRedo(): boolean {
+      const data = this.mainSaveData;
+      return data ? data.temporaryIndex < data.temporaryData.length - 1 : false;
+    },
+    isNameEmptry(): boolean {
+      return this.editedName.length <= 0;
+    },
   },
   watch: {
     completed(value) {
       this.loading = !value;
     },
+  },
+  mounted() {
+    this.saveData = this.$store.state.saveData as SaveData;
+    this.setting = this.$store.state.siteSetting as SiteSetting;
+
+    // セーブデータの更新を購読
+    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'updateSaveData') {
+        // 計算処理更新の購読 常に最新の状態を保つ
+        this.saveData = state.saveData as SaveData;
+      } else if (mutation.type === 'setMainSaveData') {
+        // メインデータの更新を購読 常に最新の状態を保つ
+        this.mainSaveData = state.mainSaveData as SaveData;
+      }
+    });
   },
   methods: {
     readSomethingText() {
@@ -152,14 +262,129 @@ export default Vue.extend({
         const newManager = converter.loadDeckBuilder(this.somethingText);
         this.somethingText = '';
         this.readState = false;
+        this.readInformText = '編成の読み込みが完了しました。';
+        this.readInform = true;
+        this.readResult = 'success';
 
-        this.$store.dispatch('setCalcManager', newManager);
+        let mainData = this.saveData.getMainData();
+        if (mainData) {
+          // もともと開いている編成があるならそこに追加
+          mainData.temporaryData.push(newManager);
+          mainData.temporaryIndex += 1;
+        } else {
+          mainData = new SaveData();
+          mainData.name = '外部データ';
+          mainData.isActive = true;
+          mainData.isMain = true;
+          mainData.temporaryData = [newManager];
+          mainData.temporaryIndex = 0;
+          this.saveData.childItems.push(mainData);
+        }
+
+        this.$store.dispatch('setMainSaveData', mainData);
+        if (!this.$route.path.endsWith('/aircalc')) {
+          // ページ遷移
+          this.$router.push('aircalc');
+        }
       } catch (error) {
         console.error(error);
         this.readState = false;
         this.textareaHasError = true;
+        this.readInformText = '読み込みに失敗しました。';
+        this.readInform = true;
+        this.readResult = 'error';
       }
     },
+    saveCurrentData() {
+      // 現在計算画面で開かれているデータを取得
+      const data = this.saveData.getMainData();
+      if (data) {
+        try {
+          if (data.isUnsaved) {
+            // 保存済みフォルダに退避
+            data.isUnsaved = false;
+            const folder = this.saveData.childItems.find((v) => v.isDirectory);
+            if (folder) {
+              folder.childItems.push(data);
+              folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+
+              this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
+            } else {
+              throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
+            }
+          }
+          data.saveManagerData();
+          this.readInformText = '保存しました。';
+          this.readInform = true;
+          this.readResult = 'success';
+        } catch (error) {
+          this.readInformText = '保存に失敗しました。';
+          this.readInform = true;
+          this.readResult = 'error';
+        }
+      }
+    },
+    handleSaveAndRenameCurrentData() {
+      // 名前変更ダイアログを展開する
+      const data = this.saveData.getMainData();
+      if (data) {
+        this.editedName = '';
+        this.editDialog = true;
+      }
+    },
+    saveAndRenameCurrentData() {
+      // 現在計算画面で開かれているデータを取得
+      const data = this.saveData.getMainData();
+      if (data) {
+        try {
+          const newData = new SaveData();
+          newData.name = this.editedName;
+          newData.temporaryData = [_.cloneDeep(data.temporaryData[data.temporaryIndex])];
+          newData.temporaryIndex = 0;
+          newData.isUnsaved = false;
+          newData.saveManagerData();
+
+          const folder = this.saveData.childItems.find((v) => v.isDirectory);
+          if (folder) {
+            folder.childItems.push(newData);
+            folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+            this.readInformText = '保存しました。';
+            this.readInform = true;
+            this.readResult = 'success';
+          }
+        } catch (error) {
+          this.readInformText = '保存に失敗しました。';
+          this.readInform = true;
+          this.readResult = 'error';
+        }
+      }
+      this.editDialog = false;
+    },
+    undoClicked() {
+      // 元に戻す
+      const data = this.mainSaveData;
+      if (data) {
+        data.temporaryIndex -= 1;
+        this.$store.dispatch('setMainSaveData', data);
+      }
+    },
+    redoClicked() {
+      // やり直す
+      const data = this.mainSaveData;
+      if (data) {
+        data.temporaryIndex += 1;
+        this.$store.dispatch('setMainSaveData', data);
+      }
+    },
+    toggleSiteTheme(isDark: boolean) {
+      this.setting.darkTheme = isDark;
+      this.$vuetify.theme.dark = isDark;
+    },
+  },
+  beforeDestroy() {
+    if (this.unsbscribe) {
+      (this.unsbscribe as () => void)();
+    }
   },
 });
 </script>
@@ -169,6 +394,20 @@ export default Vue.extend({
   font-size: 0.8em;
   padding-right: 0.2rem !important;
   padding-left: 0.2rem !important;
+}
+.arrow-btn {
+  padding: 0 0 !important;
+  min-width: 36px !important;
+}
+
+.info-area {
+  margin: 2rem auto 0.5rem auto;
+  max-width: 1200px;
+}
+
+.initial-level-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 </style>
 
@@ -220,9 +459,15 @@ export default Vue.extend({
   overflow: hidden !important;
 }
 
-.info-area {
-  margin: 2rem auto 0.5rem auto;
-  max-width: 1200px;
+/** 編成タブのやつ */
+.v-toolbar--dense.v-app-bar {
+  height: 76px !important;
+}
+.v-toolbar--dense.v-app-bar .v-toolbar__extension {
+  padding: 0;
+  border-top: 1px solid #363636;
+  background-color: #0a0a0c;
+  height: 28px !important;
 }
 
 /** アイコン毎の背景色 */

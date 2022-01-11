@@ -4,6 +4,7 @@ import Item from '../item/item';
 import AirCalcResult from '../airCalcResult';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
+import { ContactRate } from '../interfaces/contactRate';
 
 export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -177,5 +178,166 @@ export default class Fleet {
     }
     // 最終艦隊防空補正 ブラウザ版式表示値
     return 2 * fleetAntiAir;
+  }
+
+  /**
+   * 艦娘配列の合計索敵スコアを分岐点係数毎に取得 係数は第3引数の値だけ増やせる
+   * @static
+   * @param {Ship[]} ships 艦娘配列
+   * @param {number} [admiralLevel=120]
+   * @param {number} [cCount=4]
+   * @returns {number[]}
+   * @memberof Fleet
+   */
+  public static getScoutScore(argShips: Ship[], admiralLevel = 120, cCount = 4): number[] {
+    // Σ(√艦娘の素の索敵値) + Σ{(装備の素の索敵値 + 改修係数×√★)×装備係数}×分岐点係数 - ⌈艦隊司令部Lv.×司令部補正係数⌉ + 2×(6 - 分岐点に到達した際の隻数)
+    const scoutScores = [];
+    const block3 = admiralLevel * 0.4;
+    const ships = argShips.filter((v) => v.isActive && !v.isEmpty);
+
+    // 分岐点係数
+    for (let i = 1; i <= cCount; i += 1) {
+      let block1 = 0;
+      let block2 = 0;
+      for (let j = 0; j < ships.length; j += 1) {
+        const ship = ships[j];
+        // Σ(√艦娘の素の索敵値)
+        block1 += Math.sqrt(ship.scout + ship.bonusScout);
+        // Σ{(装備の素の索敵値 + 改修係数×√★)×装備係数}×分岐点係数
+        block2 += ship.itemsScout * i;
+      }
+      scoutScores.push(block1 + block2 - Math.ceil(block3) + (2 * (6 - ships.length)));
+    }
+    return scoutScores;
+  }
+
+  /**
+   * 連合艦隊時の索敵を取得 司令部レベルによって変わるため画面側で呼び出す
+   * @param {number} [admiralLevel=120] 司令部レベル
+   * @param {number} [cCount=4] 分岐点係数の数
+   * @returns {number[]}
+   * @memberof Fleet
+   */
+  public getUnionScoutScore(admiralLevel = 120, cCount = 4): number[] {
+    const mainShips = this.ships.filter((v) => !v.isEscort);
+    const mainScouts = Fleet.getScoutScore(mainShips, admiralLevel, cCount);
+
+    const escortShips = this.ships.filter((v) => v.isEscort);
+    const subScouts = Fleet.getScoutScore(escortShips, admiralLevel, cCount);
+
+    const result: number[] = [];
+    for (let i = 0; i < cCount; i += 1) {
+      result.push(mainScouts[i] + subScouts[i]);
+    }
+
+    return result;
+  }
+
+  /**
+   * この艦隊の触接情報テーブルを取得
+   * @returns {ContactRate[]}
+   * @memberof Fleet
+   */
+  public getContactRates(isUnion = false): ContactRate[] {
+    const items = isUnion ? this.allPlanes : this.allPlanes.filter((v) => !v.isEscortItem);
+    let sumCotactValue = 0;
+    // 補正率別 触接選択率テーブル[ 0:確保時, 1:優勢時, 2:劣勢時 ]
+    const contact120 = [[] as number[], [] as number[], [] as number[]];
+    const contact117 = [[] as number[], [] as number[], [] as number[]];
+    const contact112 = [[] as number[], [] as number[], [] as number[]];
+
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (item.isRecon) {
+        sumCotactValue += Math.floor(item.data.scout * Math.sqrt(item.fullSlot));
+      }
+      // 制空状態3つループ
+      for (let j = 0; j < 3; j += 1) {
+        if (item.data.accuracy >= 3) contact120[j].push(item.contactSelectRates[j]);
+        else if (item.data.accuracy === 2) contact117[j].push(item.contactSelectRates[j]);
+        else contact112[j].push(item.contactSelectRates[j]);
+      }
+    }
+    // 触接開始率 = int(sum(索敵 * sqrt(搭載)) + 1) / (70 - 15 * c)
+    const a = Math.floor(sumCotactValue) + 1;
+    const contactStartRate = [
+      Math.min(a / 25, 1),
+      Math.min(a / 40, 1),
+      Math.min(a / 55, 1),
+    ];
+
+    // 実触接率 = [ 0:確保, 1:優勢, 2:劣勢 ]
+    const actualContactRate = [
+      { contact120: 0, contact117: 0, contact112: 0 },
+      { contact120: 0, contact117: 0, contact112: 0 },
+      { contact120: 0, contact117: 0, contact112: 0 },
+    ];
+    let sum = 1;
+    // 制空状態3つループ
+    for (let i = 0; i < 3; i += 1) {
+      // 開始触接率
+      let tmpRate = contactStartRate[i];
+
+      // 補正のデカいものから優先的に
+      if (contact120[i].length) {
+        sum = 1;
+        // 全て選択されない確率の導出
+        for (let j = 0; j < contact120[i].length; j += 1) {
+          // 発動しない率
+          sum *= (1 - contact120[i][j]);
+        }
+
+        // 選択される率
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact120 = rate;
+        tmpRate -= rate;
+      }
+
+      if (contact117[i].length) {
+        sum = 1;
+        for (let j = 0; j < contact117[i].length; j += 1) {
+          sum *= (1 - contact117[i][j]);
+        }
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact117 = rate;
+        tmpRate -= rate;
+      }
+
+      if (contact112[i].length) {
+        sum = 1;
+        for (let j = 0; j < contact112[i].length; j += 1) {
+          sum *= (1 - contact112[i][j]);
+        }
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact112 = rate;
+      }
+    }
+
+    const contactTable = [
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+    ];
+    // 制空状態3つループ
+    for (let i = 0; i < 3; i += 1) {
+      const rate = actualContactRate[i];
+      const sumRate = rate.contact120 + rate.contact117 + rate.contact112;
+
+      // 開始触接率
+      contactTable[i].startRate = 100 * contactStartRate[i];
+      // 順に120% 117% 112% の選択率
+      contactTable[i].contact120 = 100 * rate.contact120;
+      contactTable[i].contact117 = 100 * rate.contact117;
+      contactTable[i].contact112 = 100 * rate.contact112;
+      // 最終的な合計の触接率
+      contactTable[i].sumRate = Math.min(100 * sumRate, 100);
+    }
+    return contactTable;
   }
 }

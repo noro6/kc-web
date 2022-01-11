@@ -55,6 +55,12 @@ export default class AirbaseInfo {
    */
   public readonly highDefenseAirPower: number;
 
+  /** 計算済みフラグ */
+  public calculated = false;
+
+  /** 履歴に追加しなくてもいいフラグ */
+  public ignoreHistory = false;
+
   constructor(builder: AirbaseInfoBuilder = {}) {
     if (builder.info) {
       this.airbases = builder.airbases !== undefined ? builder.airbases : builder.info.airbases.concat();

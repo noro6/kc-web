@@ -30,6 +30,12 @@ export default class FleetInfo {
   /** 連合艦隊 自動生成 */
   public readonly unionFleet: Fleet | undefined;
 
+  /** 計算済みフラグ */
+  public calculated = false;
+
+  /** 履歴に追加しなくてもいいフラグ */
+  public ignoreHistory = false;
+
   constructor(builder: FleetInfoBuilder = {}) {
     if (builder.info) {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.info.isUnion;
@@ -75,37 +81,6 @@ export default class FleetInfo {
   }
 
   /**
-   * 指定艦隊の索敵スコアを分岐点係数毎に取得 係数は第2引数の値だけ増やせる
-   * @param {number} fleetIndex 艦隊番号
-   * @param {number} [cCount=4] 分岐点係数 デフォルト4
-   * @returns {number[]}
-   * @memberof FleetInfo
-   */
-  public getScoutScore(fleetIndex: number, cCount = 4): number[] {
-    // Σ(√艦娘の素の索敵値) + Σ{(装備の素の索敵値 + 改修係数×√★)×装備係数}×分岐点係数 - ⌈艦隊司令部Lv.×司令部補正係数⌉ + 2×(6 - 分岐点に到達した際の隻数)
-    const scoutScores = [];
-    const fleet = this.fleets[fleetIndex];
-    const block3 = this.admiralLevel * 0.4;
-    const ships = fleet.ships.filter((v) => v.isActive && v.data.id > 0);
-
-    // 分岐点係数
-    for (let i = 1; i <= cCount; i += 1) {
-      let block1 = 0;
-      let block2 = 0;
-      for (let j = 0; j < ships.length; j += 1) {
-        const ship = ships[j];
-        // Σ(√艦娘の素の索敵値)
-        block1 += Math.sqrt(ship.scout + ship.bonusScout);
-        // Σ{(装備の素の索敵値 + 改修係数×√★)×装備係数}×分岐点係数
-        block2 += ship.itemsScout * i;
-      }
-      scoutScores.push(block1 + block2 - Math.ceil(block3) + (2 * (6 - ships.length)));
-    }
-    // 小数点3桁目切捨て
-    return scoutScores.map((v) => Math.floor(100 * v) / 100);
-  }
-
-  /**
    * 計算対象の艦隊データを返却
    * @readonly
    * @type {Fleet}
@@ -113,7 +88,7 @@ export default class FleetInfo {
    */
   public get mainFleet(): Fleet {
     let mainFleet = this.fleets[this.mainFleetIndex];
-    if (this.isUnion) {
+    if (this.isUnion && this.mainFleetIndex <= 1) {
       mainFleet = this.unionFleet as Fleet;
     }
     return mainFleet;

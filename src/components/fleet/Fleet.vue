@@ -10,7 +10,7 @@
         <div class="option-status mr-1" v-for="(scout, i) in fleetScouts" :key="i">
           <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
           <div class="option-status-label">{{ i + 1 }}</div>
-          <div class="ml-2 body-2">: {{ scout.toFixed(2) }}</div>
+          <div class="ml-2 body-2">: {{ scout }}</div>
         </div>
       </div>
       <!-- TP -->
@@ -39,7 +39,7 @@
         </v-btn>
       </div>
       <div class="pl-1">
-        <v-btn color="info" icon @click.stop@="showAntiAirViewDialog">
+        <v-btn color="info" icon @click.stop="clickedInfo">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
       </div>
@@ -63,11 +63,9 @@
         @input="updateShip"
       ></ship-input>
     </div>
-    <air-status-result-bar :result="(isUnion ? unionFleet : fleet).mainResult" class="mt-3" />
-    <v-dialog v-model="antiAirViewDialog" transition="scroll-x-transition" width="1200">
-      <v-card class="pa-4">
-        <anti-air-calculator :fleet="isUnion ? unionFleet : value" ref="antiAirCalculator" />
-      </v-card>
+    <air-status-result-bar :result="result" class="mt-3" />
+    <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="1200" @input="toggleDetailDialog">
+      <fleet-detail v-if="!destroyDialog" :fleet="actualFleet" :index="index" :is-union="isUnion" ref="fleetDetail" />
     </v-dialog>
   </div>
 </template>
@@ -122,20 +120,21 @@
 </style>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import Vue from 'vue';
 import ShipInput from '@/components/fleet/ShipInput.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
-import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
+import FleetDetail from '@/components/fleet/FleetDetail.vue';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
+import AirCalcResult from '@/classes/airCalcResult';
 
 export default Vue.extend({
   name: 'Fleet',
   components: {
     ShipInput,
     AirStatusResultBar,
-    AntiAirCalculator,
+    FleetDetail,
   },
   props: {
     value: {
@@ -144,10 +143,6 @@ export default Vue.extend({
     },
     index: {
       type: Number,
-      required: true,
-    },
-    fleetScouts: {
-      type: Array as PropType<number[]>,
       required: true,
     },
     handleShowShipList: {
@@ -165,20 +160,33 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    admiralLv: {
+      type: Number,
+      default: 120,
+    },
   },
   data: () => ({
     formations: Const.FORMATIONS,
     cellTypes: Const.CELL_TYPES,
     detailDialog: false,
     destroyDialog: false,
-    antiAirViewDialog: false,
+    lastTab: 'stage2',
   }),
   computed: {
     fleet(): Fleet {
       return this.value;
     },
     fleetAntiAir() {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return this.unionFleet.fleetAntiAir.toFixed(2);
+      }
       return this.value.fleetAntiAir.toFixed(2);
+    },
+    fleetScouts(): number[] {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return this.unionFleet.getUnionScoutScore(this.admiralLv).map((v) => Math.floor(100 * v) / 100);
+      }
+      return Fleet.getScoutScore(this.fleet.ships, this.admiralLv).map((v) => Math.floor(100 * v) / 100);
     },
     shipAddEnabled() {
       return this.value.ships.length < 7;
@@ -187,7 +195,22 @@ export default Vue.extend({
       return this.value.ships.length > 1;
     },
     tpA() {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return Math.floor(this.unionFleet.tp * 0.7);
+      }
       return Math.floor(this.value.tp * 0.7);
+    },
+    result(): AirCalcResult {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return this.unionFleet.mainResult;
+      }
+      return this.value.mainResult;
+    },
+    actualFleet(): Fleet {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return this.unionFleet;
+      }
+      return this.value;
     },
   },
   methods: {
@@ -199,8 +222,9 @@ export default Vue.extend({
       this.handleShowShipList(this.index, index);
     },
     async clickedInfo() {
-      this.detailDialog = true;
       this.destroyDialog = false;
+      await (this.detailDialog = true);
+      (this.$refs.fleetDetail as InstanceType<typeof FleetDetail>).tab = this.lastTab;
     },
     updateShip() {
       this.setFleet();
@@ -238,11 +262,15 @@ export default Vue.extend({
       this.fleet.ships.push(new Ship());
       this.setFleet(new Fleet({ fleet: this.fleet }));
     },
-    async showAntiAirViewDialog() {
-      await (this.antiAirViewDialog = true);
-      const dialog = this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>;
-      dialog.cutInId = 0;
-      dialog.updateTable();
+    toggleDetailDialog() {
+      if (!this.detailDialog) {
+        this.lastTab = (this.$refs.fleetDetail as InstanceType<typeof FleetDetail>).tab;
+        setTimeout(() => {
+          this.destroyDialog = true;
+        }, 100);
+      } else {
+        this.destroyDialog = false;
+      }
     },
   },
 });

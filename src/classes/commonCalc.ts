@@ -9,6 +9,9 @@ export default class CommonCalc {
    * @memberof Calculator
    */
   public static getAirStatusBorder(airPower: number): number[] {
+    if (airPower === 0) {
+      return [0, 0, 0, 0, 0];
+    }
     return [
       airPower * 3,
       Math.ceil(airPower * 1.5),

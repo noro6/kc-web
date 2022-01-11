@@ -7,7 +7,7 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="addNewFile" v-bind="attrs" v-on="on">
-              <v-icon color="blue lighten-3">mdi-file-plus</v-icon>
+              <v-icon color="blue lighten-3">mdi-note-plus</v-icon>
             </v-btn>
           </template>
           <span>新しい編成を作成</span>
@@ -31,13 +31,7 @@
       </div>
     </div>
     <v-divider></v-divider>
-    <div
-      class="item-container"
-      @dragover.prevent
-      @drop.stop="dropItem($event)"
-      @dragleave.stop="dragLeave($event)"
-      @dragenter.stop="dragEnter($event)"
-    >
+    <div class="item-container">
       <save-item v-for="(item, i) in saveData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" />
     </div>
   </v-sheet>
@@ -66,22 +60,26 @@ import SaveData from '@/classes/saveData/saveData';
 export default Vue.extend({
   components: { SaveItem },
   name: 'SaveDataView',
-  data: () => ({
-    saveData: new SaveData('ルート', true),
-  }),
-  mounted() {
-    const data = new SaveData(`編成: ${Math.floor(Math.random() * 10000)}`);
-    this.saveData.childItems = [data];
+  props: {
+    saveData: {
+      type: SaveData,
+      required: true,
+    },
   },
   methods: {
     addNewFile() {
       // 新規データ
-      const folder = new SaveData(`編成: ${Math.floor(Math.random() * 10000)}`);
-      this.addNewSaveData(folder);
+      const data = new SaveData();
+      data.name = '新規データ';
+      data.isUnsaved = false;
+      this.addNewSaveData(data);
     },
     addNewDirectory() {
       // 新規データ
-      const folder = new SaveData(`フォルダー: ${Math.floor(Math.random() * 10000)}`, true);
+      const folder = new SaveData();
+      folder.name = `フォルダー: ${Math.floor(Math.random() * 10000)}`;
+      folder.isDirectory = true;
+      folder.isUnsaved = false;
       this.addNewSaveData(folder);
     },
     addNewSaveData(saveData: SaveData) {
@@ -92,63 +90,25 @@ export default Vue.extend({
         }
       }
 
-      // 最後まで見つからなければルートに追加
-      this.saveData.childItems.push(saveData);
+      // 最後まで選択状態ファイルが見つからなければ、保存されたデータの直下いき
+      const folder = this.saveData.childItems.find((v) => v.isDirectory);
+      if (folder) {
+        if (!saveData.isDirectory) {
+          saveData.name = `新規データ${folder.childItems.filter((v) => !v.isDirectory).length + 1}`;
+        }
+        folder.isOpen = true;
+        folder.childItems.push(saveData);
+        folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+      }
     },
     clearSelectionAll() {
-      const data = this.saveData.childItems;
-      for (let i = 0; i < data.length; i += 1) {
-        data[i].clearSelection();
-      }
+      this.saveData.clearSelection();
     },
     closeAllDirectory() {
-      const data = this.saveData.childItems;
-      for (let i = 0; i < data.length; i += 1) {
-        data[i].closeDirectory();
-      }
+      this.saveData.closeDirectory();
     },
     deleteChild(index: number) {
       this.saveData.childItems = this.saveData.childItems.filter((v, i) => i !== index);
-    },
-    dragLeave(e: DragEvent) {
-      (e.target as HTMLDivElement).style.backgroundColor = '';
-    },
-    dragEnter(e: DragEvent): void {
-      const draggingDiv = document.getElementById('dragging-item');
-      const target = e.target as HTMLDivElement;
-      if (!draggingDiv || !target) {
-        return;
-      }
-      // 受け入れ可能 背景色を青っぽく
-      target.style.backgroundColor = 'rgba(20, 160, 255, 0.2)';
-    },
-    dropItem(e: DragEvent) {
-      // 受け渡されたデータ
-      const draggingDiv = document.getElementById('dragging-item');
-      // そもそもドラッグ開始が正常になされているか
-      if (!draggingDiv) {
-        return;
-      }
-
-      // ドロップされる要素
-      const target = e.target as HTMLDivElement;
-      target.style.backgroundColor = '';
-      if (target.id) {
-        // 自身へのドロップ禁止
-        return;
-      }
-
-      const droppedData = (e.dataTransfer as DataTransfer).getData('text/plain');
-      const saveData = JSON.parse(droppedData) as SaveData;
-
-      if (!this.saveData.isDirectory) {
-        return;
-      }
-
-      const moveData = new SaveData(saveData.name, saveData.isDirectory, saveData.childItems, saveData.saveData, saveData.isOpen);
-      this.saveData.childItems.push(moveData);
-
-      draggingDiv.classList.add('move-ok');
     },
   },
 });

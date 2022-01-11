@@ -1,7 +1,8 @@
 <template>
   <div
-    draggable
+    :draggable="!value.isUnsaved"
     class="save-list"
+    :class="{ 'disabled-drag': value.isUnsaved }"
     @dragover.prevent
     @drop.stop="dropItem($event)"
     @dragleave.stop="dragLeave($event)"
@@ -19,13 +20,15 @@
     >
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
+      <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
+      <v-icon v-else-if="value.isActive" small color="green lighten-3">mdi-file-eye</v-icon>
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
       <div class="item-name text-truncate">{{ value.name }}</div>
       <div class="ml-auto file-action-buttons">
-        <v-btn icon small @click.stop="showNameEditDialog" title="名前を変更">
+        <v-btn icon small @click.stop="showNameEditDialog" title="名前を変更" :disabled="value.isReadonly">
           <v-icon small>mdi-file-document-edit-outline</v-icon>
         </v-btn>
-        <v-btn icon small @click.stop="deleteConfirmDialog = true" title="削除">
+        <v-btn icon small @click.stop="deleteConfirmDialog = true" title="削除" :disabled="value.isReadonly">
           <v-icon small>mdi-trash-can-outline</v-icon>
         </v-btn>
       </div>
@@ -65,6 +68,9 @@
 </template>
 
 <style scoped>
+.save-list.disabled-drag {
+  user-select: none;
+}
 .save-list-item {
   cursor: pointer;
   display: flex;
@@ -78,25 +84,11 @@
 .save-list.dragging .save-list-item * {
   pointer-events: none;
 }
-
 .item-name {
   margin-left: 4px;
   align-self: center;
   flex-grow: 1;
 }
-
-input[type="text"] {
-  margin-right: 0.1rem;
-  padding-left: 0.25rem;
-  color: #ddd;
-  outline: none;
-  border: 1px solid rgb(0, 153, 255);
-  height: 24px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  background: #000;
-}
-
 .file-action-buttons {
   opacity: 0;
 }
@@ -146,6 +138,26 @@ export default Vue.extend({
     itemClicked(): void {
       const data = this.saveData;
       data.selected = true;
+      if (!data.isDirectory) {
+        if (data.isActive && data.isMain) {
+          // 何度もやらせない
+          return;
+        }
+        // ルートのセーブデータを取得し、いったん全てのメイン状態を解除
+        const saveData = this.$store.state.saveData as SaveData;
+        saveData.disabledMain();
+
+        // クリックされたこれをメイン状態とする
+        data.isActive = true;
+        data.isMain = true;
+        this.$store.dispatch('setMainSaveData', data);
+
+        if (!this.$route.path.endsWith('/aircalc')) {
+          // ページ遷移
+          this.$router.push('aircalc');
+        }
+        return;
+      }
       data.isOpen = !data.isOpen;
     },
     onClickOutside(): void {
@@ -187,7 +199,7 @@ export default Vue.extend({
         return;
       }
       // 受け入れ可能 背景色を青っぽく
-      target.style.backgroundColor = 'rgba(20, 160, 255, 0.6)';
+      target.style.backgroundColor = 'rgba(20, 160, 255, 0.8)';
     },
     dropItem(e: DragEvent) {
       // 受け渡されたデータ
@@ -207,8 +219,7 @@ export default Vue.extend({
 
       const droppedData = (e.dataTransfer as DataTransfer).getData('text/plain');
       const d = JSON.parse(droppedData) as SaveData;
-      const moveData = new SaveData(d.name, d.isDirectory, d.childItems, d.saveData, d.isOpen, d.id);
-      console.log('sine');
+      const moveData = new SaveData(d);
 
       const childIds = moveData.getAllDataId();
       if (!this.value.isDirectory || childIds.includes(this.value.id)) {
@@ -217,6 +228,7 @@ export default Vue.extend({
       }
 
       this.value.childItems.push(moveData);
+      this.saveData.childItems.sort((a, b) => a.name.localeCompare(b.name));
       this.value.isOpen = true;
 
       draggingDiv.classList.add('move-ok');
