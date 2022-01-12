@@ -23,16 +23,16 @@
         </div>
       </div>
       <v-divider></v-divider>
-      <div class="enemy-table-body">
-        <div class="pa-3 d-flex flex-wrap">
+      <div class="enemy-table-container pa-3">
+        <div class="enemy-table-body">
           <div v-ripple="{ class: 'info--text' }" v-for="(enemy, i) in enemies" :key="i" class="enemy-list" @click="clickedEnemy(enemy)">
             <div>
               <v-img :src="`./img/enemy/${enemy.id - 1500}.png`" height="30" width="120"></v-img>
             </div>
-            <div>
+            <div class="flex-grow-1">
               <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
-              <div class="enemy-name text-truncate">
-                {{ enemy.name }}
+              <div class="d-flex">
+                <div class="enemy-name text-truncate">{{ enemy.name }}</div>
               </div>
             </div>
           </div>
@@ -43,9 +43,28 @@
 </template>
 
 <style scoped>
-.enemy-table-body {
-  overflow-y: scroll;
+.enemy-table-container {
   height: 64vh;
+  overflow-y: scroll;
+}
+.enemy-table-body {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .enemy-table-body {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 880px) {
+  .enemy-table-body {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 1100px) {
+  .enemy-table-body {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
 
 .type-selector {
@@ -73,6 +92,7 @@
   padding: 0.25rem 0.5rem;
   transition: 0.1s;
   border-radius: 0.2rem;
+  max-height: 45px;
 }
 .enemy-list:hover {
   background-color: rgba(128, 128, 128, 0.1);
@@ -86,10 +106,9 @@
 }
 .enemy-name {
   font-size: 0.8em;
-  width: 150px;
+  width: 10px;
   margin-left: 0.1rem;
-  overflow: hidden;
-  white-space: nowrap;
+  flex-grow: 1;
 }
 </style>
 

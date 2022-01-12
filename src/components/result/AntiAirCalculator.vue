@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-3">
     <div class="d-flex flex-wrap">
       <div class="form-control">
         <v-select label="陣形" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable"></v-select>
@@ -53,7 +53,7 @@
           @input="updateTable"
         ></v-text-field>
       </div>
-      <div class="form-control ml-2">
+      <div class="form-control ml-2 d-none">
         <v-checkbox label="敵側式" v-model="isEnemy" @change="updateTable"></v-checkbox>
       </div>
     </div>

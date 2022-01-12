@@ -9,10 +9,14 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@vue/composition-api": "^1.4.3",
     "axios": "^0.24.0",
+    "chart.js": "^3.1.0",
+    "chartjs-plugin-datalabels": "^2.0.0",
     "core-js": "^3.6.5",
     "lodash": "^4.17.21",
     "vue": "^2.6.11",
+    "vue-chart-3": "^2.0.5",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.24.3",
     "vuetify": "^2.4.0",

@@ -1,13 +1,14 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary dark :width="360">
+    <v-navigation-drawer v-model="drawer" app temporary dark :width="400">
       <save-data-view :save-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <template>
         <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
-          <v-icon small>mdi-content-save</v-icon>編成保存
+          <v-icon small>mdi-content-save</v-icon>
+          <span class="d-none d-md-inline">編成</span>保存
         </v-btn>
         <v-btn
           class="header-btn"
@@ -17,7 +18,10 @@
         >
           <v-icon small>mdi-content-duplicate</v-icon>別名保存
         </v-btn>
-        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text> <v-icon small>mdi-share-variant</v-icon>編成共有</v-btn>
+        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text>
+          <v-icon small>mdi-share-variant</v-icon>
+          <span class="d-none d-md-inline">編成</span>共有
+        </v-btn>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -74,8 +78,10 @@
       </template>
     </v-app-bar>
     <v-main>
-      <router-view />
-      <div class="info-area">
+      <div class="px-2 px-md-4">
+        <router-view />
+      </div>
+      <div class="info-area px-2 px-md-4">
         <v-divider class="mb-2"></v-divider>
         <div class="caption">
           著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。

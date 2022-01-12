@@ -15,7 +15,7 @@
           <v-checkbox v-model="isFinal" @change="filter()" label="最終改造"></v-checkbox>
         </div>
         <v-spacer></v-spacer>
-        <div class="align-self-center d-none d-md-block">
+        <div class="align-self-center d-none d-sm-block">
           <v-btn depressed :class="{ info: !multiLine }" @click="multiLine = false">
             <v-icon>mdi-view-headline</v-icon>
             <span>一列</span>
@@ -87,7 +87,7 @@
   display: grid;
   grid-template-columns: 1fr;
 }
-@media (min-width: 660px) {
+@media (min-width: 600px) {
   .multi {
     grid-template-columns: 1fr 1fr;
   }

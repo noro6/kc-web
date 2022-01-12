@@ -106,14 +106,14 @@
       <table>
         <thead>
           <tr>
-            <th width="100px"></th>
-            <th width="10%">制空値</th>
+            <th></th>
+            <th>制空値</th>
             <th>敵制空値( 確保 / 優勢 / 拮抗 / 劣勢)</th>
-            <th class="pr-sm-1" width="10%">確保</th>
-            <th class="pr-sm-1" width="10%">優勢</th>
-            <th class="pr-sm-1" width="10%">拮抗</th>
-            <th class="pr-sm-1" width="10%">劣勢</th>
-            <th class="pr-sm-1" width="10%">喪失</th>
+            <th class="pr-sm-1">確保</th>
+            <th class="pr-sm-1">優勢</th>
+            <th class="pr-sm-1">拮抗</th>
+            <th class="pr-sm-1">劣勢</th>
+            <th class="pr-sm-1">喪失</th>
           </tr>
         </thead>
         <tbody>
@@ -202,14 +202,14 @@ table tr td {
 table tr:hover {
   background-color: rgba(128, 128, 128, 0.05);
 }
-.td-enemy-name,
 .td-ship-name {
   font-size: 12px;
   text-align: center;
   width: 100px;
 }
 .td-enemy-name {
-  width: 180px;
+  font-size: 12px;
+  text-align: center;
 }
 .td-battle0 {
   border-left: 1px solid rgba(128, 128, 128, 0.4);

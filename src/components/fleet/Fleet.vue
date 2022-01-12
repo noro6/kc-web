@@ -64,7 +64,7 @@
       ></ship-input>
     </div>
     <air-status-result-bar :result="result" class="mt-3" />
-    <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="1200" @input="toggleDetailDialog">
+    <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
       <fleet-detail v-if="!destroyDialog" :fleet="actualFleet" :index="index" :is-union="isUnion" ref="fleetDetail" />
     </v-dialog>
   </div>

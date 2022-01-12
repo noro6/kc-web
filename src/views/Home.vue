@@ -2,8 +2,8 @@
   <div class="site-top-container">
     <div class="site-title content">制空権シミュレータ v2.0.0</div>
     <v-card class="site-body content">
-      <div class="menu-buttons py-5 px-8">
-        <div class="mr-8">
+      <div class="menu-buttons">
+        <div class="ma-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
             <v-icon>mdi-calculator</v-icon>
             <span class="ml-1">制空権シミュレータ</span>
@@ -15,7 +15,7 @@
             </div>
           </div>
         </div>
-        <div class="ml-8">
+        <div class="ma-4">
           <v-btn x-large color="blue" dark @click="$router.push('manager')">
             <v-icon>mdi-database-cog</v-icon>
             <span class="ml-1">艦娘 / 装備管理</span>
@@ -47,7 +47,12 @@
 }
 .menu-buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 800px) {
+  .menu-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>
 
