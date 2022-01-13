@@ -45,7 +45,7 @@
       <enemy-list :handle-decide-enemy="putEnemy" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" width="1200">
-      <item-list ref="itemList" :handle-equip-item="equipItem" />
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" />
     </v-dialog>
     <v-dialog v-model="worldListDialog" transition="scroll-x-transition" width="600" @input="toggleWorldList">
       <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" :handleClose="closeWorldList" />
@@ -226,6 +226,9 @@ export default Vue.extend({
     },
     closeTargetDialog() {
       this.targetDialog = false;
+    },
+    closeItemList() {
+      this.itemListDialog = false;
     },
   },
 });

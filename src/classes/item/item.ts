@@ -438,7 +438,7 @@ export default class Item {
       case 34:
         // おにぎり
         return 1;
-      case 36:
+      case 46:
         // 特型内火艇
         return 2;
       default:

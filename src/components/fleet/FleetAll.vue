@@ -52,7 +52,7 @@
       <ship-list :handle-decide-ship="putShip" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" width="1200">
-      <item-list ref="itemList" :handle-equip-item="equipItem" />
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" />
     </v-dialog>
   </v-card>
 </template>
@@ -238,6 +238,9 @@ export default Vue.extend({
     },
     resetFleetAll() {
       this.setInfo(new FleetInfo());
+    },
+    closeItemList() {
+      this.itemListDialog = false;
     },
   },
 });

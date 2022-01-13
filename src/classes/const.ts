@@ -504,32 +504,74 @@ export default class Const {
   ];
 
   /**
-   * 装備一覧 ちょっとまとめたやつ
+   * 装備一覧 ちょっとまとめたやつと、装備一覧表示のステータス
    * @static
    * @memberof Const
    */
   public static readonly ITEM_TYPES_ALT = [
-    { id: 1, text: '大口径主砲', types: [1] },
-    { id: 2, text: '中口径主砲', types: [2] },
-    { id: 3, text: '小口径主砲', types: [3] },
-    { id: 6, text: '艦戦', types: [6] },
-    { id: 7, text: '艦爆', types: [7] },
-    { id: 8, text: '艦攻', types: [8] },
-    { id: 9, text: '艦偵', types: [9] },
-    { id: 57, text: '噴式機', types: [57] },
-    { id: 5, text: '魚雷', types: [5, 22, 32] },
-    { id: 10, text: '水上機', types: [10, 11] },
-    { id: 45, text: '水戦', types: [45] },
-    { id: 41, text: '大型飛行艇', types: [41] },
-    { id: 12, text: '電探', types: [12, 13] },
-    { id: 14, text: '対潜装備', types: [14, 15, 40] },
-    { id: 4, text: '副砲', types: [4] },
-    { id: 21, text: '機銃', types: [21] },
-    { id: 24, text: '上陸用舟艇', types: [24, 30, 46] },
-    { id: 17, text: 'その他', types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51] },
-    { id: 47, text: '陸攻', types: [47, 53] },
-    { id: 48, text: '局戦', types: [48] },
-    { id: 49, text: '陸偵', types: [49] },
+    {
+      id: 1, text: '大口径主砲', viewStatus: ['fire', 'antiAir', 'accuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
+    },
+    {
+      id: 2, text: '中口径主砲', viewStatus: ['fire', 'antiAir', 'accuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [2],
+    },
+    {
+      id: 3, text: '小口径主砲', viewStatus: ['fire', 'antiAir', 'accuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
+    },
+    {
+      id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'accuracy', 'avoid', 'airPower', 'radius'], types: [6],
+    },
+    {
+      id: 7, text: '艦爆', viewStatus: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoidText', 'radius'], types: [7],
+    },
+    {
+      id: 8, text: '艦攻', viewStatus: ['torpedo', 'antiAir', 'accuracy', 'asw', 'avoidText', 'radius'], types: [8],
+    },
+    {
+      id: 9, text: '艦偵', viewStatus: ['scout', 'fire', 'accuracy', 'antiAir', 'radius', 'cost'], types: [9],
+    },
+    {
+      id: 57, text: '噴式機', viewStatus: ['bomber', 'accuracy', 'antiAir', 'avoidText', 'airPower', 'cost'], types: [57],
+    },
+    {
+      id: 5, text: '魚雷', viewStatus: ['torpedo', 'fire', 'accuracy', 'avoid', 'armor'], types: [5, 22, 32],
+    },
+    {
+      id: 10, text: '水上機', viewStatus: ['bomber', 'antiAir', 'accuracy', 'scout', 'radius', 'avoidText'], types: [10, 11],
+    },
+    {
+      id: 45, text: '水戦', viewStatus: ['antiAir', 'actualAntiAir', 'scout', 'accuracy', 'radius', 'airPower'], types: [45],
+    },
+    {
+      id: 41, text: '大型飛行艇', viewStatus: ['scout', 'accuracy', 'asw', 'radius', 'cost'], types: [41],
+    },
+    {
+      id: 12, text: '電探', viewStatus: ['fire', 'antiAir', 'accuracy', 'scout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
+    },
+    {
+      id: 14, text: '対潜装備', viewStatus: ['asw', 'accuracy', 'armor', 'avoid', 'scout'], types: [14, 15, 40],
+    },
+    {
+      id: 4, text: '副砲', viewStatus: ['fire', 'antiAir', 'accuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [4],
+    },
+    {
+      id: 21, text: '機銃', viewStatus: ['fire', 'antiAir', 'accuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
+    },
+    {
+      id: 24, text: '上陸用舟艇', viewStatus: ['fire', 'antiAir', 'scout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
+    },
+    {
+      id: 17, text: 'その他', viewStatus: ['fire', 'antiAir', 'accuracy', 'fiantiAirWeightre', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
+    },
+    {
+      id: 47, text: '陸攻', viewStatus: ['torpedo', 'bomber', 'antiAir', 'radius', 'avoidText', 'airPower'], types: [47, 53],
+    },
+    {
+      id: 48, text: '局戦', viewStatus: ['antiAir', 'radius', 'actualAntiAir', 'defenseAntiAir', 'airPower', 'defAirPower'], types: [48],
+    },
+    {
+      id: 49, text: '陸偵', viewStatus: ['antiAir', 'scout', 'accuracy', 'radius', 'armor', 'cost'], types: [49],
+    },
   ]
 
   /**

@@ -1,9 +1,9 @@
 <template>
   <div class="ma-2">
-    <div class="d-flex py-5 ml-5">
-      <div class="align-self-center">制空状態:</div>
+    <div class="d-flex ml-5">
+      <div class="align-self-center pt-3">制空状態:</div>
       <div class="ml-5">
-        <v-radio-group v-model="airState" row @change="changeAirState" hide-details class="my-0 py-0">
+        <v-radio-group v-model="airState" row @change="changeAirState" hide-details class="py-0">
           <v-radio label="制空権確保" :value="0"></v-radio>
           <v-radio label="航空優勢" :value="1"></v-radio>
           <v-radio label="航空劣勢" :value="2"></v-radio>
