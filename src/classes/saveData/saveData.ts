@@ -71,61 +71,51 @@ export default class SaveData {
   /** 保存されていないデータ 新規追加されたやつ アプリ終了時に消しとばす */
   public isUnsaved: boolean;
 
-  /** 読み取り専用 専らルートディレクトリ直下の「保存されたデータ」アレだけ */
+  /** 読み取り専用 専らルートディレクトリ直下の「保存されたデータ」ディレクトリだけ */
   public isReadonly: boolean;
 
   /** 子要素セーブデータ ディレクトリのみ有効 */
   public childItems: SaveData[] = [];
 
   /** 一時保存データ DBへの登録は行わない */
-  public temporaryData: CalcManager[];
+  public tempData: CalcManager[];
 
   /** 一時保存データ カーソル */
-  public temporaryIndex: number;
+  public tempIndex: number;
+
+  /** 一時保存データ 最後にセーブしたIndex箇所 */
+  public tempSavedIndex: number;
 
   /**
-   * インスタンス化 未指定で通常編成ファイル
+   * インスタンス化
    * @param {SaveData} [data]
    * @memberof SaveData
    */
-  constructor(data?: SaveData) {
-    if (!data) {
-      // インスタンス指定なし生成
-      this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
-      this.name = '無題';
-      this.isDirectory = false;
-      this.isOpen = false;
-      this.selected = false;
-      this.isActive = false;
-      this.isMain = false;
-      this.manager = '';
-      this.childItems = [];
-      this.temporaryData = [];
-      this.temporaryIndex = -1;
-      this.isUnsaved = true;
-    } else {
-      // クローンのごとき
-      this.id = data.id || new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
-      this.name = data.name;
-      this.isDirectory = data.isDirectory;
-      this.childItems = [];
-      this.isOpen = data.isOpen;
-      this.manager = data.manager;
-      this.selected = data.selected;
-      this.isActive = data.isActive;
-      this.isMain = data.isMain;
-      this.temporaryData = data.temporaryData;
-      this.temporaryIndex = data.temporaryIndex;
-      this.isUnsaved = data.isUnsaved;
-
-      for (let i = 0; i < data.childItems.length; i += 1) {
-        const item = data.childItems[i];
-        this.childItems.push(new SaveData(item));
-        this.childItems.sort((a, b) => a.name.localeCompare(b.name));
-      }
-    }
-
+  constructor() {
+    this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
+    this.name = '無題';
+    this.isDirectory = false;
+    this.isOpen = false;
+    this.selected = false;
+    this.isActive = false;
+    this.isMain = false;
+    this.manager = '';
+    this.childItems = [];
+    this.tempData = [];
+    this.tempIndex = -1;
+    this.isUnsaved = true;
+    this.tempSavedIndex = -1;
     this.isReadonly = false;
+  }
+
+  /**
+   * 本データが編集状態であるか
+   * @readonly
+   * @type {boolean}
+   * @memberof SaveData
+   */
+  public get isEditted(): boolean {
+    return this.tempSavedIndex !== this.tempIndex;
   }
 
   /**
@@ -276,6 +266,35 @@ export default class SaveData {
   }
 
   /**
+   * 引数の計算データを履歴に追加 最大20件
+   * @param {CalcManager} calcManager
+   * @memberof SaveData
+   */
+  public putHistory(calcManager: CalcManager): void {
+    if (this.tempIndex < this.tempData.length - 1) {
+      // 中途半端な位置にインデックスがある場合、以降をいったん削除
+      this.tempData = this.tempData.slice(0, this.tempIndex + 1);
+      if (this.tempSavedIndex >= this.tempData.length) {
+        // 削除された中に最終セーブ箇所があれば破棄
+        this.tempSavedIndex = -1;
+      }
+    }
+
+    // ひたすらケツに突っ込むことだけを考える
+    this.tempData.push(_.cloneDeep(calcManager));
+    this.tempIndex += 1;
+
+    const maxCount = 20;
+    if (this.tempData.length > maxCount) {
+      // 履歴は最新の20件
+      this.tempData = this.tempData.splice(-maxCount);
+      this.tempIndex = maxCount - 1;
+      // 最終セーブ位置をずらす
+      this.tempSavedIndex -= 1;
+    }
+  }
+
+  /**
    * 現在展開中のデータで上書き保存
    * @memberof SaveData
    */
@@ -332,12 +351,14 @@ export default class SaveData {
     };
 
     // 現在のインデックスのデータ
-    const managerData = this.temporaryData[this.temporaryIndex];
+    const managerData = this.tempData[this.tempIndex];
     // JSONにパースして保存
     const data = JSON.stringify(managerData, replacer);
     // 一度復元してチェック
     JSON.parse(data);
     this.manager = data;
+    // 最終セーブIndexを更新
+    this.tempSavedIndex = this.tempIndex;
   }
 
   /**
@@ -347,21 +368,22 @@ export default class SaveData {
    * @memberof SaveData
    */
   public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
-    if (this.temporaryData.length) {
+    if (this.tempData.length) {
       // 一時保存領域にデータがあればそちら
-      if (this.temporaryIndex >= this.temporaryData.length) {
+      if (this.tempIndex >= this.tempData.length) {
         // 一応範囲外チェック
-        this.temporaryIndex = this.temporaryData.length - 1;
+        this.tempIndex = this.tempData.length - 1;
       }
-      return _.cloneDeep(this.temporaryData[this.temporaryIndex]);
+      return _.cloneDeep(this.tempData[this.tempIndex]);
     }
 
     if (!this.manager) {
       const newData = new CalcManager();
       newData.resetAll = true;
       // 一時保存データにこの情報を突っ込む
-      this.temporaryData = [_.cloneDeep(newData)];
-      this.temporaryIndex = 0;
+      this.tempData = [_.cloneDeep(newData)];
+      this.tempIndex = 0;
+      this.tempSavedIndex = 0;
       return newData;
     }
 
@@ -485,8 +507,9 @@ export default class SaveData {
     resultData.resetAll = true;
 
     // 一時保存データにこの情報を突っ込む
-    this.temporaryData = [_.cloneDeep(resultData)];
-    this.temporaryIndex = 0;
+    this.tempData = [_.cloneDeep(resultData)];
+    this.tempIndex = 0;
+    this.tempSavedIndex = 0;
 
     return resultData;
   }

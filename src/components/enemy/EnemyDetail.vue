@@ -1,10 +1,17 @@
 <template>
   <v-card class="pa-2 detail-card">
-    <div class="pa-2">敵艦隊詳細</div>
+    <div class="d-flex pb-1">
+      <div class="align-self-center ml-3">敵艦隊詳細</div>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="close">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </div>
     <v-divider class="mb-1"></v-divider>
     <v-tabs v-model="tab">
       <v-tab href="#fleet">艦隊情報</v-tab>
       <v-tab href="#stage2">対空砲火</v-tab>
+      <v-tab href="#contact">触接</v-tab>
       <v-tab-item value="fleet" class="detail-fleet">
         <v-divider></v-divider>
         <div class="body-1 ma-1">
@@ -86,6 +93,10 @@
         <v-divider></v-divider>
         <anti-air-calculator :fleet="fleet" />
       </v-tab-item>
+      <v-tab-item value="contact" class="detail-fleet">
+        <v-divider></v-divider>
+        <contact-rates :fleet="fleet" />
+      </v-tab-item>
     </v-tabs>
   </v-card>
 </template>
@@ -133,6 +144,7 @@
 import Vue from 'vue';
 import EnemyInput from './EnemyInput.vue';
 import AntiAirCalculator from '../result/AntiAirCalculator.vue';
+import ContactRates from '../result/ContactRates.vue';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Enemy from '@/classes/enemy/enemy';
 
@@ -140,6 +152,7 @@ export default Vue.extend({
   components: {
     EnemyInput,
     AntiAirCalculator,
+    ContactRates,
   },
   name: 'EnemyDetail',
   props: {
@@ -148,6 +161,10 @@ export default Vue.extend({
     },
     fleet: {
       type: EnemyFleet,
+      required: true,
+    },
+    handleClose: {
+      type: Function,
       required: true,
     },
   },
@@ -169,6 +186,9 @@ export default Vue.extend({
     showItemList(): void {
       // 装備変更は許可しない
       // this.handleShowItemList(index, index);
+    },
+    close() {
+      this.handleClose();
     },
   },
 });

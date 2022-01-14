@@ -65,8 +65,8 @@
     <div v-if="isDefenseMode" class="mx-1 mb-1 mt-3">
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
-    <v-dialog v-model="itemListDialog" width="1200" transition="scroll-x-transition">
-      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" />
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth"  />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
       <airbase-target v-model="airbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
@@ -171,6 +171,7 @@ export default Vue.extend({
     difficultyLevelItem: Const.DIFFICULTY_LEVELS,
     dialogTarget: [-1, -1],
     tab: 0,
+    itemDialogWidth: 1200,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -285,6 +286,9 @@ export default Vue.extend({
     },
     closeItemList() {
       this.itemListDialog = false;
+    },
+    changeWidth(width: number) {
+      this.itemDialogWidth = width;
     },
   },
 });

@@ -48,11 +48,11 @@
         ></fleet-component>
       </v-tab-item>
     </v-tabs-items>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" width="1200">
-      <ship-list :handle-decide-ship="putShip" />
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+      <ship-list :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth"/>
     </v-dialog>
-    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" width="1200">
-      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" />
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
   </v-card>
 </template>
@@ -96,6 +96,8 @@ export default Vue.extend({
     itemDialogTarget: [-1, -1, -1],
     shipDialogTarget: [-1, -1],
     tab: 'fleet0',
+    itemDialogWidth: 1200,
+    shipDialogWidth: 1200,
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -199,7 +201,10 @@ export default Vue.extend({
       if (slotIndex < items.length) {
         // 装備を置き換え
         items[slotIndex] = new Item({
-          item: items[slotIndex], master, remodel, level,
+          item: items[slotIndex],
+          master,
+          remodel,
+          level,
         });
         // 装備を変更した艦娘インスタンス再生成
         newShip = new Ship({ ship, items });
@@ -239,8 +244,15 @@ export default Vue.extend({
     resetFleetAll() {
       this.setInfo(new FleetInfo());
     },
-    closeItemList() {
+    closeDialog() {
       this.itemListDialog = false;
+      this.shipListDialog = false;
+    },
+    changeWidth(width: number) {
+      this.itemDialogWidth = width;
+    },
+    changeShipWidth(width: number) {
+      this.shipDialogWidth = width;
     },
   },
 });

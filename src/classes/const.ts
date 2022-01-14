@@ -522,22 +522,22 @@ export default class Const {
       id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'accuracy', 'avoid', 'airPower', 'radius'], types: [6],
     },
     {
-      id: 7, text: '艦爆', viewStatus: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoidText', 'radius'], types: [7],
+      id: 7, text: '艦爆', viewStatus: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [7],
     },
     {
-      id: 8, text: '艦攻', viewStatus: ['torpedo', 'antiAir', 'accuracy', 'asw', 'avoidText', 'radius'], types: [8],
+      id: 8, text: '艦攻', viewStatus: ['torpedo', 'antiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [8],
     },
     {
       id: 9, text: '艦偵', viewStatus: ['scout', 'fire', 'accuracy', 'antiAir', 'radius', 'cost'], types: [9],
     },
     {
-      id: 57, text: '噴式機', viewStatus: ['bomber', 'accuracy', 'antiAir', 'avoidText', 'airPower', 'cost'], types: [57],
+      id: 57, text: '噴式機', viewStatus: ['bomber', 'accuracy', 'antiAir', 'avoidId', 'airPower', 'cost'], types: [57],
     },
     {
       id: 5, text: '魚雷', viewStatus: ['torpedo', 'fire', 'accuracy', 'avoid', 'armor'], types: [5, 22, 32],
     },
     {
-      id: 10, text: '水上機', viewStatus: ['bomber', 'antiAir', 'accuracy', 'scout', 'radius', 'avoidText'], types: [10, 11],
+      id: 10, text: '水上機', viewStatus: ['bomber', 'antiAir', 'accuracy', 'scout', 'radius', 'avoidId'], types: [10, 11],
     },
     {
       id: 45, text: '水戦', viewStatus: ['antiAir', 'actualAntiAir', 'scout', 'accuracy', 'radius', 'airPower'], types: [45],
@@ -561,13 +561,13 @@ export default class Const {
       id: 24, text: '上陸用舟艇', viewStatus: ['fire', 'antiAir', 'scout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['fire', 'antiAir', 'accuracy', 'fiantiAirWeightre', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
+      id: 17, text: 'その他', viewStatus: ['fire', 'antiAir', 'accuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
     },
     {
-      id: 47, text: '陸攻', viewStatus: ['torpedo', 'bomber', 'antiAir', 'radius', 'avoidText', 'airPower'], types: [47, 53],
+      id: 47, text: '陸攻', viewStatus: ['torpedo', 'bomber', 'antiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
     },
     {
-      id: 48, text: '局戦', viewStatus: ['antiAir', 'radius', 'actualAntiAir', 'defenseAntiAir', 'airPower', 'defAirPower'], types: [48],
+      id: 48, text: '局戦', viewStatus: ['antiAir', 'radius', 'actualAntiAir', 'actualDefenseAntiAir', 'airPower', 'defenseAirPower'], types: [48],
     },
     {
       id: 49, text: '陸偵', viewStatus: ['antiAir', 'scout', 'accuracy', 'radius', 'armor', 'cost'], types: [49],

@@ -66,7 +66,7 @@
       </div>
     </div>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
-      <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" />
+      <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" :handleClose="closeDetail"/>
     </v-dialog>
   </v-card>
 </template>
@@ -222,6 +222,9 @@ export default Vue.extend({
     },
     showWorldList() {
       this.handleShowWorldList(this.index);
+    },
+    closeDetail() {
+      this.detailDialog = false;
     },
   },
 });

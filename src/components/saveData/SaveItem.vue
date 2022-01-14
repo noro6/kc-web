@@ -25,7 +25,7 @@
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
       <div class="item-name text-truncate">{{ value.name }}</div>
       <div class="ml-auto file-action-buttons">
-        <v-btn icon small @click.stop="showNameEditDialog" title="名前を変更" :disabled="value.isReadonly">
+        <v-btn v-if="!value.isUnsaved" icon small @click.stop="showNameEditDialog" title="名前を変更" :disabled="value.isReadonly">
           <v-icon small>mdi-file-document-edit-outline</v-icon>
         </v-btn>
         <v-btn icon small @click.stop="deleteConfirmDialog = true" title="削除" :disabled="value.isReadonly">
@@ -135,6 +135,11 @@ export default Vue.extend({
     },
   },
   methods: {
+    handleUpdateSaveData(): void {
+      // セーブデータの更新を通知
+      const saveData = this.$store.state.saveData as SaveData;
+      this.$store.dispatch('updateSaveData', saveData);
+    },
     itemClicked(): void {
       const data = this.saveData;
       data.selected = true;
@@ -168,7 +173,10 @@ export default Vue.extend({
       this.handleDelete(this.index);
     },
     deleteChild(index: number) {
+      // データの削除は常にこのメソッドにより行われる
       this.value.childItems = this.value.childItems.filter((v, i) => i !== index);
+      // 更新を通知
+      this.handleUpdateSaveData();
     },
     showNameEditDialog() {
       this.editedName = this.value.name;
@@ -177,12 +185,15 @@ export default Vue.extend({
     commitName() {
       this.editDialog = false;
       this.value.name = this.editedName.trim();
+      this.handleUpdateSaveData();
     },
     dragStart(e: DragEvent) {
       const target = e.target as HTMLDivElement;
       target.style.opacity = '0.6';
       target.id = 'dragging-item';
-      (e.dataTransfer as DataTransfer).setData('text/plain', JSON.stringify(this.value));
+
+      // ドラッグ中セーブデータを一時保持
+      this.$store.dispatch('setDraggingSaveData', this.value);
 
       const itemList = document.getElementsByClassName('save-list');
       for (let i = 0; i < itemList.length; i += 1) {
@@ -217,10 +228,8 @@ export default Vue.extend({
         return;
       }
 
-      const droppedData = (e.dataTransfer as DataTransfer).getData('text/plain');
-      const d = JSON.parse(droppedData) as SaveData;
-      const moveData = new SaveData(d);
-
+      // 一時退避していたデータをセット
+      const moveData = this.$store.state.draggingSaveData as SaveData;
       const childIds = moveData.getAllDataId();
       if (!this.value.isDirectory || childIds.includes(this.value.id)) {
         // 自身がファイルじゃなかったり、子孫データに対して自分を入れようとした場合は無理
@@ -228,7 +237,6 @@ export default Vue.extend({
       }
 
       this.value.childItems.push(moveData);
-      this.saveData.childItems.sort((a, b) => a.name.localeCompare(b.name));
       this.value.isOpen = true;
 
       draggingDiv.classList.add('move-ok');

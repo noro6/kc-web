@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
 import AirbaseAll from '@/components/airbase/AirbaseAll.vue';
 import MainResult from '@/components/result/MainResult.vue';
@@ -167,21 +166,7 @@ export default Vue.extend({
       const isIgnoreHisotry = manager.fleetInfo.ignoreHistory || manager.airbaseInfo.ignoreHistory || manager.battleInfo.ignoreHistory;
       // シミュレータ内からの更新だった場合(外部のタブ操作やundo redoでの計算処理でない場合)のみ、履歴を更新
       if (mainData && needPutHistory && !isIgnoreHisotry) {
-        if (mainData.temporaryIndex < mainData.temporaryData.length - 1) {
-          // 中途半端な位置にインデックスがある場合、以降をいったん削除
-          mainData.temporaryData = mainData.temporaryData.slice(0, mainData.temporaryIndex + 1);
-        }
-
-        // ひたすらケツに突っ込むことだけを考える
-        mainData.temporaryData.push(_.cloneDeep(this.calcManager));
-        mainData.temporaryIndex += 1;
-
-        const maxCount = 20;
-        if (mainData.temporaryData.length > maxCount) {
-          // 履歴は最新の20件
-          mainData.temporaryData = mainData.temporaryData.splice(-maxCount);
-          mainData.temporaryIndex = maxCount - 1;
-        }
+        mainData.putHistory(manager);
       }
 
       // 次回計算が実行されたら履歴に入れたい

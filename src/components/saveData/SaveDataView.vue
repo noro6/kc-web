@@ -32,7 +32,7 @@
     </div>
     <v-divider></v-divider>
     <div class="item-container">
-      <save-item v-for="(item, i) in saveData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" />
+      <save-item v-for="(item, i) in rootData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" />
     </div>
   </v-sheet>
 </template>
@@ -61,7 +61,7 @@ export default Vue.extend({
   components: { SaveItem },
   name: 'SaveDataView',
   props: {
-    saveData: {
+    rootData: {
       type: SaveData,
       required: true,
     },
@@ -83,15 +83,17 @@ export default Vue.extend({
       this.addNewSaveData(folder);
     },
     addNewSaveData(saveData: SaveData) {
-      const data = this.saveData.childItems;
+      const data = this.rootData.childItems;
       for (let i = 0; i < data.length; i += 1) {
         if (data[i].addNewFileToSelectedData(saveData)) {
+          // セーブデータの更新を通知
+          this.$store.dispatch('updateSaveData', this.rootData);
           return;
         }
       }
 
       // 最後まで選択状態ファイルが見つからなければ、保存されたデータの直下いき
-      const folder = this.saveData.childItems.find((v) => v.isDirectory);
+      const folder = this.rootData.childItems.find((v) => v.isDirectory);
       if (folder) {
         if (!saveData.isDirectory) {
           saveData.name = `新規データ${folder.childItems.filter((v) => !v.isDirectory).length + 1}`;
@@ -99,16 +101,20 @@ export default Vue.extend({
         folder.isOpen = true;
         folder.childItems.push(saveData);
         folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+        // セーブデータの更新を通知
+        this.$store.dispatch('updateSaveData', this.rootData);
       }
     },
     clearSelectionAll() {
-      this.saveData.clearSelection();
+      this.rootData.clearSelection();
     },
     closeAllDirectory() {
-      this.saveData.closeDirectory();
+      this.rootData.closeDirectory();
     },
     deleteChild(index: number) {
-      this.saveData.childItems = this.saveData.childItems.filter((v, i) => i !== index);
+      this.rootData.childItems = this.rootData.childItems.filter((v, i) => i !== index);
+      // セーブデータの更新を通知
+      this.$store.dispatch('updateSaveData', this.rootData);
     },
   },
 });

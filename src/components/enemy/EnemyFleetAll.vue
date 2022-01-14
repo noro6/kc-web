@@ -44,8 +44,8 @@
     <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
       <enemy-list :handle-decide-enemy="putEnemy" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" width="1200">
-      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" />
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth">
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="worldListDialog" transition="scroll-x-transition" width="600" @input="toggleWorldList">
       <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" :handleClose="closeWorldList" />
@@ -110,6 +110,7 @@ export default Vue.extend({
     targetDialog: false,
     dialogTarget: [-1, -1],
     fleetStock: [] as EnemyFleet[],
+    itemDialogWidth: 1200,
   }),
   computed: {
     battleInfo(): BattleInfo {
@@ -229,6 +230,9 @@ export default Vue.extend({
     },
     closeItemList() {
       this.itemListDialog = false;
+    },
+    changeWidth(width: number) {
+      this.itemDialogWidth = width;
     },
   },
 });

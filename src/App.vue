@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary dark :width="400">
-      <save-data-view :save-data="saveData" />
+    <v-navigation-drawer v-model="drawer" app temporary dark :width="480">
+      <save-data-view :root-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -90,7 +90,7 @@
           また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。
         </div>
       </div>
-      <v-snackbar v-model="readInform" :color="readResult" top>
+      <v-snackbar v-model="readInform" :color="readResultColor" top>
         {{ readInformText }}
         <template v-slot:action="{ attrs }">
           <v-btn icon v-bind="attrs" @click="readInform = false"><v-icon>mdi-close</v-icon></v-btn>
@@ -214,7 +214,7 @@ export default Vue.extend({
     readState: false as boolean | string,
     readInform: false,
     readInformText: '',
-    readResult: 'success',
+    readResultColor: 'success',
     setting: new SiteSetting(),
     editDialog: false,
     editedName: '',
@@ -229,11 +229,11 @@ export default Vue.extend({
     },
     enabledUndo(): boolean {
       const data = this.mainSaveData;
-      return data ? data.temporaryIndex > 0 : false;
+      return data ? data.tempIndex > 0 : false;
     },
     enabledRedo(): boolean {
       const data = this.mainSaveData;
-      return data ? data.temporaryIndex < data.temporaryData.length - 1 : false;
+      return data ? data.tempIndex < data.tempData.length - 1 : false;
     },
     isNameEmptry(): boolean {
       return this.editedName.length <= 0;
@@ -256,49 +256,105 @@ export default Vue.extend({
       } else if (mutation.type === 'setMainSaveData') {
         // メインデータの更新を購読 常に最新の状態を保つ
         this.mainSaveData = state.mainSaveData as SaveData;
+      } else if (mutation.type === 'updateSetting') {
+        // 設定情報の更新を購読 常に最新の状態を保つ
+        console.log('todo 設定用DB更新');
+
+        this.setting = state.siteSetting as SiteSetting;
       }
     });
   },
   methods: {
     readSomethingText() {
       this.readState = 'primary';
+      // デッキビルダー形式データ読み込み試行
+      if (this.setDeckBuilder()) {
+        this.readInformText = '編成の読み込みが完了しました。';
+        this.readResultColor = 'success';
+      } else if (this.setShipStock()) {
+        // 在籍艦娘データ読み込み試行
+        this.readInformText = '在籍艦娘データの更新が完了しました。';
+        this.readResultColor = 'success';
+      } else if (this.setItemStock()) {
+        // 所持装備データ読み込み試行
+        this.readInformText = '所持装備データの更新が完了しました。';
+        this.readResultColor = 'success';
+      } else {
+        // 全部失敗
+        this.readInformText = 'データの読み込みに失敗しました。正しいデータではない可能性があります。';
+        this.readResultColor = 'error';
+      }
 
+      // 後始末と通知
+      this.somethingText = '';
+      this.readState = false;
+      this.readInform = true;
+    },
+    setDeckBuilder(): boolean {
+      // デッキビルダー形式データを計算データに設定して計算ページに移譲
       try {
         const converter = new Convert(this.$store.state.items, this.$store.state.ships);
-        const newManager = converter.loadDeckBuilder(this.somethingText);
-        this.somethingText = '';
-        this.readState = false;
-        this.readInformText = '編成の読み込みが完了しました。';
-        this.readInform = true;
-        this.readResult = 'success';
-
+        const manager = converter.loadDeckBuilder(this.somethingText);
+        if (!manager) {
+          // 何もない編成データは無意味なので返す
+          return false;
+        }
         let mainData = this.saveData.getMainData();
         if (mainData) {
           // もともと開いている編成があるならそこに追加
-          mainData.temporaryData.push(newManager);
-          mainData.temporaryIndex += 1;
+          mainData.tempData.push(manager);
+          mainData.tempIndex += 1;
         } else {
           mainData = new SaveData();
           mainData.name = '外部データ';
           mainData.isActive = true;
           mainData.isMain = true;
-          mainData.temporaryData = [newManager];
-          mainData.temporaryIndex = 0;
+          mainData.tempData = [manager];
+          mainData.tempIndex = 0;
+          mainData.tempSavedIndex = 0;
           this.saveData.childItems.push(mainData);
         }
-
         this.$store.dispatch('setMainSaveData', mainData);
         if (!this.$route.path.endsWith('/aircalc')) {
           // ページ遷移
           this.$router.push('aircalc');
         }
+        return true;
       } catch (error) {
-        console.error(error);
-        this.readState = false;
-        this.textareaHasError = true;
-        this.readInformText = '読み込みに失敗しました。';
-        this.readInform = true;
-        this.readResult = 'error';
+        return false;
+      }
+    },
+    setShipStock(): boolean {
+      // 在籍艦娘情報を更新
+      try {
+        const shipList = Convert.readShipStockJson(this.somethingText);
+        if (shipList.length === 0) {
+          // 何もない在籍データは無意味なので返す
+          return false;
+        }
+        // 設定書き換え
+        this.setting.isStockOnlyForShipList = true;
+        this.$store.dispatch('updateSetting', this.setting);
+        this.$store.dispatch('updateShipStock', shipList);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
+    setItemStock(): boolean {
+      // 所持装備情報を更新
+      try {
+        const itemList = Convert.readItemStockJson(this.somethingText);
+        if (itemList.length === 0) {
+          // 何もない所持装備データは無意味なので返す
+          return false;
+        }
+        this.setting.isStockOnlyForItemList = true;
+        this.$store.dispatch('updateSetting', this.setting);
+        this.$store.dispatch('updateItemStock', itemList);
+        return true;
+      } catch (error) {
+        return false;
       }
     },
     saveCurrentData() {
@@ -314,7 +370,11 @@ export default Vue.extend({
               folder.childItems.push(data);
               folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
 
+              // 保存されていないファイル群から除去
               this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
+
+              // DB更新を促す
+              this.$store.dispatch('updateSaveData', this.saveData);
             } else {
               throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
             }
@@ -322,11 +382,11 @@ export default Vue.extend({
           data.saveManagerData();
           this.readInformText = '保存しました。';
           this.readInform = true;
-          this.readResult = 'success';
+          this.readResultColor = 'success';
         } catch (error) {
           this.readInformText = '保存に失敗しました。';
           this.readInform = true;
-          this.readResult = 'error';
+          this.readResultColor = 'error';
         }
       }
     },
@@ -345,8 +405,8 @@ export default Vue.extend({
         try {
           const newData = new SaveData();
           newData.name = this.editedName;
-          newData.temporaryData = [_.cloneDeep(data.temporaryData[data.temporaryIndex])];
-          newData.temporaryIndex = 0;
+          newData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
+          newData.tempIndex = 0;
           newData.isUnsaved = false;
           newData.saveManagerData();
 
@@ -354,14 +414,22 @@ export default Vue.extend({
           if (folder) {
             folder.childItems.push(newData);
             folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+
+            newData.isActive = true;
+
+            // DB更新を促す
+            this.$store.dispatch('updateSaveData', this.saveData);
+
             this.readInformText = '保存しました。';
             this.readInform = true;
-            this.readResult = 'success';
+            this.readResultColor = 'success';
+          } else {
+            throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
           }
         } catch (error) {
           this.readInformText = '保存に失敗しました。';
           this.readInform = true;
-          this.readResult = 'error';
+          this.readResultColor = 'error';
         }
       }
       this.editDialog = false;
@@ -370,7 +438,7 @@ export default Vue.extend({
       // 元に戻す
       const data = this.mainSaveData;
       if (data) {
-        data.temporaryIndex -= 1;
+        data.tempIndex -= 1;
         this.$store.dispatch('setMainSaveData', data);
       }
     },
@@ -378,7 +446,7 @@ export default Vue.extend({
       // やり直す
       const data = this.mainSaveData;
       if (data) {
-        data.temporaryIndex += 1;
+        data.tempIndex += 1;
         this.$store.dispatch('setMainSaveData', data);
       }
     },
@@ -434,6 +502,9 @@ export default Vue.extend({
 .v-input--dense .v-select__selection,
 .v-input--dense.v-input--selection-controls .v-label {
   font-size: 0.85em;
+}
+.v-text-field.v-input--dense {
+  font-size: 1em;
 }
 
 /** ダークテーマ card1層目 */

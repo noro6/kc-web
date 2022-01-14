@@ -8,6 +8,8 @@ import Airbase from './airbase/airbase';
 import AirbaseInfo from './airbase/airbaseInfo';
 import Ship from './fleet/ship';
 import ShipMaster from './fleet/shipMaster';
+import ItemStock from './item/itemStock';
+import ShipStock from './fleet/shipStock';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -64,7 +66,13 @@ export default class Convert {
     this.shipMasters = ships;
   }
 
-  public loadDeckBuilder(text: string): CalcManager {
+  /**
+   * 通常デッキビルダー形式データを読み込み、計算データへと変換
+   * @param {string} text
+   * @returns {CalcManager}
+   * @memberof Convert
+   */
+  public loadDeckBuilder(text: string): CalcManager | undefined {
     try {
       const json = JSON.parse(text) as DeckBuilder;
 
@@ -103,11 +111,16 @@ export default class Convert {
         fleets.push(new Fleet({ ships }));
       }
 
+      if (!airbases.length && !fleets.length) {
+        return undefined;
+      }
+
       const info = new CalcManager();
       info.airbaseInfo = new AirbaseInfo({ airbases });
       info.fleetInfo = new FleetInfo({ fleets, admiralLevel: json.hqlv ? json.hqlv : 120 });
       return info;
     } catch (error) {
+      console.error(error);
       throw new Error('デッキビルダー形式ではありませんでした。');
     }
   }
@@ -163,5 +176,135 @@ export default class Convert {
     return new Ship({
       master, level: shipLv, luck, items, exItem,
     });
+  }
+
+  /**
+   * 所持装備情報JSONデータを解析して所持数配列を返却
+   * @static
+   * @param {string} text
+   * @returns {ItemStock[]}
+   * @memberof Convert
+   */
+  public static readItemStockJson(text: string): ItemStock[] {
+    type stockJson = { 'api_slotitem_id': number, 'api_level': number };
+    type stockJson2 = { 'id': number, 'lv': number };
+
+    try {
+      const json = JSON.parse(text) as (stockJson | stockJson2)[];
+      if (!json.length) {
+        return [];
+      }
+      const itemList: ItemStock[] = [];
+      for (let i = 0; i < json.length; i += 1) {
+        const data = json[i];
+        if ('api_slotitem_id' in data && 'api_level' in data) {
+          const id = data.api_slotitem_id;
+          const remodel = data.api_level;
+          const itemStock = itemList.find((v) => v.id === id);
+          if (itemStock) {
+            itemStock.num[remodel] += 1;
+          } else {
+            itemList.push(new ItemStock(id, remodel));
+          }
+        } else if ('id' in data && 'lv' in data) {
+          const { id } = data;
+          const remodel = data.lv;
+          const itemStock = itemList.find((v) => v.id === id);
+          if (itemStock) {
+            itemStock.num[remodel] += 1;
+          } else {
+            itemList.push(new ItemStock(id, remodel));
+          }
+        }
+      }
+      return itemList;
+    } catch (error) {
+      throw new Error('装備所持数情報ではありませんでした。');
+    }
+  }
+
+  /**
+   * 在籍艦娘情報JSONデータを解析して在籍情報配列を返却
+   * @static
+   * @param {string} text
+   * @returns {ShipStock[]}
+   * @memberof Convert
+   */
+  public static readShipStockJson(text: string): ShipStock[] {
+    type stockJson = { 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
+    type stockJson2 = { 'id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
+
+    try {
+      const json = JSON.parse(text) as (stockJson | stockJson2)[];
+      if (!json.length) {
+        return [];
+      }
+
+      const shipList: ShipStock[] = [];
+      let uniqueId = 1;
+      for (let i = 0; i < json.length; i += 1) {
+        const data = json[i];
+        const shipStock = new ShipStock();
+
+        // 基本の情報 どちらかに入らなければ飛ばす
+        if ('api_ship_id' in data && 'api_lv' in data && 'api_exp') {
+          shipStock.id = +data.api_ship_id;
+          shipStock.level = +data.api_lv;
+          // 参考：経験値 [0]=累積, [1]=次のレベルまで, [2]=経験値バー割合
+          shipStock.exp = +data.api_exp[0];
+        } else if ('id' in data && 'lv' in data && 'exp' in data) {
+          shipStock.id = +data.id;
+          shipStock.level = +data.lv;
+          shipStock.exp = +data.exp[0];
+        } else {
+          // 判別不能！次！
+          continue;
+        }
+
+        // 被りなしid付与
+        shipStock.uniqueId = uniqueId;
+        uniqueId += 1;
+
+        // 拡張情報 -補強増設解放
+        if ('api_slot_ex' in data) {
+          shipStock.releaseExpand = data.api_slot_ex > 0;
+        } else if ('ex' in data) {
+          shipStock.releaseExpand = data.ex > 0;
+        }
+
+        // 拡張情報 -補強増設解放
+        // 参考：近代化改修状態 [0]=火力, [1]=雷装, [2]=対空, [3]=装甲, [4]=運, [5]=耐久, [6]=対潜
+        if ('api_kyouka' in data && data.api_kyouka.length >= 7) {
+          shipStock.improvement.fire = +data.api_kyouka[0];
+          shipStock.improvement.torpedo = +data.api_kyouka[1];
+          shipStock.improvement.antiAir = +data.api_kyouka[2];
+          shipStock.improvement.armor = +data.api_kyouka[3];
+          shipStock.improvement.luck = +data.api_kyouka[4];
+          shipStock.improvement.hp = +data.api_kyouka[5];
+          shipStock.improvement.asw = +data.api_kyouka[6];
+        } else if ('st' in data && data.st.length >= 7) {
+          shipStock.improvement.fire = +data.st[0];
+          shipStock.improvement.torpedo = +data.st[1];
+          shipStock.improvement.antiAir = +data.st[2];
+          shipStock.improvement.armor = +data.st[3];
+          shipStock.improvement.luck = +data.st[4];
+          shipStock.improvement.hp = +data.st[5];
+          shipStock.improvement.asw = +data.st[6];
+        }
+
+        // 拡張情報 -出撃海域札
+        if ('api_sally_area' in data) {
+          shipStock.area = data.api_sally_area;
+        } else if ('area' in data) {
+          shipStock.area = data.area;
+        }
+
+        // 晴れてようやく追加
+        shipList.push(shipStock);
+      }
+      return shipList;
+    } catch (error) {
+      throw new Error('艦娘在籍数情報ではありませんでした。');
+    }
   }
 }

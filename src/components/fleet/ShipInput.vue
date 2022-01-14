@@ -109,7 +109,7 @@
           </div>
         </div>
         <!-- 艦娘解除 -->
-        <div class="ship-remove pr-1">
+        <div class="ship-remove pr-1 pt-1">
           <v-btn icon @click="removeShip()">
             <v-icon>mdi-close</v-icon>
           </v-btn>

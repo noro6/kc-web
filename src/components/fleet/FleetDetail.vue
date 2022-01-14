@@ -1,6 +1,12 @@
 <template>
   <v-card class="pa-2 detail-card">
-    <div class="pa-2">艦隊詳細</div>
+    <div class="d-flex pb-1">
+      <div class="align-self-center ml-3">艦隊詳細</div>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="close">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </div>
     <v-divider class="mb-1"></v-divider>
     <v-tabs v-model="tab">
       <v-tab href="#stage2">対空砲火</v-tab>
@@ -52,9 +58,18 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    handleClose: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => ({
     tab: 'stage2',
   }),
+  methods: {
+    close() {
+      this.handleClose();
+    },
+  },
 });
 </script>

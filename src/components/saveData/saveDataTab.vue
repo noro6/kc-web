@@ -11,11 +11,11 @@
       <div>
         <v-btn icon x-small @click.stop="showNameEditDialog(saveData)">
           <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
-          <v-icon v-else color="blue lighten-3" small>mdi-file</v-icon>
+          <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
         </v-btn>
       </div>
       <div class="tab-item-name text-truncate">{{ saveData.name }}</div>
-      <div class="ml-auto">
+      <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted  }">
         <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
           <v-icon small>mdi-close</v-icon>
         </v-btn>
@@ -95,6 +95,29 @@
   flex-grow: 1;
   user-select: none;
 }
+.btn-close.editted {
+  position: relative;
+}
+.btn-close.editted::before {
+  content: "";
+  position: absolute;
+  background-color: #eee;
+  border-radius: 50%;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  transition: 0.2s;
+}
+.btn-close.editted .v-icon {
+  opacity: 0;
+}
+.btn-close.editted:hover::before {
+  opacity: 0;
+}
+.btn-close.editted:hover .v-icon {
+  opacity: 1;
+}
 .tab-add-button {
   opacity: 0.8;
   margin-left: 0.25rem;
@@ -167,7 +190,7 @@ export default Vue.extend({
       event.stopPropagation();
       event.preventDefault();
 
-      if (this.setting.confirmCloseTab && data.temporaryData.length > 1) {
+      if (this.setting.confirmCloseTab && data.isEditted) {
         this.deleteConfirmDialog = true;
         this.deleteConfirmData = data;
         return;
@@ -185,8 +208,8 @@ export default Vue.extend({
 
       data.isActive = false;
       // 履歴を吹き飛ばす
-      data.temporaryData = [];
-      data.temporaryIndex = -1;
+      data.tempData = [];
+      data.tempIndex = -1;
 
       if (data.isMain) {
         // メイン計算処理を他のデータに移譲

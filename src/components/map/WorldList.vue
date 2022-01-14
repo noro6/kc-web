@@ -23,7 +23,7 @@
           <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" label="セル"></v-select>
         </div>
       </div>
-      <div class="mt-5 map-img-area">
+      <div class="mt-2 map-img-area">
         <img usemap="#click_map" class="mx-auto d-block" :src="`./img/map/${area}.png`" height="268" width="467" />
         <map name="click_map">
           <area
@@ -80,7 +80,7 @@
                 </v-chip>
               </div>
             </div>
-            <div class="mt-3 px-1" :class="{ 'enemies-container': fleet.isUnion }">
+            <div class="mt-1 px-1" :class="{ 'enemies-container': fleet.isUnion }">
               <div class="mx-1" v-if="fleet.isUnion">
                 <div v-for="(enemy, j) in fleet.escortEnemies" :key="j" class="d-flex enemy-info">
                   <div class="align-self-center mr-1">
@@ -143,7 +143,7 @@
       </v-card-actions>
     </v-card>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
-      <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" />
+      <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
   </div>
 </template>
@@ -164,7 +164,7 @@
 }
 
 .patterns-container {
-  min-height: 364px;
+  min-height: 340px;
 }
 
 .v-tabs-bar .v-tab {
@@ -178,7 +178,7 @@
   grid-template-columns: 1fr 1fr;
 }
 .enemy-info {
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
 }
 .text-id {
   font-size: 0.7em;
@@ -271,14 +271,25 @@ export default Vue.extend({
     enabledCommitBtn: false,
     continuousMode: false,
     snackbar: false,
+    unsbscribe: undefined as unknown,
   }),
   mounted() {
     // 敵編成読み込み
     const cells = this.$store.state.cells as CellMaster[];
-    for (let i = 0; i < cells.length; i += 1) {
-      this.allCells.push(cells[i]);
+
+    if (cells.length) {
+      // マスタデータがあるならそれでOK
+      this.initCells(cells);
+      return;
     }
-    this.worldChanged();
+
+    // マスタデータ読み込み開始
+    this.$store.dispatch('loadCellData');
+    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+      if (mutation.type === 'setCells') {
+        this.initCells(state.cells);
+      }
+    });
   },
   computed: {
     rawLevel(): number {
@@ -288,7 +299,18 @@ export default Vue.extend({
       return Math.floor(this.area / 10) > 40;
     },
   },
+  beforeDestroy() {
+    if (this.unsbscribe) {
+      (this.unsbscribe as () => void)();
+    }
+  },
   methods: {
+    initCells(cells: CellMaster[]) {
+      for (let i = 0; i < cells.length; i += 1) {
+        this.allCells.push(cells[i]);
+      }
+      this.worldChanged();
+    },
     worldChanged() {
       const lv = this.rawLevel;
       this.areas = Const.MAPS.filter((v) => Math.floor(v.value / 10) === this.world);
@@ -416,6 +438,9 @@ export default Vue.extend({
     },
     close() {
       this.handleClose();
+    },
+    closeDetail() {
+      this.detailDialog = false;
     },
   },
 });

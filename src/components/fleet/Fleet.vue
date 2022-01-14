@@ -65,7 +65,14 @@
     </div>
     <air-status-result-bar :result="result" class="mt-3" />
     <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
-      <fleet-detail v-if="!destroyDialog" :fleet="actualFleet" :index="index" :is-union="isUnion" ref="fleetDetail" />
+      <fleet-detail
+        v-if="!destroyDialog"
+        :fleet="actualFleet"
+        :index="index"
+        :is-union="isUnion"
+        ref="fleetDetail"
+        :handle-close="closeDetail"
+      />
     </v-dialog>
   </div>
 </template>
@@ -271,6 +278,9 @@ export default Vue.extend({
       } else {
         this.destroyDialog = false;
       }
+    },
+    closeDetail() {
+      this.detailDialog = false;
     },
   },
 });

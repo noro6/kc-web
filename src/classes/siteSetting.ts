@@ -20,5 +20,17 @@ export default class SiteSetting {
     { id: 53, level: 0 },
     { id: 48, level: 100 },
     { id: 49, level: 0 },
-  ]
+  ];
+
+  /** 装備一覧 表示形式 複数列かどうか */
+  public isMultiLineForItemList = true;
+
+  /** 艦娘一覧 表示形式 複数列かどうか */
+  public isMultiLineForShipList = true;
+
+  /** 装備一覧 所持装備のみ表示かどうか */
+  public isStockOnlyForItemList = false;
+
+  /** 装備一覧 在籍艦娘のみ表示かどうか */
+  public isStockOnlyForShipList = false;
 }
