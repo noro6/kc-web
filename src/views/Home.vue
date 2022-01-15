@@ -77,9 +77,8 @@ export default Vue.extend({
       data.isActive = true;
       data.isMain = true;
       saveData.childItems.push(data);
-      // this.$store.dispatch('updateSaveData', saveData);
+      this.$store.dispatch('updateSaveData', saveData);
       this.$store.dispatch('setMainSaveData', data);
-
       this.$router.push('aircalc');
     },
   },

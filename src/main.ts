@@ -12,8 +12,8 @@ new Vue({
   vuetify,
   render: (h) => h(App),
   created() {
-    this.$store.dispatch('loadData').then(() => {
-      console.log('loading...');
-    });
+    this.$store.dispatch('loadSetting');
+    this.$store.dispatch('loadSaveData');
+    this.$store.dispatch('loadData');
   },
 }).$mount('#app');

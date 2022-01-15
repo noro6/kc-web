@@ -22,8 +22,16 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
+            <v-btn icon small @click.stop="openAllDirectory" v-bind="attrs" v-on="on">
+              <v-icon color="orange lighten-3">mdi-expand-all</v-icon>
+            </v-btn>
+          </template>
+          <span>フォルダーを全て開く</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="closeAllDirectory" v-bind="attrs" v-on="on">
-              <v-icon color="light-blue lighten-4">mdi-collapse-all</v-icon>
+              <v-icon color="grey">mdi-collapse-all</v-icon>
             </v-btn>
           </template>
           <span>フォルダーを全て閉じる</span>
@@ -107,6 +115,9 @@ export default Vue.extend({
     },
     clearSelectionAll() {
       this.rootData.clearSelection();
+    },
+    openAllDirectory() {
+      this.rootData.openDirectory();
     },
     closeAllDirectory() {
       this.rootData.closeDirectory();

@@ -53,7 +53,7 @@ export default Vue.extend({
         const saveData = state.mainSaveData as SaveData;
         if (!saveData) {
           // 計算対象データがないならトップページに戻す ありえんけど
-          this.$route.path.endsWith('/');
+          this.$router.push('/');
           return;
         }
 

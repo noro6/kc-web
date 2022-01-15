@@ -91,8 +91,12 @@ export default class SaveData {
    * @param {SaveData} [data]
    * @memberof SaveData
    */
-  constructor() {
-    this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
+  constructor(id?: string) {
+    if (id) {
+      this.id = id;
+    } else {
+      this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
+    }
     this.name = '無題';
     this.isDirectory = false;
     this.isOpen = false;
@@ -106,6 +110,49 @@ export default class SaveData {
     this.isUnsaved = true;
     this.tempSavedIndex = -1;
     this.isReadonly = false;
+  }
+
+  /**
+   * 文字列化によってプロパティだけになったオブジェクトを最インスタンス化して救済
+   * @static
+   * @param {SaveData} data
+   * @memberof SaveData
+   */
+  public static getInstance(data: SaveData): SaveData {
+    const saveData = new SaveData(data.id);
+    saveData.name = data.name;
+    saveData.isDirectory = data.isDirectory;
+    saveData.manager = data.manager;
+    saveData.isActive = data.isActive;
+    saveData.isOpen = data.isOpen;
+    saveData.isUnsaved = false;
+
+    // 子要素を再帰的に復帰
+    for (let i = 0; i < data.childItems.length; i += 1) {
+      saveData.childItems.push(SaveData.getInstance(data.childItems[i]));
+    }
+
+    return saveData;
+  }
+
+  /**
+   * ブラウザ保存用データ
+   * @param {*} data
+   * @returns {SaveData}
+   * @memberof SaveData
+   */
+  public getMinifyData(): SaveData {
+    const replacer = (key: unknown, v: unknown) => {
+      if (v instanceof SaveData) {
+        return {
+          id: v.id, name: v.name, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive,
+        };
+      }
+      return v;
+    };
+
+    const json = JSON.stringify(this, replacer);
+    return JSON.parse(json);
   }
 
   /**
@@ -137,6 +184,19 @@ export default class SaveData {
     this.isOpen = false;
     for (let i = 0; i < this.childItems.length; i += 1) {
       this.childItems[i].closeDirectory();
+    }
+  }
+
+  /**
+   * ファイル展開 再帰呼び出し
+   * @memberof SaveData
+   */
+  public openDirectory(): void {
+    if (this.isDirectory) {
+      this.isOpen = true;
+      for (let i = 0; i < this.childItems.length; i += 1) {
+        this.childItems[i].openDirectory();
+      }
     }
   }
 

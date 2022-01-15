@@ -72,7 +72,7 @@
       <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
-      <v-btn icon @click="config = !config"><v-icon>mdi-cog</v-icon></v-btn>
+      <v-btn icon @click="configDialog = true"><v-icon>mdi-cog</v-icon></v-btn>
       <template v-slot:extension>
         <save-data-tab :save-data="saveData" :setting="setting" />
       </template>
@@ -119,7 +119,7 @@
         >から。
       </span>
     </v-footer>
-    <v-dialog v-model="config" width="500">
+    <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
       <v-card>
         <div class="px-10 py-5">
           <div class="my-5">
@@ -207,7 +207,7 @@ export default Vue.extend({
     saveData: new SaveData(),
     mainSaveData: new SaveData(),
     drawer: null,
-    config: false,
+    configDialog: false,
     loading: true,
     somethingText: '',
     textareaHasError: false,
@@ -244,10 +244,9 @@ export default Vue.extend({
       this.loading = !value;
     },
   },
-  mounted() {
-    this.saveData = this.$store.state.saveData as SaveData;
+  created() {
     this.setting = this.$store.state.siteSetting as SiteSetting;
-
+    this.saveData = this.$store.state.saveData as SaveData;
     // セーブデータの更新を購読
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateSaveData') {
@@ -258,9 +257,8 @@ export default Vue.extend({
         this.mainSaveData = state.mainSaveData as SaveData;
       } else if (mutation.type === 'updateSetting') {
         // 設定情報の更新を購読 常に最新の状態を保つ
-        console.log('todo 設定用DB更新');
-
         this.setting = state.siteSetting as SiteSetting;
+        this.toggleSiteTheme(this.setting.darkTheme);
       }
     });
   },
@@ -372,14 +370,15 @@ export default Vue.extend({
 
               // 保存されていないファイル群から除去
               this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
-
-              // DB更新を促す
-              this.$store.dispatch('updateSaveData', this.saveData);
             } else {
               throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
             }
           }
           data.saveManagerData();
+
+          // DB更新を促す
+          this.$store.dispatch('updateSaveData', this.saveData);
+
           this.readInformText = '保存しました。';
           this.readInform = true;
           this.readResultColor = 'success';
@@ -453,6 +452,12 @@ export default Vue.extend({
     toggleSiteTheme(isDark: boolean) {
       this.setting.darkTheme = isDark;
       this.$vuetify.theme.dark = isDark;
+    },
+    toggleConfigDialog() {
+      if (!this.configDialog) {
+        // 設定保存
+        this.$store.dispatch('updateSetting', this.setting);
+      }
     },
   },
   beforeDestroy() {

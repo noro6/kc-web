@@ -11,6 +11,7 @@ import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ShipStock from '@/classes/fleet/shipStock';
+import KcWebDatabase from '@/classes/db';
 
 Vue.use(Vuex);
 
@@ -27,6 +28,7 @@ export default new Vuex.Store({
     mainSaveData: new SaveData(),
     draggingSaveData: new SaveData(),
     siteSetting: new SiteSetting(),
+    kcWebDatabase: new KcWebDatabase(),
     completed: false,
   },
   mutations: {
@@ -44,15 +46,11 @@ export default new Vuex.Store({
     },
     updateSaveData: (state, value: SaveData) => {
       state.saveData = value;
-      // todo DB更新
-      console.log('DB更新予定タイミング');
     },
     updateItemStock: (state, values: ItemStock[]) => {
-      // todo DB更新
       state.itemStock = values;
     },
     updateShipStock: (state, values: ShipStock[]) => {
-      // todo DB更新
       state.shipStock = values;
     },
     setMainSaveData: (state, value: SaveData) => {
@@ -70,6 +68,12 @@ export default new Vuex.Store({
   },
   actions: {
     updateSaveData(context, value: SaveData) {
+      const minifyData = value.getMinifyData();
+      // root直下の非保存データを除去
+      minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
+      context.state.kcWebDatabase.savedata.put(minifyData);
+
+      console.log('db更新しました');
       context.commit('updateSaveData', value);
     },
     setMainSaveData(context, value: SaveData) {
@@ -79,12 +83,15 @@ export default new Vuex.Store({
       context.commit('setDraggingSaveData', value);
     },
     updateItemStock: (context, values: ItemStock[]) => {
+      context.state.kcWebDatabase.items.bulkPut(values);
       context.commit('updateItemStock', values);
     },
     updateShipStock: (context, values: ShipStock[]) => {
+      context.state.kcWebDatabase.ships.bulkPut(values);
       context.commit('updateShipStock', values);
     },
     updateSetting: (context, value: SiteSetting) => {
+      context.state.kcWebDatabase.setting.put(value, 'setting');
       context.commit('updateSetting', value);
     },
     loadCellData: async (context) => {
@@ -155,37 +162,69 @@ export default new Vuex.Store({
           console.log(error);
         });
 
-      // todo DBから編成セーブデータよみこみ
-      const rootData = new SaveData();
-      rootData.isDirectory = true;
-      rootData.isReadonly = true;
-
-      const folder = new SaveData();
-      folder.name = '保存されたデータ';
-      folder.isDirectory = true;
-      folder.isReadonly = true;
-      folder.isOpen = true;
-      rootData.childItems.push(folder);
-
-      // 初期データ てきとう
-      for (let i = 0; i < 7; i += 1) {
-        const world = Const.WORLDS[i];
-        const newFolder = new SaveData();
-        newFolder.name = world.text;
-        newFolder.isDirectory = true;
-        newFolder.isUnsaved = false;
-        folder.childItems.push(newFolder);
-      }
-      folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
-      context.commit('updateSaveData', rootData);
-
-      // todo DBから設定データ読み込み
-      context.commit('updateSetting', new SiteSetting());
-
       const loader = [loadShip, loadEnemy, loadItem];
       Promise.all(loader).then(() => {
         context.commit('completed', true);
       });
+    },
+    loadSaveData: async (context) => {
+      const db = context.state.kcWebDatabase;
+      // セーブデータ読込
+      const saveData = await db.savedata.get('root');
+      if (saveData) {
+        // データあり 再インスタンス化してからstoreにセット
+        const data = SaveData.getInstance(saveData);
+        data.isReadonly = true;
+        data.childItems[0].isOpen = true;
+        context.state.saveData = data;
+        context.commit('updateSaveData', data);
+      } else {
+        // 初期セーブデータ作成
+        const root = new SaveData('root');
+        root.isDirectory = true;
+        root.isReadonly = true;
+
+        const folder = new SaveData();
+        folder.name = '保存されたデータ';
+        folder.isDirectory = true;
+        folder.isReadonly = true;
+        folder.isOpen = true;
+        root.childItems.push(folder);
+
+        // 初期フォルダー作成 第1～7海域まで作ってやる
+        for (let i = 0; i < 7; i += 1) {
+          const world = Const.WORLDS[i];
+          const newFolder = new SaveData();
+          newFolder.name = world.text;
+          newFolder.isDirectory = true;
+          newFolder.isUnsaved = false;
+          folder.childItems.push(newFolder);
+        }
+        folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+
+        context.state.saveData = root;
+        context.commit('updateSaveData', root);
+      }
+
+      // 艦娘在庫呼び出し
+      db.ships.toArray().then((data) => {
+        context.state.shipStock = data;
+      });
+      // 装備呼び出し
+      db.items.toArray().then((data) => {
+        context.state.itemStock = data;
+      });
+    },
+    loadSetting: async (context) => {
+      const db = context.state.kcWebDatabase;
+      // 設定情報呼び出し
+      const setting = await db.setting.get('setting');
+      if (setting) {
+        context.state.siteSetting = setting;
+        context.commit('updateSetting', new SiteSetting(setting));
+      } else {
+        context.commit('updateSetting', new SiteSetting());
+      }
     },
   },
   modules: {

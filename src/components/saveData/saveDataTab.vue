@@ -15,7 +15,7 @@
         </v-btn>
       </div>
       <div class="tab-item-name text-truncate">{{ saveData.name }}</div>
-      <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted  }">
+      <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted }">
         <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
           <v-icon small>mdi-close</v-icon>
         </v-btn>
@@ -239,6 +239,9 @@ export default Vue.extend({
         this.editedFile = undefined;
       }
       this.editDialog = false;
+
+      // DB更新を促す
+      this.$store.dispatch('updateSaveData', this.saveData);
     },
     clickSaveData(data: SaveData) {
       // 他の全ての計算状態を解除

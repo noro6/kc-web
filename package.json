@@ -14,6 +14,7 @@
     "chart.js": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "core-js": "^3.6.5",
+    "dexie": "^3.2.0",
     "lodash": "^4.17.21",
     "vue": "^2.6.11",
     "vue-chart-3": "^2.0.5",
