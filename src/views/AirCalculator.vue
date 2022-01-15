@@ -103,6 +103,8 @@ export default Vue.extend({
       this.calcManager.battleInfo.calculated = true;
 
       this.calculate();
+    } else {
+      this.$router.push('/');
     }
   },
   beforeDestroy() {

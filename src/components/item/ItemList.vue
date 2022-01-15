@@ -26,7 +26,7 @@
         <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
       </div>
       <div class="ml-5 align-self-center" v-if="itemStock.length">
-        <v-checkbox v-model="isStockOnly" @change="filter()" :label="'所持装備反映'"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" :label="'所持装備反映'"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
     </div>
@@ -450,9 +450,17 @@ export default Vue.extend({
       this.type = type;
       this.filter();
     },
+    clickedStockOnly() {
+      this.setting.isStockOnlyForItemList = this.isStockOnly;
+      this.$store.dispatch('updateSetting', this.setting);
+      this.filter();
+    },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
       // 現行の所持装備情報を更新
       this.itemStock = this.$store.state.itemStock as ItemStock[];
+
+      this.setting = this.$store.state.siteSetting as SiteSetting;
+      this.isStockOnly = this.setting.isStockOnlyForItemList;
 
       // 搭載数情報を格納
       const isExpand = slotIndex === Const.EXPAND_SLOT_INDEX;

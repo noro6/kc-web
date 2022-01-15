@@ -31,6 +31,9 @@
       <div class="ml-5 align-self-center">
         <v-checkbox v-model="isFinal" @change="filter()" label="最終改造"></v-checkbox>
       </div>
+      <div class="ml-5 align-self-center" v-if="shipStock.length">
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" :label="'所持装備反映'"></v-checkbox>
+      </div>
       <v-spacer></v-spacer>
     </div>
     <div class="d-flex flex-wrap mx-3">
@@ -182,6 +185,7 @@ import Vue from 'vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
+import ShipStock from '@/classes/fleet/shipStock';
 
 export default Vue.extend({
   name: 'ShipList',
@@ -207,6 +211,8 @@ export default Vue.extend({
     isFinal: true,
     keyword: '',
     multiLine: true,
+    isStockOnly: false,
+    shipStock: [] as ShipStock[],
     setting: new SiteSetting(),
   }),
   mounted() {
@@ -225,7 +231,7 @@ export default Vue.extend({
         this.types.push({ text: data.text, types: data.types });
       }
     }
-    this.setting = this.$store.state.siteSetting as SiteSetting;
+    this.initialize();
     this.changeMultiLine(this.setting.isMultiLineForShipList);
     this.filter();
   },
@@ -233,6 +239,18 @@ export default Vue.extend({
     changeType(index = 0) {
       this.type = index;
       this.filter();
+    },
+    clickedStockOnly() {
+      this.setting.isStockOnlyForShipList = this.isStockOnly;
+      this.$store.dispatch('updateSetting', this.setting);
+      this.filter();
+    },
+    initialize() {
+      // 現行の在籍艦娘情報を更新
+      this.shipStock = this.$store.state.shipStock as ShipStock[];
+
+      this.setting = this.$store.state.siteSetting as SiteSetting;
+      this.isStockOnly = this.setting.isStockOnlyForShipList;
     },
     filter() {
       const word = this.keyword;

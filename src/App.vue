@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary dark :width="480">
+    <v-navigation-drawer v-model="drawer" app temporary dark width="480">
       <save-data-view :root-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
@@ -18,7 +18,7 @@
         >
           <v-icon small>mdi-content-duplicate</v-icon>別名保存
         </v-btn>
-        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text>
+        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="clickedShare">
           <v-icon small>mdi-share-variant</v-icon>
           <span class="d-none d-md-inline">編成</span>共有
         </v-btn>
@@ -52,7 +52,7 @@
           <span>やり直す</span>
         </v-tooltip>
       </template>
-      <div id="multipurpose-textarea">
+      <div id="multipurpose-textarea" class="no-scroll">
         <v-textarea
           v-model.trim="somethingText"
           outlined
@@ -172,7 +172,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="400">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
           <v-text-field v-model="editedName" maxlength="100" counter label="編成データ名"></v-text-field>
@@ -183,6 +183,9 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="shareDialog" transition="scroll-x-transition" width="400">
+      <share-dialog :handle-close="closeShareDialog" ref="shareDialog" />
+    </v-dialog>
   </v-app>
 </template>
 
@@ -191,7 +194,8 @@ import Vue from 'vue';
 import * as _ from 'lodash';
 import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
-import SaveDataTab from './components/saveData/saveDataTab.vue';
+import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
+import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
 import SaveData from './classes/saveData/saveData';
 import SiteSetting from './classes/siteSetting';
@@ -201,6 +205,7 @@ export default Vue.extend({
   components: {
     SaveDataView,
     SaveDataTab,
+    ShareDialog,
     SettingInitialLevel,
   },
   data: () => ({
@@ -218,6 +223,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     editDialog: false,
     editedName: '',
+    shareDialog: false,
     unsbscribe: undefined as unknown,
   }),
   computed: {
@@ -459,6 +465,13 @@ export default Vue.extend({
         this.$store.dispatch('updateSetting', this.setting);
       }
     },
+    async clickedShare() {
+      await (this.shareDialog = true);
+      (this.$refs.shareDialog as InstanceType<typeof ShareDialog>).createdURL = '';
+    },
+    closeShareDialog() {
+      this.shareDialog = false;
+    },
   },
   beforeDestroy() {
     if (this.unsbscribe) {
@@ -538,6 +551,8 @@ export default Vue.extend({
 }
 #multipurpose-textarea textarea {
   font-size: 0.8em;
+}
+.no-scroll textarea {
   overflow: hidden !important;
 }
 

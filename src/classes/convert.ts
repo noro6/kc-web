@@ -307,4 +307,206 @@ export default class Convert {
       throw new Error('艦娘在籍数情報ではありませんでした。');
     }
   }
+
+  /**
+   * 計算データからデッキビルダー形式データを生成
+   * @static
+   * @param {CalcManager} manager
+   * @returns {string}
+   * @memberof Convert
+   */
+  public static createDeckBuilder(manager: CalcManager): string {
+    const deckBuilder = { version: 4, hqlv: manager.fleetInfo.admiralLevel } as DeckBuilder;
+    // 艦隊データ
+    const { fleets } = manager.fleetInfo;
+    for (let i = 0; i < fleets.length; i += 1) {
+      const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
+      if (i === 0) {
+        deckBuilder.f1 = {};
+        Convert.setDeckBuilderFleet(deckBuilder.f1, ships);
+      }
+      if (i === 1) {
+        deckBuilder.f2 = {};
+        Convert.setDeckBuilderFleet(deckBuilder.f2, ships);
+      }
+      if (i === 2) {
+        deckBuilder.f3 = {};
+        Convert.setDeckBuilderFleet(deckBuilder.f3, ships);
+      }
+      if (i === 3) {
+        deckBuilder.f4 = {};
+        Convert.setDeckBuilderFleet(deckBuilder.f4, ships);
+      }
+    }
+
+    // 基地データ
+    const { airbases } = manager.airbaseInfo;
+    for (let i = 0; i < airbases.length; i += 1) {
+      const airbase = airbases[i];
+      if (i === 0) {
+        const items = Convert.getDeckBuilderItems(airbase.items);
+        deckBuilder.a1 = { mode: airbase.mode, items };
+      }
+      if (i === 1) {
+        const items = Convert.getDeckBuilderItems(airbase.items);
+        deckBuilder.a2 = { mode: airbase.mode, items };
+      }
+      if (i === 2) {
+        const items = Convert.getDeckBuilderItems(airbase.items);
+        deckBuilder.a3 = { mode: airbase.mode, items };
+      }
+    }
+
+    return JSON.stringify(deckBuilder);
+  }
+
+  /**
+   * デッキビルダー形式艦隊セット
+   * @private
+   * @static
+   * @param {{ [name: string]: DeckBuilderShip }} fleet
+   * @param {Ship[]} ships
+   * @memberof Convert
+   */
+  private static setDeckBuilderFleet(fleet: { [name: string]: DeckBuilderShip }, ships: Ship[]): void {
+    for (let i = 0; i < ships.length; i += 1) {
+      const ship = ships[i];
+      const items = Convert.getDeckBuilderItems(ship.items);
+      if (ship.exItem.data.id) {
+        const level = Convert.getProfLevel(ship.exItem.level);
+        items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
+      }
+
+      fleet[`s${i + 1}`] = {
+        id: `${ship.data.id}`, luck: ship.luck, lv: ship.level, items,
+      };
+    }
+  }
+
+  /**
+   * デッキビルダー形式装備オブジェクトを返却
+   * @private
+   * @static
+   * @param {Item[]} items
+   * @returns {{ [name: string]: DeckBuilderItem }}
+   * @memberof Convert
+   */
+  private static getDeckBuilderItems(items: Item[]): { [name: string]: DeckBuilderItem } {
+    const deckItem: { [name: string]: DeckBuilderItem } = {};
+    for (let j = 0; j < items.length; j += 1) {
+      const item = items[j];
+      if (!item.data.id) {
+        continue;
+      }
+      deckItem[`i${j + 1}`] = { id: item.data.id, mas: Convert.getProfLevel(item.level), rf: item.remodel };
+    }
+
+    return deckItem;
+  }
+
+  /**
+   * デッキビルダー用熟練度変換
+   * @private
+   * @static
+   * @param {number} level
+   * @returns {number}
+   * @memberof Convert
+   */
+  private static getProfLevel(level: number): number {
+    for (let i = Const.PROF_LEVEL_BORDER.length - 2; i >= 0; i -= 1) {
+      if (level >= Const.PROF_LEVEL_BORDER[i]) {
+        return i;
+      }
+    }
+
+    return 0;
+  }
+
+  /**
+   * 作戦室用デッキビルダー変換
+   * @static
+   * @param {string} name
+   * @param {CalcManager} manager
+   * @returns {string}
+   * @memberof Convert
+   */
+  public static createDeckBuilderForJervis(name: string, manager: CalcManager): string {
+    type JervisItem = {
+      masterId: number,
+      improvement: number,
+      proficiency: number,
+    };
+
+    type JervisShip = {
+      masterId: number,
+      level: number,
+      slots: [],
+      increased: { luck: number },
+      equipments: JervisItem[]
+    };
+
+    type JervisAirbase = {
+      slots: [],
+      equipments: JervisItem[]
+    };
+
+    const json = {
+      version: 1,
+      name,
+      hqLevel: manager.fleetInfo.admiralLevel,
+      side: 'Player',
+      fleetType: manager.fleetInfo.isUnion ? 'CarrierTaskForce' : 'Single',
+      fleets: [
+        { ships: [] as JervisShip[] },
+        { ships: [] as JervisShip[] },
+        { ships: [] as JervisShip[] },
+        { ships: [] as JervisShip[] },
+      ],
+      landBase: [] as JervisAirbase[],
+    };
+
+    // 艦隊データ
+    const { fleets } = manager.fleetInfo;
+    for (let i = 0; i < fleets.length; i += 1) {
+      const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
+      for (let j = 0; j < ships.length; j += 1) {
+        const ship = ships[j];
+        const { items } = ship;
+        const equipments = [] as JervisItem[];
+        for (let k = 0; k < items.length; k += 1) {
+          const item = items[k];
+          equipments.push({ masterId: item.data.id, improvement: item.remodel, proficiency: item.level } as JervisItem);
+        }
+        // 補強増設
+        equipments.push({ masterId: ship.exItem.data.id, improvement: ship.exItem.remodel, proficiency: ship.exItem.level } as JervisItem);
+
+        const jervisShip = {
+          masterId: ship.data.id,
+          level: ship.level,
+          slots: items.map((v) => v.fullSlot),
+          increased: { luck: ship.luck - ship.data.luck },
+          equipments,
+        } as JervisShip;
+        json.fleets[i].ships.push(jervisShip);
+      }
+    }
+
+    // 基地データ
+    const { airbases } = manager.airbaseInfo;
+    for (let i = 0; i < airbases.length; i += 1) {
+      const { items } = airbases[i];
+      const equipments = [] as JervisItem[];
+      for (let k = 0; k < items.length; k += 1) {
+        const item = items[k];
+        equipments.push({ masterId: item.data.id, improvement: item.remodel, proficiency: item.level } as JervisItem);
+      }
+      const jervisAirbase = {
+        slots: items.map((v) => v.fullSlot),
+        equipments,
+      } as JervisAirbase;
+      json.landBase.push(jervisAirbase);
+    }
+
+    return JSON.stringify(json);
+  }
 }

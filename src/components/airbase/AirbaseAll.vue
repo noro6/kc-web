@@ -3,9 +3,30 @@
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">基地航空隊</div>
       <v-spacer></v-spacer>
-      <v-btn icon @click="resetAirbaseAll">
-        <v-icon>mdi-trash-can-outline</v-icon>
-      </v-btn>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="supply" v-bind="attrs" v-on="on">
+            <v-icon>mdi-reload</v-icon>
+          </v-btn>
+        </template>
+        <span>搭載数を最大に戻す</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="doAirRaid" v-bind="attrs" v-on="on">
+            <v-icon>mdi-bomb</v-icon>
+          </v-btn>
+        </template>
+        <span>基地空襲被害を発生させる</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="resetAirbaseAll" v-bind="attrs" v-on="on">
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>基地航空隊を全てリセット</span>
+      </v-tooltip>
     </div>
     <v-divider></v-divider>
     <div>
@@ -66,7 +87,7 @@
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
-      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth"  />
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
       <airbase-target v-model="airbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
@@ -270,6 +291,53 @@ export default Vue.extend({
       }
       // リアクティブ再登録
       this.airbaseInfo.airbases[index] = new Airbase(builder);
+      this.setInfo();
+    },
+    supply() {
+      const { airbases } = this.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        const { items } = airbases[i];
+        for (let j = 0; j < items.length; j += 1) {
+          const item = items[j];
+          if (item.isRecon) {
+            items[j] = new Item({ item, slot: 4 });
+          } else if (item.isShinzan) {
+            items[j] = new Item({ item, slot: 9 });
+          } else if (item.isPlane) {
+            items[j] = new Item({ item, slot: 18 });
+          }
+        }
+        airbases[i] = new Airbase({ airbase: airbases[i], items });
+      }
+      this.setInfo();
+    },
+    doAirRaid() {
+      const { airbases } = this.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        if (airbases[i].mode === AB_MODE.WAIT) {
+          continue;
+        }
+
+        let count = 4;
+        const { items } = airbases[i];
+        for (let j = 0; j < items.length; j += 1) {
+          const item = items[j];
+
+          if (item.fullSlot <= 1) {
+            continue;
+          }
+
+          if (item.fullSlot > count) {
+            items[j] = new Item({ item, slot: item.fullSlot - count });
+            break;
+          } else {
+            items[j] = new Item({ item, slot: 1 });
+            count -= item.fullSlot - 1;
+          }
+        }
+
+        airbases[i] = new Airbase({ airbase: airbases[i], items });
+      }
       this.setInfo();
     },
     resetAirbaseAll() {

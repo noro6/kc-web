@@ -85,7 +85,7 @@ export default Vue.extend({
     addNewDirectory() {
       // 新規データ
       const folder = new SaveData();
-      folder.name = `フォルダー: ${Math.floor(Math.random() * 10000)}`;
+      folder.name = '新しいフォルダー';
       folder.isDirectory = true;
       folder.isUnsaved = false;
       this.addNewSaveData(folder);
