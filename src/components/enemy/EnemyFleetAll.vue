@@ -227,6 +227,7 @@ export default Vue.extend({
     },
     closeTargetDialog() {
       this.targetDialog = false;
+      this.setInfo();
     },
     closeItemList() {
       this.itemListDialog = false;

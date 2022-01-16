@@ -170,11 +170,12 @@ export default new Vuex.Store({
       const db = context.state.kcWebDatabase;
       // セーブデータ読込
       const saveData = await db.savedata.get('root');
-      if (saveData) {
+      if (saveData && saveData.childItems.length) {
         // データあり 再インスタンス化してからstoreにセット
         const data = SaveData.getInstance(saveData);
         data.isReadonly = true;
         data.childItems[0].isOpen = true;
+        data.childItems[0].isReadonly = true;
         context.state.saveData = data;
         context.commit('updateSaveData', data);
       } else {

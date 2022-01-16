@@ -471,7 +471,6 @@ export default Vue.extend({
   methods: {
     changeType(type = 0): void {
       this.type = type;
-      this.sortKey = '';
       this.filter();
     },
     clickedStockOnly() {
@@ -642,7 +641,7 @@ export default Vue.extend({
             slot,
             level,
           });
-          viewItems.push({ item, count: 0 });
+          viewItems.push({ item, count: 1 });
         }
       }
 

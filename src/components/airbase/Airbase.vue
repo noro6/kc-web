@@ -21,7 +21,8 @@
           制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
         <div class="ml-1 text--secondary">{{ airPowerDetail }}</div>
-        <div class="ml-1 text--secondary" v-show="reconCorrString">&times;{{ reconCorrString }}</div>
+        <div class="ml-1 text--secondary" v-if="reconCorrString">&times;{{ reconCorrString }}</div>
+        <div class="ml-1 text--secondary" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
         <v-spacer></v-spacer>
         <div>
           半径:<span class="ml-1 font-weight-medium">{{ airbase.range }}</span>
@@ -107,7 +108,10 @@ export default Vue.extend({
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     reconCorrString() {
-      return this.value.reconCorr > 1 ? `${this.value.reconCorr}` : '';
+      return (this.value.mode === AB_MODE.BATTLE && this.value.reconCorr > 1) ? `${this.value.reconCorr}` : '';
+    },
+    reconCorrDefString() {
+      return (this.value.mode === AB_MODE.DEFFENSE && this.value.reconCorrDeff > 1) ? `${this.value.reconCorrDeff}` : '';
     },
     resultStateRate() {
       const wave1 = this.value.resultWave1;

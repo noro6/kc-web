@@ -4,54 +4,49 @@
       <save-data-view :root-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
+      <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <template>
-        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
-          <v-icon small>mdi-content-save</v-icon>
-          <span class="d-none d-md-inline">編成</span>保存
-        </v-btn>
-        <v-btn
-          class="header-btn"
-          :disabled="$route.path !== '/aircalc' || mainSaveData.isUnsaved"
-          text
-          @click.stop="handleSaveAndRenameCurrentData"
-        >
-          <v-icon small>mdi-content-duplicate</v-icon>別名保存
-        </v-btn>
-        <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="clickedShare">
-          <v-icon small>mdi-share-variant</v-icon>
-          <span class="d-none d-md-inline">編成</span>共有
-        </v-btn>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="arrow-btn"
-              text
-              :disabled="$route.path !== '/aircalc' || !enabledUndo"
-              v-bind="attrs"
-              v-on="on"
-              @click="undoClicked"
-              ><v-icon small>mdi-undo</v-icon></v-btn
-            >
-          </template>
-          <span>元に戻す</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="arrow-btn"
-              text
-              :disabled="$route.path !== '/aircalc' || !enabledRedo"
-              v-bind="attrs"
-              v-on="on"
-              @click="redoClicked"
-            >
-              <v-icon small>mdi-redo</v-icon>
-            </v-btn>
-          </template>
-          <span>やり直す</span>
-        </v-tooltip>
-      </template>
+      <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
+        <v-icon small>mdi-content-save</v-icon>
+        <span class="d-none d-md-inline">編成</span>保存
+      </v-btn>
+      <v-btn
+        class="header-btn"
+        :disabled="$route.path !== '/aircalc' || mainSaveData.isUnsaved"
+        text
+        @click.stop="handleSaveAndRenameCurrentData"
+      >
+        <v-icon small>mdi-content-duplicate</v-icon>別名保存
+      </v-btn>
+      <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="clickedShare">
+        <v-icon small>mdi-share-variant</v-icon>
+        <span class="d-none d-md-inline">編成</span>共有
+      </v-btn>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn class="arrow-btn" text :disabled="$route.path !== '/aircalc' || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked"
+            ><v-icon small>mdi-undo</v-icon></v-btn
+          >
+        </template>
+        <span>元に戻す</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="arrow-btn"
+            text
+            :disabled="$route.path !== '/aircalc' || !enabledRedo"
+            v-bind="attrs"
+            v-on="on"
+            @click="redoClicked"
+          >
+            <v-icon small>mdi-redo</v-icon>
+          </v-btn>
+        </template>
+        <span>やり直す</span>
+      </v-tooltip>
       <div id="multipurpose-textarea" class="no-scroll">
         <v-textarea
           v-model.trim="somethingText"
@@ -69,9 +64,6 @@
           @click:append="readSomethingText"
         ></v-textarea>
       </div>
-      <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
       <v-btn icon @click="configDialog = true"><v-icon>mdi-cog</v-icon></v-btn>
       <template v-slot:extension>
         <save-data-tab :save-data="saveData" :setting="setting" />

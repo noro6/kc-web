@@ -58,8 +58,8 @@
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
         :handle-close-ship="removeShip"
-        :fix-down="fleet.shootDownList[0].shootDownStatusList[0].fixDownList[i]"
-        :rate-down="fleet.shootDownList[0].shootDownStatusList[0].rateDownList[i]"
+        :fix-down="actualFleet.shootDownList[0].shootDownStatusList[0].fixDownList[i]"
+        :rate-down="actualFleet.shootDownList[0].shootDownStatusList[0].rateDownList[i]"
         @input="updateShip"
       ></ship-input>
     </div>
