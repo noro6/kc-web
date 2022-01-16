@@ -359,18 +359,9 @@ export default Vue.extend({
       if (data) {
         try {
           if (data.isUnsaved) {
-            // 保存済みフォルダに退避
-            data.isUnsaved = false;
-            const folder = this.saveData.childItems.find((v) => v.isDirectory);
-            if (folder) {
-              folder.childItems.push(data);
-              folder.sortChild();
-
-              // 保存されていないファイル群から除去
-              this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
-            } else {
-              throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
-            }
+            // リネームダイアログを表示
+            this.handleSaveAndRenameCurrentData();
+            return;
           }
           data.saveManagerData();
 
@@ -400,10 +391,18 @@ export default Vue.extend({
       const data = this.saveData.getMainData();
       if (data) {
         try {
-          const newData = new SaveData();
+          let newData: SaveData;
+          if (data.isUnsaved) {
+            // 保存されていないファイル群から除去
+            this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
+            newData = data;
+          } else {
+            newData = new SaveData();
+            newData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
+            newData.tempIndex = 0;
+          }
+
           newData.name = this.editedName;
-          newData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
-          newData.tempIndex = 0;
           newData.isUnsaved = false;
           newData.saveManagerData();
 

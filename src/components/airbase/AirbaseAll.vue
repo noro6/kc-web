@@ -219,6 +219,8 @@ export default Vue.extend({
           errors.push(`第${i + 1}`);
         }
       }
+
+      // todo 6-4基地半径
       return errors.length ? `${errors.join(',')}基地航空隊の半径が不足しています。` : '';
     },
   },
