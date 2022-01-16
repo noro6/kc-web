@@ -82,11 +82,15 @@ export default new Vuex.Store({
       context.commit('setDraggingSaveData', value);
     },
     updateItemStock: (context, values: ItemStock[]) => {
-      context.state.kcWebDatabase.items.bulkPut(values);
+      context.state.kcWebDatabase.items.clear().then(() => {
+        context.state.kcWebDatabase.items.bulkAdd(values);
+      });
       context.commit('updateItemStock', values);
     },
     updateShipStock: (context, values: ShipStock[]) => {
-      context.state.kcWebDatabase.ships.bulkPut(values);
+      context.state.kcWebDatabase.ships.clear().then(() => {
+        context.state.kcWebDatabase.ships.bulkAdd(values);
+      });
       context.commit('updateShipStock', values);
     },
     updateSetting: (context, value: SiteSetting) => {

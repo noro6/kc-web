@@ -252,6 +252,9 @@ export default Vue.extend({
     removeShip(index: number) {
       const ships = this.fleet.ships.filter((v, i) => i !== index);
       if (ships.length) {
+        if (ships.length < 6 && !ships.some((v) => v.isEmpty)) {
+          ships.push(new Ship());
+        }
         this.setFleet(new Fleet({ fleet: this.fleet, ships }));
       } else {
         // 消せなかったらリセット処理と同じで
