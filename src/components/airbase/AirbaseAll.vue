@@ -161,7 +161,6 @@ import AirbaseInfo, { AirbaseInfoBuilder } from '@/classes/airbase/airbaseInfo';
 import Airbase, { AirbaseBuilder } from '@/classes/airbase/airbase';
 import Const, { AB_MODE, DIFFICULTY_LEVEL } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
-import ItemMaster from '@/classes/item/itemMaster';
 import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
 
@@ -238,7 +237,8 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base);
     },
-    equipItem(item: ItemMaster) {
+    equipItem(argItem: Item) {
+      const item = argItem.data;
       const index = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
       const base = this.airbaseInfo.airbases[index];
@@ -276,7 +276,9 @@ export default Vue.extend({
           }
         }
 
-        const builder: ItemBuilder = { master: item, slot: initialSlot, level: initialLevel };
+        const builder: ItemBuilder = {
+          master: item, slot: initialSlot, level: initialLevel, remodel: argItem.remodel,
+        };
         base.items[slot] = new Item(builder);
         this.itemListDialog = false;
       }

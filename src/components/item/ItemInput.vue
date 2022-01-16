@@ -213,7 +213,7 @@
   color: #388e3c;
 }
 .theme--dark .is-special {
-  color: #66BB6A;
+  color: #66bb6a;
 }
 
 .item-remodel {
@@ -511,8 +511,6 @@ export default Vue.extend({
     dragStart(item: Item, e: DragEvent) {
       const target = e.target as HTMLDivElement;
       if (!this.isDraggabe || !target || !target.classList || !target.classList.contains('item-input') || !target.draggable) {
-        console.log('変な要素がドラッグ開始されようとしましたよ =>');
-        console.log(target);
         return;
       }
       (e.dataTransfer as DataTransfer).setData('text/plain', JSON.stringify(item));

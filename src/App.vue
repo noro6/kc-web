@@ -372,7 +372,7 @@ export default Vue.extend({
             const folder = this.saveData.childItems.find((v) => v.isDirectory);
             if (folder) {
               folder.childItems.push(data);
-              folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+              folder.sortChild();
 
               // 保存されていないファイル群から除去
               this.saveData.childItems = this.saveData.childItems.filter((v) => v !== data);
@@ -418,7 +418,7 @@ export default Vue.extend({
           const folder = this.saveData.childItems.find((v) => v.isDirectory);
           if (folder) {
             folder.childItems.push(newData);
-            folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+            folder.sortChild();
 
             newData.isActive = true;
 

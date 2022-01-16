@@ -346,10 +346,11 @@ export default Vue.extend({
       const fleet = this.value.fleetInfo.mainFleet;
       const ships = [];
 
-      for (let i = 0; i < fleet.ships.length; i += 1) {
-        const planes = fleet.ships[i].items.filter((v) => v.isPlane);
+      const activeShips = fleet.ships.filter((v) => v.isActive && !v.isEmpty);
+      for (let i = 0; i < activeShips.length; i += 1) {
+        const planes = activeShips[i].items.filter((v) => v.isPlane);
         if (planes.length) {
-          ships.push({ name: fleet.ships[i].data.name, items: planes });
+          ships.push({ name: activeShips[i].data.name, items: planes });
         }
       }
       return ships;

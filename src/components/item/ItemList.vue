@@ -43,7 +43,7 @@
       </div>
     </div>
     <v-divider class="ml-3" :class="{ 'mr-3': multiLine }"></v-divider>
-    <div id="item-table-body" class="ml-3" :class="{ 'mr-3': multiLine }">
+    <div id="item-table-body" class="ml-3 pb-2" :class="{ 'mr-3': multiLine }">
       <div :class="{ multi: multiLine }">
         <div v-if="!multiLine && viewItems.length" class="item-status-header pr-3">
           <div
@@ -90,12 +90,12 @@
           </div>
         </div>
         <div
-          v-ripple="{ class: 'info--text' }"
-          :class="{ 'pr-3': !multiLine }"
           v-for="(v, i) in viewItems"
           :key="i"
+          v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
           class="list-item"
-          @click="clickedItem(v.item.data)"
+          :class="{ 'pr-3': !multiLine, 'no-stock': !v.count }"
+          @click="clickedItem(v)"
         >
           <div>
             <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="24" width="24"></v-img>
@@ -146,6 +146,19 @@
       </div>
       <div v-show="viewItems.length === 0" class="caption text-center mt-10">搭載可能な装備が見つかりませんでした。</div>
     </div>
+    <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
+      <v-card class="pa-3">
+        <div class="ma-4">
+          <div>既に全て配備されています。</div>
+          <div class="caption mt-2">※ 配備 を押せば無視して配備できます。</div>
+        </div>
+        <v-divider class="my-2"></v-divider>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="info" dark @click.stop="clickedItem(confirmItem)">配備</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">戻る</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -217,6 +230,9 @@
 .list-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
 }
+.list-item.no-stock:hover {
+  background-color: rgba(255, 128, 128, 0.1);
+}
 .list-item > div {
   align-self: center;
 }
@@ -227,10 +243,13 @@
   margin-left: 0.1rem;
 }
 .is-special {
-  color: #388e3c;
+  color: #3cac42;
 }
 .theme--dark .is-special {
   color: #66bb6a;
+}
+.no-stock .item-name {
+  color: rgb(255, 100, 100);
 }
 .item-remodel {
   width: 32px;
@@ -305,6 +324,7 @@ import Const from '@/classes/const';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
+import SaveData from '@/classes/saveData/saveData';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 
@@ -342,6 +362,9 @@ export default Vue.extend({
     isDesc: false,
     viewItems: [] as { item: Item; count: number }[],
     itemStock: [] as ItemStock[],
+    usedItems: [] as Item[],
+    confirmDialog: false,
+    confirmItem: { item: new Item(), count: 0 },
     headerItems: [
       { text: '火力', key: 'fire' },
       { text: '雷装', key: 'torpedo' },
@@ -448,6 +471,7 @@ export default Vue.extend({
   methods: {
     changeType(type = 0): void {
       this.type = type;
+      this.sortKey = '';
       this.filter();
     },
     clickedStockOnly() {
@@ -468,6 +492,34 @@ export default Vue.extend({
         this.slot = 0;
       } else {
         this.slot = parent.items[slotIndex] ? parent.items[slotIndex].fullSlot : 0;
+      }
+
+      // 現在の計算画面内で配備されている装備を列挙する
+      this.usedItems = [];
+      const mainData = this.$store.state.mainSaveData as SaveData;
+      const manager = mainData.tempData[mainData.tempIndex];
+      if (manager) {
+        let allItems: Item[] = [];
+        // 艦隊データから装備全聚徳
+        for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+          if (i === 4) {
+            // 友軍は除外
+            continue;
+          }
+
+          const { ships } = manager.fleetInfo.fleets[i];
+          for (let j = 0; j < ships.length; j += 1) {
+            allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+          }
+        }
+
+        // 基地航空隊データから装備全取得
+        const { airbases } = manager.airbaseInfo;
+        for (let i = 0; i < airbases.length; i += 1) {
+          allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
+        }
+
+        this.usedItems = allItems;
       }
 
       // 装備可能フィルタ
@@ -493,8 +545,10 @@ export default Vue.extend({
       } else if (parent instanceof Airbase) {
         // 基地航空隊 全艦載機装備可能
         types = Const.PLANE_TYPES.concat();
-        // 陸攻を初期位置に
-        this.type = 47;
+        if (!types.includes(this.type)) {
+          // なんか変だったら陸攻を初期位置に
+          this.type = 47;
+        }
         if (!this.slot) {
           // 搭載数を18に
           this.slot = 18;
@@ -519,7 +573,6 @@ export default Vue.extend({
     filter() {
       const word = this.keyword;
       let result = this.baseItems.concat();
-      this.sortKey = '';
 
       if (this.isEnemyMode) {
         // 敵装備
@@ -540,6 +593,7 @@ export default Vue.extend({
         result = result.filter((v) => t.types.includes(v.apiTypeId));
       }
 
+      let usedItem = this.usedItems.concat();
       const viewItems = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
@@ -554,9 +608,13 @@ export default Vue.extend({
             // 未所持 出さない
             continue;
           }
+
+          // 熟練度 設定値より
           const level = iniLevel ? iniLevel.level : 0;
+
+          // 改修値★10～0 だけ回す
           for (let remodel = 10; remodel >= 0; remodel -= 1) {
-            const count = stockData.num[remodel];
+            let count = stockData.num[remodel];
             if (!count) continue;
             const item = new Item({
               master,
@@ -564,7 +622,13 @@ export default Vue.extend({
               remodel,
               level,
             });
-            viewItems.push({ item, count });
+
+            // id 改修値を見て配備済みかどうか判定
+            const usedCount = usedItem.filter((v) => v.data.id === master.id && v.remodel === remodel).length;
+            // 減らす
+            count -= usedCount;
+            usedItem = usedItem.filter((v) => v.data.id !== master.id || v.remodel !== remodel);
+            viewItems.push({ item, count: Math.max(count, 0) });
           }
         }
       } else {
@@ -583,9 +647,19 @@ export default Vue.extend({
       }
 
       this.viewItems = viewItems;
+
+      if (this.sortKey) {
+        this.sortItems();
+      }
     },
-    clickedItem(item: ItemMaster) {
-      this.handleEquipItem(item);
+    clickedItem(data: { item: Item; count: number }) {
+      if (data.count || this.confirmDialog) {
+        this.confirmDialog = false;
+        this.handleEquipItem(data.item);
+      } else {
+        this.confirmItem = data;
+        this.confirmDialog = true;
+      }
     },
     changeMultiLine(isMulti: boolean) {
       this.handleChangeWidth(isMulti ? 1200 : 900);
@@ -611,27 +685,25 @@ export default Vue.extend({
         this.sortKey = '';
       }
 
+      this.filter();
+    },
+    sortItems() {
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
-      if (this.sortKey) {
-        (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
-          if (
-            key === 'actualAntiAir'
-            || key === 'actualDefenseAntiAir'
-            || key === 'TP'
-            || key === 'airPower'
-            || key === 'defenseAirPower'
-            || key === 'antiAirWeight'
-            || key === 'antiAirBonus'
-          ) {
-            return desc * ((b.item[key] as number) - (a.item[key] as number));
-          }
-          return desc * (b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key];
-        });
-      } else {
-        // ソート解除 もう一回取得しなおして自然順序に
-        this.filter();
-      }
+      (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
+        if (
+          key === 'actualAntiAir'
+          || key === 'actualDefenseAntiAir'
+          || key === 'TP'
+          || key === 'airPower'
+          || key === 'defenseAirPower'
+          || key === 'antiAirWeight'
+          || key === 'antiAirBonus'
+        ) {
+          return desc * ((b.item[key] as number) - (a.item[key] as number));
+        }
+        return desc * (b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key];
+      });
     },
   },
 });

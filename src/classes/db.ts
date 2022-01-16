@@ -18,7 +18,7 @@ export default class KcWebDatabase extends Dexie {
     this.version(1).stores({
       savedata: 'id',
       items: 'id',
-      ships: 'id',
+      ships: 'uniqueId',
       setting: 'id',
     });
   }

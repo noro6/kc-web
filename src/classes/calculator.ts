@@ -180,21 +180,24 @@ export default class Calculator {
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       // ====== STAGE1 ======
-      item.slot -= Math.floor(0.6 * CommonCalc.getStage1ShootDownValue(state, item.slot));
+      // ジェットなら0.6倍 切り捨て
+      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.isJet ? 0.6 : 1));
 
       // ====== STAGE2 ======
-      // 撃墜担当を選出
-      const index = Math.floor(Math.random() * randomRange);
-      if (Math.random() >= 0.5) {
-        // 割合撃墜 50%で成功
-        item.slot -= Math.floor(st2List[item.data.avoidId].rateDownList[index] * item.slot);
+      if (item.isAttacker) {
+        // 撃墜担当を選出
+        const index = Math.floor(Math.random() * randomRange);
+        if (Math.random() >= 0.5) {
+          // 割合撃墜 50%で成功
+          item.slot -= Math.floor(st2List[item.data.avoidId].rateDownList[index] * item.slot);
+        }
+        if (Math.random() >= 0.5) {
+          // 固定撃墜 50%で成功
+          item.slot -= st2List[item.data.avoidId].fixDownList[index];
+        }
+        // 最低保証
+        item.slot -= st2List[item.data.avoidId].minimumDownList[index];
       }
-      if (Math.random() >= 0.5) {
-        // 固定撃墜 50%で成功
-        item.slot -= st2List[item.data.avoidId].fixDownList[index];
-      }
-      // 最低保証
-      item.slot -= st2List[item.data.avoidId].minimumDownList[index];
 
       // 制空値を更新
       Item.updateAirPower(item);

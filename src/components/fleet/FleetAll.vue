@@ -9,18 +9,20 @@
     </div>
     <v-divider></v-divider>
     <v-row align="center" class="mt-1 ml-4" dense>
-      <div class="admiral-level align-self-center">
-        <v-text-field
-          type="number"
-          dense
-          hide-details
-          label="司令部Lv"
-          max="120"
-          min="1"
-          v-model.number="fleetInfo.admiralLevel"
-          @input="changedInfo"
-        ></v-text-field>
-      </div>
+      <v-menu
+        v-model="levelMenu"
+        :close-on-content-click="false"
+        @input="onLevelMenuToggle"
+      >
+        <template v-slot:activator="{ on, attrs }" v-ripple="{ class: 'info--text' }">
+          <div class="admiral-level" v-bind="attrs" v-on="on">
+            <v-text-field type="number" dense hide-details label="司令部Lv" v-model.number="fleetInfo.admiralLevel" readonly></v-text-field>
+          </div>
+        </template>
+        <v-card class="pa-5">
+          <v-text-field class="admiral-level" v-model.number="level" max="120" min="1" hide-details type="number" label="司令部Lv"></v-text-field>
+        </v-card>
+      </v-menu>
       <div class="ml-4">
         <v-checkbox label="連合艦隊" v-model="fleetInfo.isUnion" @change="changedInfo"></v-checkbox>
       </div>
@@ -49,7 +51,7 @@
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
-      <ship-list :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth"/>
+      <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
@@ -67,12 +69,10 @@
 import Vue from 'vue';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
-import ShipList from '@/components/fleet/ShipList.vue';
+import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
 import FleetInfo, { FleetInfoBuilder } from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
-import ShipMaster from '@/classes/fleet/shipMaster';
-import ItemMaster from '@/classes/item/itemMaster';
 import Item from '@/classes/item/item';
 import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
@@ -98,6 +98,8 @@ export default Vue.extend({
     tab: 'fleet0',
     itemDialogWidth: 1200,
     shipDialogWidth: 1200,
+    level: 120,
+    levelMenu: false,
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -114,11 +116,13 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex);
     },
-    showShipList(fleetIndex: number, shipIndex: number) {
+    async showShipList(fleetIndex: number, shipIndex: number) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
-      this.shipListDialog = true;
+      await (this.shipListDialog = true);
+      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
     },
-    putShip(ship: ShipMaster) {
+    putShip(viewShip: ViewShip) {
+      const { ship } = viewShip;
       this.shipListDialog = false;
       const fleetIndex = this.shipDialogTarget[0];
       const index = this.shipDialogTarget[1];
@@ -167,6 +171,8 @@ export default Vue.extend({
         items: newItems,
         exItem,
         isActive: oldShip.isActive,
+        level: viewShip.level,
+        luck: viewShip.luck,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新
@@ -175,7 +181,8 @@ export default Vue.extend({
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
       this.setInfo(new FleetInfo(infoBuilder));
     },
-    equipItem(master: ItemMaster) {
+    equipItem(item: Item) {
+      const master = item.data;
       this.itemListDialog = false;
       const fleetIndex = this.itemDialogTarget[0];
       const shipIndex = this.itemDialogTarget[1];
@@ -189,7 +196,6 @@ export default Vue.extend({
       // 初期熟練度設定
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
       let level = 0;
-      const remodel = 0;
       if (initialLevels) {
         // 設定情報より初期熟練度を解決
         const initData = initialLevels.find((v) => v.id === master.apiTypeId);
@@ -203,14 +209,14 @@ export default Vue.extend({
         items[slotIndex] = new Item({
           item: items[slotIndex],
           master,
-          remodel,
+          remodel: item.remodel,
           level,
         });
         // 装備を変更した艦娘インスタンス再生成
         newShip = new Ship({ ship, items });
       } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
         // 補強増設を変更した艦娘インスタンス再生成
-        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master, remodel }) };
+        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master, remodel: item.remodel }) };
         newShip = new Ship(builder);
       } else {
         // 搭載失敗
@@ -229,6 +235,14 @@ export default Vue.extend({
 
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
       this.setInfo(new FleetInfo(infoBuilder));
+    },
+    onLevelMenuToggle() {
+      if (!this.levelMenu) {
+        const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo, admiralLevel: this.level };
+        this.setInfo(new FleetInfo(infoBuilder));
+      } else {
+        this.level = this.fleetInfo.admiralLevel;
+      }
     },
     changedInfo() {
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };

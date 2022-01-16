@@ -73,7 +73,6 @@ export default new Vuex.Store({
       minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
       context.state.kcWebDatabase.savedata.put(minifyData);
 
-      console.log('db更新しました');
       context.commit('updateSaveData', value);
     },
     setMainSaveData(context, value: SaveData) {
@@ -108,7 +107,7 @@ export default new Vuex.Store({
           context.commit('setCells', cells);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
 
       const loader = [loadCell];
@@ -129,7 +128,7 @@ export default new Vuex.Store({
           context.commit('setShips', ships);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
 
       const loadEnemy = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/enemies?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
@@ -144,7 +143,7 @@ export default new Vuex.Store({
           context.commit('setEnemies', enemies);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
 
       const loadItem = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/items?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
@@ -159,7 +158,7 @@ export default new Vuex.Store({
           context.commit('setItems', items);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
 
       const loader = [loadShip, loadEnemy, loadItem];
@@ -200,7 +199,7 @@ export default new Vuex.Store({
           newFolder.isUnsaved = false;
           folder.childItems.push(newFolder);
         }
-        folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+        folder.sortChild();
 
         context.state.saveData = root;
         context.commit('updateSaveData', root);

@@ -108,7 +108,7 @@ export default Vue.extend({
         }
         folder.isOpen = true;
         folder.childItems.push(saveData);
-        folder.childItems.sort((a, b) => a.name.localeCompare(b.name));
+        folder.sortChild();
         // セーブデータの更新を通知
         this.$store.dispatch('updateSaveData', this.rootData);
       }

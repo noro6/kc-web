@@ -71,14 +71,23 @@ export default Vue.extend({
     goAirCalcPage() {
       const saveData = this.$store.state.saveData as SaveData;
       saveData.disabledMain();
-      // ルートに無題のデータを生成
-      const data = new SaveData();
-      data.name = `新規データ${saveData.childItems.length}`;
-      data.isActive = true;
-      data.isMain = true;
-      saveData.childItems.push(data);
-      this.$store.dispatch('updateSaveData', saveData);
-      this.$store.dispatch('setMainSaveData', data);
+
+      const actives = saveData.fetchActiveData();
+      if (actives.length) {
+        // タブがあるならそれの最初のやつ
+        actives[0].isMain = true;
+        this.$store.dispatch('updateSaveData', saveData);
+        this.$store.dispatch('setMainSaveData', actives[0]);
+      } else {
+        // ルートに無題のデータを生成
+        const data = new SaveData();
+        data.name = `新規データ${saveData.childItems.length}`;
+        data.isActive = true;
+        data.isMain = true;
+        saveData.childItems.push(data);
+        this.$store.dispatch('updateSaveData', saveData);
+        this.$store.dispatch('setMainSaveData', data);
+      }
       this.$router.push('aircalc');
     },
   },

@@ -494,7 +494,7 @@ export default class Convert {
     // 基地データ
     const { airbases } = manager.airbaseInfo;
     for (let i = 0; i < airbases.length; i += 1) {
-      const { items } = airbases[i];
+      const items = airbases[i].items.filter((v) => v.data.id > 0);
       const equipments = [] as JervisItem[];
       for (let k = 0; k < items.length; k += 1) {
         const item = items[k];

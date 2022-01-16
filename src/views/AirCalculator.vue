@@ -116,7 +116,6 @@ export default Vue.extend({
     'calcManager.airbaseInfo': {
       handler() {
         if (!this.calcManager.airbaseInfo.calculated) {
-          console.log('change airbaseInfo');
           this.calculate();
         }
       },
@@ -124,7 +123,6 @@ export default Vue.extend({
     'calcManager.fleetInfo': {
       handler() {
         if (!this.calcManager.fleetInfo.calculated) {
-          console.log('change fleetInfo');
           this.calculate();
         }
       },
@@ -132,7 +130,6 @@ export default Vue.extend({
     'calcManager.battleInfo': {
       handler(current: BattleInfo, old: BattleInfo) {
         if (!this.calcManager.battleInfo.calculated) {
-          console.log('change battleInfo');
           if (current.fleets.length !== old.fleets.length) {
             // 戦闘回数変更を検知
             this.calcManager.mainBattle = this.calcManager.battleInfo.fleets.length - 1;

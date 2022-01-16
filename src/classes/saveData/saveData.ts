@@ -253,6 +253,25 @@ export default class SaveData {
   }
 
   /**
+   * 子要素をソートする 再帰呼び出し
+   * @memberof SaveData
+   */
+  public sortChild(): void {
+    if (this.name !== 'root' && this.isDirectory) {
+      this.childItems.sort((a, b) => {
+        if (a.isDirectory && !b.isDirectory) return -1;
+        if (!a.isDirectory && b.isDirectory) return 1;
+
+        return a.name.localeCompare(b.name);
+      });
+
+      for (let i = 0; i < this.childItems.length; i += 1) {
+        this.childItems[i].sortChild();
+      }
+    }
+  }
+
+  /**
    * 計算画面で適用されている編成データを取得 なければundefined
    * @returns {(SaveData | undefined)}
    * @memberof SaveData
@@ -286,7 +305,7 @@ export default class SaveData {
     // 自身が選択状態ならここに追加して終了
     if (this.selected) {
       this.childItems.push(saveData);
-      this.childItems.sort((a, b) => a.name.localeCompare(b.name));
+      this.sortChild();
       this.selected = true;
       this.isOpen = true;
       return true;
@@ -294,7 +313,7 @@ export default class SaveData {
     // 子要素のファイルの中で選択状態のものがあるならここに追加
     if (this.childItems.some((v) => !v.isDirectory && v.selected)) {
       this.childItems.push(saveData);
-      this.childItems.sort((a, b) => a.name.localeCompare(b.name));
+      this.sortChild();
       this.isOpen = true;
       return true;
     }
