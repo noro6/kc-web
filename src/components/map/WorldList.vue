@@ -10,11 +10,22 @@
       </div>
       <v-divider></v-divider>
       <div class="d-flex mt-6 px-4">
-        <div class="world-select">
+        <!-- <div class="world-select">
           <v-select dense v-model="world" hide-details :items="worlds" @change="worldChanged" label="海域"></v-select>
         </div>
         <div class="world-select">
           <v-select dense v-model="area" hide-details :items="areas" @change="worldChanged" label="マップ"></v-select>
+        </div> -->
+        <div class="world-select-all">
+          <v-select
+            dense
+            v-model="selectedArea"
+            hide-details
+            :items="areaItems"
+            @change="worldChanged"
+            label="海域"
+            :menu-props="{ maxHeight: '60vh' }"
+          ></v-select>
         </div>
         <div v-show="isEvent">
           <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" label="難易度"></v-select>
@@ -127,6 +138,7 @@
           </v-tab-item>
         </v-tabs>
         <div v-show="!enabledCommitBtn" class="pt-10 text-center">展開したい海域、セル、敵編成を選択してください。</div>
+        <div v-if="selectedNodeNames.length" class="pt-10 text-center">選択済み: {{ selectedNodeNames.join(" → ") }}</div>
       </div>
       <v-divider></v-divider>
       <v-card-actions>
@@ -151,6 +163,9 @@
 <style scoped>
 .world-select {
   max-width: 35%;
+}
+.world-select-all {
+  max-width: 70%;
 }
 .map-img-area {
   user-select: none;
@@ -258,6 +273,8 @@ export default Vue.extend({
     world: 1,
     areas: Const.MAPS,
     area: 11,
+    areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
+    selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
@@ -272,10 +289,34 @@ export default Vue.extend({
     continuousMode: false,
     snackbar: false,
     unsbscribe: undefined as unknown,
+    selectedNodeName: '',
+    selectedNodeNames: [] as string[],
   }),
   mounted() {
     // 敵編成読み込み
     const cells = this.$store.state.cells as CellMaster[];
+
+    // 海域セレクトボックス初期化
+    const items = [];
+    const worlds = Const.WORLDS;
+    for (let i = 0; i < worlds.length; i += 1) {
+      const world = worlds[i];
+      const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
+      if (!maps.length) {
+        continue;
+      }
+      if (i > 0) {
+        items.push({ divider: true });
+      }
+
+      items.push({ header: world.text });
+      for (let j = 0; j < maps.length; j += 1) {
+        const map = maps[j];
+        const worldText = world.value > 40 ? 'E' : `${world.value}`;
+        items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
+      }
+    }
+    this.areaItems = items;
 
     if (cells.length) {
       // マスタデータがあるならそれでOK
@@ -312,6 +353,10 @@ export default Vue.extend({
       this.worldChanged();
     },
     worldChanged() {
+      // 海域-マップ統合セレクトより選択
+      this.world = Math.floor(this.selectedArea / 10);
+      this.area = this.selectedArea;
+
       const lv = this.rawLevel;
       this.areas = Const.MAPS.filter((v) => Math.floor(v.value / 10) === this.world);
       if (!this.areas.some((v) => v.value === this.area)) {
@@ -391,6 +436,7 @@ export default Vue.extend({
       if (this.fleetPatterns.length > 0) {
         this.selectedFleet = enemyFleets[enemyFleets.length - enemyFleets.length];
         this.enabledCommitBtn = true;
+        this.selectedNodeName = clickedCell.node;
       } else {
         this.selectedFleet = undefined;
         this.enabledCommitBtn = false;
@@ -432,6 +478,9 @@ export default Vue.extend({
     commitFleet() {
       this.enabledCommitBtn = false;
       this.handleSetEnemy(this.selectedFleet, this.continuousMode);
+      this.selectedNodeNames.push(this.selectedNodeName);
+      this.selectedNodeName = '';
+
       if (this.continuousMode) {
         this.snackbar = true;
       }

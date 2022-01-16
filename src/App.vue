@@ -4,10 +4,10 @@
       <save-data-view :root-data="saveData" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
         <v-icon small>mdi-content-save</v-icon>
         <span class="d-none d-md-inline">編成</span>保存

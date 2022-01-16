@@ -1,8 +1,11 @@
 <template>
   <v-sheet drak>
     <div class="d-flex pa-1">
-      <div class="align-self-center">制空権シミュレータ</div>
-      <div class="ml-1 align-self-center">v2.0.0</div>
+      <div class="d-flex home pl-1 pr-3" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
+        <div class="align-self-center mb-1 mr-1"><v-icon small>mdi-home</v-icon></div>
+        <div class="align-self-center">制空権シミュレータ</div>
+        <div class="ml-1 align-self-center">v2.0.0</div>
+      </div>
       <div class="ml-auto btn-icons">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -57,6 +60,14 @@
 }
 .item-container {
   flex-grow: 1;
+}
+
+.home {
+  cursor: pointer;
+  user-select: none;
+}
+.home:hover {
+  background-color: rgba(128, 128, 128, 0.2);
 }
 </style>
 

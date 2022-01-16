@@ -11,12 +11,16 @@ export interface RawCell {
 }
 
 export default class CellMaster {
+  /** 識別id [] */
   public area: number;
 
+  /** セル名 ABC */
   public node: string;
 
+  /** セル名詳細 */
   public detail: string;
 
+  /** 難易度 */
   public level: number;
 
   public cellType: number;

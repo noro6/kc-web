@@ -152,6 +152,8 @@ export default Vue.extend({
       this.fleetStock = [];
       await (this.worldListDialog = true);
       (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = true;
+      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeName = '';
+      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeNames = [];
     },
     async showWorldList(index: number) {
       this.fleetStock = [];

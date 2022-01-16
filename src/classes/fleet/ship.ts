@@ -129,6 +129,16 @@ export default class Ship implements ShipBase {
         this.items.push(new Item({ slot: this.data.slots[i] }));
       }
     }
+
+    // 空の装備の搭載数を戻す
+    for (let i = 0; i < this.data.slotCount; i += 1) {
+      const fullSlot = this.data.slots[i];
+      const item = this.items[i];
+      if (item.data.id === 0 && fullSlot > 0) {
+        this.items[i] = new Item({ slot: fullSlot });
+      }
+    }
+
     this.fullAirPower = 0;
     this.antiAirBonus = 0;
     this.itemsScout = 0;
@@ -154,6 +164,7 @@ export default class Ship implements ShipBase {
     const items = this.items.concat(this.exItem);
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
+
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
       // 装備索敵関係
