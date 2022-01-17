@@ -509,6 +509,7 @@ export default Vue.extend({
           const { ships } = manager.fleetInfo.fleets[i];
           for (let j = 0; j < ships.length; j += 1) {
             allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+            if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
           }
         }
 
@@ -596,7 +597,7 @@ export default Vue.extend({
       const viewItems = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
-      if (this.isStockOnly && this.itemStock.length) {
+      if (!this.isEnemyMode && this.isStockOnly && this.itemStock.length) {
         // 所持装備考慮
         const stock = this.itemStock;
         for (let i = 0; i < result.length; i += 1) {

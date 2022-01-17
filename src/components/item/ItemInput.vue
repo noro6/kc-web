@@ -584,7 +584,7 @@ export default Vue.extend({
       // 受け渡されたデータ
       const droppedData = (e.dataTransfer as DataTransfer).getData('text/plain');
       // 元々あったitem情報があれば、ドロップ元のdataに一時保管
-      if (!this.isNoItem && draggingDiv) {
+      if (!this.isNoItem && !e.ctrlKey && draggingDiv) {
         const prevData = JSON.stringify(this.item);
         draggingDiv.dataset.item = prevData;
       }

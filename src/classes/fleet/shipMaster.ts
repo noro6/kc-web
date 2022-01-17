@@ -113,21 +113,23 @@ export default class ShipMaster {
     // 艦種
     const { type } = this;
 
-    // 特定装備判定
-    // 試製景雲
-    if (item.id === 151) {
-      // 装甲空母ならOK
-      return type === SHIP_TYPE.CVB;
-    }
-    // 15m二重測距儀+21号電探改二
-    if (item.id === 142) {
-      // 戦艦系ならOK
-      return type === SHIP_TYPE.FBB || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBV;
-    }
-    // 51cm連装砲系
-    if (item.id === 128 || item.id === 281) {
-      // 長門型改以上か大和型のみ
-      return this.type2 === 37 || (this.type2 === 19 && this.version > 0);
+    if (!isExpandSlot) {
+      // 特定装備判定
+      // 試製景雲
+      if (item.id === 151) {
+        // 装甲空母ならOK
+        return type === SHIP_TYPE.CVB;
+      }
+      // 15m二重測距儀+21号電探改二
+      if (item.id === 142) {
+        // 戦艦系ならOK
+        return type === SHIP_TYPE.FBB || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBV;
+      }
+      // 51cm連装砲系
+      if (item.id === 128 || item.id === 281) {
+        // 長門型改以上か大和型のみ
+        return this.type2 === 37 || (this.type2 === 19 && this.version > 0);
+      }
     }
 
     // 特定艦娘判定

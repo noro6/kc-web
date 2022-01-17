@@ -188,6 +188,12 @@ export default new Vuex.Store({
         data.isReadonly = true;
         data.childItems[0].isOpen = true;
         data.childItems[0].isReadonly = true;
+
+        // なんかもうすでに入っていたら統合
+        const alreadyChildFile = context.state.saveData.childItems.filter((v) => v.isUnsaved);
+        for (let i = 0; i < alreadyChildFile.length; i += 1) {
+          data.childItems.push(alreadyChildFile[i]);
+        }
         context.state.saveData = data;
         context.commit('updateSaveData', data);
       } else {

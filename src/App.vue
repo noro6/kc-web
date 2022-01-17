@@ -488,7 +488,6 @@ export default Vue.extend({
         retVal[set[0]] = set[1].toString();
       }
       window.history.replaceState(null, '', `${document.location.pathname}#/`);
-      console.log(retVal);
       return retVal;
     },
   },
