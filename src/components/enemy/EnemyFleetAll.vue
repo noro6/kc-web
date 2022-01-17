@@ -1,6 +1,6 @@
 <template>
   <v-card class="my-2 px-1 py-2">
-    <div class="d-flex pb-1">
+    <div class="d-flex pb-1 flex-wrap">
       <div class="pl-2 align-self-center">敵艦隊</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="resetFleetAll">
@@ -10,7 +10,7 @@
     <v-divider></v-divider>
     <div class="d-flex mx-2 mt-3 mb-2" v-if="!isDefense">
       <div class="align-self-center">
-        <v-btn color="primary" @click.stop="showWorldListContinuous">海域マップから一括入力</v-btn>
+        <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
       </div>
       <div class="align-self-center ml-3" v-show="battleCount > 1">
         <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
@@ -18,6 +18,7 @@
       <div class="align-self-center ml-4" id="battle-count-select">
         <v-select dense hide-details v-model="battleCount" :items="items" label="戦闘回数" @input="setInfo"></v-select>
       </div>
+      <div class="align-self-center ml-4 body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
     </div>
     <div class="d-flex flex-wrap" v-if="!isDefense">
       <enemy-fleet-component
@@ -116,6 +117,14 @@ export default Vue.extend({
     battleInfo(): BattleInfo {
       return this.value;
     },
+    nodeString(): string {
+      const nodeList = this.value.fleets.map((v) => v.nodeName);
+      if (nodeList.some((v) => v !== '')) {
+        return nodeList.map((v) => (v === '' ? '?' : v)).join(' → ');
+      }
+
+      return '';
+    },
   },
   methods: {
     setInfo() {
@@ -154,12 +163,16 @@ export default Vue.extend({
       (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = true;
       (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeName = '';
       (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeNames = [];
+      (this.$refs.worldList as InstanceType<typeof WorldList>).snackbar = false;
     },
     async showWorldList(index: number) {
       this.fleetStock = [];
       this.dialogTarget = [index, 0];
       await (this.worldListDialog = true);
       (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = false;
+      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeName = '';
+      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeNames = [];
+      (this.$refs.worldList as InstanceType<typeof WorldList>).snackbar = false;
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
@@ -189,8 +202,12 @@ export default Vue.extend({
       console.log(item);
     },
     setEnemyFleet(fleet: EnemyFleet, isCoutinue = false) {
-      if (isCoutinue) {
+      if (isCoutinue && this.fleetStock.length < 9) {
         this.fleetStock.push(fleet);
+      } else if (isCoutinue) {
+        // 10制限 閉じる
+        this.fleetStock.push(fleet);
+        this.closeWorldList();
       } else if (this.isDefense) {
         // 空襲モード時は直で更新かけに行く(setInfoメソッドに頼らない)
         this.$emit('input', new BattleInfo({ info: this.battleInfo, airRaidFleet: fleet }));

@@ -138,22 +138,20 @@
           </v-tab-item>
         </v-tabs>
         <div v-show="!enabledCommitBtn" class="pt-10 text-center">展開したい海域、セル、敵編成を選択してください。</div>
-        <div v-if="selectedNodeNames.length" class="pt-10 text-center">選択済み: {{ selectedNodeNames.join(" → ") }}</div>
       </div>
       <v-divider></v-divider>
       <v-card-actions>
-        <div class="text-center ma-2">
-          <v-snackbar v-model="snackbar" color="primary" outlined>
-            敵編成を展開しました。続けて次の敵編成を選択できます。
-            <template v-slot:action="{ attrs }">
-              <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>
-            </template>
-          </v-snackbar>
-        </div>
+        <div v-if="selectedNodeNames.length" class="body-2">選択したセル: {{ selectedNodeNames.join(" → ") }}</div>
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="commitFleet" :disabled="!enabledCommitBtn">展開</v-btn>
       </v-card-actions>
     </v-card>
+    <v-snackbar v-model="snackbar" color="primary" outlined>
+      敵編成を展開しました。続けて次の敵編成を選択できます。
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>
+      </template>
+    </v-snackbar>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
@@ -426,6 +424,7 @@ export default Vue.extend({
             formation: cell.formation,
             cellType: cell.cellType,
             range: cell.radius,
+            nodeName: clickedCell.node,
           }),
         );
         patternNames.push(cell.detail ? cell.detail : `編成${j + 1}`);

@@ -156,7 +156,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="loading" width="300">
+    <v-dialog v-model="loading" persistent width="300">
       <v-card dark>
         <v-card-text>
           <div class="pt-2">マスターデータ読込中...</div>
@@ -259,6 +259,20 @@ export default Vue.extend({
         this.toggleSiteTheme(this.setting.darkTheme);
       }
     });
+  },
+  mounted() {
+    const urlParam = this.getUrlParams();
+    if (urlParam.data) {
+      const urlData = SaveData.decodeURLSaveData(urlParam.data.toString());
+      urlData.isMain = true;
+      urlData.isActive = true;
+      this.saveData.childItems.push(urlData);
+      this.$store.dispatch('setMainSaveData', urlData);
+      if (!this.$route.path.endsWith('/aircalc')) {
+        // ページ遷移
+        this.$router.push('aircalc');
+      }
+    }
   },
   methods: {
     readSomethingText() {
@@ -462,6 +476,20 @@ export default Vue.extend({
     },
     closeShareDialog() {
       this.shareDialog = false;
+    },
+    getUrlParams() {
+      const value = document.location.search;
+      if (value === '') return {};
+      const retVal: { [key: string]: string } = {};
+      const array = value.slice(1).split('&');
+      for (let i = 0; i < array.length; i += 1) {
+        const str = array[i];
+        const set = str.split('=');
+        retVal[set[0]] = set[1].toString();
+      }
+      window.history.replaceState(null, '', `${document.location.pathname}#/`);
+      console.log(retVal);
+      return retVal;
     },
   },
   beforeDestroy() {

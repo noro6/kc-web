@@ -13,7 +13,7 @@
         v-ripple="{ class: 'info--text' }"
         :class="itemClass"
         :draggable="isDraggabe"
-        @dragstart="dragStart(item, $event)"
+        @dragstart.stop="dragStart(item, $event)"
         @dragenter="dragEnter($event)"
         @dragleave="dragLeave($event)"
         @drop.stop="dropItem($event)"
@@ -510,10 +510,12 @@ export default Vue.extend({
     },
     dragStart(item: Item, e: DragEvent) {
       const target = e.target as HTMLDivElement;
+      // ドラッグ開始条件 item-inputクラスがなかったりしたらドラッグ開始させない
       if (!this.isDraggabe || !target || !target.classList || !target.classList.contains('item-input') || !target.draggable) {
         return;
       }
-      (e.dataTransfer as DataTransfer).setData('text/plain', JSON.stringify(item));
+      const transfer = e.dataTransfer as DataTransfer;
+      transfer.setData('text/plain', JSON.stringify(item));
       // ドラッグ元を一意識別するためのclassを追加
       target.id = 'dragging-item';
       target.dataset.itemId = `${this.value.data.id}`;
@@ -602,6 +604,12 @@ export default Vue.extend({
       }
     },
     dragEnd() {
+      // まずはいままで消していたマウスイベントを復帰させる
+      const itemInputs = document.getElementsByClassName('item-input');
+      for (let i = 0; i < itemInputs.length; i += 1) {
+        itemInputs[i].classList.remove('dragging');
+      }
+
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       if (!draggingDiv || !draggingDiv.draggable) {
         // そもそもドラッグ不可ならなんもせず終わる
@@ -639,12 +647,6 @@ export default Vue.extend({
       } else {
         // 計算を発火
         this.setItem(new Item({ item: this.value }));
-      }
-
-      // 消していたマウスイベントを復帰させる
-      const itemInputs = document.getElementsByClassName('item-input');
-      for (let i = 0; i < itemInputs.length; i += 1) {
-        itemInputs[i].classList.remove('dragging');
       }
 
       // 判定されていた全てのitem-input情報から判定を解除

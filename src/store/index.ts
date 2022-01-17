@@ -12,6 +12,7 @@ import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ShipStock from '@/classes/fleet/shipStock';
 import KcWebDatabase from '@/classes/db';
+import Ship from '@/classes/fleet/ship';
 
 Vue.use(Vuex);
 
@@ -26,6 +27,7 @@ export default new Vuex.Store({
     saveData: new SaveData(),
     calcManager: undefined as CalcManager | undefined,
     mainSaveData: new SaveData(),
+    draggingShipData: new Ship(),
     draggingSaveData: new SaveData(),
     siteSetting: new SiteSetting(),
     kcWebDatabase: new KcWebDatabase(),
@@ -59,6 +61,9 @@ export default new Vuex.Store({
     setDraggingSaveData: (state, value: SaveData) => {
       state.draggingSaveData = value;
     },
+    setDraggingShipData: (state, value: Ship) => {
+      state.draggingShipData = value;
+    },
     updateSetting: (state, value: SiteSetting) => {
       state.siteSetting = value;
     },
@@ -80,6 +85,9 @@ export default new Vuex.Store({
     },
     setDraggingSaveData(context, value: SaveData) {
       context.commit('setDraggingSaveData', value);
+    },
+    setDraggingShipData(context, value: Ship) {
+      context.commit('setDraggingShipData', value);
     },
     updateItemStock: (context, values: ItemStock[]) => {
       context.state.kcWebDatabase.items.clear().then(() => {

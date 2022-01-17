@@ -1,5 +1,14 @@
 <template>
-  <v-card class="ma-1" :class="{ disabled: !ship.isActive, 'py-2': !ship.isEmpty }" @dragover.prevent @drop.stop>
+  <v-card
+    class="ma-1 ship-input"
+    :class="{ disabled: !ship.isActive, 'py-2': !ship.isEmpty }"
+    @dragstart="dragStart($event)"
+    @dragend="dragEnd($event)"
+    @dragenter="dragEnter($event)"
+    @dragleave="dragLeave($event)"
+    @drop.stop="dropShip($event)"
+    @dragover.prevent
+  >
     <template v-if="ship.isEmpty">
       <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click="showShipList">
         <div class="align-self-center">艦娘選択</div>
@@ -7,7 +16,7 @@
     </template>
     <template v-else>
       <div class="d-flex ship-header px-2">
-        <div class="align-self-center" v-if="!isNoShip">
+        <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
           <v-img :src="`./img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
         </div>
         <div class="flex-grow-1">
@@ -179,6 +188,13 @@
   opacity: 0.5;
 }
 
+.ship-input.dragging * {
+  pointer-events: none;
+}
+.drag-handle {
+  cursor: move;
+}
+
 .empty-ship {
   height: 100%;
   min-height: 220px;
@@ -327,10 +343,10 @@ export default Vue.extend({
       const airPowers = this.ship.items.map((v) => v.fullAirPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
-    isNoShip() {
+    isNoShip(): boolean {
       return this.value.data.id === 0;
     },
-    rateDownValue() {
+    rateDownValue(): number {
       return Math.floor(this.rateDown * 100);
     },
   },
@@ -385,6 +401,109 @@ export default Vue.extend({
     showShipList(): void {
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.handleShowShipList(this.index);
+    },
+    setDraggable(e: MouseEvent) {
+      const target = e.target as HTMLDivElement;
+      const parent = target.closest('.ship-input') as HTMLDivElement;
+      parent.setAttribute('draggable', 'true');
+    },
+    resetDraggable(e: MouseEvent) {
+      const target = e.target as HTMLDivElement;
+      const parent = target.closest('.ship-input') as HTMLDivElement;
+      parent.setAttribute('draggable', 'false');
+    },
+    dragStart(e: DragEvent) {
+      // 子要素(item)のドラッグイベントが先におこっているならキャンセル
+      const draggingDiv = document.getElementById('dragging-item');
+      if (draggingDiv) {
+        return;
+      }
+      const target = e.target as HTMLDivElement;
+      if (this.value.isEmpty || !target || !target.classList || !target.classList.contains('ship-input') || !target.draggable) {
+        return;
+      }
+      target.style.opacity = '0.6';
+      target.id = 'dragging-item';
+
+      // ドラッグ中セーブデータを一時保持
+      this.$store.dispatch('setDraggingShipData', this.value);
+
+      // 一時的に全てのship-inputの子要素マウスイベントを消す
+      const shipInputList = document.getElementsByClassName('ship-input');
+      for (let i = 0; i < shipInputList.length; i += 1) {
+        shipInputList[i].classList.add('dragging');
+      }
+    },
+    dragLeave(e: DragEvent) {
+      (e.target as HTMLDivElement).style.boxShadow = '';
+    },
+    dragEnter(e: DragEvent): void {
+      const d = document.getElementById('dragging-item');
+      const t = e.target as HTMLDivElement;
+      if (!d || !d.classList.contains('ship-input') || !t || !t.classList.contains('ship-input') || this.value.isEmpty) {
+        return;
+      }
+      // 受け入れ可能 背景色を青っぽく
+      t.style.boxShadow = 'inset 0 0 80px rgba(20, 160, 255, 0.6)';
+    },
+    dropShip(e: DragEvent) {
+      e.preventDefault();
+      // 受け渡されたデータ
+      const draggingDiv = document.getElementById('dragging-item');
+      // そもそもドラッグ開始が正常になされているか
+      if (!draggingDiv || !draggingDiv.classList.contains('ship-input')) {
+        return;
+      }
+
+      // ドロップされる要素
+      const target = e.target as HTMLDivElement;
+      target.style.boxShadow = '';
+      if (target.id) {
+        // 自身へのドロップ禁止
+        return;
+      }
+      if (this.value.isEmpty) {
+        // 自身が艦娘データ以外であったら無理
+        return;
+      }
+      // 一時退避していたデータをセット
+      const moveData = this.$store.state.draggingShipData as Ship;
+      // 自身をドラッグ元に受け渡すためセット
+      this.$store.dispatch('setDraggingShipData', this.value);
+
+      // インスタンスにセット
+      this.setShip(moveData);
+
+      draggingDiv.classList.add('move-ok');
+    },
+    dragEnd(e: DragEvent) {
+      // まずは一時的に消していた全てのship-inputの子要素マウスイベントを復活
+      const shipInputList = document.getElementsByClassName('ship-input');
+      for (let i = 0; i < shipInputList.length; i += 1) {
+        shipInputList[i].classList.remove('dragging');
+      }
+
+      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
+      if (!draggingDiv || !draggingDiv.draggable || !draggingDiv.classList.contains('ship-input')) {
+        // ドラッグ不可だったり、そもそもship-inputじゃなかったら以降受け入れない
+        return;
+      }
+      const target = e.target as HTMLDivElement;
+      target.style.opacity = '1';
+      target.id = '';
+      target.draggable = false;
+      if (target.classList.contains('move-ok')) {
+        target.classList.remove('move-ok');
+      } else {
+        return;
+      }
+
+      // 受け渡された対象の装備データと交換！
+      const moveData = this.$store.state.draggingShipData as Ship;
+      if (moveData) {
+        // インスタンスにセット
+        this.setShip(moveData);
+      }
     },
   },
 });

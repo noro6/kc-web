@@ -161,11 +161,6 @@ export default Vue.extend({
           activeData = activeData.concat(actives);
         }
       }
-
-      if (!activeData.length) {
-        this.sendTopPage();
-      }
-
       return activeData;
     },
     isNameEmptry(): boolean {
@@ -176,11 +171,6 @@ export default Vue.extend({
     },
   },
   methods: {
-    sendTopPage(): void {
-      if (this.$route.path === '/aircalc') {
-        this.$router.push('/');
-      }
-    },
     showNameEditDialog(data: SaveData) {
       this.editedFile = data;
       this.editedName = data.name;
@@ -212,6 +202,7 @@ export default Vue.extend({
       data.tempIndex = -1;
 
       if (data.isMain) {
+        data.isMain = false;
         // メイン計算処理を他のデータに移譲
         const actives = this.saveData.fetchActiveData();
         if (actives.length) {
@@ -231,6 +222,11 @@ export default Vue.extend({
       // 設定書き換え
       if (this.disabledConfirm && this.setting.confirmCloseTab) {
         this.setting.confirmCloseTab = false;
+      }
+
+      // もう何もタブがなかったらトップページに戻す
+      if (!this.saveData.getMainData() && this.$route.path === '/aircalc') {
+        this.$router.push('/');
       }
     },
     commitName() {

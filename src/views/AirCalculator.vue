@@ -46,6 +46,7 @@ export default Vue.extend({
   data: () => ({
     calcManager: new CalcManager(),
     unsbscribe: undefined as unknown,
+    stockData: undefined as undefined | SaveData,
   }),
   mounted() {
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
@@ -54,6 +55,11 @@ export default Vue.extend({
         if (!saveData) {
           // 計算対象データがないならトップページに戻す ありえんけど
           this.$router.push('/');
+          return;
+        }
+        if (!this.completed) {
+          // ロード完了前だったら一時保持しておく
+          this.stockData = saveData;
           return;
         }
 
@@ -90,19 +96,14 @@ export default Vue.extend({
       }
     });
 
-    const saveData = this.$store.state.mainSaveData as SaveData;
     // なんかデータがあるならそれを突っ込んで計算開始
-    if (saveData) {
-      const items = this.$store.state.items as ItemMaster[];
-      const ships = this.$store.state.ships as ShipMaster[];
-      const enemies = this.$store.state.enemies as EnemyMaster[];
-      this.calcManager = saveData.loadManagerData(items, ships, enemies);
-      // 特殊ケース -後続のwatch処理で再計算させないための苦肉の策
-      this.calcManager.airbaseInfo.calculated = true;
-      this.calcManager.fleetInfo.calculated = true;
-      this.calcManager.battleInfo.calculated = true;
+    const saveData = this.$store.state.mainSaveData as SaveData;
 
-      this.calculate();
+    if (saveData && saveData.isActive) {
+      saveData.isMain = true;
+      saveData.isActive = true;
+      // 計算開始
+      this.$store.dispatch('setMainSaveData', saveData);
     } else {
       this.$router.push('/');
     }
@@ -111,6 +112,11 @@ export default Vue.extend({
     if (this.unsbscribe) {
       (this.unsbscribe as () => void)();
     }
+  },
+  computed: {
+    completed() {
+      return this.$store.getters.getCompleted;
+    },
   },
   watch: {
     'calcManager.airbaseInfo': {
@@ -137,6 +143,14 @@ export default Vue.extend({
           this.calculate();
         }
       },
+    },
+    completed(value) {
+      if (value && this.stockData) {
+        // 読み込み完了まで待ってた編成を展開
+        this.$store.dispatch('setMainSaveData', this.stockData);
+        // 捨てる
+        this.stockData = undefined;
+      }
     },
   },
   methods: {

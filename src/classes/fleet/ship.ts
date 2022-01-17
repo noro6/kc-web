@@ -123,11 +123,15 @@ export default class Ship implements ShipBase {
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
     }
 
-    // 装備が空だったらマスタのスロット数だけ作成
-    if (this.items.length === 0) {
-      for (let i = 0; i < this.data.slotCount; i += 1) {
+    // 装備数をマスタのスロット数に合わせる
+    if (this.items.length < this.data.slotCount) {
+      // 少ないケース => 追加
+      for (let i = this.items.length; i < this.data.slotCount; i += 1) {
         this.items.push(new Item({ slot: this.data.slots[i] }));
       }
+    } else if (this.items.length > this.data.slotCount) {
+      // 多いケース => 絞る
+      this.items = this.items.slice(0, this.data.slotCount);
     }
 
     // 空の装備の搭載数を戻す

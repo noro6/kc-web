@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import LZString from 'lz-string';
 import CalcManager from '../calcManager';
 import Airbase from '../airbase/airbase';
 import AirbaseInfo from '../airbase/airbaseInfo';
@@ -378,6 +379,17 @@ export default class SaveData {
    * @memberof SaveData
    */
   public saveManagerData(): void {
+    this.manager = this.createSaveDataString();
+    // 最終セーブIndexを更新
+    this.tempSavedIndex = this.tempIndex;
+  }
+
+  /**
+   * セーブデータ保存用の文字列を返却
+   * @return {*}  {string}
+   * @memberof SaveData
+   */
+  private createSaveDataString(): string {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof Item) {
         const data = { i: v.data.id } as SavedItem;
@@ -406,7 +418,7 @@ export default class SaveData {
       }
       if (v instanceof EnemyFleet) {
         return {
-          enemies: v.enemies, cellType: v.cellType, formation: v.formation, range: v.range,
+          enemies: v.enemies, cellType: v.cellType, formation: v.formation, range: v.range, nodeName: v.nodeName,
         };
       }
       if (v instanceof Fleet) {
@@ -435,9 +447,35 @@ export default class SaveData {
     const data = JSON.stringify(managerData, replacer);
     // 一度復元してチェック
     JSON.parse(data);
-    this.manager = data;
-    // 最終セーブIndexを更新
-    this.tempSavedIndex = this.tempIndex;
+
+    return data;
+  }
+
+  /**
+   * URL搭載用セーブデータを返却
+   * @return {*}  {string}
+   * @memberof SaveData
+   */
+  public createURLSaveDataString(): string {
+    return LZString.compressToEncodedURIComponent(this.createSaveDataString());
+  }
+
+  /**
+   * URLパラメータからセーブデータを初期化
+   * @static
+   * @param {string} param
+   * @return {*}  {SaveData}
+   * @memberof SaveData
+   */
+  public static decodeURLSaveData(param: string): SaveData {
+    const data = new SaveData();
+    data.name = '外部データ';
+    const json = LZString.decompressFromEncodedURIComponent(param);
+    if (json) {
+      data.manager = json;
+    }
+
+    return data;
   }
 
   /**

@@ -19,6 +19,8 @@ export interface EnemyFleetBuilder {
   cellType?: number;
   /** 半径 未指定ならfleetの半径で作成 */
   range?: number;
+  /** セル名称 */
+  nodeName?: string;
 }
 
 export default class EnemyFleet {
@@ -36,6 +38,9 @@ export default class EnemyFleet {
 
   /** 半径 */
   public readonly range: number;
+
+  /** セル名称 */
+  public readonly nodeName: string;
 
   /** 全員潜水艦かどうか */
   public readonly isAllSubmarine: boolean;
@@ -104,11 +109,13 @@ export default class EnemyFleet {
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
       this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
       this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
+      this.nodeName = builder.nodeName !== undefined ? builder.nodeName : builder.fleet.nodeName;
     } else {
       this.enemies = builder.enemies ? builder.enemies.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
       this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
       this.range = builder.range !== undefined ? builder.range : 0;
+      this.nodeName = builder.nodeName !== undefined ? builder.nodeName : '';
 
       if (this.enemies.length === 0) {
         // 0隻だった場合は6隻で初期化してやる

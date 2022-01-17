@@ -403,6 +403,7 @@ export default class Const {
     { id: 372, itemType: [1, 2, 4, 10, 11, 12, 13, 14, 16, 17, 20, 21, 23, 24, 25, 27, 29, 30, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45, 46, 50] },
     { id: 380, itemType: [4, 6, 7, 8, 12, 13, 14, 15, 16, 17, 20, 21, 23, 26, 27, 34, 35, 36, 43, 50] },
     { id: 381, itemType: [4, 6, 7, 8, 12, 13, 14, 15, 16, 17, 20, 21, 23, 26, 27, 34, 35, 36, 39, 43, 50] },
+    { id: 382, itemType: [4, 6, 7, 8, 12, 13, 14, 15, 16, 17, 20, 21, 23, 24, 26, 27, 34, 35, 36, 43, 50] },
     { id: 392, itemType: [3, 4, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 23, 28, 29, 33, 34, 36, 39, 40, 42, 43, 93] },
     { id: 418, itemType: [1, 5, 12, 14, 15, 17, 20, 21, 23, 24, 29, 30, 33, 36, 37, 39, 43, 46] },
     { id: 419, itemType: [1, 5, 12, 13, 14, 15, 17, 20, 21, 23, 24, 29, 30, 33, 34, 36, 37, 39, 43] },
@@ -435,6 +436,7 @@ export default class Const {
     { id: 501, itemType: [2, 4, 5, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 27, 29, 30, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45, 50] },
     { id: 506, itemType: [2, 4, 5, 10, 11, 12, 13, 16, 17, 18, 20, 21, 22, 23, 24, 25, 27, 29, 30, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45, 46, 50] },
     { id: 521, itemType: [4, 6, 7, 12, 16, 17, 20, 21, 23, 27, 35, 36, 43, 50] },
+    { id: 522, itemType: [4, 6, 7, 8, 12, 16, 17, 20, 21, 23, 27, 35, 36, 43, 50] },
     { id: 526, itemType: [4, 6, 7, 8, 12, 13, 16, 17, 20, 21, 23, 27, 34, 35, 36, 43, 50] },
     { id: 529, itemType: [4, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 20, 21, 23, 25, 26, 27, 34, 35, 36, 39, 40, 43, 50] },
     { id: 530, itemType: [5, 14, 17, 21, 22, 23, 30, 32, 37, 43, 46, 50, 51] },
@@ -501,7 +503,9 @@ export default class Const {
     { id: 877, itemType: [3, 4, 5, 10, 12, 16, 17, 20, 21, 23, 28, 29, 33, 37, 39, 42, 43] },
     { id: 878, itemType: [3, 4, 10, 12, 13, 16, 17, 18, 19, 20, 21, 23, 28, 29, 33, 34, 36, 37, 39, 40, 42, 43, 93] },
     { id: 879, itemType: [3, 4, 5, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 23, 28, 29, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45, 93] },
+    { id: 884, itemType: [4, 6, 7, 8, 12, 13, 16, 17, 20, 21, 23, 27, 34, 35, 36, 43, 50] },
     { id: 885, itemType: [4, 6, 7, 8, 9, 12, 13, 14, 16, 17, 20, 21, 23, 25, 28, 34, 35, 36, 40, 43, 50, 94] },
+    { id: 889, itemType: [4, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 20, 21, 23, 24, 26, 27, 34, 35, 36, 39, 40, 43, 50] },
   ];
 
   // 特定の艦娘が特定スロットに装備『できない！』やつ
@@ -650,10 +654,10 @@ export default class Const {
       id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'accuracy', 'avoid', 'airPower', 'radius'], types: [6],
     },
     {
-      id: 7, text: '艦爆', viewStatus: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [7],
+      id: 7, text: '艦爆', viewStatus: ['bomber', 'actualAntiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [7],
     },
     {
-      id: 8, text: '艦攻', viewStatus: ['torpedo', 'antiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [8],
+      id: 8, text: '艦攻', viewStatus: ['torpedo', 'actualAntiAir', 'accuracy', 'asw', 'avoidId', 'radius'], types: [8],
     },
     {
       id: 9, text: '艦偵', viewStatus: ['scout', 'fire', 'accuracy', 'antiAir', 'radius', 'cost'], types: [9],
@@ -692,7 +696,7 @@ export default class Const {
       id: 17, text: 'その他', viewStatus: ['fire', 'antiAir', 'accuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
     },
     {
-      id: 47, text: '陸攻', viewStatus: ['torpedo', 'bomber', 'antiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
+      id: 47, text: '陸攻', viewStatus: ['torpedo', 'bomber', 'actualAntiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
     },
     {
       id: 48, text: '局戦', viewStatus: ['antiAir', 'radius', 'actualAntiAir', 'actualDefenseAntiAir', 'airPower', 'defenseAirPower'], types: [48],
@@ -991,4 +995,6 @@ export default class Const {
     { value: 522, text: '昭南方面～本土航路' },
     { value: 523, text: '八丈島沖/房総半島東方沖' },
   ];
+
+  public static readonly ApiKey = 'AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s';
 }

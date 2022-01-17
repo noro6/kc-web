@@ -15,7 +15,7 @@
         </v-btn>
         <v-text-field
           id="createdURL"
-          class="mt-0"
+          class="mt-0 ml-1"
           v-show="createdURL"
           readonly
           dense
@@ -75,6 +75,7 @@
 import Vue from 'vue';
 import Convert from '@/classes/convert';
 import SaveData from '@/classes/saveData/saveData';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'ShareDialog',
@@ -121,10 +122,37 @@ export default Vue.extend({
     createURL() {
       this.loadingURL = true;
 
-      setTimeout(() => {
-        this.loadingURL = false;
-        this.createdURL = '工事中...';
-      }, 100);
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return;
+      }
+      if (!saveData.tempData[saveData.tempIndex]) {
+        return;
+      }
+
+      const { location } = document;
+      const url = `${location.protocol}//${location.host}${location.pathname}?data=${saveData.createURLSaveDataString()}`;
+
+      const data = {
+        longDynamicLink: `https://aircalc.page.link/?link=${url}`,
+        suffix: { option: 'SHORT' },
+      };
+
+      fetch(`https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${Const.ApiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).then((response) => {
+        response.json().then((json) => {
+          if (json.error || !json.shortLink) {
+            this.createdURL = 'URLの発行に失敗しました';
+            this.loadingURL = false;
+          } else {
+            this.createdURL = json.shortLink;
+            this.loadingURL = false;
+          }
+        });
+      });
     },
     copyURL() {
       const textToCopy = document.getElementById('createdURL') as HTMLInputElement;
