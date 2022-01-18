@@ -29,21 +29,33 @@
         </div>
       </div>
       <v-divider></v-divider>
-      <item-input
-        v-for="(item, i) in airbase.items"
-        :key="i"
-        v-model="airbase.items[i]"
-        :index="i"
-        :handle-show-item-list="showItemList"
-        :max="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
-        :init="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
-        @input="updateItem"
-      />
+      <div v-for="(item, i) in airbase.items" :key="i" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip">
+        <item-input
+          v-model="airbase.items[i]"
+          :index="i"
+          :handle-show-item-list="showItemList"
+          :max="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
+          :init="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
+          :handle-drag-start="clearTooltip"
+          @input="updateItem"
+        />
+      </div>
       <div v-if="!isDefense" class="mx-1">
         <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" class="mt-3" />
         <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" class="mt-3" />
       </div>
     </div>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -59,12 +71,14 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
+import Item from '@/classes/item/item';
 
 export default Vue.extend({
-  components: { ItemInput, AirStatusResultBar },
+  components: { ItemInput, AirStatusResultBar, ItemTooltip },
   name: 'Airbase',
   props: {
     handleShowItemList: {
@@ -88,6 +102,11 @@ export default Vue.extend({
     wave1: 0,
     wave2: 0,
     modes: Const.AB_MODE_ITEMS,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   computed: {
     airbase(): Airbase {
@@ -108,10 +127,10 @@ export default Vue.extend({
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     reconCorrString() {
-      return (this.value.mode === AB_MODE.BATTLE && this.value.reconCorr > 1) ? `${this.value.reconCorr}` : '';
+      return this.value.mode === AB_MODE.BATTLE && this.value.reconCorr > 1 ? `${this.value.reconCorr}` : '';
     },
     reconCorrDefString() {
-      return (this.value.mode === AB_MODE.DEFFENSE && this.value.reconCorrDeff > 1) ? `${this.value.reconCorrDeff}` : '';
+      return this.value.mode === AB_MODE.DEFFENSE && this.value.reconCorrDeff > 1 ? `${this.value.reconCorrDeff}` : '';
     },
     resultStateRate() {
       const wave1 = this.value.resultWave1;
@@ -161,6 +180,23 @@ export default Vue.extend({
     },
     resetItems(): void {
       this.setAirbase(new Airbase());
+    },
+    bootTooltip(item: Item, e: MouseEvent) {
+      if (!item.data.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x + rect.width / 3;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

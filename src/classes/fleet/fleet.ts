@@ -114,6 +114,11 @@ export default class Fleet {
             for (let j = 0; j < shipPlanes.length; j += 1) {
               shipPlanes[j].isEscortItem = true;
             }
+          } else {
+            // そうでないなら随伴機フラグを解除
+            for (let j = 0; j < shipPlanes.length; j += 1) {
+              shipPlanes[j].isEscortItem = false;
+            }
           }
           this.allPlanes = this.allPlanes.concat(shipPlanes);
           if (!this.hasPlane && this.allPlanes.find((v) => !v.isRecon)) {

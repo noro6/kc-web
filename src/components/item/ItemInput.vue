@@ -1,158 +1,105 @@
 <template>
-  <v-tooltip
-    :disabled="isNoItem || draggingNow"
-    bottom
-    open-delay="500"
-    v-model="tooltipState"
-    color="black"
-    @input="toggleTooltip"
-    transition="slide-y-transition"
+  <div
+    v-ripple="{ class: 'info--text' }"
+    :class="itemClass"
+    :draggable="isDraggabe"
+    @dragstart.stop="dragStart(item, $event)"
+    @dragenter="dragEnter($event)"
+    @dragleave="dragLeave($event)"
+    @drop.stop="dropItem($event)"
+    @dragend="dragEnd($event)"
+    @dragover.prevent
   >
-    <template v-slot:activator="{ on: tooltip }">
-      <div
-        v-ripple="{ class: 'info--text' }"
-        :class="itemClass"
-        :draggable="isDraggabe"
-        @dragstart.stop="dragStart(item, $event)"
-        @dragenter="dragEnter($event)"
-        @dragleave="dragLeave($event)"
-        @drop.stop="dropItem($event)"
-        @dragend="dragEnd($event)"
-        @dragover.prevent
-      >
-        <!-- 搭載数 -->
-        <v-menu
-          offset-y
-          :close-on-content-click="false"
-          transition="slide-y-transition"
-          bottom
-          right
-          :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow"
-          v-model="slotMenu"
-          @input="onSlotMenuToggle"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <div v-bind="attrs" v-on="on" class="item-slot">
-              {{ item.fullSlot }}
-            </div>
-          </template>
-          <v-card class="px-2">
-            <div class="d-flex px-2">
-              <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
-              <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">初期値</v-btn>
-            </div>
-            <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
-          </v-card>
-        </v-menu>
-        <!-- 装備種別 -->
-        <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
-          <v-img
-            v-show="!isExpandSlot || item.data.iconTypeId"
-            :src="`./img/type/icon${item.data.iconTypeId}.png`"
-            height="28"
-            width="28"
-          ></v-img>
-          <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
+    <!-- 搭載数 -->
+    <v-menu
+      offset-y
+      :close-on-content-click="false"
+      transition="slide-y-transition"
+      bottom
+      right
+      :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow"
+      v-model="slotMenu"
+      @input="onSlotMenuToggle"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <div v-bind="attrs" v-on="on" class="item-slot">
+          {{ item.fullSlot }}
         </div>
-        <!-- 装備名称 -->
-        <div
-          class="item-name text-truncate"
-          :class="{ 'secondary--text': isNoItem, 'is-special': item.data.isSpecial }"
-          @click.stop="showItemList()"
-          v-on="{ ...tooltip }"
-        >
-          {{ isNoItem ? "未装備" : item.data.name }}
+      </template>
+      <v-card class="px-2">
+        <div class="d-flex px-2">
+          <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
+          <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">初期値</v-btn>
         </div>
-        <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
-          <!-- 改修値 -->
-          <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow">
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                class="item-remodel"
-                v-bind="attrs"
-                v-on="on"
-                :class="{ 'no-remodel': !item.data.canRemodel, 'value-0': item.remodel === 0 }"
-              >
-                <v-icon small :color="remodelIconColor">mdi-star</v-icon>
-                <span :class="remodelLabelColor">{{ item.remodel }}</span>
-              </div>
-            </template>
-            <v-card>
-              <div class="d-flex">
-                <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" class="remodel-list-item">
-                  <v-icon small color="teal accent-4">mdi-star</v-icon>
-                  <span class="teal--text text--accent-4">{{ i - 1 }}</span>
-                </div>
-              </div>
-            </v-card>
-          </v-menu>
-          <!-- 熟練度 -->
-          <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
-            <template v-slot:activator="{ on, attrs }">
-              <div class="item-level" v-bind="attrs" v-on="on">
-                <v-img :src="`./img/util/prof${level}.png`" height="24" width="18"></v-img>
-                <span class="level-value">{{ item.level }}</span>
-              </div>
-            </template>
-            <v-card>
-              <div class="d-flex">
-                <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
-                  <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
-                  <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
-                </div>
-              </div>
-            </v-card>
-          </v-menu>
-          <!-- 解除 -->
-          <div class="ml-1 item-remove align-self-center">
-            <v-btn v-show="isDraggabe" icon x-small @click="removeItem()">
-              <v-icon small>mdi-close</v-icon>
-            </v-btn>
+        <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
+      </v-card>
+    </v-menu>
+    <!-- 装備種別 -->
+    <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
+      <v-img
+        v-show="!isExpandSlot || item.data.iconTypeId"
+        :src="`./img/type/icon${item.data.iconTypeId}.png`"
+        height="28"
+        width="28"
+      ></v-img>
+      <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
+    </div>
+    <!-- 装備名称 -->
+    <div
+      class="item-name text-truncate"
+      :class="{ 'secondary--text': isNoItem, 'is-special': item.data.isSpecial }"
+      @click.stop="showItemList()"
+    >
+      {{ isNoItem ? "未装備" : item.data.name }}
+    </div>
+    <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
+      <!-- 改修値 -->
+      <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow">
+        <template v-slot:activator="{ on, attrs }">
+          <div
+            class="item-remodel"
+            v-bind="attrs"
+            v-on="on"
+            :class="{ 'no-remodel': !item.data.canRemodel, 'value-0': item.remodel === 0 }"
+          >
+            <v-icon small :color="remodelIconColor">mdi-star</v-icon>
+            <span :class="remodelLabelColor">{{ item.remodel }}</span>
           </div>
         </template>
+        <v-card>
+          <div class="d-flex">
+            <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" class="remodel-list-item">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ i - 1 }}</span>
+            </div>
+          </div>
+        </v-card>
+      </v-menu>
+      <!-- 熟練度 -->
+      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
+        <template v-slot:activator="{ on, attrs }">
+          <div class="item-level" v-bind="attrs" v-on="on">
+            <v-img :src="`./img/util/prof${level}.png`" height="24" width="18"></v-img>
+            <span class="level-value">{{ item.level }}</span>
+          </div>
+        </template>
+        <v-card>
+          <div class="d-flex">
+            <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
+            </div>
+          </div>
+        </v-card>
+      </v-menu>
+      <!-- 解除 -->
+      <div class="ml-1 item-remove align-self-center">
+        <v-btn v-show="isDraggabe" icon x-small @click="removeItem()">
+          <v-icon small>mdi-close</v-icon>
+        </v-btn>
       </div>
     </template>
-    <div v-if="!destroyTooltip" class="item-tooltip">
-      <div class="d-flex">
-        <div class="align-self-center">
-          <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="32" width="32"></v-img>
-        </div>
-        <div class="ml-1 align-self-center">
-          <div class="tooltip-item-id">id:{{ item.data.id }}</div>
-          <div class="body-2">{{ item.data.name }}</div>
-        </div>
-      </div>
-      <div class="item-status-grid mt-1">
-        <div v-show="item.data.fire">
-          火力:<span>{{ item.data.fire }}</span>
-        </div>
-        <div v-show="item.data.torpedo">
-          雷装:<span>{{ item.data.torpedo }}</span>
-        </div>
-        <div v-show="item.data.bomber">
-          爆装:<span>{{ item.data.bomber }}</span>
-        </div>
-        <div v-show="item.data.antiAir">
-          対空:<span>{{ item.data.antiAir }}</span>
-        </div>
-        <div v-show="item.data.armor">
-          装甲:<span>{{ item.data.armor }}</span>
-        </div>
-        <div v-show="item.data.asw">
-          対潜:<span>{{ item.data.asw }}</span>
-        </div>
-        <div v-show="item.data.avoid">
-          回避:<span>{{ item.data.avoid }}</span>
-        </div>
-        <div v-show="item.data.scout">
-          索敵:<span>{{ item.data.scout }}</span>
-        </div>
-        <div v-show="item.data.accuracy">
-          命中:<span>{{ item.data.accuracy }}</span>
-        </div>
-      </div>
-    </div>
-  </v-tooltip>
+  </div>
 </template>
 
 <style scoped>
@@ -332,29 +279,6 @@
   cursor: default;
   opacity: 0;
 }
-
-.tooltip-item-id {
-  color: #60c5ff;
-  font-size: 12px;
-  height: 18px;
-}
-.item-status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.item-status-grid > div {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-.item-status-grid span {
-  width: 24px;
-  display: inline-block;
-  text-align: right;
-  color: #60c5ff;
-}
-.item-status-grid span.bad-status {
-  color: #ff7979;
-}
 </style>
 
 <script lang="ts">
@@ -398,12 +322,13 @@ export default Vue.extend({
       type: Ship,
       default: undefined,
     },
+    handleDragStart: {
+      type: Function,
+    },
   },
   data: () => ({
     slotMenu: false,
     slotValue: 0,
-    tooltipState: false,
-    destroyTooltip: false,
     draggingNow: false,
   }),
   computed: {
@@ -488,7 +413,6 @@ export default Vue.extend({
       } else {
         // 搭載数メニューOpenイベント
         this.slotValue = this.item.fullSlot;
-        this.tooltipState = false;
       }
     },
     removeItem() {
@@ -528,7 +452,7 @@ export default Vue.extend({
       }
 
       this.draggingNow = true;
-      this.tooltipState = false;
+      this.handleDragStart();
     },
     dragEnter(e: DragEvent): void {
       const draggingDiv = document.getElementById('dragging-item');
@@ -661,15 +585,6 @@ export default Vue.extend({
 
       // drag処理の終了
       this.draggingNow = false;
-    },
-    toggleTooltip() {
-      if (!this.tooltipState) {
-        setTimeout(() => {
-          this.destroyTooltip = true;
-        }, 150);
-      } else {
-        this.destroyTooltip = false;
-      }
     },
   },
 });

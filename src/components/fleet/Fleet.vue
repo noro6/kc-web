@@ -3,8 +3,8 @@
     <div class="d-flex ml-2 fleet-header flex-wrap">
       <div class="mt-1 caption text--secondary">制空:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
-      <div class="mt-1 caption text--secondary">艦隊防空:</div>
-      <div class="mt-1 ml-1 mr-3 body-2">{{ fleetAntiAir }}</div>
+      <div class="mt-1 caption text--secondary">触接:</div>
+      <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>
       <!-- 索敵値 -->
       <div class="mt-1 mr-3 d-flex">
         <div class="option-status mr-1" v-for="(scout, i) in fleetScouts" :key="i">
@@ -30,6 +30,11 @@
         </div>
       </div>
       <v-spacer></v-spacer>
+      <div class="px-2">
+        <v-btn color="info" icon @click.stop="clickedInfo">
+          <v-icon>mdi-information-outline</v-icon>
+        </v-btn>
+      </div>
       <div>
         <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
           <v-icon>mdi-minus</v-icon>
@@ -38,12 +43,7 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </div>
-      <div class="pl-1">
-        <v-btn color="info" icon @click.stop="clickedInfo">
-          <v-icon>mdi-information-outline</v-icon>
-        </v-btn>
-      </div>
-      <div class="px-1">
+      <div class="px-2">
         <v-btn icon @click="resetFleet()">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
@@ -183,11 +183,11 @@ export default Vue.extend({
     fleet(): Fleet {
       return this.value;
     },
-    fleetAntiAir() {
+    contactRate() {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return this.unionFleet.fleetAntiAir.toFixed(2);
+        return this.unionFleet.getContactRates(true)[0].sumRate.toFixed(2);
       }
-      return this.value.fleetAntiAir.toFixed(2);
+      return this.value.getContactRates()[0].sumRate.toFixed(2);
     },
     fleetScouts(): number[] {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {

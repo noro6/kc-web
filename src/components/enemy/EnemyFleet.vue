@@ -45,6 +45,8 @@
         v-ripple="{ class: 'info--text' }"
         @click="showEnemyList(index)"
         class="d-flex enemy-list-item pr-2"
+        @mouseenter="bootTooltip(enemy, $event)"
+        @mouseleave="clearTooltip"
       >
         <div class="item-index-area">
           <div class="close-btn">
@@ -66,8 +68,19 @@
       </div>
     </div>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
-      <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" :handleClose="closeDetail"/>
+      <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" :handleClose="closeDetail" />
     </v-dialog>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <enemy-tooltip v-model="tooltipEnemy" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -87,9 +100,15 @@
   transition: 0.1s;
   cursor: pointer;
   height: 30px;
+  position: relative;
 }
 .enemy-list-item:hover {
   background-color: rgba(128, 128, 128, 0.2);
+}
+.anti-air-ci-icon {
+  position: absolute;
+  top: 0px;
+  left: 122px;
 }
 .item-index-area {
   width: 24px;
@@ -122,6 +141,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import EnemyDetail from '@/components/enemy/EnemyDetail.vue';
+import EnemyTooltip from '@/components/enemy/EnemyTooltip.vue';
 import Const, { CELL_TYPE } from '@/classes/const';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import Enemy from '@/classes/enemy/enemy';
@@ -131,6 +151,7 @@ export default Vue.extend({
   name: 'EnemyFleet',
   components: {
     EnemyDetail,
+    EnemyTooltip,
   },
   props: {
     value: {
@@ -159,6 +180,11 @@ export default Vue.extend({
     cellTypes: Const.CELL_TYPES,
     detailDialog: false,
     destroyDialog: false,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipEnemy: new Enemy(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   computed: {
     fleet(): EnemyFleet {
@@ -169,8 +195,8 @@ export default Vue.extend({
     },
   },
   methods: {
-    showItemList(index: number) {
-      this.handleShowItemList(this.index, index);
+    showItemList(enemyIndex: number, slotIndex: number) {
+      this.handleShowItemList(this.index, enemyIndex, slotIndex);
     },
     showEnemyList(index: number) {
       this.handleShowEnemyList(this.index, index);
@@ -225,6 +251,23 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+    },
+    bootTooltip(enemy: Enemy, e: MouseEvent) {
+      if (!enemy.data.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('enemy-air-power')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x + rect.width;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipEnemy = enemy;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

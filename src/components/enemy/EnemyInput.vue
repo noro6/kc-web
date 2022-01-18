@@ -37,17 +37,29 @@
     </div>
     <v-divider></v-divider>
     <div>
-      <item-input
-        v-for="(item, j) in enemy.items"
-        :key="j"
-        v-model="enemy.items[j]"
-        :index="j"
-        :max="999"
-        :init="999"
-        :handle-show-item-list="showItemList"
-        :readonly="true"
-      />
+      <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in enemy.items" :key="j">
+        <item-input
+          v-model="enemy.items[j]"
+          :index="j"
+          :max="999"
+          :init="999"
+          :handle-show-item-list="showItemList"
+          :handle-drag-start="clearTooltip"
+          :readonly="true"
+        />
+      </div>
     </div>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -62,21 +74,29 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Enemy from '@/classes/enemy/enemy';
+import Item from '@/classes/item/item';
 
 export default Vue.extend({
-  components: { ItemInput },
+  components: { ItemInput, ItemTooltip },
   name: 'EnemyInput',
   props: {
     handleShowItemList: {
       type: Function,
-      required: true,
     },
     enemy: {
       type: Enemy,
       required: true,
     },
   },
+  data: () => ({
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipX: 0,
+    tooltipY: 0,
+  }),
   computed: {
     airPowerDetail() {
       const airPowers = this.enemy.items.map((v) => v.fullAirPower);
@@ -87,6 +107,23 @@ export default Vue.extend({
     showItemList(): void {
       // 装備変更は許可しない
       // this.handleShowItemList(index, index);
+    },
+    bootTooltip(item: Item, e: MouseEvent) {
+      if (!item.data.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x + rect.width / 3;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

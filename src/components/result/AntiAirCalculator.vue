@@ -193,6 +193,7 @@ export default Vue.extend({
     cutInId: 0,
     isEnemy: false,
     stage2Data: [] as Stage2Row[],
+    colorTable: ['255, 64, 64', '64, 255, 64', '64, 64, 255', '255, 255, 64', '255, 64, 255'],
   }),
   computed: {
     ships(): Ship[] | Enemy[] {
@@ -205,17 +206,43 @@ export default Vue.extend({
       return this.avoid === Const.MANUAL_AVOID;
     },
     antiAirItems(): { text: string; value: number }[] {
-      const items = [{ text: '不発', value: 0 }];
+      const items = [{
+        text: '不発', value: 0, rate: 0, detail: '',
+      }];
       // 使えるCIだけ
       const cutIns = this.fleet.allAntiAirCutIn;
-      for (let i = 0; i < cutIns.length; i += 1) {
+      const borders = this.fleet.shootDownList.map((v) => v.border);
+      let sumRate = 0;
+      for (let i = 0; i < borders.length; i += 1) {
+        const border = borders[i];
+        if (border === 1) {
+          break;
+        }
+
         const { id } = cutIns[i];
+        // 何種CIかのテキストが欲しいがために
         const cutin = Const.ANTIAIR_CUTIN.find((v) => v.id === id);
-        if (cutin && !items.some((v) => v.value === id)) {
-          items.push({ text: cutin.text, value: cutin.id });
+        const rate = 100 * border - sumRate;
+        sumRate += rate;
+
+        const item = items.find((v) => v.value === id);
+        if (cutin && item) {
+          item.rate += rate;
+        } else if (cutin) {
+          items.push({
+            text: cutin.text, value: cutin.id, rate, detail: `[ ${cutin.remarks} ]`,
+          });
         }
       }
-      return items;
+
+      items[0].rate = 100 - sumRate;
+
+      const resultItems = [];
+      for (let i = 0; i < items.length; i += 1) {
+        const data = items[i];
+        resultItems.push({ text: `${data.text}(${Math.floor(10 * data.rate) / 10}%) ${data.detail}`, value: data.value });
+      }
+      return resultItems;
     },
   },
   mounted() {

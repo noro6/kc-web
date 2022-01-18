@@ -26,8 +26,23 @@ export default class Item {
   /** 搭載数 */
   public readonly fullSlot: number;
 
+  /** 改修値による火力値増分 */
+  public readonly bonusFire: number;
+
+  /** 改修値による雷装値増分 */
+  public readonly bonusTorpedo: number;
+
+  /** 改修値による爆装値増分 */
+  public readonly bonusBomber: number;
+
   /** 改修値による対空値増分 */
   public readonly bonusAntiAir: number;
+
+  /** 改修値による命中値増分 */
+  public readonly bonusAccuracy: number;
+
+  /** 改修値による対潜値増分 */
+  public readonly bonusAsw: number;
 
   /** 改修値による索敵値増分 */
   public readonly bonusScout: number;
@@ -36,7 +51,7 @@ export default class Item {
   public readonly bonusAirPower: number;
 
   /** 装備索敵 計算で利用 (装備の素の索敵値 + 改修係数×√★)×装備係数 */
-  public readonly actualScout: number;
+  public readonly itemScout: number;
 
   /** 装備加重対空値 */
   public readonly antiAirWeight: number;
@@ -44,8 +59,26 @@ export default class Item {
   /** 装備防空ボーナス */
   public readonly antiAirBonus: number;
 
+  /** 改修効果込み実火力値 */
+  public readonly actualFire: number;
+
   /** 制空値計算時に適用される実対空値 */
   public readonly actualAntiAir: number;
+
+  /** 改修効果込み実雷装値 */
+  public readonly actualTorpedo: number;
+
+  /** 改修効果込み実爆装値 */
+  public readonly actualBomber: number;
+
+  /** 改修効果込み実対潜値 */
+  public readonly actualAsw: number;
+
+  /** 改修効果込み実命中値 */
+  public readonly actualAccuracy: number;
+
+  /** 改修効果込み実索敵値 */
+  public readonly actualScout: number;
 
   /** 制空値計算時に適用される実対空値(防空時) */
   public readonly actualDefenseAntiAir: number;
@@ -137,7 +170,12 @@ export default class Item {
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();
     this.antiAirWeight = this.getAntiAirWeight();
+    this.bonusFire = this.getBonusFire();
+    this.bonusTorpedo = this.getBonusTorpedo();
+    this.bonusBomber = this.getBonusBomber();
     this.bonusAntiAir = this.getBonusAntiAir();
+    this.bonusAccuracy = this.getBonusAccuracy();
+    this.bonusAsw = this.getBonusAsw();
     this.bonusScout = this.getBonusScout();
     this.antiAirBonus = this.getAntiAirBonus();
     this.tp = this.getTransportPower();
@@ -146,7 +184,7 @@ export default class Item {
     this.contactSelectRates = this.getContancSelectRates();
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
-    this.actualScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
+    this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
     this.actualAntiAir = 0;
     this.actualDefenseAntiAir = 0;
 
@@ -156,6 +194,13 @@ export default class Item {
       // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
       this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomer + this.bonusAntiAir;
     }
+
+    this.actualFire = this.data.fire + this.bonusFire;
+    this.actualTorpedo = this.data.torpedo + this.bonusTorpedo;
+    this.actualBomber = this.data.bomber + this.bonusBomber;
+    this.actualAsw = this.data.asw + this.bonusAsw;
+    this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
+    this.actualScout = this.data.scout + this.bonusScout;
 
     // 制空値更新
     if (this.isPlane) {
@@ -265,6 +310,72 @@ export default class Item {
   }
 
   /**
+   * 改修値によるボーナス火力を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusFire(): number {
+    // 大口径主砲
+    if (this.data.apiTypeId === 3) {
+      return 1.5 * Math.sqrt(this.remodel);
+    }
+    // その他主砲 / 副砲 / 徹甲弾 / 機銃 / 探照灯 / 高射装置 / 大発
+    if ([1, 2, 4, 19, 21, 24, 29, 36, 42].includes(this.data.apiTypeId)) {
+      return Math.sqrt(this.remodel);
+    }
+    // ソナー 爆雷
+    if ([14, 15].includes(this.data.apiTypeId)) {
+      return 0.75 * Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス雷装を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusTorpedo(): number {
+    // 艦攻
+    if (this.data.apiTypeId === 8) {
+      return 0.2 * this.remodel;
+    }
+    // 陸攻 重爆
+    if (Const.AB_ATTACKERS.includes(this.data.apiTypeId)) {
+      return 0.7 * Math.sqrt(this.remodel);
+    }
+    // 魚雷 / 機銃
+    if (this.data.apiTypeId === 5 || this.data.apiTypeId === 21) {
+      return 1.2 * Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   *
+   * 改修値によるボーナス爆装を返却
+   *
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusBomber(): number {
+    const itemId = this.data.id;
+    const type = this.data.apiTypeId;
+    // 艦爆 (爆戦ってついてないやつ)
+    if (type === 7 && !(itemId === 60 || itemId === 154 || itemId === 219)) {
+      return 0.2 * this.remodel;
+    }
+    // 水爆
+    if (type === 11) {
+      return 0.2 * this.remodel;
+    }
+    return 0;
+  }
+
+  /**
    * 改修値によるボーナス対空を返却
    * @private
    * @returns {number}
@@ -273,18 +384,61 @@ export default class Item {
   private getBonusAntiAir(): number {
     const itemId = this.data.id;
     const type = this.data.apiTypeId;
-    let aa = 0;
+    // 艦戦 夜戦 水戦
     if (Const.FIGHTERS.includes(type)) {
-      // 艦戦 夜戦 水戦
-      aa = 0.2 * this.remodel;
-    } else if (type === 7 && (itemId === 60 || itemId === 154 || itemId === 219)) {
-      // 艦爆(爆戦って付いてるやつ)
-      aa = 0.25 * this.remodel;
-    } else if (Const.LB_ATTACKERS.includes(type)) {
-      // 陸攻
-      aa = 0.5 * Math.sqrt(this.remodel);
+      return 0.2 * this.remodel;
     }
-    return aa;
+    // 艦爆(爆戦って付いてるやつ)
+    if (type === 7 && (itemId === 60 || itemId === 154 || itemId === 219)) {
+      return 0.25 * this.remodel;
+    }
+    // 陸攻
+    if (Const.AB_ATTACKERS.includes(type)) {
+      return 0.5 * Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス対潜を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusAsw(): number {
+    const itemId = this.data.id;
+    const type = this.data.apiTypeId;
+    // ソナー 爆雷
+    if ([14, 15].includes(type)) {
+      return Math.sqrt(this.remodel);
+    }
+    // 艦攻
+    if (type === 8) {
+      return 0.2 * this.remodel;
+    }
+    // 艦爆 (爆戦ってついてないやつ)
+    if (type === 7 && !(itemId === 60 || itemId === 154 || itemId === 219)) {
+      return 0.2 * this.remodel;
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス命中を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusAccuracy(): number {
+    // 一部電探 電探改修可能変更時注意
+    if ([28, 29, 31, 32, 88, 89, 141, 240, 278, 279, 315].includes(this.data.id)) {
+      return 1.7 * Math.sqrt(this.remodel);
+    }
+    // 主砲 副砲 徹甲弾 高射装置 探照灯
+    if ([1, 2, 3, 4, 12, 13, 19, 29, 36, 42].includes(this.data.apiTypeId)) {
+      return Math.sqrt(this.remodel);
+    }
+    return 0;
   }
 
   /**

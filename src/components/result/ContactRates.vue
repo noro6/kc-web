@@ -15,7 +15,7 @@
         <doughnut-chart :data="graphData" :options="options" title-text="対敵通常艦隊" />
       </div>
       <div class="contact-graph">
-        <doughnut-chart :data="unionGraphData" :options="options" title-text="対敵連合艦隊" />
+        <doughnut-chart :data="unionGraphData" :options="unionOptions" title-text="対敵連合艦隊" />
       </div>
       <div class="total-contact">
         <div>合計触接率</div>
@@ -170,6 +170,14 @@ export default Vue.extend({
     rates: [] as ContactRate[],
     unionRates: [] as ContactRate[],
     options: {
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: '' },
+        tooltip: { callbacks: { label: labelCallback } },
+        datalabels: { formatter: (v: number) => (v > 0 ? `${v.toFixed(1)}%` : '') },
+      },
+    } as DoughnutGraphOption,
+    unionOptions: {
       plugins: {
         legend: { display: false },
         title: { display: true, text: '' },

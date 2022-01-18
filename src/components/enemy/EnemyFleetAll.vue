@@ -110,6 +110,7 @@ export default Vue.extend({
     worldListDialog: false,
     targetDialog: false,
     dialogTarget: [-1, -1],
+    itemDialogTarget: [-1, -1, -1],
     fleetStock: [] as EnemyFleet[],
     itemDialogWidth: 1200,
   }),
@@ -147,11 +148,11 @@ export default Vue.extend({
       }
       this.$emit('input', new BattleInfo(builder));
     },
-    async showItemList(fleetIndex: number, enemyIndex: number) {
-      this.dialogTarget = [fleetIndex, enemyIndex];
+    async showItemList(fleetIndex: number, enemyIndex: number, slotIndex: number) {
+      this.itemDialogTarget = [fleetIndex, enemyIndex, slotIndex];
       const enemy = this.battleInfo.fleets[fleetIndex].enemies[enemyIndex];
       await (this.itemListDialog = true);
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(enemy);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(enemy, slotIndex);
     },
     showEnemyList(battle: number, index: number) {
       this.dialogTarget = [battle, index];
@@ -200,6 +201,7 @@ export default Vue.extend({
     },
     equipItem(item: ItemMaster) {
       console.log(item);
+      console.log(this.itemDialogTarget);
     },
     setEnemyFleet(fleet: EnemyFleet, isCoutinue = false) {
       if (isCoutinue && this.fleetStock.length < 9) {

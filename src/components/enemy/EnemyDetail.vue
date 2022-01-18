@@ -183,9 +183,9 @@ export default Vue.extend({
     },
   },
   methods: {
-    showItemList(): void {
-      // 装備変更は許可しない
-      // this.handleShowItemList(index, index);
+    showItemList(enemyIndex: number, slotIndex: number): void {
+      // 敵の装備変更
+      this.handleShowItemList(enemyIndex, slotIndex);
     },
     close() {
       this.handleClose();

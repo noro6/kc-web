@@ -155,31 +155,46 @@
       <v-divider class="mx-2"></v-divider>
       <!-- 装備一覧 -->
       <div class="px-2" v-if="!ship.isEmpty">
-        <item-input
-          v-for="(item, j) in ship.items"
-          :key="j"
-          v-model="ship.items[j]"
-          :index="j"
-          :max="99"
-          :dragSlot="false"
-          :init="ship.data.slots[j]"
-          :handle-show-item-list="showItemList"
-          :item-parent="ship"
-          @input="updateItem"
-        />
+        <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
+          <item-input
+            v-model="ship.items[j]"
+            :index="j"
+            :max="99"
+            :dragSlot="false"
+            :init="ship.data.slots[j]"
+            :handle-show-item-list="showItemList"
+            :item-parent="ship"
+            :handle-drag-start="clearTooltip"
+            @input="updateItem"
+          />
+        </div>
         <!-- 補強増設枠 -->
-        <item-input
-          v-model="ship.exItem"
-          :index="99"
-          :max="0"
-          :init="0"
-          :dragSlot="false"
-          :handle-show-item-list="showItemList"
-          :item-parent="ship"
-          @input="updateItem"
-        />
+        <div @mouseenter="bootTooltip(ship.exItem, $event)" @mouseleave="clearTooltip">
+          <item-input
+            v-model="ship.exItem"
+            :index="99"
+            :max="0"
+            :init="0"
+            :dragSlot="false"
+            :handle-show-item-list="showItemList"
+            :item-parent="ship"
+            :handle-drag-start="clearTooltip"
+            @input="updateItem"
+          />
+        </div>
       </div>
     </template>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -291,11 +306,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 
 export default Vue.extend({
-  components: { ItemInput },
+  components: { ItemInput, ItemTooltip },
   name: 'ShipInput',
   props: {
     handleShowItemList: {
@@ -334,13 +350,18 @@ export default Vue.extend({
     levelMenu: false,
     luckMenu: false,
     antiAirMenu: false,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   computed: {
     ship(): Ship {
       return this.value;
     },
     airPowerDetail(): string {
-      const airPowers = this.ship.items.map((v) => v.fullAirPower);
+      const airPowers = this.ship.items.map((v) => (v.fullAirPower && !v.isRecon ? v.fullAirPower : 0));
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     isNoShip(): boolean {
@@ -504,6 +525,23 @@ export default Vue.extend({
         // インスタンスにセット
         this.setShip(moveData);
       }
+    },
+    bootTooltip(item: Item, e: MouseEvent) {
+      if (!item.data.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x + rect.width / 3;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

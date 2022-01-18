@@ -96,6 +96,8 @@
           class="list-item"
           :class="{ 'pr-3': !multiLine, 'no-stock': !v.count }"
           @click="clickedItem(v)"
+          @mouseenter="bootTooltip(v.item, $event)"
+          @mouseleave="clearTooltip"
         >
           <div>
             <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="24" width="24"></v-img>
@@ -112,27 +114,20 @@
             <span>{{ v.count }}</span>
           </div>
           <template v-if="!multiLine">
-            <div class="item-status" v-show="isShowFire">{{ v.item.data.fire ? v.item.data.fire : "" }}</div>
-            <div class="item-status" v-show="isShowTorpedo">{{ v.item.data.torpedo ? v.item.data.torpedo : "" }}</div>
-            <div class="item-status" v-show="isShowBomber">{{ v.item.data.bomber ? v.item.data.bomber : "" }}</div>
+            <div class="item-status" v-show="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
+            <div class="item-status" v-show="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
+            <div class="item-status" v-show="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
             <div class="item-status" v-show="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
-            <div class="item-status" v-show="isShowActAntiAir">
-              {{ v.item.actualAntiAir ? Math.floor(10 * v.item.actualAntiAir) / 10 : "" }}
-            </div>
-            <div class="item-status" v-show="isShowDefAntiAir">
-              {{ v.item.actualDefenseAntiAir ? Math.floor(10 * v.item.actualDefenseAntiAir) / 10 : "" }}
-            </div>
+            <div class="item-status" v-show="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
+            <div class="item-status" v-show="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
             <div class="item-status" v-show="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
-            <div class="item-status" v-show="isShowAsw">{{ v.item.data.asw ? v.item.data.asw : "" }}</div>
+            <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.actualAsw) }}</div>
             <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
-            <div class="item-status" v-show="isShowScout">{{ v.item.data.scout ? v.item.data.scout : "" }}</div>
-            <div class="item-status" v-show="isShowAccuracy">{{ v.item.data.accuracy ? v.item.data.accuracy : "" }}</div>
-            <div class="item-status" v-show="isShowAntiAirWeight">
-              {{ v.item.antiAirWeight ? v.item.antiAirWeight.toFixed(1) : "" }}
-            </div>
-            <div class="item-status" v-show="isShowAntiAirBonus">
-              {{ v.item.antiAirBonus ? v.item.antiAirBonus.toFixed(1) : "" }}
-            </div>
+            <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
+            <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
+            <div class="item-status" v-show="isShowAntiBomer">{{ v.item.data.antiBomer ? v.item.data.antiBomer : "" }}</div>
+            <div class="item-status" v-show="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
+            <div class="item-status" v-show="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
             <div class="item-status" v-show="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
             <div class="item-status" v-show="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
             <div class="item-status" v-show="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
@@ -146,6 +141,17 @@
       </div>
       <div v-show="viewItems.length === 0" class="caption text-center mt-10">搭載可能な装備が見つかりませんでした。</div>
     </div>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
@@ -316,6 +322,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
@@ -330,6 +337,7 @@ type sortItem = { [key: string]: number | { [key: string]: number } };
 
 export default Vue.extend({
   name: 'ItemList',
+  components: { ItemTooltip },
   props: {
     handleEquipItem: {
       type: Function,
@@ -366,17 +374,18 @@ export default Vue.extend({
     confirmDialog: false,
     confirmItem: { item: new Item(), count: 0 },
     headerItems: [
-      { text: '火力', key: 'fire' },
-      { text: '雷装', key: 'torpedo' },
-      { text: '爆装', key: 'bomber' },
+      { text: '火力', key: 'actualFire' },
+      { text: '雷装', key: 'actualTorpedo' },
+      { text: '爆装', key: 'actualBomber' },
       { text: '対空', key: 'antiAir' },
       { text: '出撃対空', key: 'actualAntiAir' },
       { text: '防空対空', key: 'actualDefenseAntiAir' },
       { text: '装甲', key: 'armor' },
-      { text: '対潜', key: 'asw' },
+      { text: '対潜', key: 'actualAsw' },
       { text: '回避', key: 'avoid' },
-      { text: '索敵', key: 'scout' },
-      { text: '命中', key: 'accuracy' },
+      { text: '索敵', key: 'actualScout' },
+      { text: '命中', key: 'actualAccuracy' },
+      { text: '対爆', key: 'antiBomer' },
       { text: '加重対空', key: 'antiAirWeight' },
       { text: '艦隊防空', key: 'antiAirBonus' },
       { text: '半径', key: 'radius' },
@@ -384,6 +393,11 @@ export default Vue.extend({
       { text: 'TP', key: 'tp' },
       { text: '射撃回避', key: 'avoidId' },
     ],
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     const items = this.$store.state.items as ItemMaster[];
@@ -411,13 +425,13 @@ export default Vue.extend({
       return (key: string, items: string[]) => items.includes(key);
     },
     isShowFire(): boolean {
-      return this.selectedType.viewStatus.includes('fire');
+      return this.selectedType.viewStatus.includes('actualFire');
     },
     isShowTorpedo(): boolean {
-      return this.selectedType.viewStatus.includes('torpedo');
+      return this.selectedType.viewStatus.includes('actualTorpedo');
     },
     isShowBomber(): boolean {
-      return this.selectedType.viewStatus.includes('bomber');
+      return this.selectedType.viewStatus.includes('actualBomber');
     },
     isShowAntiAir(): boolean {
       return this.selectedType.viewStatus.includes('antiAir');
@@ -432,16 +446,19 @@ export default Vue.extend({
       return this.selectedType.viewStatus.includes('armor');
     },
     isShowAsw(): boolean {
-      return this.selectedType.viewStatus.includes('asw');
+      return this.selectedType.viewStatus.includes('actualAsw');
     },
     isShowAvoid(): boolean {
       return this.selectedType.viewStatus.includes('avoid');
     },
     isShowScout(): boolean {
-      return this.selectedType.viewStatus.includes('scout');
+      return this.selectedType.viewStatus.includes('actualScout');
     },
     isShowAccuracy(): boolean {
-      return this.selectedType.viewStatus.includes('accuracy');
+      return this.selectedType.viewStatus.includes('actualAccuracy');
+    },
+    isShowAntiBomer(): boolean {
+      return this.selectedType.viewStatus.includes('antiBomer');
     },
     isShowAntiAirWeight(): boolean {
       return this.selectedType.viewStatus.includes('antiAirWeight');
@@ -466,6 +483,9 @@ export default Vue.extend({
     },
     isShowDefAirPower(): boolean {
       return this.selectedType.viewStatus.includes('defenseAirPower');
+    },
+    formatStatus() {
+      return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
     },
   },
   methods: {
@@ -537,7 +557,7 @@ export default Vue.extend({
       if (parent instanceof Ship) {
         // 空の艦娘 全部盛り
         for (let i = 1; i <= 60; i += 1) {
-          if (Const.LB_PLANE_TYPES.includes(i)) {
+          if (Const.AB_PLANE_TYPES.includes(i)) {
             continue;
           }
           types.push(i);
@@ -692,8 +712,7 @@ export default Vue.extend({
       const desc = this.isDesc ? 1 : -1;
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (
-          key === 'actualAntiAir'
-          || key === 'actualDefenseAntiAir'
+          key.indexOf('actual') >= 0
           || key === 'TP'
           || key === 'airPower'
           || key === 'defenseAirPower'
@@ -704,6 +723,20 @@ export default Vue.extend({
         }
         return desc * (b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key];
       });
+    },
+    bootTooltip(item: Item, e: MouseEvent) {
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : e.clientX;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

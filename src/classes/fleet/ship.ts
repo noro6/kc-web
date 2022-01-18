@@ -172,7 +172,7 @@ export default class Ship implements ShipBase {
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
       // 装備索敵関係
-      this.itemsScout += item.actualScout;
+      this.itemsScout += item.itemScout;
       // 輸送量
       this.tp += item.tp;
 

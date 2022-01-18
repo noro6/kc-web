@@ -77,6 +77,10 @@ export default class FleetInfo {
       // 艦隊別の制空値に初期化
       this.unionFleet.airPower = this.fleets[0].fullAirPower;
       this.unionFleet.escortAirPower = this.fleets[1].fullAirPower;
+    } else if (!this.isUnion) {
+      // 連合が解除されているので随伴艦フラグを消して再度インスタンス化
+      const fleet = this.fleets[1];
+      this.fleets[1] = new Fleet({ fleet, isUnion: false });
     }
   }
 
