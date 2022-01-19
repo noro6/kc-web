@@ -156,9 +156,9 @@ export default class Ship implements ShipBase {
 
     // 以下、計算により算出するステータス
     // レベルより算出
-    this.scout = this.getStatusFromLevel(this.data.maxScout, this.data.minScout);
-    this.avoid = this.getStatusFromLevel(this.data.maxAvoid, this.data.minAvoid);
-    this.asw = this.getStatusFromLevel(this.data.maxAsw, this.data.minAsw);
+    this.scout = Ship.getStatusFromLevel(this.level, this.data.maxScout, this.data.minScout);
+    this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
+    this.asw = Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
     // 索敵ボーナス
     this.bonusScout = this.getBonusScout();
     // 輸送量(艦娘分)
@@ -224,26 +224,73 @@ export default class Ship implements ShipBase {
 
   /**
    * 艦娘Lvにより算出可能なステータスを計算
-   * @private
-   * @param {number} max
-   * @param {number} min
+   * @static
+   * @param {number} level 練度
+   * @param {number} max Lv.99時最大値
+   * @param {number} min 初期値
    * @returns {number}
    * @memberof Ship
    */
-  private getStatusFromLevel(max: number, min: number): number {
+  public static getStatusFromLevel(level: number, max: number, min: number): number {
     let value = 0;
-    if (this.level === 99 && max > 0) {
+    if (level === 99 && max > 0) {
       // Lv99ステ
       value = max;
     } else if (max > 0) {
       // Lv99以外 算出可能な場合
-      value = Math.floor((max - min) * (this.level / 99) + min);
+      value = Math.floor((max - min) * (level / 99) + min);
     } else {
       // 算出不可
       value = 0;
     }
 
     return value;
+  }
+
+  /**
+   * 命中項を返却
+   * @static
+   * @param {number} level
+   * @param {number} luck
+   * @returns {number}
+   * @memberof Ship
+   */
+  public static getAccuracyValue(level: number, luck: number): number {
+    return Math.floor(2 * Math.sqrt(level) + 1.5 * Math.sqrt(luck));
+  }
+
+  /**
+   * 回避項を返却
+   * @static
+   * @param {number} avoid
+   * @param {number} luck
+   * @returns {number}
+   * @memberof Ship
+   */
+  public static getAvoidValue(avoid: number, luck: number): number {
+    const baseAvoid = Math.floor(avoid + Math.sqrt(2 * luck));
+    if (avoid >= 65) {
+      return Math.floor(55 + 2 * Math.sqrt(baseAvoid - 65));
+    }
+    if (avoid >= 45) {
+      return Math.floor(40 + 3 * Math.sqrt(baseAvoid - 40));
+    }
+    return baseAvoid;
+  }
+
+  /**
+   * CI項を返却
+   * @static
+   * @param {number} level
+   * @param {number} luck
+   * @returns {number}
+   * @memberof Ship
+   */
+  public static getCIValue(level: number, luck: number): number {
+    if (luck >= 50) {
+      return Math.floor(65 + Math.sqrt(luck - 50) + 0.8 * Math.sqrt(level));
+    }
+    return Math.floor(15 + luck + 0.75 * Math.sqrt(level));
   }
 
   /**

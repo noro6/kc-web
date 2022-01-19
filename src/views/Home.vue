@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="ma-4">
-          <v-btn x-large color="blue" @click="$router.push('manager')" disabled>
+          <v-btn x-large dark color="blue" @click="$router.push('manager')">
             <v-icon>mdi-database-cog</v-icon>
             <span class="ml-1">艦娘 / 装備管理</span>
           </v-btn>

@@ -27,7 +27,7 @@ export default class ShipStock {
   public exp = 0;
 
   /** ステータス上昇 */
-  public improvement = {} as ShipImprovement;
+  public improvement = { hp: 0, asw: 0, luck: 0 } as ShipImprovement;
 
   /** 補強増設解放 */
   public releaseExpand = false;

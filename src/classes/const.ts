@@ -209,7 +209,7 @@ export default class Const {
     { id: SHIP_TYPE.BBB, name: '超弩級戦艦', itemType: [2, 3, 4, 10, 12, 13, 17, 18, 19, 21, 23, 28, 29, 33, 34, 36, 39, 40, 42, 43] },
     { id: SHIP_TYPE.SS, name: '潜水艦', itemType: [5, 14, 17, 22, 23, 32, 37, 43, 46, 51] },
     { id: SHIP_TYPE.SSV, name: '潜水空母', itemType: [5, 10, 11, 14, 17, 22, 23, 32, 37, 43, 45, 46, 51] },
-    { id: SHIP_TYPE.AO_2, name: '補給艦', itemType: [] },
+    { id: SHIP_TYPE.AO_2, name: '補給艦', itemType: [0] },
     { id: SHIP_TYPE.AV, name: '水上機母艦', itemType: [1, 4, 10, 11, 12, 13, 15, 17, 21, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 43, 45, 46, 50] },
     { id: SHIP_TYPE.LHA, name: '揚陸艦', itemType: [1, 4, 12, 15, 17, 21, 23, 24, 25, 26, 30, 34, 36, 37, 40, 43, 46, 50] },
     { id: SHIP_TYPE.CVB, name: '装甲空母', itemType: [4, 6, 7, 8, 9, 12, 13, 17, 21, 23, 28, 34, 35, 36, 40, 43, 50] },
