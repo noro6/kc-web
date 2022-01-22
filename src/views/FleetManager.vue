@@ -24,6 +24,13 @@
   </div>
 </template>
 
+<style scoped>
+.v-window.v-item-group {
+  height: 100%;
+  overflow: unset;
+}
+</style>
+
 <script lang="ts">
 import Vue from 'vue';
 import Ships from '@/components/database/Ships.vue';

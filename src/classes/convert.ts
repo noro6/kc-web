@@ -267,9 +267,9 @@ export default class Convert {
 
         // 拡張情報 -補強増設解放
         if ('api_slot_ex' in data) {
-          shipStock.releaseExpand = data.api_slot_ex > 0;
+          shipStock.releaseExpand = data.api_slot_ex !== undefined && data.api_slot_ex !== 0;
         } else if ('ex' in data) {
-          shipStock.releaseExpand = data.ex > 0;
+          shipStock.releaseExpand = data.ex !== undefined && data.ex !== 0;
         }
 
         // 拡張情報 -補強増設解放

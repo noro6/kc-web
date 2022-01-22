@@ -54,6 +54,12 @@ export default class ShipMaster {
 
   public maxAvoid = 0;
 
+  public beforId = 0;
+
+  public nextLv = 0;
+
+  public sort = 0;
+
   /**
    * Creates an instance of ShipMaster.
    * API取得rowよりクラスにマッピング
@@ -86,6 +92,9 @@ export default class ShipMaster {
     this.maxAsw = row[27] ? +row[27] : 0;
     this.minAvoid = row[28] ? +row[28] : 0;
     this.maxAvoid = row[29] ? +row[29] : 0;
+    this.beforId = row[30] ? +row[30] : 0;
+    this.nextLv = row[31] ? +row[31] : 0;
+    this.sort = row[32] ? +row[32] : 0;
 
     const slot1 = row[6] ? +row[6] : 0;
     const slot2 = row[7] ? +row[7] : 0;

@@ -33,5 +33,5 @@ export default class ShipStock {
   public releaseExpand = false;
 
   /** 出撃海域札 */
-  public area = -1;
+  public area = 0;
 }
