@@ -3,15 +3,17 @@
     <div class="d-flex pt-2 pb-1 pr-2">
       <div class="align-self-center ml-3">装備選択</div>
       <v-spacer></v-spacer>
-      <div class="d-none d-sm-block mr-10">
-        <v-btn depressed class="px-2" :class="{ info: !multiLine }" @click="changeMultiLine(false)">
-          <v-icon>mdi-view-headline</v-icon>
-          <span>一列</span>
-        </v-btn>
-        <v-btn depressed class="ml-2 px-2" :class="{ info: multiLine }" @click="changeMultiLine(true)">
-          <v-icon>mdi-view-comfy</v-icon>
-          <span>複数列</span>
-        </v-btn>
+      <div class="d-none d-sm-block mr-5">
+        <v-btn-toggle dense v-model="multiLine" borderless mandatory>
+          <v-btn :value="false" :class="{ 'blue darken-2 white--text': !multiLine }" @click.stop="changeMultiLine(false)">
+            <v-icon>mdi-view-headline</v-icon>
+            <span>一列</span>
+          </v-btn>
+          <v-btn :value="true" :class="{ 'blue darken-2 white--text': multiLine }" @click.stop="changeMultiLine(true)">
+            <v-icon>mdi-view-comfy</v-icon>
+            <span>複数列</span>
+          </v-btn>
+        </v-btn-toggle>
       </div>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
@@ -25,7 +27,7 @@
       <div class="ml-5 align-self-center">
         <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
       </div>
-      <div class="ml-5 align-self-center" v-if="itemStock.length">
+      <div class="ml-5 align-self-center" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" :label="'所持装備反映'"></v-checkbox>
       </div>
       <v-spacer></v-spacer>

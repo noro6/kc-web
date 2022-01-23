@@ -22,6 +22,9 @@ export default class SiteSetting {
   /** 装備一覧 在籍艦娘のみ表示かどうか */
   public isStockOnlyForShipList: boolean;
 
+  /** 在籍艦娘一覧 表示モード */
+  public viewTableMode: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -32,6 +35,7 @@ export default class SiteSetting {
       this.isStockOnlyForItemList = setting.isStockOnlyForItemList;
       this.isStockOnlyForShipList = setting.isStockOnlyForShipList;
       this.planeInitialLevels = setting.planeInitialLevels;
+      this.viewTableMode = setting.viewTableMode;
     } else {
       this.id = 'setting';
       this.confirmCloseTab = true;
@@ -40,6 +44,7 @@ export default class SiteSetting {
       this.isMultiLineForShipList = true;
       this.isStockOnlyForItemList = false;
       this.isStockOnlyForShipList = false;
+      this.viewTableMode = true;
       this.planeInitialLevels = [
         { id: 6, level: 100 },
         { id: 7, level: 0 },

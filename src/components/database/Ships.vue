@@ -3,7 +3,10 @@
     <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header class="px-4">
-          <div><v-icon>mdi-filter</v-icon>フィルタ <span class="caption">({{ viewShips.length }}隻 / {{ allCount }}隻)</span></div>
+          <div>
+            <v-icon>mdi-filter</v-icon>フィルタ
+            <span class="caption">({{ viewShips.length }}隻 / {{ allCount }}隻)</span>
+          </div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-divider class="mb-6"></v-divider>
@@ -21,9 +24,9 @@
             <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" label="未着任艦非表示"></v-checkbox>
             <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" label="未着任艦のみ"></v-checkbox>
             <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" label="耐久値4n"></v-checkbox>
-            <v-checkbox class="mx-2" dense v-model="isDiahatsu" @change="masterFilter" label="大発搭載可"></v-checkbox>
-            <v-checkbox class="mx-2" dense v-model="isKamisha" @change="masterFilter" label="内火艇搭載可"></v-checkbox>
-            <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="masterFilter" label="補強増設開放済"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="isDiahatsu" @change="filter" label="大発搭載可"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" label="内火艇搭載可"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" label="補強増設開放済"></v-checkbox>
           </div>
           <div class="my-5 range-inputs">
             <div class="d-flex py-5">
@@ -36,6 +39,7 @@
                   dense
                   v-model.trim="levelRange[0]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
               <v-range-slider
@@ -58,6 +62,7 @@
                   dense
                   v-model.trim="levelRange[1]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
             </div>
@@ -71,6 +76,7 @@
                   dense
                   v-model.trim="luckRange[0]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
               <v-range-slider
@@ -93,6 +99,7 @@
                   dense
                   v-model.trim="luckRange[1]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
             </div>
@@ -121,6 +128,7 @@
                   dense
                   v-model.trim="aswRange[0]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
               <v-range-slider
@@ -143,6 +151,7 @@
                   dense
                   v-model.trim="aswRange[1]"
                   hide-details
+                  @input="filter"
                 ></v-text-field>
               </div>
             </div>
@@ -178,84 +187,173 @@
       </v-expansion-panel>
     </v-expansion-panels>
     <v-card class="ship-list-body my-3 pa-4">
-      <div v-if="!viewShips.length" class="body-2 text-center my-10">
+      <div v-if="!viewShips.length" class="text-center my-10">
         <div>みつからないよ</div>
       </div>
-      <v-pagination v-else v-model="page" :length="pageLength" class="mb-4"></v-pagination>
-      <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
-        <v-spacer></v-spacer>
-        <div class="status-td" @click.stop="toggleSortKey('level')" :class="{ sorted: sortKey === 'level' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          Lv
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('hp')" :class="{ sorted: sortKey === 'hp' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          耐久
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('luck')" :class="{ sorted: sortKey === 'luck' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          運
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('asw')" :class="{ sorted: sortKey === 'asw' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          対潜
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('scout')" :class="{ sorted: sortKey === 'scout' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          索敵
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('acurracy')" :class="{ sorted: sortKey === 'acurracy' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          命中項
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('avoid')" :class="{ sorted: sortKey === 'avoid' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          回避項
-        </div>
-        <div class="status-td" @click.stop="toggleSortKey('ci')" :class="{ sorted: sortKey === 'ci' }">
-          <div><v-icon small>mdi-chevron-down</v-icon></div>
-          CI項
-        </div>
+      <div v-else class="d-flex">
+        <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength" class="mb-4"></v-pagination>
+        <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
+          <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
+            <v-icon>mdi-view-headline</v-icon>
+            <span>一覧表示</span>
+          </v-btn>
+          <v-btn :value="false" :class="{ 'blue darken-2 white--text': !modeTable }" @click.stop="changeViewMode(false)">
+            <v-icon>mdi-view-comfy</v-icon>
+            <span>艦隊分析表示</span>
+          </v-btn>
+        </v-btn-toggle>
       </div>
-      <div
-        v-for="(rowData, i) in shipList"
-        :key="`row_${i}`"
-        class="ship-tr"
-        v-ripple
-        :class="{
-          no_ship: rowData.count === 0,
-          lv175: rowData.stockData.level === 175,
-          lv100: rowData.stockData.level !== 175 && rowData.stockData.level > 99,
-          lv99: rowData.stockData.level === 99,
-        }"
-        @click.stop="showEditDialog(rowData)"
-      >
-        <div class="edit-stock-img">
-          <v-img :src="`./img/ship/${rowData.ship.albumId}.png`" height="50" width="200"></v-img>
-          <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
-            <v-img :src="`./img/util/area${rowData.stockData.area}.png`" height="60" width="42"></v-img>
+      <div class="ship-table" v-if="modeTable">
+        <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
+          <v-spacer></v-spacer>
+          <div class="status-td" @click.stop="toggleSortKey('level')" :class="{ sorted: sortKey === 'level' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            Lv
           </div>
-          <div class="slot-ex-img" v-if="rowData.stockData.releaseExpand">
-            <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
+          <div class="status-td" @click.stop="toggleSortKey('hp')" :class="{ sorted: sortKey === 'hp' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            耐久
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('luck')" :class="{ sorted: sortKey === 'luck' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            運
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('asw')" :class="{ sorted: sortKey === 'asw' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            対潜
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('scout')" :class="{ sorted: sortKey === 'scout' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            索敵
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('acurracy')" :class="{ sorted: sortKey === 'acurracy' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            命中項
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('avoid')" :class="{ sorted: sortKey === 'avoid' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            回避項
+          </div>
+          <div class="status-td" @click.stop="toggleSortKey('ci')" :class="{ sorted: sortKey === 'ci' }">
+            <div><v-icon small>mdi-chevron-down</v-icon></div>
+            CI項
           </div>
         </div>
-        <div class="ml-1">{{ rowData.ship.name }}</div>
-        <v-spacer></v-spacer>
-        <div class="status-td">{{ rowData.stockData.level }}</div>
-        <div class="status-td">{{ rowData.hp }}</div>
-        <div class="status-td">{{ rowData.luck }}</div>
-        <div class="status-td" v-if="rowData.count">{{ rowData.asw }}</div>
-        <div class="status-td" v-if="rowData.count">{{ rowData.scout }}</div>
-        <div class="status-td" v-if="rowData.count">{{ rowData.acurracy }}</div>
-        <div class="status-td" v-if="rowData.count">{{ rowData.avoid }}</div>
-        <div class="status-td" v-if="rowData.count">{{ rowData.ci }}</div>
-        <div v-else class="status-td no-status d-flex">
-          <div class="line"></div>
-          <div>未所持</div>
-          <div class="line"></div>
+        <div
+          v-for="(rowData, i) in shipList"
+          :key="`row_${i}`"
+          class="ship-tr"
+          v-ripple
+          :class="{
+            no_ship: rowData.count === 0,
+            lv175: rowData.stockData.level === 175,
+            lv100: rowData.stockData.level !== 175 && rowData.stockData.level > 99,
+            lv99: rowData.stockData.level === 99,
+          }"
+          @click.stop="showEditDialog(rowData)"
+        >
+          <div class="edit-stock-img">
+            <v-img :src="`./img/ship/${rowData.ship.albumId}.png`" height="50" width="200"></v-img>
+            <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
+              <v-img :src="`./img/util/area${rowData.stockData.area}.png`" height="60" width="42"></v-img>
+            </div>
+            <div class="slot-ex-img" v-if="rowData.stockData.releaseExpand">
+              <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
+            </div>
+          </div>
+          <div class="ml-1">{{ rowData.ship.name }}</div>
+          <v-spacer></v-spacer>
+          <div class="status-td">{{ rowData.stockData.level }}</div>
+          <div class="status-td">{{ rowData.hp }}</div>
+          <div class="status-td">{{ rowData.luck }}</div>
+          <div class="status-td" v-if="rowData.count">{{ rowData.asw }}</div>
+          <div class="status-td" v-if="rowData.count">{{ rowData.scout }}</div>
+          <div class="status-td" v-if="rowData.count">{{ rowData.acurracy }}</div>
+          <div class="status-td" v-if="rowData.count">{{ rowData.avoid }}</div>
+          <div class="status-td" v-if="rowData.count">{{ rowData.ci }}</div>
+          <div v-else class="status-td no-status d-flex">
+            <div class="line"></div>
+            <div>未所持</div>
+            <div class="line"></div>
+          </div>
+        </div>
+        <div class="d-flex">
+          <v-pagination v-if="viewShips.length" v-model="page" :length="pageLength" class="my-4" @input="scrollTop"></v-pagination>
+          <v-spacer></v-spacer>
         </div>
       </div>
-      <v-pagination v-if="viewShips.length" v-model="page" :length="pageLength" class="my-4" @input="scrollTop"></v-pagination>
+      <template v-else>
+        <div class="d-flex flex-wrap">
+          <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container">
+            <div class="ma-2">{{ typeData.typeName }}</div>
+            <div class="type-divider"></div>
+            <div class="d-flex flex-wrap">
+              <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-1 px-2 pt-2">
+                <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
+                  <div class="d-flex">
+                    <div>{{ row.master.name }}</div>
+                    <v-spacer></v-spacer>
+                    <div class="caption align-self-end">在籍: {{ row.count }}</div>
+                  </div>
+                  <div class="status-img" :class="{ no_ship: row.count === 0 }">
+                    <img class="status-img" :src="`./img/ship/${row.master.albumId}.png`" />
+                  </div>
+                  <div
+                    v-for="(data, j) in row.detail"
+                    :key="`detail_${j}`"
+                    class="detail-row ship-tr"
+                    v-ripple
+                    :class="{
+                      no_ship: data.count === 0,
+                      lv175: data.stockData.level === 175,
+                      lv100: data.stockData.level !== 175 && data.stockData.level > 99,
+                      lv99: data.stockData.level === 99,
+                    }"
+                    @click.stop="showEditDialog(data)"
+                  >
+                    <template v-if="data.count">
+                      <div class="status-col sm">
+                        <div>{{ data.level }}</div>
+                      </div>
+                      <div class="status-col">
+                        <img class="align-self-center" :src="`./img/util/status_hp.png`" height="16" />
+                        <div class="align-self-center">{{ data.hp }}</div>
+                      </div>
+                      <div class="status-col">
+                        <img class="align-self-center" :src="`./img/util/status_asw.png`" height="16" />
+                        <div class="align-self-center">{{ data.asw }}</div>
+                      </div>
+                      <div class="status-col">
+                        <img class="align-self-center" :src="`./img/util/status_luck.png`" height="16" />
+                        <div class="align-self-center">{{ data.luck }}</div>
+                      </div>
+                      <div class="status-area-img" :class="{ 'exist-img': data.stockData.area > 0 }">
+                        <img
+                          v-if="data.stockData.area > 0"
+                          class="status-area-img"
+                          :src="`./img/util/area${data.stockData.area}_min.png`"
+                        />
+                      </div>
+                      <div class="status-ex-img">
+                        <img
+                          v-if="data.stockData.releaseExpand"
+                          class="status-ex-img"
+                          :src="`./img/util/slot_ex.png`"
+                          height="24"
+                          width="24"
+                        />
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="mx-auto text-center no_ship">新規登録</div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
     </v-card>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
       <v-card class="pa-3" v-if="editRow && versionButtons.length">
@@ -427,25 +525,28 @@
 
 .ship-tr {
   display: flex;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
   cursor: pointer;
   transition: 0.2s;
-  padding: 0.1rem 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.8);
 }
-.ship-tr > div {
+.ship-table .ship-tr {
+  padding: 0.1rem 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+.ship-table .ship-tr > div {
   align-self: center;
 }
-.ship-tr .status-td {
+.ship-table .ship-tr .status-td {
   text-align: right;
   width: 9%;
   padding-right: 0.5rem;
   font-size: 0.8em;
 }
-.ship-tr .status-td.no-status {
+.ship-table .ship-tr .status-td.no-status {
   text-align: center;
   width: 45%;
 }
-.ship-tr .status-td.no-status .line {
+.ship-table .ship-tr .status-td.no-status .line {
   flex-grow: 1;
   background-color: rgba(128, 128, 128, 0.4);
   height: 2px;
@@ -453,7 +554,7 @@
   align-self: center;
 }
 
-.ship-tr.header {
+.ship-table .ship-tr.header {
   position: -webkit-sticky;
   position: sticky;
   top: 76px;
@@ -462,66 +563,83 @@
   z-index: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.2);
 }
-.theme--dark .ship-tr.header {
+.theme--dark .ship-table .ship-tr.header {
   background-color: #222;
 }
-.ship-tr.header .status-td {
+.ship-table .ship-tr.header .status-td {
   padding: 0.75rem 0.5rem 0.75rem 0;
   user-select: none;
   display: flex;
   justify-content: flex-end;
 }
-.ship-tr.header .status-td:hover {
+.ship-table .ship-tr.header .status-td:hover {
   background-color: rgba(128, 128, 128, 0.1);
 }
 
-.ship-tr.header .status-td .v-icon {
+.ship-table .ship-tr.header .status-td .v-icon {
   opacity: 0;
 }
-.ship-tr.header .status-td.sorted .v-icon {
+.ship-table .ship-tr.header .status-td.sorted .v-icon {
   opacity: 1;
 }
-.ship-tr.header.asc .status-td .v-icon {
+.ship-table .ship-tr.header.asc .status-td .v-icon {
   transform: rotate(180deg);
 }
 
-.ship-tr.lv175 {
+.ship-card .ship-tr.lv175 {
+  color: #000;
+  background-color: rgba(131, 220, 255, 0.753);
+}
+.ship-card .ship-tr.lv100 {
+  color: #000;
+  background-color: rgba(255, 163, 163, 0.753);
+}
+.ship-card .ship-tr.lv99 {
+  color: #000;
+  background-color: rgba(131, 255, 131, 0.753);
+}
+.ship-card .ship-tr:hover {
+  color: #000;
+  background-color: rgba(255, 242, 128, 0.753);
+}
+
+.ship-table .ship-tr.lv175 {
   background-color: rgba(131, 220, 255, 0.3);
 }
-.ship-tr.lv100 {
+.ship-table .ship-tr.lv100 {
   background-color: rgba(255, 131, 131, 0.3);
 }
-.ship-tr.lv99 {
+.ship-table .ship-tr.lv99 {
   background-color: rgba(131, 255, 131, 0.3);
 }
-.ship-tr:not(.header):hover {
+.ship-table .ship-tr:not(.header):hover {
   background-color: rgba(128, 128, 128, 0.05);
 }
-.ship-tr.lv175:hover {
+.ship-table .ship-tr.lv175:hover {
   background-color: rgba(131, 220, 255, 0.5);
 }
-.ship-tr.lv100:hover {
+.ship-table .ship-tr.lv100:hover {
   background-color: rgba(255, 131, 131, 0.5);
 }
-.ship-tr.lv99:hover {
+.ship-table .ship-tr.lv99:hover {
   background-color: rgba(131, 255, 131, 0.5);
 }
-.theme--dark .ship-tr.lv175 {
+.theme--dark .ship-table .ship-tr.lv175 {
   background-color: rgba(131, 220, 255, 0.2);
 }
-.theme--dark .ship-tr.lv100 {
+.theme--dark .ship-table .ship-tr.lv100 {
   background-color: rgba(255, 131, 131, 0.2);
 }
-.theme--dark .ship-tr.lv99 {
+.theme--dark .ship-table .ship-tr.lv99 {
   background-color: rgba(131, 255, 131, 0.2);
 }
-.theme--dark .ship-tr.lv175:hover {
+.theme--dark .ship-table .ship-tr.lv175:hover {
   background-color: rgba(131, 220, 255, 0.25);
 }
-.theme--dark .ship-tr.lv100:hover {
+.theme--dark .ship-table .ship-tr.lv100:hover {
   background-color: rgba(255, 131, 131, 0.25);
 }
-.theme--dark .ship-tr.lv99:hover {
+.theme--dark .ship-table .ship-tr.lv99:hover {
   background-color: rgba(131, 255, 131, 0.25);
 }
 .ship-tr.no_ship {
@@ -538,7 +656,8 @@
 .theme--dark .ship-tr.no_ship:hover {
   background-color: rgb(15, 15, 15);
 }
-.ship-tr.no_ship img {
+.ship-tr.no_ship img,
+.status-img.no_ship img {
   filter: grayscale(60%);
 }
 
@@ -550,10 +669,12 @@
   top: -8px;
   left: 38px;
 }
-.slot-ex-img {
+.edit-stock-img .slot-ex-img {
   position: absolute;
   bottom: 0px;
   right: 0px;
+  width: 36px;
+  height: 36px;
 }
 
 .selected-area-btn {
@@ -567,6 +688,69 @@
 .selected-area-btn.selected {
   opacity: 1;
 }
+
+.type-container {
+  margin: 0.5rem;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+.theme--dark .type-container {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.type-divider {
+  width: 100%;
+  height: 1px;
+  background-color: #64b4ff;
+  margin-bottom: 0.25rem;
+}
+.ship-card {
+  border-radius: 0.25rem;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+}
+.theme--dark .ship-card {
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+.detail-row {
+  justify-content: space-between;
+}
+.detail-row > div {
+  align-self: center;
+}
+.status-img {
+  height: 60px;
+  width: 240px;
+}
+.status-col {
+  display: flex;
+  width: 48px;
+  overflow: hidden;
+  font-size: 14px;
+}
+.status-col.sm {
+  text-align: right;
+  width: 28px;
+  margin-right: 4px;
+}
+.status-col.sm > div {
+  width: 100%;
+}
+.status-area-img {
+  align-self: flex-end;
+  width: 35px;
+}
+.status-area-img.exist-img {
+  height: 40px;
+}
+.status-area-img img {
+  width: 35px;
+  height: 40px;
+}
+.status-ex-img {
+  width: 24px;
+  height: 24px;
+}
 </style>
 
 <script lang="ts">
@@ -576,6 +760,7 @@ import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
 import Ship from '@/classes/fleet/ship';
+import SiteSetting from '@/classes/siteSetting';
 
 interface ShipRowData {
   count: number;
@@ -589,6 +774,12 @@ interface ShipRowData {
   acurracy: number;
   avoid: number;
   ci: number;
+}
+
+interface AltShipRowData {
+  master: ShipMaster;
+  count: number;
+  detail: ShipRowData[];
 }
 
 export default Vue.extend({
@@ -629,6 +820,8 @@ export default Vue.extend({
     unsbscribe: undefined as unknown,
     btnPushed: false,
     allCount: 0,
+    modeTable: true,
+    setting: new SiteSetting(),
   }),
   mounted() {
     // 全データ取得
@@ -676,6 +869,9 @@ export default Vue.extend({
         this.editDialog = false;
       }
     });
+
+    this.setting = this.$store.state.siteSetting as SiteSetting;
+    this.changeViewMode(this.setting.viewTableMode);
   },
   computed: {
     selectedAllType(): boolean {
@@ -706,6 +902,51 @@ export default Vue.extend({
 
       return befor ? befor.nextLv : 1;
     },
+    altViewShips(): { typeName: string; rows: AltShipRowData[][] }[] {
+      const rows = this.viewShips;
+
+      if (!rows.length) {
+        return [];
+      }
+
+      const viewShips: AltShipRowData[] = [];
+      // 改装段階毎にグループ化
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i];
+
+        const viewShip = viewShips.find((v) => v.master.id === row.ship.id);
+        if (viewShip) {
+          viewShip.count += 1;
+          viewShip.detail.push(row);
+        } else {
+          viewShips.push({ master: row.ship, count: row.count, detail: [row] });
+        }
+      }
+
+      // 艦型に応じて分けたい
+      const altTypes = Const.SHIP_TYPES_ALT_INFO;
+      const resultShips = [];
+      for (let i = 0; i < altTypes.length; i += 1) {
+        const type = altTypes[i];
+        const typeShips = viewShips.filter((v) => v.master.type2 === type.id);
+        if (typeShips.length) {
+          // 同じ艦毎にまとめる
+          const array = _.groupBy(typeShips, (v) => v.master.originalId);
+          const resultRows: AltShipRowData[][] = [];
+          Object.keys(array).forEach((v) => resultRows.push(array[v]));
+
+          resultRows.sort((a, b) => {
+            const aMin = _.min(a.map((v) => v.master.sort));
+            const bMin = _.min(b.map((v) => v.master.sort));
+            return (aMin || 0) - (bMin || 0);
+          });
+          // 存在する艦型を生成
+          resultShips.push({ typeName: type.name, rows: resultRows });
+        }
+      }
+
+      return resultShips;
+    },
   },
   beforeDestroy() {
     if (this.unsbscribe) {
@@ -716,7 +957,6 @@ export default Vue.extend({
     filter() {
       const masters = this.filteredShips;
       const stock = this.shipStock;
-      this.viewShips = [];
       let rowData: ShipRowData[] = [];
       const maxLevel = this.levelRange[1];
       const minLevel = this.levelRange[0];
@@ -966,6 +1206,12 @@ export default Vue.extend({
       } else {
         rowData.sort((a, b) => a.ship.sort - b.ship.sort);
       }
+    },
+    changeViewMode(modeTable: boolean) {
+      this.modeTable = modeTable;
+      // 設定書き換え
+      this.setting.viewTableMode = modeTable;
+      this.$store.dispatch('updateSetting', this.setting);
     },
   },
 });

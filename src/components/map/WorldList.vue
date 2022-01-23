@@ -24,7 +24,7 @@
             :items="areaItems"
             @change="worldChanged"
             label="海域"
-            :menu-props="{ maxHeight: '60vh' }"
+            :menu-props="{ maxHeight: '600px' }"
           ></v-select>
         </div>
         <div v-show="isEvent">
