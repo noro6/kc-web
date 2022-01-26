@@ -56,6 +56,9 @@ export default class Airbase {
   /** 補給処理が要るかどうか 計算用 */
   public needSupply = false;
 
+  /** 集中のときでも撃墜処理を行わせたいフラグ 計算用 */
+  public needShootDown = false;
+
   constructor(builder: AirbaseBuilder = {}) {
     if (builder.airbase) {
       this.items = builder.items !== undefined ? builder.items : builder.airbase.items.concat();

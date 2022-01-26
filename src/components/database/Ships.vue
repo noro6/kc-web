@@ -642,18 +642,18 @@
 .theme--dark .ship-table .ship-tr.lv99:hover {
   background-color: rgba(131, 255, 131, 0.25);
 }
-.ship-tr.no_ship {
+.ship-table .ship-tr.no_ship {
   opacity: 0.7;
   background-color: rgba(80, 80, 80, 0.2);
 }
-.ship-tr.no_ship:hover {
+.ship-table .ship-tr.no_ship:hover {
   opacity: 0.7;
   background-color: rgba(80, 80, 80, 0.25);
 }
-.theme--dark .ship-tr.no_ship {
+.theme--dark .ship-table .ship-tr.no_ship {
   background-color: rgba(0, 0, 0, 1);
 }
-.theme--dark .ship-tr.no_ship:hover {
+.theme--dark .ship-table .ship-tr.no_ship:hover {
   background-color: rgb(15, 15, 15);
 }
 .ship-tr.no_ship img,

@@ -7,10 +7,10 @@
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem"></v-select>
       </div>
       <div class="mr-1 mt-1">
-        <v-btn color="info" icon small>
+        <v-btn color="info" icon small @click="viewDetail">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
-        <v-btn icon small @click="resetItems()">
+        <v-btn icon small @click="resetItems">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
       </div>
@@ -56,6 +56,9 @@
     >
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
+    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
+      <plane-detail-result v-if="!destroyDialog" :parent="value" :index="index" :handle-close="closeDetail" />
+    </v-dialog>
   </v-card>
 </template>
 
@@ -73,12 +76,18 @@ import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
+import PlaneDetailResult from '@/components/result/PlaneDetailResult.vue';
 import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
 
 export default Vue.extend({
-  components: { ItemInput, AirStatusResultBar, ItemTooltip },
+  components: {
+    ItemInput,
+    AirStatusResultBar,
+    ItemTooltip,
+    PlaneDetailResult,
+  },
   name: 'Airbase',
   props: {
     handleShowItemList: {
@@ -107,6 +116,8 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
+    destroyDialog: false,
+    detailDialog: false,
   }),
   computed: {
     airbase(): Airbase {
@@ -180,6 +191,22 @@ export default Vue.extend({
     },
     resetItems(): void {
       this.setAirbase(new Airbase());
+    },
+    viewDetail(): void {
+      this.destroyDialog = false;
+      this.detailDialog = true;
+    },
+    closeDetail() {
+      this.detailDialog = false;
+    },
+    toggleDetailDialog() {
+      if (!this.detailDialog) {
+        setTimeout(() => {
+          this.destroyDialog = true;
+        }, 100);
+      } else {
+        this.destroyDialog = false;
+      }
     },
     bootTooltip(item: Item, e: MouseEvent) {
       if (!item.data.id) {

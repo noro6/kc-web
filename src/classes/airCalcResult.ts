@@ -25,7 +25,7 @@ export default class AirCalcResult {
   /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
   public avgEnemyAirPower = 0;
 
-  /** 撃ち落とされた艦載機合計 */
+  /** 撃ち落とされた艦載機合計 ボーキ算出に必要 */
   public avgDownSlot = 0;
 
   /**

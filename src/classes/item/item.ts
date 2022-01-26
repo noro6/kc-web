@@ -143,6 +143,12 @@ export default class Item {
   /** 第2艦隊搭載機かどうかフラグ 計算用 */
   public isEscortItem = false;
 
+  /** スロット分布のための記録が必要 */
+  public needRecord = false;
+
+  /** 補給前搭載数分布 */
+  public dist: number[] = []
+
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
@@ -246,6 +252,9 @@ export default class Item {
    * @memberof Item
    */
   public static supply(item: Item): void {
+    if (item.needRecord) {
+      item.dist.push(item.slot);
+    }
     item.slot = item.fullSlot;
     item.airPower = item.fullAirPower;
   }

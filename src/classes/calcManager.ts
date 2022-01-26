@@ -32,6 +32,11 @@ export default class CalcManager {
     this.resetAll = false;
   }
 
+  /**
+   * 計算処理を行い、各種結果情報を更新
+   * @return {*}  {Promise<void>}
+   * @memberof CalcManager
+   */
   public async updateInfo(): Promise<void> {
     this.isDefense = this.airbaseInfo.isDefense;
     this.mainBattle = this.mainBattle < 0 ? 0 : this.mainBattle;
@@ -176,6 +181,13 @@ export default class CalcManager {
 
         this.airbaseInfo.airbases[i].resultWave1 = lb.resultWave1;
         this.airbaseInfo.airbases[i].resultWave2 = lb.resultWave2;
+
+        const recordedItemIndex = lb.items.findIndex((v) => v.needRecord);
+        if (recordedItemIndex >= 0) {
+          const item = this.airbaseInfo.airbases[i].items[recordedItemIndex];
+          item.dist = lb.items[recordedItemIndex].dist.concat();
+          item.needRecord = false;
+        }
       }
     }
 

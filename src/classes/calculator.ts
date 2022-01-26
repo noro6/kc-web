@@ -20,6 +20,7 @@ export default class Calculator {
       const airbase = airbases[i];
       const wave1 = airbase.battleTarget[0];
       const wave2 = airbase.battleTarget[1];
+      const needRecord = airbase.needShootDown;
       const isSeparate = wave1 !== wave2;
 
       // 第1波 第2波どちらも担当しないならこの航空隊の計算は飛ばす
@@ -63,7 +64,7 @@ export default class Calculator {
 
         // 敵機撃墜処理
         Calculator.shootDownEnemy(state, enemyFleet);
-        if (isSeparate) {
+        if (isSeparate || needRecord) {
           // 基地撃墜処理
           Calculator.ShootDownAirbase(state, airbase, enemyFleet);
         }
@@ -163,18 +164,19 @@ export default class Calculator {
   private static ShootDownAirbase(state: number, airbase: Airbase, enemyFleet: EnemyFleet) {
     let sumAirPower = 0;
 
-    let st2List = enemyFleet.noCutInStage2;
-    let randomRange = st2List[0].fixDownList.length;
+    const st2List = enemyFleet.noCutInStage2;
+    const randomRange = st2List[0].fixDownList.length;
 
-    if (enemyFleet.shootDownList.length > 1) {
-      // 対空CIの発動判定
-      const pickRate = Math.random();
-      const shootDown = enemyFleet.shootDownList.find((v) => v.border > pickRate);
-      if (shootDown) {
-        st2List = shootDown.shootDownStatusList;
-        randomRange = shootDown.maxRange;
-      }
-    }
+    // 基地は対空CIなし？
+    // if (enemyFleet.shootDownList.length > 1) {
+    //   // 対空CIの発動判定
+    //   const pickRate = Math.random();
+    //   const shootDown = enemyFleet.shootDownList.find((v) => v.border > pickRate);
+    //   if (shootDown) {
+    //     st2List = shootDown.shootDownStatusList;
+    //     randomRange = shootDown.maxRange;
+    //   }
+    // }
 
     const { items } = airbase;
     for (let j = 0; j < items.length; j += 1) {
