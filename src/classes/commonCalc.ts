@@ -76,4 +76,70 @@ export default class CommonCalc {
     }
     return AIR_STATE.SOSHITSU;
   }
+
+  /**
+   * キャップ適用値を返却
+   * @param {number} power キャップ前火力
+   * @param {number} cap キャップ値
+   * @returns {number} キャップ後火力
+   */
+  public static softCap(power: number, cap: number): number {
+    return power > cap ? cap + Math.sqrt(power - cap) : power;
+  }
+
+  /**
+   * ダメージ分布を返却
+   * @static
+   * @param {{ power: number, rate: number }[]} powers
+   * @param {number} armor
+   * @param {number} ammoRate
+   * @param {number} HP
+   * @param {boolean} [isEnemy=false]
+   * @return {*}  {{ damage: number, rate: number }[]}
+   * @memberof CommonCalc
+   */
+  public static getDamageDistribution(powers: { power: number, rate: number }[], armor: number, ammoRate: number, HP: number, isEnemy = false): { damage: number, rate: number }[] {
+    // 各ダメージ値とその確率のdictionary
+    const damageDist: { damage: number, rate: number }[] = [];
+
+    // 0～(装甲 - 1)まで
+    const step = 1 / armor;
+    for (let i = 0; i < armor; i += 1) {
+      const tempArmor = armor * 0.7 + i * 0.6;
+      for (let k = 0; k < powers.length; k += 1) {
+        const p = powers[k];
+        // 最終ダメージ 0以下は0にする
+        const damage = p.power - tempArmor > 0 ? Math.floor((p.power - tempArmor) * ammoRate) : 0;
+        if (damage >= HP && !isEnemy) {
+          // 味方艦隊 撃沈してしまう時ダメージ置換
+          const step2 = 1 / HP;
+          for (let j = 0; j < HP; j += 1) {
+            // 被ダメージ = [現在HP × 0.5 + 整数乱数(0 ～ 現在HP-1) × 0.3](端数切捨て)
+            const damage2 = Math.floor(HP * 0.5 + j * 0.3);
+            const rate = step * p.rate * step2;
+            const data = damageDist.find((v) => v.damage === damage2);
+            if (data) {
+              // あれば加算
+              data.rate += rate;
+            } else {
+              // なければ初期化
+              damageDist.push({ damage: damage2, rate });
+            }
+          }
+        } else {
+          const rate = step * p.rate;
+          const data = damageDist.find((v) => v.damage === damage);
+          if (data) {
+            // あれば加算
+            data.rate += rate;
+          } else {
+            // なければ初期化
+            damageDist.push({ damage, rate });
+          }
+        }
+      }
+    }
+
+    return damageDist;
+  }
 }

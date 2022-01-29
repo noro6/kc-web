@@ -1,4 +1,6 @@
-import Const from '../const';
+import CommonCalc from '../commonCalc';
+import Const, { CAP, SHIP_TYPE } from '../const';
+import { FirePowerCalcArgs } from '../interfaces/firePowerCalcArgs';
 import ItemMaster from './itemMaster';
 
 export interface ItemBuilder {
@@ -374,7 +376,7 @@ export default class Item {
     const itemId = this.data.id;
     const type = this.data.apiTypeId;
     // 艦爆 (爆戦ってついてないやつ)
-    if (type === 7 && !(itemId === 60 || itemId === 154 || itemId === 219)) {
+    if (type === 7 && !Const.BAKUSEN.includes(itemId)) {
       return 0.2 * this.remodel;
     }
     // 水爆
@@ -398,7 +400,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 艦爆(爆戦って付いてるやつ)
-    if (type === 7 && (itemId === 60 || itemId === 154 || itemId === 219)) {
+    if (type === 7 && Const.BAKUSEN.includes(itemId)) {
       return 0.25 * this.remodel;
     }
     // 陸攻
@@ -426,7 +428,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 艦爆 (爆戦ってついてないやつ)
-    if (type === 7 && !(itemId === 60 || itemId === 154 || itemId === 219)) {
+    if (type === 7 && !Const.BAKUSEN.includes(itemId)) {
       return 0.2 * this.remodel;
     }
     return 0;
@@ -708,5 +710,135 @@ export default class Item {
       return [scout / 14, scout / 16, scout / 18];
     }
     return [0, 0, 0];
+  }
+
+  /**
+   * 航空戦火力を返却 -基地航空隊
+   * @param {number} slot 搭載数
+   * @param {FirePowerCalcArgs} args 航空戦火力引数群
+   * @param {number} [defenseShipType=0] 防御側艦種
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  public getAirbaseFirePower(slot: number, args: FirePowerCalcArgs, defenseShipType = 0): number {
+    // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
+    const allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
+
+    // キャップ前火力
+    if (slot <= 0) return 0;
+
+    const type = this.data.apiTypeId;
+    let fire = 0;
+    // ※種別倍率：艦攻・艦爆・水爆 = 1.0、陸攻 = 0.8、噴式機 = 0.7071 (≒1.0/√2) そのた0
+    let adj = 0;
+    // 搭載数補正
+    let adj2 = 1.8;
+    switch (type) {
+      case 8:
+        // 艦攻
+        fire = this.actualTorpedo;
+        adj = 1.0;
+        break;
+      case 7:
+      case 11:
+        // 艦爆 水爆
+        fire = this.actualBomber;
+        adj = 1.0;
+        break;
+      case 57:
+        // 噴式機
+        fire = this.actualBomber;
+        adj = 0.7071;
+        break;
+      case 47:
+        // 陸上攻撃機
+        if (this.data.id === 224 && defenseShipType === SHIP_TYPE.DD) {
+          // 65戦隊 VS 駆逐の場合、雷装値25として計算
+          fire = 25 + this.bonusTorpedo;
+        } else if (this.data.id === 444) {
+          // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
+          fire = this.data.torpedo * 1.15 + this.bonusTorpedo;
+        } else if (this.data.id === 405 && defenseShipType === SHIP_TYPE.DD) {
+          // Do 217 E-5+Hs293 VS 駆逐の場合 雷装1.1倍
+          fire = this.data.torpedo * 1.1 + this.bonusTorpedo;
+        } else if (this.data.id === 406 && (SHIP_TYPE.BB === defenseShipType || SHIP_TYPE.BBV === defenseShipType || SHIP_TYPE.BBB === defenseShipType)) {
+          // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.1倍
+          fire = this.data.torpedo * 1.1 + this.bonusTorpedo;
+        } else {
+          // 陸攻 上記以外
+          fire = this.actualTorpedo;
+        }
+        adj = 0.8;
+        break;
+      case 53:
+        // 大型陸上機
+        fire = this.actualTorpedo;
+        adj = 1.0;
+        adj2 = 1.0;
+        break;
+      default:
+        break;
+    }
+
+    // 雷装ボーナス適用
+    fire *= args.torpedoBonus;
+    // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 25} * キャップ前ボーナス
+    let p = Math.floor(adj * (fire * Math.sqrt(adj2 * slot) + 25) * args.beforCapBonus);
+
+    // キャップ
+    p = CommonCalc.softCap(p, CAP.AS);
+
+    if (args.isCritical) {
+      // クリティカル時
+      p = Math.floor(p * 1.5 * args.criticalBonus);
+    }
+
+    // 陸攻補正
+    const airBaseBonus = type === 47 ? 1.8 : 1;
+
+    return p * airBaseBonus * allAfterCapBonus;
+  }
+
+  /**
+   * 航空戦対潜火力を返却 -基地航空隊
+   * @param {number} slot
+   * @param {FirePowerCalcArgs} args
+   * @param {number=1} slot
+   * @returns {{ power: number, rate: number }[]}
+   * @memberof Item
+   */
+  public getAirbaseASWPowerDist(slot: number, args: FirePowerCalcArgs, rate = 1): { power: number, rate: number }[] {
+    if (this.data.asw < 7) return [{ power: 0, rate: 1 }];
+
+    const powers: { power: number, rate: number }[] = [];
+
+    // キャップ後補正まとめ (触接補正 * キャップ後特殊補正)
+    const allAfterCapBonus = args.contactBonus * args.afterCapBonus;
+
+    // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 25} × {A + (0 ~ Bの乱数)}
+    const base = slot > 0 ? this.data.asw * Math.sqrt(1.8 * slot) + 25 : 0;
+    // A 対潜10以上で0.7 それ以外0.35
+    const a = this.data.asw >= 10 ? 0.7 : 0.35;
+    // B 対潜10以上で0.3、それ以外0.45
+    const bMax = this.data.asw >= 10 ? 0.3 : 0.45;
+    // 1事象あたりの確率
+    const rateStep = 1 / (bMax * 100 + 1);
+    // 0.01刻みの乱数と仮定する
+    for (let b = 0; b <= bMax * 100; b += 1) {
+      // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 25} × {A + (0 ~ Bの乱数)}（再掲）
+      let basePower = Math.floor(CommonCalc.softCap(base * (a + (b / 100)), CAP.AS));
+      // クリティカル補正
+      if (args.isCritical) basePower = Math.floor(basePower * 1.5 * args.criticalBonus);
+      // 陸攻補正 * 触接補正付与
+      let power = basePower * (this.data.apiTypeId === 47 ? 1.8 : 1) * allAfterCapBonus;
+      // 水上偵察機攻撃力 0 補正
+      if (Const.RECONNAISSANCES.includes(this.data.apiTypeId)) power = 1;
+      // 火力とその確率を格納
+      const p = powers.find((v) => v.power === power);
+      if (p) p.rate += (rateStep * rate);
+      else powers.push({ power, rate: rateStep * rate });
+    }
+
+    return powers;
   }
 }

@@ -70,7 +70,7 @@
             @click="clickedShip(data)"
           >
             <div>
-              <v-img :src="`./img/ship/${data.ship.albumId}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">

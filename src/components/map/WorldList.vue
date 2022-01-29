@@ -95,7 +95,7 @@
               <div class="mx-1" v-if="fleet.isUnion">
                 <div v-for="(enemy, j) in fleet.escortEnemies" :key="j" class="d-flex enemy-info">
                   <div class="align-self-center mr-1">
-                    <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -112,7 +112,7 @@
               <div class="mx-1">
                 <div v-for="(enemy, j) in fleet.mainEnemies" :key="j" class="d-flex enemy-info">
                   <div class="align-self-center mr-1">
-                    <v-img :src="`./img/enemy/${enemy.data.id - 1500}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">

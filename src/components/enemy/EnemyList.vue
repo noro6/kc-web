@@ -27,7 +27,7 @@
         <div class="enemy-table-body">
           <div v-ripple="{ class: 'info--text' }" v-for="(enemy, i) in enemies" :key="i" class="enemy-list" @click="clickedEnemy(enemy)">
             <div>
-              <v-img :src="`./img/enemy/${enemy.id - 1500}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="flex-grow-1">
               <div class="enemy-id primary--text">id:{{ enemy.id }}</div>

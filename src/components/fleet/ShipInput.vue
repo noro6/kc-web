@@ -17,7 +17,7 @@
     <template v-else>
       <div class="d-flex ship-header px-2">
         <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
-          <v-img :src="`./img/ship/${ship.data.albumId}.png`" height="32" width="128"></v-img>
+          <v-img :src="`./img/ship/${ship.data.id}.png`" height="32" width="128"></v-img>
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">

@@ -92,6 +92,14 @@ export const DIFFICULTY_LEVEL = {
 } as const;
 type DIFFICULTY_LEVEL = typeof DIFFICULTY_LEVEL[keyof typeof DIFFICULTY_LEVEL];
 
+/** 火力キャップ */
+export const CAP = {
+  AS: 170,
+  BATTLE: 170,
+  NIGHT: 350,
+} as const;
+type CAP = typeof CAP[keyof typeof CAP];
+
 export default class Const {
   /**
  * 基地航空隊札一覧
@@ -135,6 +143,8 @@ export default class Const {
   public static readonly AB_ATTACKERS = [47, 53];
 
   public static readonly ROCKET = [350, 351, 352];
+
+  public static readonly BAKUSEN = [60, 154, 219, 447];
 
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機' },

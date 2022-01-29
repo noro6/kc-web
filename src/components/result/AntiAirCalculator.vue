@@ -76,7 +76,7 @@
     >
       <div class="d-flex flex-grow-1">
         <div class="align-self-center mr-2">
-          <v-img v-if="item.isEnemy" :src="`./img/enemy/${item.id - 1500}.png`" height="30" width="120"></v-img>
+          <v-img v-if="item.isEnemy" :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
           <v-img v-else :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
         </div>
         <div class="align-self-center d-none d-sm-block flex-grow-1">
@@ -296,7 +296,7 @@ export default Vue.extend({
         const min = d.minimumDownList[i];
         const isEnemy = ship instanceof Enemy;
         this.stage2Data.push({
-          id: ship instanceof Enemy ? ship.data.id : ship.data.albumId,
+          id: ship.data.id,
           name: ship.data.name,
           rate: `${(100 * rate).toFixed(2)}%`,
           rateDown,

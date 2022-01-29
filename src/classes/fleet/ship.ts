@@ -45,6 +45,9 @@ export default class Ship implements ShipBase {
   /** 計算で適用する対空 */
   public readonly antiAir: number;
 
+  /** 計算で適用する装甲 */
+  public readonly actualArmor: number;
+
   /** 索敵値 */
   public readonly scout: number;
 
@@ -150,6 +153,7 @@ export default class Ship implements ShipBase {
     this.specialKokakuCount = 0;
     this.kokakuCount = 0;
     this.kijuCount = 0;
+    this.actualArmor = this.data.armor;
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
@@ -175,6 +179,8 @@ export default class Ship implements ShipBase {
       this.itemsScout += item.itemScout;
       // 輸送量
       this.tp += item.tp;
+      // 装甲値
+      this.actualArmor += item.data.armor;
 
       if (item.fullSlot > 0 && item.isPlane && !item.isRecon) {
         // 通常制空値

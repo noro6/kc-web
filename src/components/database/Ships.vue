@@ -253,7 +253,7 @@
           @click.stop="showEditDialog(rowData)"
         >
           <div class="edit-stock-img">
-            <v-img :src="`./img/ship/${rowData.ship.albumId}.png`" height="50" width="200"></v-img>
+            <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
             <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
               <v-img :src="`./img/util/area${rowData.stockData.area}.png`" height="60" width="42"></v-img>
             </div>
@@ -296,7 +296,7 @@
                     <div class="caption align-self-end">在籍: {{ row.count }}</div>
                   </div>
                   <div class="status-img" :class="{ no_ship: row.count === 0 }">
-                    <img class="status-img" :src="`./img/ship/${row.master.albumId}.png`" />
+                    <img class="status-img" :src="`./img/ship/${row.master.id}.png`" />
                   </div>
                   <div
                     v-for="(data, j) in row.detail"
@@ -360,7 +360,7 @@
         <div class="mx-2 mt-2">
           <div class="d-flex">
             <div class="align-self-center edit-stock-img">
-              <v-img :src="`./img/ship/${versionButtons[version].albumId}.png`" height="50" width="200"></v-img>
+              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200"></v-img>
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
                 <v-img :src="`./img/util/area${editRow.stockData.area}.png`" height="68" width="47"></v-img>
               </div>
