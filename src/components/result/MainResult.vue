@@ -16,7 +16,7 @@
         </thead>
         <tbody>
           <template v-for="(ship, i) in tableData">
-            <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`">
+            <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`" @click="clickedShipRow(ship.index)">
               <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.name }}</td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
@@ -149,13 +149,14 @@
             <th>初期搭載</th>
             <th>残数平均</th>
             <th>全滅率</th>
-            <th class="pr-1">棒立ち率</th>
+            <th>棒立ち率</th>
+            <th class="pr-1">詳細</th>
           </tr>
         </thead>
         <tbody>
-          <template v-for="(enemy, i) in enemyTableData">
-            <tr v-for="(item, j) in enemy.items" :key="`${i}-${j}`">
-              <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="enemy.items.length">{{ enemy.enemy.name }}</td>
+          <template v-for="(row, i) in enemyTableData">
+            <tr v-for="(item, j) in row.items" :key="`${i}-${j}`">
+              <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">{{ row.enemy.data.name }}</td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="22" width="22"></v-img>
@@ -165,8 +166,13 @@
               <td>{{ item.fullSlot }}</td>
               <td>{{ item.slotResult }}</td>
               <td>{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
-              <td class="pr-1" v-if="j === 0" :rowspan="enemy.items.length">
-                {{ enemy.allDeathRate > 0 ? `${enemy.allDeathRate} %` : "-" }}
+              <td class="pr-1" v-if="j === 0" :rowspan="row.items.length">
+                {{ row.allDeathRate > 0 ? `${row.allDeathRate} %` : "-" }}
+              </td>
+              <td v-if="j === 0" :rowspan="row.items.length">
+                <v-btn color="info" icon small @click="viewDetail(row.enemy, row.index)">
+                  <v-icon>mdi-information-outline</v-icon>
+                </v-btn>
               </td>
             </tr>
           </template>
@@ -174,6 +180,15 @@
       </table>
       <v-divider></v-divider>
     </v-card>
+    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
+      <plane-detail-result
+        v-if="!destroyDialog && detailParent"
+        :parent="detailParent"
+        :index="detailIndex"
+        :fleetIndex="detailFleetIndex"
+        :handle-close="closeDetail"
+      />
+    </v-dialog>
   </v-card>
 </template>
 
@@ -293,18 +308,24 @@ table tr:hover {
 <script lang="ts">
 import Vue from 'vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
+import PlaneDetailResult from '@/components/result/PlaneDetailResult.vue';
 import CalcManager from '@/classes/calcManager';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Fleet from '@/classes/fleet/fleet';
 import AirCalcResult from '@/classes/airCalcResult';
 import Item from '@/classes/item/item';
 import { AB_MODE } from '@/classes/const';
-import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CommonCalc from '@/classes/commonCalc';
+import Airbase from '@/classes/airbase/airbase';
+import Enemy from '@/classes/enemy/enemy';
+import Ship from '@/classes/fleet/ship';
 
 export default Vue.extend({
   name: 'MainResult',
-  components: { AirStatusResultBar },
+  components: {
+    AirStatusResultBar,
+    PlaneDetailResult,
+  },
   props: {
     value: {
       type: CalcManager,
@@ -318,6 +339,11 @@ export default Vue.extend({
   data: () => ({
     tab: 'battle0',
     displayBattle: 0,
+    destroyDialog: false,
+    detailDialog: false,
+    detailParent: undefined as Ship | Enemy | Airbase | undefined,
+    detailIndex: 0,
+    detailFleetIndex: 0,
   }),
   computed: {
     airbaseWaveResults(): { text: string; result: AirCalcResult }[] {
@@ -342,7 +368,7 @@ export default Vue.extend({
     fleet(): Fleet {
       return this.value.fleetInfo.mainFleet;
     },
-    tableData(): { name: string; items: Item[] }[] {
+    tableData(): { name: string; items: Item[], index: number }[] {
       const fleet = this.value.fleetInfo.mainFleet;
       const ships = [];
 
@@ -350,12 +376,12 @@ export default Vue.extend({
       for (let i = 0; i < activeShips.length; i += 1) {
         const planes = activeShips[i].items.filter((v) => v.isPlane);
         if (planes.length) {
-          ships.push({ name: activeShips[i].data.name, items: planes });
+          ships.push({ name: activeShips[i].data.name, items: planes, index: i });
         }
       }
       return ships;
     },
-    enemyTableData(): { enemy: EnemyMaster; items: Item[]; allDeathRate: number }[] {
+    enemyTableData(): { enemy: Enemy; items: Item[]; allDeathRate: number; index: number }[] {
       const fleet = this.value.battleInfo.fleets[this.value.mainBattle];
       const enemies = [];
 
@@ -371,7 +397,12 @@ export default Vue.extend({
               plane.deathRate = Math.round(plane.deathRate);
             }
           }
-          enemies.push({ enemy: enemy.data, items: planes, allDeathRate: Math.floor(100 * allDeathRate) });
+          enemies.push({
+            enemy,
+            items: planes,
+            allDeathRate: Math.floor(100 * allDeathRate),
+            index: i,
+          });
         }
       }
       return enemies;
@@ -402,6 +433,40 @@ export default Vue.extend({
       }
 
       this.handleChangeMainBattle(this.displayBattle);
+    },
+    clickedShipRow(index: number) {
+      const fleet = this.value.fleetInfo.mainFleet;
+      const activeShips = fleet.ships.filter((v) => v.isActive && !v.isEmpty);
+      const ship = activeShips[index];
+
+      const shipIndex = fleet.ships.findIndex((v) => v === ship);
+      if (shipIndex >= 0) {
+        this.detailFleetIndex = this.value.fleetInfo.mainFleetIndex;
+        this.viewDetail(ship, shipIndex);
+      }
+    },
+    viewDetail(parent: Enemy | Ship | Airbase, index: number): void {
+      this.detailParent = parent;
+      this.detailIndex = index;
+      if (parent instanceof Enemy) {
+        this.detailFleetIndex = this.displayBattle;
+      }
+      this.destroyDialog = false;
+      this.detailDialog = true;
+    },
+    closeDetail() {
+      this.detailParent = undefined;
+      this.detailDialog = false;
+    },
+    toggleDetailDialog() {
+      if (!this.detailDialog) {
+        setTimeout(() => {
+          this.detailParent = undefined;
+          this.destroyDialog = true;
+        }, 100);
+      } else {
+        this.destroyDialog = false;
+      }
     },
   },
 });

@@ -1,4 +1,4 @@
-import { AIR_STATE } from './const';
+import Const, { AIR_STATE } from './const';
 
 export default class CommonCalc {
   /**
@@ -78,6 +78,22 @@ export default class CommonCalc {
   }
 
   /**
+   * 熟練度変換 0～120数値を 0～7に
+   * @static
+   * @param {number} level
+   * @returns {number}
+   * @memberof Convert
+   */
+  public static getProfLevel(level: number): number {
+    for (let i = Const.PROF_LEVEL_BORDER.length - 2; i >= 0; i -= 1) {
+      if (level >= Const.PROF_LEVEL_BORDER[i]) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  /**
    * キャップ適用値を返却
    * @param {number} power キャップ前火力
    * @param {number} cap キャップ値
@@ -101,7 +117,6 @@ export default class CommonCalc {
   public static getDamageDistribution(powers: { power: number, rate: number }[], armor: number, ammoRate: number, HP: number, isEnemy = false): { damage: number, rate: number }[] {
     // 各ダメージ値とその確率のdictionary
     const damageDist: { damage: number, rate: number }[] = [];
-
     // 0～(装甲 - 1)まで
     const step = 1 / armor;
     for (let i = 0; i < armor; i += 1) {

@@ -10,6 +10,7 @@ import Ship from './fleet/ship';
 import ShipMaster from './fleet/shipMaster';
 import ItemStock from './item/itemStock';
 import ShipStock from './fleet/shipStock';
+import CommonCalc from './commonCalc';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -373,7 +374,7 @@ export default class Convert {
       const ship = ships[i];
       const items = Convert.getDeckBuilderItems(ship.items);
       if (ship.exItem.data.id) {
-        const level = Convert.getProfLevel(ship.exItem.level);
+        const level = CommonCalc.getProfLevel(ship.exItem.level);
         items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
       }
 
@@ -398,28 +399,10 @@ export default class Convert {
       if (!item.data.id) {
         continue;
       }
-      deckItem[`i${j + 1}`] = { id: item.data.id, mas: Convert.getProfLevel(item.level), rf: item.remodel };
+      deckItem[`i${j + 1}`] = { id: item.data.id, mas: CommonCalc.getProfLevel(item.level), rf: item.remodel };
     }
 
     return deckItem;
-  }
-
-  /**
-   * デッキビルダー用熟練度変換
-   * @private
-   * @static
-   * @param {number} level
-   * @returns {number}
-   * @memberof Convert
-   */
-  private static getProfLevel(level: number): number {
-    for (let i = Const.PROF_LEVEL_BORDER.length - 2; i >= 0; i -= 1) {
-      if (level >= Const.PROF_LEVEL_BORDER[i]) {
-        return i;
-      }
-    }
-
-    return 0;
   }
 
   /**

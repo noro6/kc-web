@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="dialog-container">
     <div class="d-flex pt-2 pb-1 pr-2">
       <div class="align-self-center ml-3">詳細計算</div>
       <v-spacer></v-spacer>
@@ -8,50 +8,90 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex pa-2">
-      <div>
-        <v-card class="ma-4 pa-2">
-          <template v-for="(item, i) in parent.items">
-            <div
-              v-if="item.isPlane"
-              :key="`item_${i}`"
-              v-ripple="{ class: 'info--text' }"
-              class="calc-item"
-              :class="{ selected: selectedIndex === i }"
-              @click="selectItem(i)"
-            >
-              <div class="align-self-center body-2">{{ item.fullSlot }}</div>
-              <div>
-                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+    <div class="display-toggle mt-2 mx-2">
+      <v-btn-toggle dense v-model="dispSlotRate" borderless mandatory>
+        <v-btn :value="true" :class="{ 'blue darken-2 white--text': dispSlotRate }" @click.stop="dispSlotRate = true">
+          <v-icon>mdi-chart-line</v-icon>
+          <span>残機数詳細</span>
+        </v-btn>
+        <v-btn :value="false" :class="{ 'red darken-2 white--text': !dispSlotRate }" @click.stop="dispSlotRate = false">
+          <v-icon>mdi-fire</v-icon>
+          <span>火力計算</span>
+        </v-btn>
+      </v-btn-toggle>
+    </div>
+    <div class="detail-container pb-2">
+      <div class="slot-rate-container mt-2" :class="{ show: dispSlotRate }">
+        <div class="border-window pa-2">
+          <div class="header-content">
+            <div v-if="parent.data" class="d-flex px-2">
+              <div class="align-self-center">
+                <v-img :src="`./img/ship/${parent.data.id}.png`" height="30" width="120"></v-img>
               </div>
-              <div class="item-name text-truncate">{{ item.data.name }}</div>
-              <div v-show="item.remodel" class="item-remodel">
-                <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4 body-2">{{ item.remodel }}</span>
+              <div class="px-2 align-self-center">
+                <div v-if="parent.data.id > 1500" class="parent-id">id: {{ parent.data.id }}</div>
+                <div class="align-self-center caption">{{ parent.data.name }}</div>
               </div>
             </div>
-            <div v-else :key="`item_${i}`" class="calc-item no-item">
-              <div class="mx-auto">-</div>
-            </div>
-          </template>
-        </v-card>
-        <div class="ma-2">
+            <div v-else class="px-2 body-2">第{{ index + 1 }}基地航空隊</div>
+          </div>
+          <div class="mt-2" :class="{ 'pt-2': parent.data }">
+            <template v-for="(item, i) in parent.items">
+              <div
+                :key="`item_${i}`"
+                v-ripple="{ class: 'info--text' }"
+                class="calc-item"
+                :class="{ selected: selectedIndex === i, 'no-item': !item.isPlane }"
+                @click="selectItem(item.isPlane ? i : -1)"
+              >
+                <div class="align-self-center caption slot-area">{{ item.fullSlot }}</div>
+                <div>
+                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+                </div>
+                <div class="item-name text-truncate">{{ item.data.name }}</div>
+                <div v-if="item.remodel" class="item-remodel">
+                  <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4 body-2">{{ item.remodel }}</span>
+                </div>
+                <div v-if="item.level" class="item-level">
+                  <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
+                  <span class="level-value">{{ item.level }}</span>
+                </div>
+                <div v-if="item.isPlane" class="item-simple-status d-flex ml-3">
+                  <div>(</div>
+                  <template v-if="item.isAttacker">
+                    <div class="mx-1" v-if="item.actualTorpedo">雷装 {{ item.actualTorpedo }}</div>
+                    <div class="mx-1" v-if="item.actualBomber">爆装 {{ item.actualBomber }}</div>
+                  </template>
+                  <template v-else-if="item.isPlane">
+                    <div class="mx-1" v-if="item.actualAntiAir">対空 {{ item.actualAntiAir }}</div>
+                  </template>
+                  <div class="mx-1" v-if="item.data.radius">半径 {{ item.data.radius }}</div>
+                  <div>)</div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div>
           <bar-chart :data="graphData" :options="options" title-text="残機数分布" />
         </div>
       </div>
-      <div class="ma-4 pa-2 flex-grow-1 fire-calc-container">
+      <div class="fire-calc-container border-window mt-4" :class="{ show: !dispSlotRate }">
         <div class="header-content">
-          <div class="pl-3">簡易火力計算機</div>
-          <div class="pl-5">
-            <v-img :src="`./img/type/icon${selectedItem.data.iconTypeId}.png`" height="24" width="24"></v-img>
-          </div>
-          <div class="px-2 item-name">{{ selectedItem.data.name }}</div>
-          <div v-show="selectedItem.remodel" class="px-2">
-            <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
-            <span class="teal--text text--accent-4 body-2">{{ selectedItem.remodel }}</span>
+          <div class="align-self-center pl-2 body-2">簡易火力計算機</div>
+          <div class="target-item" @mouseenter="bootTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
+            <div class="pl-5">
+              <v-img :src="`./img/type/icon${selectedItem.data.iconTypeId}.png`" height="24" width="24"></v-img>
+            </div>
+            <div class="pr-2 item-name">{{ selectedItem.data.name }}</div>
+            <div v-show="selectedItem.remodel" class="px-2">
+              <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4 body-2">{{ selectedItem.remodel }}</span>
+            </div>
           </div>
         </div>
-        <div class="d-flex flex-wrap">
+        <div class="d-flex flex-wrap mt-2">
           <div class="form-control mx-1 my-2">
             <v-text-field
               type="number"
@@ -76,43 +116,61 @@
               @change="calculateFire"
             ></v-select>
           </div>
-          <div class="form-control mx-1 my-2">
-            <v-text-field
-              type="number"
-              v-model.number="attackerSlot"
-              min="0"
-              max="999"
-              label="攻撃機搭載数"
-              hide-details
-              outlined
-              dense
-              @input="calculateFire"
-              :disabled="useResult"
-            ></v-text-field>
-          </div>
-          <div class="align-self-center mx-1 my-2">
-            <v-checkbox label="残機数分布の結果を利用" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
+          <div class="align-self-center d-flex">
+            <div class="form-control mx-1 my-2">
+              <v-text-field
+                type="number"
+                v-model.number="attackerSlot"
+                min="0"
+                max="999"
+                label="搭載数"
+                hide-details
+                outlined
+                dense
+                @input="calculateFire"
+                :disabled="useResult"
+              ></v-text-field>
+            </div>
+            <div class="align-self-center mx-1 mb-2 d-flex">
+              <v-checkbox label="残機数分布を利用" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                </template>
+                <div class="caption">
+                  <div>対空砲火により撃墜される機数の確率分布を利用して計算します。</div>
+                  <div>搭載数を固定してダメージを確認したい場合はチェックを外してください</div>
+                </div>
+              </v-tooltip>
+            </div>
           </div>
         </div>
         <div class="d-flex flex-wrap">
-          <div class="form-control mx-1 my-2">
+          <div class="form-control mx-1 my-2" v-show="!isAirbase">
             <v-select label="弾薬補正" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
           </div>
           <div class="form-control mx-1 my-2">
-            <v-text-field
-              type="number"
-              v-model.number="calcArgs.afterCapBonus"
-              min="0"
-              max="9999"
-              label="特効"
-              hide-details
-              outlined
-              dense
-              step="0.1"
-              @input="calculateFire"
-            ></v-text-field>
+            <v-tooltip bottom color="black">
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  type="number"
+                  v-model.number="calcArgs.afterCapBonus"
+                  v-bind="attrs"
+                  v-on="on"
+                  min="0"
+                  max="9999"
+                  label="特効"
+                  hide-details
+                  outlined
+                  dense
+                  step="0.1"
+                  @input="calculateFire"
+                ></v-text-field>
+              </template>
+              <div class="caption"><b>キャップ後火力</b>に適用される倍率です</div>
+            </v-tooltip>
           </div>
-          <div class="form-control lg mx-1 my-2">
+          <div class="form-control lg mx-1 my-2" v-show="isAirbase">
             <v-select
               label="陸上偵察機"
               v-model="calcArgs.rikuteiBonus"
@@ -123,11 +181,34 @@
               @change="calculateFire"
             ></v-select>
           </div>
-          <div class="align-self-center mx-1 my-2">
+          <div class="align-self-center mx-1 mb-2 d-flex">
             <v-checkbox label="クリティカル" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
+            <v-tooltip bottom color="black">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+              </template>
+              <div class="caption">
+                <div>クリティカル発生時のダメージを表示します。</div>
+                <div>
+                  クリティカル補正(
+                  <span class="yellow--text">&times;1.50</span>
+                  ) &times; 熟練度クリティカル補正(
+                  <span class="yellow--text">&times;{{ calcArgs.criticalBonus.toFixed(2) }}</span>
+                  )
+                </div>
+              </div>
+            </v-tooltip>
           </div>
-          <div class="align-self-center mx-1 my-2">
-            <v-checkbox label="敵連合" dense hide-details v-model="isUnion" @change="calculateFire"></v-checkbox>
+          <div class="align-self-center mx-1 mb-2 d-flex">
+            <v-checkbox label="連合" dense hide-details v-model="calcArgs.isUnion" @change="calculateFire"></v-checkbox>
+            <v-tooltip bottom color="black">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+              </template>
+              <div class="caption">
+                <div>防御側が連合艦隊であるかどうかを設定します。</div>
+              </div>
+            </v-tooltip>
           </div>
         </div>
         <v-divider></v-divider>
@@ -136,7 +217,7 @@
           <v-spacer></v-spacer>
           <div class="align-self-end caption mr-3">防御艦隊:</div>
           <div>
-            <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="calculateFire"></v-select>
+            <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex"></v-select>
           </div>
         </div>
         <div class="d-flex damage-header">
@@ -164,36 +245,89 @@
           <div class="damage-td">{{ row.ship.data.hp }}</div>
           <div class="damage-td">{{ row.ship.actualArmor }}</div>
           <div class="damage-td grow">{{ row.damage }}</div>
-          <template v-if="row.death < 100">
-            <div class="damage-td">{{ row.death ? row.death + "%" : "-" }}</div>
-            <div class="damage-td">{{ row.taiha ? row.taiha + "%" : "-" }}</div>
-            <div class="damage-td">{{ row.chuha ? row.chuha + "%" : "-" }}</div>
+          <div v-if="row.isASW" class="damage-td colspan-3 caption">対潜攻撃不可</div>
+          <template v-else-if="row.death < 100">
+            <div class="damage-td">{{ row.damage ? row.death + "%" : "" }}</div>
+            <div class="damage-td">{{ row.damage ? row.taiha + "%" : "" }}</div>
+            <div class="damage-td">{{ row.damage ? row.chuha + "%" : "" }}</div>
           </template>
-          <div v-else class="damage-td colspan-3">確殺</div>
+          <div v-else class="damage-td colspan-3 red--text">確殺</div>
         </div>
       </div>
     </div>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
   </v-card>
 </template>
 
 <style scoped>
+.dialog-container {
+  min-height: 80vh;
+}
+
+.slot-rate-container,
+.fire-calc-container {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.5rem;
+  display: none;
+}
+.slot-rate-container.show,
+.fire-calc-container.show {
+  display: block;
+}
+@media (min-width: 1000px) {
+  .display-toggle {
+    display: none;
+  }
+  .detail-container {
+    display: grid;
+    grid-template-columns: 0.9fr 1fr;
+  }
+  .slot-rate-container,
+  .fire-calc-container {
+    display: block;
+  }
+}
+.parent-id {
+  color: rgb(0, 174, 255);
+  font-size: 11px;
+  height: 11px;
+}
+
 .calc-item {
   cursor: pointer;
   display: flex;
-  border-radius: 0.15rem;
   padding: 0.25rem 0.5rem;
-  width: 400px;
   transition: 0.2s;
+  border: 1px solid transparent;
 }
 .no-item {
   cursor: default;
 }
 .calc-item:not(.no-item):hover {
   box-shadow: inset 0 0 20px rgba(60, 192, 255, 0.2);
+  border-color: rgba(60, 192, 255, 0.6);
 }
 .calc-item.selected,
 .calc-item.selected:hover {
-  box-shadow: inset 0 0 20px rgba(60, 192, 255, 0.6);
+  box-shadow: inset 0 0 20px rgba(60, 192, 255, 0.4);
+  border-color: rgba(60, 192, 255, 0.6);
+}
+
+.slot-area {
+  text-align: right;
+  width: 24px;
+  margin-right: 0.5rem;
 }
 
 .item-name {
@@ -205,21 +339,60 @@
 .item-remodel {
   width: 50px;
 }
+.item-level {
+  position: relative;
+}
+.level-value {
+  display: inline-block;
+  position: absolute;
+  font-size: 0.7em;
+  text-align: right;
+  font-weight: 600;
+  bottom: -4px;
+  width: 30px;
+  right: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: 0.3s;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
+    0px 1px 1px #fff, 0px -1px 1px #fff;
+}
+.theme--dark .level-value {
+  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000,
+    0px 1px 1px #000, 0px -1px 1px #000;
+}
+.calc-item.selected .level-value,
+.calc-item:hover .level-value {
+  opacity: 1;
+}
+.item-simple-status {
+  font-size: 0.7em;
+  width: 140px;
+}
+.item-simple-status > div {
+  align-self: center;
+}
 
-.fire-calc-container {
+.border-window {
   border: 1px solid rgba(128, 128, 128, 0.4);
   border-radius: 0.2rem;
-}
-.fire-calc-container .header-content {
-  display: flex;
   position: relative;
-  top: -20px;
 }
-.fire-calc-container .header-content > div {
+.border-window .header-content {
+  display: flex;
+  position: absolute;
+  top: -10px;
+}
+.border-window .header-content > div {
   background-color: #fff;
 }
-.theme--dark .fire-calc-container .header-content > div {
+.theme--dark .border-window .header-content > div {
   background-color: rgb(25, 25, 28);
+}
+.target-item {
+  display: flex;
+  align-self: center;
+  cursor: help;
 }
 
 .fire-calc-container .item-name {
@@ -227,7 +400,7 @@
   width: unset;
 }
 .form-control {
-  width: 120px;
+  width: 100px;
   margin-top: 0.5rem;
   margin-right: 0.25rem;
   align-self: center;
@@ -248,7 +421,6 @@
 }
 .damage-tr {
   display: flex;
-  padding: 0.15rem 0;
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 .damage-td {
@@ -267,7 +439,6 @@
 .damage-td.colspan-3 {
   text-align: center;
   width: 36%;
-  color: #f22;
 }
 
 .damage-tr:hover {
@@ -296,6 +467,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import * as _ from 'lodash';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import BarChart, { BarGraphData, LabelCallbackArg } from '@/components/graph/Bar.vue';
 import CalcManager from '@/classes/calcManager';
 import SaveData from '@/classes/saveData/saveData';
@@ -306,15 +478,25 @@ import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
-import { FirePowerCalcArgs } from '@/classes/interfaces/firePowerCalcArgs';
+import Calculator, { FirePowerCalcArgs, PowerDist, SlotDist } from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
 import { SHIP_TYPE } from '@/classes/const';
+import FleetInfo from '@/classes/fleet/fleetInfo';
 
 const labelCallback = (c: LabelCallbackArg) => `${c.formattedValue} %`;
 
+interface DamageRowData {
+  ship: Ship | Enemy;
+  damage: string;
+  death: number;
+  taiha: number;
+  chuha: number;
+  isASW: boolean;
+}
+
 export default Vue.extend({
   name: 'PlaneDetailResult',
-  components: { BarChart },
+  components: { BarChart, ItemTooltip },
   props: {
     parent: {
       type: [Ship, Airbase, Enemy],
@@ -334,6 +516,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
+    dispSlotRate: true,
     calcManager: undefined as undefined | CalcManager,
     selectedIndex: -1,
     selectedItem: new Item(),
@@ -396,6 +579,7 @@ export default Vue.extend({
     useResult: true,
     calcArgs: {
       isCritical: false,
+      isUnion: false,
       criticalBonus: 1,
       contactBonus: 1,
       unionBonus: 1,
@@ -429,9 +613,14 @@ export default Vue.extend({
       { text: '二式陸偵', value: 1.125 },
       { text: '二式陸偵(熟練)', value: 1.15 },
     ],
-    isUnion: false,
+    isAirbase: false,
     defenseIndex: 0,
-    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[] }[],
+    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean }[],
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     const saveData = this.$store.state.mainSaveData as SaveData;
@@ -446,46 +635,88 @@ export default Vue.extend({
       // 防御側セレクトに味方艦隊をセット
       this.defenseFleets = [];
       const { fleets } = this.calcManager.fleetInfo;
+      if (this.calcManager.fleetInfo.unionFleet && this.calcManager.fleetInfo.unionFleet.ships.length) {
+        const enabledShips = this.calcManager.fleetInfo.unionFleet.ships.filter((v) => !v.isEmpty);
+        this.defenseFleets.push({
+          text: '連合艦隊',
+          value: 0,
+          ships: enabledShips,
+          isUnion: true,
+        });
+      }
       for (let i = 0; i < fleets.length - 1; i += 1) {
         const enabledShips = fleets[i].ships.filter((v) => !v.isEmpty);
-        this.defenseFleets.push({ text: `第${i + 1}艦隊`, value: i, ships: enabledShips });
+        this.defenseFleets.push({
+          text: `第${i + 1}艦隊`,
+          value: this.defenseFleets.length,
+          ships: enabledShips,
+          isUnion: false,
+        });
       }
     } else {
       const { fleets } = this.calcManager.battleInfo;
       // 防御側セレクトに敵艦隊をセット
       for (let i = 0; i < fleets.length; i += 1) {
         const enabledShips = fleets[i].enemies.filter((v) => v.data.id);
-        this.defenseFleets.push({ text: `${i + 1}戦目`, value: i, ships: enabledShips });
+        this.defenseFleets.push({
+          text: `${i + 1}戦目`,
+          value: i,
+          ships: enabledShips,
+          isUnion: fleets[i].isUnion,
+        });
       }
 
       if (this.parent instanceof Airbase) {
-        const target = this.parent.battleTarget[1];
+        this.isAirbase = true;
+        const target = Math.min(this.parent.battleTarget[1], this.calcManager.battleInfo.fleets.length - 1);
         this.defenseIndex = target;
+        // 陸上偵察機初期値設定
+        if (this.parent.items.some((v) => v.data.id === 312)) {
+          this.calcArgs.rikuteiBonus = 1.15;
+        } else if (this.parent.items.some((v) => v.data.id === 311)) {
+          this.calcArgs.rikuteiBonus = 1.125;
+        }
+      } else {
+        // 通常艦隊 最終戦闘をセット
+        this.defenseIndex = this.calcManager.battleInfo.fleets.length - 1;
+        // 表示艦隊を調整
+        this.calcManager.fleetInfo = new FleetInfo({ info: this.calcManager.fleetInfo, mainFleetIndex: this.fleetIndex });
+        // 熟練度クリティカルボーナス算出
+        this.calcArgs.criticalBonus = this.parent.getProfCriticalBonus();
       }
     }
+
+    const fleet = this.defenseFleets[this.defenseIndex];
+    this.calcArgs.isUnion = fleet.isUnion;
 
     // ないとバグる 意味不明！！！！！！！！！！！！！！！
     setTimeout(() => {
       // 最初の攻撃機
       const attackerIndex = this.parent.items.findIndex((v) => v.isAttacker);
-      this.selectItem(Math.max(0, attackerIndex));
+      if (attackerIndex >= 0) {
+        this.selectItem(attackerIndex);
+      } else {
+        // なければ艦載機
+        const index = this.parent.items.findIndex((v) => v.isPlane);
+        this.selectItem(Math.max(0, index));
+      }
     }, 50);
   },
   computed: {
-    defenseShipRows(): { ship: Ship | Enemy; damage: string; death: number; taiha: number; chuha: number }[] {
+    defenseShipRows(): DamageRowData[] {
       const item = this.defenseFleets[this.defenseIndex];
       if (!item) {
         return [];
       }
-
       const results = [];
       for (let i = 0; i < item.ships.length; i += 1) {
         results.push({
           ship: item.ships[i],
-          damage: '-',
+          damage: '',
           death: 0,
           taiha: 0,
           chuha: 0,
+          isASW: false,
         });
       }
       return results;
@@ -493,7 +724,7 @@ export default Vue.extend({
   },
   methods: {
     selectItem(index: number) {
-      if (this.selectedIndex === index || !this.calcManager) {
+      if (index < 0 || this.selectedIndex === index || !this.calcManager) {
         return;
       }
 
@@ -502,18 +733,25 @@ export default Vue.extend({
 
       // この艦載機情報の詳細計算フラグを立て、計算を行う
       if (this.parent instanceof Ship) {
-        item = this.calcManager.fleetInfo.fleets[this.fleetIndex].ships[this.index].items[index];
+        // 艦隊
+        item = this.calcManager.fleetInfo.mainFleet.ships[this.index].items[index];
         if (item) {
           item.needRecord = true;
         }
       } else if (this.parent instanceof Airbase) {
+        // 基地
         this.calcManager.airbaseInfo.airbases[this.index].needShootDown = true;
         item = this.calcManager.airbaseInfo.airbases[this.index].items[index];
         if (item) {
           item.needRecord = true;
         }
       } else {
-        item = new Item();
+        // 敵
+        this.calcManager.mainBattle = this.fleetIndex;
+        item = this.calcManager.battleInfo.fleets[this.fleetIndex].enemies[this.index].items[index];
+        if (item) {
+          item.needRecord = true;
+        }
       }
 
       // 計算実行
@@ -552,20 +790,42 @@ export default Vue.extend({
 
       this.calculateFire();
     },
+    changeDefenseIndex() {
+      const item = this.defenseFleets[this.defenseIndex];
+      if (!item) {
+        return;
+      }
+      this.calcArgs.isUnion = item.isUnion;
+      this.calculateFire();
+    },
     calculateFire() {
       const tempDist = this.selectedItem.dist;
       // 改修値 搭載数変更を適用して再インスタンス化
       this.selectedItem = new Item({ item: this.selectedItem, slot: this.attackerSlot });
-      const item = this.selectedItem;
+      // 計算結果の分布を引継ぎ
       this.selectedItem.dist = tempDist;
 
-      // 搭載数分布
-      const slotDist = _.groupBy(this.selectedItem.dist);
+      const item = this.selectedItem;
+
+      // 搭載数分布オブジェクト作成
       const sum = this.selectedItem.dist.length;
-      const minSlot = +(this.useResult ? _.min(Object.keys(slotDist)) || 0 : item.slot);
+      const slotDist: SlotDist[] = [];
+      const data = _.groupBy(this.selectedItem.dist);
+
+      if (this.useResult) {
+        // 搭載数分布の結果を利用
+        Object.keys(data).forEach((key) => {
+          slotDist.push({ slot: +key, rate: data[key].length / sum });
+        });
+      } else {
+        // 搭載数キメ打ち
+        slotDist.push({ slot: item.fullSlot, rate: 1 });
+      }
+      const maxSlot = +(this.useResult ? _.max(Object.keys(data)) || 0 : item.fullSlot);
+      const minSlot = +(this.useResult ? _.min(Object.keys(data)) || 0 : item.fullSlot);
 
       // 引数調整
-      this.calcArgs.unionBonus = this.isUnion ? 1.1 : 1;
+      this.calcArgs.unionBonus = this.calcArgs.isUnion ? 1.1 : 1;
 
       const rows = this.defenseShipRows;
       for (let i = 0; i < rows.length; i += 1) {
@@ -578,37 +838,16 @@ export default Vue.extend({
         let enbaleAsw = false;
 
         // 火力分布
-        let powers: { power: number; rate: number }[] = [];
+        let powers: PowerDist[] = [];
         if (this.parent instanceof Airbase) {
           // 基地航空隊火力計算
-          if (isSubmarine) {
-            enbaleAsw = item.data.asw >= 7;
-            // 対潜水
-            if (this.useResult) {
-              Object.keys(slotDist).forEach((key) => {
-                const aswPowers = item.getAirbaseASWPowerDist(+key, this.calcArgs, slotDist[key].length / sum);
-                for (let j = 0; j < aswPowers.length; j += 1) {
-                  const { power, rate } = aswPowers[j];
-                  const data = powers.find((v) => v.power === power);
-                  if (data) {
-                    data.rate += rate;
-                  } else {
-                    powers.push({ power, rate });
-                  }
-                }
-              });
-            } else {
-              powers = item.getAirbaseASWPowerDist(item.slot, this.calcArgs);
-            }
-          } else if (this.useResult) {
-            Object.keys(slotDist).forEach((key) => {
-              const slot = +key;
-              const rate = slotDist[key].length / sum;
-              powers.push({ power: item.getAirbaseFirePower(slot, this.calcArgs, ship.data.type), rate });
-            });
-          } else {
-            powers.push({ power: item.getAirbaseFirePower(item.slot, this.calcArgs, ship.data.type), rate: 1 });
-          }
+          // 熟練度クリティカルボーナス算出
+          this.calcArgs.criticalBonus = item.getProfCriticalBonus();
+          powers = Calculator.getAirbaseFirePowers(item, slotDist, ship, this.calcArgs);
+          enbaleAsw = item.data.asw >= 7;
+        } else if (this.parent instanceof Ship || this.parent instanceof Enemy) {
+          // 通常航空戦火力計算
+          powers = Calculator.getAerialFirePowers(item, slotDist, ship, this.calcArgs);
         }
 
         const isEnemy = ship instanceof Enemy;
@@ -639,23 +878,28 @@ export default Vue.extend({
           obj.rate = rate;
         }
 
-        // ダメージ幅表示調整
+        // ダメージ表示調整
         if (!item.isAttacker) {
-          row.damage = '-';
-          row.death = 0;
-          row.taiha = 0;
-          row.chuha = 0;
-          continue;
+          // 非攻撃機は基本表示なし ただし対潜攻撃可の場合はその限りでない
+          if (!isSubmarine || !enbaleAsw) {
+            row.damage = '';
+            row.death = 0;
+            row.taiha = 0;
+            row.chuha = 0;
+            continue;
+          }
         }
-        if (maxDamage === 0) {
-          if (isSubmarine && !enbaleAsw) {
-            // 敵潜水で対潜攻撃不可
-            row.damage = '-';
-          } else if (minSlot > 0) {
+        if (isSubmarine && !enbaleAsw) {
+          // 対潜攻撃不可
+          row.damage = '';
+          row.isASW = true;
+          continue;
+        } else if (maxDamage === 0) {
+          if (maxSlot > 0) {
             // 攻撃機かつ搭載数があるのにダメージ0
             row.damage = '割合';
           } else {
-            row.damage = '-';
+            row.damage = '';
           }
         } else if (minDamage === 0) {
           if (minSlot > 0) {
@@ -675,6 +919,20 @@ export default Vue.extend({
     },
     close() {
       this.handleClose();
+    },
+    bootTooltip(item: Item, e: MouseEvent) {
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = e.clientX;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

@@ -12,11 +12,11 @@
       <div class="align-self-center">
         <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
       </div>
-      <div class="align-self-center ml-3" v-show="battleCount > 1">
+      <div class="align-self-center ml-3" v-show="battleInfo.battleCount > 1">
         <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
       </div>
       <div class="align-self-center ml-4" id="battle-count-select">
-        <v-select dense hide-details v-model="battleCount" :items="items" label="戦闘回数" @input="setInfo"></v-select>
+        <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo"></v-select>
       </div>
       <div class="align-self-center ml-4 body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
     </div>
@@ -103,7 +103,6 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    battleCount: 1,
     items: BattleCountItems,
     enemyListDialog: false,
     itemListDialog: false,
@@ -133,7 +132,6 @@ export default Vue.extend({
         info: this.battleInfo,
         fleets: this.battleInfo.fleets,
         airRaidFleet: this.battleInfo.airRaidFleet,
-        battleCount: this.battleCount,
       };
       // 基地派遣先の整合性チェック
       const { airbases } = this.airbaseInfo;
@@ -141,8 +139,8 @@ export default Vue.extend({
         const targets = airbases[i].battleTarget;
         for (let j = 0; j < targets.length; j += 1) {
           const target = targets[j];
-          if (target >= this.battleCount) {
-            targets[j] = this.battleCount - 1;
+          if (target >= this.battleInfo.battleCount) {
+            targets[j] = this.battleInfo.battleCount - 1;
           }
         }
       }
@@ -227,17 +225,27 @@ export default Vue.extend({
     toggleWorldList() {
       if (!this.worldListDialog && this.fleetStock.length) {
         // 連続入力モード データがあればそれをそのまま登録(setInfoメソッドに頼らない)
+        const battleCount = this.fleetStock.length;
         const builder: BattleInfoBuilder = {
           info: this.battleInfo,
           fleets: this.fleetStock,
-          battleCount: this.fleetStock.length,
+          battleCount,
         };
+        // 基地派遣先の整合性チェック
+        const { airbases } = this.airbaseInfo;
+        for (let i = 0; i < airbases.length; i += 1) {
+          const targets = airbases[i].battleTarget;
+          for (let j = 0; j < targets.length; j += 1) {
+            const target = targets[j];
+            if (target >= battleCount) {
+              targets[j] = battleCount - 1;
+            }
+          }
+        }
         this.$emit('input', new BattleInfo(builder));
-        this.battleCount = this.fleetStock.length;
       }
     },
     resetFleetAll() {
-      this.battleCount = 1;
       this.battleInfo.fleets[0] = new EnemyFleet();
       this.setInfo();
     },

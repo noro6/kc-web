@@ -79,7 +79,7 @@
       <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
-            <v-img :src="`./img/util/prof${level}.png`" height="24" width="18"></v-img>
+            <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
             <span class="level-value">{{ item.level }}</span>
           </div>
         </template>
@@ -343,31 +343,6 @@ export default Vue.extend({
     },
     isDraggabe() {
       return this.value.data.id > 0 && !this.readonly;
-    },
-    level() {
-      const lv = this.item.level;
-      if (lv < 10) {
-        return 0;
-      }
-      if (lv < 25) {
-        return 1;
-      }
-      if (lv < 40) {
-        return 2;
-      }
-      if (lv < 55) {
-        return 3;
-      }
-      if (lv < 70) {
-        return 4;
-      }
-      if (lv < 85) {
-        return 5;
-      }
-      if (lv < 100) {
-        return 6;
-      }
-      return 7;
     },
     remodelIconColor() {
       if (this.item.data.canRemodel) {

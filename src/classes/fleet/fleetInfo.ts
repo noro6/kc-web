@@ -46,7 +46,6 @@ export default class FleetInfo {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
       this.admiralLevel = builder.admiralLevel !== undefined ? builder.admiralLevel : 120;
       this.mainFleetIndex = builder.mainFleetIndex !== undefined ? builder.mainFleetIndex : 0;
-
       this.fleets = builder.fleets !== undefined ? builder.fleets : [];
     }
 

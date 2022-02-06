@@ -208,6 +208,9 @@ export default class CalcManager {
       mainItem.slotResult = Math.round(item.slotResult / maxCount);
       const deathRate = (100 * item.deathRate) / maxCount;
       mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
+      if (mainItem.needRecord) {
+        mainItem.dist = item.dist;
+      }
     }
 
     const enemyItems = this.battleInfo.fleets[this.mainBattle].allPlanes;
@@ -218,6 +221,9 @@ export default class CalcManager {
       // 残数、全滅率を記録したやつを受け渡す
       mainItem.slotResult = Math.round(item.slotResult / maxCount);
       mainItem.deathRate = (100 * item.deathRate) / maxCount;
+      if (mainItem.needRecord) {
+        mainItem.dist = item.dist;
+      }
     }
   }
 

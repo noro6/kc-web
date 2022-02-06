@@ -300,6 +300,29 @@ export default class Ship implements ShipBase {
   }
 
   /**
+   * この艦の熟練クリティカルボーナスを算出
+   * @return {*}  {number}
+   * @memberof Ship
+   */
+  public getProfCriticalBonus(): number {
+    let bonus = 0;
+    for (let i = 0; i < this.items.length; i += 1) {
+      const item = this.items[i];
+      // 対象は搭載数が存在する攻撃機か大型飛行艇
+      if (item.slot > 0 && (item.isAttacker || item.data.apiTypeId === 41)) {
+        // 熟練度定数C
+        const c = [0, 1, 2, 3, 4, 5, 7, 10][item.levelAlt];
+        // 隊長機補正
+        const div = i === 0 ? 100 : 200;
+        bonus += Math.floor(Math.sqrt(item.level) + c) / div;
+      }
+    }
+
+    // 補正値 = int(√内部熟練度  + C) / (100 or 200)
+    return 1 + bonus;
+  }
+
+  /**
    * 装備ボーナス(索敵)の設定
    * @memberof Fleet
    */

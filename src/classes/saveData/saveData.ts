@@ -435,7 +435,7 @@ export default class SaveData {
       }
       if (v instanceof FleetInfo) {
         return {
-          fleets: v.fleets, admiralLevel: v.admiralLevel, isUnion: v.isUnion, mainFleetIndex: v.mainFleetIndex,
+          fleets: v.fleets, admiralLevel: v.admiralLevel, isUnion: v.isUnion,
         };
       }
       return v;
@@ -580,7 +580,7 @@ export default class SaveData {
       }
       fleets.push(new Fleet({ fleet, ships }));
     }
-    manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets });
+    manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets, mainFleetIndex: 0 });
 
     // 敵艦隊復元
     const enemyFleet: EnemyFleet[] = [];
