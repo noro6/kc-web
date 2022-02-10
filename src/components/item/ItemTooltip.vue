@@ -62,8 +62,11 @@
       <div v-if="value.data.radius">
         半径:<span class="item-status-value">{{ value.data.radius }}</span>
       </div>
+      <div v-if="value.enabledAttackLandbase">
+        対地:<span class="item-status-value special caption">可</span>
+      </div>
       <div v-if="value.data.avoidId">
-        射撃回避:<span class="item-status-value">{{ avoidTexts[value.data.avoidId] }}</span>
+        射撃回避:<span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
       </div>
     </div>
   </div>
@@ -91,6 +94,9 @@
 }
 .item-status-value.bad-status {
   color: #ff6767;
+}
+.item-status-value.special {
+  color: #59ff75;
 }
 .remodel-bonus {
   margin-left: 0.25rem;

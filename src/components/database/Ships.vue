@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-3 ships-page">
+  <div class="mt-3">
     <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header class="px-4">

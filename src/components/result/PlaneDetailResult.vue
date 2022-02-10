@@ -60,11 +60,11 @@
                 <div v-if="item.isPlane" class="item-simple-status d-flex ml-3">
                   <div>(</div>
                   <template v-if="item.isAttacker">
-                    <div class="mx-1" v-if="item.actualTorpedo">雷装 {{ item.actualTorpedo }}</div>
-                    <div class="mx-1" v-if="item.actualBomber">爆装 {{ item.actualBomber }}</div>
+                    <div class="mx-1" v-if="item.actualTorpedo">雷装 {{ item.actualTorpedo.toFixed(1) }}</div>
+                    <div class="mx-1" v-if="item.actualBomber">爆装 {{ item.actualBomber.toFixed(1) }}</div>
                   </template>
                   <template v-else-if="item.isPlane">
-                    <div class="mx-1" v-if="item.actualAntiAir">対空 {{ item.actualAntiAir }}</div>
+                    <div class="mx-1" v-if="item.actualAntiAir">対空 {{ item.actualAntiAir.toFixed(1) }}</div>
                   </template>
                   <div class="mx-1" v-if="item.data.radius">半径 {{ item.data.radius }}</div>
                   <div>)</div>

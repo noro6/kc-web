@@ -146,6 +146,8 @@ export default class Const {
 
   public static readonly BAKUSEN = [60, 154, 219, 447];
 
+  public static readonly ENABLED_LANDBASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421];
+
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機' },
     { id: 7, name: '艦上爆撃機' },
@@ -668,7 +670,7 @@ export default class Const {
       id: 7, text: '艦爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [7],
     },
     {
-      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [8],
+      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'asw', 'avoidId', 'radius'], types: [8],
     },
     {
       id: 9, text: '艦偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAntiAir', 'radius', 'cost'], types: [9],
@@ -704,9 +706,6 @@ export default class Const {
       id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'actualAntiAir', 'actualScout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
-    },
-    {
       id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
     },
     {
@@ -714,6 +713,9 @@ export default class Const {
     },
     {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
+    },
+    {
+      id: 17, text: 'その他', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
     },
   ]
 

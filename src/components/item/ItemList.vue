@@ -123,7 +123,8 @@
             <div class="item-status" v-show="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
             <div class="item-status" v-show="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
             <div class="item-status" v-show="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
-            <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.actualAsw) }}</div>
+            <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
+            <div class="item-status" v-show="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
             <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
             <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
             <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
@@ -383,6 +384,7 @@ export default Vue.extend({
       { text: '出撃対空', key: 'actualAntiAir' },
       { text: '防空対空', key: 'actualDefenseAntiAir' },
       { text: '装甲', key: 'armor' },
+      { text: '対潜', key: 'asw' },
       { text: '対潜', key: 'actualAsw' },
       { text: '回避', key: 'avoid' },
       { text: '索敵', key: 'actualScout' },
@@ -448,6 +450,9 @@ export default Vue.extend({
       return this.selectedType.viewStatus.includes('armor');
     },
     isShowAsw(): boolean {
+      return this.selectedType.viewStatus.includes('asw');
+    },
+    isShowActualAsw(): boolean {
       return this.selectedType.viewStatus.includes('actualAsw');
     },
     isShowAvoid(): boolean {

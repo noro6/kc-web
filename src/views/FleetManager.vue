@@ -15,7 +15,7 @@
         <ships />
       </v-tab-item>
       <v-tab-item value="items">
-        <v-card class="my-3 pa-4">items</v-card>
+        <items />
       </v-tab-item>
       <v-tab-item value="share">
         <v-card class="my-3 pa-4">共有</v-card>
@@ -34,10 +34,11 @@
 <script lang="ts">
 import Vue from 'vue';
 import Ships from '@/components/database/Ships.vue';
+import Items from '@/components/database/Items.vue';
 
 export default Vue.extend({
   name: 'FleetManager',
-  components: { Ships },
+  components: { Ships, Items },
   data: () => ({
     tab: 'ship',
   }),

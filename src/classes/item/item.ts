@@ -123,6 +123,9 @@ export default class Item {
   /** 大型陸上機フラグ */
   public readonly isShinzan: boolean;
 
+  /** 対地可能フラグ */
+  public readonly enabledAttackLandbase: boolean;
+
   /** 最大搭載数から1までの制空値を計算し終えた配列 機体のみ有効 計算用 */
   private readonly calculatedAirPower: number[];
 
@@ -170,8 +173,9 @@ export default class Item {
     this.isRocket = Const.ROCKET.includes(this.data.id);
     this.isShinzan = this.data.apiTypeId === 53;
     this.isJet = this.data.apiTypeId === 57;
+    this.enabledAttackLandbase = Const.ENABLED_LANDBASE_ATTACK.includes(this.data.id);
     if (!this.data.isSpecial) {
-      this.data.isSpecial = this.isRocket;
+      this.data.isSpecial = this.isRocket || this.enabledAttackLandbase;
     }
 
     // 計算により算出するステータス
