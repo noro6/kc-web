@@ -16,7 +16,7 @@
         <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
       </div>
       <div class="align-self-center ml-4" id="battle-count-select">
-        <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo"></v-select>
+        <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
       </div>
       <div class="align-self-center ml-4 body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
     </div>
@@ -29,7 +29,7 @@
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
         :handle-show-world-list="showWorldList"
-        @input="setInfo"
+        @input="setInfo()"
       ></enemy-fleet-component>
     </div>
     <div class="d-flex flex-wrap" v-else>
@@ -39,7 +39,7 @@
         :handle-show-enemy-list="showEnemyList"
         :handle-show-item-list="showItemList"
         :handle-show-world-list="showWorldList"
-        @input="setInfo"
+        @input="setInfo()"
       ></enemy-fleet-component>
     </div>
     <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
@@ -127,24 +127,27 @@ export default Vue.extend({
     },
   },
   methods: {
-    setInfo() {
-      const builder: BattleInfoBuilder = {
-        info: this.battleInfo,
-        fleets: this.battleInfo.fleets,
-        airRaidFleet: this.battleInfo.airRaidFleet,
-      };
+    setInfo(builder = undefined as BattleInfoBuilder | undefined) {
+      let newBattleInfo: BattleInfo;
+      if (builder) {
+        newBattleInfo = new BattleInfo(builder);
+      } else {
+        console.log(this.battleInfo.battleCount);
+
+        newBattleInfo = new BattleInfo({ info: this.battleInfo });
+      }
       // 基地派遣先の整合性チェック
       const { airbases } = this.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
         const targets = airbases[i].battleTarget;
         for (let j = 0; j < targets.length; j += 1) {
           const target = targets[j];
-          if (target >= this.battleInfo.battleCount) {
-            targets[j] = this.battleInfo.battleCount - 1;
+          if (target >= newBattleInfo.battleCount) {
+            targets[j] = newBattleInfo.battleCount - 1;
           }
         }
       }
-      this.$emit('input', new BattleInfo(builder));
+      this.$emit('input', newBattleInfo);
     },
     async showItemList(fleetIndex: number, enemyIndex: number, slotIndex: number) {
       this.itemDialogTarget = [fleetIndex, enemyIndex, slotIndex];
@@ -190,8 +193,8 @@ export default Vue.extend({
 
       // 敵編成が更新されたため、敵艦隊を再インスタンス化し更新
       if (this.isDefense) {
-        // 空襲モード時は直で更新かけに行く(setInfoメソッドに頼らない)
-        this.$emit('input', new BattleInfo({ info: this.battleInfo, airRaidFleet: new EnemyFleet(builder) }));
+        // 空襲モード用敵編成に追加 それ以外は据え置き
+        this.setInfo({ info: this.battleInfo, airRaidFleet: new EnemyFleet(builder) });
       } else {
         this.battleInfo.fleets[fleetIndex] = new EnemyFleet(builder);
         this.setInfo();
@@ -209,8 +212,8 @@ export default Vue.extend({
         this.fleetStock.push(fleet);
         this.closeWorldList();
       } else if (this.isDefense) {
-        // 空襲モード時は直で更新かけに行く(setInfoメソッドに頼らない)
-        this.$emit('input', new BattleInfo({ info: this.battleInfo, airRaidFleet: fleet }));
+        // 空襲モード用敵編成に追加 それ以外は据え置き
+        this.setInfo({ info: this.battleInfo, airRaidFleet: fleet });
       } else {
         const index = this.dialogTarget[0];
         this.battleInfo.fleets[index] = new EnemyFleet({ fleet });
@@ -224,30 +227,22 @@ export default Vue.extend({
     },
     toggleWorldList() {
       if (!this.worldListDialog && this.fleetStock.length) {
-        // 連続入力モード データがあればそれをそのまま登録(setInfoメソッドに頼らない)
+        // 連続入力モード データがあればそれを登録
         const battleCount = this.fleetStock.length;
         const builder: BattleInfoBuilder = {
           info: this.battleInfo,
           fleets: this.fleetStock,
           battleCount,
         };
-        // 基地派遣先の整合性チェック
-        const { airbases } = this.airbaseInfo;
-        for (let i = 0; i < airbases.length; i += 1) {
-          const targets = airbases[i].battleTarget;
-          for (let j = 0; j < targets.length; j += 1) {
-            const target = targets[j];
-            if (target >= battleCount) {
-              targets[j] = battleCount - 1;
-            }
-          }
-        }
-        this.$emit('input', new BattleInfo(builder));
+        this.setInfo(builder);
       }
     },
     resetFleetAll() {
-      this.battleInfo.fleets[0] = new EnemyFleet();
-      this.setInfo();
+      if (this.isDefense) {
+        this.setInfo({ info: this.battleInfo, airRaidFleet: new EnemyFleet() });
+      } else {
+        this.setInfo({ info: this.battleInfo, fleets: [], battleCount: 1 });
+      }
     },
     toggleTargetDialog() {
       if (!this.targetDialog) {

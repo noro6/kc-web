@@ -31,15 +31,15 @@
     <v-divider></v-divider>
     <div>
       <div class="d-flex">
-        <v-switch v-model="isDefenseMode" dense hide-details :label="'防空計算モード'" @change="setInfo"></v-switch>
-        <div class="align-self-center ml-3" v-show="!isDefenseMode && battleInfo.battleCount > 1">
+        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="'防空計算モード'" @click="setInfo"></v-switch>
+        <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1">
           <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
           <v-alert dense outlined type="warning">{{ rangeError }}</v-alert>
         </div>
       </div>
-      <div class="d-flex ml-3 mb-2" v-if="isDefenseMode">
+      <div class="d-flex ml-3 mb-2" v-if="airbaseInfo.isDefense">
         <div class="align-self-center text--secondary body-2">防空時制空値:</div>
         <div class="align-self-center ml-1">{{ airbaseInfo.defenseAirPower }}</div>
         <div class="ml-5 align-self-center text--secondary body-2">対重爆制空値:</div>
@@ -47,7 +47,14 @@
         <div class="ml-5 align-self-center text--secondary body-2">対重爆補正:</div>
         <div class="align-self-center ml-1 body-2">&times;{{ airbaseInfo.highDeffenseCoefficient }}</div>
         <div class="ml-8 difficulty-select">
-          <v-select dense v-model="difficultyLevel" hide-details :items="difficultyLevelItem" label="難易度" @change="setInfo"></v-select>
+          <v-select
+            dense
+            v-model="airbaseInfo.difficultyLevel"
+            hide-details
+            :items="difficultyLevelItem"
+            label="難易度"
+            @change="setInfo"
+          ></v-select>
         </div>
       </div>
     </div>
@@ -62,7 +69,7 @@
           :index="i"
           :handle-show-item-list="showItemList"
           @input="setInfo"
-          :is-defense="isDefenseMode"
+          :is-defense="airbaseInfo.isDefense"
         />
       </v-tab-item>
     </v-tabs>
@@ -78,12 +85,12 @@
         :class="{ unmatch: unmatchModes[i] }"
         v-model="airbaseInfo.airbases[i]"
         :index="i"
-        :is-defense="isDefenseMode"
+        :is-defense="airbaseInfo.isDefense"
         :handle-show-item-list="showItemList"
         @input="setInfo"
       />
     </draggable>
-    <div v-if="isDefenseMode" class="mx-1 mb-1 mt-3">
+    <div v-if="airbaseInfo.isDefense" class="mx-1 mb-1 mt-3">
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
@@ -157,9 +164,9 @@ import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import AirbaseComp from '@/components/airbase/Airbase.vue';
 import ItemList from '@/components/item/ItemList.vue';
-import AirbaseInfo, { AirbaseInfoBuilder } from '@/classes/airbase/airbaseInfo';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import Airbase, { AirbaseBuilder } from '@/classes/airbase/airbase';
-import Const, { AB_MODE, DIFFICULTY_LEVEL } from '@/classes/const';
+import Const, { AB_MODE } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
@@ -186,8 +193,6 @@ export default Vue.extend({
   data: () => ({
     itemListDialog: false,
     targetDialog: false,
-    isDefenseMode: false,
-    difficultyLevel: DIFFICULTY_LEVEL.HARD,
     difficultyLevelItem: Const.DIFFICULTY_LEVELS,
     dialogTarget: [-1, -1],
     tab: 0,
@@ -226,12 +231,7 @@ export default Vue.extend({
   },
   methods: {
     setInfo() {
-      const builder: AirbaseInfoBuilder = {
-        info: this.airbaseInfo,
-        isDefense: this.isDefenseMode,
-        difficultyLevel: this.difficultyLevel,
-      };
-      this.$emit('input', new AirbaseInfo(builder));
+      this.$emit('input', new AirbaseInfo({ info: this.airbaseInfo }));
     },
     async showItemList(index: number, slot: number) {
       this.dialogTarget = [index, slot];
@@ -279,7 +279,10 @@ export default Vue.extend({
         }
 
         const builder: ItemBuilder = {
-          master: item, slot: initialSlot, level: initialLevel, remodel: argItem.remodel,
+          master: item,
+          slot: initialSlot,
+          level: initialLevel,
+          remodel: argItem.remodel,
         };
         base.items[slot] = new Item(builder);
         this.itemListDialog = false;
@@ -288,7 +291,7 @@ export default Vue.extend({
       const builder: AirbaseBuilder = { airbase: base };
       if (base.mode === AB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
         // 待機札だった場合は出撃か防空札に変更
-        builder.mode = this.isDefenseMode ? AB_MODE.DEFFENSE : AB_MODE.BATTLE;
+        builder.mode = this.airbaseInfo.isDefense ? AB_MODE.DEFFENSE : AB_MODE.BATTLE;
         // 派遣先を最終戦闘にオート設定
         const lastBattle = this.battleInfo.battleCount - 1;
         builder.battleTarget = [lastBattle, lastBattle];
@@ -345,7 +348,6 @@ export default Vue.extend({
       this.setInfo();
     },
     resetAirbaseAll() {
-      this.isDefenseMode = false;
       this.$emit('input', new AirbaseInfo());
     },
     toggleTargetDialog() {

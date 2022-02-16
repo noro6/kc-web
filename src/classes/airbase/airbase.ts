@@ -1,5 +1,6 @@
 import AirCalcResult from '../airCalcResult';
 import { AB_MODE } from '../const';
+import { ContactRate } from '../interfaces/contactRate';
 import Item from '../item/item';
 
 export interface AirbaseBuilder {
@@ -43,6 +44,18 @@ export default class Airbase {
 
   /** 噴式機ありなし */
   public readonly hasJet: boolean;
+
+  /** 出撃時燃料消費 */
+  public readonly fuel: number;
+
+  /** 出撃時弾薬消費 */
+  public readonly ammo: number;
+
+  /** 出撃時鋼材消費 */
+  public readonly steel: number;
+
+  /** 配備時ボーキ消費 */
+  public readonly bauxite: number;
 
   /** 計算結果の各制空状態の割合 */
   public resultWave1 = new AirCalcResult();
@@ -88,6 +101,10 @@ export default class Airbase {
     this.hasJet = false;
     this.reconCorr = 1;
     this.reconCorrDeff = 1;
+    this.fuel = 0;
+    this.ammo = 0;
+    this.steel = 0;
+    this.bauxite = 0;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       if (item.fullSlot > 0) {
@@ -110,12 +127,32 @@ export default class Airbase {
         // 最大の補正値にする
         this.reconCorrDeff = item.reconCorrDeff;
       }
+
+      this.fuel += item.fuel;
+      this.ammo += item.ammo;
+      this.steel += item.steel;
+      this.bauxite += item.bauxite;
     }
 
     // 補正値で更新
     this.fullAirPower = Math.floor(this.fullAirPower * this.reconCorr);
     this.defenseAirPower = Math.floor(this.defenseAirPower * this.reconCorrDeff);
     this.airPower = this.fullAirPower;
+
+    // 装備なんもないなら自動で待機にする
+    if (!this.items.some((v) => v.data.id > 0)) {
+      this.mode = AB_MODE.WAIT;
+    }
+  }
+
+  /**
+   * 有効な装備のみ取得
+   * @readonly
+   * @type {Item[]}
+   * @memberof Airbase
+   */
+  public get enabledItems(): Item[] {
+    return this.items.filter((v) => v.data.id > 0);
   }
 
   /**
@@ -156,5 +193,14 @@ export default class Airbase {
     for (let i = 0; i < airbase.items.length; i += 1) {
       Item.supply(airbase.items[i]);
     }
+  }
+
+  /**
+   * この艦隊の触接情報テーブルを取得
+   * @returns {ContactRate[]}
+   * @memberof Fleet
+   */
+  public getContactRates(): ContactRate[] {
+    return Item.getContactRates(this.items);
   }
 }

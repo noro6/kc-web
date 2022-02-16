@@ -114,10 +114,10 @@
 }
 .contact-row {
   display: flex;
-  justify-content: space-between;
   font-size: 0.9em;
   text-align: right;
   padding: 0 0.25rem;
+  justify-content: space-between;
   border-bottom: 1px solid rgba(128, 128, 128, 0.3);
 }
 .contact-row.header-row {
@@ -148,6 +148,7 @@ import Fleet from '@/classes/fleet/fleet';
 import { ContactRate } from '@/classes/interfaces/contactRate';
 import DoughnutChart, { DoughnutGraphData, DoughnutGraphOption, LabelCallbackArg } from '@/components/graph/Doughnut.vue';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
+import Airbase from '@/classes/airbase/airbase';
 
 const contactGraphLabels = ['×1.2触接', '×1.17触接', '×1.12触接', '触接不発'];
 const contactGraphColors = ['rgba(100, 180, 255, 0.7)', 'rgba(80, 220, 120, 0.7)', 'rgba(255, 160, 100, 0.7)', 'rgba(128, 128, 128, 0.5)'];
@@ -158,7 +159,7 @@ export default Vue.extend({
   components: { DoughnutChart },
   props: {
     fleet: {
-      type: [Fleet, EnemyFleet],
+      type: [Fleet, EnemyFleet, Airbase],
       required: true,
     },
   },

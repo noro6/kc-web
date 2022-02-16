@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import ShipMaster from './shipMaster';
 import Item from '../item/item';
 import Const, { SHIP_TYPE } from '../const';
@@ -62,6 +63,9 @@ export default class Ship implements ShipBase {
 
   /** 輸送量 */
   public readonly tp: number;
+
+  /** 噴進弾幕率 */
+  public readonly hunshinRate: number;
 
   /** 有効無効 */
   public readonly isActive: boolean;
@@ -157,6 +161,7 @@ export default class Ship implements ShipBase {
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
+    this.hunshinRate = 0;
 
     // 以下、計算により算出するステータス
     // レベルより算出
@@ -223,6 +228,10 @@ export default class Ship implements ShipBase {
 
     // 防空ボーナス 小数切捨て
     this.antiAirBonus = Math.floor(this.antiAirBonus);
+
+    if (this.kijuCount) {
+      this.hunshinRate = this.getHunshinRate();
+    }
 
     // 装備もマスタもない場合空として計算対象から省く
     this.isEmpty = this.data.id === 0 && !this.items.some((v) => v.data.id > 0);
@@ -557,5 +566,39 @@ export default class Ship implements ShipBase {
       default:
         return 0;
     }
+  }
+
+  /**
+   * 噴進弾幕発動率を返却
+   * @private
+   * @return {*}
+   * @memberof Ship
+   */
+  private getHunshinRate() {
+    let rate = 0;
+    // 噴進砲改二チェック
+    const items = [...this.items, this.exItem];
+    const hunshinCount = items.filter((v) => v.data.id === 274).length;
+
+    // 艦種チェック
+    if (hunshinCount && [6, 7, 10, 11, 16, 18].includes(this.data.type)) {
+      // 艦船加重対空値(改式) = int(素対空 / 2 + Σ(装備対空値 * 装備倍率))
+      const antiAirWeight = this.antiAir + 2 * _.sum(items.map((v) => v.antiAirWeight));
+      rate = (0.9 * Math.min(this.luck, 50) + Math.floor(antiAirWeight)) / 281;
+
+      // 複数積みボーナス
+      if (hunshinCount === 2) {
+        rate += 0.15;
+      } else if (hunshinCount >= 3) {
+        rate += 0.3;
+      }
+
+      // 伊勢型ボーナス
+      if (this.data.type2 === 2) {
+        rate += 0.25;
+      }
+    }
+
+    return 100 * rate;
   }
 }

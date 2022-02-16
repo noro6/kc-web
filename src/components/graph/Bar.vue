@@ -1,15 +1,6 @@
 <template>
-  <div class="chart-container">
-    <BarChart ref="doughnutRef" :chart-data="actualData" :options="actualOptions" :plugins="plugins" />
-  </div>
+  <BarChart ref="doughnutRef" :chart-data="actualData" :options="actualOptions" :plugins="plugins" :style="styles" />
 </template>
-
-<style scoped>
-.chart-container {
-  position: relative;
-  width: 100%;
-}
-</style>
 
 <script lang="ts">
 import Vue from 'vue';
@@ -84,6 +75,10 @@ export default Vue.use(vueCompositionApi).extend({
     titleText: {
       type: String,
     },
+    height: {
+      type: Number,
+      default: 350,
+    },
   },
   data: () => ({
     doughnutRef: {},
@@ -110,6 +105,12 @@ export default Vue.use(vueCompositionApi).extend({
       }
 
       return this.options;
+    },
+    styles(): { height: string; position: string } {
+      return {
+        height: `${this.height}px`,
+        position: 'relative',
+      };
     },
   },
 });

@@ -28,6 +28,9 @@ export default class AirCalcResult {
   /** 撃ち落とされた艦載機合計 ボーキ算出に必要 */
   public avgDownSlot = 0;
 
+  /** 使われた鋼材合計 */
+  public avgUsedSteels = 0;
+
   /**
    * 計算結果をいい感じに整形
    * @param {number} maxCount

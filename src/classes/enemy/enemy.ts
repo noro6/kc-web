@@ -143,6 +143,7 @@ export default class Enemy implements ShipBase {
 
   /**
    * マスタから敵データ作成
+   * 失敗時は空の敵
    * @static
    * @param {number} id
    * @param {boolean} isEscort
@@ -175,7 +176,7 @@ export default class Enemy implements ShipBase {
     // 装備マスタより装備を解決
     const items: Item[] = [];
 
-    // スロット数が機能していないので、有効装備の数も考慮する
+    // apiから渡されるスロット数が怪しいので、有効装備の数とどちらか多い方で対処する
     const slotCount = Math.max(enemy.items.filter((v) => v > 0).length, enemy.slotCount);
     for (let i = 0; i < slotCount; i += 1) {
       const item = allItems.find((v) => v.id === enemy.items[i]);

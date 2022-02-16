@@ -82,6 +82,8 @@ export default class CalcManager {
 
     // シミュレーション中に撃墜された艦載機総数
     let sumDownSlot = 0;
+    // シミュレーション中に消費された鋼材総数
+    let sumUsedSteels = 0;
 
     // 初期化
     for (let i = 0; i < airbases.length; i += 1) {
@@ -124,7 +126,7 @@ export default class CalcManager {
         // todo
 
         /** ======= 本隊噴式機フェーズ ======= */
-        Calculator.shootDownFleetJet(fleet, enemyFleet);
+        sumUsedSteels += Calculator.shootDownFleetJet(fleet, enemyFleet);
 
         /** ======= 本隊航空戦フェーズ ======= */
         Calculator.calculateMainPhase(fleet, enemyFleet, battle, battle === mainBattle);
@@ -199,6 +201,7 @@ export default class CalcManager {
     }
     mainFleet.mainResult = fleet.results[mainBattle];
     mainFleet.mainResult.avgDownSlot = sumDownSlot / maxCount;
+    mainFleet.mainResult.avgUsedSteels = sumUsedSteels / maxCount;
 
     for (let i = 0; i < fleet.allPlanes.length; i += 1) {
       const item = fleet.allPlanes[i];

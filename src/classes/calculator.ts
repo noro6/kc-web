@@ -6,6 +6,11 @@ import Item from './item/item';
 import CommonCalc from './commonCalc';
 import ShootDownInfo, { ShootDownStatus } from './aerialCombat/shootDownInfo';
 
+type JetPhaseResult = {
+  sumAirPower: number;
+  usedSteel: number;
+};
+
 export default class Calculator {
   /**
    * 基地航空隊フェーズ計算処理
@@ -121,17 +126,22 @@ export default class Calculator {
    * @static
    * @param {Airbase} airbase
    * @param {ShootDownStatus[]} stage2List
+   * @returns {number} 使った鋼材の数
    * @memberof Calculator
    */
-  public static shootDownFleetJet(fleet: Fleet, enemyFleet: EnemyFleet): void {
+  public static shootDownFleetJet(fleet: Fleet, enemyFleet: EnemyFleet): number {
     if (fleet.hasJet
       && (enemyFleet.cellType === CELL_TYPE.NORMAL || enemyFleet.cellType === CELL_TYPE.GRAND)
       && !enemyFleet.isAllSubmarine) {
       // 通常 / 連合マス 潜水マスでないなら噴式機フェーズ発生 対空CI無しテーブルで実行
-      const sumAirPower = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.noCutInStage2);
+      const jetPhaseResult = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.noCutInStage2);
       // 噴式強襲フェーズ経過による制空値更新
-      fleet.airPower = Math.floor(sumAirPower);
+      fleet.airPower = Math.floor(jetPhaseResult.sumAirPower);
+
+      return jetPhaseResult.usedSteel;
     }
+
+    return 0;
   }
 
   /**
@@ -145,9 +155,9 @@ export default class Calculator {
    * @memberof Calculator
    */
   private static ShootDownAirbaseJet(airbase: Airbase, stage2List: ShootDownStatus[]) {
-    const sumAirPower = Calculator.shootDownJetPhase(airbase.items, stage2List);
+    const jetPhaseResult = Calculator.shootDownJetPhase(airbase.items, stage2List);
     // 基地噴式強襲フェーズ経過による制空値更新
-    airbase.airPower = Math.floor(sumAirPower * airbase.reconCorr);
+    airbase.airPower = Math.floor(jetPhaseResult.sumAirPower * airbase.reconCorr);
     airbase.needSupply = true;
   }
 
@@ -218,11 +228,12 @@ export default class Calculator {
    * @static
    * @param {Item[]} items
    * @param {ShootDownStatus[]} stage2List
-   * @return {number} 噴式強襲フェーズ結果後の制空値
+   * @return {JetPhaseResult} 噴式強襲フェーズ結果
    * @memberof Calculator
    */
-  private static shootDownJetPhase(items: Item[], stage2List: ShootDownStatus[]): number {
+  private static shootDownJetPhase(items: Item[], stage2List: ShootDownStatus[]): JetPhaseResult {
     let sumAirPower = 0;
+    let usedSteel = 0;
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
@@ -230,6 +241,9 @@ export default class Calculator {
         sumAirPower += item.airPower;
         continue;
       }
+      // 鋼材のお支払い
+      usedSteel += Math.round(item.slot * item.data.cost * 0.2);
+
       // ====== STAGE1 ======
       // ジェット補正で0.6倍 切り捨て 確保固定
       item.slot -= Math.floor(0.6 * CommonCalc.getStage1ShootDownValue(AIR_STATE.KAKUHO, item.slot));
@@ -252,7 +266,7 @@ export default class Calculator {
     }
 
     // 渡されたItem[]の制空値の合計 撃墜が発生している場合は下がっている
-    return sumAirPower;
+    return { sumAirPower, usedSteel };
   }
 
   /**

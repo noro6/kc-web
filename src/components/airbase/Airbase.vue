@@ -1,31 +1,47 @@
 <template>
-  <v-card class="mx-1 py-2 airbase-content" @dragover.prevent @drop.stop>
-    <div class="d-flex">
-      <div class="ml-2 align-self-center airbase-title">第{{ index + 1 }}基地航空隊</div>
+  <v-card class="mx-1 pt-1 pb-2 airbase-content" @dragover.prevent @drop.stop>
+    <div class="d-flex mb-1">
+      <div class="ml-2 align-self-end airbase-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
-        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem"></v-select>
+        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!enabledDetail"></v-select>
       </div>
-      <div class="mr-1 mt-1">
-        <v-btn color="info" icon small @click="viewDetail">
+      <div class="mr-1 align-self-end">
+        <v-btn color="info" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
-        <v-btn icon small @click="resetItems">
+        <v-btn icon small @click="resetItems" :disabled="!enabledDetail">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
       </div>
     </div>
     <div class="airbase-body">
-      <div class="d-flex caption px-2">
+      <div class="d-flex caption pl-2 sub-status-area">
         <div>
           制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
-        <div class="ml-1 text--secondary">{{ airPowerDetail }}</div>
-        <div class="ml-1 text--secondary" v-if="reconCorrString">&times;{{ reconCorrString }}</div>
-        <div class="ml-1 text--secondary" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
-        <v-spacer></v-spacer>
+        <template v-if="!visibleResource">
+          <div class="ml-1 text--secondary font-weight-medium">{{ airPowerDetail }}</div>
+          <div class="ml-1 text--secondary font-weight-medium" v-if="reconCorrString">&times;{{ reconCorrString }}</div>
+          <div class="ml-1 text--secondary font-weight-medium" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
+        </template>
+        <div :class="{ 'ml-auto': !visibleResource, 'ml-2': visibleResource }">
+          半径:<span class="mx-1 font-weight-medium">{{ airbase.range }}</span>
+        </div>
+        <template v-if="visibleResource">
+          <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img></div>
+          <div class="mx-1 font-weight-medium">{{ airbase.fuel }}</div>
+          <div><v-img :src="`./img/util/ammo.png`" height="18" width="18"></v-img></div>
+          <div class="mx-1 font-weight-medium">{{ airbase.ammo }}</div>
+          <div v-if="airbase.steel"><v-img :src="`./img/util/steel.png`" height="18" width="18"></v-img></div>
+          <div v-if="airbase.steel" class="mx-1 font-weight-medium">{{ airbase.steel }}</div>
+          <div><v-img :src="`./img/util/bauxite.png`" height="18" width="18"></v-img></div>
+          <div class="mx-1 font-weight-medium">{{ airbase.bauxite }}</div>
+        </template>
         <div>
-          半径:<span class="ml-1 font-weight-medium">{{ airbase.range }}</span>
+          <v-btn icon small @click="visibleResource = !visibleResource">
+            <v-icon>mdi-menu-down</v-icon>
+          </v-btn>
         </div>
       </div>
       <v-divider></v-divider>
@@ -57,7 +73,28 @@
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
-      <plane-detail-result v-if="!destroyDialog" :parent="value" :index="index" :handle-close="closeDetail" />
+      <v-card class="px-2 pb-2" v-if="!destroyDialog">
+        <div class="d-flex pt-2 pb-1">
+          <div class="align-self-center ml-3">基地航空隊詳細</div>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="closeDetail">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider></v-divider>
+        <v-tabs v-model="tab">
+          <v-tab href="#contact">触接</v-tab>
+          <v-tab href="#detail">被撃墜数詳細</v-tab>
+          <v-tab-item value="contact">
+            <v-divider></v-divider>
+            <contact-rates :fleet="value" />
+          </v-tab-item>
+          <v-tab-item value="detail">
+            <v-divider></v-divider>
+            <plane-detail-result :parent="value" :index="index" />
+          </v-tab-item>
+        </v-tabs>
+      </v-card>
     </v-dialog>
   </v-card>
 </template>
@@ -67,7 +104,11 @@
   cursor: move;
 }
 .mode-select {
-  width: 80px;
+  align-self: center;
+  width: 70px;
+}
+.sub-status-area > div {
+  align-self: center;
 }
 </style>
 
@@ -77,6 +118,7 @@ import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import PlaneDetailResult from '@/components/result/PlaneDetailResult.vue';
+import ContactRates from '../result/ContactRates.vue';
 import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
@@ -87,6 +129,7 @@ export default Vue.extend({
     AirStatusResultBar,
     ItemTooltip,
     PlaneDetailResult,
+    ContactRates,
   },
   name: 'Airbase',
   props: {
@@ -108,6 +151,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
+    tab: 'detail',
     wave1: 0,
     wave2: 0,
     modes: Const.AB_MODE_ITEMS,
@@ -118,6 +162,7 @@ export default Vue.extend({
     tooltipY: 0,
     destroyDialog: false,
     detailDialog: false,
+    visibleResource: false,
   }),
   computed: {
     airbase(): Airbase {
@@ -155,6 +200,9 @@ export default Vue.extend({
     },
     resultBarValue() {
       return [this.value.resultWave1.airStateBarWidth, this.value.resultWave2.airStateBarWidth];
+    },
+    enabledDetail() {
+      return this.value.items.some((v) => v.data.id > 0);
     },
   },
   methods: {
@@ -198,12 +246,13 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+      setTimeout(() => {
+        this.destroyDialog = true;
+      }, 100);
     },
     toggleDetailDialog() {
       if (!this.detailDialog) {
-        setTimeout(() => {
-          this.destroyDialog = true;
-        }, 100);
+        this.closeDetail();
       } else {
         this.destroyDialog = false;
       }

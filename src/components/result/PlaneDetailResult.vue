@@ -1,13 +1,5 @@
 <template>
-  <v-card class="dialog-container">
-    <div class="d-flex pt-2 pb-1 pr-2">
-      <div class="align-self-center ml-3">詳細計算</div>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="close">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </div>
-    <v-divider></v-divider>
+  <div>
     <div class="display-toggle mt-2 mx-2">
       <v-btn-toggle dense v-model="dispSlotRate" borderless mandatory>
         <v-btn :value="true" :class="{ 'blue darken-2 white--text': dispSlotRate }" @click.stop="dispSlotRate = true">
@@ -73,7 +65,7 @@
             </template>
           </div>
         </div>
-        <div>
+        <div class="bar-area">
           <bar-chart :data="graphData" :options="options" title-text="残機数分布" />
         </div>
       </div>
@@ -266,14 +258,10 @@
     >
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
-  </v-card>
+  </div>
 </template>
 
 <style scoped>
-.dialog-container {
-  min-height: 80vh;
-}
-
 .slot-rate-container,
 .fire-calc-container {
   margin-left: 0.5rem;
@@ -337,7 +325,7 @@
   width: 100px;
 }
 .item-remodel {
-  width: 50px;
+  width: 46px;
 }
 .item-level {
   position: relative;
@@ -367,10 +355,11 @@
 }
 .item-simple-status {
   font-size: 0.7em;
-  width: 140px;
+  width: 160px;
 }
 .item-simple-status > div {
   align-self: center;
+  white-space: nowrap;
 }
 
 .border-window {
@@ -482,6 +471,7 @@ import Calculator, { FirePowerCalcArgs, PowerDist, SlotDist } from '@/classes/ae
 import CommonCalc from '@/classes/commonCalc';
 import { SHIP_TYPE } from '@/classes/const';
 import FleetInfo from '@/classes/fleet/fleetInfo';
+import BattleInfo from '@/classes/enemy/battleInfo';
 
 const labelCallback = (c: LabelCallbackArg) => `${c.formattedValue} %`;
 
@@ -509,10 +499,6 @@ export default Vue.extend({
     fleetIndex: {
       type: Number,
       default: 0,
-    },
-    handleClose: {
-      type: Function,
-      required: true,
     },
   },
   data: () => ({
@@ -544,6 +530,7 @@ export default Vue.extend({
     } as BarGraphData,
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {
           scaleLabel: { display: true, labelString: '累積確率 [%]' },
@@ -724,13 +711,18 @@ export default Vue.extend({
   },
   methods: {
     selectItem(index: number) {
-      if (index < 0 || this.selectedIndex === index || !this.calcManager) {
+      if (index < 0 || this.selectedIndex === index) {
         return;
       }
-
       this.selectedIndex = index;
+      this.setGraphData();
+    },
+    setGraphData() {
+      if (!this.calcManager) {
+        return;
+      }
+      const index = this.selectedIndex;
       let item: Item;
-
       // この艦載機情報の詳細計算フラグを立て、計算を行う
       if (this.parent instanceof Ship) {
         // 艦隊
@@ -786,6 +778,8 @@ export default Vue.extend({
         this.graphData.labels = labels;
         this.graphData.datasets[0].data = rates;
         this.graphData.datasets[1].data = sumRates;
+
+        this.attackerSlot = item.fullSlot;
       }
 
       this.calculateFire();
@@ -796,7 +790,19 @@ export default Vue.extend({
         return;
       }
       this.calcArgs.isUnion = item.isUnion;
-      this.calculateFire();
+
+      if (this.parent instanceof Ship && this.calcManager) {
+        // 展開している敵艦隊までの計算に変更
+        const saveData = this.$store.state.mainSaveData as SaveData;
+        const items = this.$store.state.items as ItemMaster[];
+        const ships = this.$store.state.ships as ShipMaster[];
+        const enemies = this.$store.state.enemies as EnemyMaster[];
+        const baseInfo = saveData.loadManagerData(items, ships, enemies).battleInfo;
+
+        this.calcManager.mainBattle = this.defenseIndex;
+        this.calcManager.battleInfo = new BattleInfo({ info: baseInfo, fleets: baseInfo.fleets.slice(0, this.defenseIndex + 1) });
+      }
+      this.setGraphData();
     },
     calculateFire() {
       const tempDist = this.selectedItem.dist;
@@ -916,9 +922,6 @@ export default Vue.extend({
         row.taiha = Math.floor(damageBorders[1].rate * 1000) / 10;
         row.chuha = Math.floor(damageBorders[2].rate * 1000) / 10;
       }
-    },
-    close() {
-      this.handleClose();
     },
     bootTooltip(item: Item, e: MouseEvent) {
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

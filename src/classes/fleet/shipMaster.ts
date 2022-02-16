@@ -166,6 +166,11 @@ export default class ShipMaster {
         return true;
       }
 
+      // 潜水艦後部魚雷対応
+      if ((this.type === 13 || this.type === 14) && (item.id === 442 || item.id === 443)) {
+        return true;
+      }
+
       // 補強増設可能装備で絞る
       types = types.filter((v) => Const.EXPANDED_ITEM_TYPE.includes(v));
     }

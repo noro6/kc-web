@@ -126,9 +126,13 @@
       </div>
       <div class="caption pl-3">
         <span class="text--secondary">割合撃墜:</span>
-        <span class="ml-1 mr-2 font-weight-medium">{{ rateDownValue }}%</span>
-        <span class="ml-1 text--secondary">固定撃墜:</span>
+        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%</span>
+        <span class="ml-2 text--secondary">固定撃墜:</span>
         <span class="ml-1 font-weight-medium">{{ fixDown }}機</span>
+        <template v-if="ship.hunshinRate">
+          <span class="ml-2 text--secondary">噴進弾幕:</span>
+          <span class="ml-1 font-weight-medium">{{ ship.hunshinRate.toFixed(1) }}%</span>
+        </template>
       </div>
       <div class="d-flex caption pr-1 pl-3">
         <div class="align-self-center">

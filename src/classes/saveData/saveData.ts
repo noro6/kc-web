@@ -402,7 +402,8 @@ export default class SaveData {
         return { id: v.id };
       }
       if (v instanceof Enemy) {
-        const data = { i: v.data.id, is: v.items } as SavedShip;
+        // 敵情報はIDのみ マスタから毎回復活させる
+        const data = { i: v.data.id } as SavedShip;
         if (v.isEscort) data.es = v.isEscort;
         return data;
       }
@@ -431,7 +432,7 @@ export default class SaveData {
         return { airbases: v.airbases, difficultyLevel: v.difficultyLevel, isDefense: v.isDefense };
       }
       if (v instanceof BattleInfo) {
-        return { fleets: v.fleets, battleCount: v.battleCount };
+        return { fleets: v.fleets, battleCount: v.battleCount, airRaidFleet: v.airRaidFleet };
       }
       if (v instanceof FleetInfo) {
         return {
@@ -590,31 +591,25 @@ export default class SaveData {
       const rawShips = fleet.enemies;
       const enemies: Enemy[] = [];
       for (let j = 0; j < rawShips.length; j += 1) {
+        // IDよりマスタから復元する 装備を復元するなら
         const enemy = rawShips[j] as unknown as SavedShip;
-        const rawItems = enemy.is;
-        const items: Item[] = [];
-        for (let k = 0; k < rawItems.length; k += 1) {
-          const item = rawItems[k] as unknown as SavedItem;
-          const itemMaster = itemMasters.find((v) => v.id === item.i);
-          if (itemMaster) {
-            items.push(new Item({
-              master: itemMaster, slot: item.s, level: item.l, remodel: item.r,
-            }));
-          } else {
-            // マスタにない装備は空で生成
-            items.push(new Item());
-          }
-        }
-        const enemyMaster = enemyMasters.find((v) => v.id === enemy.i);
-        if (enemyMaster) {
-          enemies.push(new Enemy(enemyMaster, items, enemy.es));
-        } else {
-          enemies.push(new Enemy(new EnemyMaster(), [], enemy.es));
-        }
+        enemies.push(Enemy.createEnemyFromMasterId(enemy.i, false, enemyMasters, itemMasters));
       }
       enemyFleet.push(new EnemyFleet({ fleet, enemies }));
     }
-    manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet });
+    // 空襲敵艦隊復元
+    if (manager.battleInfo.airRaidFleet) {
+      const ships = [];
+      const { enemies } = manager.battleInfo.airRaidFleet;
+      for (let i = 0; i < enemies.length; i += 1) {
+        const enemy = enemies[i] as unknown as SavedShip;
+        ships.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
+      }
+      const airRaidFleet = new EnemyFleet({ enemies: ships });
+      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet });
+    } else {
+      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet: new EnemyFleet() });
+    }
 
     const resultData = new CalcManager();
     resultData.airbaseInfo = manager.airbaseInfo;

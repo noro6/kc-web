@@ -53,13 +53,15 @@
           @input="updateTable"
         ></v-text-field>
       </div>
-      <div class="form-control ml-2 d-none">
-        <v-checkbox label="敵側式" v-model="isEnemy" @change="updateTable"></v-checkbox>
-      </div>
     </div>
-    <div class="mt-3 mb-2">
-      <span class="text--secondary mr-2">艦隊防空値:</span>
-      <span>{{ fleetAntiAir }}</span>
+    <div class="mb-2 d-flex">
+      <div class="align-self-end">
+        <span class="text--secondary mr-2">艦隊防空値:</span>
+        <span>{{ fleetAntiAir }}</span>
+      </div>
+      <div class="ml-auto">
+        <v-checkbox label="敵側式" v-model="isEnemy" hide-details @change="updateTable"></v-checkbox>
+      </div>
     </div>
     <div class="stage2-row header px-1 px-md-2">
       <div class="flex-grow-1">艦船</div>
@@ -71,7 +73,7 @@
     <div
       v-for="(item, i) in stage2Data"
       :key="i"
-      class="stage2-row px-1 px-md-2"
+      class="stage2-row px-1"
       :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
     >
       <div class="d-flex flex-grow-1">
@@ -206,9 +208,14 @@ export default Vue.extend({
       return this.avoid === Const.MANUAL_AVOID;
     },
     antiAirItems(): { text: string; value: number }[] {
-      const items = [{
-        text: '不発', value: 0, rate: 0, detail: '',
-      }];
+      const items = [
+        {
+          text: '不発',
+          value: 0,
+          rate: 0,
+          detail: '',
+        },
+      ];
       // 使えるCIだけ
       const cutIns = this.fleet.allAntiAirCutIn;
       const borders = this.fleet.shootDownList.map((v) => v.border);
@@ -230,7 +237,10 @@ export default Vue.extend({
           item.rate += rate;
         } else if (cutin) {
           items.push({
-            text: cutin.text, value: cutin.id, rate, detail: `[ ${cutin.remarks} ]`,
+            text: cutin.text,
+            value: cutin.id,
+            rate,
+            detail: `[ ${cutin.remarks} ]`,
           });
         }
       }

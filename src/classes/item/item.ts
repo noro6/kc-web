@@ -1,5 +1,6 @@
 import CommonCalc from '../commonCalc';
 import Const from '../const';
+import { ContactRate } from '../interfaces/contactRate';
 import ItemMaster from './itemMaster';
 
 export interface ItemBuilder {
@@ -96,6 +97,18 @@ export default class Item {
   /** 輸送量 */
   public readonly tp: number;
 
+  /** 燃料 */
+  public readonly fuel: number;
+
+  /** 弾薬 */
+  public readonly ammo: number;
+
+  /** 鋼材 */
+  public readonly steel: number;
+
+  /** 輸送量 */
+  public readonly bauxite: number;
+
   /** 偵察機補正 -出撃時 */
   public readonly reconCorr: number;
 
@@ -110,6 +123,9 @@ export default class Item {
 
   /** 攻撃機フラグ */
   public readonly isAttacker: boolean;
+
+  /** 攻撃機フラグ */
+  public readonly isABAttacker: boolean;
 
   /** 噴式機フラグ */
   public readonly isJet: boolean;
@@ -170,6 +186,7 @@ export default class Item {
     this.isFighter = Const.FIGHTERS.includes(this.data.apiTypeId);
     this.isAttacker = Const.ATTACKERS.includes(this.data.apiTypeId);
     this.isRecon = Const.RECONNAISSANCES.includes(this.data.apiTypeId);
+    this.isABAttacker = Const.AB_ATTACKERS.includes(this.data.apiTypeId);
     this.isRocket = Const.ROCKET.includes(this.data.id);
     this.isShinzan = this.data.apiTypeId === 53;
     this.isJet = this.data.apiTypeId === 57;
@@ -212,6 +229,22 @@ export default class Item {
     this.actualAsw = this.data.asw + this.bonusAsw;
     this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
     this.actualScout = this.data.scout + this.bonusScout;
+
+    // 出撃コスト算出
+    this.fuel = this.fullSlot;
+    this.ammo = Math.ceil(this.fullSlot * 0.6);
+    this.bauxite = this.data.cost * (this.isRecon ? 4 : 18);
+    this.steel = this.isJet ? Math.round(this.fullSlot * this.data.cost * 0.2) : 0;
+    if (this.isABAttacker) {
+      // 陸攻補正
+      this.fuel = Math.ceil(this.fullSlot * (this.isShinzan ? 2 : 1.5));
+      this.ammo = this.isShinzan ? this.fullSlot * 2 : Math.floor(this.fullSlot * 0.7);
+      this.bauxite = this.data.cost * (this.isShinzan ? 9 : 18);
+    } else if (this.data.apiTypeId === 41) {
+      // 大型偵察機補正
+      this.fuel = this.fullSlot * 3;
+      this.ammo = this.fullSlot;
+    }
 
     // 制空値更新
     if (this.isPlane) {
@@ -346,6 +379,12 @@ export default class Item {
     }
     // その他主砲 / 副砲 / 徹甲弾 / 機銃 / 探照灯 / 高射装置 / 大発
     if ([1, 2, 4, 19, 21, 24, 29, 36, 42].includes(this.data.apiTypeId)) {
+      // 一部副砲
+      if ([10, 66, 220, 275].includes(this.data.id)) {
+        return 0.2 * this.remodel;
+      } if ([12, 234, 247].includes(this.data.id)) {
+        return 0.3 * this.remodel;
+      }
       return Math.sqrt(this.remodel);
     }
     // ソナー 爆雷
@@ -367,7 +406,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 陸攻 重爆
-    if (Const.AB_ATTACKERS.includes(this.data.apiTypeId)) {
+    if (this.isABAttacker) {
       return 0.7 * Math.sqrt(this.remodel);
     }
     // 魚雷 / 機銃
@@ -417,7 +456,7 @@ export default class Item {
       return 0.25 * this.remodel;
     }
     // 陸攻
-    if (Const.AB_ATTACKERS.includes(type)) {
+    if (this.isABAttacker) {
       return 0.5 * Math.sqrt(this.remodel);
     }
     return 0;
@@ -740,5 +779,112 @@ export default class Item {
     }
     // 補正値 = int(√内部熟練度  + C) / 100
     return 1 + bonus;
+  }
+
+  /**
+   * 触接情報テーブルを取得
+   * @returns {ContactRate[]}
+   * @memberof Fleet
+   */
+  public static getContactRates(items: Item[]): ContactRate[] {
+    let sumCotactValue = 0;
+    // 補正率別 触接選択率テーブル[ 0:確保時, 1:優勢時, 2:劣勢時 ]
+    const contact120 = [[] as number[], [] as number[], [] as number[]];
+    const contact117 = [[] as number[], [] as number[], [] as number[]];
+    const contact112 = [[] as number[], [] as number[], [] as number[]];
+
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (item.isRecon) {
+        sumCotactValue += Math.floor(item.data.scout * Math.sqrt(item.fullSlot));
+      }
+      // 制空状態3つループ
+      for (let j = 0; j < 3; j += 1) {
+        if (item.data.accuracy >= 3) contact120[j].push(item.contactSelectRates[j]);
+        else if (item.data.accuracy === 2) contact117[j].push(item.contactSelectRates[j]);
+        else contact112[j].push(item.contactSelectRates[j]);
+      }
+    }
+    // 触接開始率 = int(sum(索敵 * sqrt(搭載)) + 1) / (70 - 15 * c)
+    const a = Math.floor(sumCotactValue) + 1;
+    const contactStartRate = [
+      Math.min(a / 25, 1),
+      Math.min(a / 40, 1),
+      Math.min(a / 55, 1),
+    ];
+
+    // 実触接率 = [ 0:確保, 1:優勢, 2:劣勢 ]
+    const actualContactRate = [
+      { contact120: 0, contact117: 0, contact112: 0 },
+      { contact120: 0, contact117: 0, contact112: 0 },
+      { contact120: 0, contact117: 0, contact112: 0 },
+    ];
+    let sum = 1;
+    // 制空状態3つループ
+    for (let i = 0; i < 3; i += 1) {
+      // 開始触接率
+      let tmpRate = contactStartRate[i];
+
+      // 補正のデカいものから優先的に
+      if (contact120[i].length) {
+        sum = 1;
+        // 全て選択されない確率の導出
+        for (let j = 0; j < contact120[i].length; j += 1) {
+          // 発動しない率
+          sum *= (1 - contact120[i][j]);
+        }
+
+        // 選択される率
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact120 = rate;
+        tmpRate -= rate;
+      }
+
+      if (contact117[i].length) {
+        sum = 1;
+        for (let j = 0; j < contact117[i].length; j += 1) {
+          sum *= (1 - contact117[i][j]);
+        }
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact117 = rate;
+        tmpRate -= rate;
+      }
+
+      if (contact112[i].length) {
+        sum = 1;
+        for (let j = 0; j < contact112[i].length; j += 1) {
+          sum *= (1 - contact112[i][j]);
+        }
+        const rate = tmpRate * (1 - sum);
+        actualContactRate[i].contact112 = rate;
+      }
+    }
+
+    const contactTable = [
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+      {
+        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+      },
+    ];
+    // 制空状態3つループ
+    for (let i = 0; i < 3; i += 1) {
+      const rate = actualContactRate[i];
+      const sumRate = rate.contact120 + rate.contact117 + rate.contact112;
+
+      // 開始触接率
+      contactTable[i].startRate = 100 * contactStartRate[i];
+      // 順に120% 117% 112% の選択率
+      contactTable[i].contact120 = 100 * rate.contact120;
+      contactTable[i].contact117 = 100 * rate.contact117;
+      contactTable[i].contact112 = 100 * rate.contact112;
+      // 最終的な合計の触接率
+      contactTable[i].sumRate = Math.min(100 * sumRate, 100);
+    }
+    return contactTable;
   }
 }

@@ -534,6 +534,10 @@ export default Vue.extend({
 .theme--dark.v-application {
   background-color: rgb(20, 22, 28) !important;
 }
+/** ダークテーマ モーダル背景調整 */
+.theme--dark.v-application .v-overlay__scrim {
+  background-color: rgb(0, 0, 0) !important;
+}
 /** dense適用時フォントを小さく */
 .v-input--dense .v-select__selection,
 .v-input--dense.v-input--selection-controls .v-label {

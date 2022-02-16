@@ -111,7 +111,7 @@
             <v-icon small color="teal accent-4">mdi-star</v-icon>
             <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
           </div>
-          <div class="item-count red--text caption" v-if="isStockOnly">
+          <div class="item-count red--text caption" v-if="isStockOnly && !isEnemyMode">
             <span>&times;</span>
             <span>{{ v.count }}</span>
           </div>
@@ -526,7 +526,7 @@ export default Vue.extend({
       const manager = mainData.tempData[mainData.tempIndex];
       if (manager) {
         let allItems: Item[] = [];
-        // 艦隊データから装備全聚徳
+        // 艦隊データから装備全取得
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
           if (i === 4) {
             // 友軍は除外
