@@ -1,5 +1,5 @@
 import Ship from './ship';
-import Const, { AvoidType, Formation } from '../const';
+import Const, { AvoidType, FORMATION, Formation } from '../const';
 import Item from '../item/item';
 import AirCalcResult from '../airCalcResult';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
@@ -69,10 +69,12 @@ export default class Fleet {
       this.ships = builder.ships ? builder.ships.concat() : builder.fleet.ships.concat();
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.fleet.isUnion;
+      this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
     } else {
       this.ships = builder.ships ? builder.ships.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
+      this.formation = builder.formation !== undefined ? builder.formation : FORMATION.LINE_AHEAD;
 
       if (this.ships.length === 0) {
         // 0隻だった場合は空の艦娘を1隻つっこむ
@@ -151,10 +153,17 @@ export default class Fleet {
       sum -= rate;
       border += rate;
 
-      this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, cutIn, border));
+      this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, cutIn, border, formation));
     }
     // 対空CI不発データを挿入
-    this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, new AntiAirCutIn(), 1));
+    const noCutinData = new ShootDownInfo(enabledShips, false, this.isUnion, new AntiAirCutIn(), 1, formation);
+    this.shootDownList.push(noCutinData);
+
+    // 画面表示用撃墜数格納
+    for (let i = 0; i < enabledShips.length; i += 1) {
+      enabledShips[i].fixDown = noCutinData.shootDownStatusList[0].fixDownList[i];
+      enabledShips[i].rateDown = noCutinData.shootDownStatusList[0].rateDownList[i];
+    }
   }
 
   /**

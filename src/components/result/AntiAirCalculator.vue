@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-3">
+  <div class="mt-2">
     <div class="d-flex flex-wrap">
       <div class="form-control">
         <v-select label="陣形" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable"></v-select>
@@ -54,13 +54,13 @@
         ></v-text-field>
       </div>
     </div>
-    <div class="mb-2 d-flex">
+    <div class="mb-1 d-flex px-1">
       <div class="align-self-end">
         <span class="text--secondary mr-2">艦隊防空値:</span>
         <span>{{ fleetAntiAir }}</span>
       </div>
       <div class="ml-auto">
-        <v-checkbox label="敵側式" v-model="isEnemy" hide-details @change="updateTable"></v-checkbox>
+        <v-checkbox label="敵側式" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
       </div>
     </div>
     <div class="stage2-row header px-1 px-md-2">
@@ -73,7 +73,7 @@
     <div
       v-for="(item, i) in stage2Data"
       :key="i"
-      class="stage2-row px-1"
+      class="stage2-row pr-1"
       :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
     >
       <div class="d-flex flex-grow-1">
@@ -106,8 +106,8 @@
 
 .stage2-row {
   display: flex;
-  padding-top: 0.15rem;
-  padding-bottom: 0.15rem;
+  padding-top: 1px;
+  padding-bottom: 1px;
   transition: 0.1s;
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 }
@@ -115,8 +115,8 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
   background-color: rgba(128, 128, 128, 0.05);
   font-size: 12px !important;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 .stage2-row:not(.header):hover {
   background-color: rgba(128, 128, 128, 0.1);
@@ -133,7 +133,7 @@
 }
 .stage2-id {
   font-size: 11px;
-  height: 14px;
+  height: 13px;
 }
 .stage2-name {
   flex-grow: 1;

@@ -9,12 +9,14 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@types/html2canvas": "^1.0.0",
     "@vue/composition-api": "^1.4.3",
     "axios": "^0.24.0",
     "chart.js": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "core-js": "^3.6.5",
     "dexie": "^3.2.0",
+    "html2canvas": "^1.4.1",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
     "vue": "^2.6.11",

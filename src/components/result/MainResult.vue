@@ -1,11 +1,30 @@
 <template>
-  <v-card class="my-2 px-1 py-2">
-    <div class="pa-2">計算結果</div>
+  <v-card class="my-2 px-1 py-2" id="result-container" :class="{ captured: capturing }">
+    <div class="d-flex pb-1">
+      <div class="pl-2 align-self-center">計算結果</div>
+      <v-spacer></v-spacer>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureResult" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </template>
+        <span>最小化</span>
+      </v-tooltip>
+    </div>
     <v-divider class="mb-3"></v-divider>
     <div class="px-1">
       <div class="d-flex">
         <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
-        <div class="caption ml-auto">※ 行クリックで詳細計算画面を展開します</div>
+        <div class="caption ml-auto" v-show="!capturing">※ 行クリックで詳細計算画面展開</div>
       </div>
       <table>
         <thead>
@@ -147,8 +166,28 @@
       </table>
       <v-divider></v-divider>
     </v-card>
-    <v-card class="ma-3 py-3 px-2">
-      <div class="body-2 px-2">敵機残数</div>
+    <v-card class="ma-3 pb-3 px-2">
+      <div class="d-flex mb-1">
+        <div class="body-2 px-2 align-self-end">敵機残数</div>
+        <div class="ml-auto">
+          <v-select
+            class="form-input"
+            v-model="fleet.formation"
+            :items="formations"
+            hide-details
+            dense
+            @change="changedFormation(fleet.formation)"
+          ></v-select>
+        </div>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon class="align-self-center pt-2 mr-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+          </template>
+          <div class="caption">
+            <div>このマスで選択する味方艦隊の陣形</div>
+          </div>
+        </v-tooltip>
+      </div>
       <table>
         <thead>
           <tr>
@@ -158,7 +197,7 @@
             <th>残数平均</th>
             <th>全滅率</th>
             <th>棒立ち率</th>
-            <th class="pr-1">詳細</th>
+            <th class="pr-1" v-if="!capturing">詳細</th>
           </tr>
         </thead>
         <tbody>
@@ -177,7 +216,7 @@
               <td class="pr-1" v-if="j === 0" :rowspan="row.items.length">
                 {{ row.allDeathRate > 0 ? `${row.allDeathRate} %` : "-" }}
               </td>
-              <td v-if="j === 0" :rowspan="row.items.length">
+              <td v-if="j === 0 && !capturing" :rowspan="row.items.length">
                 <v-btn color="info" icon small @click="viewDetail(row.enemy, row.index)">
                   <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
@@ -330,10 +369,33 @@ td.item-input {
   border-right: 1px solid #888;
   margin-bottom: 2px;
 }
+
+.form-input {
+  width: 120px;
+}
+
+#result-container.captured {
+  width: 800px !important;
+  background: #fff !important;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+}
+.theme--dark #result-container.captured {
+  background: #1a1a1a !important;
+  border: 1px solid #444;
+}
+.captured .v-card {
+  box-shadow: none !important;
+  border: 1px solid #bbb;
+}
+.theme--dark .captured .v-card {
+  border: 1px solid #444;
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import html2canvas from 'html2canvas';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import PlaneDetailResult from '@/components/result/PlaneDetailResult.vue';
 import CalcManager from '@/classes/calcManager';
@@ -341,7 +403,7 @@ import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Fleet from '@/classes/fleet/fleet';
 import AirCalcResult from '@/classes/airCalcResult';
 import Item from '@/classes/item/item';
-import { AB_MODE } from '@/classes/const';
+import Const, { AB_MODE, Formation } from '@/classes/const';
 import CommonCalc from '@/classes/commonCalc';
 import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
@@ -362,6 +424,14 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleChangeFormation: {
+      type: Function,
+      required: true,
+    },
+    handleMinimize: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => ({
     tab: 'battle0',
@@ -371,8 +441,12 @@ export default Vue.extend({
     detailParent: undefined as Ship | Enemy | Airbase | undefined,
     detailIndex: 0,
     detailFleetIndex: 0,
+    capturing: false,
   }),
   computed: {
+    formations(): Formation[] {
+      return Const.FORMATIONS;
+    },
     airbaseWaveResults(): { text: string; result: AirCalcResult; baseIndex: number }[] {
       const results: { text: string; result: AirCalcResult; baseIndex: number }[] = [];
       for (let i = 0; i < this.value.airbaseInfo.airbases.length; i += 1) {
@@ -478,6 +552,9 @@ export default Vue.extend({
 
       this.handleChangeMainBattle(this.displayBattle);
     },
+    changedFormation(formation: number) {
+      this.handleChangeFormation(formation);
+    },
     clickedAirbaseRow(index: number) {
       this.viewDetail(this.airbases[index], index);
     },
@@ -513,6 +590,20 @@ export default Vue.extend({
       } else {
         this.destroyDialog = false;
       }
+    },
+    captureResult() {
+      // 背景色とかを塗るフラグ立て
+      this.capturing = true;
+      const div = document.getElementById('result-container') as HTMLDivElement;
+      setTimeout(() => {
+        html2canvas(div, { scale: 2 }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL();
+          link.download = 'export_image.png';
+          link.click();
+          this.capturing = false;
+        });
+      }, 10);
     },
   },
 });

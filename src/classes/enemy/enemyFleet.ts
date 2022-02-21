@@ -21,6 +21,8 @@ export interface EnemyFleetBuilder {
   range?: number;
   /** セル名称 */
   nodeName?: string;
+  /** 味方の陣形 未指定ならfleetの陣形で作成 */
+  mainFleetFormation?: number;
 }
 
 export default class EnemyFleet {
@@ -29,6 +31,9 @@ export default class EnemyFleet {
 
   /** 陣形id */
   public readonly formation: number;
+
+  /** 陣形 -このマスで選択する陣形 */
+  public readonly mainFleetFormation: number;
 
   /** 戦闘形式 */
   public readonly cellType: number;
@@ -107,12 +112,14 @@ export default class EnemyFleet {
       // builderよりそのままインスタンスを引継ぎ
       this.enemies = builder.enemies ? builder.enemies.concat() : builder.fleet.enemies.concat();
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
+      this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : builder.fleet.mainFleetFormation;
       this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
       this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : builder.fleet.nodeName;
     } else {
       this.enemies = builder.enemies ? builder.enemies.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
+      this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : 1;
       this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
       this.range = builder.range !== undefined ? builder.range : 0;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : '';

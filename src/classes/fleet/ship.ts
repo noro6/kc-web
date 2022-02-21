@@ -109,6 +109,12 @@ export default class Ship implements ShipBase {
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
+  /** 固定撃墜 画面表示用 */
+  public fixDown = 0;
+
+  /** 割合撃墜 画面表示用 */
+  public rateDown = 0;
+
   constructor(builder: ShipBuilder = {}) {
     if (builder.ship) {
       this.data = builder.master !== undefined ? builder.master : builder.ship.data;
@@ -238,14 +244,14 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 艦娘Lvにより算出可能なステータスを計算
-   * @static
-   * @param {number} level 練度
-   * @param {number} max Lv.99時最大値
-   * @param {number} min 初期値
-   * @returns {number}
-   * @memberof Ship
-   */
+ * 艦娘Lvにより算出可能なステータスを計算
+ * @static
+ * @param {number} level 練度
+ * @param {number} max Lv.99時最大値
+ * @param {number} min 初期値
+ * @returns {number}
+ * @memberof Ship
+ */
   public static getStatusFromLevel(level: number, max: number, min: number): number {
     let value = 0;
     if (level === 99 && max > 0) {
@@ -263,25 +269,25 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 命中項を返却
-   * @static
-   * @param {number} level
-   * @param {number} luck
-   * @returns {number}
-   * @memberof Ship
-   */
+ * 命中項を返却
+ * @static
+ * @param {number} level
+ * @param {number} luck
+ * @returns {number}
+ * @memberof Ship
+ */
   public static getAccuracyValue(level: number, luck: number): number {
     return Math.floor(2 * Math.sqrt(level) + 1.5 * Math.sqrt(luck));
   }
 
   /**
-   * 回避項を返却
-   * @static
-   * @param {number} avoid
-   * @param {number} luck
-   * @returns {number}
-   * @memberof Ship
-   */
+ * 回避項を返却
+ * @static
+ * @param {number} avoid
+ * @param {number} luck
+ * @returns {number}
+ * @memberof Ship
+ */
   public static getAvoidValue(avoid: number, luck: number): number {
     const baseAvoid = Math.floor(avoid + Math.sqrt(2 * luck));
     if (avoid >= 65) {
@@ -294,13 +300,13 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * CI項を返却
-   * @static
-   * @param {number} level
-   * @param {number} luck
-   * @returns {number}
-   * @memberof Ship
-   */
+ * CI項を返却
+ * @static
+ * @param {number} level
+ * @param {number} luck
+ * @returns {number}
+ * @memberof Ship
+ */
   public static getCIValue(level: number, luck: number): number {
     if (luck >= 50) {
       return Math.floor(65 + Math.sqrt(luck - 50) + 0.8 * Math.sqrt(level));
@@ -309,10 +315,10 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * この艦の熟練クリティカルボーナスを算出
-   * @return {*}  {number}
-   * @memberof Ship
-   */
+ * この艦の熟練クリティカルボーナスを算出
+ * @return {*}  {number}
+ * @memberof Ship
+ */
   public getProfCriticalBonus(): number {
     let bonus = 0;
     for (let i = 0; i < this.items.length; i += 1) {
@@ -332,9 +338,9 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 装備ボーナス(索敵)の設定
-   * @memberof Fleet
-   */
+ * 装備ボーナス(索敵)の設定
+ * @memberof Fleet
+ */
   private getBonusScout() {
     let sumBonus = 0;
     const { id, type, type2 } = this.data;
@@ -520,11 +526,11 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 艦種 艦娘毎によるTPを返却
-   * @private
-   * @returns {number}
-   * @memberof Ship
-   */
+ * 艦種 艦娘毎によるTPを返却
+ * @private
+ * @returns {number}
+ * @memberof Ship
+ */
   private getTransportPower(): number {
     // 艦種固定値
     switch (this.data.type) {
@@ -569,11 +575,11 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 噴進弾幕発動率を返却
-   * @private
-   * @return {*}
-   * @memberof Ship
-   */
+ * 噴進弾幕発動率を返却
+ * @private
+ * @return {*}
+ * @memberof Ship
+ */
   private getHunshinRate() {
     let rate = 0;
     // 噴進砲改二チェック

@@ -240,7 +240,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import EnemyDetail from '@/components/enemy/EnemyDetail.vue';
-import Const, { CELL_TYPE, DIFFICULTY_LEVEL } from '@/classes/const';
+import Const, { CELL_TYPE, DIFFICULTY_LEVEL, FORMATION } from '@/classes/const';
 import CellMaster from '@/classes/enemy/cellMaster';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
@@ -418,6 +418,9 @@ export default Vue.extend({
           enemies.push(Enemy.createEnemyFromMasterId(id, isUnion && i >= 6, enemiesMaster, items));
         }
 
+        // 味方陣形 => 空襲のとき輪形
+        const mainFleetFormation = cell.cellType === CELL_TYPE.AIR_RAID ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
+
         enemyFleets.push(
           new EnemyFleet({
             enemies,
@@ -425,6 +428,7 @@ export default Vue.extend({
             cellType: cell.cellType,
             range: cell.radius,
             nodeName: clickedCell.node,
+            mainFleetFormation,
           }),
         );
         patternNames.push(cell.detail ? cell.detail : `編成${j + 1}`);

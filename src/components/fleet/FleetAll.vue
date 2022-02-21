@@ -3,28 +3,64 @@
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">自艦隊</div>
       <v-spacer></v-spacer>
-      <v-btn icon @click="resetFleetAll">
-        <v-icon>mdi-trash-can-outline</v-icon>
-      </v-btn>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureFleet" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="resetFleetAll" v-bind="attrs" v-on="on">
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+        </template>
+        <span>全艦隊リセット</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </template>
+        <span>最小化</span>
+      </v-tooltip>
     </div>
     <v-divider></v-divider>
-    <v-row align="center" class="mt-1 ml-4" dense>
-      <v-menu
-        v-model="levelMenu"
-        :close-on-content-click="false"
-        @input="onLevelMenuToggle"
-      >
+    <v-row align="center" class="mt-1 mx-4" dense>
+      <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }" v-ripple="{ class: 'info--text' }">
-          <div class="admiral-level" v-bind="attrs" v-on="on">
+          <div class="form-input" v-bind="attrs" v-on="on">
             <v-text-field type="number" dense hide-details label="司令部Lv" v-model.number="fleetInfo.admiralLevel" readonly></v-text-field>
           </div>
         </template>
         <v-card class="pa-5">
-          <v-text-field class="admiral-level" v-model.number="level" max="120" min="1" hide-details type="number" label="司令部Lv"></v-text-field>
+          <v-text-field
+            class="form-input"
+            v-model.number="level"
+            max="120"
+            min="1"
+            hide-details
+            type="number"
+            label="司令部Lv"
+          ></v-text-field>
         </v-card>
       </v-menu>
       <div class="ml-4">
         <v-checkbox label="連合艦隊" v-model="fleetInfo.isUnion" @change="changedInfo"></v-checkbox>
+      </div>
+      <div class="ml-5">
+        <v-select
+          class="form-input"
+          label="陣形"
+          v-model="fleetInfo.mainFleet.formation"
+          :items="formations"
+          hide-details
+          dense
+          @change="changedFormation(fleetInfo.mainFleet.formation)"
+        ></v-select>
       </div>
     </v-row>
     <v-tabs v-model="tab" class="px-2">
@@ -33,11 +69,17 @@
         <template v-else-if="fleetInfo.isUnion && i === 2">随伴艦隊</template>
         <template v-else>第{{ i }}艦隊</template>
       </v-tab>
-      <v-tab href="#fleet4">機動部隊(航空)友軍</v-tab>
+      <v-tab href="#fleet4" disabled>【工事中】機動部隊(航空)友軍</v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab">
-      <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`">
+      <v-tab-item
+        v-for="(fleet, i) in fleetInfo.fleets"
+        :key="i"
+        :value="`fleet${i}`"
+        class="fleet-container"
+        :class="{ captured: capturing }"
+      >
         <fleet-component
           v-model="fleetInfo.fleets[i]"
           :index="i"
@@ -60,13 +102,27 @@
 </template>
 
 <style scoped>
-.admiral-level {
+.form-input {
   width: 120px;
+}
+
+/** スクショ用調整  */
+.fleet-container.captured {
+  width: 1200px !important;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
+.theme--dark .fleet-container.captured {
+  background: #111;
+  border: 1px solid #444;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import html2canvas from 'html2canvas';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
@@ -74,7 +130,7 @@ import FleetInfo, { FleetInfoBuilder } from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
-import Const from '@/classes/const';
+import Const, { Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
@@ -89,6 +145,14 @@ export default Vue.extend({
       type: FleetInfo,
       required: true,
     },
+    handleChangeFormation: {
+      type: Function,
+      required: true,
+    },
+    handleMinimize: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => ({
     shipListDialog: false,
@@ -100,10 +164,14 @@ export default Vue.extend({
     shipDialogWidth: 1200,
     level: 120,
     levelMenu: false,
+    capturing: false,
   }),
   computed: {
     fleetInfo(): FleetInfo {
       return this.value;
+    },
+    formations(): Formation[] {
+      return Const.FORMATIONS;
     },
   },
   methods: {
@@ -244,6 +312,9 @@ export default Vue.extend({
         this.level = this.fleetInfo.admiralLevel;
       }
     },
+    changedFormation(formation: number) {
+      this.handleChangeFormation(formation);
+    },
     changedInfo() {
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
       this.setInfo(new FleetInfo(infoBuilder));
@@ -267,6 +338,21 @@ export default Vue.extend({
     },
     changeShipWidth(width: number) {
       this.shipDialogWidth = width;
+    },
+    captureFleet() {
+      // 背景色とかを塗るフラグ立て
+      this.capturing = true;
+      const index = this.value.mainFleetIndex;
+      const div = document.getElementsByClassName('fleet-container')[index] as HTMLDivElement;
+      setTimeout(() => {
+        html2canvas(div, { scale: 2, width: 1200 }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL();
+          link.download = 'export_image.png';
+          link.click();
+          this.capturing = false;
+        });
+      }, 10);
     },
   },
 });

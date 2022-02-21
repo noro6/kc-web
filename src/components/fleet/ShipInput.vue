@@ -305,6 +305,18 @@
 .close-bar.item-count-6 {
   height: 169px;
 }
+
+.captured .ship-input {
+  box-shadow: none;
+  border: 1px solid #bbb;
+}
+.theme--dark .captured .ship-input {
+  border: 1px solid #444;
+}
+.captured .ship-remove {
+  display: none;
+}
+
 </style>
 
 <script lang="ts">

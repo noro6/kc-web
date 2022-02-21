@@ -17,7 +17,18 @@
             <v-icon>mdi-bomb</v-icon>
           </v-btn>
         </template>
-        <span>基地空襲被害を発生させる</span>
+        <div>
+          <div>基地空襲被害を発生させる</div>
+          <div class="caption">※ 第1スロットから順に搭載数を4機減らします</div>
+        </div>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureAirbase" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -25,7 +36,15 @@
             <v-icon>mdi-trash-can-outline</v-icon>
           </v-btn>
         </template>
-        <span>基地航空隊を全てリセット</span>
+        <span>全基地航空隊リセット</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </template>
+        <span>最小化</span>
       </v-tooltip>
     </div>
     <v-divider></v-divider>
@@ -74,9 +93,12 @@
       </v-tab-item>
     </v-tabs>
     <draggable
+      id="airbase-container"
       class="normal-airbases"
+      :class="{ captured: capturing }"
       v-model="airbaseInfo.airbases"
-      :options="{ handle: '.airbase-title', animation: 150 }"
+      handle=".airbase-title"
+      animation="150"
       @end="setInfo"
     >
       <airbase-comp
@@ -155,11 +177,36 @@
     width: 375px;
   }
 }
+
+/** スクショ用調整  */
+.normal-airbases.captured {
+  width: 1200px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.2rem;
+  padding: 0.75rem 0.5rem;
+}
+.normal-airbases.captured * {
+  box-shadow: none !important;
+}
+.normal-airbases.captured > div {
+  border: 1px solid #bbb;
+}
+.theme--dark .normal-airbases.captured {
+  background: #111;
+  border: 1px solid #444;
+}
+.theme--dark .normal-airbases.captured > div {
+  border: 1px solid #444;
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import draggable from 'vuedraggable';
+import html2canvas from 'html2canvas';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import AirbaseComp from '@/components/airbase/Airbase.vue';
@@ -189,6 +236,10 @@ export default Vue.extend({
       type: BattleInfo,
       required: true,
     },
+    handleMinimize: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => ({
     itemListDialog: false,
@@ -197,6 +248,7 @@ export default Vue.extend({
     dialogTarget: [-1, -1],
     tab: 0,
     itemDialogWidth: 1200,
+    capturing: false,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -364,6 +416,20 @@ export default Vue.extend({
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
+    },
+    captureAirbase() {
+      // 背景色とかを塗るフラグ立て
+      this.capturing = true;
+      const div = document.getElementById('airbase-container') as HTMLDivElement;
+      setTimeout(() => {
+        html2canvas(div, { scale: 2 }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL();
+          link.download = 'export_image.png';
+          link.click();
+          this.capturing = false;
+        });
+      }, 10);
     },
   },
 });

@@ -70,6 +70,7 @@ export default class FleetInfo {
       const b: FleetBuilder = {
         isUnion: true,
         ships: this.fleets[0].ships.concat(escorts),
+        formation: this.fleets[0].formation,
       };
       this.unionFleet = new Fleet(b);
 
@@ -77,9 +78,9 @@ export default class FleetInfo {
       this.unionFleet.airPower = this.fleets[0].fullAirPower;
       this.unionFleet.escortAirPower = this.fleets[1].fullAirPower;
     } else if (!this.isUnion) {
-      // 連合が解除されているので随伴艦フラグを消して再度インスタンス化
-      const fleet = this.fleets[1];
-      this.fleets[1] = new Fleet({ fleet, isUnion: false });
+      // 連合が解除されているので再度インスタンス化
+      this.fleets[0] = new Fleet({ fleet: this.fleets[0], isUnion: false });
+      this.fleets[1] = new Fleet({ fleet: this.fleets[1], isUnion: false });
     }
   }
 
@@ -95,5 +96,22 @@ export default class FleetInfo {
       mainFleet = this.unionFleet as Fleet;
     }
     return mainFleet;
+  }
+
+  /**
+   * 陣形が変更されたFleetInfoを新しく返却
+   * @static
+   * @param {FleetInfo} info
+   * @param {number} formation
+   * @return {*}  {FleetInfo}
+   * @memberof FleetInfo
+   */
+  public static getInfoWithChangedFormation(info: FleetInfo, formation: number): FleetInfo {
+    const fleets = [];
+    for (let i = 0; i < info.fleets.length; i += 1) {
+      fleets.push(new Fleet({ fleet: info.fleets[i], formation }));
+    }
+
+    return new FleetInfo({ info, fleets });
   }
 }

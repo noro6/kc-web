@@ -73,15 +73,6 @@
       <div class="px-2 px-md-4">
         <router-view />
       </div>
-      <div class="info-area px-2 px-md-4">
-        <v-divider class="mb-2"></v-divider>
-        <div class="caption">
-          著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
-        </div>
-        <div class="caption">
-          また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。
-        </div>
-      </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
         {{ readInformText }}
         <template v-slot:action="{ attrs }">
@@ -510,11 +501,6 @@ export default Vue.extend({
   min-width: 36px !important;
 }
 
-.info-area {
-  margin: 2rem auto 0.5rem auto;
-  max-width: 1200px;
-}
-
 .initial-level-items {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -782,5 +768,98 @@ export default Vue.extend({
 }
 .item-input.type-47:hover {
   box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4) !important;
+}
+
+.captured .item-input.type-1,
+.captured .item-input.type-2,
+.captured .item-input.type-3,
+.captured .item-input.type-7 {
+  background: rgba(255, 0, 0, 0.05) !important;
+}
+.captured .item-input.type-4,
+.captured .item-input.type-9,
+.captured .item-input.type-19,
+.captured .item-input.type-27,
+.captured .item-input.type-39,
+.captured .item-input.type-40 {
+  background: rgba(255, 255, 70, 0.05) !important;
+}
+.captured .item-input.type-5,
+.captured .item-input.type-8,
+.captured .item-input.type-46 {
+  background: rgba(0, 190, 255, 0.05) !important;
+}
+.captured .item-input.type-6,
+.captured .item-input.type-12,
+.captured .item-input.type-15,
+.captured .item-input.type-16,
+.captured .item-input.type-21,
+.captured .item-input.type-44,
+.captured .item-input.type-45 {
+  background: rgba(0, 255, 100, 0.05) !important;
+}
+.captured .item-input.type-10,
+.captured .item-input.type-33,
+.captured .item-input.type-43 {
+  background: rgba(86, 255, 122, 0.05) !important;
+}
+.captured .item-input.type-11 {
+  background: rgba(210, 120, 20, 0.05) !important;
+}
+.captured .item-input.type-13 {
+  background: rgba(255, 125, 125, 0.05) !important;
+}
+.captured .item-input.type-14,
+.captured .item-input.type-34 {
+  background: rgba(196, 196, 196, 0.1) !important;
+}
+.captured .item-input.type-17,
+.captured .item-input.type-18,
+.captured .item-input.type-22 {
+  background: rgba(27, 187, 255, 0.05) !important;
+}
+.captured .item-input.type-20,
+.captured .item-input.type-36 {
+  background: rgba(155, 165, 95, 0.05) !important;
+}
+.captured .item-input.type-23 {
+  background: rgba(150, 125, 175, 0.1) !important;
+}
+.captured .item-input.type-24 {
+  background: rgba(240, 130, 60, 0.05) !important;
+}
+.captured .item-input.type-25 {
+  background: rgba(128, 128, 128, 0.1) !important;
+}
+.captured .item-input.type-26,
+.captured .item-input.type-29 {
+  background: rgba(205, 165, 100, 0.05) !important;
+}
+.captured .item-input.type-28 {
+  background: rgba(140, 120, 170, 0.05) !important;
+}
+.captured .item-input.type-30 {
+  background: rgba(135, 150, 75, 0.1) !important;
+}
+.captured .item-input.type-31 {
+  background: rgba(255, 55, 55, 0.05) !important;
+}
+.captured .item-input.type-32 {
+  background: rgba(190, 240, 150, 0.2) !important;
+}
+.captured .item-input.type-35 {
+  background: rgba(95, 195, 155, 0.05) !important;
+}
+.captured .item-input.type-37,
+.captured .item-input.type-38,
+.captured .item-input.type-41,
+.captured .item-input.type-49 {
+  background: rgba(53, 199, 17, 0.05) !important;
+}
+.captured .item-input.type-44 {
+  background: rgba(36, 255, 91, 0.05) !important;
+}
+.captured .item-input.type-47 {
+  background: rgba(0, 110, 255, 0.05) !important;
 }
 </style>

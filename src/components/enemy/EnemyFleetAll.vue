@@ -6,6 +6,14 @@
       <v-btn icon @click="resetFleetAll">
         <v-icon>mdi-trash-can-outline</v-icon>
       </v-btn>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+        </template>
+        <span>最小化</span>
+      </v-tooltip>
     </div>
     <v-divider></v-divider>
     <div class="d-flex mx-2 mt-3 mb-2" v-if="!isDefense">
@@ -101,6 +109,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    handleMinimize: {
+      type: Function,
+      required: true,
+    },
   },
   data: () => ({
     items: BattleCountItems,
@@ -132,8 +144,6 @@ export default Vue.extend({
       if (builder) {
         newBattleInfo = new BattleInfo(builder);
       } else {
-        console.log(this.battleInfo.battleCount);
-
         newBattleInfo = new BattleInfo({ info: this.battleInfo });
       }
       // 基地派遣先の整合性チェック

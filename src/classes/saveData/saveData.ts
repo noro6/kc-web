@@ -419,11 +419,16 @@ export default class SaveData {
       }
       if (v instanceof EnemyFleet) {
         return {
-          enemies: v.enemies, cellType: v.cellType, formation: v.formation, range: v.range, nodeName: v.nodeName,
+          enemies: v.enemies,
+          cellType: v.cellType,
+          formation: v.formation,
+          range: v.range,
+          nodeName: v.nodeName,
+          mainFleetFormation: v.mainFleetFormation,
         };
       }
       if (v instanceof Fleet) {
-        return { ships: v.ships, formation: v.formation, isUnion: v.isUnion };
+        return { ships: v.ships, isUnion: v.isUnion };
       }
       if (v instanceof Airbase) {
         return { items: v.items, battleTarget: v.battleTarget, mode: v.mode };
@@ -579,7 +584,7 @@ export default class SaveData {
           }));
         }
       }
-      fleets.push(new Fleet({ fleet, ships }));
+      fleets.push(new Fleet({ fleet, ships, formation: 1 }));
     }
     manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets, mainFleetIndex: 0 });
 
@@ -591,9 +596,9 @@ export default class SaveData {
       const rawShips = fleet.enemies;
       const enemies: Enemy[] = [];
       for (let j = 0; j < rawShips.length; j += 1) {
-        // IDよりマスタから復元する 装備を復元するなら
+        // IDよりマスタから復元する
         const enemy = rawShips[j] as unknown as SavedShip;
-        enemies.push(Enemy.createEnemyFromMasterId(enemy.i, false, enemyMasters, itemMasters));
+        enemies.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
       }
       enemyFleet.push(new EnemyFleet({ fleet, enemies }));
     }

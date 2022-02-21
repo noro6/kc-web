@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-1 pt-1 pb-2 airbase-content" @dragover.prevent @drop.stop>
+  <v-card class="mx-1 pt-1 pb-2" @dragover.prevent @drop.stop>
     <div class="d-flex mb-1">
       <div class="ml-2 align-self-end airbase-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>

@@ -392,8 +392,6 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      console.log('filters');
-
       const bases = this.baseViewItems;
       const result = [];
       const minRemodel = this.remodelRange[0];

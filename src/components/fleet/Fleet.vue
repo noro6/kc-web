@@ -30,12 +30,17 @@
         </div>
       </div>
       <v-spacer></v-spacer>
-      <div class="px-2">
-        <v-btn color="info" icon @click.stop="clickedInfo">
-          <v-icon>mdi-information-outline</v-icon>
-        </v-btn>
+      <div class="operation-button">
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="info" icon @click="clickedInfo" v-bind="attrs" v-on="on">
+              <v-icon>mdi-information-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>艦隊詳細</span>
+        </v-tooltip>
       </div>
-      <div>
+      <div class="operation-button">
         <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
           <v-icon>mdi-minus</v-icon>
         </v-btn>
@@ -43,10 +48,15 @@
           <v-icon>mdi-plus</v-icon>
         </v-btn>
       </div>
-      <div class="px-2">
-        <v-btn icon @click="resetFleet()">
-          <v-icon>mdi-trash-can-outline</v-icon>
-        </v-btn>
+      <div class="operation-button">
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="resetFleet" v-bind="attrs" v-on="on">
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>艦隊リセット</span>
+        </v-tooltip>
       </div>
     </div>
     <div class="ship-inputs-container">
@@ -58,8 +68,8 @@
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
         :handle-close-ship="removeShip"
-        :fix-down="actualFleet.shootDownList[0].shootDownStatusList[0].fixDownList[i]"
-        :rate-down="actualFleet.shootDownList[0].shootDownStatusList[0].rateDownList[i]"
+        :fix-down="ship.fixDown"
+        :rate-down="ship.rateDown"
         @input="updateShip"
       ></ship-input>
     </div>
@@ -109,6 +119,9 @@
   right: -6px;
   top: 6px;
 }
+.operation-button {
+  padding: 0 0.2rem;
+}
 
 .ship-inputs-container {
   grid-template-columns: 1fr;
@@ -123,6 +136,13 @@
   .ship-inputs-container {
     grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+.captured .ship-inputs-container {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.captured .operation-button {
+  display: none;
 }
 </style>
 

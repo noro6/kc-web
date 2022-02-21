@@ -1,29 +1,104 @@
 <template>
-  <div class="my-5" @dragover.prevent @drop="dropItem">
-    <div class="content-frame">
-      <airbase-all v-model="calcManager.airbaseInfo" :battle-info="calcManager.battleInfo" />
+  <div class="mb-5" @dragover.prevent @drop="dropItem">
+    <div class="minimize-group">
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">基地航空隊</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">自艦隊</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">敵艦隊</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedResult" @click="toggleMinimizeResult(false)">計算結果</v-btn>
+      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder">順序入替</v-btn>
+      <v-btn class="ml-auto" small v-if="sortMode" @click="commitContentOrder" color="primary">入替完了</v-btn>
     </div>
-    <div class="content-frame" v-show="!calcManager.isDefense">
-      <fleet-all v-model="calcManager.fleetInfo" />
+    <draggable handle=".content-frame" animation="150" :disabled="!sortMode" id="content-container" :class="{ 'sort-mode': sortMode }">
+      <div id="airbase-content" class="content-frame" v-show="sortMode || !setting.isMinimizedAirbase">
+        <v-card v-if="sortMode" class="sort-container">基地航空隊</v-card>
+        <airbase-all
+          v-else
+          v-model="calcManager.airbaseInfo"
+          :battle-info="calcManager.battleInfo"
+          :handle-minimize="toggleMinimizeAirbase"
+          :sort-mode="sortMode"
+        />
+      </div>
+      <div id="fleet-content" class="content-frame" v-show="sortMode || (!calcManager.isDefense && !setting.isMinimizedFleet)">
+        <v-card v-if="sortMode" class="sort-container">自艦隊</v-card>
+        <fleet-all
+          v-else
+          v-model="calcManager.fleetInfo"
+          :handle-change-formation="changeFormation"
+          :handle-minimize="toggleMinimizeFleet"
+          :sort-mode="sortMode"
+        />
+      </div>
+      <div id="enemy-content" class="content-frame" v-show="sortMode || !setting.isMinimizedEnemy">
+        <v-card v-if="sortMode" class="sort-container">敵艦隊</v-card>
+        <enemy-fleet-all
+          v-else
+          v-model="calcManager.battleInfo"
+          :airbase-info="calcManager.airbaseInfo"
+          :is-defense="calcManager.isDefense"
+          :handle-minimize="toggleMinimizeEnemy"
+          :sort-mode="sortMode"
+        />
+      </div>
+      <div id="result-content" class="content-frame" v-show="sortMode || !setting.isMinimizedResult">
+        <v-card v-if="sortMode" class="sort-container">計算結果</v-card>
+        <main-result
+          v-else
+          v-model="calcManager"
+          v-show="!calcManager.isDefense"
+          :handle-change-main-battle="changeMainBattle"
+          :handle-change-formation="changeFormation"
+          :handle-minimize="toggleMinimizeResult"
+          :sort-mode="sortMode"
+          ref="mainResult"
+        />
+      </div>
+    </draggable>
+    <div class="info-area">
+      <v-divider class="mb-2"></v-divider>
+      <div class="caption">
+        著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
+      </div>
+      <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
     </div>
-    <div class="content-frame">
-      <enemy-fleet-all v-model="calcManager.battleInfo" :airbase-info="calcManager.airbaseInfo" :is-defense="calcManager.isDefense" />
-    </div>
-    <div class="content-frame">
-      <main-result v-model="calcManager" v-show="!calcManager.isDefense" :handle-change-main-battle="changeMainBattle" ref="mainResult" />
-    </div>
+    <v-snackbar v-model="infomation" color="success" top>
+      {{ infomationText }}
+      <template v-slot:action="{ attrs }">
+        <v-btn icon v-bind="attrs" @click="infomation = false"><v-icon>mdi-close</v-icon></v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
 <style scoped>
-.content-frame {
+.minimize-group {
   margin: 0 auto;
+  max-width: 1200px;
+  display: flex;
+}
+
+#content-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+}
+.sort-mode .content-frame {
+  cursor: move;
+}
+.sort-container {
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+}
+.info-area {
+  margin: 2rem auto 0.5rem auto;
   max-width: 1200px;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import draggable from 'vuedraggable';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
 import AirbaseAll from '@/components/airbase/AirbaseAll.vue';
 import MainResult from '@/components/result/MainResult.vue';
@@ -34,6 +109,9 @@ import SaveData from '@/classes/saveData/saveData';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
+import FleetInfo from '@/classes/fleet/fleetInfo';
+import EnemyFleet from '@/classes/enemy/enemyFleet';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -42,14 +120,20 @@ export default Vue.extend({
     FleetAll,
     EnemyFleetAll,
     MainResult,
+    draggable,
   },
   data: () => ({
     calcManager: new CalcManager(),
     unsbscribe: undefined as unknown,
     stockData: undefined as undefined | SaveData,
+    setting: new SiteSetting(),
+    sortMode: false,
+    infomation: false,
+    infomationText: '',
   }),
   mounted() {
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
+      this.setting = this.$store.state.siteSetting as SiteSetting;
       if (mutation.type === 'setMainSaveData') {
         const saveData = state.mainSaveData as SaveData;
         if (!saveData) {
@@ -94,6 +178,14 @@ export default Vue.extend({
 
         this.calculate();
       }
+
+      if (mutation.type === 'updateSetting') {
+        // 設定情報の更新を購読 常に最新の状態を保つ
+        this.setting = state.siteSetting as SiteSetting;
+        this.sortContentFromSetting();
+      }
+
+      this.sortContentFromSetting();
     });
 
     // なんかデータがあるならそれを突っ込んで計算開始
@@ -156,14 +248,28 @@ export default Vue.extend({
   methods: {
     dropItem() {
       // ドラッグ中itemをドロップ時消すフラグを建てる
-      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
-      draggingDiv.classList.add('delete-flg');
+      const draggingDiv = document.getElementById('dragging-item');
+      if (draggingDiv) {
+        draggingDiv.classList.add('delete-flg');
+      }
     },
     changeMainBattle(index: number) {
       this.calcManager.mainBattle = index;
       // 編成が変更されたわけではないので履歴への追加は行わない
       this.calcManager.battleInfo.ignoreHistory = true;
-      this.calculate();
+
+      // 陣形を整える
+      const formation = this.calcManager.battleInfo.fleets[index].mainFleetFormation;
+      this.calcManager.fleetInfo = FleetInfo.getInfoWithChangedFormation(this.calcManager.fleetInfo, formation);
+    },
+    changeFormation(formation: number) {
+      // 計算対象の敵編成を更新(味方陣形)
+      const index = this.calcManager.mainBattle;
+      const fleet = this.calcManager.battleInfo.fleets[index];
+      this.calcManager.battleInfo.fleets[index] = new EnemyFleet({ fleet, mainFleetFormation: formation });
+
+      // 陣形を整える
+      this.calcManager.fleetInfo = FleetInfo.getInfoWithChangedFormation(this.calcManager.fleetInfo, formation);
     },
     calculate() {
       // ドラッグ完了までは計算を実行しない
@@ -192,6 +298,59 @@ export default Vue.extend({
       if (resultForm) {
         resultForm.displayBattle = this.calcManager.mainBattle;
         resultForm.tab = `battle${this.calcManager.mainBattle}`;
+      }
+    },
+    startContentOrder() {
+      this.infomation = true;
+      this.infomationText = '入替モードを開始しました。ドラッグ & ドロップで入力欄を好きな順に並べ替えられます。';
+      this.sortMode = true;
+
+      // order全消し
+      const contents = document.querySelectorAll('#content-container .content-frame');
+      for (let i = 0; i < contents.length; i += 1) {
+        contents[i].className = 'content-frame';
+      }
+    },
+    commitContentOrder() {
+      this.infomation = true;
+      this.infomationText = '入力欄を入れ替えました。';
+      this.sortMode = false;
+
+      this.setting.contentOrder = [];
+      const contents = document.querySelectorAll('#content-container .content-frame');
+      for (let i = 0; i < contents.length; i += 1) {
+        const { id } = contents[i];
+        if (id) {
+          this.setting.contentOrder.push(id);
+        }
+      }
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    toggleMinimizeAirbase(isMinimized: boolean) {
+      this.setting.isMinimizedAirbase = isMinimized;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    toggleMinimizeFleet(isMinimized: boolean) {
+      this.setting.isMinimizedFleet = isMinimized;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    toggleMinimizeEnemy(isMinimized: boolean) {
+      this.setting.isMinimizedEnemy = isMinimized;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    toggleMinimizeResult(isMinimized: boolean) {
+      this.setting.isMinimizedResult = isMinimized;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    sortContentFromSetting() {
+      const ids = this.setting.contentOrder;
+      for (let i = 0; i < ids.length; i += 1) {
+        const id = ids[i];
+        const content = document.getElementById(id);
+        if (content) {
+          content.className = 'content-frame';
+          content.classList.add(`order-${i + 1}`);
+        }
       }
     },
   },
