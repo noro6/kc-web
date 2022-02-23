@@ -155,12 +155,21 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <v-text-field v-model="editedName" maxlength="100" counter label="編成データ名"></v-text-field>
+          <v-text-field v-model="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
+          <v-textarea
+            v-model.trim="editedRemarks"
+            rows="10"
+            dense
+            outlined
+            hide-details
+            label="補足情報"
+            class="remarks-input"
+          ></v-textarea>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">別名保存</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
           </div>
         </div>
@@ -206,6 +215,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     editDialog: false,
     editedName: '',
+    editedRemarks: '',
     shareDialog: false,
     unsbscribe: undefined as unknown,
   }),
@@ -388,6 +398,7 @@ export default Vue.extend({
       const data = this.saveData.getMainData();
       if (data) {
         this.editedName = '';
+        this.editedRemarks = data.remarks;
         this.editDialog = true;
       }
     },
@@ -408,6 +419,8 @@ export default Vue.extend({
           }
 
           newData.name = this.editedName;
+          newData.remarks = this.editedRemarks;
+          newData.editedDate = Date.now();
           newData.isUnsaved = false;
           newData.saveManagerData();
 
@@ -518,7 +531,7 @@ export default Vue.extend({
 }
 /** ダークテーマ 基本背景色変更 */
 .theme--dark.v-application {
-  background-color: rgb(20, 22, 28) !important;
+  background-color: rgb(20, 20, 22) !important;
 }
 /** ダークテーマ モーダル背景調整 */
 .theme--dark.v-application .v-overlay__scrim {
@@ -534,16 +547,23 @@ export default Vue.extend({
 }
 
 /** ダークテーマ card1層目 */
-.theme--dark.v-card {
-  background-color: rgb(25, 25, 28) !important;
+.theme--dark.v-card,
+.theme--dark .v-expansion-panel {
+  background-color: rgb(30, 30, 32) !important;
 }
 /** ダークテーマ card2層目 */
 .theme--dark.v-card .v-card {
-  background-color: rgb(32, 32, 35) !important;
+  background-color: rgb(42, 42, 44) !important;
 }
 /** ダークテーマ card3層目 */
 .theme--dark.v-card .v-card .v-card {
-  background-color: rgb(40, 40, 43) !important;
+  background-color: rgb(55, 55, 58) !important;
+}
+
+/** セーブデータ補足情報textarea指定 */
+.remarks-input textarea {
+  font-size: 0.8em;
+  line-height: 1.2rem;
 }
 
 /** タブ内背景色を裏と合わせる */

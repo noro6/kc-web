@@ -49,15 +49,27 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="400">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" :width="value.isDirectory ? 400 : 800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
           <v-text-field
             v-model="editedName"
+            dense
+            outlined
             maxlength="100"
             counter
             :label="`${value.isDirectory ? 'フォルダー名' : '編成データ名'}`"
           ></v-text-field>
+          <v-textarea
+            v-if="!value.isDirectory"
+            v-model.trim="editedRemarks"
+            rows="10"
+            dense
+            outlined
+            hide-details
+            label="補足情報"
+            class="remarks-input"
+          ></v-textarea>
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
           </div>
@@ -125,6 +137,7 @@ export default Vue.extend({
     editDialog: false,
     deleteConfirmDialog: false,
     editedName: '',
+    editedRemarks: '',
   }),
   computed: {
     saveData(): SaveData {
@@ -180,11 +193,14 @@ export default Vue.extend({
     },
     showNameEditDialog() {
       this.editedName = this.value.name;
+      this.editedRemarks = this.value.remarks;
       this.editDialog = true;
     },
     commitName() {
       this.editDialog = false;
       this.value.name = this.editedName.trim();
+      this.value.remarks = this.editedRemarks.trim();
+      this.value.editedDate = Date.now();
       this.handleUpdateSaveData();
     },
     dragStart(e: DragEvent) {

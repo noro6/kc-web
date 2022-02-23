@@ -47,10 +47,19 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="400">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <v-text-field v-model="editedName" maxlength="100" counter label="編成データ名"></v-text-field>
+          <v-text-field v-model.trim="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
+          <v-textarea
+            v-model.trim="editedRemarks"
+            outlined
+            dense
+            hide-details
+            label="補足情報"
+            rows="10"
+            class="remarks-input"
+          ></v-textarea>
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
           </div>
@@ -147,6 +156,7 @@ export default Vue.extend({
     deleteConfirmDialog: false,
     editDialog: false,
     editedName: '',
+    editedRemarks: '',
     editedFile: undefined as SaveData | undefined,
     deleteConfirmData: undefined as SaveData | undefined,
     disabledConfirm: false,
@@ -174,6 +184,7 @@ export default Vue.extend({
     showNameEditDialog(data: SaveData) {
       this.editedFile = data;
       this.editedName = data.name;
+      this.editedRemarks = data.remarks;
       this.editDialog = true;
     },
     handleCloseTab(data: SaveData, event: MouseEvent) {
@@ -232,6 +243,8 @@ export default Vue.extend({
     commitName() {
       if (this.editedFile) {
         this.editedFile.name = this.editedName;
+        this.editedFile.remarks = this.editedRemarks;
+        this.editedFile.editedDate = Date.now();
         this.editedFile = undefined;
       }
       this.editDialog = false;

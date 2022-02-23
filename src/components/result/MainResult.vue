@@ -5,6 +5,14 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="reflesh" v-bind="attrs" v-on="on">
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
+        </template>
+        <span>再計算</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="captureResult" v-bind="attrs" v-on="on">
             <v-icon>mdi-camera</v-icon>
           </v-btn>
@@ -543,6 +551,9 @@ export default Vue.extend({
     },
   },
   methods: {
+    reflesh() {
+      this.handleChangeMainBattle(this.displayBattle);
+    },
     changedTab(index: number) {
       if (index >= 0) {
         this.displayBattle = index;

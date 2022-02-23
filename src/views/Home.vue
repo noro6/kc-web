@@ -29,6 +29,12 @@
         </div>
       </div>
       <v-divider class="my-3"></v-divider>
+      <!-- <div class="ma-4 pt-3">
+        <v-btn dark color="teal" @click="importOldData">データ引継ぎ</v-btn>
+        <div class="mt-2 body-2">
+          旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
+        </div>
+      </div> -->
     </v-card>
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
@@ -69,6 +75,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import LZString from 'lz-string';
 import SaveData from '@/classes/saveData/saveData';
 
 export default Vue.extend({
@@ -100,6 +107,35 @@ export default Vue.extend({
         this.$store.dispatch('setMainSaveData', data);
       }
       this.$router.push('aircalc');
+    },
+    importOldData() {
+      // 旧データ引継ぎ
+      const strage = window.localStorage;
+      try {
+        if (!strage) {
+          return;
+        }
+        const presets = strage.getItem('presets');
+        const json = presets ? JSON.parse(presets) : undefined;
+        if (!json || !json.length) {
+          return;
+        }
+
+        const data = json[0][2] as string;
+        if (!data) {
+          return;
+        }
+
+        const replaced = data.replaceAll('-', '_').replaceAll('+', '-');
+        const ss = LZString.decompressFromEncodedURIComponent(replaced);
+        if (ss) {
+          console.log(ss);
+          const ssss = JSON.parse(ss);
+          console.log(`unko${ssss}ilpo`);
+        }
+      } catch (error) {
+        //
+      }
     },
   },
 });

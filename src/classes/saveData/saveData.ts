@@ -54,6 +54,9 @@ export default class SaveData {
   /** 名称 */
   public name: string;
 
+  /** 補足情報 */
+  public remarks: string;
+
   /** セーブデータ本体 非ディレクトリのみ有効 */
   public manager: string;
 
@@ -87,8 +90,11 @@ export default class SaveData {
   /** 一時保存データ 最後にセーブしたIndex箇所 */
   public tempSavedIndex: number;
 
+  /** 最終保存日時 */
+  public editedDate: number;
+
   /**
-   * インスタンス化
+   * インスタンス化(ディレクトリでない)
    * @param {SaveData} [data]
    * @memberof SaveData
    */
@@ -99,6 +105,7 @@ export default class SaveData {
       this.id = new Date().getTime().toString(16) + Math.floor(Math.random() * 10000);
     }
     this.name = '無題';
+    this.remarks = '';
     this.isDirectory = false;
     this.isOpen = false;
     this.selected = false;
@@ -111,6 +118,7 @@ export default class SaveData {
     this.isUnsaved = true;
     this.tempSavedIndex = -1;
     this.isReadonly = false;
+    this.editedDate = Date.now();
   }
 
   /**
@@ -122,11 +130,13 @@ export default class SaveData {
   public static getInstance(data: SaveData): SaveData {
     const saveData = new SaveData(data.id);
     saveData.name = data.name;
+    saveData.remarks = data.remarks;
     saveData.isDirectory = data.isDirectory;
     saveData.manager = data.manager;
     saveData.isActive = data.isActive;
     saveData.isOpen = data.isOpen;
     saveData.isUnsaved = false;
+    saveData.editedDate = data.editedDate;
 
     // 子要素を再帰的に復帰
     for (let i = 0; i < data.childItems.length; i += 1) {
@@ -137,7 +147,7 @@ export default class SaveData {
   }
 
   /**
-   * ブラウザ保存用データ
+   * 実際にブラウザに保存する用のデータ
    * @param {*} data
    * @returns {SaveData}
    * @memberof SaveData
@@ -146,7 +156,7 @@ export default class SaveData {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof SaveData) {
         return {
-          id: v.id, name: v.name, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive,
+          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate,
         };
       }
       return v;

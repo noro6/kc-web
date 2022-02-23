@@ -1,3 +1,4 @@
+import LZString from 'lz-string';
 import CalcManager from './calcManager';
 import Const from './const';
 import Fleet from './fleet/fleet';
@@ -11,6 +12,7 @@ import ShipMaster from './fleet/shipMaster';
 import ItemStock from './item/itemStock';
 import ShipStock from './fleet/shipStock';
 import CommonCalc from './commonCalc';
+import SaveData from './saveData/saveData';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -148,7 +150,7 @@ export default class Convert {
   }
 
   /**
-   * デッキビルダー基地情報からShipインスタンスの生成を頑張ってみる
+   * デッキビルダー艦娘情報からShipインスタンスの生成を頑張ってみる
    * エラー起きてもそのまま投げます
    * @private
    * @param {DeckBuilderShip} s
@@ -491,5 +493,230 @@ export default class Convert {
     }
 
     return JSON.stringify(json);
+  }
+
+  public static convertOldSimulatorToSaveData(raw: string[]): SaveData[] {
+    if (!raw.length) {
+      return [];
+    }
+
+    for (let i = 0; i < raw.length; i += 1) {
+      // 旧データ構造1 [0:id, 1:編成名, 2:データ(後述), 3:備考, 4:日付, 5:フォルダid ]
+      const saveData = new SaveData();
+      saveData.name = raw[i].length >= 2 ? raw[i][1] : '旧データ';
+      saveData.remarks = raw[i].length >= 4 ? raw[i][3] : '';
+
+      const dataString = raw[i].length >= 3 ? raw[i][2] : '';
+      /*
+        データ
+        基地: [0:機体群, 1:札群, 2:ターゲット戦闘番号[1-1, 1-2, 2-1, ..., 3-2]]
+        全体: [0:id, 1:名前, 2:[0:基地プリセット, 1:艦隊プリセット, 2:敵艦プリセット, 3:陣形(対空有効無効を兼ねる), 4: 防空モードかどうか, 5: 防空時敵艦隊, 6: 司令部レベル], 3:メモ, 4:更新日時]
+        艦隊: [0:id, 1: Item配列, 2: 配属位置, 3:無効フラグ, 4:練度, 5:連合フラグ, 6:運, 7:海域]
+          装備: [0:id, 1:熟練, 2:改修値, 3:搭載数, 4:スロット位置, 5: スロットロック(任意、ロック済みtrue]
+        敵艦: [0:戦闘位置, 1:[敵id配列], 2:マス名, 3:マス種別, 4:陣形, 5:半径]
+        対空: 対空砲火適用有効なら陣形配列 その他空
+        防空モード: そのまんま boolean
+        防空モード敵艦隊: { 0:[敵id配列], 1:マス種別, 2:陣形 }
+      */
+      if (dataString) {
+        // なぞの変換 当時は若く、(ry
+        const replaced = dataString.replaceAll('-', '_').replaceAll('+', '-');
+        const decoded = LZString.decompressFromEncodedURIComponent(replaced);
+        if (!decoded) {
+          continue;
+        }
+        // const json = JSON.parse(decoded);
+        // const manager = new CalcManager();
+
+        // 基地
+        // const oldAirbase = json[0];
+      }
+    }
+
+    return [];
+  }
+
+  private static oldDecompressFromEncodedURIComponent(input: string) {
+    const keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_$';
+    if (input === null) return '';
+    if (input === '') return null;
+    input = input.replace(/ /g, '+');
+    return Convert.decompress(input.length, 32, (index) => Convert.getBaseValue(keyStrUriSafe, input.charAt(index)));
+  }
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  private static getBaseValue(alphabet: string, character: any): any {
+    const baseReverseDic = {} as any;
+    if (!baseReverseDic[alphabet]) {
+      baseReverseDic[alphabet] = {};
+      for (let i = 0; i < alphabet.length; i += 1) {
+        baseReverseDic[alphabet][alphabet.charAt(i)] = i;
+      }
+    }
+    return baseReverseDic[alphabet][character];
+  }
+
+  /* eslint-disable no-restricted-properties, no-bitwise, no-plusplus, eqeqeq, @typescript-eslint/no-explicit-any, no-constant-condition */
+  private static decompress(length: number, resetValue: number, getNextValue: (i: any) => any): any {
+    const dictionary = [];
+    const f = String.fromCharCode;
+    let enlargeIn = 4;
+    let dictSize = 4;
+    let numBits = 3;
+    let entry = '' as any;
+    const result = [];
+    let i;
+    let w;
+    let bits; let resb; let maxpower; let power;
+    let c;
+    const data = { val: getNextValue(0), position: resetValue, index: 1 };
+
+    for (i = 0; i < 3; i += 1) {
+      dictionary[i] = i;
+    }
+
+    bits = 0;
+    maxpower = Math.pow(2, 2);
+    power = 1;
+    while (power != maxpower) {
+      resb = data.val & data.position;
+      data.position >>= 1;
+      if (data.position == 0) {
+        data.position = resetValue;
+        data.val = getNextValue(data.index++);
+      }
+      bits |= (resb > 0 ? 1 : 0) * power;
+      power <<= 1;
+    }
+
+    switch (bits) {
+      case 0:
+        bits = 0;
+        maxpower = Math.pow(2, 8);
+        power = 1;
+        while (power != maxpower) {
+          resb = data.val & data.position;
+          data.position >>= 1;
+          if (data.position == 0) {
+            data.position = resetValue;
+            data.val = getNextValue(data.index++);
+          }
+          bits |= (resb > 0 ? 1 : 0) * power;
+          power <<= 1;
+        }
+        c = f(bits);
+        break;
+      case 1:
+        bits = 0;
+        maxpower = Math.pow(2, 16);
+        power = 1;
+        while (power != maxpower) {
+          resb = data.val & data.position;
+          data.position >>= 1;
+          if (data.position == 0) {
+            data.position = resetValue;
+            data.val = getNextValue(data.index++);
+          }
+          bits |= (resb > 0 ? 1 : 0) * power;
+          power <<= 1;
+        }
+        c = f(bits);
+        break;
+      case 2:
+        return '';
+      default:
+        return '';
+    }
+    dictionary[3] = c;
+    w = c;
+    result.push(c);
+    while (true) {
+      if (data.index > length) {
+        return '';
+      }
+
+      bits = 0;
+      maxpower = Math.pow(2, numBits);
+      power = 1;
+      while (power != maxpower) {
+        resb = data.val & data.position;
+        data.position >>= 1;
+        if (data.position == 0) {
+          data.position = resetValue;
+          data.val = getNextValue(data.index++);
+        }
+        bits |= (resb > 0 ? 1 : 0) * power;
+        power <<= 1;
+      }
+
+      switch (c = bits) {
+        case 0:
+          bits = 0;
+          maxpower = Math.pow(2, 8);
+          power = 1;
+          while (power != maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb > 0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+
+          dictionary[dictSize++] = f(bits);
+          c = dictSize - 1;
+          enlargeIn--;
+          break;
+        case 1:
+          bits = 0;
+          maxpower = Math.pow(2, 16);
+          power = 1;
+          while (power != maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb > 0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+          dictionary[dictSize++] = f(bits);
+          c = dictSize - 1;
+          enlargeIn--;
+          break;
+        case 2:
+          return result.join('');
+        default:
+          return result.join('');
+      }
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+
+      if (dictionary[c]) {
+        entry = dictionary[c];
+      } else if (c === dictSize) {
+        entry = w + w.charAt(0);
+      } else {
+        return null;
+      }
+      result.push(entry);
+
+      // Add w+entry[0] to the dictionary.
+      dictionary[dictSize++] = w + entry.charAt(0);
+      enlargeIn--;
+
+      w = entry;
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+    }
   }
 }
