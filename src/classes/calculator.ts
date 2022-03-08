@@ -390,12 +390,12 @@ export default class Calculator {
       const item = items[i];
 
       // 基地は全て、通常航空戦は攻撃機かつ陸攻でない
-      if (isAirbase || (!isAirbase && !item.isABAttacker && item.isAttacker)) {
+      if (isAirbase || (!isAirbase && !item.isABAttacker && !item.isRecon)) {
         // ====== STAGE1 ======
         item.slot -= CommonCalc.getStage1ShootDownValueEnemy(state, item.slot);
 
         // ====== STAGE2 ======
-        if (randomRange) {
+        if (randomRange && item.isAttacker) {
           // 撃墜担当を選出
           const index = Math.floor(Math.random() * randomRange);
           const { avoidId } = item.data;
@@ -414,7 +414,7 @@ export default class Calculator {
 
       // 制空値を更新
       Item.updateAirPower(item);
-      if (item.isAttacker && !item.isABAttacker) {
+      if (!item.isRecon && !item.isABAttacker) {
         sumAirPower += item.airPower;
       }
       sumAirbaseAirPower += item.airPower;
