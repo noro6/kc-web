@@ -210,13 +210,15 @@ export default new Vuex.Store({
         root.childItems.push(folder);
 
         // 初期フォルダー作成 第1～7海域まで作ってやる
-        for (let i = 0; i < 7; i += 1) {
-          const world = Const.WORLDS[i];
-          const newFolder = new SaveData();
-          newFolder.name = world.text;
-          newFolder.isDirectory = true;
-          newFolder.isUnsaved = false;
-          folder.childItems.push(newFolder);
+        for (let i = 1; i <= 7; i += 1) {
+          const world = Const.WORLDS.find((v) => v.value === i);
+          if (world) {
+            const newFolder = new SaveData();
+            newFolder.name = world.text;
+            newFolder.isDirectory = true;
+            newFolder.isUnsaved = false;
+            folder.childItems.push(newFolder);
+          }
         }
         folder.sortChild();
 

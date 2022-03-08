@@ -51,7 +51,7 @@
       ></enemy-fleet-component>
     </div>
     <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
-      <enemy-list :handle-decide-enemy="putEnemy" />
+      <enemy-list :handle-decide-enemy="putEnemy" :handleClose="closeEnemyList" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
@@ -234,6 +234,9 @@ export default Vue.extend({
     closeWorldList() {
       this.worldListDialog = false;
       this.toggleWorldList();
+    },
+    closeEnemyList() {
+      this.enemyListDialog = false;
     },
     toggleWorldList() {
       if (!this.worldListDialog && this.fleetStock.length) {

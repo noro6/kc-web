@@ -193,7 +193,7 @@ export default class Ship implements ShipBase {
       // 装甲値
       this.actualArmor += item.data.armor;
 
-      if (item.fullSlot > 0 && item.isPlane && !item.isRecon) {
+      if (item.fullSlot > 0 && item.isPlane && !item.isRecon && !item.isABAttacker) {
         // 通常制空値
         this.fullAirPower += item.fullAirPower;
       }

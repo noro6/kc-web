@@ -47,7 +47,7 @@ export default class Calculator {
         airbase.resultWave1.loopSumEnemyAirPower += enemyFleet.airbaseAirPower;
 
         // 敵機撃墜処理
-        Calculator.shootDownEnemy(state, enemyFleet);
+        Calculator.shootDownEnemy(state, enemyFleet, [], true);
         if (isSeparate) {
           // 基地撃墜処理
           Calculator.ShootDownAirbase(state, airbase, enemyFleet);
@@ -68,7 +68,7 @@ export default class Calculator {
         airbase.resultWave2.loopSumEnemyAirPower += enemyFleet.airbaseAirPower;
 
         // 敵機撃墜処理
-        Calculator.shootDownEnemy(state, enemyFleet);
+        Calculator.shootDownEnemy(state, enemyFleet, [], true);
         if (isSeparate || needRecord) {
           // 基地撃墜処理
           Calculator.ShootDownAirbase(state, airbase, enemyFleet);
@@ -83,7 +83,7 @@ export default class Calculator {
    * @param {Fleet} fleet
    * @param {EnemyFleet} enemyFleet
    * @param {number} battle
-   * @param {boolean} [skipStage2=true] 敵側撃墜計算を行う場合はtrueを指定して
+   * @param {boolean} [calcStage2=true] 敵側撃墜計算を行う場合はtrueを指定して
    * @memberof Calculator
    */
   public static calculateMainPhase(fleet: Fleet, enemyFleet: EnemyFleet, battle: number, calcStage2 = false): void {
@@ -367,7 +367,7 @@ export default class Calculator {
    * @param {EnemyFleet} fleet
    * @memberof Calculator
    */
-  private static shootDownEnemy(state: number, fleet: EnemyFleet, shootDownList?: ShootDownInfo[]) {
+  private static shootDownEnemy(state: number, fleet: EnemyFleet, shootDownList: ShootDownInfo[], isAirbase = false) {
     const items = fleet.allPlanes;
     const itemLength = items.length;
     let st2List: ShootDownStatus[] = [];
@@ -388,29 +388,33 @@ export default class Calculator {
 
     for (let i = 0; i < itemLength; i += 1) {
       const item = items[i];
-      // ====== STAGE1 ======
-      item.slot -= CommonCalc.getStage1ShootDownValueEnemy(state, item.slot);
 
-      // ====== STAGE2 ======
-      if (randomRange && item.isAttacker) {
-        // 撃墜担当を選出
-        const index = Math.floor(Math.random() * randomRange);
-        const { avoidId } = item.data;
-        if (Math.random() >= 0.5) {
-          // 割合撃墜 50%で成功
-          item.slot -= Math.floor(st2List[avoidId].rateDownList[index] * item.slot);
+      // 基地は全て、通常航空戦は攻撃機かつ陸攻でない
+      if (isAirbase || (!isAirbase && !item.isABAttacker && item.isAttacker)) {
+        // ====== STAGE1 ======
+        item.slot -= CommonCalc.getStage1ShootDownValueEnemy(state, item.slot);
+
+        // ====== STAGE2 ======
+        if (randomRange) {
+          // 撃墜担当を選出
+          const index = Math.floor(Math.random() * randomRange);
+          const { avoidId } = item.data;
+          if (Math.random() >= 0.5) {
+            // 割合撃墜 50%で成功
+            item.slot -= Math.floor(st2List[avoidId].rateDownList[index] * item.slot);
+          }
+          if (Math.random() >= 0.5) {
+            // 固定撃墜 50%で成功
+            item.slot -= st2List[avoidId].fixDownList[index];
+          }
+          // 最低保証
+          item.slot -= st2List[avoidId].minimumDownList[index];
         }
-        if (Math.random() >= 0.5) {
-          // 固定撃墜 50%で成功
-          item.slot -= st2List[avoidId].fixDownList[index];
-        }
-        // 最低保証
-        item.slot -= st2List[avoidId].minimumDownList[index];
       }
 
       // 制空値を更新
       Item.updateAirPower(item);
-      if (!item.isRecon) {
+      if (item.isAttacker && !item.isABAttacker) {
         sumAirPower += item.airPower;
       }
       sumAirbaseAirPower += item.airPower;

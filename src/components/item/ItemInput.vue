@@ -36,12 +36,7 @@
     </v-menu>
     <!-- 装備種別 -->
     <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
-      <v-img
-        v-show="!isExpandSlot || item.data.iconTypeId"
-        :src="`./img/type/icon${item.data.iconTypeId}.png`"
-        height="28"
-        width="28"
-      ></v-img>
+      <img v-show="!isExpandSlot || item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
       <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
     </div>
     <!-- 装備名称 -->
@@ -140,7 +135,8 @@
 .item-icon.draggable {
   cursor: move;
 }
-.item-icon {
+.item-icon,
+.item-icon img {
   text-align: center;
   width: 28px;
   height: 28px;

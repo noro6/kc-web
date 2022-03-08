@@ -23,18 +23,18 @@
           <div class="mt-5 body-2">
             <div>サブの機能です。</div>
             <div class="mt-2">
-              自分のゲーム内の艦娘、装備情報を登録することで、シミュレータ内で選択できる艦娘や装備を絞り込むことができるようになり、あの装備持ってたっけ…？と迷う心配がなくなります。
+              自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってたっけ…？と迷う心配がなくなります。
             </div>
           </div>
         </div>
       </div>
       <v-divider class="my-3"></v-divider>
-      <!-- <div class="ma-4 pt-3">
-        <v-btn dark color="teal" @click="importOldData">データ引継ぎ</v-btn>
+      <div class="ma-4 pt-3">
+        <v-btn color="teal" @click="importOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
         <div class="mt-2 body-2">
           旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
         </div>
-      </div> -->
+      </div>
     </v-card>
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
@@ -75,16 +75,18 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import LZString from 'lz-string';
 import SaveData from '@/classes/saveData/saveData';
+import Convert from '@/classes/convert';
 
 export default Vue.extend({
   name: 'Home',
-  data: () => ({}),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
     saveData.disabledMain();
   },
+  data: () => ({
+    imported: false,
+  }),
   methods: {
     goAirCalcPage() {
       const saveData = this.$store.state.saveData as SaveData;
@@ -109,32 +111,46 @@ export default Vue.extend({
       this.$router.push('aircalc');
     },
     importOldData() {
+      this.imported = true;
+
       // 旧データ引継ぎ
       const strage = window.localStorage;
       try {
         if (!strage) {
+          this.$emit('inform', 'データ引継ぎに失敗しました。', true);
           return;
         }
         const presets = strage.getItem('presets');
-        const json = presets ? JSON.parse(presets) : undefined;
-        if (!json || !json.length) {
+        const presetJSON = presets ? JSON.parse(presets) : undefined;
+        if (!presetJSON || !presetJSON.length) {
+          this.$emit('inform', 'データ引継ぎに失敗しました。編成データが見つかりませんでした。', true);
           return;
         }
 
-        const data = json[0][2] as string;
-        if (!data) {
-          return;
-        }
+        const setting = strage.getItem('setting');
+        const settingJSON = setting ? JSON.parse(setting) : undefined;
+        const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.state.enemies);
+        const oldData = converter.convertOldSimulatorToSaveData(presetJSON, settingJSON);
 
-        const replaced = data.replaceAll('-', '_').replaceAll('+', '-');
-        const ss = LZString.decompressFromEncodedURIComponent(replaced);
-        if (ss) {
-          console.log(ss);
-          const ssss = JSON.parse(ss);
-          console.log(`unko${ssss}ilpo`);
+        if (oldData && oldData.childItems.length) {
+          // セーブデータルート取得
+          const saveData = this.$store.state.saveData as SaveData;
+          const root = saveData.childItems.find((v) => v.isDirectory);
+          if (root) {
+            root.childItems.push(oldData);
+            root.sortChild();
+            this.$store.dispatch('updateSaveData', saveData);
+
+            // 旧データ取り込み完了通知
+            this.$emit('inform', '編成データの引き継ぎが完了しました。');
+            this.$emit('openSidebar');
+          }
+        } else {
+          this.$emit('inform', 'データ引継ぎに失敗しました。', true);
         }
       } catch (error) {
-        //
+        this.$emit('inform', 'データ引継ぎに失敗しました。', true);
+        console.error(error);
       }
     },
   },

@@ -1,6 +1,14 @@
 <template>
   <div>
     <v-card>
+      <div class="d-flex pt-2 pb-1 pr-2">
+        <div class="align-self-center ml-3">敵艦選択</div>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="close">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
+      <v-divider></v-divider>
       <div class="d-flex px-5 pt-2">
         <div class="align-self-center">
           <v-text-field label="id 名称検索" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
@@ -25,7 +33,15 @@
       <v-divider></v-divider>
       <div class="enemy-table-container pa-3">
         <div class="enemy-table-body">
-          <div v-ripple="{ class: 'info--text' }" v-for="(enemy, i) in enemies" :key="i" class="enemy-list" @click="clickedEnemy(enemy)">
+          <div
+            v-ripple="{ class: 'info--text' }"
+            v-for="(enemy, i) in enemies"
+            :key="i"
+            class="enemy-list"
+            @click="clickedEnemy(enemy)"
+            @mouseenter="bootTooltip(enemy, $event)"
+            @mouseleave="clearTooltip"
+          >
             <div>
               <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
             </div>
@@ -39,6 +55,17 @@
         </div>
       </div>
     </v-card>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <enemy-tooltip v-model="tooltipEnemy" />
+    </v-tooltip>
   </div>
 </template>
 
@@ -114,13 +141,22 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import EnemyTooltip from '@/components/enemy/EnemyTooltip.vue';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Const from '@/classes/const';
+import Enemy from '@/classes/enemy/enemy';
 
 export default Vue.extend({
   name: 'EnemyList',
+  components: {
+    EnemyTooltip,
+  },
   props: {
     handleDecideEnemy: {
+      type: Function,
+      required: true,
+    },
+    handleClose: {
       type: Function,
       required: true,
     },
@@ -132,6 +168,11 @@ export default Vue.extend({
     type: 0,
     isLandbase: false,
     keyword: '',
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipEnemy: new Enemy(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     const existTypes: number[] = [];
@@ -176,6 +217,26 @@ export default Vue.extend({
     },
     clickedEnemy(enemy: EnemyMaster) {
       this.handleDecideEnemy(enemy);
+    },
+    close() {
+      this.handleClose();
+    },
+    bootTooltip(enemy: EnemyMaster, e: MouseEvent) {
+      if (!enemy.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('enemy-id')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = e.clientX;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipEnemy = Enemy.createEnemyFromMaster(enemy, false, this.$store.state.items);
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

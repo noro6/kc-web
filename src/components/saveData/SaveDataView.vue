@@ -7,7 +7,7 @@
         <div class="ml-1 align-self-center">v2.0.0</div>
       </div>
       <div class="ml-auto btn-icons">
-        <v-tooltip bottom>
+        <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="addNewFile" v-bind="attrs" v-on="on">
               <v-icon color="blue lighten-3">mdi-note-plus</v-icon>
@@ -15,7 +15,7 @@
           </template>
           <span>新しい編成を作成</span>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="addNewDirectory" v-bind="attrs" v-on="on">
               <v-icon color="yellow lighten-1">mdi-folder-plus</v-icon>
@@ -23,7 +23,7 @@
           </template>
           <span>新しいフォルダーを作成</span>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="openAllDirectory" v-bind="attrs" v-on="on">
               <v-icon color="orange lighten-3">mdi-expand-all</v-icon>
@@ -31,7 +31,7 @@
           </template>
           <span>フォルダーを全て開く</span>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small @click.stop="closeAllDirectory" v-bind="attrs" v-on="on">
               <v-icon color="grey">mdi-collapse-all</v-icon>
@@ -60,11 +60,14 @@
 }
 .item-container {
   flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .home {
   cursor: pointer;
   user-select: none;
+  border-radius: 0.2rem;
 }
 .home:hover {
   background-color: rgba(128, 128, 128, 0.2);
@@ -84,6 +87,10 @@ export default Vue.extend({
       type: SaveData,
       required: true,
     },
+    handleInform: {
+      type: Function,
+      required: true,
+    },
   },
   methods: {
     addNewFile() {
@@ -100,6 +107,7 @@ export default Vue.extend({
       folder.isDirectory = true;
       folder.isUnsaved = false;
       this.addNewSaveData(folder);
+      this.handleInform('新しいフォルダーを作成しました');
     },
     addNewSaveData(saveData: SaveData) {
       const data = this.rootData.childItems;
@@ -107,6 +115,7 @@ export default Vue.extend({
         if (data[i].addNewFileToSelectedData(saveData)) {
           // セーブデータの更新を通知
           this.$store.dispatch('updateSaveData', this.rootData);
+          this.handleInform(`新しい${saveData.isDirectory ? 'フォルダー' : '編成'}を作成しました。`);
           return;
         }
       }
@@ -122,10 +131,8 @@ export default Vue.extend({
         folder.sortChild();
         // セーブデータの更新を通知
         this.$store.dispatch('updateSaveData', this.rootData);
+        this.handleInform(`新しい${saveData.isDirectory ? 'フォルダー' : '編成'}を作成しました。`);
       }
-    },
-    clearSelectionAll() {
-      this.rootData.clearSelection();
     },
     openAllDirectory() {
       this.rootData.openDirectory();
@@ -135,6 +142,7 @@ export default Vue.extend({
     },
     deleteChild(index: number) {
       this.rootData.childItems = this.rootData.childItems.filter((v, i) => i !== index);
+      this.handleInform('削除が完了しました。');
       // セーブデータの更新を通知
       this.$store.dispatch('updateSaveData', this.rootData);
     },

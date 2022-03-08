@@ -93,7 +93,13 @@
             </div>
             <div class="mt-1 px-1" :class="{ 'enemies-container': fleet.isUnion }">
               <div class="mx-1" v-if="fleet.isUnion">
-                <div v-for="(enemy, j) in fleet.escortEnemies" :key="j" class="d-flex enemy-info">
+                <div
+                  v-for="(enemy, j) in fleet.escortEnemies"
+                  :key="j"
+                  class="d-flex enemy-info"
+                  @mouseenter="bootTooltip(enemy, $event)"
+                  @mouseleave="clearTooltip"
+                >
                   <div class="align-self-center mr-1">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
                   </div>
@@ -110,7 +116,13 @@
                 </div>
               </div>
               <div class="mx-1">
-                <div v-for="(enemy, j) in fleet.mainEnemies" :key="j" class="d-flex enemy-info">
+                <div
+                  v-for="(enemy, j) in fleet.mainEnemies"
+                  :key="j"
+                  class="d-flex enemy-info"
+                  @mouseenter="bootTooltip(enemy, $event)"
+                  @mouseleave="clearTooltip"
+                >
                   <div class="align-self-center mr-1">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
                   </div>
@@ -155,6 +167,17 @@
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <enemy-tooltip v-model="tooltipEnemy" />
+    </v-tooltip>
   </div>
 </template>
 
@@ -240,6 +263,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import EnemyDetail from '@/components/enemy/EnemyDetail.vue';
+import EnemyTooltip from '@/components/enemy/EnemyTooltip.vue';
 import Const, { CELL_TYPE, DIFFICULTY_LEVEL, FORMATION } from '@/classes/const';
 import CellMaster from '@/classes/enemy/cellMaster';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
@@ -251,6 +275,7 @@ export default Vue.extend({
   name: 'WorldList',
   components: {
     EnemyDetail,
+    EnemyTooltip,
   },
   props: {
     handleSetEnemy: {
@@ -289,6 +314,11 @@ export default Vue.extend({
     unsbscribe: undefined as unknown,
     selectedNodeName: '',
     selectedNodeNames: [] as string[],
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipEnemy: new Enemy(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     // 敵編成読み込み
@@ -493,6 +523,23 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+    },
+    bootTooltip(enemy: Enemy, e: MouseEvent) {
+      if (!enemy.data.id) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('text-id')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = e.clientX;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipEnemy = enemy;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

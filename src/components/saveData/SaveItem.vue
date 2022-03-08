@@ -2,7 +2,7 @@
   <div
     :draggable="!value.isUnsaved"
     class="save-list"
-    :class="{ 'disabled-drag': value.isUnsaved }"
+    :class="{ 'disabled-drag': value.isUnsaved, highlight: value.highlight }"
     @dragover.prevent
     @drop.stop="dropItem($event)"
     @dragleave.stop="dragLeave($event)"
@@ -17,6 +17,8 @@
       @click="itemClicked"
       v-click-outside="onClickOutside"
       :style="`padding-left: ${0.5 + depth * 1.25}rem`"
+      @mouseenter.stop="bootTooltip(value, $event)"
+      @mouseleave.stop="clearTooltip"
     >
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
@@ -25,12 +27,22 @@
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
       <div class="item-name text-truncate">{{ value.name }}</div>
       <div class="ml-auto file-action-buttons">
-        <v-btn v-if="!value.isUnsaved" icon small @click.stop="showNameEditDialog" title="名前を変更" :disabled="value.isReadonly">
-          <v-icon small>mdi-file-document-edit-outline</v-icon>
-        </v-btn>
-        <v-btn icon small @click.stop="deleteConfirmDialog = true" title="削除" :disabled="value.isReadonly">
-          <v-icon small>mdi-trash-can-outline</v-icon>
-        </v-btn>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-if="!value.isUnsaved" icon small @click.stop="showEditDialog" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
+              <v-icon small>mdi-file-document-edit-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>情報を変更</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon small @click.stop="deleteConfirmDialog = true" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
+              <v-icon small>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>削除</span>
+        </v-tooltip>
       </div>
     </div>
     <div v-if="value.isOpen">
@@ -49,7 +61,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" :width="value.isDirectory ? 400 : 800">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" :width="value.isDirectory ? 600 : 800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
           <v-text-field
@@ -70,12 +82,24 @@
             label="補足情報"
             class="remarks-input"
           ></v-textarea>
-          <div class="d-flex mt-3">
+          <div class="d-flex mt-2">
             <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
           </div>
         </div>
       </v-card>
     </v-dialog>
+    <v-tooltip
+      v-if="enabledTooltip"
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <save-data-tooltip v-model="tooltipData" />
+    </v-tooltip>
   </div>
 </template>
 
@@ -107,14 +131,40 @@
 .save-list-item:hover .file-action-buttons {
   opacity: 1;
 }
+
+.highlight {
+  animation-name: flash;
+  animation-duration: 0.8s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 2;
+}
+@keyframes flash {
+  0% {
+    background-color: transparent;
+    color: #fff;
+  }
+  50% {
+    box-shadow: 0px 0px 30px rgb(80, 200, 255);
+    background-color: rgb(80, 200, 255);
+    color: #000;
+  }
+  100% {
+    background-color: transparent;
+    color: #fff;
+  }
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import SaveData from '@/classes/saveData/saveData';
+import SaveDataTooltip from '@/components/saveData/SaveDataTooltip.vue';
 
 export default Vue.extend({
   name: 'SaveItem',
+  components: {
+    SaveDataTooltip,
+  },
   props: {
     value: {
       type: SaveData,
@@ -138,6 +188,11 @@ export default Vue.extend({
     deleteConfirmDialog: false,
     editedName: '',
     editedRemarks: '',
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipData: new SaveData(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   computed: {
     saveData(): SaveData {
@@ -147,10 +202,21 @@ export default Vue.extend({
       return this.editedName.length <= 0;
     },
   },
+  updated() {
+    if (this.value.highlight) {
+      // 光り終わったら消す通知
+      setTimeout(() => {
+        const saveData = this.$store.state.saveData as SaveData;
+        saveData.clearHighlight();
+        this.$store.dispatch('updateSaveData', saveData);
+      }, 1600);
+    }
+  },
   methods: {
     handleUpdateSaveData(): void {
       // セーブデータの更新を通知
       const saveData = this.$store.state.saveData as SaveData;
+      saveData.sortChild();
       this.$store.dispatch('updateSaveData', saveData);
     },
     itemClicked(): void {
@@ -190,8 +256,14 @@ export default Vue.extend({
       this.value.childItems = this.value.childItems.filter((v, i) => i !== index);
       // 更新を通知
       this.handleUpdateSaveData();
+
+      // メイン計算データの削除がされていないかチェック されていたら更新通知 => 計算画面だったらトップページに戻ってくれる
+      const saveData = this.$store.state.saveData as SaveData;
+      if (!saveData.getMainData()) {
+        this.$store.dispatch('setMainSaveData', undefined);
+      }
     },
-    showNameEditDialog() {
+    showEditDialog() {
       this.editedName = this.value.name;
       this.editedRemarks = this.value.remarks;
       this.editDialog = true;
@@ -271,6 +343,20 @@ export default Vue.extend({
       for (let i = 0; i < itemList.length; i += 1) {
         itemList[i].classList.remove('dragging');
       }
+    },
+    bootTooltip(data: SaveData, e: MouseEvent) {
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      this.tooltipTimer = setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipData = data;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

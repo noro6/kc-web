@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" app temporary dark width="480">
-      <save-data-view :root-data="saveData" />
+      <save-data-view :root-data="saveData" :handle-inform="inform"/>
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -71,7 +71,7 @@
     </v-app-bar>
     <v-main>
       <div class="px-2 px-md-4">
-        <router-view />
+        <router-view @inform="inform" @openSidebar="drawer = true"/>
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
         {{ readInformText }}
@@ -493,6 +493,11 @@ export default Vue.extend({
       }
       window.history.replaceState(null, '', `${document.location.pathname}#/`);
       return retVal;
+    },
+    inform(text: string, isError = false) {
+      this.readInformText = text;
+      this.readInform = true;
+      this.readResultColor = isError ? 'error' : 'success';
     },
   },
   beforeDestroy() {

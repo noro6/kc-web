@@ -45,7 +45,10 @@ interface SavedShip {
 }
 
 export default class SaveData {
-  /** 一意識別用id */
+  /**
+   * 一意識別用id 基本的に使うことはない
+   * 現状、ファイル移動時に自分より下の階層に入れようとした際のチェックに使うのみ
+   */
   public readonly id: string;
 
   /** ディレクトリかどうか */
@@ -93,9 +96,12 @@ export default class SaveData {
   /** 最終保存日時 */
   public editedDate: number;
 
+  /** ハイライト表示 専ら旧データインポート時に分かりやすくするため */
+  public highlight = false;
+
   /**
    * インスタンス化(ディレクトリでない)
-   * @param {SaveData} [data]
+   * @param {string} [id]
    * @memberof SaveData
    */
   constructor(id?: string) {
@@ -148,7 +154,6 @@ export default class SaveData {
 
   /**
    * 実際にブラウザに保存する用のデータ
-   * @param {*} data
    * @returns {SaveData}
    * @memberof SaveData
    */
@@ -184,6 +189,17 @@ export default class SaveData {
     this.selected = false;
     for (let i = 0; i < this.childItems.length; i += 1) {
       this.childItems[i].clearSelection();
+    }
+  }
+
+  /**
+   * ハイライト解除 再帰呼び出し
+   * @memberof SaveData
+   */
+  public clearHighlight(): void {
+    this.highlight = false;
+    for (let i = 0; i < this.childItems.length; i += 1) {
+      this.childItems[i].clearHighlight();
     }
   }
 
@@ -273,7 +289,10 @@ export default class SaveData {
         if (a.isDirectory && !b.isDirectory) return -1;
         if (!a.isDirectory && b.isDirectory) return 1;
 
-        return a.name.localeCompare(b.name);
+        const sa = String(a.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
+        const sb = String(b.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
+        if (sa < sb) return -1;
+        return sa > sb ? 1 : 0;
       });
 
       for (let i = 0; i < this.childItems.length; i += 1) {

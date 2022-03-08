@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="py-1">
     <div class="d-flex">
       <div class="ml-1">
         <div class="d-flex">
@@ -7,7 +7,7 @@
           <div class="ml-2 tooltip-item-text">耐久: {{ value.data.hp }}</div>
           <div class="ml-2 tooltip-item-text">装甲: {{ value.data.armor }} ({{ armor }})</div>
         </div>
-        <div class="d-flex">
+        <div class="d-flex my-1">
           <div>{{ value.data.name }}</div>
           <v-spacer></v-spacer>
           <div v-if="value.antiAirCutIn.length" class="ml-3 anti-air-cutin">対空CI発動可能</div>
@@ -43,6 +43,7 @@
   text-align: right;
   color: #ddd;
   margin-right: 0.5rem;
+  font-size: 0.95em;
 }
 .item-name {
   font-size: 13px;

@@ -101,8 +101,8 @@
     <div v-else class="item-all-container mt-3">
       <v-card class="py-1" v-for="(header, i) in viewItems" :key="i">
         <div class="ma-1 d-flex">
-          <div>
-            <v-img :src="`./img/type/type${header.type.id}.png`" height="24" width="24"></v-img>
+          <div class="type-img">
+            <img :src="`./img/type/type${header.type.id}.png`" />
           </div>
           <div class="ml-1 align-self-center">{{ header.type.name }}</div>
         </div>
@@ -116,8 +116,8 @@
             @mouseleave="clearTooltip"
           >
             <div class="d-flex align-self-start flex-grow-1">
-              <div>
-                <v-img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" height="20" width="20"></v-img>
+              <div class="icon-img">
+                <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" />
               </div>
               <div class="item-name flex-grow-1">{{ itemRow.master.name }}</div>
             </div>
@@ -222,6 +222,17 @@
 }
 .item-container.no-item {
   opacity: 0.6;
+}
+.type-img,
+.type-img img {
+  height: 24px;
+  width: 24px;
+}
+
+.icon-img,
+.icon-img img {
+  height: 20px;
+  width: 20px;
 }
 
 .item-name {

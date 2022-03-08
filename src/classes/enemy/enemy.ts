@@ -99,7 +99,7 @@ export default class Enemy implements ShipBase {
       if (item.fullSlot > 0) {
         // 基地制空値
         this.fullLBAirPower += item.fullAirPower;
-        if (!item.isRecon) {
+        if (!item.isRecon && !item.isABAttacker) {
           // 通常制空値
           this.fullAirPower += item.fullAirPower;
         }

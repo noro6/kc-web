@@ -5,8 +5,9 @@
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">自艦隊</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">敵艦隊</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedResult" @click="toggleMinimizeResult(false)">計算結果</v-btn>
-      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder">順序入替</v-btn>
+      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder" color="primary">順序入替</v-btn>
       <v-btn class="ml-auto" small v-if="sortMode" @click="commitContentOrder" color="primary">入替完了</v-btn>
+      <v-btn class="ml-2" dark small v-if="sortMode" @click="cancelContentOrder" color="secondary">キャンセル</v-btn>
     </div>
     <draggable handle=".content-frame" animation="150" :disabled="!sortMode" id="content-container" :class="{ 'sort-mode': sortMode }">
       <div id="airbase-content" class="content-frame" v-show="sortMode || !setting.isMinimizedAirbase">
@@ -61,12 +62,6 @@
       </div>
       <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
     </div>
-    <v-snackbar v-model="infomation" color="success" top>
-      {{ infomationText }}
-      <template v-slot:action="{ attrs }">
-        <v-btn icon v-bind="attrs" @click="infomation = false"><v-icon>mdi-close</v-icon></v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
@@ -128,8 +123,6 @@ export default Vue.extend({
     stockData: undefined as undefined | SaveData,
     setting: new SiteSetting(),
     sortMode: false,
-    infomation: false,
-    infomationText: '',
   }),
   mounted() {
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
@@ -137,7 +130,7 @@ export default Vue.extend({
       if (mutation.type === 'setMainSaveData') {
         const saveData = state.mainSaveData as SaveData;
         if (!saveData) {
-          // 計算対象データがないならトップページに戻す ありえんけど
+          // 計算対象データがないならトップページに戻す。開いてる途中で削除されたりしたらこうなる
           this.$router.push('/');
           return;
         }
@@ -301,19 +294,20 @@ export default Vue.extend({
       }
     },
     startContentOrder() {
-      this.infomation = true;
-      this.infomationText = '入替モードを開始しました。ドラッグ & ドロップで入力欄を好きな順に並べ替えられます。';
+      this.$emit('inform', 'ドラッグ & ドロップで入力欄を好きな順に並べ替え、入替完了を押してください。');
       this.sortMode = true;
 
-      // order全消し
       const contents = document.querySelectorAll('#content-container .content-frame');
       for (let i = 0; i < contents.length; i += 1) {
         contents[i].className = 'content-frame';
       }
     },
+    cancelContentOrder() {
+      this.sortMode = false;
+      // 復帰
+      this.sortContentFromSetting();
+    },
     commitContentOrder() {
-      this.infomation = true;
-      this.infomationText = '入力欄を入れ替えました。';
       this.sortMode = false;
 
       this.setting.contentOrder = [];
@@ -324,6 +318,8 @@ export default Vue.extend({
           this.setting.contentOrder.push(id);
         }
       }
+
+      this.$emit('inform', '入力欄を入れ替えました。');
       this.$store.dispatch('updateSetting', this.setting);
     },
     toggleMinimizeAirbase(isMinimized: boolean) {

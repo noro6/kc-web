@@ -118,7 +118,7 @@
           </div>
         </div>
         <!-- 艦娘解除 -->
-        <div class="ship-remove pr-1 pt-1">
+        <div class="ship-remove">
           <v-btn icon @click="removeShip">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -149,8 +149,8 @@
             <v-icon small>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
-            <v-btn icon small color="blue" @click="resetItems()">
-              <v-icon small color="grey">mdi-close</v-icon>
+            <v-btn icon small @click="resetItems()">
+              <v-icon small>mdi-close</v-icon>
             </v-btn>
             <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
           </div>
@@ -230,12 +230,12 @@
 }
 
 .ship-header {
-  position: relative;
+  position: relative !important;
 }
 .ship-remove {
   position: absolute;
-  right: -4px;
-  top: -4px;
+  right: 1px;
+  top: -6px;
   z-index: 1;
 }
 
