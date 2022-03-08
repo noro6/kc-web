@@ -19,7 +19,7 @@
           <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
           <div class="option-status-label label-tp">TP</div>
           <div class="ml-2 body-2 align-self-center tp">
-            <div>: {{ fleet.tp }}</div>
+            <div>: {{ actualFleet.tp }}</div>
             <div class="status-label">S</div>
           </div>
           <div class="ml-2 mr-1">/</div>
@@ -220,6 +220,12 @@ export default Vue.extend({
     },
     shipRemoveEnabled() {
       return this.value.ships.length > 1;
+    },
+    tpS() {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return Math.floor(this.unionFleet.tp);
+      }
+      return Math.floor(this.value.tp);
     },
     tpA() {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
