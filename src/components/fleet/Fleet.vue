@@ -73,7 +73,7 @@
         @input="updateShip"
       ></ship-input>
     </div>
-    <air-status-result-bar :result="result" class="mt-3" />
+    <air-status-result-bar :result="actualFleet.mainResult" class="mt-3" />
     <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
       <fleet-detail
         v-if="!destroyDialog"
@@ -154,7 +154,6 @@ import FleetDetail from '@/components/fleet/FleetDetail.vue';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
-import AirCalcResult from '@/classes/airCalcResult';
 
 export default Vue.extend({
   name: 'Fleet',
@@ -200,7 +199,7 @@ export default Vue.extend({
     lastTab: 'stage2',
   }),
   computed: {
-    fleet(): Fleet {
+    fleet() {
       return this.value;
     },
     contactRate() {
@@ -221,23 +220,11 @@ export default Vue.extend({
     shipRemoveEnabled() {
       return this.value.ships.length > 1;
     },
-    tpS() {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return Math.floor(this.unionFleet.tp);
-      }
-      return Math.floor(this.value.tp);
-    },
     tpA() {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
         return Math.floor(this.unionFleet.tp * 0.7);
       }
       return Math.floor(this.value.tp * 0.7);
-    },
-    result(): AirCalcResult {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return this.unionFleet.mainResult;
-      }
-      return this.value.mainResult;
     },
     actualFleet(): Fleet {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {

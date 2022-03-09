@@ -320,6 +320,9 @@ export default Vue.extend({
       this.setInfo(new FleetInfo(infoBuilder));
     },
     changedTab(index: number) {
+      if (this.fleetInfo.mainFleetIndex === index) {
+        return;
+      }
       const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo, mainFleetIndex: index };
       const info = new FleetInfo(infoBuilder);
       // 編成が変更されたわけではないので履歴への追加を起こさない

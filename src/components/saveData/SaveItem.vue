@@ -10,16 +10,7 @@
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
   >
-    <div
-      v-ripple
-      class="save-list-item"
-      :class="{ selected: value.selected }"
-      @click="itemClicked"
-      v-click-outside="onClickOutside"
-      :style="`padding-left: ${0.5 + depth * 1.25}rem`"
-      @mouseenter.stop="bootTooltip(value, $event)"
-      @mouseleave.stop="clearTooltip"
-    >
+    <div v-ripple class="save-list-item pl-1" :class="{ selected: value.selected }" @click="itemClicked" v-click-outside="onClickOutside">
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
@@ -27,6 +18,9 @@
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
       <div class="item-name text-truncate">{{ value.name }}</div>
       <div class="ml-auto file-action-buttons">
+        <v-btn icon small @click.stop @mouseenter.stop="bootTooltip(value, $event)" @mouseleave.stop="clearTooltip">
+          <v-icon small>mdi-help-circle-outline</v-icon>
+        </v-btn>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn v-if="!value.isUnsaved" icon small @click.stop="showEditDialog" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
@@ -46,7 +40,14 @@
       </div>
     </div>
     <div v-if="value.isOpen">
-      <save-item v-for="(item, i) in value.childItems" :key="i" :value="item" :index="i" :depth="depth + 1" :handle-delete="deleteChild" />
+      <div v-for="(item, i) in value.childItems" class="d-flex pl-1" :key="`item_${i}`">
+        <div class="depth-line" :class="{ 'is-last': i === value.childItems.length - 1 }">
+          <div class="depth-file-line"></div>
+        </div>
+        <div class="flex-grow-1">
+          <save-item :value="item" :index="i" :handle-delete="deleteChild" />
+        </div>
+      </div>
     </div>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
@@ -88,16 +89,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-tooltip
-      v-if="enabledTooltip"
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-if="enabledTooltip" v-model="enabledTooltip" color="black" bottom right :position-x="tooltipX" :position-y="tooltipY">
       <save-data-tooltip v-model="tooltipData" />
     </v-tooltip>
   </div>
@@ -107,6 +99,20 @@
 .save-list.disabled-drag {
   user-select: none;
 }
+
+.depth-line {
+  margin-left: 0.4rem;
+  width: 0.5rem;
+  border-left: 1px solid #666;
+}
+.depth-line.is-last {
+  height: 50%;
+}
+.depth-file-line {
+  margin-top: 14px;
+  border-top: 1px solid #666;
+}
+
 .save-list-item {
   cursor: pointer;
   display: flex;
@@ -121,11 +127,14 @@
   pointer-events: none;
 }
 .item-name {
+  width: 1px;
+  flex-grow: 1;
   margin-left: 4px;
   align-self: center;
-  flex-grow: 1;
 }
 .file-action-buttons {
+  display: flex;
+  flex-wrap: nowrap;
   opacity: 0;
 }
 .save-list-item:hover .file-action-buttons {
@@ -173,10 +182,6 @@ export default Vue.extend({
     index: {
       type: Number,
       required: true,
-    },
-    depth: {
-      type: Number,
-      default: 0,
     },
     handleDelete: {
       type: Function,
@@ -325,7 +330,6 @@ export default Vue.extend({
       }
 
       this.value.childItems.push(moveData);
-      this.value.isOpen = true;
 
       draggingDiv.classList.add('move-ok');
     },
@@ -345,14 +349,14 @@ export default Vue.extend({
       }
     },
     bootTooltip(data: SaveData, e: MouseEvent) {
-      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      const nameDiv = (e.target as HTMLDivElement).closest('.save-list')?.getElementsByClassName('item-name')[0] as HTMLDivElement;
       this.tooltipTimer = setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x;
         this.tooltipY = rect.y + rect.height;
         this.tooltipData = data;
         this.enabledTooltip = true;
-      }, 400);
+      }, 100);
     },
     clearTooltip() {
       this.enabledTooltip = false;

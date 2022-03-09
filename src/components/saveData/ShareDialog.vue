@@ -26,7 +26,7 @@
           @blur="clearURLHint"
         ></v-text-field>
       </div>
-      <div class="my-8">
+      <!-- <div class="my-8">
         <v-btn
           block
           color="blue darken-3"
@@ -34,6 +34,19 @@
           style="text-transform: none"
           :disabled="!jervisDeckBuilder"
           :href="`https://kcjervis.github.io/jervis/?operation-json=${jervisDeckBuilder}`"
+          target="_blank"
+        >
+          作戦室 Jervis ORで開く
+        </v-btn>
+      </div> -->
+      <div class="my-8">
+        <v-btn
+          block
+          color="blue darken-3"
+          class="white--text"
+          style="text-transform: none"
+          :disabled="!deckBuilder"
+          :href="`https://jervis.vercel.app/?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"
         >
           作戦室 Jervis ORで開く

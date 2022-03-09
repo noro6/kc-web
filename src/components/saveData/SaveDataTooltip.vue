@@ -30,7 +30,7 @@
 
 <style scoped>
 .data-name {
-  min-width: 200px;
+  max-width: 840px;
   margin-right: 2rem;
 }
 .remarks {
@@ -41,6 +41,7 @@
   white-space: pre-line;
 }
 .edited-date {
+  align-self: center;
   font-size: 0.75em;
   opacity: 0.8;
 }

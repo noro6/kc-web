@@ -517,7 +517,6 @@ export default class Convert {
     }
 
     const importedRoot = new SaveData();
-    importedRoot.name = '引き継ぎデータ';
     importedRoot.isDirectory = true;
     importedRoot.isUnsaved = false;
     importedRoot.isOpen = true;

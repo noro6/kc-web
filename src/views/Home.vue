@@ -30,7 +30,7 @@
       </div>
       <v-divider class="my-3"></v-divider>
       <div class="ma-4 pt-3">
-        <v-btn color="teal" @click="importOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
+        <v-btn color="teal" @click="checkOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
         <div class="mt-2 body-2">
           旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
         </div>
@@ -43,6 +43,19 @@
       </div>
       <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
     </div>
+    <v-dialog v-model="importConfirmDialog" transition="scroll-x-transition" width="500">
+      <v-card class="pa-3">
+        <div class="mx-4 mt-4">
+          <div class="body-2">引き継ぎ対象のデータを格納するフォルダーを作成します。</div>
+          <div class="mb-5 body-2">フォルダー名を指定し、実行を押すと引き継ぎを開始します。</div>
+          <v-text-field v-model="importFileName" dense outlined maxlength="100" counter label="フォルダー名"></v-text-field>
+          <div class="d-flex mt-3">
+            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmptry || imported">実行</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">戻る</v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -86,7 +99,14 @@ export default Vue.extend({
   },
   data: () => ({
     imported: false,
+    importConfirmDialog: false,
+    importFileName: '引き継ぎデータ',
   }),
+  computed: {
+    isNameEmptry(): boolean {
+      return this.importFileName.length <= 0;
+    },
+  },
   methods: {
     goAirCalcPage() {
       const saveData = this.$store.state.saveData as SaveData;
@@ -110,20 +130,34 @@ export default Vue.extend({
       }
       this.$router.push('aircalc');
     },
+    checkOldData() {
+      // 過去データが存在するかチェック
+      const strage = window.localStorage;
+      if (!strage) {
+        this.$emit('inform', '旧編成データが見つかりませんでした。', true);
+        this.imported = true;
+        return;
+      }
+
+      const presets = strage.getItem('presets');
+      const presetJSON = presets ? JSON.parse(presets) : undefined;
+      if (!presetJSON || !presetJSON.length) {
+        this.$emit('inform', '旧編成データが見つかりませんでした。', true);
+        this.imported = true;
+        return;
+      }
+
+      this.imported = false;
+      this.importConfirmDialog = true;
+    },
     importOldData() {
       this.imported = true;
-
       // 旧データ引継ぎ
       const strage = window.localStorage;
       try {
-        if (!strage) {
-          this.$emit('inform', 'データ引継ぎに失敗しました。', true);
-          return;
-        }
         const presets = strage.getItem('presets');
         const presetJSON = presets ? JSON.parse(presets) : undefined;
         if (!presetJSON || !presetJSON.length) {
-          this.$emit('inform', 'データ引継ぎに失敗しました。編成データが見つかりませんでした。', true);
           return;
         }
 
@@ -133,6 +167,7 @@ export default Vue.extend({
         const oldData = converter.convertOldSimulatorToSaveData(presetJSON, settingJSON);
 
         if (oldData && oldData.childItems.length) {
+          oldData.name = this.importFileName ? this.importFileName : '引き継ぎデータ';
           // セーブデータルート取得
           const saveData = this.$store.state.saveData as SaveData;
           const root = saveData.childItems.find((v) => v.isDirectory);
@@ -146,12 +181,14 @@ export default Vue.extend({
             this.$emit('openSidebar');
           }
         } else {
-          this.$emit('inform', 'データ引継ぎに失敗しました。', true);
+          this.$emit('inform', 'データを読み込みましたが、引き継ぎ可能な編成データがありませんでした。', true);
         }
       } catch (error) {
         this.$emit('inform', 'データ引継ぎに失敗しました。', true);
         console.error(error);
       }
+
+      this.importConfirmDialog = false;
     },
   },
 });

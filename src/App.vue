@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-navigation-drawer v-model="drawer" app temporary dark width="480">
-      <save-data-view :root-data="saveData" :handle-inform="inform"/>
+      <save-data-view :root-data="saveData" :handle-inform="inform" />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
@@ -71,7 +71,7 @@
     </v-app-bar>
     <v-main>
       <div class="px-2 px-md-4">
-        <router-view @inform="inform" @openSidebar="drawer = true"/>
+        <router-view @inform="inform" @openSidebar="drawer = true" />
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
         {{ readInformText }}
@@ -217,6 +217,7 @@ export default Vue.extend({
     editedName: '',
     editedRemarks: '',
     shareDialog: false,
+    urlParameters: {} as { data?: string; predeck?: string },
     unsbscribe: undefined as unknown,
   }),
   computed: {
@@ -240,6 +241,26 @@ export default Vue.extend({
   },
   watch: {
     completed(value) {
+      // 展開待ち中のデータがあれば読み込んで消す
+      if (!!value && this.urlParameters) {
+        if (this.urlParameters.data) {
+          const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
+          urlData.isMain = true;
+          urlData.isActive = true;
+          this.saveData.childItems.push(urlData);
+          this.$store.dispatch('setMainSaveData', urlData);
+          if (!this.$route.path.endsWith('/aircalc')) {
+            // ページ遷移
+            this.$router.push('aircalc');
+          }
+        } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(decodeURIComponent(this.urlParameters.predeck))) {
+          this.readInformText = '編成の読み込みが完了しました。';
+          this.readResultColor = 'success';
+          this.readInform = true;
+        }
+        this.urlParameters = {};
+      }
+
       this.loading = !value;
     },
   },
@@ -262,24 +283,13 @@ export default Vue.extend({
     });
   },
   mounted() {
-    const urlParam = this.getUrlParams();
-    if (urlParam.data) {
-      const urlData = SaveData.decodeURLSaveData(urlParam.data.toString());
-      urlData.isMain = true;
-      urlData.isActive = true;
-      this.saveData.childItems.push(urlData);
-      this.$store.dispatch('setMainSaveData', urlData);
-      if (!this.$route.path.endsWith('/aircalc')) {
-        // ページ遷移
-        this.$router.push('aircalc');
-      }
-    }
+    this.urlParameters = Object.freeze(this.getUrlParams());
   },
   methods: {
     readSomethingText() {
       this.readState = 'primary';
       // デッキビルダー形式データ読み込み試行
-      if (this.setDeckBuilder()) {
+      if (this.loadAndOpenFromDeckBuilder(this.somethingText)) {
         this.readInformText = '編成の読み込みが完了しました。';
         this.readResultColor = 'success';
       } else if (this.setShipStock()) {
@@ -301,11 +311,11 @@ export default Vue.extend({
       this.readState = false;
       this.readInform = true;
     },
-    setDeckBuilder(): boolean {
+    loadAndOpenFromDeckBuilder(builder: string): boolean {
       // デッキビルダー形式データを計算データに設定して計算ページに移譲
       try {
         const converter = new Convert(this.$store.state.items, this.$store.state.ships);
-        const manager = converter.loadDeckBuilder(this.somethingText);
+        const manager = converter.loadDeckBuilder(builder);
         if (!manager) {
           // 何もない編成データは無意味なので返す
           return false;
@@ -489,7 +499,7 @@ export default Vue.extend({
       for (let i = 0; i < array.length; i += 1) {
         const str = array[i];
         const set = str.split('=');
-        retVal[set[0]] = set[1].toString();
+        retVal[set[0]] = decodeURIComponent(set[1]);
       }
       window.history.replaceState(null, '', `${document.location.pathname}#/`);
       return retVal;

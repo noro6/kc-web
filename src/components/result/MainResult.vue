@@ -555,6 +555,10 @@ export default Vue.extend({
       this.handleChangeMainBattle(this.displayBattle);
     },
     changedTab(index: number) {
+      if (this.displayBattle === index) {
+        return;
+      }
+
       if (index >= 0) {
         this.displayBattle = index;
       } else {
