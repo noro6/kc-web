@@ -350,7 +350,7 @@ export default Vue.extend({
     },
     bootTooltip(data: SaveData, e: MouseEvent) {
       const nameDiv = (e.target as HTMLDivElement).closest('.save-list')?.getElementsByClassName('item-name')[0] as HTMLDivElement;
-      this.tooltipTimer = setTimeout(() => {
+      this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x;
         this.tooltipY = rect.y + rect.height;

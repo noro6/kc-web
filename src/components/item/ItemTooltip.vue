@@ -56,8 +56,8 @@
       <div v-if="value.data.interception">
         迎撃:<span class="item-status-value" :class="{ 'bad-status': value.data.interception < 0 }">{{ value.data.interception }}</span>
       </div>
-      <div v-if="value.data.range2">
-        射程:<span class="item-status-value">{{ rangeText[value.data.range2] }}</span>
+      <div v-if="value.data.range">
+        射程:<span class="item-status-value">{{ rangeText[value.data.range] }}</span>
       </div>
       <div v-if="value.data.radius">
         半径:<span class="item-status-value">{{ value.data.radius }}</span>

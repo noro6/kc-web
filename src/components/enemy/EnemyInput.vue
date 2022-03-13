@@ -113,7 +113,7 @@ export default Vue.extend({
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
-      this.tooltipTimer = setTimeout(() => {
+      this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x + rect.width / 3;
         this.tooltipY = rect.y + rect.height;

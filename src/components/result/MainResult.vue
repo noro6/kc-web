@@ -523,7 +523,7 @@ export default Vue.extend({
           enemies.push({
             enemy,
             items: planes,
-            allDeathRate: Math.floor(100 * allDeathRate),
+            allDeathRate: Math.floor(1000 * allDeathRate) / 10,
             index: i,
           });
         }

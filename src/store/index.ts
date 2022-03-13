@@ -1,6 +1,8 @@
 import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { initializeApp } from 'firebase/app';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ItemMaster from '@/classes/item/itemMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
@@ -13,6 +15,7 @@ import ItemStock from '@/classes/item/itemStock';
 import ShipStock from '@/classes/fleet/shipStock';
 import KcWebDatabase from '@/classes/db';
 import Ship from '@/classes/fleet/ship';
+import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 
 Vue.use(Vuex);
 
@@ -20,6 +23,8 @@ export default new Vuex.Store({
   state: {
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
+    exSlotEquipShips: [] as MasterEquipmentExSlot[],
+    equipShips: [] as MasterEquipmentShip[],
     cells: [] as CellMaster[],
     enemies: [] as EnemyMaster[],
     itemStock: [] as ItemStock[],
@@ -42,6 +47,12 @@ export default new Vuex.Store({
     },
     setItems: (state, values: ItemMaster[]) => {
       state.items = values;
+    },
+    setExSlotEquipShips: (state, values: MasterEquipmentExSlot[]) => {
+      state.exSlotEquipShips = values;
+    },
+    setEquipShips: (state, values: MasterEquipmentShip[]) => {
+      state.equipShips = values;
     },
     setCells: (state, values: CellMaster[]) => {
       state.cells = values;
@@ -108,74 +119,89 @@ export default new Vuex.Store({
     loadCellData: async (context) => {
       // ロード画面を入れる
       context.commit('completed', false);
-      // マスタ問い合わせ
-      const loadCell = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/cells?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
-        .then((response) => {
-          const cells: CellMaster[] = [];
-          for (let i = 1; i < response.data.values.length; i += 1) {
-            const raw = JSON.parse(`${response.data.values[i][0]}`.slice(0, -1)) as RawCell;
-            cells.push(new CellMaster(raw));
-          }
-          context.commit('setCells', cells);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
 
-      const loader = [loadCell];
-      Promise.all(loader).then(() => {
-        context.commit('completed', true);
+      // マスタ問い合わせ
+      getDownloadURL(ref(getStorage(), 'cells.json')).then((url) => {
+        const loadCell = axios.get(url)
+          .then((response) => {
+            const cells: CellMaster[] = [];
+            const masters = response.data.patterns;
+            for (let i = 0; i < masters.length; i += 1) {
+              cells.push(new CellMaster(masters[i] as RawCell));
+            }
+            context.commit('setCells', cells);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+        const loader = [loadCell];
+        Promise.all(loader).then(() => {
+          context.commit('completed', true);
+        });
       });
     },
     loadData: async (context) => {
-      const loadShip = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/ships?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
-        .then((response) => {
-          const ships: ShipMaster[] = [];
-          for (let i = 1; i < response.data.values.length; i += 1) {
-            const ship = new ShipMaster(...response.data.values[i]);
-            if (ship.id) {
-              ships.push(ship);
-            }
-          }
-          context.commit('setShips', ships);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      const firebaseConfig = {
+        apiKey: 'AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s',
+        authDomain: 'development-74af0.firebaseapp.com',
+        databaseURL: 'https://development-74af0.firebaseio.com',
+        projectId: 'development-74af0',
+        storageBucket: 'development-74af0.appspot.com',
+        messagingSenderId: '789701529106',
+        appId: '1:789701529106:web:3498f515937607158592cb',
+        measurementId: 'G-90V5M1BZB9',
+      };
 
-      const loadEnemy = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/enemies?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
-        .then((response) => {
-          const enemies: EnemyMaster[] = [];
-          for (let i = 1; i < response.data.values.length; i += 1) {
-            const enemy = new EnemyMaster(...response.data.values[i]);
-            if (enemy.id) {
-              enemies.push(enemy);
+      initializeApp(firebaseConfig);
+      getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
+        const loading = axios.get(url)
+          .then((response) => {
+            if (response.status !== 200 || !response.data) {
+              return;
             }
-          }
-          context.commit('setEnemies', enemies);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-
-      const loadItem = axios.get('https://sheets.googleapis.com/v4/spreadsheets/1sYDMdug8UikACDOLRWkOG3bo4xcD98B7uwXHg6DbZAA/values/items?key=AIzaSyB-R4wHYPUpAxhcNNOV8q36R7PgrUNDD5o')
-        .then((response) => {
-          const items: ItemMaster[] = [];
-          for (let i = 1; i < response.data.values.length; i += 1) {
-            const item = new ItemMaster(...response.data.values[i]);
-            if (item.id) {
-              items.push(item);
+            const master = response.data as Master;
+            // 装備情報
+            const masterItems = master.items;
+            const items: ItemMaster[] = [];
+            for (let i = 0; i < masterItems.length; i += 1) {
+              const item = new ItemMaster(masterItems[i]);
+              if (item.id) {
+                items.push(item);
+              }
             }
-          }
-          context.commit('setItems', items);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+            // 艦娘情報
+            const masterShips = master.ships;
+            const ships: ShipMaster[] = [];
+            for (let i = 0; i < masterShips.length; i += 1) {
+              const ship = new ShipMaster(masterShips[i]);
+              if (ship.id) {
+                ships.push(ship);
+              }
+            }
+            // 装備情報
+            const masterEnemies = master.enemies;
+            const enemies: EnemyMaster[] = [];
+            for (let i = 0; i < masterEnemies.length; i += 1) {
+              const enemy = new EnemyMaster(masterEnemies[i]);
+              if (enemy.id) {
+                enemies.push(enemy);
+              }
+            }
 
-      const loader = [loadShip, loadEnemy, loadItem];
-      Promise.all(loader).then(() => {
-        context.commit('completed', true);
+            context.commit('setItems', items);
+            context.commit('setShips', ships);
+            context.commit('setEnemies', enemies);
+            context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
+            context.commit('setEquipShips', master.api_mst_equip_ship);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+
+        const loader = [loading];
+        Promise.all(loader).then(() => {
+          context.commit('completed', true);
+        });
       });
     },
     loadSaveData: async (context) => {

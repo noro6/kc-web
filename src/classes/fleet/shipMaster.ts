@@ -1,4 +1,5 @@
 import Const, { SHIP_TYPE } from '../const';
+import { MasterEquipmentExSlot, MasterEquipmentShip, MasterShip } from '../interfaces/master';
 import ItemMaster from '../item/itemMaster';
 
 export default class ShipMaster {
@@ -14,7 +15,7 @@ export default class ShipMaster {
 
   public slotCount = 0;
 
-  public slots: number[];
+  public slots: number[] = [];
 
   public version = 0;
 
@@ -62,46 +63,40 @@ export default class ShipMaster {
 
   /**
    * Creates an instance of ShipMaster.
-   * API取得rowよりクラスにマッピング
-   * @param {(...(number | string)[])} row
+   * @param {MasterShip} ship
    * @memberof ShipMaster
    */
-  constructor(...row: (number | string)[]) {
-    this.id = row[0] ? +row[0] : 0;
-    this.albumId = row[1] ? +row[1] : 0;
-    this.name = row[2] ? row[2] as string : '';
-    this.type = row[3] ? +row[3] : 0;
-    this.type2 = row[4] ? +row[4] : 0;
-    this.slotCount = row[5] ? +row[5] : 4;
-    this.version = row[11] ? +row[11] : 0;
-    this.isFinal = row[12] > 0;
-    this.originalId = row[13] ? +row[13] : 0;
-    this.range = row[14] ? +row[14] : 0;
-    this.hp = row[15] ? +row[15] : 0;
-    this.hp2 = row[16] ? +row[16] : 0;
-    this.maxHp = row[17] ? +row[17] : 0;
-    this.fire = row[18] ? +row[18] : 0;
-    this.torpedo = row[19] ? +row[19] : 0;
-    this.antiAir = row[20] ? +row[20] : 0;
-    this.armor = row[21] ? +row[21] : 0;
-    this.luck = row[22] ? +row[22] : 0;
-    this.maxLuck = row[23] ? +row[23] : 0;
-    this.minScout = row[24] ? +row[24] : 0;
-    this.maxScout = row[25] ? +row[25] : 0;
-    this.minAsw = row[26] ? +row[26] : 0;
-    this.maxAsw = row[27] ? +row[27] : 0;
-    this.minAvoid = row[28] ? +row[28] : 0;
-    this.maxAvoid = row[29] ? +row[29] : 0;
-    this.beforId = row[30] ? +row[30] : 0;
-    this.nextLv = row[31] ? +row[31] : 0;
-    this.sort = row[32] ? +row[32] : 0;
-
-    const slot1 = row[6] ? +row[6] : 0;
-    const slot2 = row[7] ? +row[7] : 0;
-    const slot3 = row[8] ? +row[8] : 0;
-    const slot4 = row[9] ? +row[9] : 0;
-    const slot5 = row[10] ? +row[10] : 0;
-    this.slots = [slot1, slot2, slot3, slot4, slot5];
+  constructor(ship?: MasterShip) {
+    if (ship) {
+      this.id = ship.id ? ship.id : 0;
+      this.albumId = ship.album ? ship.album : 0;
+      this.name = ship.name ? ship.name : '';
+      this.type = ship.type ? ship.type : 0;
+      this.type2 = ship.type2 ? ship.type2 : 0;
+      this.slotCount = ship.s_count ? ship.s_count : 4;
+      this.version = ship.ver ? ship.ver : 0;
+      this.isFinal = !!ship.final;
+      this.range = ship.range ? ship.range : 0;
+      this.hp = ship.hp ? ship.hp : 0;
+      this.hp2 = ship.hp2 ? ship.hp2 : 0;
+      this.maxHp = ship.max_hp ? ship.max_hp : 0;
+      this.fire = ship.fire ? ship.fire : 0;
+      this.torpedo = ship.torpedo ? ship.torpedo : 0;
+      this.antiAir = ship.anti_air ? ship.anti_air : 0;
+      this.armor = ship.armor ? ship.armor : 0;
+      this.luck = ship.luck ? ship.luck : 0;
+      this.maxLuck = ship.max_luck ? ship.max_luck : 0;
+      this.minScout = ship.min_scout ? ship.min_scout : 0;
+      this.maxScout = ship.scout ? ship.scout : 0;
+      this.minAsw = ship.min_asw ? ship.min_asw : 0;
+      this.maxAsw = ship.asw ? ship.asw : 0;
+      this.minAvoid = ship.min_avoid ? ship.min_avoid : 0;
+      this.maxAvoid = ship.avoid ? ship.avoid : 0;
+      this.beforId = ship.befor ? ship.befor : 0;
+      this.nextLv = ship.next_lv ? ship.next_lv : 0;
+      this.sort = ship.sort ? ship.sort : 0;
+      this.slots = ship.slots ? ship.slots : [];
+    }
   }
 
   /**
@@ -110,7 +105,7 @@ export default class ShipMaster {
    * @return {*}  {boolean}
    * @memberof Ship
    */
-  public isValidItem(item: ItemMaster, slotIndex = -1): boolean {
+  public isValidItem(item: ItemMaster, itemLink: MasterEquipmentShip[], exItemLink: MasterEquipmentExSlot[], slotIndex = -1): boolean {
     // 未指定の場合はなんでもOK
     if (this.id === 0) {
       return true;
@@ -142,10 +137,10 @@ export default class ShipMaster {
     }
 
     // 特定艦娘判定
-    const special = Const.SHIP_ITEM_LINK.find((v) => v.id === this.id);
+    const special = itemLink.find((v) => v.api_ship_id === this.id);
     if (special) {
       // 特殊装備カテゴリ枠から取得
-      types = special.itemType;
+      types = special.api_equip_type;
     } else {
       // 通常艦種装備可能から取得
       const normal = Const.SHIP_TYPES_INFO.find((v) => v.id === type);
@@ -161,8 +156,8 @@ export default class ShipMaster {
         return false;
       }
       // 艦娘特別装備枠マスタより解決できた場合は搭載可能
-      const sp = Const.EXPANDED_SPECIAL_ITEM.find((v) => v.itemId === item.id);
-      if (sp && sp.shipApi.includes(this.id)) {
+      const sp = exItemLink.find((v) => v.api_slotitem_id === item.id);
+      if (sp && sp.api_ship_ids.includes(this.id)) {
         return true;
       }
 

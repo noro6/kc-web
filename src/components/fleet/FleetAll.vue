@@ -5,11 +5,11 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="captureFleet" v-bind="attrs" v-on="on">
-            <v-icon>mdi-camera</v-icon>
+          <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
+            <v-icon>mdi-wrench</v-icon>
           </v-btn>
         </template>
-        <span>スクリーンショットを保存</span>
+        <span>装備一括設定</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -18,6 +18,14 @@
           </v-btn>
         </template>
         <span>全艦隊リセット</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureFleet" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -64,12 +72,25 @@
       </div>
     </v-row>
     <v-tabs v-model="tab" class="px-2">
-      <v-tab v-for="i in 4" :key="i" :href="`#fleet${i - 1}`" @click="changedTab(i - 1)">
+      <v-tab
+        v-for="i in 4"
+        :key="i"
+        :href="`#fleet${i - 1}`"
+        @click="changedTab(i - 1)"
+        class="fleet-tab"
+        :draggable="tab === `fleet${i - 1}`"
+        @dragover.prevent
+        @drop.stop="dropItem($event)"
+        @dragleave.stop="dragLeave($event)"
+        @dragenter.stop="dragEnter($event)"
+        @dragstart.stop="dragStart($event)"
+        @dragend.stop="dragEnd($event)"
+      >
         <template v-if="fleetInfo.isUnion && i === 1">主力艦隊</template>
         <template v-else-if="fleetInfo.isUnion && i === 2">随伴艦隊</template>
         <template v-else>第{{ i }}艦隊</template>
       </v-tab>
-      <v-tab href="#fleet4" disabled>【工事中】機動部隊(航空)友軍</v-tab>
+      <v-tab href="#fleet4" disabled>【工事中】</v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab">
@@ -98,6 +119,56 @@
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
+    <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="600" @input="onBulkUpdateDialogToggle">
+      <v-card>
+        <div class="d-flex pt-2 pb-1 pr-2">
+          <div class="align-self-center ml-3">装備一括設定</div>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="bulkUpdateDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider></v-divider>
+        <div class="px-5 pt-2 pb-5">
+          <div>
+            <div class="body-2">適用対象...選択した艦隊の全艦娘に対し、下記の設定を適用します。</div>
+            <div class="d-flex justify-space-between">
+              <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox
+                v-for="(check, i) in bulkUpdateTarget"
+                :key="i"
+                :label="`第${i + 1}艦隊`"
+                dense
+                hide-details
+                v-model="bulkUpdateTarget[i]"
+              ></v-checkbox>
+            </div>
+          </div>
+          <v-divider class="mt-4 mb-2"></v-divider>
+          <div class="body-2">熟練度</div>
+          <div class="d-flex justify-space-between">
+            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
+            </div>
+            <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">戦闘機のみ最大</v-btn>
+          </div>
+          <v-divider class="my-2"></v-divider>
+          <div class="body-2">改修値</div>
+          <div class="d-flex justify-space-between">
+            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ i - 1 }}</span>
+            </div>
+          </div>
+          <v-divider class="my-2"></v-divider>
+          <div class="body-2">艦載機搭載数</div>
+          <div class="d-flex">
+            <v-btn outlined @click="resetSlot">初期値</v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -118,6 +189,47 @@
   background: #111;
   border: 1px solid #444;
 }
+
+.remodel-list-item i,
+.remodel-list-item span {
+  vertical-align: middle;
+}
+
+.remodel-list-item,
+.level-list-item {
+  padding: 0.5rem 0.75rem;
+  transition: 0.2s;
+  cursor: pointer;
+  position: relative;
+  border-radius: 0.2rem;
+}
+.remodel-list-item {
+  min-width: 46px;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.remodel-list-item:hover,
+.level-list-item:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.level-list-value {
+  display: inline-block;
+  position: absolute;
+  font-size: 0.75em;
+  text-align: center;
+  font-weight: 900;
+  bottom: 0;
+  width: 30px;
+  right: 1px;
+  z-index: 1;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
+    0px 1px 1px #fff, 0px -1px 1px #fff;
+}
+.theme--dark .level-list-value {
+  text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222,
+    0px 1px 1px #222, 0px -1px 1px #222;
+}
 </style>
 
 <script lang="ts">
@@ -126,12 +238,13 @@ import html2canvas from 'html2canvas';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
-import FleetInfo, { FleetInfoBuilder } from '@/classes/fleet/fleetInfo';
+import FleetInfo from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
-import Item from '@/classes/item/item';
+import Item, { ItemBuilder } from '@/classes/item/item';
 import Const, { Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
+import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -165,6 +278,8 @@ export default Vue.extend({
     level: 120,
     levelMenu: false,
     capturing: false,
+    bulkUpdateDialog: false,
+    bulkUpdateTarget: [1, 1, 1, 1],
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -172,6 +287,9 @@ export default Vue.extend({
     },
     formations(): Formation[] {
       return Const.FORMATIONS;
+    },
+    isbulkUpdateTargetAll(): boolean {
+      return !this.bulkUpdateTarget.some((v) => !v);
     },
   },
   methods: {
@@ -201,6 +319,10 @@ export default Vue.extend({
       const oldItems: Item[] = oldShip.items.concat();
       const newItems: Item[] = [];
 
+      // 装備搭載可否情報マスタ
+      const link = this.$store.state.equipShips as MasterEquipmentShip[];
+      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+
       // 元々が空の艦で、艦娘数と配置番号が一致している場合、自動で空の艦娘を追加するが6隻まで
       if (oldShip.isEmpty && index === fleet.ships.length - 1 && fleet.ships.length < 6) {
         fleet.ships.push(new Ship());
@@ -211,7 +333,7 @@ export default Vue.extend({
         if (slotIndex < oldItems.length) {
           const oldItem = oldItems[slotIndex];
           const itemMaster = oldItem.data;
-          if (ship.isValidItem(itemMaster, slotIndex)) {
+          if (ship.isValidItem(itemMaster, link, exLink, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             newItems.push(new Item({ item: oldItem, slot }));
           } else {
@@ -227,7 +349,7 @@ export default Vue.extend({
       // 補強増設チェック
       const oldExItem = oldShip.exItem.data;
       let exItem;
-      if (oldExItem.id && ship.isValidItem(oldExItem, Const.EXPAND_SLOT_INDEX)) {
+      if (oldExItem.id && ship.isValidItem(oldExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
         exItem = new Item({ master: oldExItem });
       } else {
         exItem = new Item();
@@ -245,9 +367,7 @@ export default Vue.extend({
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新
       this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
-
-      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
-      this.setInfo(new FleetInfo(infoBuilder));
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     equipItem(item: Item) {
       const master = item.data;
@@ -300,14 +420,11 @@ export default Vue.extend({
       // 再生成した艦娘インスタンスで該当艦娘を置き換えた艦隊インスタンスを設定
       const builder: FleetBuilder = { fleet, ships: fleet.ships.concat() };
       this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
-
-      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
-      this.setInfo(new FleetInfo(infoBuilder));
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     onLevelMenuToggle() {
       if (!this.levelMenu) {
-        const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo, admiralLevel: this.level };
-        this.setInfo(new FleetInfo(infoBuilder));
+        this.setInfo(new FleetInfo({ info: this.fleetInfo, admiralLevel: this.level }));
       } else {
         this.level = this.fleetInfo.admiralLevel;
       }
@@ -316,15 +433,13 @@ export default Vue.extend({
       this.handleChangeFormation(formation);
     },
     changedInfo() {
-      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo };
-      this.setInfo(new FleetInfo(infoBuilder));
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     changedTab(index: number) {
       if (this.fleetInfo.mainFleetIndex === index) {
         return;
       }
-      const infoBuilder: FleetInfoBuilder = { info: this.fleetInfo, mainFleetIndex: index };
-      const info = new FleetInfo(infoBuilder);
+      const info = new FleetInfo({ info: this.fleetInfo, mainFleetIndex: index });
       // 編成が変更されたわけではないので履歴への追加を起こさない
       info.ignoreHistory = true;
       this.setInfo(info);
@@ -356,6 +471,139 @@ export default Vue.extend({
           this.capturing = false;
         });
       }, 10);
+    },
+    dragStart(e: DragEvent) {
+      const target = e.target as HTMLDivElement;
+      target.style.opacity = '0.4';
+      target.style.backgroundColor = 'rgba(20, 120, 255, 0.2)';
+      target.id = 'dragging-item';
+
+      const transfer = e.dataTransfer as DataTransfer;
+      const rect = target.getBoundingClientRect();
+      if (transfer && rect) {
+        transfer.setDragImage(target, rect.width / 2, rect.height);
+      }
+    },
+    dragLeave(e: DragEvent) {
+      (e.target as HTMLDivElement).style.backgroundColor = '';
+    },
+    dragEnter(e: DragEvent): void {
+      const draggingDiv = document.getElementById('dragging-item');
+      const target = e.target as HTMLDivElement;
+      if (!draggingDiv || !target) {
+        return;
+      }
+      // 受け入れ可能 背景色を青っぽく
+      target.style.backgroundColor = 'rgba(255, 200, 100, 0.4)';
+    },
+    dropItem(e: DragEvent) {
+      // 受け渡されたデータ
+      const draggingDiv = document.getElementById('dragging-item');
+      // そもそもドラッグ開始が正常になされているか
+      if (!draggingDiv) {
+        return;
+      }
+
+      // ドロップされる要素
+      const target = e.target as HTMLDivElement;
+      target.style.backgroundColor = '';
+      if (target.id) {
+        // 自身へのドロップ なにもなし
+        return;
+      }
+
+      const fleetTabs = document.querySelectorAll('.fleet-tab.v-tab');
+      let fromIndex = -1;
+      let toIndex = -1;
+      for (let i = 0; i < fleetTabs.length; i += 1) {
+        if (fleetTabs[i] === target) {
+          toIndex = i;
+        }
+        if (fleetTabs[i] === draggingDiv) {
+          fromIndex = i;
+        }
+      }
+
+      if (fromIndex >= 0 && toIndex >= 0 && fromIndex !== toIndex) {
+        const fromFleet = this.fleetInfo.fleets[fromIndex];
+        const toFleet = this.fleetInfo.fleets[toIndex];
+
+        this.fleetInfo.fleets[toIndex] = new Fleet({ fleet: fromFleet });
+        this.fleetInfo.fleets[fromIndex] = new Fleet({ fleet: toFleet });
+      }
+    },
+    dragEnd(e: DragEvent) {
+      // 後片付け
+      const target = e.target as HTMLDivElement;
+      target.style.opacity = '1';
+      target.style.backgroundColor = '';
+      target.id = '';
+
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
+    toggleBulkTarget() {
+      if (this.bulkUpdateTarget.some((v) => !v)) {
+        this.bulkUpdateTarget = [1, 1, 1, 1];
+      } else {
+        this.bulkUpdateTarget = [0, 0, 0, 0];
+      }
+    },
+    getLevelValue(value: number) {
+      return Const.PROF_LEVEL_BORDER[value];
+    },
+    setLevel(index: number) {
+      this.bulkUpdateAllItem({ level: Const.PROF_LEVEL_BORDER[index] });
+    },
+    setRemodel(remodel: number) {
+      this.bulkUpdateAllItem({ remodel });
+    },
+    resetSlot() {
+      this.bulkUpdateAllItem({}, true);
+    },
+    setMaxLevelOnlyFighter() {
+      this.bulkUpdateAllItem({ level: 120 }, false, true);
+    },
+    bulkUpdateAllItem(itemBuilder: ItemBuilder, isResetSlot = false, onlyFighter = false) {
+      // 指定ビルダーで装備情報一括更新
+      const { fleets } = this.fleetInfo;
+      for (let i = 0; i < fleets.length; i += 1) {
+        if (!this.bulkUpdateTarget[i]) {
+          continue;
+        }
+        const { ships } = fleets[i];
+        for (let j = 0; j < ships.length; j += 1) {
+          const shipMaster = ships[j].data;
+          const { items } = ships[j];
+          for (let k = 0; k < items.length; k += 1) {
+            if (!onlyFighter || (onlyFighter && items[k].isFighter)) {
+              items[k] = new Item({
+                item: items[k],
+                slot: isResetSlot ? shipMaster.slots[k] : undefined,
+                remodel: items[k].data.canRemodel ? itemBuilder.remodel : undefined,
+                level: itemBuilder.level,
+              });
+            }
+          }
+
+          const newExItem = new Item({
+            item: ships[j].exItem,
+            remodel: ships[j].exItem.data.canRemodel ? itemBuilder.remodel : undefined,
+            level: itemBuilder.level,
+          });
+          ships[j] = new Ship({ ship: ships[j], exItem: newExItem });
+        }
+        fleets[i] = new Fleet({ fleet: fleets[i] });
+      }
+
+      const newInfo = new FleetInfo({ info: this.fleetInfo });
+      // 閉じるまで計算はさせない
+      newInfo.calculated = true;
+      this.setInfo(newInfo);
+    },
+    onBulkUpdateDialogToggle() {
+      if (!this.bulkUpdateDialog) {
+        this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+      }
     },
   },
 });

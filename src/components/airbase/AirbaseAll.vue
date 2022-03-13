@@ -5,6 +5,14 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
+            <v-icon>mdi-wrench</v-icon>
+          </v-btn>
+        </template>
+        <span>装備一括設定</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="supply" v-bind="attrs" v-on="on">
             <v-icon>mdi-reload</v-icon>
           </v-btn>
@@ -24,19 +32,19 @@
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="captureAirbase" v-bind="attrs" v-on="on">
-            <v-icon>mdi-camera</v-icon>
-          </v-btn>
-        </template>
-        <span>スクリーンショットを保存</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="resetAirbaseAll" v-bind="attrs" v-on="on">
             <v-icon>mdi-trash-can-outline</v-icon>
           </v-btn>
         </template>
         <span>全基地航空隊リセット</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureAirbase" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -121,6 +129,60 @@
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
       <airbase-target v-model="airbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
     </v-dialog>
+    <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="600" @input="onBulkUpdateDialogToggle">
+      <v-card>
+        <div class="d-flex pt-2 pb-1 pr-2">
+          <div class="align-self-center ml-3">装備一括設定</div>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="bulkUpdateDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider></v-divider>
+        <div class="px-5 pt-2 pb-5">
+          <div class="body-2">熟練度</div>
+          <div class="d-flex justify-space-between">
+            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
+            </div>
+            <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">戦闘機のみ最大</v-btn>
+          </div>
+          <v-divider class="my-2"></v-divider>
+          <div class="body-2">改修値</div>
+          <div class="d-flex justify-space-between">
+            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ i - 1 }}</span>
+            </div>
+          </div>
+          <v-divider class="my-2"></v-divider>
+          <div class="body-2">艦載機搭載数</div>
+          <div class="d-flex">
+            <v-slider
+              class="flex-grow-1 align-self-end"
+              max="18"
+              min="0"
+              v-model.number="bulkUpdateSlotValue"
+              @input="bulkUpdateSlot"
+              hide-details
+            ></v-slider>
+            <div class="d-flex">
+              <v-text-field
+                class="slot-input mx-2"
+                type="number"
+                max="18"
+                min="0"
+                v-model.number="bulkUpdateSlotValue"
+                @input="bulkUpdateSlot"
+                hide-details
+              ></v-text-field>
+              <v-btn outlined @click="resetSlot" class="align-self-end">初期値</v-btn>
+            </div>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -201,6 +263,50 @@
 .theme--dark .normal-airbases.captured > div {
   border: 1px solid #444;
 }
+
+.remodel-list-item i,
+.remodel-list-item span {
+  vertical-align: middle;
+}
+
+.remodel-list-item,
+.level-list-item {
+  padding: 0.5rem 0.75rem;
+  transition: 0.2s;
+  cursor: pointer;
+  position: relative;
+  border-radius: 0.2rem;
+}
+.remodel-list-item {
+  min-width: 46px;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.remodel-list-item:hover,
+.level-list-item:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.level-list-value {
+  display: inline-block;
+  position: absolute;
+  font-size: 0.75em;
+  text-align: center;
+  font-weight: 900;
+  bottom: 0;
+  width: 30px;
+  right: 1px;
+  z-index: 1;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
+    0px 1px 1px #fff, 0px -1px 1px #fff;
+}
+.theme--dark .level-list-value {
+  text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222,
+    0px 1px 1px #222, 0px -1px 1px #222;
+}
+.slot-input {
+  width: 120px;
+}
 </style>
 
 <script lang="ts">
@@ -249,6 +355,8 @@ export default Vue.extend({
     tab: 0,
     itemDialogWidth: 1200,
     capturing: false,
+    bulkUpdateDialog: false,
+    bulkUpdateSlotValue: 18,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -353,21 +461,7 @@ export default Vue.extend({
       this.setInfo();
     },
     supply() {
-      const { airbases } = this.airbaseInfo;
-      for (let i = 0; i < airbases.length; i += 1) {
-        const { items } = airbases[i];
-        for (let j = 0; j < items.length; j += 1) {
-          const item = items[j];
-          if (item.isRecon) {
-            items[j] = new Item({ item, slot: 4 });
-          } else if (item.isShinzan) {
-            items[j] = new Item({ item, slot: 9 });
-          } else if (item.isPlane) {
-            items[j] = new Item({ item, slot: 18 });
-          }
-        }
-        airbases[i] = new Airbase({ airbase: airbases[i], items });
-      }
+      this.bulkUpdateAllItem({ slot: 99 });
       this.setInfo();
     },
     doAirRaid() {
@@ -381,11 +475,9 @@ export default Vue.extend({
         const { items } = airbases[i];
         for (let j = 0; j < items.length; j += 1) {
           const item = items[j];
-
           if (item.fullSlot <= 1) {
             continue;
           }
-
           if (item.fullSlot > count) {
             items[j] = new Item({ item, slot: item.fullSlot - count });
             break;
@@ -394,7 +486,6 @@ export default Vue.extend({
             count -= item.fullSlot - 1;
           }
         }
-
         airbases[i] = new Airbase({ airbase: airbases[i], items });
       }
       this.setInfo();
@@ -430,6 +521,61 @@ export default Vue.extend({
           this.capturing = false;
         });
       }, 10);
+    },
+    getLevelValue(value: number) {
+      return Const.PROF_LEVEL_BORDER[value];
+    },
+    setLevel(index: number) {
+      this.bulkUpdateAllItem({ level: Const.PROF_LEVEL_BORDER[index] });
+    },
+    setRemodel(remodel: number) {
+      this.bulkUpdateAllItem({ remodel });
+    },
+    resetSlot() {
+      this.bulkUpdateSlotValue = 18;
+      this.bulkUpdateSlot();
+    },
+    bulkUpdateSlot() {
+      this.bulkUpdateAllItem({ slot: this.bulkUpdateSlotValue });
+    },
+    setMaxLevelOnlyFighter() {
+      this.bulkUpdateAllItem({ level: 120 }, true);
+    },
+    bulkUpdateAllItem(itemBuilder: ItemBuilder, onlyFighter = false) {
+      // 指定ビルダーで装備情報一括更新
+      const { airbases } = this.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        const { items } = airbases[i];
+        for (let j = 0; j < items.length; j += 1) {
+          const item = items[j];
+          if (!onlyFighter || (onlyFighter && item.isFighter)) {
+            let { slot } = item;
+            if (item.isRecon && itemBuilder.slot !== undefined) {
+              slot = Math.min(4, itemBuilder.slot);
+            } else if (item.isShinzan && itemBuilder.slot !== undefined) {
+              slot = Math.min(9, itemBuilder.slot);
+            } else if (item.isPlane && itemBuilder.slot !== undefined) {
+              slot = Math.min(18, itemBuilder.slot);
+            }
+            items[j] = new Item({
+              item,
+              slot,
+              remodel: item.data.canRemodel ? itemBuilder.remodel : undefined,
+              level: itemBuilder.level,
+            });
+          }
+        }
+        airbases[i] = new Airbase({ airbase: airbases[i] });
+      }
+
+      const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
+      newInfo.calculated = true;
+      this.$emit('input', newInfo);
+    },
+    onBulkUpdateDialogToggle() {
+      if (!this.bulkUpdateDialog) {
+        this.setInfo();
+      }
     },
   },
 });

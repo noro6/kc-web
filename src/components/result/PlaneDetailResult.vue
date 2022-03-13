@@ -376,7 +376,7 @@
   background-color: #fff;
 }
 .theme--dark .border-window .header-content > div {
-  background-color: rgb(25, 25, 28);
+  background-color: rgb(30, 30, 30)
 }
 .target-item {
   display: flex;
@@ -925,7 +925,7 @@ export default Vue.extend({
     },
     bootTooltip(item: Item, e: MouseEvent) {
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
-      this.tooltipTimer = setTimeout(() => {
+      this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = e.clientX;
         this.tooltipY = rect.y + rect.height;

@@ -241,8 +241,8 @@
 }
 .theme--dark .level-value,
 .theme--dark .level-list-value {
-  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000,
-    0px 1px 1px #000, 0px -1px 1px #000;
+  text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222,
+    0px 1px 1px #222, 0px -1px 1px #222;
 }
 .level-value {
   text-align: right;
@@ -283,6 +283,7 @@ import Item, { ItemBuilder } from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
+import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -448,7 +449,9 @@ export default Vue.extend({
       const item = new ItemMaster();
       item.id = +draggingDiv.dataset.itemId;
       item.apiTypeId = +draggingDiv.dataset.apiType;
-      if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(item, this.index)) {
+      const link = this.$store.state.equipShips as MasterEquipmentShip[];
+      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+      if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(item, link, exLink, this.index)) {
         // 搭載不可なので背景色を変な色にする
         target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
         // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
@@ -527,7 +530,9 @@ export default Vue.extend({
         // 交換
         builder.item = JSON.parse(itemData) as Item;
         // 交換前にチェック
-        if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(builder.item.data, this.index)) {
+        const link = this.$store.state.equipShips as MasterEquipmentShip[];
+        const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+        if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(builder.item.data, link, exLink, this.index)) {
           // 搭載不可なので外す
           builder.item = undefined;
           this.setItem(new Item(builder));

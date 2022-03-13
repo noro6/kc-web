@@ -335,6 +335,7 @@ import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import SaveData from '@/classes/saveData/saveData';
+import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 
@@ -552,8 +553,10 @@ export default Vue.extend({
       // 装備可能フィルタ
       let types: number[] = [];
       if (parent instanceof Ship && parent.data.id) {
+        const link = this.$store.state.equipShips as MasterEquipmentShip[];
+        const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
         // 渡された艦娘情報より装備可能種別を取得
-        this.baseItems = this.all.filter((item) => parent.data.isValidItem(item, slotIndex));
+        this.baseItems = this.all.filter((item) => parent.data.isValidItem(item, link, exLink, slotIndex));
         if (this.enabledTypes.length && !this.enabledTypes.find((v) => v.id === this.type)) {
           // カテゴリがおかしかったら最初のカテゴリにする
           this.type = this.enabledTypes[0].id;
@@ -733,7 +736,7 @@ export default Vue.extend({
     },
     bootTooltip(item: Item, e: MouseEvent) {
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
-      this.tooltipTimer = setTimeout(() => {
+      this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : e.clientX;
         this.tooltipY = rect.y + rect.height;

@@ -1,3 +1,5 @@
+import { MasterItem } from '../interfaces/master';
+
 export default class ItemMaster {
   public id = 0;
 
@@ -41,42 +43,41 @@ export default class ItemMaster {
 
   public avoidId = 0;
 
-  public range2 = 0;
-
   public grow = 0;
 
   public isSpecial = false;
 
   /**
    * Creates an instance of ItemMaster.
-   * API取得rowよりクラスにマッピング
-   * @param {(...(number | string)[])} row
+   * API取得itemよりクラスにマッピング
+   * @param {(...(number | string)[])} item
    * @memberof ItemMaster
    */
-  constructor(...row: (number | string)[]) {
-    this.id = row[0] ? +row[0] : 0;
-    this.apiTypeId = row[1] ? +row[1] : 0;
-    this.iconTypeId = row[2] ? +row[2] : 0;
-    this.name = row[3] ? row[3] as string : '';
-    this.abbr = row[4] ? row[4] as string : '';
-    this.fire = row[5] ? +row[5] : 0;
-    this.torpedo = row[6] ? +row[6] : 0;
-    this.bomber = row[7] ? +row[7] : 0;
-    this.antiAir = row[8] ? +row[8] : 0;
-    this.armor = row[9] ? +row[9] : 0;
-    this.asw = row[10] ? +row[10] : 0;
-    this.antiBomer = row[11] ? +row[11] : 0;
-    this.accuracy = row[12] ? +row[12] : 0;
-    this.interception = row[13] ? +row[13] : 0;
-    this.avoid = row[14] ? +row[14] : 0;
-    this.scout = row[15] ? +row[15] : 0;
-    this.range = row[16] ? +row[16] : 0;
-    this.radius = row[17] ? +row[17] : 0;
-    this.cost = row[18] ? +row[18] : 0;
-    this.canRemodel = row[19] > 0;
-    this.avoidId = row[20] ? +row[20] : 0;
-    this.range2 = row[21] ? +row[21] : 0;
-    this.grow = row[22] ? +row[22] : 0;
+  constructor(item?: MasterItem) {
+    if (item) {
+      this.id = item.id ? item.id : 0;
+      this.apiTypeId = item.type ? +item.type : 0;
+      this.iconTypeId = item.itype ? +item.itype : 0;
+      this.name = item.name ? item.name : '';
+      this.abbr = item.abbr ? item.abbr : '';
+      this.fire = item.fire ? +item.fire : 0;
+      this.torpedo = item.torpedo ? +item.torpedo : 0;
+      this.bomber = item.bomber ? +item.bomber : 0;
+      this.antiAir = item.antiAir ? +item.antiAir : 0;
+      this.armor = item.armor ? +item.armor : 0;
+      this.asw = item.asw ? +item.asw : 0;
+      this.antiBomer = item.antiBomber ? +item.antiBomber : 0;
+      this.accuracy = item.accuracy ? +item.accuracy : 0;
+      this.interception = item.interception ? +item.interception : 0;
+      this.avoid = item.avoid2 ? +item.avoid2 : 0;
+      this.scout = item.scout ? +item.scout : 0;
+      this.range = item.range ? +item.range : 0;
+      this.radius = item.radius ? +item.radius : 0;
+      this.cost = item.cost ? +item.cost : 0;
+      this.canRemodel = !!item.canRemodel;
+      this.avoidId = item.avoid ? +item.avoid : 0;
+      this.grow = item.grow ? +item.grow : 0;
+    }
 
     // 特殊機銃 特殊高角砲判定
     this.isSpecial = (this.apiTypeId === 21 && this.antiAir > 8) || (this.iconTypeId === 16 && this.antiAir > 7);

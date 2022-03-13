@@ -652,7 +652,7 @@ export default class Item {
       case 30:
         // 簡易輸送部材
         return 5;
-      case 34:
+      case 43:
         // おにぎり
         return 1;
       case 46:

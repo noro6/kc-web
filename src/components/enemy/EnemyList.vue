@@ -226,7 +226,7 @@ export default Vue.extend({
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('enemy-id')[0] as HTMLDivElement;
-      this.tooltipTimer = setTimeout(() => {
+      this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = e.clientX;
         this.tooltipY = rect.y + rect.height;

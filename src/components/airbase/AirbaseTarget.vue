@@ -13,7 +13,7 @@
         <div v-for="(t, j) in lb.battleTarget" :key="j" class="d-flex ml-5 pb-1">
           <div class="align-self-center body-2 mr-3">第{{ i + 1 }}基地航空隊 第{{ j + 1 }}波</div>
           <v-btn-toggle v-model="lb.battleTarget[j]" mandatory dense tile color="light-blue">
-            <v-btn v-for="battle in battleCount" :key="battle" :value="battle - 1">{{ battle }}</v-btn>
+            <v-btn v-for="battle in battleCount" :key="battle" :value="battle - 1" :disabled="lb.mode !== 1">{{ battle }}</v-btn>
           </v-btn-toggle>
         </div>
       </div>
