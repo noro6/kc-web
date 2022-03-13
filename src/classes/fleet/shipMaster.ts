@@ -96,6 +96,7 @@ export default class ShipMaster {
       this.nextLv = ship.next_lv ? ship.next_lv : 0;
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
+      this.originalId = ship.orig ? ship.orig : 0;
     }
   }
 

@@ -250,7 +250,7 @@
   font-size: 0.8em;
 }
 .theme--dark .detail-container {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(25, 25, 28, 1) 35%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(30, 30, 32, 1) 35%);
 }
 .item-container:hover .detail-container {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(255, 255, 240, 1) 35%);
