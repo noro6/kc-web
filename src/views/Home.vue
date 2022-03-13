@@ -2,6 +2,9 @@
   <div class="site-top-container">
     <div class="site-title content">制空権シミュレータ v2.0.0</div>
     <v-card class="site-body content">
+      <v-alert border="left" outlined type="error" class="ma-3 pa-5">
+        <div>本バージョンは開発中です。現行版で存在した機能がまだ未実装だったり、予期しない動作や表示が行われる可能性があります。</div>
+      </v-alert>
       <div class="menu-buttons">
         <div class="ma-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
