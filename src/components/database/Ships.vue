@@ -261,12 +261,20 @@
               <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
             </div>
           </div>
-          <div class="ml-1">{{ rowData.ship.name }}</div>
-          <v-spacer></v-spacer>
+          <div class="ml-1 td-name text-truncate">{{ rowData.ship.name }}</div>
           <div class="status-td">{{ rowData.stockData.level }}</div>
-          <div class="status-td">{{ rowData.hp }}</div>
-          <div class="status-td">{{ rowData.luck }}</div>
-          <div class="status-td" v-if="rowData.count">{{ rowData.asw }}</div>
+          <div class="status-td td-relative" :class="{ bold: rowData.impHP }">
+            {{ rowData.hp }}
+            <div class="status-td-absolute" v-if="rowData.impHP">↑{{ rowData.impHP }}</div>
+          </div>
+          <div class="status-td td-relative" :class="{ bold: rowData.impLuck }">
+            {{ rowData.luck }}
+            <div class="status-td-absolute" v-if="rowData.impLuck">↑{{ rowData.impLuck }}</div>
+          </div>
+          <div class="status-td td-relative" v-if="rowData.count" :class="{ bold: rowData.impAsw }">
+            {{ rowData.asw }}
+            <div class="status-td-absolute" v-if="rowData.impAsw">↑{{ rowData.impAsw }}</div>
+          </div>
           <div class="status-td" v-if="rowData.count">{{ rowData.scout }}</div>
           <div class="status-td" v-if="rowData.count">{{ rowData.acurracy }}</div>
           <div class="status-td" v-if="rowData.count">{{ rowData.avoid }}</div>
@@ -317,15 +325,15 @@
                       </div>
                       <div class="status-col">
                         <img class="align-self-center" :src="`./img/util/status_hp.png`" height="16" />
-                        <div class="align-self-center">{{ data.hp }}</div>
+                        <div class="align-self-center" :class="{ bold: data.impHP }">{{ data.hp }}</div>
                       </div>
                       <div class="status-col">
                         <img class="align-self-center" :src="`./img/util/status_asw.png`" height="16" />
-                        <div class="align-self-center">{{ data.asw }}</div>
+                        <div class="align-self-center" :class="{ bold: data.impAsw }">{{ data.asw }}</div>
                       </div>
                       <div class="status-col">
                         <img class="align-self-center" :src="`./img/util/status_luck.png`" height="16" />
-                        <div class="align-self-center">{{ data.luck }}</div>
+                        <div class="align-self-center" :class="{ bold: data.impLuck }">{{ data.luck }}</div>
                       </div>
                       <div class="status-area-img" :class="{ 'exist-img': data.stockData.area > 0 }">
                         <img
@@ -536,11 +544,17 @@
 .ship-table .ship-tr > div {
   align-self: center;
 }
+.ship-table .ship-tr .td-name {
+  width: calc(28% - 200px);
+  flex-grow: 1;
+  font-size: 0.95em;
+}
+
 .ship-table .ship-tr .status-td {
   text-align: right;
   width: 9%;
   padding-right: 0.5rem;
-  font-size: 0.8em;
+  font-size: 0.85em;
 }
 .ship-table .ship-tr .status-td.no-status {
   text-align: center;
@@ -552,6 +566,22 @@
   height: 2px;
   margin: 0 1rem;
   align-self: center;
+}
+
+/** 上昇値 */
+.ship-table .ship-tr .status-td.td-relative {
+  position: relative;
+}
+.status-col .bold,
+.ship-table .ship-tr .status-td.td-relative.bold {
+  font-weight: 600;
+}
+.ship-table .ship-tr .status-td-absolute {
+  position: absolute;
+  right: -10px;
+  top: -12px;
+  color: rgb(31, 190, 167);
+  font-weight: 600;
 }
 
 .ship-table .ship-tr.header {
@@ -769,8 +799,11 @@ interface ShipRowData {
   stockData: ShipStock;
   level: number;
   hp: number;
+  impHP: number;
   luck: number;
+  impLuck: number;
   asw: number;
+  impAsw: number;
   scout: number;
   acurracy: number;
   avoid: number;
@@ -828,6 +861,11 @@ export default Vue.extend({
     // 全データ取得
     this.all = this.$store.state.ships as ShipMaster[];
     this.shipStock = this.$store.state.shipStock as ShipStock[];
+
+    // 登録データがあるなら未着任艦を非表示にしておく => ネタバレ対策 (制空ツールでネタバレとは…)
+    if (this.shipStock.length) {
+      this.onlyStock = true;
+    }
 
     for (let i = 0; i < this.all.length; i += 1) {
       const { id, type } = this.all[i];
@@ -1010,6 +1048,9 @@ export default Vue.extend({
             stockData: new ShipStock(),
             hp: base.hp,
             luck: base.luck,
+            impHP: 0,
+            impLuck: 0,
+            impAsw: 0,
             level: 0,
             asw: -1,
             scout: -1,
@@ -1055,6 +1096,9 @@ export default Vue.extend({
               level: stockData.level,
               hp,
               luck,
+              impHP: stockData.improvement.hp,
+              impLuck: stockData.improvement.luck,
+              impAsw: stockData.improvement.asw,
               asw: Ship.getStatusFromLevel(stockData.level, master.maxAsw, master.minAsw) + stockData.improvement.asw,
               scout: Ship.getStatusFromLevel(stockData.level, master.maxScout, master.minScout),
               acurracy: Ship.getAccuracyValue(stockData.level, luck),

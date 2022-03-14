@@ -67,6 +67,7 @@
         :index="i"
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
+        :handle-show-temp-ship-list="showTempShipList"
         :handle-close-ship="removeShip"
         :fix-down="ship.fixDown"
         :rate-down="ship.rateDown"
@@ -179,6 +180,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleShowTempShipList: {
+      type: Function,
+      required: true,
+    },
     unionFleet: {
       type: Fleet,
     },
@@ -240,6 +245,9 @@ export default Vue.extend({
     },
     showShipList(index: number) {
       this.handleShowShipList(this.index, index);
+    },
+    showTempShipList(ship: Ship) {
+      this.handleShowTempShipList(ship);
     },
     async clickedInfo() {
       this.destroyDialog = false;

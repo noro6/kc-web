@@ -9,7 +9,7 @@
         </v-btn>
       </div>
       <v-divider></v-divider>
-      <div class="d-flex px-5 pt-2">
+      <div class="d-flex px-2 pt-2">
         <div class="align-self-center">
           <v-text-field label="id 名称検索" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
         </div>
@@ -30,7 +30,7 @@
           {{ i.text }}
         </div>
       </div>
-      <v-divider></v-divider>
+      <v-divider class="mx-3"></v-divider>
       <div class="enemy-table-container pa-3">
         <div class="enemy-table-body">
           <div

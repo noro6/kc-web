@@ -241,6 +241,7 @@ export default Vue.extend({
         data.isMain = true;
         this.$store.dispatch('setMainSaveData', data);
 
+        this.handleUpdateSaveData();
         if (!this.$route.path.endsWith('/aircalc')) {
           // ページ遷移
           this.$router.push('aircalc');

@@ -106,6 +106,7 @@
           :index="i"
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
+          :handle-show-temp-ship-list="showTempShipList"
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
@@ -118,6 +119,68 @@
     </v-dialog>
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
+    </v-dialog>
+    <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="960">
+      <v-card v-if="tempShip" class="pa-3">
+        <div class="d-flex">
+          <v-card class="temp-ship">
+            <div class="d-flex ml-1">
+              <div class="align-self-center">
+                <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="32" width="128"></v-img>
+              </div>
+              <div class="align-self-center ml-2 flex-grow-1">
+                <div class="d-flex flex-wrap">
+                  <div class="caption">Lv: {{ tempShip.level }}</div>
+                  <div class="caption ml-2">運: {{ tempShip.luck }}</div>
+                  <div class="caption ml-2">対空: {{ tempShip.antiAir }}</div>
+                </div>
+                <div class="d-flex flex-grow-1">
+                  <div class="temp-ship-name text-truncate">{{ tempShip.data.name }}</div>
+                </div>
+              </div>
+            </div>
+            <div v-for="(item, i) in tempShip.items" :key="`tempItem${i}`" class="d-flex">
+              <div class="align-self-center caption temp-slot">{{ item.fullSlot }}</div>
+              <div>
+                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+              </div>
+              <div class="align-self-center caption">{{ item.data.name ? item.data.name : "未装備" }}</div>
+            </div>
+          </v-card>
+          <div class="ml-3">
+            <v-btn @click="pushTempShip()">一時保存リストに追加</v-btn>
+          </div>
+        </div>
+        <v-divider class="my-3"></v-divider>
+        <div class="d-flex ml-2 mb-2">
+          <div class="body-2">一時保存艦娘一覧</div>
+          <div class="ml-3 align-self-end caption">※ クリックすると展開できる予定</div>
+        </div>
+        <div class="temp-ship-list">
+          <v-card class="temp-ship mb-2" v-ripple="{ class: 'info--text' }" v-for="(temp, i) in tempShipList" :key="`tempShip${i}`">
+            <div class="d-flex ml-1">
+              <div class="align-self-center">
+                <v-img :src="`./img/ship/${temp.data.id}.png`" height="32" width="128"></v-img>
+              </div>
+              <div class="align-self-center ml-2 flex-grow-1">
+                <div class="d-flex flex-wrap">
+                  <div class="caption">Lv: {{ temp.level }}</div>
+                </div>
+                <div class="d-flex flex-grow-1">
+                  <div class="temp-ship-name text-truncate">{{ temp.data.name }}</div>
+                </div>
+              </div>
+            </div>
+            <div v-for="(item, j) in temp.items" :key="`tempSship${i}item${j}`" class="d-flex">
+              <div class="align-self-center caption temp-slot">{{ item.fullSlot }}</div>
+              <div>
+                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+              </div>
+              <div class="align-self-center caption">{{ item.data.name ? item.data.name : "未装備" }}</div>
+            </div>
+          </v-card>
+        </div>
+      </v-card>
     </v-dialog>
     <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="600" @input="onBulkUpdateDialogToggle">
       <v-card>
@@ -230,6 +293,40 @@
   text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222,
     0px 1px 1px #222, 0px -1px 1px #222;
 }
+
+.temp-ship-list {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .temp-ship-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 800px) {
+  .temp-ship-list {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+.temp-ship {
+  margin: 0 0.2rem;
+  padding: 0.25rem;
+}
+.temp-ship-list .temp-ship {
+  cursor: pointer;
+}
+.temp-ship-list .temp-ship:hover {
+  background-color: rgba(128, 200, 255, 0.1);
+}
+.temp-ship-name {
+  flex-grow: 1;
+  font-size: 0.9em;
+  width: 10px;
+}
+.temp-slot {
+  text-align: right;
+  width: 22px;
+}
 </style>
 
 <script lang="ts">
@@ -278,6 +375,9 @@ export default Vue.extend({
     level: 120,
     levelMenu: false,
     capturing: false,
+    tempShip: undefined as undefined | Ship,
+    tempShipListDialog: false,
+    tempShipList: [] as Ship[],
     bulkUpdateDialog: false,
     bulkUpdateTarget: [1, 1, 1, 1],
   }),
@@ -306,6 +406,15 @@ export default Vue.extend({
       this.shipDialogTarget = [fleetIndex, shipIndex];
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+    },
+    showTempShipList(ship: Ship) {
+      this.tempShip = ship;
+      this.tempShipListDialog = true;
+    },
+    pushTempShip() {
+      if (this.tempShip) {
+        this.tempShipList.push(this.tempShip);
+      }
     },
     putShip(viewShip: ViewShip) {
       const { ship } = viewShip;

@@ -20,7 +20,7 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-5 pt-2">
+    <div class="d-flex px-2 pt-2">
       <div class="align-self-center item-search-text">
         <v-text-field label="図鑑No 名称検索" clearable v-model="keyword" @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
       </div>
@@ -32,7 +32,7 @@
       </div>
       <v-spacer></v-spacer>
     </div>
-    <div class="d-flex flex-wrap mx-3">
+    <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
         v-for="i in enabledTypes"
         :key="i.id"
@@ -44,8 +44,8 @@
         <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
       </div>
     </div>
-    <v-divider class="ml-3" :class="{ 'mr-3': multiLine }"></v-divider>
-    <div id="item-table-body" class="ml-3 pb-2" :class="{ 'mr-3': multiLine }">
+    <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
+    <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
       <div :class="{ multi: multiLine }">
         <div v-if="!multiLine && viewItems.length" class="item-status-header pr-3">
           <div
@@ -96,7 +96,7 @@
           :key="i"
           v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
           class="list-item"
-          :class="{ 'pr-3': !multiLine, 'no-stock': !v.count }"
+          :class="{ 'px-3': !multiLine, 'no-stock': !v.count }"
           @click="clickedItem(v)"
           @mouseenter="bootTooltip(v.item, $event)"
           @mouseleave="clearTooltip"
@@ -128,7 +128,7 @@
             <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
             <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
             <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
-            <div class="item-status" v-show="isShowAntiBomer">{{ v.item.data.antiBomer ? v.item.data.antiBomer : "" }}</div>
+            <div class="item-status" v-show="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
             <div class="item-status" v-show="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
             <div class="item-status" v-show="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
             <div class="item-status" v-show="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
@@ -390,7 +390,7 @@ export default Vue.extend({
       { text: '回避', key: 'avoid' },
       { text: '索敵', key: 'actualScout' },
       { text: '命中', key: 'actualAccuracy' },
-      { text: '対爆', key: 'antiBomer' },
+      { text: '対爆', key: 'antiBomber' },
       { text: '加重対空', key: 'antiAirWeight' },
       { text: '艦隊防空', key: 'antiAirBonus' },
       { text: '半径', key: 'radius' },
@@ -465,8 +465,8 @@ export default Vue.extend({
     isShowAccuracy(): boolean {
       return this.selectedType.viewStatus.includes('actualAccuracy');
     },
-    isShowAntiBomer(): boolean {
-      return this.selectedType.viewStatus.includes('antiBomer');
+    isShowantiBomber(): boolean {
+      return this.selectedType.viewStatus.includes('antiBomber');
     },
     isShowAntiAirWeight(): boolean {
       return this.selectedType.viewStatus.includes('antiAirWeight');

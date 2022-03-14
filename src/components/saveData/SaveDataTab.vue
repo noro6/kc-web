@@ -1,31 +1,33 @@
 <template>
-  <div class="d-flex active-tab-list">
-    <div
-      class="tab-item"
-      v-for="(saveData, i) in viewData"
-      :key="i"
-      :class="{ active: saveData.isMain }"
-      @mousedown.middle="handleCloseTab(saveData, $event)"
-      @click="clickSaveData(saveData)"
-    >
-      <div>
-        <v-btn icon x-small @click.stop="showNameEditDialog(saveData)">
-          <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
-          <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
+  <div class="active-tab-list">
+    <draggable animation="150" class="d-flex">
+      <div
+        class="tab-item"
+        v-for="(saveData, i) in viewData"
+        :key="i"
+        :class="{ active: saveData.isMain }"
+        @mousedown.middle="handleCloseTab(saveData, $event)"
+        @click="clickSaveData(saveData)"
+      >
+        <div>
+          <v-btn icon small @click.stop="showNameEditDialog(saveData)">
+            <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
+            <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
+          </v-btn>
+        </div>
+        <div class="tab-item-name text-truncate">{{ saveData.name }}</div>
+        <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted }">
+          <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
+            <v-icon small>mdi-close</v-icon>
+          </v-btn>
+        </div>
+      </div>
+      <div class="tab-add-button">
+        <v-btn icon small @click.stop="addNewFile">
+          <v-icon small>mdi-plus</v-icon>
         </v-btn>
       </div>
-      <div class="tab-item-name text-truncate">{{ saveData.name }}</div>
-      <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted }">
-        <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
-          <v-icon small>mdi-close</v-icon>
-        </v-btn>
-      </div>
-    </div>
-    <div class="tab-add-button">
-      <v-btn icon small @click.stop="addNewFile">
-        <v-icon small>mdi-plus</v-icon>
-      </v-btn>
-    </div>
+    </draggable>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="520">
       <v-card class="pa-3">
         <div class="ma-4">
@@ -36,7 +38,7 @@
           <div class="caption">変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。</div>
           <v-divider class="mt-5"></v-divider>
           <div>
-            <v-checkbox v-model="disabledConfirm" label="二度とこの画面を出さない" hide-details dense></v-checkbox>
+            <v-checkbox v-model="disabledConfirm" label="次回以降表示しない" hide-details dense></v-checkbox>
           </div>
           <div class="caption mt-1 ml-1">設定（サイト最右上の<v-icon small>mdi-cog</v-icon>）からいつでも変更できます。</div>
         </div>
@@ -73,7 +75,6 @@
 .active-tab-list {
   font-size: 12px;
   width: 100%;
-  height: 26px;
 }
 .tab-item {
   display: flex;
@@ -83,7 +84,6 @@
   max-width: 200px;
   min-width: 60px;
   opacity: 0.6;
-  transition: 0.2s;
   border-right: 1px solid rgb(64, 64, 64);
   border-left: 1px solid transparent;
 }
@@ -137,11 +137,13 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import draggable from 'vuedraggable';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'SaveDataView',
+  components: { draggable },
   props: {
     saveData: {
       type: SaveData,
@@ -234,6 +236,9 @@ export default Vue.extend({
       if (this.disabledConfirm && this.setting.confirmCloseTab) {
         this.setting.confirmCloseTab = false;
       }
+
+      // 閉じたということでDB更新を促す
+      this.$store.dispatch('updateSaveData', this.saveData);
 
       // もう何もタブがなかったらトップページに戻す
       if (!this.saveData.getMainData() && this.$route.path === '/aircalc') {

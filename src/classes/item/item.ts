@@ -220,7 +220,7 @@ export default class Item {
       // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
       this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
       // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
-      this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomer + this.bonusAntiAir;
+      this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomber + this.bonusAntiAir;
     }
 
     this.actualFire = this.data.fire + this.bonusFire;

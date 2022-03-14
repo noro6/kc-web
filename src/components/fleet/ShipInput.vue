@@ -142,9 +142,22 @@
         </div>
         <v-spacer></v-spacer>
         <div class="align-self-center d-flex">
-          <v-btn icon small v-show="ship.isActive" @click="changeActive(false)">
-            <v-icon small>mdi-eye</v-icon>
-          </v-btn>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon small v-bind="attrs" v-on="on" @click="showTempShip()">
+                <v-icon small>mdi-upload</v-icon>
+              </v-btn>
+            </template>
+            <span>一時保存艦娘リスト展開</span>
+          </v-tooltip>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click="changeActive(false)">
+                <v-icon small>mdi-eye</v-icon>
+              </v-btn>
+            </template>
+            <span>計算対象から省く</span>
+          </v-tooltip>
           <v-btn icon small v-show="!ship.isActive" @click="changeActive(true)">
             <v-icon small>mdi-eye-off</v-icon>
           </v-btn>
@@ -316,7 +329,6 @@
 .captured .ship-remove {
   display: none;
 }
-
 </style>
 
 <script lang="ts">
@@ -339,6 +351,10 @@ export default Vue.extend({
       required: true,
     },
     handleCloseShip: {
+      type: Function,
+      required: true,
+    },
+    handleShowTempShipList: {
       type: Function,
       required: true,
     },
@@ -438,6 +454,10 @@ export default Vue.extend({
     showShipList(): void {
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.handleShowShipList(this.index);
+    },
+    showTempShip() {
+      // 一時保存領域の展開
+      this.handleShowTempShipList(this.value);
     },
     setDraggable(e: MouseEvent) {
       const target = e.target as HTMLDivElement;

@@ -105,13 +105,36 @@
             <img :src="`./img/type/type${header.type.id}.png`" />
           </div>
           <div class="ml-1 align-self-center">{{ header.type.name }}</div>
+          <v-spacer></v-spacer>
+          <div v-if="header.type.sortKey">
+            <v-menu offset-y left>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-sort</v-icon>
+                </v-btn>
+              </template>
+              <v-card>
+                <div class="sort-key" v-ripple="{ class: 'info--text' }" @click="sortItems(header.items, 'id')">図鑑ID</div>
+                <div
+                  v-for="(sortKey, j) in header.type.sortKey"
+                  :key="`type${i}Key${j}`"
+                  class="sort-key"
+                  v-ripple="{ class: 'info--text' }"
+                  @click="sortItems(header.items, sortKey)"
+                >
+                  {{ convertStatusString(sortKey) }}
+                </div>
+              </v-card>
+            </v-menu>
+          </div>
         </div>
         <v-divider></v-divider>
         <div v-for="(itemRow, j) in header.items" :key="`${i}${j}`">
           <div
             class="item-container"
             :class="{ 'no-item': !itemRow.allCount }"
-            v-ripple="{ class: 'yellow--text' }"
+            v-ripple="{ class: 'info--text' }"
+            @click="clickItem(itemRow.master)"
             @mouseenter="bootTooltip(itemRow.master, $event)"
             @mouseleave="clearTooltip"
           >
@@ -122,7 +145,7 @@
               <div class="item-name flex-grow-1">{{ itemRow.master.name }}</div>
             </div>
             <div class="detail-container">
-              <div v-if="visibleAllCount" class="primary--text count-text">{{ itemRow.allCount }}</div>
+              <div v-if="visibleAllCount && !remodelRange[0]" class="primary--text count-text">{{ itemRow.allCount }}</div>
               <div class="d-flex remodel-container" v-for="(detail, k) in itemRow.details" :key="`${i}${j}${k}`">
                 <div class="item-remodel teal--text text--accent-4" v-if="detail.remodel">★{{ detail.remodel }}</div>
                 <div class="ml-auto">{{ detail.count }}</div>
@@ -132,9 +155,43 @@
         </div>
       </v-card>
     </div>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
+    <v-dialog v-model="editDialog" v-if="edittedItem" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
-        <div class="mx-2 mt-2"></div>
+        <div class="mx-2 mb-2">
+          <div class="d-flex">
+            <div class="align-self-center">
+              <v-img :src="`./img/type/icon${edittedItem.iconTypeId}.png`" width="40" height="40"></v-img>
+            </div>
+            <div class="align-self-center ml-1">
+              <div class="caption info--text">ID: {{ edittedItem.id }}</div>
+              <div class="body-2">{{ edittedItem.name }}</div>
+            </div>
+          </div>
+        </div>
+        <v-divider></v-divider>
+        <div class="ma-3">
+          <div class="caption">所持数</div>
+          <div class="stock-inputs">
+            <v-text-field
+              v-for="(value, i) in edittedStock"
+              :key="`stock$${i}`"
+              class="stock-input"
+              type="number"
+              max="999"
+              min="0"
+              :label="`★+${i}`"
+              hide-details
+              v-model.number="edittedStock[i]"
+            ></v-text-field>
+            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" label="合計"></v-text-field>
+          </div>
+        </div>
+        <v-divider class="mb-2"></v-divider>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="success" @click.stop="registStock">更新</v-btn>
+          <v-btn class="ml-4" :disabled="!sumStock" color="error" @click.stop="clearStock">全破棄</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+        </div>
       </v-card>
     </v-dialog>
     <v-tooltip
@@ -215,10 +272,10 @@
   cursor: pointer;
 }
 .item-container:hover {
-  background-color: rgb(255, 255, 240);
+  background-color: rgb(220, 240, 255);
 }
 .theme--dark .item-container:hover {
-  background-color: rgb(40, 40, 25);
+  background-color: rgb(40, 60, 80);
 }
 .item-container.no-item {
   opacity: 0.6;
@@ -250,13 +307,13 @@
   font-size: 0.8em;
 }
 .theme--dark .detail-container {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(30, 30, 32, 1) 35%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(30, 30, 35, 1) 35%);
 }
 .item-container:hover .detail-container {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(255, 255, 240, 1) 35%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(220, 240, 255, 1) 35%);
 }
 .theme--dark .item-container:hover .detail-container {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(40, 40, 25, 1) 35%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(40, 60, 80, 1) 35%);
 }
 
 .detail-container > div {
@@ -274,6 +331,21 @@
 .remodel-container div {
   padding-bottom: 0.15rem;
 }
+
+.sort-key {
+  font-size: 0.9em;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+}
+.sort-key:hover {
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+.stock-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  column-gap: 1rem;
+  row-gap: 1.5rem;
+}
 </style>
 
 <script lang="ts">
@@ -285,6 +357,7 @@ import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
 import Item from '@/classes/item/item';
+import Convert from '@/classes/convert';
 
 interface ItemRowDetailData {
   remodel: number;
@@ -313,6 +386,8 @@ export default Vue.extend({
     baseViewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
     viewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
     editDialog: false,
+    edittedItem: undefined as ItemMaster | undefined,
+    edittedStock: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     unsbscribe: undefined as unknown,
     setting: new SiteSetting(),
     enabledTooltip: false,
@@ -337,6 +412,7 @@ export default Vue.extend({
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
+        this.masterFilter();
         this.editDialog = false;
       }
     });
@@ -355,6 +431,12 @@ export default Vue.extend({
       if (this.selectedAllType) return 'mdi-close-box';
       if (this.selectedSomeType) return 'mdi-minus-box';
       return 'mdi-checkbox-blank-outline';
+    },
+    sumStock(): number {
+      return _.sum(this.edittedStock);
+    },
+    convertStatusString() {
+      return (value: string) => Convert.convertAttibuteString(value);
     },
   },
   beforeDestroy() {
@@ -407,6 +489,7 @@ export default Vue.extend({
       const result = [];
       const minRemodel = this.remodelRange[0];
       const maxRemodel = this.remodelRange[1];
+      const keyWord = this.searchWord;
 
       for (let i = 0; i < bases.length; i += 1) {
         const { items } = bases[i];
@@ -414,6 +497,11 @@ export default Vue.extend({
         const viewRow = { type: bases[i].type, items: [] as ItemRow[] };
         for (let j = 0; j < items.length; j += 1) {
           const { master, details, allCount } = items[j];
+
+          // 検索語句で絞り込み
+          if (keyWord && master.name.indexOf(keyWord) === -1) {
+            continue;
+          }
           // 改修値で絞り込み
           const filteredItems = details.filter((v) => v.remodel >= minRemodel && v.remodel <= maxRemodel);
 
@@ -442,6 +530,49 @@ export default Vue.extend({
           this.masterFilter();
         }
       });
+    },
+    sortItems(items: { master: { [key: string]: number } }[], key: string) {
+      if (key === 'id' || key === 'cost') {
+        items.sort((a, b) => a.master[key] - b.master[key]);
+      } else {
+        items.sort((a, b) => b.master[key] - a.master[key]);
+      }
+    },
+    clickItem(master: ItemMaster) {
+      this.editDialog = true;
+      this.edittedItem = master;
+
+      // 所持数状況を読み込み
+      const stock = this.itemStock.find((v) => v.id === master.id);
+      if (stock) {
+        this.edittedStock = stock.num;
+      } else {
+        this.edittedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      }
+    },
+    clearStock() {
+      this.edittedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    },
+    registStock() {
+      if (this.edittedItem) {
+        const itemId = this.edittedItem.id;
+        const stock = this.itemStock.find((v) => v.id === itemId);
+
+        if (stock) {
+          stock.num = this.edittedStock;
+        } else {
+          const newData = new ItemStock(itemId);
+          newData.num = this.edittedStock;
+          this.itemStock.push(newData);
+        }
+
+        this.$store.dispatch('updateItemStock', this.itemStock);
+        this.masterFilter();
+        this.editDialog = false;
+        window.setTimeout(() => {
+          this.edittedItem = undefined;
+        }, 100);
+      }
     },
     bootTooltip(item: ItemMaster, e: MouseEvent) {
       if (!item.id) {

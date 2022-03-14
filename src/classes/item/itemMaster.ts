@@ -23,7 +23,7 @@ export default class ItemMaster {
 
   public asw = 0;
 
-  public antiBomer = 0;
+  public antiBomber = 0;
 
   public accuracy = 0;
 
@@ -66,7 +66,7 @@ export default class ItemMaster {
       this.antiAir = item.antiAir ? +item.antiAir : 0;
       this.armor = item.armor ? +item.armor : 0;
       this.asw = item.asw ? +item.asw : 0;
-      this.antiBomer = item.antiBomber ? +item.antiBomber : 0;
+      this.antiBomber = item.antiBomber ? +item.antiBomber : 0;
       this.accuracy = item.accuracy ? +item.accuracy : 0;
       this.interception = item.interception ? +item.interception : 0;
       this.avoid = item.avoid2 ? +item.avoid2 : 0;

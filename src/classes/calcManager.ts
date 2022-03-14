@@ -241,7 +241,7 @@ export default class CalcManager {
     const enemy = this.battleInfo.airRaidFleet;
 
     // 相手制空値
-    const enemyAirPower = enemy.airPower;
+    const enemyAirPower = enemy.airbaseAirPower;
     // 制空値ボーダー
     const borders = CommonCalc.getAirStatusBorder(enemyAirPower);
     const [b0, b1, b2, b3] = borders;

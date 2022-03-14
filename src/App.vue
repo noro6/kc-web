@@ -546,7 +546,7 @@ export default Vue.extend({
 }
 /** ダークテーマ 基本背景色変更 */
 .theme--dark.v-application {
-  background-color: rgb(20, 20, 22) !important;
+  background-color: rgb(20, 20, 28) !important;
 }
 /** ダークテーマ モーダル背景調整 */
 .theme--dark.v-application .v-overlay__scrim {
@@ -564,15 +564,15 @@ export default Vue.extend({
 /** ダークテーマ card1層目 */
 .theme--dark.v-card,
 .theme--dark .v-expansion-panel {
-  background-color: rgb(30, 30, 32) !important;
+  background-color: rgb(30, 30, 35) !important;
 }
 /** ダークテーマ card2層目 */
 .theme--dark.v-card .v-card {
-  background-color: rgb(42, 42, 44) !important;
+  background-color: rgb(42, 42, 48) !important;
 }
 /** ダークテーマ card3層目 */
 .theme--dark.v-card .v-card .v-card {
-  background-color: rgb(55, 55, 58) !important;
+  background-color: rgb(55, 55, 60) !important;
 }
 
 /** セーブデータ補足情報textarea指定 */
@@ -607,7 +607,7 @@ export default Vue.extend({
   padding: 0;
   border-top: 1px solid #363636;
   background-color: #0a0a0c;
-  height: 28px !important;
+  height: 31px !important;
 }
 
 /** アイコン毎の背景色 */

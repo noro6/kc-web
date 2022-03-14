@@ -786,4 +786,48 @@ export default class Convert {
     format = format.replace(/SSS/g, (`00${date.getMilliseconds()}`).slice(-3));
     return format;
   }
+
+  /**
+   * 英プロパティ名から日変換
+   * @static
+   * @param {string} value
+   * @return {*}  {string}
+   * @memberof Convert
+   */
+  public static convertAttibuteString(value: string): string {
+    switch (value) {
+      case 'fire':
+        return '火力';
+      case 'torpedo':
+        return '雷装';
+      case 'bomber':
+        return '爆装';
+      case 'antiAir':
+        return '対空';
+      case 'accuracy':
+        return '命中';
+      case 'scout':
+        return '索敵';
+      case 'avoid':
+        return '回避';
+      case 'antiBomber':
+        return '対爆';
+      case 'interception':
+        return '迎撃';
+      case 'armor':
+        return '装甲';
+      case 'asw':
+        return '対潜';
+      case 'range':
+        return '射程';
+      case 'radius':
+        return '半径';
+      case 'cost':
+        return '配置コスト';
+      case 'avoidId':
+        return '射撃回避';
+      default:
+        return value;
+    }
+  }
 }

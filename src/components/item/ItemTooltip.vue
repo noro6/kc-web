@@ -50,8 +50,8 @@
         命中:<span class="item-status-value" :class="{ 'bad-status': value.data.accuracy < 0 }">{{ value.data.accuracy }}</span>
         <span v-if="value.bonusAccuracy" class="remodel-bonus">&plus;{{ formatStatus(value.bonusAccuracy) }} </span>
       </div>
-      <div v-if="value.data.antiBomer">
-        対爆:<span class="item-status-value" :class="{ 'bad-status': value.data.antiBomer < 0 }">{{ value.data.antiBomer }}</span>
+      <div v-if="value.data.antiBomber">
+        対爆:<span class="item-status-value" :class="{ 'bad-status': value.data.antiBomber < 0 }">{{ value.data.antiBomber }}</span>
       </div>
       <div v-if="value.data.interception">
         迎撃:<span class="item-status-value" :class="{ 'bad-status': value.data.interception < 0 }">{{ value.data.interception }}</span>

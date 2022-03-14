@@ -10,8 +10,10 @@ export default class ItemStock {
   /** 改修値別所持数 */
   public num = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  constructor(id: number, remodel: number) {
+  constructor(id: number, remodel = -1) {
     this.id = id;
-    this.num[remodel] = 1;
+    if (remodel >= 0 && remodel < this.num.length) {
+      this.num[remodel] = 1;
+    }
   }
 }

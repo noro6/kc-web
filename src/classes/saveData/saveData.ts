@@ -154,6 +154,7 @@ export default class SaveData {
 
   /**
    * 実際にブラウザに保存する用のデータ
+   * 未保存のデータ（Undo Redo配列）は一切保存しない
    * @returns {SaveData}
    * @memberof SaveData
    */

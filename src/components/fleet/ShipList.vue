@@ -20,7 +20,7 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-5 pt-2">
+    <div class="d-flex px-2 pt-2">
       <div class="align-self-center ship-search-text">
         <v-text-field
           label="id 名称検索"
@@ -38,7 +38,7 @@
       </div>
       <v-spacer></v-spacer>
     </div>
-    <div class="d-flex flex-wrap mx-3">
+    <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
         v-for="(i, index) in types"
         :key="index"
@@ -50,12 +50,12 @@
         {{ i.text }}
       </div>
     </div>
-    <v-divider class="ml-3" :class="{ 'mr-3': multiLine }"></v-divider>
-    <div class="ship-table-body ml-3 pb-2" :class="{ 'mr-3': multiLine }">
+    <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
+    <div class="ship-table-body pb-2" :class="{ 'mx-3': multiLine }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
         <div class="ship-status" v-for="i in 5" :key="`slot${i}`">搭載{{ i }}</div>
       </div>
-      <div v-for="(typeData, i) in ships" :key="i">
+      <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
           <div class="caption">{{ typeData.typeName }}</div>
           <div class="type-divider-border"></div>
