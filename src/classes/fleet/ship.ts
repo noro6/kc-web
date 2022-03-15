@@ -61,6 +61,18 @@ export default class Ship implements ShipBase {
   /** 対潜値 */
   public readonly asw: number;
 
+  /** 装備による対潜上昇値 */
+  public readonly itemAsw: number;
+
+  /** 対潜合計 */
+  public readonly actualAsw: number;
+
+  /** 先制対潜可 */
+  public readonly enabledTSBK: boolean;
+
+  /** 最終的な射程 */
+  public readonly actualRange: number;
+
   /** 輸送量 */
   public readonly tp: number;
 
@@ -107,7 +119,7 @@ export default class Ship implements ShipBase {
   public readonly antiAirRadarCount: number;
 
   /** 高射装置所持数 */
-  public readonly koshaCount: number
+  public readonly koshaCount: number;
 
   /** 固定撃墜 画面表示用 */
   public fixDown = 0;
@@ -168,16 +180,26 @@ export default class Ship implements ShipBase {
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
     this.hunshinRate = 0;
+    this.enabledTSBK = false;
 
     // 以下、計算により算出するステータス
     // レベルより算出
     this.scout = Ship.getStatusFromLevel(this.level, this.data.maxScout, this.data.minScout);
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
     this.asw = Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
+    // 装備対潜ボーナスと装備素対潜を取得
+    this.itemAsw = this.getBonusAsw();
+    // 最終対潜値
+    this.actualAsw = this.asw + this.itemAsw;
+    // 先制対潜の可否を判定
+    this.enabledTSBK = this.getEnabledTSBK();
+
     // 索敵ボーナス
     this.bonusScout = this.getBonusScout();
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
+    // 射程(基本値)
+    this.actualRange = Math.max(this.data.range, 1);
 
     // 装備一覧より取得
     const items = this.items.concat(this.exItem);
@@ -192,17 +214,19 @@ export default class Ship implements ShipBase {
       this.tp += item.tp;
       // 装甲値
       this.actualArmor += item.data.armor;
+      // 射程(大きくなるなら)
+      if (item.data.range > this.actualRange) {
+        this.actualRange = item.data.range;
+      }
 
       if (item.fullSlot > 0 && item.isPlane && !item.isRecon && !item.isABAttacker) {
         // 通常制空値
         this.fullAirPower += item.fullAirPower;
       }
-
       // ジェット機所持
       if (!this.hasJet && item.isJet) {
         this.hasJet = true;
       }
-
       // 高角砲カウント
       if (item.data.iconTypeId === 16 && !item.data.isSpecial) {
         this.kokakuCount += 1;
@@ -227,6 +251,16 @@ export default class Ship implements ShipBase {
       if (item.data.apiTypeId === 36) {
         this.koshaCount += 1;
       }
+
+      // SGレーダー(初期型) + [ アメリカ駆逐 / 丹陽 / 雪風改二 ] は射程長
+      if (item.data.id === 315 && (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656)) {
+        this.actualRange = 3;
+      }
+    }
+
+    // 伊勢 / 日向 / 飛龍 / 蒼龍の改二 二式艦上偵察機で射程バフ +1
+    if (this.items.some((v) => v.data.id === 61) && [553, 554, 196, 197].includes(this.data.id)) {
+      this.actualRange += 1;
     }
 
     // 発動可能対空CI取得
@@ -236,6 +270,7 @@ export default class Ship implements ShipBase {
     this.antiAirBonus = Math.floor(this.antiAirBonus);
 
     if (this.kijuCount) {
+      // 噴進率計算
       this.hunshinRate = this.getHunshinRate();
     }
 
@@ -523,6 +558,107 @@ export default class Ship implements ShipBase {
     }
 
     return sumBonus;
+  }
+
+  /**
+   * 装備対潜ボーナス + 装備素対潜の合計を取得
+   * @private
+   * @return {number}
+   * @memberof Ship
+   */
+  private getBonusAsw(): number {
+    let sumAsw = 0;
+    const items = this.items.concat(this.exItem);
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      // 素の対潜値を加算
+      sumAsw += item.data.asw;
+
+      // TODO 装備ボーナス対潜値
+    }
+
+    return sumAsw;
+  }
+
+  /**
+   * 先制対潜の可否を判定
+   * @private
+   * @return {boolean} 可能ならtrue
+   * @memberof Ship
+   */
+  private getEnabledTSBK(): boolean {
+    if ([141, 478, 624, 394, 893, 681].includes(this.data.id) || this.data.type2 === 91) {
+      // 無条件発動 順に五十鈴改二 龍田改二 夕張改二丁 J級改 Samuel B.Roberts改 Fletcher級
+      return true;
+    }
+
+    const { type } = this.data;
+    const items = this.items.concat(this.exItem);
+    // ソナー有無
+    const hasSonar = items.some((v) => v.data.apiTypeId === 14 || v.data.apiTypeId === 40);
+
+    if (type === SHIP_TYPE.DE) {
+      // 海防艦
+      if (this.actualAsw >= 60 && hasSonar) {
+        // => 対潜値60 + ソナー有
+        return true;
+      }
+      if (this.actualAsw >= 75) {
+        // => 対潜値75 + 装備対潜値合計が4以上
+        let sumAsw = 0;
+        for (let i = 0; i < items.length; i += 1) {
+          sumAsw += items[i].data.asw;
+        }
+        return sumAsw >= 4;
+      }
+    }
+
+    if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.AO || type === SHIP_TYPE.AO_2) {
+      // 駆逐 軽巡 練巡 雷巡 補給
+      // => 対潜値100 + ソナー
+      return this.actualAsw >= 100 && hasSonar;
+    }
+
+    if ((this.data.type2 === 76 && this.data.name.indexOf('改') >= 0) || this.data.id === 646) {
+      // 大鷹型改 改二 or 加賀改二護
+      // => 対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機
+      return items.some((v) => (v.isAttacker && v.data.asw >= 1) || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+    }
+
+    if (type === SHIP_TYPE.CVL) {
+      // 軽空母/護衛空母
+      const hasASWPlane = items.some((v) => v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      if (hasSonar && this.actualAsw >= 50 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+        // => 対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        return true;
+      }
+      if (this.actualAsw >= 65 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+        // => 対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        return true;
+      }
+      if (hasSonar && this.actualAsw >= 100) {
+        // => 対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
+        return hasASWPlane || items.some((v) => v.isAttacker && v.data.asw >= 1);
+      }
+    }
+
+    if (this.data.id === 554) {
+      // 日向改二
+      if (items.some((v) => v.data.id === 326 || v.data.id === 327)) {
+        // => S-51J / S-51J改 どっちかが存在
+        return true;
+      }
+      // => カ号 / オ号改 / オ号改二 の数が2以上
+      return items.filter((v) => v.data.id === 69 || v.data.id === 324 || v.data.id === 325).length >= 2;
+    }
+
+    if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
+      // 陸軍と航空戦艦
+      // => 対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
+      return this.actualAsw >= 100 && hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+    }
+
+    return false;
   }
 
   /**

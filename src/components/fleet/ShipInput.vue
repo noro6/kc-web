@@ -125,14 +125,15 @@
         </div>
       </div>
       <div class="caption pl-3">
-        <span class="text--secondary">割合撃墜:</span>
-        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%</span>
-        <span class="ml-2 text--secondary">固定撃墜:</span>
+        <span class="text--secondary">撃墜:</span>
+        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%,</span>
         <span class="ml-1 font-weight-medium">{{ fixDown }}機</span>
         <template v-if="ship.hunshinRate">
-          <span class="ml-2 text--secondary">噴進弾幕:</span>
+          <span class="ml-2 text--secondary">噴進:</span>
           <span class="ml-1 font-weight-medium">{{ ship.hunshinRate.toFixed(1) }}%</span>
         </template>
+        <span class="ml-2 text--secondary">射程:</span>
+        <span class="ml-1 font-weight-medium">{{ rangeText[ship.actualRange] }}</span>
       </div>
       <div class="d-flex caption pr-1 pl-3">
         <div class="align-self-center">
@@ -141,6 +142,38 @@
           <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
         </div>
         <v-spacer></v-spacer>
+        <div class="asw mr-2" v-if="ship.data.minAsw">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <img class="img-asw" :class="{ disabled: !ship.enabledTSBK }" :src="`./img/type/type15.png`" v-bind="attrs" v-on="on" />
+            </template>
+            <table>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">合計</span></td>
+                <td>:</td>
+                <td class="text-right">{{ ship.actualAsw }}</td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">艦娘</span></td>
+                <td>:</td>
+                <td class="text-right">{{ ship.asw }}</td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">装備</span></td>
+                <td>:</td>
+                <td class="text-right">{{ ship.itemAsw }}</td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜先制爆雷攻撃</td>
+                <td>:</td>
+                <td class="text-right pl-2">
+                  <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">可</span>
+                  <span v-else class="red--text text--lighten-1">不可</span>
+                </td>
+              </tr>
+            </table>
+          </v-tooltip>
+        </div>
         <div class="align-self-center d-flex">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -329,6 +362,24 @@
 .captured .ship-remove {
   display: none;
 }
+
+.asw,
+.asw img {
+  align-self: center;
+  height: 22px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+.asw img:hover {
+  filter: drop-shadow(0 0 1px rgb(0, 174, 255));
+}
+.img-asw.disabled {
+  filter: grayscale(100%);
+}
+.asw-text {
+  display: inline-block;
+  width: 120px;
+}
 </style>
 
 <script lang="ts">
@@ -387,6 +438,7 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
+    rangeText: ['', '短', '中', '長', '超長', '超長+'],
   }),
   computed: {
     ship(): Ship {
@@ -457,7 +509,7 @@ export default Vue.extend({
     },
     showTempShip() {
       // 一時保存領域の展開
-      this.handleShowTempShipList(this.value);
+      this.handleShowTempShipList(this.index);
     },
     setDraggable(e: MouseEvent) {
       const target = e.target as HTMLDivElement;

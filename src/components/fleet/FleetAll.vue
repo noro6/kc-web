@@ -120,65 +120,104 @@
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
-    <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="960">
-      <v-card v-if="tempShip" class="pa-3">
-        <div class="d-flex">
-          <v-card class="temp-ship">
-            <div class="d-flex ml-1">
-              <div class="align-self-center">
-                <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="32" width="128"></v-img>
-              </div>
-              <div class="align-self-center ml-2 flex-grow-1">
-                <div class="d-flex flex-wrap">
-                  <div class="caption">Lv: {{ tempShip.level }}</div>
-                  <div class="caption ml-2">運: {{ tempShip.luck }}</div>
-                  <div class="caption ml-2">対空: {{ tempShip.antiAir }}</div>
+    <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="900">
+      <v-card v-if="tempShipListDialog">
+        <div class="d-flex pb-1 px-2 pt-2">
+          <div class="align-self-center ml-3">艦娘一時保存リスト</div>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="tempShipListDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider></v-divider>
+        <div class="pa-3">
+          <div class="temp-ship-view">
+            <v-card class="temp-ship">
+              <div class="d-flex ml-1">
+                <div class="align-self-center">
+                  <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="30" width="120"></v-img>
                 </div>
-                <div class="d-flex flex-grow-1">
-                  <div class="temp-ship-name text-truncate">{{ tempShip.data.name }}</div>
+                <div class="align-self-center ml-1 flex-grow-1">
+                  <div class="d-flex">
+                    <div class="caption blue--text">Lv: {{ tempShip.level }}</div>
+                    <div class="caption ml-2">制空: {{ tempShip.fullAirPower }}</div>
+                  </div>
+                  <div class="d-flex flex-grow-1">
+                    <div class="temp-ship-name">{{ tempShip.data.name }}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div v-for="(item, i) in tempShip.items" :key="`tempItem${i}`" class="d-flex">
-              <div class="align-self-center caption temp-slot">{{ item.fullSlot }}</div>
-              <div>
-                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+              <v-divider class="mb-1"></v-divider>
+              <div v-for="(item, i) in tempShip.items.concat(tempShip.exItem)" :key="`tempItem${i}`" class="temp-item">
+                <div class="caption temp-slot">
+                  <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
+                </div>
+                <div class="item-img">
+                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                </div>
+                <div class="temp-ship-item-name">{{ item.data.name ? item.data.name : "未装備" }}</div>
+                <div class="item-remodel" v-if="item.remodel">
+                  <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                </div>
               </div>
-              <div class="align-self-center caption">{{ item.data.name ? item.data.name : "未装備" }}</div>
+            </v-card>
+            <div>
+              <v-btn color="primary" :disabled="!enabledPushTempShip" @click="pushTempShip()"
+                ><v-icon>mdi-tray-arrow-down</v-icon>リストへ追加
+              </v-btn>
             </div>
-          </v-card>
-          <div class="ml-3">
-            <v-btn @click="pushTempShip()">一時保存リストに追加</v-btn>
           </div>
-        </div>
-        <v-divider class="my-3"></v-divider>
-        <div class="d-flex ml-2 mb-2">
-          <div class="body-2">一時保存艦娘一覧</div>
-          <div class="ml-3 align-self-end caption">※ クリックすると展開できる予定</div>
-        </div>
-        <div class="temp-ship-list">
-          <v-card class="temp-ship mb-2" v-ripple="{ class: 'info--text' }" v-for="(temp, i) in tempShipList" :key="`tempShip${i}`">
-            <div class="d-flex ml-1">
-              <div class="align-self-center">
-                <v-img :src="`./img/ship/${temp.data.id}.png`" height="32" width="128"></v-img>
-              </div>
-              <div class="align-self-center ml-2 flex-grow-1">
-                <div class="d-flex flex-wrap">
-                  <div class="caption">Lv: {{ temp.level }}</div>
-                </div>
-                <div class="d-flex flex-grow-1">
-                  <div class="temp-ship-name text-truncate">{{ temp.data.name }}</div>
-                </div>
-              </div>
+          <v-divider class="mt-3 mb-1"></v-divider>
+          <div class="d-flex ml-2 mb-2">
+            <div class="align-self-center d-flex">
+              <div class="body-2 align-self-end">一時保存済みリスト</div>
+              <div class="ml-3 align-self-end caption">※ クリックで展開</div>
             </div>
-            <div v-for="(item, j) in temp.items" :key="`tempSship${i}item${j}`" class="d-flex">
-              <div class="align-self-center caption temp-slot">{{ item.fullSlot }}</div>
-              <div>
-                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
-              </div>
-              <div class="align-self-center caption">{{ item.data.name ? item.data.name : "未装備" }}</div>
+            <div class="ml-auto">
+              <v-btn color="error" :disabled="!tempShipList.length" @click="resetTempShipList()"
+                ><v-icon>mdi-trash-can-outline</v-icon>リセット</v-btn
+              >
             </div>
-          </v-card>
+          </div>
+          <div class="temp-ship-list">
+            <v-card
+              class="temp-ship"
+              v-ripple="{ class: 'info--text' }"
+              v-for="(temp, i) in tempShipList"
+              :key="`tempShip${i}`"
+              @click="popTempShip(temp)"
+            >
+              <div class="d-flex ml-1">
+                <div class="align-self-center">
+                  <v-img :src="`./img/ship/${temp.data.id}.png`" height="30" width="120"></v-img>
+                </div>
+                <div class="align-self-center ml-1 flex-grow-1">
+                  <div class="d-flex">
+                    <div class="caption blue--text">Lv: {{ temp.level }}</div>
+                    <div class="caption ml-2">制空: {{ temp.fullAirPower }}</div>
+                  </div>
+                  <div class="d-flex flex-grow-1">
+                    <div class="temp-ship-name">{{ temp.data.name }}</div>
+                  </div>
+                </div>
+              </div>
+              <v-divider class="mb-1"></v-divider>
+              <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempSship${i}item${j}`" class="temp-item">
+                <div class="caption temp-slot">
+                  <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
+                </div>
+                <div class="item-img">
+                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                </div>
+                <div class="temp-ship-item-name">{{ item.data.name ? item.data.name : "未装備" }}</div>
+                <div class="item-remodel" v-if="item.remodel">
+                  <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                </div>
+              </div>
+            </v-card>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -294,43 +333,75 @@
     0px 1px 1px #222, 0px -1px 1px #222;
 }
 
+/** 以下、一時保存リスト用 */
+.temp-ship-list {
+  min-height: 120px;
+}
+.temp-ship-view,
 .temp-ship-list {
   display: grid;
   grid-template-columns: 1fr;
+  row-gap: 0.5rem;
+  column-gap: 0.5rem;
 }
 @media (min-width: 600px) {
+  .temp-ship-view,
   .temp-ship-list {
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (min-width: 800px) {
+@media (min-width: 840px) {
+  .temp-ship-view,
   .temp-ship-list {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
 .temp-ship {
-  margin: 0 0.2rem;
-  padding: 0.25rem;
+  padding: 0.25rem 0.2rem;
 }
 .temp-ship-list .temp-ship {
   cursor: pointer;
 }
 .temp-ship-list .temp-ship:hover {
-  background-color: rgba(128, 200, 255, 0.1);
+  background-color: rgba(128, 200, 255, 0.1) !important;
 }
+.temp-ship-item-name,
 .temp-ship-name {
   flex-grow: 1;
-  font-size: 0.9em;
+  font-size: 0.85em;
   width: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.temp-item {
+  display: flex;
+  margin-bottom: 0.25rem;
+}
+.temp-item > div {
+  align-self: center;
 }
 .temp-slot {
   text-align: right;
   width: 22px;
+  margin-right: 0.25rem;
+}
+.item-img {
+  width: 24px;
+}
+.temp-ship-item-name {
+  font-size: 0.8em;
+}
+.item-remodel {
+  margin-left: auto;
+  font-size: 0.8em;
+  width: 30px;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import * as _ from 'lodash';
 import html2canvas from 'html2canvas';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
@@ -378,6 +449,7 @@ export default Vue.extend({
     tempShip: undefined as undefined | Ship,
     tempShipListDialog: false,
     tempShipList: [] as Ship[],
+    enabledPushTempShip: true,
     bulkUpdateDialog: false,
     bulkUpdateTarget: [1, 1, 1, 1],
   }),
@@ -407,14 +479,35 @@ export default Vue.extend({
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
     },
-    showTempShipList(ship: Ship) {
+    showTempShipList(fleetIndex: number, shipIndex: number) {
+      const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
+      this.shipDialogTarget = [fleetIndex, shipIndex];
       this.tempShip = ship;
       this.tempShipListDialog = true;
+      this.enabledPushTempShip = true;
     },
     pushTempShip() {
       if (this.tempShip) {
-        this.tempShipList.push(this.tempShip);
+        // 一時保存リストに追加
+        this.enabledPushTempShip = false;
+        this.tempShipList.push(_.cloneDeep(this.tempShip));
       }
+    },
+    popTempShip(ship: Ship) {
+      const fleetIndex = this.shipDialogTarget[0];
+      const index = this.shipDialogTarget[1];
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+      // 元々いた艦娘を置き換える
+      fleet.ships[index] = new Ship({ ship });
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+      this.tempShipListDialog = false;
+    },
+    resetTempShipList() {
+      // 一時保存リストリセット
+      this.enabledPushTempShip = true;
+      this.tempShipList = [];
     },
     putShip(viewShip: ViewShip) {
       const { ship } = viewShip;

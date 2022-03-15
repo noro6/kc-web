@@ -36,13 +36,13 @@
     </v-menu>
     <!-- 装備種別 -->
     <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
-      <img v-show="!isExpandSlot || item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
-      <v-icon v-show="isExpandSlot && !item.data.iconTypeId">mdi-wrench</v-icon>
+      <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
+      <v-icon v-else-if="isExpandSlot">mdi-wrench</v-icon>
     </div>
     <!-- 装備名称 -->
     <div
       class="item-name text-truncate"
-      :class="{ 'secondary--text': isNoItem, 'is-special': item.data.isSpecial }"
+      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial, }"
       @click.stop="showItemList()"
     >
       {{ isNoItem ? "未装備" : item.data.name }}

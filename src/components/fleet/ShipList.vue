@@ -20,9 +20,11 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-2 pt-2">
+    <div class="d-flex px-3 pt-4 pb-2">
       <div class="align-self-center ship-search-text">
         <v-text-field
+          dense
+          hide-details
           label="id 名称検索"
           v-model.trim="keyword"
           @input="filter()"
@@ -31,10 +33,10 @@
         ></v-text-field>
       </div>
       <div class="ml-5 align-self-center">
-        <v-checkbox v-model="isFinal" @change="filter()" label="最終改造"></v-checkbox>
+        <v-checkbox v-model="isFinal" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
       </div>
       <div class="ml-5 align-self-center" v-if="shipStock.length">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" :label="'在籍艦娘反映'"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" dense hide-details :label="'在籍艦娘反映'"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
     </div>
@@ -442,6 +444,8 @@ export default Vue.extend({
         const type = altTypes[i];
         const ships = viewShips.filter((v) => v.ship.type2 === type.id);
         if (ships.length) {
+          // 母港ソート
+          ships.sort((a, b) => a.ship.sort - b.ship.sort);
           // 存在する艦型を生成
           resultShips.push({ typeName: type.name, ships });
         }

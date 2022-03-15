@@ -246,8 +246,8 @@ export default Vue.extend({
     showShipList(index: number) {
       this.handleShowShipList(this.index, index);
     },
-    showTempShipList(ship: Ship) {
-      this.handleShowTempShipList(ship);
+    showTempShipList(shipIndex: number) {
+      this.handleShowTempShipList(this.index, shipIndex);
     },
     async clickedInfo() {
       this.destroyDialog = false;

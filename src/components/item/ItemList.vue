@@ -20,15 +20,23 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-2 pt-2">
+    <div class="d-flex px-2 pt-4 pb-2">
       <div class="align-self-center item-search-text">
-        <v-text-field label="図鑑No 名称検索" clearable v-model="keyword" @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
+        <v-text-field
+          label="図鑑No 名称検索"
+          clearable
+          v-model="keyword"
+          @input="filter()"
+          hide-details
+          dense
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
       </div>
       <div class="ml-5 align-self-center">
-        <v-checkbox v-model="isEnemyMode" @change="filter()" :label="'敵装備'"></v-checkbox>
+        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="'敵装備'"></v-checkbox>
       </div>
       <div class="ml-5 align-self-center" v-if="itemStock.length && !isEnemyMode">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" :label="'所持装備反映'"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="'所持装備反映'"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
     </div>
