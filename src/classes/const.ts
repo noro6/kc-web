@@ -861,7 +861,7 @@ export default class Const {
 
   public static readonly ApiKey = 'AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s';
 
-  public static readonly EnabledAreaCount = 7;
+  public static readonly EnabledAreaCount = 8;
 
   /**
    * 経験値最低値ボーダー
