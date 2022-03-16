@@ -147,29 +147,32 @@
             <template v-slot:activator="{ on, attrs }">
               <img class="img-asw" :class="{ disabled: !ship.enabledTSBK }" :src="`./img/type/type15.png`" v-bind="attrs" v-on="on" />
             </template>
-            <table>
+            <table class="asw-table">
               <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">合計</span></td>
-                <td>:</td>
-                <td class="text-right">{{ ship.actualAsw }}</td>
-              </tr>
-              <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">艦娘</span></td>
-                <td>:</td>
-                <td class="text-right">{{ ship.asw }}</td>
-              </tr>
-              <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">装備</span></td>
-                <td>:</td>
-                <td class="text-right">{{ ship.itemAsw }}</td>
-              </tr>
-              <tr>
-                <td class="body-2">対潜先制爆雷攻撃</td>
-                <td>:</td>
+                <td class="body-2">対潜先制爆雷攻撃：</td>
                 <td class="text-right pl-2">
                   <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">可</span>
                   <span v-else class="red--text text--lighten-1">不可</span>
                 </td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">艦娘</span>：</td>
+                <td class="text-right">{{ ship.asw }}</td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">装備</span>：</td>
+                <td class="text-right">{{ ship.itemAsw }}</td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">装備ボーナス</span>：</td>
+                <td class="text-right">{{ ship.itemBonusAsw }}</td>
+              </tr>
+              <tr class="border">
+                <td colspan="3"></td>
+              </tr>
+              <tr>
+                <td class="body-2">対潜<span class="ml-2 caption">合計</span>：</td>
+                <td class="text-right">{{ ship.actualAsw }}</td>
               </tr>
             </table>
           </v-tooltip>
@@ -379,6 +382,13 @@
 .asw-text {
   display: inline-block;
   width: 120px;
+}
+
+.asw-table {
+  font-size: 0.9em;
+}
+.asw-table tr.border td {
+  border-top: 1px solid #444;
 }
 </style>
 

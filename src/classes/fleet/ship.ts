@@ -64,6 +64,9 @@ export default class Ship implements ShipBase {
   /** 装備による対潜上昇値 */
   public readonly itemAsw: number;
 
+  /** 装備ボーナスによる対潜上昇値 */
+  public itemBonusAsw: number;
+
   /** 対潜合計 */
   public readonly actualAsw: number;
 
@@ -117,6 +120,9 @@ export default class Ship implements ShipBase {
 
   /** 対空電探所持数 */
   public readonly antiAirRadarCount: number;
+
+  /** 水上電探所持数 */
+  public readonly surfaceRadarCount: number;
 
   /** 高射装置所持数 */
   public readonly koshaCount: number;
@@ -178,6 +184,7 @@ export default class Ship implements ShipBase {
     this.actualArmor = this.data.armor;
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
+    this.surfaceRadarCount = 0;
     this.koshaCount = 0;
     this.hunshinRate = 0;
     this.enabledTSBK = false;
@@ -187,12 +194,6 @@ export default class Ship implements ShipBase {
     this.scout = Ship.getStatusFromLevel(this.level, this.data.maxScout, this.data.minScout);
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
     this.asw = Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
-    // 装備対潜ボーナスと装備素対潜を取得
-    this.itemAsw = this.getBonusAsw();
-    // 最終対潜値
-    this.actualAsw = this.asw + this.itemAsw;
-    // 先制対潜の可否を判定
-    this.enabledTSBK = this.getEnabledTSBK();
 
     // 索敵ボーナス
     this.bonusScout = this.getBonusScout();
@@ -247,6 +248,10 @@ export default class Ship implements ShipBase {
       if (item.data.iconTypeId === 11 && item.data.antiAir > 0) {
         this.antiAirRadarCount += 1;
       }
+      // 水上電探カウント
+      if (item.data.iconTypeId === 11 && item.data.scout > 4) {
+        this.surfaceRadarCount += 1;
+      }
       // 高射装置カウント
       if (item.data.apiTypeId === 36) {
         this.koshaCount += 1;
@@ -273,6 +278,14 @@ export default class Ship implements ShipBase {
       // 噴進率計算
       this.hunshinRate = this.getHunshinRate();
     }
+
+    // 装備対潜ボーナスと装備素対潜を取得
+    this.itemBonusAsw = 0;
+    this.itemAsw = this.getBonusAsw();
+    // 最終対潜値
+    this.actualAsw = this.asw + this.itemAsw + this.itemBonusAsw;
+    // 先制対潜の可否を判定
+    this.enabledTSBK = this.getEnabledTSBK();
 
     // 装備もマスタもない場合空として計算対象から省く
     this.isEmpty = this.data.id === 0 && !this.items.some((v) => v.data.id > 0);
@@ -568,14 +581,261 @@ export default class Ship implements ShipBase {
    */
   private getBonusAsw(): number {
     let sumAsw = 0;
+    let sumBonusAsw = 0;
+    const {
+      type, type2, originalId, id,
+    } = this.data;
     const items = this.items.concat(this.exItem);
+    let sanshikiKaiCount = 0;
+    let sanshikiKaiRemodel = 0;
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       // 素の対潜値を加算
       sumAsw += item.data.asw;
 
-      // TODO 装備ボーナス対潜値
+      // 単純累積ボーナス対潜値を加算
+      if (item.data.id === 47) {
+        // 三式水中探信儀
+        if ([271, 273, 80, 257, 119, 225].includes(originalId)) {
+          // 神風 春風 時雨 山風 舞風 朝霜 => +3
+          sumBonusAsw += 3;
+        } else if ([70, 73, 214, 167, 170, 327].includes(originalId)) {
+          // 潮 雷 山雲 磯風 浜風 岸波 => +2
+          sumBonusAsw += 2;
+        }
+      } else if (item.data.id === 149) {
+        // 四式水中聴音機
+        if (type2 === 54) {
+          // 秋月型 => +1
+          sumBonusAsw += 1;
+        } else if ([656, 141, 488, 160, 622, 623].includes(id)) {
+          // 雪風改二 五十鈴改二 由良改二 那珂改二 夕張改二/改二特 => +1
+          sumBonusAsw += 1;
+        } else if (id === 624) {
+          // 夕張改二丁 => +3
+          sumBonusAsw += 3;
+        } else if (id === 662) {
+          // 能代改二 => +2
+          sumBonusAsw += 2;
+        }
+      } else if (item.data.id === 438) {
+        // 三式水中探信儀改の数と改修値だけカウント
+        sanshikiKaiCount += 1;
+        sanshikiKaiRemodel = Math.max(sanshikiKaiRemodel, item.remodel);
+      } else if (item.data.id === 129 && type === SHIP_TYPE.DD && Const.isJPN(type2)) {
+        // 熟練見張員 日本駆逐 => +2
+        sumBonusAsw += 2;
+      } else if (type2 === 56 && items.some((v) => [44, 45, 287, 288].includes(v.data.id))) {
+        // 香取・鹿島 国産爆雷投射機で対潜+2
+        sumBonusAsw += 2;
+      } else if (item.data.id === 287) {
+        // 三式爆雷投射機 集中配備
+        if ([656, 141, 488, 160, 624].includes(id)) {
+          // 雪風改二 五十鈴改二 由良改二 那珂改二 夕張改二丁 => +1
+          sumBonusAsw += 1;
+        } else if (id === 662) {
+          // 能代改二 => +3
+          sumBonusAsw += 2;
+        }
+      } else if (item.data.id === 287) {
+        // 試製15cm9連装対潜噴進砲
+        if ([656, 141, 488, 160, 624].includes(id)) {
+          // 雪風改二 五十鈴改二 由良改二 那珂改二  => +2
+          sumBonusAsw += 2;
+        } else if (id === 624) {
+          // 夕張改二丁 => +3
+          sumBonusAsw += 3;
+        } else if (id === 662) {
+          // 能代改二 => +4
+          sumBonusAsw += 4;
+        }
+      } else if (item.data.id === 377) {
+        // RUR-4A Weapon Alpha改
+        if (id === 629) {
+          // Fletcher Mk.II => +3
+          sumBonusAsw += 3;
+        } else if (Const.USA.includes(type2)) {
+          // アメリカ艦 => +2
+          sumBonusAsw += 2;
+        } else if (Const.GBR.includes(type2) || id === 651 || id === 656 || Const.AUS.includes(type2)) {
+          // イギリス艦 or 丹陽 or 雪風改二 or Perth => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 378) {
+        // 対潜短魚雷(試作初期型)
+        if (id === 629) {
+          // Fletcher Mk.II => +4
+          sumBonusAsw += 4;
+        } else if (Const.USA.includes(type2)) {
+          // アメリカ艦 => +3
+          sumBonusAsw += 3;
+        } else if (Const.GBR.includes(type2)) {
+          // イギリス艦 => +2
+          sumBonusAsw += 2;
+        } else if (id === 651 || id === 656 || Const.AUS.includes(type2)) {
+          // 丹陽 or 雪風改二 or Perth => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 382) {
+        // 12cm単装高角砲E型
+        if (type === SHIP_TYPE.DE) {
+          // 海防艦 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 229) {
+        // 12.7cm単装高角砲(後期型)
+        if (id === 656) {
+          // 雪風改二 => +2
+          sumBonusAsw += 2;
+        }
+      } else if (item.data.id === 379) {
+        // 12.7cm単装高角砲改二
+        if ([656, 141, 487, 488, 160, 624].includes(id) || type2 === 21) {
+          // 雪風改二 五十鈴改二 鬼怒改二 由良改二 那珂改二 夕張改二丁 天龍型 => +2
+          sumBonusAsw += 2;
+        } else if (id === 624) {
+          // 夕張改二丁 => +3
+          sumBonusAsw += 3;
+        } else if (type2 === 34 || [22, 219, 23, 220, 56, 224, 113, 289].includes(id)) {
+          // 五十鈴 鬼怒 那珂 由良 夕張
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 380) {
+        // 12.7cm連装高角砲改二
+        if ([141, 487, 488, 160, 624].includes(id) || type2 === 21) {
+          // 五十鈴改二 鬼怒改二 由良改二 那珂改二 夕張改二丁 天龍型 => +2
+          sumBonusAsw += 2;
+        } else if (id === 624) {
+          // 夕張改二丁 => +3
+          sumBonusAsw += 3;
+        } else if (type2 === 34 || [22, 219, 23, 220, 56, 224, 113, 289].includes(id)) {
+          // 五十鈴 鬼怒 那珂 由良 夕張
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 310) {
+        // 14cm連装砲改
+        if ([622, 623, 624].includes(id)) {
+          // 夕張改二シリーズ => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 82 || item.data.id === 302) {
+        // 九七式艦攻(九三一空)シリーズ
+        if (type2 === 76) {
+          // 大鷹型 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 344 || item.data.id === 345) {
+        // 九七式艦攻の名前の長いやつ
+        if ([883, 888, 555, 560].includes(id)) {
+          // 龍鳳改二/戊 瑞鳳改二/乙 => +2
+          sumBonusAsw += 2;
+        } else if ([282, 318].includes(id)) {
+          // 龍鳳改 / 祥鳳改 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 344 || item.data.id === 345) {
+        // 九七式艦攻の名前の長いやつ
+        if ([883, 888, 555, 560].includes(id)) {
+          // 龍鳳改二/戊 瑞鳳改二/乙 => +2
+          sumBonusAsw += 2;
+        } else if ([282, 318].includes(id)) {
+          // 龍鳳改 / 祥鳳改 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 372) {
+        // 天山一二型甲
+        if (type2 === 11 || type2 === 51) {
+          // 龍鳳 / 祥鳳型 => +1
+          sumBonusAsw += 1;
+        }
+      }
     }
+
+    // 累積無しボーナス
+    // 水雷戦隊 熟練見張員 日本駆逐 => +2
+    if (items.some((v) => v.data.id === 412) && type === SHIP_TYPE.DD && Const.isJPN(type2)) {
+      sumBonusAsw += 2;
+    }
+
+    if (type2 === 56 && items.some((v) => [46, 47, 149, 438].includes(v.data.id))) {
+      // 香取・鹿島 国産ソナーで対潜+2
+      sumBonusAsw += 2;
+    } else if (sanshikiKaiCount) {
+      // 三式水中探信儀改
+      // 改修ボーナス
+      if (sanshikiKaiRemodel >= 8) {
+        if ([476, 363, 145, 588, 667, 578].includes(id)) {
+          // 神風改 春風改 時雨改二 山風改二 改二丁 朝霜改二 => +2
+          sumBonusAsw += 2;
+        }
+      } else if (sanshikiKaiRemodel >= 4) {
+        if ([476, 363, 145, 588, 667, 578].includes(id)) {
+          // 神風改 春風改 時雨改二 山風改二 改二丁 朝霜改二 => +1
+          sumBonusAsw += 1;
+        }
+      }
+      // 単体ボーナス
+      if ([271, 273, 80, 257, 119].includes(originalId)) {
+        // 神風 春風 時雨 山風 舞風 => +5, +8
+        if (sanshikiKaiCount === 1) {
+          sumBonusAsw += 5;
+        } else if (sanshikiKaiCount >= 2) {
+          sumBonusAsw += 8;
+        }
+      } else if ([70, 73, 214, 167, 170].includes(originalId)) {
+        //  潮 雷 山雲 磯風 浜風 => +4, +6
+        if (sanshikiKaiCount === 1) {
+          sumBonusAsw += 4;
+        } else if (sanshikiKaiCount >= 2) {
+          sumBonusAsw += 6;
+        }
+      } else if (originalId === 225) {
+        // 朝霜 => +4, +7
+        if (sanshikiKaiCount === 1) {
+          sumBonusAsw += 4;
+        } else if (sanshikiKaiCount >= 2) {
+          sumBonusAsw += 7;
+        }
+      } else if (originalId === 327) {
+        // 岸波 => +3, +5
+        if (sanshikiKaiCount === 1) {
+          sumBonusAsw += 3;
+        } else if (sanshikiKaiCount >= 2) {
+          sumBonusAsw += 5;
+        }
+      } else if ([258, 259, 84].includes(originalId)) {
+        // 海風 江風 涼風 => +2
+        sumBonusAsw += 2;
+      } else if ([141, 488, 160].includes(id) || [385, 411].includes(originalId)) {
+        // 五十鈴改二 由良改二 那珂改二 石垣 御蔵 => +1
+        sumBonusAsw += 1;
+      } else if (type === SHIP_TYPE.DD && Const.isJPN(type2)) {
+        // その他日本駆逐
+        sumBonusAsw += 1;
+      }
+    }
+
+    if (items.some((v) => v.data.id === 439)) {
+      // Hedgehog(初期型)
+      if (Const.USA.includes(type2) || Const.GBR.includes(type2)) {
+        // アメリカ艦 イギリス艦 => +3
+        sumBonusAsw += 3;
+      } else if (type === SHIP_TYPE.DE || type2 === 101) {
+        // 海防艦 or 松型 => +2
+        sumBonusAsw += 2;
+      } else if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CT) {
+        // その他軽巡 駆逐 練巡
+        sumBonusAsw += 1;
+      }
+    }
+
+    // 12cm単装砲改二 + 水上電探
+    if ((type2 === 74 || type2 === 77) && items.some((v) => v.data.id === 293) && this.surfaceRadarCount) {
+      // 占守型・択捉型 => +1
+      sumBonusAsw += 1;
+    }
+
+    this.itemBonusAsw = sumBonusAsw;
 
     return sumAsw;
   }

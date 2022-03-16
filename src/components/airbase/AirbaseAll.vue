@@ -412,7 +412,7 @@ export default Vue.extend({
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
       if (slot < base.items.length) {
         // インスタンス化用のいろいろ用意
-        let initialSlot = base.items[slot].fullSlot ? base.items[slot].fullSlot : 18;
+        let initialSlot = 18;
         let initialLevel = 0;
 
         if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
