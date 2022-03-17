@@ -10,7 +10,15 @@
         <v-btn color="info" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
-        <v-btn icon small @click="resetItems" :disabled="!enabledDetail">
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click="showItemPresets()">
+              <v-icon>mdi-briefcase-variant</v-icon>
+            </v-btn>
+          </template>
+          <span>装備プリセット展開【機能作成中】</span>
+        </v-tooltip>
+        <v-btn icon small @click="resetItems">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
       </div>
@@ -256,6 +264,9 @@ export default Vue.extend({
       } else {
         this.destroyDialog = false;
       }
+    },
+    showItemPresets() {
+      // todo
     },
     bootTooltip(item: Item, e: MouseEvent) {
       if (!item.data.id) {

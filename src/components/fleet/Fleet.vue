@@ -14,7 +14,7 @@
         </div>
       </div>
       <!-- TP -->
-      <div class="mt-1 mr-3 d-flex">
+      <div class="mt-1 d-flex">
         <div class="option-status">
           <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
           <div class="option-status-label label-tp">TP</div>
@@ -29,34 +29,35 @@
           </div>
         </div>
       </div>
-      <v-spacer></v-spacer>
-      <div class="operation-button">
-        <v-tooltip bottom color="black">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="info" icon @click="clickedInfo" v-bind="attrs" v-on="on">
-              <v-icon>mdi-information-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>艦隊詳細</span>
-        </v-tooltip>
-      </div>
-      <div class="operation-button">
-        <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
-        <v-btn icon :disabled="!shipAddEnabled" @click="addEmptyShip">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-      </div>
-      <div class="operation-button">
-        <v-tooltip bottom color="black">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon @click="resetFleet" v-bind="attrs" v-on="on">
-              <v-icon>mdi-trash-can-outline</v-icon>
-            </v-btn>
-          </template>
-          <span>艦隊リセット</span>
-        </v-tooltip>
+      <div class="d-flex ml-auto">
+        <div class="operation-button">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="info" icon @click="clickedInfo" v-bind="attrs" v-on="on">
+                <v-icon>mdi-information-outline</v-icon>
+              </v-btn>
+            </template>
+            <span>艦隊詳細</span>
+          </v-tooltip>
+        </div>
+        <div class="operation-button">
+          <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+          <v-btn icon :disabled="!shipAddEnabled" @click="addEmptyShip">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+        </div>
+        <div class="operation-button">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon @click="resetFleet" v-bind="attrs" v-on="on">
+                <v-icon>mdi-trash-can-outline</v-icon>
+              </v-btn>
+            </template>
+            <span>艦隊リセット</span>
+          </v-tooltip>
+        </div>
       </div>
     </div>
     <div class="ship-inputs-container">

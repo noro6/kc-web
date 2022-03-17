@@ -124,28 +124,23 @@
           </v-btn>
         </div>
       </div>
-      <div class="caption pl-3">
+      <div class="align-self-center caption pl-2">
         <span class="text--secondary">撃墜:</span>
-        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%,</span>
-        <span class="ml-1 font-weight-medium">{{ fixDown }}機</span>
+        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%,{{ fixDown }}機</span>
         <template v-if="ship.hunshinRate">
           <span class="ml-2 text--secondary">噴進:</span>
           <span class="ml-1 font-weight-medium">{{ ship.hunshinRate.toFixed(1) }}%</span>
         </template>
         <span class="ml-2 text--secondary">射程:</span>
         <span class="ml-1 font-weight-medium">{{ rangeText[ship.actualRange] }}</span>
-      </div>
-      <div class="d-flex caption pr-1 pl-3">
-        <div class="align-self-center">
-          <span class="text--secondary">制空:</span>
-          <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
-          <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
-        </div>
-        <v-spacer></v-spacer>
-        <div class="asw mr-2" v-if="ship.data.minAsw">
+        <template v-if="ship.data.minAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <img class="img-asw" :class="{ disabled: !ship.enabledTSBK }" :src="`./img/type/type15.png`" v-bind="attrs" v-on="on" />
+              <span class="asw-view" v-bind="attrs" v-on="on">
+                <span class="ml-2 text--secondary mr-1">先制対潜:</span>
+                <span v-if="ship.enabledTSBK">可</span>
+                <span v-else>&times;</span>
+              </span>
             </template>
             <table class="asw-table">
               <tr>
@@ -176,30 +171,53 @@
               </tr>
             </table>
           </v-tooltip>
+        </template>
+      </div>
+      <div class="d-flex pr-1 pl-2 flex-wrap">
+        <div class="align-self-center caption">
+          <span class="text--secondary">制空:</span>
+          <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
+          <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
         </div>
-        <div class="align-self-center d-flex">
+        <div class="ml-auto ship-buttons">
+          <v-tooltip bottom color="black" v-if="enabledConvert">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="blue lighten-1" small v-bind="attrs" v-on="on" @click="toggleVersion()">
+                <v-icon>mdi-sync</v-icon>
+              </v-btn>
+            </template>
+            <span>コンバート改造</span>
+          </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small v-bind="attrs" v-on="on" @click="showTempShip()">
-                <v-icon small>mdi-upload</v-icon>
+              <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click="showTempShip()">
+                <v-icon>mdi-upload</v-icon>
               </v-btn>
             </template>
             <span>一時保存艦娘リスト展開</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click="showItemPresets()">
+                <v-icon>mdi-briefcase-variant</v-icon>
+              </v-btn>
+            </template>
+            <span>装備プリセット展開【機能作成中】</span>
+          </v-tooltip>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
               <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click="changeActive(false)">
-                <v-icon small>mdi-eye</v-icon>
+                <v-icon>mdi-eye</v-icon>
               </v-btn>
             </template>
             <span>計算対象から省く</span>
           </v-tooltip>
           <v-btn icon small v-show="!ship.isActive" @click="changeActive(true)">
-            <v-icon small>mdi-eye-off</v-icon>
+            <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
             <v-btn icon small @click="resetItems()">
-              <v-icon small>mdi-close</v-icon>
+              <v-icon>mdi-close</v-icon>
             </v-btn>
             <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
           </div>
@@ -366,29 +384,25 @@
   display: none;
 }
 
-.asw,
-.asw img {
-  align-self: center;
-  height: 22px;
-  transition: 0.3s;
-  cursor: pointer;
+.asw-view {
+  cursor: help;
 }
-.asw img:hover {
-  filter: drop-shadow(0 0 1px rgb(0, 174, 255));
-}
-.img-asw.disabled {
-  filter: grayscale(100%);
-}
-.asw-text {
-  display: inline-block;
-  width: 120px;
-}
-
 .asw-table {
   font-size: 0.9em;
 }
 .asw-table tr.border td {
   border-top: 1px solid #444;
+}
+
+.ship-buttons {
+  display: flex;
+  align-self: center;
+}
+.captured .ship-buttons {
+  display: none;
+}
+.ship-buttons .v-icon {
+  font-size: 18px !important;
 }
 </style>
 
@@ -398,6 +412,8 @@ import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip },
@@ -464,6 +480,11 @@ export default Vue.extend({
     rateDownValue(): number {
       return Math.floor(this.rateDown * 100);
     },
+    enabledConvert(): boolean {
+      const ships = this.$store.state.ships as ShipMaster[];
+      const master = this.value.data;
+      return this.value.data.isFinal && ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).length >= 2;
+    },
   },
   methods: {
     updateItem() {
@@ -520,6 +541,51 @@ export default Vue.extend({
     showTempShip() {
       // 一時保存領域の展開
       this.handleShowTempShipList(this.index);
+    },
+    showItemPresets() {
+      // todo 装備プリセット画面
+    },
+    toggleVersion() {
+      const ships = this.$store.state.ships as ShipMaster[];
+      const master = this.value.data;
+      // コンバート候補取得
+      const versions = ships
+        .filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1)
+        .sort((a, b) => a.version - b.version);
+      // 現在のver
+      const index = versions.findIndex((v) => v.id === master.id);
+      let newVersion: ShipMaster;
+      if (index < versions.length - 1) {
+        // 一段階改装を進めたバージョンを設置
+        newVersion = versions[index + 1];
+      } else {
+        // コンバート最初期状態へ
+        newVersion = versions[index - index];
+      }
+
+      // 装備検証
+      const link = this.$store.state.equipShips as MasterEquipmentShip[];
+      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+      const { items, exItem } = this.value;
+      const newItems = [];
+      let newExItem: Item;
+      for (let i = 0; i < newVersion.slots.length; i += 1) {
+        const item = items[i];
+        if (item && newVersion.isValidItem(item.data, link, exLink, i)) {
+          newItems.push(new Item({ item, slot: newVersion.slots[i] }));
+        } else {
+          newItems.push(new Item());
+        }
+      }
+      if (newVersion.isValidItem(exItem.data, link, exLink)) {
+        newExItem = new Item({ item: exItem });
+      } else {
+        newExItem = new Item();
+      }
+
+      this.setShip(new Ship({
+        master: newVersion, level: this.value.level, luck: this.value.luck, items: newItems, exItem: newExItem,
+      }));
     },
     setDraggable(e: MouseEvent) {
       const target = e.target as HTMLDivElement;
