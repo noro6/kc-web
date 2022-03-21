@@ -91,6 +91,7 @@
         <template v-else>第{{ i }}艦隊</template>
       </v-tab>
       <v-tab href="#fleet4" disabled>【工事中】</v-tab>
+      <v-tab href="#gkcoi" disabled>画像出力</v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab">
@@ -107,11 +108,21 @@
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
           :handle-show-temp-ship-list="showTempShipList"
+          :handle-show-item-preset="showItemPreset"
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
           @input="changedInfo"
         ></fleet-component>
+      </v-tab-item>
+      <v-tab-item>
+        <div>
+          <v-select :items="gkcoiThemes" v-model="gkcoiTheme" label="theme"></v-select>
+          <v-select :items="gkcoiLangs" v-model="gkcoiLang" label="lang"></v-select>
+        </div>
+        <div>
+          <v-textarea rows="10" dense outlined hide-details label="コメント"></v-textarea>
+        </div>
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
@@ -233,7 +244,11 @@
         <v-divider></v-divider>
         <div class="px-5 pt-2 pb-5">
           <div>
-            <div class="body-2">適用対象...選択した艦隊の全艦娘に対し、下記の設定を適用します。</div>
+            <div class="d-flex">
+              <div class="caption">適用対象</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="caption">選択されている艦隊の全艦娘に対し、下記の設定を適用します。</div>
             <div class="d-flex justify-space-between">
               <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
               <v-checkbox
@@ -246,8 +261,10 @@
               ></v-checkbox>
             </div>
           </div>
-          <v-divider class="mt-4 mb-2"></v-divider>
-          <div class="body-2">熟練度</div>
+          <div class="d-flex mt-8">
+            <div class="caption">熟練度</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
@@ -255,21 +272,33 @@
             </div>
             <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">戦闘機のみ最大</v-btn>
           </div>
-          <v-divider class="my-2"></v-divider>
-          <div class="body-2">改修値</div>
+          <div class="d-flex mt-8">
+            <div class="caption">改修値</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>
           </div>
-          <v-divider class="my-2"></v-divider>
-          <div class="body-2">艦載機搭載数</div>
+          <div class="d-flex mt-8">
+            <div class="caption">艦載機搭載数</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex">
             <v-btn outlined @click="resetSlot">初期値</v-btn>
           </div>
         </div>
       </v-card>
+    </v-dialog>
+    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
+      <item-preset-component
+        v-if="itemPresetDialog"
+        v-model="tempShip"
+        :handle-expand-item-preset="expandItemPreset"
+        :handle-close="closeDialog"
+      ></item-preset-component>
     </v-dialog>
   </v-card>
 </template>
@@ -397,15 +426,26 @@
   font-size: 0.8em;
   width: 30px;
 }
+
+.header-divider {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import * as _ from 'lodash';
 import html2canvas from 'html2canvas';
+import { Lang } from 'gkcoi/dist/lang';
+import { DeckBuilder, Theme } from 'gkcoi/dist/type';
+import { generate } from 'gkcoi';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
+import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
@@ -413,6 +453,10 @@ import Item, { ItemBuilder } from '@/classes/item/item';
 import Const, { Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ItemPreset from '@/classes/item/itemPreset';
+import ItemMaster from '@/classes/item/itemMaster';
+import Convert from '@/classes/convert';
+import SaveData from '@/classes/saveData/saveData';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -420,6 +464,7 @@ export default Vue.extend({
     FleetComponent,
     ItemList,
     ShipList,
+    ItemPresetComponent,
   },
   props: {
     value: {
@@ -452,6 +497,18 @@ export default Vue.extend({
     enabledPushTempShip: true,
     bulkUpdateDialog: false,
     bulkUpdateTarget: [1, 1, 1, 1],
+    itemPresetDialog: false,
+    gkcoiThemes: [
+      { value: 'dark', text: 'Dark' },
+      { value: 'dark-ex', text: 'Dark(遠征)' },
+      { value: '74lc', text: '74式(大型)' },
+      { value: '74mc', text: '74式(中型)' },
+      { value: '74sb', text: '74式(小型)' },
+      { value: 'official', text: '公式' },
+    ],
+    gkcoiTheme: 'dark' as Theme,
+    gkcoiLangs: ['jp', 'en', 'kr', 'scn'],
+    gkcoiLang: 'jp' as Lang,
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -478,6 +535,12 @@ export default Vue.extend({
       this.shipDialogTarget = [fleetIndex, shipIndex];
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+    },
+    showItemPreset(fleetIndex: number, shipIndex: number) {
+      const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
+      this.shipDialogTarget = [fleetIndex, shipIndex];
+      this.tempShip = ship;
+      this.itemPresetDialog = true;
     },
     showTempShipList(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
@@ -624,6 +687,60 @@ export default Vue.extend({
       this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
+    expandItemPreset(preset: ItemPreset) {
+      const itemMasters = this.$store.state.items as ItemMaster[];
+      const items = [];
+      for (let i = 0; i < preset.itemIds.length; i += 1) {
+        const item = itemMasters.find((v) => v.id === preset.itemIds[i]);
+        if (item) {
+          items.push(item);
+        } else {
+          items.push(new ItemMaster());
+        }
+      }
+
+      const fleetIndex = this.shipDialogTarget[0];
+      const index = this.shipDialogTarget[1];
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+
+      // もともとここに配備されていた艦娘の装備情報を抜き取る
+      const oldShip = fleet.ships[index];
+      const ship = oldShip.data;
+      const newItems = oldShip.items.concat();
+
+      // 装備搭載可否情報マスタ
+      const link = this.$store.state.equipShips as MasterEquipmentShip[];
+      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+
+      for (let slotIndex = 0; slotIndex < newItems.length; slotIndex += 1) {
+        if (slotIndex < items.length) {
+          const newItem = items[slotIndex];
+          if (newItem && ship.isValidItem(newItem, link, exLink, slotIndex)) {
+            // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
+            newItems[slotIndex] = new Item({ master: newItem, item: newItems[slotIndex] });
+          }
+        }
+      }
+
+      // 補強増設チェック
+      const presetExItem = itemMasters.find((v) => v.id === preset.exItemId);
+      let exItem;
+      if (presetExItem && ship.isValidItem(presetExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
+        // 搭載可能なら入れ替え
+        exItem = new Item({ master: presetExItem });
+      }
+
+      // 元々いた艦娘を置き換える
+      fleet.ships[index] = new Ship({
+        master: ship,
+        items: newItems,
+        exItem,
+      });
+
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
     onLevelMenuToggle() {
       if (!this.levelMenu) {
         this.setInfo(new FleetInfo({ info: this.fleetInfo, admiralLevel: this.level }));
@@ -652,6 +769,7 @@ export default Vue.extend({
     closeDialog() {
       this.itemListDialog = false;
       this.shipListDialog = false;
+      this.itemPresetDialog = false;
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
@@ -676,9 +794,13 @@ export default Vue.extend({
     },
     dragStart(e: DragEvent) {
       const target = e.target as HTMLDivElement;
-      target.style.opacity = '0.4';
-      target.style.backgroundColor = 'rgba(20, 120, 255, 0.2)';
-      target.id = 'dragging-item';
+      if (target && target.classList && target.classList.contains('fleet-tab')) {
+        target.style.opacity = '0.4';
+        target.style.backgroundColor = 'rgba(20, 120, 255, 0.2)';
+        target.id = 'dragging-item';
+      } else {
+        return;
+      }
 
       const transfer = e.dataTransfer as DataTransfer;
       const rect = target.getBoundingClientRect();
@@ -737,9 +859,11 @@ export default Vue.extend({
     dragEnd(e: DragEvent) {
       // 後片付け
       const target = e.target as HTMLDivElement;
-      target.style.opacity = '1';
-      target.style.backgroundColor = '';
-      target.id = '';
+      if (target && target.classList && target.classList.contains('fleet-tab')) {
+        target.style.opacity = '1';
+        target.style.backgroundColor = '';
+        target.id = '';
+      }
 
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
@@ -806,6 +930,25 @@ export default Vue.extend({
       if (!this.bulkUpdateDialog) {
         this.setInfo(new FleetInfo({ info: this.fleetInfo }));
       }
+    },
+    generateImage() {
+      // gkcoi
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return;
+      }
+      const manager = saveData.tempData[saveData.tempIndex];
+      if (!manager) {
+        return;
+      }
+
+      const deck = Convert.createDeckBuilder(manager);
+      const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
+        lang: this.gkcoiLang,
+        theme: this.gkcoiTheme,
+        cmt: '',
+      });
+      generate(gkcoiBuilder);
     },
   },
 });

@@ -561,6 +561,32 @@ export default Vue.extend({
   font-size: 1em;
 }
 
+/* スクロールバー webkit系 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar:horizontal {
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(128, 128, 128, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 1px;
+  background: rgb(128, 128, 128, 0.7);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(177, 177, 177);
+}
+
+/* Firefox ScrollBar */
+* {
+  scrollbar-width: thin;
+}
+.theme--dark {
+  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.2);
+}
+
 /** ダークテーマ card1層目 */
 .theme--dark.v-card,
 .theme--dark .v-expansion-panel {

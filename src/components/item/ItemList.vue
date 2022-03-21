@@ -1,7 +1,17 @@
 <template>
   <v-card>
-    <div class="d-flex pt-2 pb-1 pr-2">
-      <div class="align-self-center ml-3">装備選択</div>
+    <div class="d-flex py-2 pr-2">
+      <div class="align-self-center item-search-text ml-5">
+        <v-text-field
+          placeholder="図鑑id 名称検索"
+          clearable
+          v-model="keyword"
+          @input="filter()"
+          hide-details
+          dense
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
+      </div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
@@ -20,22 +30,11 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-2 pt-4 pb-2">
-      <div class="align-self-center item-search-text">
-        <v-text-field
-          label="図鑑No 名称検索"
-          clearable
-          v-model="keyword"
-          @input="filter()"
-          hide-details
-          dense
-          prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
-      </div>
-      <div class="ml-5 align-self-center">
+    <div class="d-flex pt-1 pb-2">
+      <div class="ml-4 align-self-center">
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="'敵装備'"></v-checkbox>
       </div>
-      <div class="ml-5 align-self-center" v-if="itemStock.length && !isEnemyMode">
+      <div class="ml-3 align-self-center" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="'所持装備反映'"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
@@ -185,7 +184,7 @@
   height: 64vh;
 }
 .item-search-text {
-  width: 168px;
+  width: 200px;
 }
 
 .type-selector {

@@ -17,7 +17,7 @@
     <template v-else>
       <div class="d-flex ship-header px-2">
         <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
-          <v-img :src="`./img/ship/${ship.data.id}.png`" height="32" width="128"></v-img>
+          <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">
@@ -435,6 +435,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleShowItemPreset: {
+      type: Function,
+      required: true,
+    },
     value: {
       type: Ship,
       required: true,
@@ -543,7 +547,8 @@ export default Vue.extend({
       this.handleShowTempShipList(this.index);
     },
     showItemPresets() {
-      // todo 装備プリセット画面
+      // 装備プリセット画面
+      this.handleShowItemPreset(this.index);
     },
     toggleVersion() {
       const ships = this.$store.state.ships as ShipMaster[];
@@ -583,9 +588,15 @@ export default Vue.extend({
         newExItem = new Item();
       }
 
-      this.setShip(new Ship({
-        master: newVersion, level: this.value.level, luck: this.value.luck, items: newItems, exItem: newExItem,
-      }));
+      this.setShip(
+        new Ship({
+          master: newVersion,
+          level: this.value.level,
+          luck: this.value.luck,
+          items: newItems,
+          exItem: newExItem,
+        }),
+      );
     },
     setDraggable(e: MouseEvent) {
       const target = e.target as HTMLDivElement;

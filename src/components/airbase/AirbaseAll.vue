@@ -140,7 +140,28 @@
         </div>
         <v-divider></v-divider>
         <div class="px-5 pt-2 pb-5">
-          <div class="body-2">熟練度</div>
+          <div>
+            <div class="d-flex">
+              <div class="caption">適用対象</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="caption">選択されている航空隊に対し、下記の設定を適用します。</div>
+            <div class="d-flex justify-space-between">
+              <v-checkbox label="全航空隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox
+                v-for="(check, i) in bulkUpdateTarget"
+                :key="i"
+                :label="`第${i + 1}基地航空隊`"
+                dense
+                hide-details
+                v-model="bulkUpdateTarget[i]"
+              ></v-checkbox>
+            </div>
+          </div>
+          <div class="d-flex mt-8">
+            <div class="caption">熟練度</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
@@ -148,23 +169,26 @@
             </div>
             <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">戦闘機のみ最大</v-btn>
           </div>
-          <v-divider class="my-2"></v-divider>
-          <div class="body-2">改修値</div>
+          <div class="d-flex mt-8">
+            <div class="caption">改修値</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>
           </div>
-          <v-divider class="my-2"></v-divider>
-          <div class="body-2">艦載機搭載数</div>
+          <div class="d-flex mt-8">
+            <div class="caption">艦載機搭載数</div>
+            <div class="header-divider"></div>
+          </div>
           <div class="d-flex">
             <v-slider
               class="flex-grow-1 align-self-end"
               max="18"
               min="0"
               v-model.number="bulkUpdateSlotValue"
-              @input="bulkUpdateSlot"
               hide-details
             ></v-slider>
             <div class="d-flex">
@@ -174,7 +198,6 @@
                 max="18"
                 min="0"
                 v-model.number="bulkUpdateSlotValue"
-                @input="bulkUpdateSlot"
                 hide-details
               ></v-text-field>
               <v-btn outlined @click="resetSlot" class="align-self-end">初期値</v-btn>
@@ -307,6 +330,12 @@
 .slot-input {
   width: 120px;
 }
+.header-divider {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
 </style>
 
 <script lang="ts">
@@ -357,6 +386,7 @@ export default Vue.extend({
     capturing: false,
     bulkUpdateDialog: false,
     bulkUpdateSlotValue: 18,
+    bulkUpdateTarget: [1, 1, 1],
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -387,6 +417,9 @@ export default Vue.extend({
 
       // todo 6-4基地半径
       return errors.length ? `${errors.join(',')}基地航空隊の半径が不足しています。` : '';
+    },
+    isbulkUpdateTargetAll(): boolean {
+      return !this.bulkUpdateTarget.some((v) => !v);
     },
   },
   methods: {
@@ -522,6 +555,13 @@ export default Vue.extend({
         });
       }, 10);
     },
+    toggleBulkTarget() {
+      if (this.bulkUpdateTarget.some((v) => !v)) {
+        this.bulkUpdateTarget = [1, 1, 1];
+      } else {
+        this.bulkUpdateTarget = [0, 0, 0];
+      }
+    },
     getLevelValue(value: number) {
       return Const.PROF_LEVEL_BORDER[value];
     },
@@ -545,6 +585,9 @@ export default Vue.extend({
       // 指定ビルダーで装備情報一括更新
       const { airbases } = this.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
+        if (!this.bulkUpdateTarget[i]) {
+          continue;
+        }
         const { items } = airbases[i];
         for (let j = 0; j < items.length; j += 1) {
           const item = items[j];
@@ -574,6 +617,9 @@ export default Vue.extend({
     },
     onBulkUpdateDialogToggle() {
       if (!this.bulkUpdateDialog) {
+        if (this.bulkUpdateSlotValue) {
+          this.bulkUpdateSlot();
+        }
         this.setInfo();
       }
     },

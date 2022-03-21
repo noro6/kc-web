@@ -16,6 +16,7 @@ import ShipStock from '@/classes/fleet/shipStock';
 import KcWebDatabase from '@/classes/db';
 import Ship from '@/classes/fleet/ship';
 import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ItemPreset from '@/classes/item/itemPreset';
 
 Vue.use(Vuex);
 
@@ -29,6 +30,7 @@ export default new Vuex.Store({
     enemies: [] as EnemyMaster[],
     itemStock: [] as ItemStock[],
     shipStock: [] as ShipStock[],
+    itemPresets: [] as ItemPreset[],
     saveData: new SaveData(),
     calcManager: undefined as CalcManager | undefined,
     mainSaveData: new SaveData(),
@@ -65,6 +67,9 @@ export default new Vuex.Store({
     },
     updateShipStock: (state, values: ShipStock[]) => {
       state.shipStock = values;
+    },
+    updateItemPresets: (state, values: ItemPreset[]) => {
+      state.itemPresets = values;
     },
     setMainSaveData: (state, value: SaveData) => {
       state.mainSaveData = value;
@@ -111,6 +116,12 @@ export default new Vuex.Store({
         context.state.kcWebDatabase.ships.bulkAdd(values);
       });
       context.commit('updateShipStock', values);
+    },
+    updateItemPresets: (context, values: ItemPreset[]) => {
+      context.state.kcWebDatabase.itemPresets.clear().then(() => {
+        context.state.kcWebDatabase.itemPresets.bulkAdd(values);
+      });
+      context.commit('updateItemPresets', values);
     },
     updateSetting: (context, value: SiteSetting) => {
       context.state.kcWebDatabase.setting.put(value, 'setting');
@@ -259,6 +270,10 @@ export default new Vuex.Store({
       // 装備呼び出し
       db.items.toArray().then((data) => {
         context.state.itemStock = data;
+      });
+      // 装備プリセ呼び出し
+      db.itemPresets.toArray().then((data) => {
+        context.state.itemPresets = data;
       });
     },
     loadSetting: async (context) => {

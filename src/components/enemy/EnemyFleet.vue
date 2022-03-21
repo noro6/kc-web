@@ -3,10 +3,11 @@
     <div class="d-flex">
       <div class="ml-2 align-self-center">{{ index + 1 }}戦目</div>
       <v-spacer></v-spacer>
-      <div class="align-self-center mr-1">
+      <div v-if="capturing && fleet.nodeName" class="mx-3">{{ fleet.nodeName }}</div>
+      <div class="align-self-center mr-1" v-if="!capturing">
         <v-btn outlined small color="primary" @click.stop="showWorldList">海域選択</v-btn>
       </div>
-      <div class="align-self-center pr-1" v-if="existEnemy">
+      <div class="align-self-center pr-1" v-if="existEnemy && !capturing">
         <v-btn color="info" icon small @click="clickedInfo()">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
@@ -173,6 +174,10 @@ export default Vue.extend({
     handleShowWorldList: {
       type: Function,
       required: true,
+    },
+    capturing: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

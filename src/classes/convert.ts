@@ -322,55 +322,72 @@ export default class Convert {
   }
 
   /**
-   * 計算データからデッキビルダー形式データを生成
+   * 計算データからデッキビルダー形式データを生成 文字列化
    * @static
    * @param {CalcManager} manager
    * @returns {string}
    * @memberof Convert
    */
-  public static createDeckBuilder(manager: CalcManager): string {
-    const deckBuilder = { version: 4, hqlv: manager.fleetInfo.admiralLevel } as DeckBuilder;
-    // 艦隊データ
-    const { fleets } = manager.fleetInfo;
-    for (let i = 0; i < fleets.length; i += 1) {
-      const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
-      if (i === 0) {
-        deckBuilder.f1 = {};
-        Convert.setDeckBuilderFleet(deckBuilder.f1, ships);
-      }
-      if (i === 1) {
-        deckBuilder.f2 = {};
-        Convert.setDeckBuilderFleet(deckBuilder.f2, ships);
-      }
-      if (i === 2) {
-        deckBuilder.f3 = {};
-        Convert.setDeckBuilderFleet(deckBuilder.f3, ships);
-      }
-      if (i === 3) {
-        deckBuilder.f4 = {};
-        Convert.setDeckBuilderFleet(deckBuilder.f4, ships);
-      }
-    }
+  public static createDeckBuilderToString(manager: CalcManager): string {
+    return JSON.stringify(Convert.createDeckBuilder(manager));
+  }
 
-    // 基地データ
-    const { airbases } = manager.airbaseInfo;
-    for (let i = 0; i < airbases.length; i += 1) {
-      const airbase = airbases[i];
-      if (i === 0) {
-        const items = Convert.getDeckBuilderItems(airbase.items);
-        deckBuilder.a1 = { mode: airbase.mode, items };
+  /**
+   * DeckBuilderそのままで返却
+   * @static
+   * @param {CalcManager} manager
+   * @returns {DeckBuilder}
+   * @memberof Convert
+   */
+  public static createDeckBuilder(manager: CalcManager): DeckBuilder {
+    const deckBuilder = {
+      version: 4, hqlv: manager.fleetInfo.admiralLevel, f1: {}, f2: {}, f3: {}, f4: {},
+    } as DeckBuilder;
+    try {
+      // 艦隊データ
+      const { fleets } = manager.fleetInfo;
+      for (let i = 0; i < fleets.length; i += 1) {
+        const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
+        if (i === 0) {
+          deckBuilder.f1 = {};
+          Convert.setDeckBuilderFleet(deckBuilder.f1, ships);
+        }
+        if (i === 1) {
+          deckBuilder.f2 = {};
+          Convert.setDeckBuilderFleet(deckBuilder.f2, ships);
+        }
+        if (i === 2) {
+          deckBuilder.f3 = {};
+          Convert.setDeckBuilderFleet(deckBuilder.f3, ships);
+        }
+        if (i === 3) {
+          deckBuilder.f4 = {};
+          Convert.setDeckBuilderFleet(deckBuilder.f4, ships);
+        }
       }
-      if (i === 1) {
-        const items = Convert.getDeckBuilderItems(airbase.items);
-        deckBuilder.a2 = { mode: airbase.mode, items };
-      }
-      if (i === 2) {
-        const items = Convert.getDeckBuilderItems(airbase.items);
-        deckBuilder.a3 = { mode: airbase.mode, items };
-      }
-    }
 
-    return JSON.stringify(deckBuilder);
+      // 基地データ
+      const { airbases } = manager.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        const airbase = airbases[i];
+        if (i === 0) {
+          const items = Convert.getDeckBuilderItems(airbase.items);
+          deckBuilder.a1 = { mode: airbase.mode, items };
+        }
+        if (i === 1) {
+          const items = Convert.getDeckBuilderItems(airbase.items);
+          deckBuilder.a2 = { mode: airbase.mode, items };
+        }
+        if (i === 2) {
+          const items = Convert.getDeckBuilderItems(airbase.items);
+          deckBuilder.a3 = { mode: airbase.mode, items };
+        }
+      }
+
+      return deckBuilder;
+    } catch (error) {
+      return deckBuilder;
+    }
   }
 
   /**

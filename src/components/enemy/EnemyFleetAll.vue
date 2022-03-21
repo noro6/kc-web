@@ -8,6 +8,14 @@
       </v-btn>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="captureEnemy" v-bind="attrs" v-on="on">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>スクリーンショットを保存</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
             <v-icon>mdi-minus</v-icon>
           </v-btn>
@@ -16,39 +24,43 @@
       </v-tooltip>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex mx-2 mt-3 mb-2" v-if="!isDefense">
-      <div class="align-self-center">
-        <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
+    <div id="enemies-container" :class="{ captured: capturing }">
+      <div class="d-flex mx-2 mt-3 mb-2" v-if="!isDefense">
+        <div class="align-self-center mr-3" v-if="!capturing">
+          <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
+        </div>
+        <div class="align-self-center mr-4" v-if="!capturing" v-show="battleInfo.battleCount > 1">
+          <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
+        </div>
+        <div class="align-self-center mr-4" id="battle-count-select">
+          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
+        </div>
+        <div class="align-self-center body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
       </div>
-      <div class="align-self-center ml-3" v-show="battleInfo.battleCount > 1">
-        <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
+      <div class="d-flex flex-wrap" v-if="!isDefense">
+        <enemy-fleet-component
+          v-for="(i, index) in battleInfo.battleCount"
+          :key="i"
+          v-model="battleInfo.fleets[index]"
+          :index="index"
+          :handle-show-enemy-list="showEnemyList"
+          :handle-show-item-list="showItemList"
+          :handle-show-world-list="showWorldList"
+          :capturing="capturing"
+          @input="setInfo()"
+        ></enemy-fleet-component>
       </div>
-      <div class="align-self-center ml-4" id="battle-count-select">
-        <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
+      <div class="d-flex flex-wrap" v-else>
+        <enemy-fleet-component
+          v-model="battleInfo.airRaidFleet"
+          :index="0"
+          :handle-show-enemy-list="showEnemyList"
+          :handle-show-item-list="showItemList"
+          :handle-show-world-list="showWorldList"
+          :capturing="capturing"
+          @input="setInfo()"
+        ></enemy-fleet-component>
       </div>
-      <div class="align-self-center ml-4 body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
-    </div>
-    <div class="d-flex flex-wrap" v-if="!isDefense">
-      <enemy-fleet-component
-        v-for="(i, index) in battleInfo.battleCount"
-        :key="i"
-        v-model="battleInfo.fleets[index]"
-        :index="index"
-        :handle-show-enemy-list="showEnemyList"
-        :handle-show-item-list="showItemList"
-        :handle-show-world-list="showWorldList"
-        @input="setInfo()"
-      ></enemy-fleet-component>
-    </div>
-    <div class="d-flex flex-wrap" v-else>
-      <enemy-fleet-component
-        v-model="battleInfo.airRaidFleet"
-        :index="0"
-        :handle-show-enemy-list="showEnemyList"
-        :handle-show-item-list="showItemList"
-        :handle-show-world-list="showWorldList"
-        @input="setInfo()"
-      ></enemy-fleet-component>
     </div>
     <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
       <enemy-list :handle-decide-enemy="putEnemy" :handleClose="closeEnemyList" />
@@ -69,10 +81,31 @@
 #battle-count-select {
   width: 100px;
 }
+
+#enemies-container.captured {
+  width: 1160px !important;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.2rem;
+  padding: 0.75rem 0.5rem;
+}
+#enemies-container.captured * {
+  box-shadow: none !important;
+}
+.theme--dark #enemies-container.captured {
+  background: rgb(20, 20, 25);
+}
+#enemies-container.captured .v-card {
+  border: 1px solid #ddd;
+}
+.theme--dark #enemies-container.captured .v-card {
+  border: 1px solid rgb(28, 28, 34);
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import html2canvas from 'html2canvas';
 import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import EnemyFleetComponent from '@/components/enemy/EnemyFleet.vue';
 import EnemyList from '@/components/enemy/EnemyList.vue';
@@ -124,6 +157,7 @@ export default Vue.extend({
     itemDialogTarget: [-1, -1, -1],
     fleetStock: [] as EnemyFleet[],
     itemDialogWidth: 1200,
+    capturing: false,
   }),
   computed: {
     battleInfo(): BattleInfo {
@@ -134,7 +168,6 @@ export default Vue.extend({
       if (nodeList.some((v) => v !== '')) {
         return nodeList.map((v) => (v === '' ? '?' : v)).join(' → ');
       }
-
       return '';
     },
   },
@@ -271,6 +304,20 @@ export default Vue.extend({
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
+    },
+    captureEnemy() {
+      // 背景色とかを塗るフラグ立て
+      this.capturing = true;
+      const div = document.getElementById('enemies-container') as HTMLDivElement;
+      setTimeout(() => {
+        html2canvas(div, { scale: 2, width: 1160 }).then((canvas) => {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL();
+          link.download = 'export_image.png';
+          link.click();
+          this.capturing = false;
+        });
+      }, 10);
     },
   },
 });

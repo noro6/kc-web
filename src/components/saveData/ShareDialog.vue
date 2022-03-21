@@ -114,7 +114,7 @@ export default Vue.extend({
       if (!manager) {
         return '';
       }
-      return Convert.createDeckBuilder(manager);
+      return Convert.createDeckBuilderToString(manager);
     },
     jervisDeckBuilder(): string {
       const saveData = this.$store.state.mainSaveData as SaveData;

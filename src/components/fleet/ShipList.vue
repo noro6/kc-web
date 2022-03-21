@@ -1,7 +1,17 @@
 <template>
   <v-card>
-    <div class="d-flex pt-2 pb-1 pr-2">
-      <div class="align-self-center ml-3">艦娘選択</div>
+    <div class="d-flex py-2 pr-2">
+      <div class="align-self-center ship-search-text ml-5">
+        <v-text-field
+          dense
+          hide-details
+          placeholder="図鑑id 名称検索"
+          v-model.trim="keyword"
+          @input="filter()"
+          clearable
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
+      </div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
@@ -20,25 +30,22 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex px-3 pt-4 pb-2">
-      <div class="align-self-center ship-search-text">
-        <v-text-field
-          dense
-          hide-details
-          label="id 名称検索"
-          v-model.trim="keyword"
-          @input="filter()"
-          clearable
-          prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+    <div class="d-flex pl-4 pt-1 pb-2 flex-wrap">
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="isFinal" :disabled="!!keyword" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
       </div>
-      <div class="ml-5 align-self-center">
-        <v-checkbox v-model="isFinal" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="daihatsuOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'大発搭載可'"></v-checkbox>
       </div>
-      <div class="ml-5 align-self-center" v-if="shipStock.length">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" dense hide-details :label="'在籍艦娘反映'"></v-checkbox>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="naikateiOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'内火艇搭載可'"></v-checkbox>
       </div>
-      <v-spacer></v-spacer>
+      <div class="mr-3 align-self-center" v-if="isStockOnly">
+        <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="'補強増設あり'"></v-checkbox>
+      </div>
+      <div class="mr-3 align-self-center" v-if="shipStock.length">
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly()" dense hide-details :label="'在籍艦娘反映'"></v-checkbox>
+      </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
@@ -52,8 +59,8 @@
         {{ i.text }}
       </div>
     </div>
-    <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
-    <div class="ship-table-body pb-2" :class="{ 'mx-3': multiLine }">
+    <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
+    <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
         <div class="ship-status" v-for="i in 5" :key="`slot${i}`">搭載{{ i }}</div>
       </div>
@@ -120,7 +127,7 @@
   height: 64vh;
 }
 .ship-search-text {
-  width: 168px;
+  width: 200px;
 }
 
 .type-selector {
@@ -254,6 +261,8 @@ import SiteSetting from '@/classes/siteSetting';
 import ShipStock from '@/classes/fleet/shipStock';
 import SaveData from '@/classes/saveData/saveData';
 import Ship from '@/classes/fleet/ship';
+import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ItemMaster from '@/classes/item/itemMaster';
 
 export interface ViewShip {
   ship: ShipMaster;
@@ -294,6 +303,9 @@ export default Vue.extend({
     confirmDialog: false,
     confirmShip: {} as ViewShip,
     setting: new SiteSetting(),
+    daihatsuOK: false,
+    naikateiOK: false,
+    isReleaseExSlotOnly: false,
   }),
   mounted() {
     const existTypes: number[] = [];
@@ -326,7 +338,6 @@ export default Vue.extend({
     initialize() {
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
-
       this.setting = this.$store.state.siteSetting as SiteSetting;
       this.isStockOnly = this.setting.isStockOnlyForShipList;
 
@@ -364,6 +375,24 @@ export default Vue.extend({
           // 最終改造状態ONLY
           result = result.filter((v) => v.isFinal);
         }
+        if (this.daihatsuOK) {
+          // 大発搭載可能
+          const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
+          const link = this.$store.state.equipShips as MasterEquipmentShip[];
+          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+          if (daihatsu) {
+            result = result.filter((v) => v.isValidItem(daihatsu, link, exLink));
+          }
+        }
+        if (this.naikateiOK) {
+          // 内火艇搭載可能
+          const naikatei = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
+          const link = this.$store.state.equipShips as MasterEquipmentShip[];
+          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+          if (naikatei) {
+            result = result.filter((v) => v.isValidItem(naikatei, link, exLink));
+          }
+        }
         // カテゴリ検索
         result = result.filter((v) => t.types.includes(v.type));
       }
@@ -392,6 +421,11 @@ export default Vue.extend({
               area: shipData.area,
               expanded: shipData.releaseExpand,
             };
+
+            // 補強増設開放済み検索
+            if (this.isReleaseExSlotOnly && !viewShip.expanded) {
+              continue;
+            }
 
             // id 練度 運 を見て配備済みかどうか判定
             const usedIndex = usedShips.findIndex((v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck);
