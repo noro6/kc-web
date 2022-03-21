@@ -439,9 +439,9 @@
 import Vue from 'vue';
 import * as _ from 'lodash';
 import html2canvas from 'html2canvas';
-import { Lang } from 'gkcoi/dist/lang';
-import { DeckBuilder, Theme } from 'gkcoi/dist/type';
-import { generate } from 'gkcoi';
+// import { Lang } from 'gkcoi/dist/lang';
+// import { DeckBuilder, Theme } from 'gkcoi/dist/type';
+// import { generate } from 'gkcoi';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
@@ -506,9 +506,7 @@ export default Vue.extend({
       { value: '74sb', text: '74式(小型)' },
       { value: 'official', text: '公式' },
     ],
-    gkcoiTheme: 'dark' as Theme,
     gkcoiLangs: ['jp', 'en', 'kr', 'scn'],
-    gkcoiLang: 'jp' as Lang,
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -943,12 +941,14 @@ export default Vue.extend({
       }
 
       const deck = Convert.createDeckBuilder(manager);
-      const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
-        lang: this.gkcoiLang,
-        theme: this.gkcoiTheme,
-        cmt: '',
-      });
-      generate(gkcoiBuilder);
+      console.log(deck);
+
+      // const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
+      //   lang: this.gkcoiLang,
+      //   theme: this.gkcoiTheme,
+      //   cmt: '',
+      // });
+      // generate(gkcoiBuilder);
     },
   },
 });

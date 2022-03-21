@@ -76,8 +76,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import SaveItem from './SaveItem.vue';
 import SaveData from '@/classes/saveData/saveData';
+import SaveItem from './SaveItem.vue';
 
 export default Vue.extend({
   components: { SaveItem },

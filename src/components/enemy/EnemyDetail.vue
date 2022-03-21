@@ -142,11 +142,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import EnemyInput from './EnemyInput.vue';
-import AntiAirCalculator from '../result/AntiAirCalculator.vue';
-import ContactRates from '../result/ContactRates.vue';
+import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
+import ContactRates from '@/components/result/ContactRates.vue';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Enemy from '@/classes/enemy/enemy';
+import EnemyInput from './EnemyInput.vue';
 
 export default Vue.extend({
   components: {

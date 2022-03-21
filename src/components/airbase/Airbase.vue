@@ -126,7 +126,7 @@ import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import PlaneDetailResult from '@/components/result/PlaneDetailResult.vue';
-import ContactRates from '../result/ContactRates.vue';
+import ContactRates from '@/components/result/ContactRates.vue';
 import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
