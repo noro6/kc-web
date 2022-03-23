@@ -38,6 +38,22 @@ interface DeckBuilderShip {
   lv: number,
   /** 艦娘運 -1で通常 */
   luck: number,
+  /** 耐久 */
+  hp?: number;
+  /** 火力 */
+  fp?: number;
+  /** 雷装 */
+  tp?: number;
+  /** 対空 */
+  aa?: number;
+  /** 装甲 */
+  ar?: number;
+  /** 対潜 */
+  asw?: number;
+  /** 回避 */
+  ev?: number;
+  /** 索敵 */
+  los?: number;
   /** 装備データ */
   items: { [name: string]: DeckBuilderItem }
 }
@@ -54,13 +70,13 @@ interface DeckBuilderAirbase {
 interface DeckBuilder {
   version: number,
   hqlv: number,
-  f1: { [name: string]: DeckBuilderShip },
-  f2: { [name: string]: DeckBuilderShip },
-  f3: { [name: string]: DeckBuilderShip },
-  f4: { [name: string]: DeckBuilderShip },
-  a1: DeckBuilderAirbase,
-  a2: DeckBuilderAirbase,
-  a3: DeckBuilderAirbase,
+  f1?: { [name: string]: DeckBuilderShip },
+  f2?: { [name: string]: DeckBuilderShip },
+  f3?: { [name: string]: DeckBuilderShip },
+  f4?: { [name: string]: DeckBuilderShip },
+  a1?: DeckBuilderAirbase,
+  a2?: DeckBuilderAirbase,
+  a3?: DeckBuilderAirbase,
 }
 
 export default class Convert {
@@ -104,23 +120,27 @@ export default class Convert {
       // 艦娘情報の取得生成 4艦隊分まで取り込む(あれば)
       const fleets: Fleet[] = [];
       if (json.f1) {
+        const fleet = json.f1;
         const ships: Ship[] = [];
-        Object.keys(json.f1).forEach((key) => ships.push(this.convertDeckToShip(json.f1[key])));
+        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
       }
       if (json.f2) {
+        const fleet = json.f2;
         const ships: Ship[] = [];
-        Object.keys(json.f2).forEach((key) => ships.push(this.convertDeckToShip(json.f2[key])));
+        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
       }
       if (json.f3) {
         const ships: Ship[] = [];
-        Object.keys(json.f3).forEach((key) => ships.push(this.convertDeckToShip(json.f3[key])));
+        const fleet = json.f3;
+        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
       }
       if (json.f4) {
+        const fleet = json.f4;
         const ships: Ship[] = [];
-        Object.keys(json.f4).forEach((key) => ships.push(this.convertDeckToShip(json.f4[key])));
+        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
       }
 
@@ -386,6 +406,7 @@ export default class Convert {
 
       return deckBuilder;
     } catch (error) {
+      console.error(error);
       return deckBuilder;
     }
   }
@@ -407,9 +428,39 @@ export default class Convert {
         items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
       }
 
+      // 装備上昇ステータス ボーナスは知らん！
+      let sumFP = 0;
+      let sumTP = 0;
+      let sumAA = 0;
+      let sumAR = 0;
+      let sumEV = 0;
+      const allItems = ship.items.concat(ship.exItem);
+      for (let j = 0; j < allItems.length; j += 1) {
+        const item = allItems[j];
+        sumFP += item.data.fire;
+        sumTP += item.data.torpedo;
+        sumAA += item.data.antiAir;
+        sumAR += item.data.armor;
+        sumEV += item.data.avoid;
+      }
+
       fleet[`s${i + 1}`] = {
-        id: `${ship.data.id}`, luck: ship.luck, lv: ship.level, items,
+        id: `${ship.data.id}`,
+        luck: ship.luck,
+        lv: ship.level,
+        items,
+        fp: ship.data.fire + sumFP,
+        tp: ship.data.torpedo + sumTP,
+        aa: ship.antiAir + sumAA,
+        ar: ship.data.armor + sumAR,
+        asw: ship.actualAsw,
+        hp: (ship.level ? ship.data.hp : ship.data.hp2),
+        los: ship.scout + ship.bonusScout + ship.itemsScout,
       };
+      const ev = Ship.getStatusFromLevel(ship.level, ship.data.maxAvoid, ship.data.minAvoid);
+      if (ev) {
+        fleet[`s${i + 1}`].ev = ev + sumEV;
+      }
     }
   }
 

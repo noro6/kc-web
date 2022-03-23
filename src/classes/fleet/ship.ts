@@ -67,7 +67,7 @@ export default class Ship implements ShipBase {
   /** 装備ボーナスによる対潜上昇値 */
   public readonly itemBonusAsw: number;
 
-  /** 対潜合計 */
+  /** 対潜合計(表示値) */
   public readonly actualAsw: number;
 
   /** 先制対潜可 */
@@ -309,11 +309,7 @@ export default class Ship implements ShipBase {
     } else if (max > 0) {
       // Lv99以外 算出可能な場合
       value = Math.floor((max - min) * (level / 99) + min);
-    } else {
-      // 算出不可
-      value = 0;
     }
-
     return value;
   }
 

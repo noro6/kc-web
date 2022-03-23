@@ -90,8 +90,8 @@
         <template v-else-if="fleetInfo.isUnion && i === 2">随伴艦隊</template>
         <template v-else>第{{ i }}艦隊</template>
       </v-tab>
+      <v-tab href="#gkcoi" @click="initializeOutput()">画像出力</v-tab>
       <v-tab href="#fleet4" disabled>【工事中】</v-tab>
-      <v-tab href="#gkcoi" disabled>画像出力</v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab">
@@ -115,13 +115,63 @@
           @input="changedInfo"
         ></fleet-component>
       </v-tab-item>
-      <v-tab-item>
-        <div>
-          <v-select :items="gkcoiThemes" v-model="gkcoiTheme" label="theme"></v-select>
-          <v-select :items="gkcoiLangs" v-model="gkcoiLang" label="lang"></v-select>
+      <v-tab-item value="gkcoi" class="pa-2">
+        <v-alert border="left" outlined dense type="warning" class="body-2">
+          本サイトでは対潜、索敵以外の装備ボーナスによる上昇値については未実装のため、出力画像に反映されません。ご注意ください。
+        </v-alert>
+        <div class="d-flex flex-wrap">
+          <div class="gkcoi-select mr-3 my-1">
+            <v-select
+              :items="gkcoiThemes"
+              dense
+              hide-details
+              v-model="gkcoiTheme"
+              outlined
+              label="Theme"
+              @input="enabledOutput = true"
+            ></v-select>
+          </div>
+          <div class="gkcoi-select mr-3 my-1">
+            <v-select
+              :items="gkcoiLangs"
+              dense
+              hide-details
+              v-model="gkcoiLang"
+              outlined
+              label="Languages"
+              @input="enabledOutput = true"
+            ></v-select>
+          </div>
+          <div class="d-flex mr-3 my-1">
+            <v-checkbox
+              v-for="(check, i) in gkcoiOutputTarget"
+              :key="i"
+              :label="`第${i + 1}艦隊`"
+              dense
+              hide-details
+              v-model="gkcoiOutputTarget[i]"
+              class="mr-3"
+              @click="enabledOutput = true"
+            ></v-checkbox>
+          </div>
         </div>
-        <div>
-          <v-textarea rows="10" dense outlined hide-details label="コメント"></v-textarea>
+        <div class="d-flex">
+          <div class="my-1 mr-3">
+            <v-btn @click="generateImage()" color="teal" :dark="enabledOutput" :disabled="!enabledOutput">出力</v-btn>
+          </div>
+          <div class="my-1" v-if="generatedCanvas">
+            <v-btn @click="saveImage()" color="success"><v-icon small>mdi-content-save</v-icon>保存</v-btn>
+            <a class="d-none" id="gkcoi-doownload" />
+          </div>
+        </div>
+        <div v-if="generatingImage">
+          <div class="d-flex justify-center">
+            <v-progress-circular size="100" width="4" color="secondary" indeterminate></v-progress-circular>
+          </div>
+        </div>
+        <div id="image-area" class="mt-3"></div>
+        <div class="d-flex">
+          <v-btn class="ml-auto" style="text-transform: none"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
         </div>
       </v-tab-item>
     </v-tabs-items>
@@ -433,15 +483,20 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
+
+.gkcoi-select,
+.gkcoi-select {
+  width: 140px;
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import * as _ from 'lodash';
 import html2canvas from 'html2canvas';
-// import { Lang } from 'gkcoi/dist/lang';
-// import { DeckBuilder, Theme } from 'gkcoi/dist/type';
-// import { generate } from 'gkcoi';
+import { Lang } from 'gkcoi/dist/lang';
+import { DeckBuilder, Theme } from 'gkcoi/dist/type';
+import { generate } from 'gkcoi';
 import FleetComponent from '@/components/fleet/Fleet.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
@@ -506,7 +561,13 @@ export default Vue.extend({
       { value: '74sb', text: '74式(小型)' },
       { value: 'official', text: '公式' },
     ],
+    gkcoiTheme: 'dark' as Theme,
     gkcoiLangs: ['jp', 'en', 'kr', 'scn'],
+    gkcoiLang: 'jp' as Lang,
+    gkcoiOutputTarget: [1, 0, 0, 0],
+    generatedCanvas: undefined as undefined | HTMLCanvasElement,
+    enabledOutput: false,
+    generatingImage: false,
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -929,8 +990,8 @@ export default Vue.extend({
         this.setInfo(new FleetInfo({ info: this.fleetInfo }));
       }
     },
-    generateImage() {
-      // gkcoi
+    initializeOutput() {
+      // 画像出力初期化
       const saveData = this.$store.state.mainSaveData as SaveData;
       if (!saveData) {
         return;
@@ -940,15 +1001,57 @@ export default Vue.extend({
         return;
       }
 
-      const deck = Convert.createDeckBuilder(manager);
-      console.log(deck);
+      // 連合か？
+      if (manager.fleetInfo.isUnion) {
+        this.gkcoiOutputTarget = [1, 1, 0, 0];
+      } else {
+        this.gkcoiOutputTarget = [1, 0, 0, 0];
+      }
+      this.enabledOutput = true;
+    },
+    generateImage() {
+      // 連打禁止
+      this.enabledOutput = false;
+      this.generatedCanvas = undefined;
+      this.generatingImage = true;
 
-      // const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
-      //   lang: this.gkcoiLang,
-      //   theme: this.gkcoiTheme,
-      //   cmt: '',
-      // });
-      // generate(gkcoiBuilder);
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return;
+      }
+      const manager = saveData.tempData[saveData.tempIndex];
+      if (!manager) {
+        return;
+      }
+      const deck = Convert.createDeckBuilder(manager);
+      if (!this.gkcoiOutputTarget[0]) delete deck.f1;
+      if (!this.gkcoiOutputTarget[1]) delete deck.f2;
+      if (!this.gkcoiOutputTarget[2]) delete deck.f3;
+      if (!this.gkcoiOutputTarget[3]) delete deck.f4;
+
+      const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
+        lang: this.gkcoiLang,
+        theme: this.gkcoiTheme,
+        cmt: '',
+      });
+      generate(gkcoiBuilder).then((canvas) => {
+        const imageArea = document.getElementById('image-area') as HTMLDivElement;
+        imageArea.innerHTML = '';
+        canvas.style.maxWidth = '100%';
+        imageArea.appendChild(canvas);
+        this.generatedCanvas = canvas;
+        this.generatingImage = false;
+      });
+    },
+    saveImage() {
+      const canvas = this.generatedCanvas;
+      if (canvas) {
+        const base64 = canvas.toDataURL('image/jpeg');
+        const download = document.getElementById('gkcoi-doownload') as HTMLAnchorElement;
+        download.href = base64;
+        download.download = 'image.jpg';
+        download.click();
+      }
     },
   },
 });
