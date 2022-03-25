@@ -176,7 +176,7 @@ export default Vue.extend({
   }),
   mounted() {
     const existTypes: number[] = [];
-    const enemies = this.$store.state.enemies as EnemyMaster[];
+    const enemies = this.$store.state.defaultEnemies as EnemyMaster[];
     for (let i = 0; i < enemies.length; i += 1) {
       const enemy = enemies[i];
       this.all.push(enemy);
@@ -230,7 +230,13 @@ export default Vue.extend({
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = e.clientX;
         this.tooltipY = rect.y + rect.height;
-        this.tooltipEnemy = Enemy.createEnemyFromMaster(enemy, false, this.$store.state.items);
+        const manualEnemies = this.$store.state.manualEnemies as EnemyMaster[];
+        const manualEnemy = manualEnemies.find((v) => v.id === enemy.id);
+        if (manualEnemy) {
+          this.tooltipEnemy = Enemy.createEnemyFromMaster(manualEnemy, false, this.$store.state.items);
+        } else {
+          this.tooltipEnemy = Enemy.createEnemyFromMaster(enemy, false, this.$store.state.items);
+        }
         this.enabledTooltip = true;
       }, 400);
     },

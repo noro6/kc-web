@@ -353,13 +353,14 @@ export default class Convert {
   }
 
   /**
-   * DeckBuilderそのままで返却
+   * DeckBuilderオブジェクトそのままで返却
    * @static
    * @param {CalcManager} manager
-   * @returns {DeckBuilder}
+   * @param {boolean} [includeStatus=false]
+   * @return {*}  {DeckBuilder}
    * @memberof Convert
    */
-  public static createDeckBuilder(manager: CalcManager): DeckBuilder {
+  public static createDeckBuilder(manager: CalcManager, includeStatus = false): DeckBuilder {
     const deckBuilder = {
       version: 4, hqlv: manager.fleetInfo.admiralLevel, f1: {}, f2: {}, f3: {}, f4: {},
     } as DeckBuilder;
@@ -370,19 +371,19 @@ export default class Convert {
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
         if (i === 0) {
           deckBuilder.f1 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f1, ships);
+          Convert.setDeckBuilderFleet(deckBuilder.f1, ships, includeStatus);
         }
         if (i === 1) {
           deckBuilder.f2 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f2, ships);
+          Convert.setDeckBuilderFleet(deckBuilder.f2, ships, includeStatus);
         }
         if (i === 2) {
           deckBuilder.f3 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f3, ships);
+          Convert.setDeckBuilderFleet(deckBuilder.f3, ships, includeStatus);
         }
         if (i === 3) {
           deckBuilder.f4 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f4, ships);
+          Convert.setDeckBuilderFleet(deckBuilder.f4, ships, includeStatus);
         }
       }
 
@@ -417,9 +418,10 @@ export default class Convert {
    * @static
    * @param {{ [name: string]: DeckBuilderShip }} fleet
    * @param {Ship[]} ships
+   * @param {boolean} [includeStatus=false]
    * @memberof Convert
    */
-  private static setDeckBuilderFleet(fleet: { [name: string]: DeckBuilderShip }, ships: Ship[]): void {
+  private static setDeckBuilderFleet(fleet: { [name: string]: DeckBuilderShip }, ships: Ship[], includeStatus = false): void {
     for (let i = 0; i < ships.length; i += 1) {
       const ship = ships[i];
       const items = Convert.getDeckBuilderItems(ship.items);
@@ -428,12 +430,13 @@ export default class Convert {
         items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
       }
 
-      // 装備上昇ステータス ボーナスは知らん！
+      // 装備上昇ステータス
       let sumFP = 0;
       let sumTP = 0;
       let sumAA = 0;
       let sumAR = 0;
       let sumEV = 0;
+      let sumLos = 0;
       const allItems = ship.items.concat(ship.exItem);
       for (let j = 0; j < allItems.length; j += 1) {
         const item = allItems[j];
@@ -442,25 +445,31 @@ export default class Convert {
         sumAA += item.data.antiAir;
         sumAR += item.data.armor;
         sumEV += item.data.avoid;
+        sumLos += item.data.scout;
       }
 
-      fleet[`s${i + 1}`] = {
+      const data: DeckBuilderShip = {
         id: `${ship.data.id}`,
-        luck: ship.luck,
         lv: ship.level,
+        hp: ship.hp,
+        luck: ship.luck,
         items,
-        fp: ship.data.fire + sumFP,
-        tp: ship.data.torpedo + sumTP,
-        aa: ship.antiAir + sumAA,
-        ar: ship.data.armor + sumAR,
-        asw: ship.actualAsw,
-        hp: (ship.level ? ship.data.hp : ship.data.hp2),
-        los: ship.scout + ship.bonusScout + ship.itemsScout,
       };
-      const ev = Ship.getStatusFromLevel(ship.level, ship.data.maxAvoid, ship.data.minAvoid);
-      if (ev) {
-        fleet[`s${i + 1}`].ev = ev + sumEV;
+
+      // ステータスを含める場合
+      if (includeStatus) {
+        const los = Ship.getStatusFromLevel(ship.level, ship.data.maxScout, ship.data.minScout);
+        const ev = Ship.getStatusFromLevel(ship.level, ship.data.maxAvoid, ship.data.minAvoid);
+        data.fp = ship.data.fire + sumFP;
+        data.tp = ship.data.torpedo + sumTP;
+        data.aa = ship.antiAir + sumAA;
+        data.ar = ship.data.armor + sumAR;
+        data.asw = ship.actualAsw;
+        data.los = los + ship.bonusScout + sumLos;
+        data.ev = ev + sumEV;
       }
+
+      fleet[`s${i + 1}`] = data;
     }
   }
 

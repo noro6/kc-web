@@ -55,6 +55,9 @@
         />
       </div>
     </draggable>
+    <div v-if="!sortMode" class="general-container">
+      <editable-enemy-list />
+    </div>
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
       <div class="caption">
@@ -89,12 +92,18 @@
   margin: 2rem auto 0.5rem auto;
   max-width: 1200px;
 }
+
+.general-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import draggable from 'vuedraggable';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
+import EditableEnemyList from '@/components/enemy/EditableEnemyList.vue';
 import AirbaseAll from '@/components/airbase/AirbaseAll.vue';
 import MainResult from '@/components/result/MainResult.vue';
 import FleetAll from '@/components/fleet/FleetAll.vue';
@@ -116,6 +125,7 @@ export default Vue.extend({
     EnemyFleetAll,
     MainResult,
     draggable,
+    EditableEnemyList,
   },
   data: () => ({
     calcManager: new CalcManager(),
@@ -140,9 +150,10 @@ export default Vue.extend({
           return;
         }
 
+        // マスターの再読み込み
         const items = this.$store.state.items as ItemMaster[];
         const ships = this.$store.state.ships as ShipMaster[];
-        const enemies = this.$store.state.enemies as EnemyMaster[];
+        const enemies = this.$store.getters.getEnemies as EnemyMaster[];
 
         const manager = saveData.loadManagerData(items, ships, enemies);
 

@@ -97,6 +97,7 @@
           :handle-show-item-list="showItemList"
           @input="setInfo"
           :is-defense="airbaseInfo.isDefense"
+          :handle-show-item-presets="showItemPresets"
         />
       </v-tab-item>
     </v-tabs>
@@ -117,6 +118,7 @@
         :index="i"
         :is-defense="airbaseInfo.isDefense"
         :handle-show-item-list="showItemList"
+        :handle-show-item-presets="showItemPresets"
         @input="setInfo"
       />
     </draggable>
@@ -147,7 +149,14 @@
             </div>
             <div class="caption">選択されている航空隊に対し、下記の設定を適用します。</div>
             <div class="d-flex justify-space-between">
-              <v-checkbox label="全航空隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox
+                label="全航空隊"
+                dense
+                hide-details
+                @click="toggleBulkTarget"
+                v-model="isbulkUpdateTargetAll"
+                readonly
+              ></v-checkbox>
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -184,13 +193,7 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex">
-            <v-slider
-              class="flex-grow-1 align-self-end"
-              max="18"
-              min="0"
-              v-model.number="bulkUpdateSlotValue"
-              hide-details
-            ></v-slider>
+            <v-slider class="flex-grow-1 align-self-end" max="18" min="0" v-model.number="bulkUpdateSlotValue" hide-details></v-slider>
             <div class="d-flex">
               <v-text-field
                 class="slot-input mx-2"
@@ -205,6 +208,14 @@
           </div>
         </div>
       </v-card>
+    </v-dialog>
+    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
+      <item-preset-component
+        v-if="itemPresetDialog"
+        v-model="tempAirbase"
+        :handle-expand-item-preset="expandItemPreset"
+        :handle-close="closeItemPreset"
+      ></item-preset-component>
     </v-dialog>
   </v-card>
 </template>
@@ -346,12 +357,15 @@ import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import AirbaseComp from '@/components/airbase/Airbase.vue';
 import ItemList from '@/components/item/ItemList.vue';
+import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import Airbase, { AirbaseBuilder } from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
+import ItemPreset from '@/classes/item/itemPreset';
+import ItemMaster from '@/classes/item/itemMaster';
 
 export default Vue.extend({
   name: 'AirbaseAll',
@@ -361,6 +375,7 @@ export default Vue.extend({
     draggable,
     AirStatusResultBar,
     AirbaseTarget,
+    ItemPresetComponent,
   },
   props: {
     value: {
@@ -387,6 +402,8 @@ export default Vue.extend({
     bulkUpdateDialog: false,
     bulkUpdateSlotValue: 18,
     bulkUpdateTarget: [1, 1, 1],
+    itemPresetDialog: false,
+    tempAirbase: undefined as undefined | Airbase,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -451,7 +468,7 @@ export default Vue.extend({
         if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
           // 偵察機の場合、搭載数関係はすべて4機制限
           initialSlot = 4;
-        } else if (item.apiTypeId === 53) {
+        } else if (Const.AB_ATTACKERS_LARGE.includes(item.apiTypeId)) {
           // 大型陸上機は9機
           initialSlot = 9;
         }
@@ -622,6 +639,79 @@ export default Vue.extend({
         }
         this.setInfo();
       }
+    },
+    showItemPresets(baseIndex: number) {
+      const airbase = this.airbaseInfo.airbases[baseIndex];
+      this.dialogTarget = [baseIndex, 0];
+      this.tempAirbase = airbase;
+      this.itemPresetDialog = true;
+    },
+    expandItemPreset(preset: ItemPreset) {
+      const itemMasters = this.$store.state.items as ItemMaster[];
+      const items = [];
+      for (let i = 0; i < preset.itemIds.length; i += 1) {
+        const item = itemMasters.find((v) => v.id === preset.itemIds[i]);
+        if (item) {
+          items.push(item);
+        } else {
+          items.push(new ItemMaster());
+        }
+      }
+      const index = this.dialogTarget[0];
+      const airbase = this.airbaseInfo.airbases[index];
+      // もともとここに配備されていた装備情報を抜き取る
+      const newItems = airbase.items.concat();
+      // 装備搭載可否情報マスタ
+      for (let slotIndex = 0; slotIndex < airbase.items.length; slotIndex += 1) {
+        if (slotIndex < items.length) {
+          const newItem = items[slotIndex];
+          if (newItem && Const.PLANE_TYPES.includes(newItem.apiTypeId)) {
+            // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
+            let slot = 18;
+            if (Const.RECONNAISSANCES.includes(newItem.apiTypeId)) {
+              slot = 4;
+            } else if (Const.AB_ATTACKERS_LARGE.includes(newItem.apiTypeId)) {
+              slot = 9;
+            }
+
+            // 初期熟練度設定
+            const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+            let level = 0;
+            if (initialLevels) {
+              // 設定情報より初期熟練度を解決
+              const initData = initialLevels.find((v) => v.id === newItem.apiTypeId);
+              if (initData) {
+                level = initData.level;
+              }
+
+              if (newItem.id === 312 && level > 25) {
+                // 陸上偵察機(熟練)の制御
+                level = 25;
+              } else if (newItem.id === 311) {
+                // 陸上偵察機無印の制御
+                level = 0;
+              }
+            }
+            newItems[slotIndex] = new Item({
+              master: newItem,
+              item: newItems[slotIndex],
+              slot,
+              level,
+            });
+          } else {
+            // 不適合、外す
+            newItems[slotIndex] = new Item();
+          }
+        }
+      }
+
+      // 再インスタンス化し更新
+      this.airbaseInfo.airbases[index] = new Airbase({ airbase, items: newItems });
+      const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
+      this.$emit('input', newInfo);
+    },
+    closeItemPreset() {
+      this.itemPresetDialog = false;
     },
   },
 });

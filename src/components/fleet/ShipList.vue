@@ -269,6 +269,7 @@ export interface ViewShip {
   count: number;
   area: number;
   level: number;
+  hp: number;
   luck: number;
   expanded: boolean;
 }
@@ -417,6 +418,7 @@ export default Vue.extend({
               ship: master,
               count: 1,
               level: shipData.level,
+              hp: shipData.improvement.hp + (shipData.level > 99 ? master.hp2 : master.hp),
               luck: shipData.improvement.luck + master.luck,
               area: shipData.area,
               expanded: shipData.releaseExpand,
@@ -464,6 +466,7 @@ export default Vue.extend({
             ship: master,
             count: 1,
             level: 99,
+            hp: master.hp,
             luck: master.luck,
             area: -1,
             expanded: false,

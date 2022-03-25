@@ -613,7 +613,7 @@ export default Vue.extend({
     const saveData = this.$store.state.mainSaveData as SaveData;
     const items = this.$store.state.items as ItemMaster[];
     const ships = this.$store.state.ships as ShipMaster[];
-    const enemies = this.$store.state.enemies as EnemyMaster[];
+    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
 
     this.calcManager = saveData.loadManagerData(items, ships, enemies);
 
@@ -796,7 +796,7 @@ export default Vue.extend({
         const saveData = this.$store.state.mainSaveData as SaveData;
         const items = this.$store.state.items as ItemMaster[];
         const ships = this.$store.state.ships as ShipMaster[];
-        const enemies = this.$store.state.enemies as EnemyMaster[];
+        const enemies = this.$store.getters.getEnemies as EnemyMaster[];
         const baseInfo = saveData.loadManagerData(items, ships, enemies).battleInfo;
 
         this.calcManager.mainBattle = this.defenseIndex;

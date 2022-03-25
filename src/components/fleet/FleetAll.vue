@@ -685,6 +685,7 @@ export default Vue.extend({
         items: newItems,
         exItem,
         isActive: oldShip.isActive,
+        hp: viewShip.hp,
         level: viewShip.level,
         luck: viewShip.luck,
       });
@@ -776,7 +777,20 @@ export default Vue.extend({
           const newItem = items[slotIndex];
           if (newItem && ship.isValidItem(newItem, link, exLink, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
-            newItems[slotIndex] = new Item({ master: newItem, item: newItems[slotIndex] });
+            // 初期熟練度設定
+            const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+            let level = 0;
+            if (initialLevels) {
+              // 設定情報より初期熟練度を解決
+              const initData = initialLevels.find((v) => v.id === newItem.apiTypeId);
+              if (initData) {
+                level = initData.level;
+              }
+            }
+            newItems[slotIndex] = new Item({ master: newItem, item: newItems[slotIndex], level });
+          } else {
+            // 不適合、外す
+            newItems[slotIndex] = new Item();
           }
         }
       }
@@ -791,7 +805,7 @@ export default Vue.extend({
 
       // 元々いた艦娘を置き換える
       fleet.ships[index] = new Ship({
-        master: ship,
+        ship: oldShip,
         items: newItems,
         exItem,
       });
@@ -1014,6 +1028,8 @@ export default Vue.extend({
       this.enabledOutput = false;
       this.generatedCanvas = undefined;
       this.generatingImage = true;
+      const imageArea = document.getElementById('image-area') as HTMLDivElement;
+      imageArea.innerHTML = '';
 
       const saveData = this.$store.state.mainSaveData as SaveData;
       if (!saveData) {
@@ -1023,7 +1039,7 @@ export default Vue.extend({
       if (!manager) {
         return;
       }
-      const deck = Convert.createDeckBuilder(manager);
+      const deck = Convert.createDeckBuilder(manager, true);
       if (!this.gkcoiOutputTarget[0]) delete deck.f1;
       if (!this.gkcoiOutputTarget[1]) delete deck.f2;
       if (!this.gkcoiOutputTarget[2]) delete deck.f3;
@@ -1035,8 +1051,6 @@ export default Vue.extend({
         cmt: '',
       });
       generate(gkcoiBuilder).then((canvas) => {
-        const imageArea = document.getElementById('image-area') as HTMLDivElement;
-        imageArea.innerHTML = '';
         canvas.style.maxWidth = '100%';
         imageArea.appendChild(canvas);
         this.generatedCanvas = canvas;

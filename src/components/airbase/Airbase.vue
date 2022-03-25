@@ -6,20 +6,20 @@
       <div class="mr-1 mode-select">
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!enabledDetail"></v-select>
       </div>
-      <div class="mr-1 align-self-end">
+      <div class="mr-1 align-self-end operation-buttons">
         <v-btn color="info" icon small @click="viewDetail" :disabled="!enabledDetail">
-          <v-icon>mdi-information-outline</v-icon>
+          <v-icon small>mdi-information-outline</v-icon>
         </v-btn>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click="showItemPresets()">
-              <v-icon>mdi-briefcase-variant</v-icon>
+            <v-btn icon small color="orange darken-2" v-bind="attrs" v-on="on" @click="showItemPresets()">
+              <v-icon small>mdi-briefcase-variant</v-icon>
             </v-btn>
           </template>
           <span>装備プリセット展開【機能作成中】</span>
         </v-tooltip>
         <v-btn icon small @click="resetItems">
-          <v-icon>mdi-trash-can-outline</v-icon>
+          <v-icon small>mdi-trash-can-outline</v-icon>
         </v-btn>
       </div>
     </div>
@@ -118,6 +118,10 @@
 .sub-status-area > div {
   align-self: center;
 }
+
+.operation-buttons .v-icon {
+  font-size: 20px !important;
+}
 </style>
 
 <script lang="ts">
@@ -155,6 +159,10 @@ export default Vue.extend({
     },
     isDefense: {
       type: Boolean,
+      required: true,
+    },
+    handleShowItemPresets: {
+      type: Function,
       required: true,
     },
   },
@@ -266,7 +274,7 @@ export default Vue.extend({
       }
     },
     showItemPresets() {
-      // todo
+      this.handleShowItemPresets(this.index);
     },
     bootTooltip(item: Item, e: MouseEvent) {
       if (!item.data.id) {

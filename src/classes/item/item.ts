@@ -188,7 +188,7 @@ export default class Item {
     this.isRecon = Const.RECONNAISSANCES.includes(this.data.apiTypeId);
     this.isABAttacker = Const.AB_ATTACKERS.includes(this.data.apiTypeId);
     this.isRocket = Const.ROCKET.includes(this.data.id);
-    this.isShinzan = this.data.apiTypeId === 53;
+    this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.data.apiTypeId);
     this.isJet = this.data.apiTypeId === 57;
     this.enabledAttackLandbase = Const.ENABLED_LANDBASE_ATTACK.includes(this.data.id);
     if (!this.data.isSpecial) {

@@ -69,7 +69,7 @@ export default class SiteSetting {
           { id: 47, level: 0 },
           { id: 53, level: 0 },
           { id: 48, level: 100 },
-          { id: 49, level: 0 },
+          { id: 49, level: 25 },
         ];
         this.contentOrder = [];
       } else {
@@ -103,7 +103,7 @@ export default class SiteSetting {
         { id: 47, level: 0 },
         { id: 53, level: 0 },
         { id: 48, level: 100 },
-        { id: 49, level: 0 },
+        { id: 49, level: 25 },
       ];
       this.contentOrder = [];
     }

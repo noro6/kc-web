@@ -81,7 +81,7 @@ export default Vue.extend({
       // 編成復帰
       const items = this.$store.state.items as ItemMaster[];
       const ships = this.$store.state.ships as ShipMaster[];
-      const enemies = this.$store.state.enemies as EnemyMaster[];
+      const enemies = this.$store.getters.getEnemies as EnemyMaster[];
       const manager = this.value.loadManagerData(items, ships, enemies);
 
       this.ships1 = manager.fleetInfo.fleets[0].ships.filter((v) => v.data.id > 0);

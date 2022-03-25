@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import EnemyMaster from './enemy/enemyMaster';
 import ShipStock from './fleet/shipStock';
 import ItemPreset from './item/itemPreset';
 import ItemStock from './item/itemStock';
@@ -14,7 +15,9 @@ export default class KcWebDatabase extends Dexie {
 
   public setting!: Dexie.Table<SiteSetting, string>;
 
-  public itemPresets!: Dexie.Table<ItemPreset, string>;
+  public itemPresets!: Dexie.Table<ItemPreset, number>;
+
+  public manualEnemies!: Dexie.Table<EnemyMaster, number>;
 
   constructor() {
     super('kc-web-database');
@@ -34,6 +37,16 @@ export default class KcWebDatabase extends Dexie {
       ships: 'uniqueId',
       setting: 'id',
       itemPresets: 'id',
+    });
+
+    // v3 手動設定敵艦追加
+    this.version(3).stores({
+      savedata: 'id',
+      items: 'id',
+      ships: 'uniqueId',
+      setting: 'id',
+      itemPresets: 'id',
+      manualEnemies: 'id',
     });
   }
 }

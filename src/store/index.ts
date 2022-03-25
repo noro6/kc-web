@@ -27,10 +27,11 @@ export default new Vuex.Store({
     exSlotEquipShips: [] as MasterEquipmentExSlot[],
     equipShips: [] as MasterEquipmentShip[],
     cells: [] as CellMaster[],
-    enemies: [] as EnemyMaster[],
     itemStock: [] as ItemStock[],
     shipStock: [] as ShipStock[],
     itemPresets: [] as ItemPreset[],
+    defaultEnemies: [] as EnemyMaster[],
+    manualEnemies: [] as EnemyMaster[],
     saveData: new SaveData(),
     calcManager: undefined as CalcManager | undefined,
     mainSaveData: new SaveData(),
@@ -45,7 +46,7 @@ export default new Vuex.Store({
       state.ships = values;
     },
     setEnemies: (state, values: EnemyMaster[]) => {
-      state.enemies = values;
+      state.defaultEnemies = values;
     },
     setItems: (state, values: ItemMaster[]) => {
       state.items = values;
@@ -70,6 +71,9 @@ export default new Vuex.Store({
     },
     updateItemPresets: (state, values: ItemPreset[]) => {
       state.itemPresets = values;
+    },
+    updateManualEnemies: (state, values: EnemyMaster[]) => {
+      state.manualEnemies = values;
     },
     setMainSaveData: (state, value: SaveData) => {
       state.mainSaveData = value;
@@ -122,6 +126,12 @@ export default new Vuex.Store({
         context.state.kcWebDatabase.itemPresets.bulkAdd(values);
       });
       context.commit('updateItemPresets', values);
+    },
+    updateManualEnemies: (context, values: EnemyMaster[]) => {
+      context.state.kcWebDatabase.manualEnemies.clear().then(() => {
+        context.state.kcWebDatabase.manualEnemies.bulkAdd(values);
+      });
+      context.commit('updateManualEnemies', values);
     },
     updateSetting: (context, value: SiteSetting) => {
       context.state.kcWebDatabase.setting.put(value, 'setting');
@@ -275,6 +285,10 @@ export default new Vuex.Store({
       db.itemPresets.toArray().then((data) => {
         context.state.itemPresets = data;
       });
+      // 手動設定敵艦
+      db.manualEnemies.toArray().then((data) => {
+        context.state.manualEnemies = data;
+      });
     },
     loadSetting: async (context) => {
       const db = context.state.kcWebDatabase;
@@ -292,5 +306,16 @@ export default new Vuex.Store({
   },
   getters: {
     getCompleted: (state) => state.completed,
+    getEnemies: (state) => {
+      const enemies = state.defaultEnemies.concat();
+      for (let i = 0; i < state.manualEnemies.length; i += 1) {
+        const enemy = state.manualEnemies[i];
+        const index = enemies.findIndex((v) => v.id === enemy.id);
+        if (index >= 0) {
+          enemies[index] = enemy;
+        }
+      }
+      return enemies;
+    },
   },
 });

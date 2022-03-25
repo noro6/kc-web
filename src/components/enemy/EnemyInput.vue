@@ -28,12 +28,14 @@
       <div v-if="enemy.fullLBAirPower && enemy.fullLBAirPower !== enemy.fullAirPower">
         <span class="text--secondary">基地制空:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullLBAirPower }}</span>
-        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
+        <span class="ml-1 mr-2 text--secondary">{{ airPowerDetailAB }}</span>
       </div>
     </div>
-    <div class="d-flex caption px-1">
+    <div class="caption px-1">
       <span class="text--secondary">装備命中:</span>
       <span class="ml-1 font-weight-medium">{{ enemy.sumItemAccuracy }}</span>
+      <span class="ml-3 text--secondary">総搭載数:</span>
+      <span class="ml-1 font-weight-medium">{{ sumSlot }}</span>
     </div>
     <v-divider></v-divider>
     <div>
@@ -42,10 +44,12 @@
           v-model="enemy.items[j]"
           :index="j"
           :max="999"
-          :init="999"
+          :init="enemy.data.slots[j]"
           :handle-show-item-list="showItemList"
           :handle-drag-start="clearTooltip"
-          :readonly="true"
+          :readonly="readonly"
+          :is-enemy="true"
+          @input="updateItem"
         />
       </div>
     </div>
@@ -73,6 +77,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import * as _ from 'lodash';
 import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Enemy from '@/classes/enemy/enemy';
@@ -89,6 +94,10 @@ export default Vue.extend({
       type: Enemy,
       required: true,
     },
+    readonly: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     enabledTooltip: false,
@@ -99,14 +108,27 @@ export default Vue.extend({
   }),
   computed: {
     airPowerDetail() {
+      const airPowers = this.enemy.items.map((v) => (v.isRecon ? 0 : v.fullAirPower));
+      return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
+    },
+    airPowerDetailAB() {
       const airPowers = this.enemy.items.map((v) => v.fullAirPower);
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
+    sumSlot(): number {
+      return _.sum(this.enemy.items.map((v) => v.fullSlot));
+    },
   },
   methods: {
-    showItemList(): void {
-      // 装備変更は許可しない
-      // this.handleShowItemList(index, index);
+    showItemList(index: number): void {
+      if (!this.readonly) {
+        this.handleShowItemList(index);
+      }
+    },
+    updateItem() {
+      if (!this.readonly) {
+        this.$emit('input', this.enemy);
+      }
     },
     bootTooltip(item: Item, e: MouseEvent) {
       if (!item.data.id) {

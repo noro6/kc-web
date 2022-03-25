@@ -42,14 +42,14 @@
     <!-- 装備名称 -->
     <div
       class="item-name text-truncate"
-      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial, }"
+      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }"
       @click.stop="showItemList()"
     >
       {{ isNoItem ? "未装備" : item.data.name }}
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
       <!-- 改修値 -->
-      <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow">
+      <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div
             class="item-remodel"
@@ -71,7 +71,7 @@
         </v-card>
       </v-menu>
       <!-- 熟練度 -->
-      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow">
+      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
             <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
@@ -145,6 +145,12 @@
   font-size: 1.2em;
   opacity: 0.6;
 }
+.item-icon img {
+  user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+}
+
 .item-name {
   flex-grow: 1;
   cursor: pointer;
@@ -321,6 +327,10 @@ export default Vue.extend({
     },
     handleDragStart: {
       type: Function,
+    },
+    isEnemy: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

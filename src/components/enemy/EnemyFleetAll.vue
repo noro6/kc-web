@@ -225,11 +225,18 @@ export default Vue.extend({
       const index = this.dialogTarget[1];
       const fleet = this.isDefense ? this.battleInfo.airRaidFleet : this.battleInfo.fleets[fleetIndex];
 
+      // マスタから敵艦を解決
+      const masterEnemies = this.$store.getters.getEnemies as EnemyMaster[];
+      const masterEnemy = masterEnemies.find((v) => v.id === enemy.id);
+      if (!masterEnemy) {
+        return;
+      }
+
       // 装備マスタより装備を解決
       const allItems = this.$store.state.items as ItemMaster[];
       // 6隻目以降なら連合随伴とする
       const isEscort = fleet.isUnion && index >= 6;
-      const newEnemy = Enemy.createEnemyFromMaster(enemy, isEscort, allItems);
+      const newEnemy = Enemy.createEnemyFromMaster(masterEnemy, isEscort, allItems);
       const enemies = fleet.enemies.concat();
       enemies[index] = newEnemy;
       const builder: EnemyFleetBuilder = { fleet, enemies };

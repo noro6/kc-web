@@ -488,7 +488,7 @@ export default Vue.extend({
       return this.selectedType.viewStatus.includes('cost');
     },
     isShowTP(): boolean {
-      return this.selectedType.viewStatus.includes('TP');
+      return this.selectedType.viewStatus.includes('tp');
     },
     isShowAvoidText(): boolean {
       return this.selectedType.viewStatus.includes('avoidId');
@@ -591,10 +591,18 @@ export default Vue.extend({
           this.slot = 18;
         }
       } else if (parent instanceof Enemy) {
-        // 渡された敵艦種より装備可能種別を取得
-        const info = Const.SHIP_TYPES_INFO.find((v) => v.id === parent.data.type);
-        if (info) {
-          types = info.itemType;
+        // 基本は全装備
+        types = Const.ITEM_API_TYPE.map((v) => v.id);
+        // 敵装備マスタに存在しない装備カテゴリは抜いておく
+        const enemyItems = this.all.filter((v) => v.id > 500);
+        types = types.filter((v) => enemyItems.some((x) => x.apiTypeId === v));
+
+        // 敵装備フラグ強制ON
+        this.isEnemyMode = true;
+
+        // 初手フィルタ
+        if (!types.includes(this.type)) {
+          this.type = +types[0];
         }
       }
 
@@ -730,7 +738,7 @@ export default Vue.extend({
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (
           key.indexOf('actual') >= 0
-          || key === 'TP'
+          || key === 'tp'
           || key === 'airPower'
           || key === 'defenseAirPower'
           || key === 'antiAirWeight'

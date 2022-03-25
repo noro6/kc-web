@@ -21,6 +21,8 @@ export interface ShipBuilder {
   luck?: number;
   /** 対空 */
   antiAir?: number;
+  /** 耐久 */
+  hp?: number;
   /** 随伴艦フラグ */
   isEscort?: boolean;
   /** 有効フラグ */
@@ -39,6 +41,9 @@ export default class Ship implements ShipBase {
 
   /** 練度 */
   public readonly level: number;
+
+  /** 耐久 */
+  public readonly hp: number;
 
   /** 計算で適用する運 */
   public readonly luck: number;
@@ -143,6 +148,7 @@ export default class Ship implements ShipBase {
       this.exItem = builder.exItem !== undefined ? builder.exItem : builder.ship.exItem;
       this.isActive = builder.isActive !== undefined ? builder.isActive : builder.ship.isActive;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : builder.ship.isEscort;
+      this.hp = builder.hp !== undefined ? builder.hp : builder.ship.hp;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -152,6 +158,7 @@ export default class Ship implements ShipBase {
       this.exItem = builder.exItem !== undefined ? builder.exItem : new Item();
       this.isActive = builder.isActive !== undefined ? builder.isActive : true;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
+      this.hp = builder.hp !== undefined ? builder.hp : this.data.hp;
     }
 
     // 装備数をマスタのスロット数に合わせる
@@ -172,6 +179,13 @@ export default class Ship implements ShipBase {
       if (item.data.id === 0 && fullSlot > 0) {
         this.items[i] = new Item({ slot: fullSlot });
       }
+    }
+
+    // レベルによる耐久修正
+    if (this.level > 99 && this.hp < this.data.hp2) {
+      this.hp = this.data.hp2;
+    } else if (this.level <= 99 && (this.hp === this.data.hp2 || this.hp === 0)) {
+      this.hp = this.data.hp;
     }
 
     this.fullAirPower = 0;

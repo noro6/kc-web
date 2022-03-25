@@ -142,6 +142,8 @@ export default class Const {
 
   public static readonly AB_ATTACKERS = [47, 53];
 
+  public static readonly AB_ATTACKERS_LARGE = [53];
+
   public static readonly ROCKET = [350, 351, 352];
 
   public static readonly BAKUSEN = [60, 154, 219, 447];
@@ -177,7 +179,7 @@ export default class Const {
     { id: 21, name: '対空機銃', sortKey: ['antiAir', 'accuracy', 'fire', 'armor', 'avoid'] },
     { id: 22, name: '特殊潜航艇', sortKey: ['torpedo', 'accuracy', 'avoid', 'scout'] },
     { id: 23, name: '応急修理要員' },
-    { id: 24, name: '上陸用舟艇' },
+    { id: 24, name: '上陸用舟艇', sortKey: ['fire', 'antiAir', 'armor', 'avoid', 'scout', 'tp'] },
     { id: 25, name: 'オートジャイロ' },
     { id: 26, name: '対潜哨戒機' },
     { id: 27, name: '追加装甲(中型)' },
@@ -499,13 +501,13 @@ export default class Const {
    */
   public static readonly ITEM_TYPES_ALT = [
     {
-      id: 1, text: '大口径主砲', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
+      id: 1, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
     },
     {
-      id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [2],
+      id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [2],
     },
     {
-      id: 3, text: '小口径主砲', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
+      id: 3, text: '小口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
     },
     {
       id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'avoid', 'airPower', 'radius'], types: [6],
@@ -535,19 +537,19 @@ export default class Const {
       id: 41, text: '大型飛行艇', viewStatus: ['actualScout', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [41],
     },
     {
-      id: 12, text: '電探', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
+      id: 12, text: '電探', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'actualScout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
     },
     {
       id: 14, text: '対潜装備', viewStatus: ['actualAsw', 'actualAccuracy', 'armor', 'avoid', 'actualScout'], types: [14, 15, 40],
     },
     {
-      id: 4, text: '副砲', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [4],
+      id: 4, text: '副砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [4],
     },
     {
-      id: 21, text: '機銃', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
+      id: 21, text: '機銃', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
     },
     {
-      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'actualAntiAir', 'actualScout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
+      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
     },
     {
       id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
@@ -559,7 +561,7 @@ export default class Const {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['actualFire', 'actualAntiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
+      id: 17, text: 'その他', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
     },
   ]
 

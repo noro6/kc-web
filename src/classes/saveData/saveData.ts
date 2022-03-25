@@ -660,4 +660,51 @@ export default class SaveData {
 
     return resultData;
   }
+
+  /**
+   * 全一時保存セーブデータ内の敵艦を新しい敵艦で更新
+   * 専ら敵艦手動設定完了時に呼び出す
+   * @param {EnemyMaster} enemyMaster 新敵艦情報
+   * @param {ItemMaster[]} items 全装備
+   * @memberof SaveData
+   */
+  public updateEnemyMasterInCalcData(enemyMaster: EnemyMaster, items: ItemMaster[]): void {
+    if (this.isDirectory) {
+      // 再帰呼び出し
+      for (let i = 0; i < this.childItems.length; i += 1) {
+        this.childItems[i].updateEnemyMasterInCalcData(enemyMaster, items);
+      }
+    } else if (this.tempData.length) {
+      // 自身の履歴内の全計算データの敵艦の更新
+      const data = this.tempData;
+      for (let i = 0; i < data.length; i += 1) {
+        const manager = data[i];
+        if (!manager || !manager.battleInfo.fleets.length) {
+          continue;
+        }
+
+        for (let j = 0; j < manager.battleInfo.fleets.length; j += 1) {
+          const fleet = manager.battleInfo.fleets[j];
+          const newEnemies = [];
+          let isUpdated = false;
+          for (let k = 0; k < fleet.enemies.length; k += 1) {
+            const enemy = fleet.enemies[k];
+            if (enemy.data.id !== enemyMaster.id) {
+              newEnemies.push(enemy);
+              continue;
+            }
+            // 更新対象敵艦だった場合 => 再インスタンス化
+            const newEnemy = Enemy.createEnemyFromMaster(enemyMaster, enemy.isEscort, items);
+            newEnemies.push(newEnemy);
+            isUpdated = true;
+          }
+
+          // 更新があるなら艦隊再インスタンス化
+          if (isUpdated) {
+            manager.battleInfo.fleets[j] = new EnemyFleet({ fleet, enemies: newEnemies });
+          }
+        }
+      }
+    }
+  }
 }

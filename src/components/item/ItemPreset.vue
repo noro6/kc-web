@@ -26,8 +26,15 @@
           </div>
         </div>
         <div class="preset-view pl-2">
-          <div class="mt-5" v-if="!isPresetItemEmpty">
-            <v-text-field label="名称" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100"></v-text-field>
+          <div class="mt-5 d-flex" v-if="!isPresetItemEmpty">
+            <div>
+              <v-text-field label="名称" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100"></v-text-field>
+            </div>
+            <div>
+              <v-btn class="ml-1" color="success" :disabled="!selectedPreset.name" @click="savePreset()">{{
+                selectedIndex >= 0 ? "更新" : "保存"
+              }}</v-btn>
+            </div>
           </div>
           <div class="items-container pa-2" v-if="!isPresetItemEmpty">
             <div v-for="(item, i) in presetItemView" :key="`view${i}`" class="view-item">
@@ -55,9 +62,6 @@
           </div>
           <div class="d-flex my-3 justify-end" v-if="!isPresetItemEmpty">
             <v-btn v-if="selectedIndex >= 0" color="primary" @click="expandPreset()">展開</v-btn>
-            <v-btn class="ml-3" color="success" :disabled="!selectedPreset.name" @click="savePreset()">{{
-              selectedIndex >= 0 ? "更新" : "保存"
-            }}</v-btn>
             <v-btn class="ml-3" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">削除</v-btn>
           </div>
         </div>
@@ -137,12 +141,13 @@ import * as _ from 'lodash';
 import Ship from '@/classes/fleet/ship';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
+import Airbase from '@/classes/airbase/airbase';
 
 export default Vue.extend({
   name: 'ItemPreset',
   props: {
     value: {
-      type: Ship,
+      type: [Ship, Airbase],
       required: true,
     },
     handleExpandItemPreset: {
@@ -169,6 +174,9 @@ export default Vue.extend({
   },
   computed: {
     disabledRegist(): boolean {
+      if (this.value instanceof Airbase) {
+        return this.value.items.filter((v) => v.data.id > 0).length === 0;
+      }
       return this.value.items.concat(this.value.exItem).filter((v) => v.data.id > 0).length === 0;
     },
     presetItemView(): ItemMaster[] {
@@ -207,7 +215,9 @@ export default Vue.extend({
       newPreset.name = `装備プリセット${newPreset.id}`;
       // 装備id一覧
       newPreset.itemIds = this.value.items.map((v) => v.data.id);
-      newPreset.exItemId = this.value.exItem.data.id;
+      if (this.value instanceof Ship) {
+        newPreset.exItemId = this.value.exItem.data.id;
+      }
 
       this.selectedIndex = -1;
       this.selectedPreset = newPreset;
@@ -239,6 +249,7 @@ export default Vue.extend({
     expandPreset() {
       if (this.selectedPreset) {
         this.handleExpandItemPreset(this.selectedPreset);
+        this.handleClose();
       }
     },
   },

@@ -420,7 +420,7 @@ export default Vue.extend({
       if (this.tab !== 'fleet0') {
         this.tab = 'fleet0';
       }
-      const enemiesMaster = this.$store.state.enemies as EnemyMaster[];
+      const enemiesMaster = this.$store.getters.getEnemies as EnemyMaster[];
       const items = this.$store.state.items as ItemMaster[];
       const clickedCell = this.imgMapItems[index];
       if (!clickedCell) {

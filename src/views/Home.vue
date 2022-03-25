@@ -166,7 +166,7 @@ export default Vue.extend({
 
         const setting = strage.getItem('setting');
         const settingJSON = setting ? JSON.parse(setting) : undefined;
-        const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.state.enemies);
+        const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
         const oldData = converter.convertOldSimulatorToSaveData(presetJSON, settingJSON);
 
         if (oldData && oldData.childItems.length) {
