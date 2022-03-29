@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { initializeApp } from 'firebase/app';
+import { FirebaseApp, initializeApp } from 'firebase/app';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -17,6 +17,7 @@ import KcWebDatabase from '@/classes/db';
 import Ship from '@/classes/fleet/ship';
 import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import ItemPreset from '@/classes/item/itemPreset';
+import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
 
 Vue.use(Vuex);
 
@@ -40,6 +41,8 @@ export default new Vuex.Store({
     siteSetting: new SiteSetting(),
     kcWebDatabase: new KcWebDatabase(),
     completed: false,
+    firebase: undefined as undefined | FirebaseApp,
+    searchedList: [] as UploadedPreset[],
   },
   mutations: {
     setShips: (state, values: ShipMaster[]) => {
@@ -90,6 +93,12 @@ export default new Vuex.Store({
     completed: (state, value: boolean) => {
       state.completed = value;
     },
+    setFirebase: (state, value: FirebaseApp) => {
+      state.firebase = value;
+    },
+    setSearchedList: (state, values: UploadedPreset[]) => {
+      state.searchedList = values;
+    },
   },
   actions: {
     updateSaveData(context, value: SaveData) {
@@ -137,6 +146,9 @@ export default new Vuex.Store({
       context.state.kcWebDatabase.setting.put(value, 'setting');
       context.commit('updateSetting', value);
     },
+    setSearchedList(context, values: UploadedPreset[]) {
+      context.commit('setSearchedList', values);
+    },
     loadCellData: async (context) => {
       // ロード画面を入れる
       context.commit('completed', false);
@@ -172,8 +184,7 @@ export default new Vuex.Store({
         appId: '1:789701529106:web:3498f515937607158592cb',
         measurementId: 'G-90V5M1BZB9',
       };
-
-      initializeApp(firebaseConfig);
+      context.commit('setFirebase', initializeApp(firebaseConfig));
       getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
         const loading = axios.get(url)
           .then((response) => {

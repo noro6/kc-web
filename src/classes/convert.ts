@@ -622,20 +622,11 @@ export default class Convert {
       const dataString = raw[i].length >= 3 ? raw[i][2] : '';
 
       if (dataString) {
-        const decoded = LZStringMod.decompressFromEncodedURIComponent(dataString);
-        if (!decoded) {
+        // 各々復元
+        const manager = this.restoreOldSaveData(dataString);
+        if (!manager) {
           continue;
         }
-        const json = JSON.parse(decoded);
-
-        // 各々復元
-        const manager = new CalcManager();
-        const isDefense = !!json[4];
-        const admiralLevel = json[6] ? +json[6] : undefined;
-        manager.airbaseInfo = this.restoreAirbase(json[0], isDefense);
-        manager.fleetInfo = this.restoreFleet(json[1], admiralLevel);
-        manager.battleInfo = this.restoreEnemies(json[2], json[5]);
-
         saveData.tempData = [manager];
         saveData.tempIndex = 0;
         saveData.saveManagerData();
@@ -664,6 +655,24 @@ export default class Convert {
     }
 
     return importedRoot;
+  }
+
+  public restoreOldSaveData(dataString: string): CalcManager | undefined {
+    const decoded = LZStringMod.decompressFromEncodedURIComponent(dataString);
+    if (!decoded) {
+      return undefined;
+    }
+    const json = JSON.parse(decoded);
+
+    // 各々復元
+    const manager = new CalcManager();
+    const isDefense = !!json[4];
+    const admiralLevel = json[6] ? +json[6] : undefined;
+    manager.airbaseInfo = this.restoreAirbase(json[0], isDefense);
+    manager.fleetInfo = this.restoreFleet(json[1], admiralLevel);
+    manager.battleInfo = this.restoreEnemies(json[2], json[5]);
+
+    return manager;
   }
 
   /**

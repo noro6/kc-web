@@ -171,7 +171,9 @@
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
-          <v-btn class="ml-auto" style="text-transform: none"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
+          <v-btn class="ml-auto" style="text-transform: none" @click="openGkcoiPage()"
+            ><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn
+          >
         </div>
       </v-tab-item>
     </v-tabs-items>
@@ -1066,6 +1068,9 @@ export default Vue.extend({
         download.download = 'image.jpg';
         download.click();
       }
+    },
+    openGkcoiPage() {
+      window.open('https://github.com/Nishisonic/gkcoi/', '_blank');
     },
   },
 });

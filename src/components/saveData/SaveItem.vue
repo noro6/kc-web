@@ -64,7 +64,7 @@
     </v-dialog>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" :width="value.isDirectory ? 600 : 800">
       <v-card class="pa-3">
-        <div class="mx-4 mt-4">
+        <div class="mx-1 mt-3">
           <v-text-field
             v-model="editedName"
             dense

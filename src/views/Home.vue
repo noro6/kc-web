@@ -14,7 +14,7 @@
           <div class="mt-5 body-2">
             <div>本サイトの主要機能です。</div>
             <div class="mt-2">
-              基地航空隊や艦隊を構築し、実際に出撃する海域から敵艦隊を選択することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。
+              基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。
             </div>
           </div>
         </div>
@@ -30,12 +30,23 @@
             </div>
           </div>
         </div>
+        <div class="ma-4">
+          <v-btn x-large dark color="indigo" @click="$router.push('list')">
+            <v-icon>mdi-human-greeting-variant</v-icon>
+            <span class="ml-1">みんなの編成</span>
+          </v-btn>
+          <div class="mt-5 body-2">
+            <div>他の人がアップロードした編成データを閲覧できます。</div>
+          </div>
+        </div>
       </div>
       <v-divider class="my-3"></v-divider>
-      <div class="ma-4 pt-3">
-        <v-btn color="teal" @click="checkOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
-        <div class="mt-2 body-2">
-          旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
+      <div class="menu-buttons">
+        <div class="ma-4 pt-3">
+          <v-btn color="teal" @click="checkOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
+          <div class="mt-2 body-2">
+            旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
+          </div>
         </div>
       </div>
     </v-card>

@@ -17,56 +17,56 @@
     </div>
     <div class="item-status-grid mt-2">
       <div v-if="value.data.fire || value.bonusFire">
-        火力<span class="item-status-value" :class="{ 'bad-status': value.data.fire < 0 }">{{ value.data.fire }}</span>
+        <span class="item-status-text">火力</span><span class="item-status-value" :class="{ 'bad-status': value.data.fire < 0 }">{{ value.data.fire }}</span>
         <span v-if="value.bonusFire" class="remodel-bonus">&plus;{{ formatStatus(value.bonusFire) }} </span>
       </div>
       <div v-if="value.data.torpedo || value.bonusTorpedo">
-        雷装<span class="item-status-value" :class="{ 'bad-status': value.data.torpedo < 0 }">{{ value.data.torpedo }}</span>
+        <span class="item-status-text">雷装</span><span class="item-status-value" :class="{ 'bad-status': value.data.torpedo < 0 }">{{ value.data.torpedo }}</span>
         <span v-if="value.bonusTorpedo" class="remodel-bonus">&plus;{{ formatStatus(value.bonusTorpedo) }} </span>
       </div>
       <div v-if="value.data.bomber || value.bonusBomber">
-        爆装<span class="item-status-value" :class="{ 'bad-status': value.data.bomber < 0 }">{{ value.data.bomber }}</span>
+        <span class="item-status-text">爆装</span><span class="item-status-value" :class="{ 'bad-status': value.data.bomber < 0 }">{{ value.data.bomber }}</span>
         <span v-if="value.bonusBomber" class="remodel-bonus">&plus;{{ formatStatus(value.bonusBomber) }} </span>
       </div>
       <div v-if="value.data.antiAir || value.bonusAntiAir">
-        対空<span class="item-status-value" :class="{ 'bad-status': value.data.antiAir < 0 }">{{ value.data.antiAir }}</span>
+        <span class="item-status-text">対空</span><span class="item-status-value" :class="{ 'bad-status': value.data.antiAir < 0 }">{{ value.data.antiAir }}</span>
         <span v-if="value.bonusAntiAir" class="remodel-bonus">&plus;{{ formatStatus(value.bonusAntiAir) }} </span>
       </div>
       <div v-if="value.data.armor">
-        装甲<span class="item-status-value" :class="{ 'bad-status': value.data.armor < 0 }">{{ value.data.armor }}</span>
+        <span class="item-status-text">装甲</span><span class="item-status-value" :class="{ 'bad-status': value.data.armor < 0 }">{{ value.data.armor }}</span>
       </div>
       <div v-if="value.data.asw || value.bonusAsw">
-        対潜<span class="item-status-value" :class="{ 'bad-status': value.data.asw < 0 }">{{ value.data.asw }}</span>
+        <span class="item-status-text">対潜</span><span class="item-status-value" :class="{ 'bad-status': value.data.asw < 0 }">{{ value.data.asw }}</span>
         <span v-if="value.bonusAsw" class="remodel-bonus">&plus;{{ formatStatus(value.bonusAsw) }} </span>
       </div>
       <div v-if="value.data.avoid">
-        回避<span class="item-status-value" :class="{ 'bad-status': value.data.avoid < 0 }">{{ value.data.avoid }}</span>
+        <span class="item-status-text">回避</span><span class="item-status-value" :class="{ 'bad-status': value.data.avoid < 0 }">{{ value.data.avoid }}</span>
       </div>
       <div v-if="value.data.scout || value.bonusScout">
-        索敵<span class="item-status-value" :class="{ 'bad-status': value.data.scout < 0 }">{{ value.data.scout }}</span>
+        <span class="item-status-text">索敵</span><span class="item-status-value" :class="{ 'bad-status': value.data.scout < 0 }">{{ value.data.scout }}</span>
         <span v-if="value.bonusScout" class="remodel-bonus">&plus;{{ formatStatus(value.bonusScout) }} </span>
       </div>
       <div v-if="value.data.accuracy || value.bonusAccuracy">
-        命中<span class="item-status-value" :class="{ 'bad-status': value.data.accuracy < 0 }">{{ value.data.accuracy }}</span>
+        <span class="item-status-text">命中</span><span class="item-status-value" :class="{ 'bad-status': value.data.accuracy < 0 }">{{ value.data.accuracy }}</span>
         <span v-if="value.bonusAccuracy" class="remodel-bonus">&plus;{{ formatStatus(value.bonusAccuracy) }} </span>
       </div>
       <div v-if="value.data.antiBomber">
-        対爆<span class="item-status-value" :class="{ 'bad-status': value.data.antiBomber < 0 }">{{ value.data.antiBomber }}</span>
+        <span class="item-status-text">対爆</span><span class="item-status-value" :class="{ 'bad-status': value.data.antiBomber < 0 }">{{ value.data.antiBomber }}</span>
       </div>
       <div v-if="value.data.interception">
-        迎撃<span class="item-status-value" :class="{ 'bad-status': value.data.interception < 0 }">{{ value.data.interception }}</span>
+        <span class="item-status-text">迎撃</span><span class="item-status-value" :class="{ 'bad-status': value.data.interception < 0 }">{{ value.data.interception }}</span>
       </div>
       <div v-if="value.data.range">
-        射程<span class="item-status-value">{{ rangeText[value.data.range] }}</span>
+        <span class="item-status-text">射程</span><span class="item-status-value">{{ rangeText[value.data.range] }}</span>
       </div>
       <div v-if="value.data.radius">
-        半径<span class="item-status-value">{{ value.data.radius }}</span>
+        <span class="item-status-text">半径</span><span class="item-status-value">{{ value.data.radius }}</span>
       </div>
       <div v-if="value.enabledAttackLandbase">
-        対地<span class="item-status-value special caption">可</span>
+        <span class="item-status-text">対地</span><span class="item-status-value special caption">可</span>
       </div>
       <div v-if="value.data.avoidId">
-        射撃回避<span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
+        <span class="item-status-text">射撃回避</span><span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
       </div>
     </div>
   </div>
@@ -85,6 +85,10 @@
 .item-status-grid > div {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+.item-status-text {
+  display: inline-block;
+  width: 56px;
 }
 .item-status-value {
   width: 32px;

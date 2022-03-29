@@ -12,6 +12,31 @@
           prepend-inner-icon="mdi-magnify"
         ></v-text-field>
       </div>
+      <div class="ml-5 align-self-center filter-select">
+        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="filter()"></v-select>
+      </div>
+      <div class="align-self-center filter-value-select">
+        <v-menu
+          offset-y
+          :close-on-content-click="false"
+          transition="slide-y-transition"
+          bottom
+          right
+          v-model="filterStatusValueMenu"
+          @input="filter()"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field v-bind="attrs" v-on="on" dense v-model="filterStatusValue" hide-details readonly></v-text-field>
+          </template>
+          <v-card class="px-2">
+            <div class="d-flex px-2">
+              <v-text-field class="filter-value-input" type="number" max="99" min="0" v-model.number="filterStatusValue"></v-text-field>
+            </div>
+            <v-slider max="99" min="0" v-model="filterStatusValue"></v-slider>
+          </v-card>
+        </v-menu>
+      </div>
+      <div class="align-self-end caption">以上</div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
@@ -30,12 +55,12 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="d-flex pt-1 pb-2">
-      <div class="ml-4 align-self-center">
-        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="'敵装備'"></v-checkbox>
+    <div class="d-flex flex-wrap px-3">
+      <div class="align-self-center my-3">
+        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense label="敵装備"></v-checkbox>
       </div>
-      <div class="ml-3 align-self-center" v-if="itemStock.length && !isEnemyMode">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="'所持装備反映'"></v-checkbox>
+      <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense label="所持装備反映"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
     </div>
@@ -184,7 +209,20 @@
   height: 64vh;
 }
 .item-search-text {
-  width: 200px;
+  width: 160px;
+}
+
+.filter-select {
+  width: 100px;
+}
+.filter-value-select {
+  width: 40px;
+}
+.filter-value-select input {
+  text-align: right !important;
+}
+.filter-value-input {
+  width: 160px;
 }
 
 .type-selector {
@@ -410,6 +448,10 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
+    filterStatus: 'actualFire',
+    filterStatusItems: [] as { text: string; value: string }[],
+    filterStatusValue: 0,
+    filterStatusValueMenu: false,
   }),
   mounted() {
     const items = this.$store.state.items as ItemMaster[];
@@ -420,6 +462,10 @@ export default Vue.extend({
     this.avoidTexts[0] = '';
     this.setting = this.$store.state.siteSetting as SiteSetting;
     this.changeMultiLine(this.setting.isMultiLineForItemList);
+
+    for (let i = 0; i < this.headerItems.length; i += 1) {
+      this.filterStatusItems.push({ text: this.headerItems[i].text, value: this.headerItems[i].key });
+    }
   },
   computed: {
     enabledTypes() {
@@ -692,6 +738,24 @@ export default Vue.extend({
       }
 
       this.viewItems = viewItems;
+
+      if (this.filterStatus && this.filterStatusValue) {
+        const filterKey = this.filterStatus;
+        const value = this.filterStatusValue;
+        this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
+          if (
+            filterKey.indexOf('actual') >= 0
+            || filterKey === 'tp'
+            || filterKey === 'airPower'
+            || filterKey === 'defenseAirPower'
+            || filterKey === 'antiAirWeight'
+            || filterKey === 'antiAirBonus'
+          ) {
+            return v.item[filterKey] > value;
+          }
+          return (v.item.data as { [key: string]: number })[filterKey] > value;
+        });
+      }
 
       if (this.sortKey) {
         this.sortItems();

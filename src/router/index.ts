@@ -20,6 +20,11 @@ const routes: Array<RouteConfig> = [
     name: 'FleetManager',
     component: () => import('../views/FleetManager.vue'),
   },
+  {
+    path: '/list',
+    name: 'SaveDataList',
+    component: () => import('../views/SaveDataList.vue'),
+  },
 ];
 
 const router = new VueRouter({

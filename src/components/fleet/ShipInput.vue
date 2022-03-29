@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="ma-1 ship-input"
-    :class="{ disabled: !ship.isActive, 'py-2': !ship.isEmpty }"
+    :class="{ disabled: !ship.isActive, 'py-1': !ship.isEmpty }"
     @dragstart="dragStart($event)"
     @dragend="dragEnd($event)"
     @dragenter="dragEnter($event)"
@@ -118,7 +118,7 @@
           </div>
         </div>
         <!-- 艦娘解除 -->
-        <div class="ship-remove">
+        <div class="ship-remove mt-1">
           <v-btn icon @click="removeShip">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -223,9 +223,9 @@
           </div>
         </div>
       </div>
-      <v-divider class="mx-2"></v-divider>
+      <v-divider class="mx-1"></v-divider>
       <!-- 装備一覧 -->
-      <div class="px-2" v-if="!ship.isEmpty">
+      <div class="px-1" v-if="!ship.isEmpty">
         <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
           <item-input
             v-model="ship.items[j]"
