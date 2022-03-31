@@ -104,9 +104,12 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
       <v-card>
-        <div class="px-10 py-5">
-          <div class="my-5">
-            <div class="mb-2">カラーテーマ</div>
+        <div class="py-3 px-5">
+          <div class="d-flex mt-5">
+            <div class="caption">カラーテーマ</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3 mt-2">
             <v-btn
               @click="toggleSiteTheme(false)"
               color="grey"
@@ -128,21 +131,43 @@
               <span class="pr-2">Dark</span><v-icon>mdi-moon-waxing-crescent</v-icon>
             </v-btn>
           </div>
-          <v-divider></v-divider>
-          <div class="my-5">
-            <div>未保存の編成タブを閉じる際の挙動</div>
+          <div class="d-flex mt-5">
+            <div class="caption">未保存の編成タブを閉じる際の挙動</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3">
             <div class="d-flex">
               <v-checkbox v-model="setting.confirmCloseTab" hide-details dense label="確認ダイアログを表示する"></v-checkbox>
               <v-spacer></v-spacer>
             </div>
           </div>
-          <v-divider></v-divider>
-          <div class="my-5">
-            <div class="mb-1">装備選択時のデフォルト熟練度</div>
+          <div class="d-flex mt-5">
+            <div class="caption">装備選択時のデフォルト熟練度</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3">
             <div class="initial-level-items">
               <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
               <setting-initial-level :index="-1" :setting="setting" />
             </div>
+          </div>
+          <div class="d-flex mt-5">
+            <div class="caption">制空計算時のシミュレーション回数</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3">
+            <div>
+              <v-text-field
+                type="number"
+                max="100000"
+                min="100"
+                v-model.number="setting.simulationCount"
+                :rules="[rules.simulationCountRange]"
+              ></v-text-field>
+            </div>
+            <v-alert border="left" outlined type="warning" dense>
+              <div class="caption">数値が大きいほど制空計算の精度が上がりますが、計算時のパフォーマンスが低下します。</div>
+            </v-alert>
           </div>
         </div>
       </v-card>
@@ -219,6 +244,9 @@ export default Vue.extend({
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string },
     unsbscribe: undefined as unknown,
+    rules: {
+      simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
+    },
   }),
   computed: {
     completed() {
@@ -481,6 +509,14 @@ export default Vue.extend({
     toggleConfigDialog() {
       if (!this.configDialog) {
         // 設定保存
+
+        // へんなのチェック
+        if (this.setting.simulationCount > 100000) {
+          this.setting.simulationCount = 100000;
+        } else if (this.setting.simulationCount < 100) {
+          this.setting.simulationCount = 100;
+        }
+
         this.$store.dispatch('updateSetting', this.setting);
       }
     },
@@ -532,6 +568,13 @@ export default Vue.extend({
 .initial-level-items {
   display: grid;
   grid-template-columns: 1fr 1fr;
+}
+
+.header-divider {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 </style>
 

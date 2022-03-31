@@ -103,8 +103,8 @@ export default new Vuex.Store({
   actions: {
     updateSaveData(context, value: SaveData) {
       const minifyData = value.getMinifyData();
-      // root直下の非保存データを除去
-      minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
+      // root直下の非保存データを除去 => 中止 そのまま残す
+      // minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
       context.state.kcWebDatabase.savedata.put(minifyData);
 
       context.commit('updateSaveData', value);
@@ -246,6 +246,15 @@ export default new Vuex.Store({
         data.isReadonly = true;
         data.childItems[0].isOpen = true;
         data.childItems[0].isReadonly = true;
+
+        for (let i = 0; i < data.childItems.length; i += 1) {
+          const unsavedData = data.childItems[i];
+          // ディレクトリ以外は非保存データなので書き換え
+          if (!unsavedData.isDirectory) {
+            unsavedData.isUnsaved = true;
+            unsavedData.isActive = true;
+          }
+        }
 
         // なんかもうすでに入っていたら統合
         const alreadyChildFile = context.state.saveData.childItems.filter((v) => v.isUnsaved);

@@ -268,9 +268,9 @@ export default Vue.extend({
       }
     },
     addNewFile() {
-      // 新規データタブ追加
+      // 新規タブ追加
       const data = new SaveData();
-      data.name = `新規データ${this.saveData.childItems.length}`;
+      data.name = this.saveData.getNewSavedataName();
       data.isActive = true;
       // 追加先はルート直下
       this.saveData.childItems.push(data);

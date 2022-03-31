@@ -37,7 +37,7 @@ export default class CalcManager {
    * @return {*}  {Promise<void>}
    * @memberof CalcManager
    */
-  public async updateInfo(): Promise<void> {
+  public async updateInfo(simulationCount = 10000): Promise<void> {
     this.isDefense = this.airbaseInfo.isDefense;
     this.mainBattle = this.mainBattle < 0 ? 0 : this.mainBattle;
     console.time('mainCalculated');
@@ -47,21 +47,24 @@ export default class CalcManager {
       this.calculateDefenseMode();
     } else {
       // 通常モード計算
-      this.calculate();
+      this.calculate(simulationCount);
     }
     console.timeEnd('mainCalculated');
   }
 
-  private calculate(): void {
+  /**
+   * 計算実行
+   * @private
+   * @param {number} maxCount シミュレーション回数
+   * @memberof CalcManager
+   */
+  private calculate(maxCount: number): void {
     // 計算結果表示戦闘
     const { mainBattle } = this;
 
     // プロパティのみを取り出す
     const cloned = JSON.stringify(this);
     const calcInfo = JSON.parse(cloned) as CalcManager;
-
-    // 計算回数
-    const maxCount = 5000;
 
     // 計算対象の基地
     const airbases = calcInfo.airbaseInfo.airbases.filter((v) => v.mode === AB_MODE.BATTLE && v.items.find((i) => i.data.id > 0));

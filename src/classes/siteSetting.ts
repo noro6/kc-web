@@ -40,6 +40,9 @@ export default class SiteSetting {
   /** コンテンツ順序 id準拠 */
   public contentOrder: string[];
 
+  /** シミュ回数 */
+  public simulationCount: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -54,6 +57,7 @@ export default class SiteSetting {
       this.isMinimizedFleet = !!setting.isMinimizedFleet;
       this.isMinimizedEnemy = !!setting.isMinimizedEnemy;
       this.isMinimizedResult = !!setting.isMinimizedResult;
+      this.simulationCount = setting.simulationCount ? setting.simulationCount : 5000;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -89,6 +93,7 @@ export default class SiteSetting {
       this.isMinimizedFleet = false;
       this.isMinimizedEnemy = false;
       this.isMinimizedResult = false;
+      this.simulationCount = 5000;
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

@@ -78,7 +78,7 @@ export default class SaveData {
   /** 計算状態 アプリケーションで1つのみ */
   public isMain: boolean;
 
-  /** 保存されていないデータ 新規追加されたやつ アプリ終了時に消しとばす */
+  /** 保存されていないデータ 新規追加されたやつ アプリ終了時に消しとばす => 残すことになった */
   public isUnsaved: boolean;
 
   /** 読み取り専用 専らルートディレクトリ直下の「保存されたデータ」ディレクトリだけ */
@@ -183,6 +183,25 @@ export default class SaveData {
    */
   public get isEditted(): boolean {
     return this.tempSavedIndex !== this.tempIndex;
+  }
+
+  /**
+   * 自身に格納される予定の新しいデータについて、いい感じの名前を返却
+   * @return {*}  {string}
+   * @memberof SaveData
+   */
+  public getNewSavedataName(): string {
+    if (!this.isDirectory) {
+      return '';
+    }
+
+    const childs = this.childItems.filter((v) => v.name.startsWith('新規データ'));
+    const maxNumber = _.max(childs.map((v) => +v.name.replace(/[^0-9]/g, '')));
+
+    if (maxNumber !== undefined && maxNumber >= 0) {
+      return `新規データ${maxNumber + 1}`;
+    }
+    return '新規データ1';
   }
 
   /**

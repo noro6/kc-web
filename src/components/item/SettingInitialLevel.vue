@@ -45,7 +45,7 @@
 .item-name {
   width: 60px;
   flex-grow: 1;
-  font-size: 0.95em;
+  font-size: 0.8em;
 }
 .item-level {
   position: relative;

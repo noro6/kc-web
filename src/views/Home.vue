@@ -45,7 +45,8 @@
         <div class="ma-4 pt-3">
           <v-btn color="teal" @click="checkOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
           <div class="mt-2 body-2">
-            旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a>で作成していた編成データを引き継ぎます。
+            旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a
+            >で作成していた編成データを引き継ぎます。
           </div>
         </div>
       </div>
@@ -135,7 +136,7 @@ export default Vue.extend({
       } else {
         // ルートに無題のデータを生成
         const data = new SaveData();
-        data.name = `新規データ${saveData.childItems.length}`;
+        data.name = saveData.getNewSavedataName();
         data.isActive = true;
         data.isMain = true;
         saveData.childItems.push(data);

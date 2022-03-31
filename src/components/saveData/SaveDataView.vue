@@ -101,7 +101,7 @@ export default Vue.extend({
       this.addNewSaveData(data);
     },
     addNewDirectory() {
-      // 新規データ
+      // 新規フォルダー
       const folder = new SaveData();
       folder.name = '新しいフォルダー';
       folder.isDirectory = true;
@@ -124,7 +124,7 @@ export default Vue.extend({
       const folder = this.rootData.childItems.find((v) => v.isDirectory);
       if (folder) {
         if (!saveData.isDirectory) {
-          saveData.name = `新規データ${folder.childItems.filter((v) => !v.isDirectory).length + 1}`;
+          saveData.name = folder.getNewSavedataName();
         }
         folder.isOpen = true;
         folder.childItems.push(saveData);

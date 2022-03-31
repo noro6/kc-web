@@ -133,6 +133,7 @@ export default Vue.extend({
     stockData: undefined as undefined | SaveData,
     setting: new SiteSetting(),
     sortMode: false,
+    saveTriggerTimer: undefined as undefined | number,
   }),
   mounted() {
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
@@ -282,7 +283,7 @@ export default Vue.extend({
       }
       const manager = this.calcManager;
 
-      manager.updateInfo();
+      manager.updateInfo(this.setting.simulationCount);
       // 計算結果の格納
       const mainData = this.$store.state.mainSaveData as SaveData;
       const needPutHistory = !manager.fleetInfo.calculated || !manager.airbaseInfo.calculated || !manager.battleInfo.calculated;
@@ -302,6 +303,18 @@ export default Vue.extend({
       if (resultForm) {
         resultForm.displayBattle = this.calcManager.mainBattle;
         resultForm.tab = `battle${this.calcManager.mainBattle}`;
+      }
+
+      if (this.saveTriggerTimer) {
+        window.clearTimeout(this.saveTriggerTimer);
+      }
+      if (mainData.isUnsaved) {
+        // 未保存の編成だった場合、適当なタイミングでmanagerを更新しておく
+        this.saveTriggerTimer = window.setTimeout(() => {
+          mainData.saveManagerData();
+          const saveData = this.$store.state.saveData as SaveData;
+          this.$store.dispatch('updateSaveData', saveData);
+        }, 100);
       }
     },
     startContentOrder() {
