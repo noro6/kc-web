@@ -66,7 +66,7 @@
       </div>
       <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
-          <div class="caption">{{ typeData.typeName }}</div>
+          <div class="caption text--secondary">{{ typeData.typeName }}</div>
           <div class="type-divider-border"></div>
         </div>
         <div :class="{ multi: multiLine }">
@@ -78,8 +78,13 @@
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data)"
           >
-            <div>
-              <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120"></v-img>
+            <div class="ship-img">
+              <div>
+                <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
+              </div>
+              <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
+                <v-img :src="`./img/util/area${data.area}.png`"  height="40" width="28"/>
+              </div>
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
@@ -103,7 +108,7 @@
           </div>
         </div>
       </div>
-      <div v-show="ships.length === 0" class="caption text-center mt-10">艦娘が見つかりませんでした。</div>
+      <div v-show="ships.length === 0" class="body-2 text-center mt-10">探したけど見つからなかったよ&#128546;</div>
     </div>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3" v-if="confirmShip.ship">
@@ -197,6 +202,16 @@
 .ship-list > div {
   align-self: center;
 }
+
+.ship-img {
+  position: relative;
+}
+.area-banner {
+  position: absolute;
+  top: -4px;
+  left: 22px;
+}
+
 .ship-caption {
   font-size: 11px;
   margin-left: 0.1rem;
@@ -307,6 +322,7 @@ export default Vue.extend({
     daihatsuOK: false,
     naikateiOK: false,
     isReleaseExSlotOnly: false,
+    maxAreas: Const.EnabledAreaCount,
   }),
   mounted() {
     const existTypes: number[] = [];
@@ -420,7 +436,7 @@ export default Vue.extend({
               level: shipData.level,
               hp: shipData.improvement.hp + (shipData.level > 99 ? master.hp2 : master.hp),
               luck: shipData.improvement.luck + master.luck,
-              area: shipData.area,
+              area: shipData.area <= Const.EnabledAreaCount ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
             };
 
@@ -429,10 +445,10 @@ export default Vue.extend({
               continue;
             }
 
-            // id 練度 運 を見て配備済みかどうか判定
-            const usedIndex = usedShips.findIndex((v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck);
+            // id 練度 運 海域を見て配備済みかどうか判定
+            const usedIndex = usedShips.findIndex((v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck && v.area === viewShip.area);
             if (usedIndex >= 0) {
-              // 減らす
+              // 配備済みなら減らす
               viewShip.count = 0;
               usedShips = usedShips.filter((v, index) => index !== usedIndex);
             }

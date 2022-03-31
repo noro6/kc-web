@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="ma-4">
-          <v-btn x-large dark color="indigo" @click="$router.push('list')">
+          <v-btn x-large dark color="blue darken-4" @click="$router.push('list')">
             <v-icon>mdi-human-greeting-variant</v-icon>
             <span class="ml-1">みんなの編成</span>
           </v-btn>

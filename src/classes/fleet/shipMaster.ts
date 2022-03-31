@@ -125,10 +125,14 @@ export default class ShipMaster {
         // 装甲空母ならOK
         return type === SHIP_TYPE.CVB;
       }
-      // 15m二重測距儀+21号電探改二
-      if (item.id === 142) {
-        // 戦艦系ならOK
-        return type === SHIP_TYPE.FBB || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBV;
+      // 15m二重測距儀+21号電探改二 => 大前提は戦艦系のみ
+      if (item.id === 142 && (type === SHIP_TYPE.FBB || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBV)) {
+        const special = itemLink.find((v) => v.api_ship_id === this.id);
+        if (special && !special.api_equip_type.includes(13)) {
+          // 特定艦で大型電探が省かれていたらアウト
+          return false;
+        }
+        return true;
       }
       // 51cm連装砲系
       if (item.id === 128 || item.id === 281) {
@@ -153,7 +157,7 @@ export default class ShipMaster {
     // 補強増設枠
     if (isExpandSlot) {
       if (item.id === 34 || item.id === 87 || item.id === 534) {
-        // 缶を弾く
+        // 缶を弾く => タービンはOKのため
         return false;
       }
       // 艦娘特別装備枠マスタより解決できた場合は搭載可能
@@ -163,7 +167,7 @@ export default class ShipMaster {
       }
 
       // 潜水艦後部魚雷対応
-      if ((this.type === 13 || this.type === 14) && (item.id === 442 || item.id === 443)) {
+      if ((item.id === 442 || item.id === 443) && (this.type === SHIP_TYPE.SS || this.type === SHIP_TYPE.SSV)) {
         return true;
       }
 

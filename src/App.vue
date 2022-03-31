@@ -175,7 +175,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="shareDialog" transition="scroll-x-transition" width="400">
+    <v-dialog v-model="shareDialog" transition="scroll-x-transition" width="500">
       <share-dialog :handle-close="closeShareDialog" ref="shareDialog" />
     </v-dialog>
   </v-app>

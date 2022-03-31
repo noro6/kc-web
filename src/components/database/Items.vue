@@ -20,7 +20,6 @@
                 prepend-inner-icon="mdi-magnify"
               ></v-text-field>
               <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" label="未所持装備非表示"></v-checkbox>
-              <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" label="未所持装備のみ"></v-checkbox>
             </div>
             <div class="d-flex my-4">
               <div class="range-input">
@@ -378,7 +377,6 @@ export default Vue.extend({
     itemStock: [] as ItemStock[],
     searchWord: '',
     onlyStock: false,
-    onlyNoStock: false,
     visibleAllCount: true,
     remodelRange: [0, 10],
     selectedTypes: [] as number[],
@@ -507,7 +505,7 @@ export default Vue.extend({
 
           if (filteredItems.length) {
             viewRow.items.push({ master, details: filteredItems, allCount: _.sum(filteredItems.map((v) => v.count)) });
-          } else if (minRemodel === 0 && allCount === 0) {
+          } else if (minRemodel === 0 && allCount === 0 && !this.onlyStock) {
             // 元から0ならそのまま投入
             viewRow.items.push(items[j]);
           }

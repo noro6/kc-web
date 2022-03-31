@@ -690,6 +690,7 @@ export default Vue.extend({
         hp: viewShip.hp,
         level: viewShip.level,
         luck: viewShip.luck,
+        area: viewShip.area,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新

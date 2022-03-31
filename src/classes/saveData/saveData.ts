@@ -13,6 +13,7 @@ import Item from '../item/item';
 import ShipMaster from '../fleet/shipMaster';
 import EnemyMaster from '../enemy/enemyMaster';
 import ItemMaster from '../item/itemMaster';
+import Const from '../const';
 
 interface SavedItem {
   /** 装備id */
@@ -42,6 +43,8 @@ interface SavedShip {
   ac?: boolean,
   /** 随伴かどうか */
   es?: boolean,
+  /** 札 */
+  ar?: number,
 }
 
 export default class SaveData {
@@ -443,6 +446,7 @@ export default class SaveData {
         } as SavedShip;
         if (v.luck) data.lu = v.luck;
         if (v.level) data.lv = v.level;
+        if (v.area > 0 && v.area <= Const.EnabledAreaCount) data.ar = v.area;
         if (v.exItem) data.ex = v.exItem;
         if (v.antiAir) data.aa = v.antiAir;
         return data;
@@ -603,14 +607,15 @@ export default class SaveData {
 
         // 現行マスタから艦娘情報を取得
         const shipMaster = shipMasters.find((v) => v.id === ship.i);
+        const area = ship.ar && ship.ar <= Const.EnabledAreaCount ? ship.ar : undefined;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…
           ships.push(new Ship({
-            items, exItem: expandItem, level: ship.lv, isEscort: ship.es,
+            items, exItem: expandItem, level: ship.lv, isEscort: ship.es, area,
           }));
         }
       }
@@ -635,12 +640,12 @@ export default class SaveData {
     // 空襲敵艦隊復元
     if (manager.battleInfo.airRaidFleet) {
       const ships = [];
-      const { enemies } = manager.battleInfo.airRaidFleet;
+      const { enemies, formation, cellType } = manager.battleInfo.airRaidFleet;
       for (let i = 0; i < enemies.length; i += 1) {
         const enemy = enemies[i] as unknown as SavedShip;
         ships.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
       }
-      const airRaidFleet = new EnemyFleet({ enemies: ships });
+      const airRaidFleet = new EnemyFleet({ enemies: ships, formation, cellType });
       manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet });
     } else {
       manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet: new EnemyFleet() });
@@ -702,6 +707,29 @@ export default class SaveData {
           // 更新があるなら艦隊再インスタンス化
           if (isUpdated) {
             manager.battleInfo.fleets[j] = new EnemyFleet({ fleet, enemies: newEnemies });
+          }
+        }
+
+        // 空襲編成も
+        if (manager.battleInfo.airRaidFleet.enemies.length) {
+          const fleet = manager.battleInfo.airRaidFleet;
+          const newEnemies = [];
+          let isUpdated = false;
+          for (let k = 0; k < fleet.enemies.length; k += 1) {
+            const enemy = fleet.enemies[k];
+            if (enemy.data.id !== enemyMaster.id) {
+              newEnemies.push(enemy);
+              continue;
+            }
+            // 更新対象敵艦だった場合 => 再インスタンス化
+            const newEnemy = Enemy.createEnemyFromMaster(enemyMaster, enemy.isEscort, items);
+            newEnemies.push(newEnemy);
+            isUpdated = true;
+          }
+
+          // 更新があるなら艦隊再インスタンス化
+          if (isUpdated) {
+            manager.battleInfo = new BattleInfo({ info: manager.battleInfo, airRaidFleet: new EnemyFleet({ fleet, enemies: newEnemies }) });
           }
         }
       }

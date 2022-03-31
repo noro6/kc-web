@@ -26,7 +26,9 @@ export interface ShipBuilder {
   /** 随伴艦フラグ */
   isEscort?: boolean;
   /** 有効フラグ */
-  isActive?: boolean
+  isActive?: boolean;
+  /** 出撃海域 */
+  area?: number;
 }
 
 export default class Ship implements ShipBase {
@@ -83,6 +85,9 @@ export default class Ship implements ShipBase {
 
   /** 輸送量 */
   public readonly tp: number;
+
+  /** 出撃海域 */
+  public readonly area: number;
 
   /** 噴進弾幕率 */
   public readonly hunshinRate: number;
@@ -149,6 +154,7 @@ export default class Ship implements ShipBase {
       this.isActive = builder.isActive !== undefined ? builder.isActive : builder.ship.isActive;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : builder.ship.isEscort;
       this.hp = builder.hp !== undefined ? builder.hp : builder.ship.hp;
+      this.area = builder.area !== undefined ? Math.max(builder.area) : Math.max(builder.ship.area);
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -159,6 +165,7 @@ export default class Ship implements ShipBase {
       this.isActive = builder.isActive !== undefined ? builder.isActive : true;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
       this.hp = builder.hp !== undefined ? builder.hp : this.data.hp;
+      this.area = builder.area !== undefined ? Math.max(builder.area) : 0;
     }
 
     // 装備数をマスタのスロット数に合わせる

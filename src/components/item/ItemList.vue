@@ -30,9 +30,9 @@
           </template>
           <v-card class="px-2">
             <div class="d-flex px-2">
-              <v-text-field class="filter-value-input" type="number" max="99" min="0" v-model.number="filterStatusValue"></v-text-field>
+              <v-text-field class="filter-value-input" type="number" max="30" min="0" v-model.number="filterStatusValue"></v-text-field>
             </div>
-            <v-slider max="99" min="0" v-model="filterStatusValue"></v-slider>
+            <v-slider max="30" min="0" v-model="filterStatusValue"></v-slider>
           </v-card>
         </v-menu>
       </div>
@@ -78,103 +78,109 @@
     </div>
     <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
     <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
-      <div :class="{ multi: multiLine }">
-        <div v-if="!multiLine && viewItems.length" class="item-status-header pr-3">
-          <div
-            class="item-status"
-            v-for="(data, i) in headerItems"
-            :key="`item${i}`"
-            @click="toggleSortKey(data.key)"
-            :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
-            v-show="isShow(data.key, selectedType.viewStatus)"
-          >
-            <div><v-icon small>mdi-chevron-down</v-icon>{{ data.text }}</div>
-          </div>
-          <div
-            class="item-status"
-            @click="toggleSortKey('airPower')"
-            :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
-            v-show="isShow('airPower', selectedType.viewStatus)"
-          >
-            <div class="d-flex">
-              <div class="align-self-center ml-auto">
-                <v-icon small>mdi-chevron-down</v-icon>
-              </div>
-              <div>
-                <div class="mr-1">制空</div>
-                <div>({{ slot }}機)</div>
-              </div>
+      <div v-if="!multiLine && viewItems.length" class="item-status-header pr-3">
+        <div
+          class="item-status"
+          v-for="(data, i) in headerItems"
+          :key="`item${i}`"
+          @click="toggleSortKey(data.key)"
+          :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
+          v-show="isShow(data.key, selectedType.viewStatus)"
+        >
+          <div><v-icon small>mdi-chevron-down</v-icon>{{ data.text }}</div>
+        </div>
+        <div
+          class="item-status"
+          @click="toggleSortKey('airPower')"
+          :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
+          v-show="isShow('airPower', selectedType.viewStatus)"
+        >
+          <div class="d-flex">
+            <div class="align-self-center ml-auto">
+              <v-icon small>mdi-chevron-down</v-icon>
             </div>
-          </div>
-          <div
-            class="item-status"
-            @click="toggleSortKey('defenseAirPower')"
-            :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
-            v-show="isShow('defenseAirPower', selectedType.viewStatus)"
-          >
-            <div class="d-flex">
-              <div class="align-self-center ml-auto">
-                <v-icon small>mdi-chevron-down</v-icon>
-              </div>
-              <div>
-                <div>防空制空</div>
-                <div>({{ slot }}機)</div>
-              </div>
+            <div>
+              <div class="mr-1">制空</div>
+              <div>({{ slot }}機)</div>
             </div>
           </div>
         </div>
         <div
-          v-for="(v, i) in viewItems"
-          :key="i"
-          v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
-          class="list-item"
-          :class="{ 'px-3': !multiLine, 'no-stock': !v.count }"
-          @click="clickedItem(v)"
-          @mouseenter="bootTooltip(v.item, $event)"
-          @mouseleave="clearTooltip"
+          class="item-status"
+          @click="toggleSortKey('defenseAirPower')"
+          :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
+          v-show="isShow('defenseAirPower', selectedType.viewStatus)"
         >
-          <div>
-            <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="24" width="24"></v-img>
-          </div>
-          <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
-            {{ v.item.data.name }}
-          </div>
-          <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
-            <v-icon small color="teal accent-4">mdi-star</v-icon>
-            <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
-          </div>
-          <div class="item-count red--text caption" v-if="isStockOnly && !isEnemyMode">
-            <span>&times;</span>
-            <span>{{ v.count }}</span>
-          </div>
-          <template v-if="!multiLine">
-            <div class="item-status" v-show="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
-            <div class="item-status" v-show="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
-            <div class="item-status" v-show="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
-            <div class="item-status" v-show="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
-            <div class="item-status" v-show="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
-            <div class="item-status" v-show="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
-            <div class="item-status" v-show="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
-            <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
-            <div class="item-status" v-show="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
-            <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
-            <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
-            <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
-            <div class="item-status" v-show="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
-            <div class="item-status" v-show="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
-            <div class="item-status" v-show="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
-            <div class="item-status" v-show="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
-            <div class="item-status" v-show="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
-            <div class="item-status" v-show="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
-            <div class="item-status" v-show="isShowAvoidText">{{ avoidTexts[v.item.data.avoidId] }}</div>
-            <div class="item-status" v-show="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
-            <div class="item-status" v-show="isShowDefAirPower">
-              {{ v.item.defenseAirPower ? v.item.defenseAirPower : "" }}
+          <div class="d-flex">
+            <div class="align-self-center ml-auto">
+              <v-icon small>mdi-chevron-down</v-icon>
             </div>
-          </template>
+            <div>
+              <div>防空制空</div>
+              <div>({{ slot }}機)</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div v-show="viewItems.length === 0" class="caption text-center mt-10">搭載可能な装備が見つかりませんでした。</div>
+      <div v-for="(data, i) in itemListData" :key="i">
+        <div class="type-divider" v-if="multiLine">
+          <div class="caption text--secondary">{{ data.typeName }}</div>
+          <div class="type-divider-border"></div>
+        </div>
+        <div class="type-item-container" :class="{ multi: multiLine }">
+          <div
+            v-for="(v, i) in data.items"
+            :key="i"
+            v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
+            class="list-item"
+            :class="{ 'px-3': !multiLine, 'no-stock': !v.count }"
+            @click="clickedItem(v)"
+            @mouseenter="bootTooltip(v.item, $event)"
+            @mouseleave="clearTooltip"
+          >
+            <div>
+              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+            </div>
+            <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
+              {{ v.item.data.name }}
+            </div>
+            <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
+            </div>
+            <div class="item-count red--text caption" v-if="isStockOnly && !isEnemyMode">
+              <span>&times;</span>
+              <span>{{ v.count }}</span>
+            </div>
+            <template v-if="!multiLine">
+              <div class="item-status" v-show="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
+              <div class="item-status" v-show="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
+              <div class="item-status" v-show="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
+              <div class="item-status" v-show="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
+              <div class="item-status" v-show="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
+              <div class="item-status" v-show="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
+              <div class="item-status" v-show="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
+              <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
+              <div class="item-status" v-show="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
+              <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
+              <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
+              <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
+              <div class="item-status" v-show="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
+              <div class="item-status" v-show="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
+              <div class="item-status" v-show="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
+              <div class="item-status" v-show="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
+              <div class="item-status" v-show="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
+              <div class="item-status" v-show="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
+              <div class="item-status" v-show="isShowAvoidText">{{ avoidTexts[v.item.data.avoidId] }}</div>
+              <div class="item-status" v-show="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
+              <div class="item-status" v-show="isShowDefAirPower">
+                {{ v.item.defenseAirPower ? v.item.defenseAirPower : "" }}
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">探したけど見つからなかったよ&#128546;</div>
     </div>
     <v-tooltip
       v-model="enabledTooltip"
@@ -251,22 +257,34 @@
   align-self: center;
 }
 
-.multi {
+.type-divider {
+  margin-top: 1.25rem;
+  display: flex;
+  width: 100%;
+}
+.type-divider-border {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.type-item-container.multi {
   display: grid;
   grid-template-columns: 1fr;
 }
 @media (min-width: 600px) {
-  .multi {
+  .type-item-container.multi {
     grid-template-columns: 1fr 1fr;
   }
 }
 @media (min-width: 880px) {
-  .multi {
+  .type-item-container.multi {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
 @media (min-width: 1100px) {
-  .multi {
+  .type-item-container.multi {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
@@ -468,6 +486,26 @@ export default Vue.extend({
     }
   },
   computed: {
+    itemListData(): { typeName: string; items: { item: Item; count: number }[] }[] {
+      const targetItems = this.viewItems;
+      if (this.multiLine) {
+        // 種別に応じて分けたい
+        const types = Const.ITEM_API_TYPE;
+        const resultItems = [];
+        for (let i = 0; i < types.length; i += 1) {
+          const type = types[i];
+          const items = targetItems.filter((v) => v.item.data.apiTypeId === type.id);
+          if (items.length) {
+            // 存在する艦型を生成
+            resultItems.push({ typeName: type.name, items });
+          }
+        }
+        return resultItems;
+      }
+
+      // 複数列モードじゃないならなかよし
+      return [{ typeName: '', items: targetItems }];
+    },
     enabledTypes() {
       const apis = this.baseItems.map((v) => v.apiTypeId);
       const enableds = [];
@@ -751,9 +789,9 @@ export default Vue.extend({
             || filterKey === 'antiAirWeight'
             || filterKey === 'antiAirBonus'
           ) {
-            return v.item[filterKey] > value;
+            return v.item[filterKey] >= value;
           }
-          return (v.item.data as { [key: string]: number })[filterKey] > value;
+          return (v.item.data as { [key: string]: number })[filterKey] >= value;
         });
       }
 

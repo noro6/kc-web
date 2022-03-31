@@ -183,6 +183,20 @@
               <v-divider class="mt-2"></v-divider>
             </template>
           </v-select>
+          <div class="d-flex">
+            <div
+              v-for="i in maxAreas"
+              :key="`area${i}`"
+              class="selected-area-btn align-self-center"
+              :class="{ selected: selectedArea.includes(i) }"
+              @click="clickedArea(i)"
+            >
+              <v-img :src="`./img/util/area${i}.png`" height="68" width="47"></v-img>
+            </div>
+            <div class="selected-area-btn no-area align-self-center" :class="{ selected: visibleNoArea }" @click="clickedArea(-1)">
+              札なし
+            </div>
+          </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -531,6 +545,18 @@
   }
 }
 
+.no-area {
+  font-size: 0.8em;
+  border: 3px solid rgba(128, 128, 128, 0.6);
+  -ms-writing-mode: tb-rl;
+  writing-mode: vertical-rl;
+  padding: 0.5rem 0.15rem;
+  border-radius: 0.25rem;
+  margin-left: 1rem;
+  transform: rotate(15deg);
+  text-align: center;
+}
+
 .ship-tr {
   display: flex;
   cursor: pointer;
@@ -856,6 +882,8 @@ export default Vue.extend({
     allCount: 0,
     modeTable: true,
     setting: new SiteSetting(),
+    selectedArea: [] as number[],
+    visibleNoArea: true,
   }),
   mounted() {
     // 全データ取得
@@ -912,6 +940,10 @@ export default Vue.extend({
 
     this.setting = this.$store.state.siteSetting as SiteSetting;
     this.changeViewMode(this.setting.viewTableMode);
+
+    for (let i = 0; i <= this.maxAreas; i += 1) {
+      this.selectedArea.push(i);
+    }
   },
   computed: {
     selectedAllType(): boolean {
@@ -1087,6 +1119,9 @@ export default Vue.extend({
             if (this.isKamisha && !this.okKamisha.includes(master.id)) continue;
             // 補強増設開放で絞る
             if (this.onlyReleaseExSlot && !stockData.releaseExpand) continue;
+            // 出撃海域で絞る
+            if (!this.visibleNoArea && stockData.area < 1) continue;
+            if (this.selectedArea.length && !this.selectedArea.includes(stockData.area)) continue;
 
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
             pushedData.push({
@@ -1153,6 +1188,17 @@ export default Vue.extend({
 
         this.masterFilter();
       });
+    },
+    clickedArea(i: number) {
+      if (i === -1) {
+        this.visibleNoArea = !this.visibleNoArea;
+      } else if (this.selectedArea.includes(i)) {
+        this.selectedArea = this.selectedArea.filter((v) => v !== i);
+      } else {
+        this.selectedArea.push(i);
+      }
+
+      this.filter();
     },
     scrollTop() {
       const page = document.getElementsByClassName('v-pagination')[0] as HTMLUListElement;

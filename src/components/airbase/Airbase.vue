@@ -16,7 +16,7 @@
               <v-icon small>mdi-briefcase-variant</v-icon>
             </v-btn>
           </template>
-          <span>装備プリセット展開【機能作成中】</span>
+          <span>装備プリセット</span>
         </v-tooltip>
         <v-btn icon small @click="resetItems">
           <v-icon small>mdi-trash-can-outline</v-icon>

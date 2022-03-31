@@ -9,9 +9,17 @@
     </div>
     <v-divider></v-divider>
     <div class="pa-4">
-      <div class="my-8">
-        <v-btn v-show="!createdURL" block color="teal" class="white--text" :loading="loadingURL" :disabled="loadingURL" @click="createURL">
-          共有URLを生成
+      <div class="mb-8 mt-4">
+        <v-btn
+          v-show="!createdURL"
+          block
+          color="teal"
+          class="white--text"
+          :loading="loadingURL"
+          :disabled="loadingURL"
+          @click="createURL()"
+        >
+          <v-icon>mdi-web</v-icon>共有URLを生成
         </v-btn>
         <v-text-field
           id="createdURL"
@@ -25,6 +33,19 @@
           @click:append="copyURL"
           @blur="clearURLHint"
         ></v-text-field>
+      </div>
+      <div class="my-8">
+        <v-btn
+          block
+          color="blue"
+          class="white--text"
+          @click="shareTwitter()"
+          :loading="loadingTwitter"
+          :disabled="loadingTwitter"
+          style="text-transform: none"
+        >
+          <v-icon>mdi-twitter</v-icon>Twitterで共有
+        </v-btn>
       </div>
       <!-- <div class="my-8">
         <v-btn
@@ -42,14 +63,14 @@
       <div class="my-8">
         <v-btn
           block
-          color="blue darken-3"
+          color="blue darken-4"
           class="white--text"
           style="text-transform: none"
           :disabled="!deckBuilder"
           :href="`https://jervis.vercel.app/?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"
         >
-          作戦室 Jervis ORで開く
+          <v-icon>mdi-anchor</v-icon>作戦室で開く
         </v-btn>
       </div>
       <div class="my-8">
@@ -82,7 +103,12 @@
   </v-card>
 </template>
 
-<style scoped></style>
+<style scoped>
+html {
+  color: rgb(94, 193, 255);
+  color: rgb(100, 181, 246);
+}
+</style>
 
 <script lang="ts">
 import Vue from 'vue';
@@ -100,6 +126,7 @@ export default Vue.extend({
   },
   data: () => ({
     loadingURL: false,
+    loadingTwitter: false,
     createdURL: '',
     copiedURLHint: '',
     copiedDeckHint: '',
@@ -184,6 +211,37 @@ export default Vue.extend({
     },
     clearDeckHint() {
       this.copiedDeckHint = '';
+    },
+    shareTwitter() {
+      this.loadingTwitter = true;
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return;
+      }
+      if (!saveData.tempData[saveData.tempIndex]) {
+        return;
+      }
+      const { location } = document;
+      const url = `${location.protocol}//${location.host}${location.pathname}?data=${saveData.createURLSaveDataString()}`;
+      const data = {
+        longDynamicLink: `https://aircalc.page.link/?link=${url}`,
+        suffix: { option: 'SHORT' },
+      };
+
+      fetch(`https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${Const.ApiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).then((response) => {
+        response.json().then((json) => {
+          if (json.error || !json.shortLink) {
+            this.loadingTwitter = false;
+          } else {
+            this.loadingTwitter = false;
+            window.open(`https://twitter.com/share?url=${json.shortLink}`);
+          }
+        });
+      });
     },
   },
 });

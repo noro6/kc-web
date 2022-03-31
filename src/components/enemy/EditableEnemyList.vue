@@ -208,7 +208,6 @@ export default Vue.extend({
       this.enemyListDialog = true;
     },
     putEnemy(enemy: EnemyMaster) {
-      this.enemyListDialog = false;
       if (enemy && enemy.id) {
         this.editingEnemy = Enemy.createEnemyFromMaster(_.cloneDeep(enemy), false, this.items);
         this.enemyEditDialog = true;

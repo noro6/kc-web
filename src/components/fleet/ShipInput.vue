@@ -17,7 +17,12 @@
     <template v-else>
       <div class="d-flex ship-header px-2">
         <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
-          <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+          <div class="ship-img">
+            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+          </div>
+          <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
+            <v-img :src="`./img/util/area${ship.area}.png`" height="40" width="28" />
+          </div>
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">
@@ -194,7 +199,7 @@
                 <v-icon>mdi-upload</v-icon>
               </v-btn>
             </template>
-            <span>一時保存艦娘リスト展開</span>
+            <span>一時保存艦娘リスト</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -202,7 +207,7 @@
                 <v-icon>mdi-briefcase-variant</v-icon>
               </v-btn>
             </template>
-            <span>装備プリセット展開【機能作成中】</span>
+            <span>装備プリセット展開</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -321,6 +326,15 @@
   margin-left: 1rem;
 }
 
+.ship-img {
+  position: relative;
+}
+.area-banner {
+  position: absolute;
+  top: 0px;
+  left: 28px;
+}
+
 .ship-name {
   flex-grow: 1;
   width: 100px;
@@ -414,6 +428,7 @@ import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip },
@@ -469,6 +484,7 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     rangeText: ['', '短', '中', '長', '超長', '超長+'],
+    maxAreas: Const.EnabledAreaCount,
   }),
   computed: {
     ship(): Ship {
