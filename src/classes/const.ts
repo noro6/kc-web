@@ -772,7 +772,6 @@ export default class Const {
    * @memberof Const
    */
   public static readonly WORLDS = [
-    { value: 53, text: '発令！「捷三号作戦警戒」(2022冬イベ)' },
     { value: 1, text: '1: 鎮守府海域' },
     { value: 2, text: '2: 南西諸島海域' },
     { value: 3, text: '3: 北方海域' },
@@ -787,6 +786,7 @@ export default class Const {
     { value: 50, text: '激突！ルンガ沖夜戦(2021春イベ)' },
     { value: 51, text: '増援輸送作戦！地中海の戦い(2021夏イベ)' },
     { value: 52, text: '海上護衛！本土近海航路の防衛(2021秋イベ)' },
+    { value: 53, text: '発令！「捷三号作戦警戒」(2022冬イベ)' },
   ];
 
   public static readonly MAPS = [

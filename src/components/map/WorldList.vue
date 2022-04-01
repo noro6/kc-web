@@ -297,7 +297,7 @@ export default Vue.extend({
     areas: Const.MAPS,
     area: 11,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 531,
+    selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,

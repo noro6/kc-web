@@ -134,7 +134,7 @@ export default Vue.extend({
   components: {},
   data: () => ({
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 531,
+    selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     savedata: [] as UploadedPreset[],
