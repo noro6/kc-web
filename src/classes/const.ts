@@ -501,13 +501,13 @@ export default class Const {
    */
   public static readonly ITEM_TYPES_ALT = [
     {
-      id: 1, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
+      id: 1, text: '小口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
     },
     {
       id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [2],
     },
     {
-      id: 3, text: '小口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
+      id: 3, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
     },
     {
       id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'avoid', 'airPower', 'radius'], types: [6],

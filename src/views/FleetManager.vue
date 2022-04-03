@@ -119,10 +119,10 @@
               </div>
             </div>
           </v-card>
-          <v-card class="tutorial_box">
-            <div>8. 下記の反映エリアに、手順7.でコピーされた艦隊情報を貼り付けて「在籍艦娘反映」を押下</div>
-            <v-textarea v-model.trim="inputText" outlined dense hide-details no-resize label="反映エリア"></v-textarea>
-            <v-btn class="mt-2" color="primary" @click="readJson()">在籍艦娘反映</v-btn>
+          <v-card class="tutorial_box ">
+            <div>8. 下記の反映エリアに、手順7.でコピーされた文字列を貼り付けて「反映」を押下</div>
+            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize label="反映エリア"></v-textarea>
+            <v-btn class="mt-4" color="primary" block @click="readJson()">反映</v-btn>
           </v-card>
         </div>
       </v-tab-item>
