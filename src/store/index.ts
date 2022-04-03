@@ -171,6 +171,24 @@ export default new Vuex.Store({
         Promise.all(loader).then(() => {
           context.commit('completed', true);
         });
+      }).catch((error) => {
+        console.error(error);
+        const loadCell = axios.get('./master_bk/cells.json')
+          .then((response) => {
+            const cells: CellMaster[] = [];
+            const masters = response.data.patterns;
+            for (let i = 0; i < masters.length; i += 1) {
+              cells.push(new CellMaster(masters[i] as RawCell));
+            }
+            context.commit('setCells', cells);
+          })
+          .catch((error2) => {
+            console.error(error2);
+          });
+        const loader = [loadCell];
+        Promise.all(loader).then(() => {
+          context.commit('completed', true);
+        });
       });
     },
     loadData: async (context) => {
@@ -228,6 +246,56 @@ export default new Vuex.Store({
           })
           .catch((error) => {
             console.error(error);
+          });
+
+        const loader = [loading];
+        Promise.all(loader).then(() => {
+          context.commit('completed', true);
+        });
+      }).catch((error) => {
+        console.error(error);
+        const loading = axios.get('./master_bk/master.json')
+          .then((response) => {
+            if (response.status !== 200 || !response.data) {
+              return;
+            }
+            const master = response.data as Master;
+            // 装備情報
+            const masterItems = master.items;
+            const items: ItemMaster[] = [];
+            for (let i = 0; i < masterItems.length; i += 1) {
+              const item = new ItemMaster(masterItems[i]);
+              if (item.id) {
+                items.push(item);
+              }
+            }
+            // 艦娘情報
+            const masterShips = master.ships;
+            const ships: ShipMaster[] = [];
+            for (let i = 0; i < masterShips.length; i += 1) {
+              const ship = new ShipMaster(masterShips[i]);
+              if (ship.id) {
+                ships.push(ship);
+              }
+            }
+            // 装備情報
+            const masterEnemies = master.enemies;
+            const enemies: EnemyMaster[] = [];
+            for (let i = 0; i < masterEnemies.length; i += 1) {
+              const enemy = new EnemyMaster(masterEnemies[i]);
+              if (enemy.id) {
+                enemies.push(enemy);
+              }
+            }
+
+            context.commit('setItems', items);
+            context.commit('setShips', ships);
+            context.commit('setEnemies', enemies);
+            context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
+            context.commit('setEquipShips', master.api_mst_equip_ship);
+          })
+          .catch((error3) => {
+            console.error(error3);
           });
 
         const loader = [loading];
