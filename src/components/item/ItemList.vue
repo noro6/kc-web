@@ -66,6 +66,14 @@
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector d-flex"
+        :class="{ active: type === -1, disabled: keyword }"
+        @click="changeType(-1)"
+      >
+        <div class="type-all-text">ALL</div>
+      </div>
+      <div
         v-for="i in enabledTypes"
         :key="i.id"
         v-ripple="{ class: 'info--text' }"
@@ -85,7 +93,7 @@
           :key="`item${i}`"
           @click="toggleSortKey(data.key)"
           :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
-          v-show="isShow(data.key, selectedType.viewStatus)"
+          v-show="isShow(data.key, viewStatus)"
         >
           <div><v-icon small>mdi-chevron-down</v-icon>{{ data.text }}</div>
         </div>
@@ -93,7 +101,7 @@
           class="item-status"
           @click="toggleSortKey('airPower')"
           :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
-          v-show="isShow('airPower', selectedType.viewStatus)"
+          v-show="isShow('airPower', viewStatus)"
         >
           <div class="d-flex">
             <div class="align-self-center ml-auto">
@@ -109,7 +117,7 @@
           class="item-status"
           @click="toggleSortKey('defenseAirPower')"
           :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
-          v-show="isShow('defenseAirPower', selectedType.viewStatus)"
+          v-show="isShow('defenseAirPower', viewStatus)"
         >
           <div class="d-flex">
             <div class="align-self-center ml-auto">
@@ -238,7 +246,7 @@
   transition: 0.2s;
 }
 .type-selector:hover {
-  background-color: rgba(128, 128, 128, 0.2);
+  background-color: rgba(128, 200, 255, 0.2);
 }
 .type-selector.active {
   border-color: rgba(33, 150, 243, 0.4);
@@ -420,6 +428,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
+    itemParent: undefined as undefined | Ship | Airbase | Enemy,
     all: [] as ItemMaster[],
     baseItems: [] as ItemMaster[],
     types: Const.ITEM_TYPES_ALT,
@@ -431,7 +440,7 @@ export default Vue.extend({
     isStockOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
-    selectedType: Const.ITEM_TYPES_ALT[0],
+    viewStatus: Const.ITEM_TYPES_ALT[0].viewStatus,
     setting: new SiteSetting(),
     sortKey: '',
     isDesc: false,
@@ -521,67 +530,67 @@ export default Vue.extend({
       return (key: string, items: string[]) => items.includes(key);
     },
     isShowFire(): boolean {
-      return this.selectedType.viewStatus.includes('actualFire');
+      return this.viewStatus.includes('actualFire');
     },
     isShowTorpedo(): boolean {
-      return this.selectedType.viewStatus.includes('actualTorpedo');
+      return this.viewStatus.includes('actualTorpedo');
     },
     isShowBomber(): boolean {
-      return this.selectedType.viewStatus.includes('actualBomber');
+      return this.viewStatus.includes('actualBomber');
     },
     isShowAntiAir(): boolean {
-      return this.selectedType.viewStatus.includes('antiAir');
+      return this.viewStatus.includes('antiAir');
     },
     isShowActAntiAir(): boolean {
-      return this.selectedType.viewStatus.includes('actualAntiAir');
+      return this.viewStatus.includes('actualAntiAir');
     },
     isShowDefAntiAir(): boolean {
-      return this.selectedType.viewStatus.includes('actualDefenseAntiAir');
+      return this.viewStatus.includes('actualDefenseAntiAir');
     },
     isShowArmor(): boolean {
-      return this.selectedType.viewStatus.includes('armor');
+      return this.viewStatus.includes('armor');
     },
     isShowAsw(): boolean {
-      return this.selectedType.viewStatus.includes('asw');
+      return this.viewStatus.includes('asw');
     },
     isShowActualAsw(): boolean {
-      return this.selectedType.viewStatus.includes('actualAsw');
+      return this.viewStatus.includes('actualAsw');
     },
     isShowAvoid(): boolean {
-      return this.selectedType.viewStatus.includes('avoid');
+      return this.viewStatus.includes('avoid');
     },
     isShowScout(): boolean {
-      return this.selectedType.viewStatus.includes('actualScout');
+      return this.viewStatus.includes('actualScout');
     },
     isShowAccuracy(): boolean {
-      return this.selectedType.viewStatus.includes('actualAccuracy');
+      return this.viewStatus.includes('actualAccuracy');
     },
     isShowantiBomber(): boolean {
-      return this.selectedType.viewStatus.includes('antiBomber');
+      return this.viewStatus.includes('antiBomber');
     },
     isShowAntiAirWeight(): boolean {
-      return this.selectedType.viewStatus.includes('antiAirWeight');
+      return this.viewStatus.includes('antiAirWeight');
     },
     isShowAntiAirBonus(): boolean {
-      return this.selectedType.viewStatus.includes('antiAirBonus');
+      return this.viewStatus.includes('antiAirBonus');
     },
     isShowRadius(): boolean {
-      return this.selectedType.viewStatus.includes('radius');
+      return this.viewStatus.includes('radius');
     },
     isShowCost(): boolean {
-      return this.selectedType.viewStatus.includes('cost');
+      return this.viewStatus.includes('cost');
     },
     isShowTP(): boolean {
-      return this.selectedType.viewStatus.includes('tp');
+      return this.viewStatus.includes('tp');
     },
     isShowAvoidText(): boolean {
-      return this.selectedType.viewStatus.includes('avoidId');
+      return this.viewStatus.includes('avoidId');
     },
     isShowAirPower(): boolean {
-      return this.selectedType.viewStatus.includes('airPower');
+      return this.viewStatus.includes('airPower');
     },
     isShowDefAirPower(): boolean {
-      return this.selectedType.viewStatus.includes('defenseAirPower');
+      return this.viewStatus.includes('defenseAirPower');
     },
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
@@ -598,11 +607,18 @@ export default Vue.extend({
       this.filter();
     },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
+      this.itemParent = parent;
+
       // 現行の所持装備情報を更新
       this.itemStock = this.$store.state.itemStock as ItemStock[];
-
       this.setting = this.$store.state.siteSetting as SiteSetting;
       this.isStockOnly = this.setting.isStockOnlyForItemList;
+
+      // 一時所持情報データがあるなら
+      if (this.$store.getters.getExistsTempStock) {
+        this.itemStock = this.$store.state.tempItemStock as ItemStock[];
+        this.isStockOnly = true;
+      }
 
       // 搭載数情報を格納
       const isExpand = slotIndex === Const.EXPAND_SLOT_INDEX;
@@ -648,7 +664,7 @@ export default Vue.extend({
         const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
         // 渡された艦娘情報より装備可能種別を取得
         this.baseItems = this.all.filter((item) => parent.data.isValidItem(item, link, exLink, slotIndex));
-        if (this.enabledTypes.length && !this.enabledTypes.find((v) => v.id === this.type)) {
+        if (this.enabledTypes.length && this.type !== -1 && !this.enabledTypes.find((v) => v.id === this.type)) {
           // カテゴリがおかしかったら最初のカテゴリにする
           this.type = this.enabledTypes[0].id;
         }
@@ -666,7 +682,7 @@ export default Vue.extend({
       } else if (parent instanceof Airbase) {
         // 基地航空隊 全艦載機装備可能
         types = Const.PLANE_TYPES.concat();
-        if (!types.includes(this.type)) {
+        if (this.type !== -1 && !types.includes(this.type)) {
           // なんか変だったら陸攻を初期位置に
           this.type = 47;
         }
@@ -718,15 +734,26 @@ export default Vue.extend({
       // カテゴリ検索
       const t = this.types.find((v) => v.id === this.type);
       if (!word && this.type && t) {
-        this.selectedType = t;
+        this.viewStatus = t.viewStatus;
         result = result.filter((v) => t.types.includes(v.apiTypeId));
+      } else if (!word && this.type === -1) {
+        // カテゴリ全て検索
+        if (this.itemParent instanceof Ship) {
+          // 艦娘 -全て
+          this.viewStatus = ['actualFire', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'asw'];
+        } else if (this.itemParent instanceof Airbase) {
+          // 基地 -全て
+          this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
+        } else {
+          this.viewStatus = ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'avoid', 'armor'];
+        }
       }
 
       let usedItem = this.usedItems.concat();
       const viewItems = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
-      if (!this.isEnemyMode && this.isStockOnly && this.itemStock.length) {
+      if (!this.isEnemyMode && this.isStockOnly) {
         // 所持装備考慮
         const stock = this.itemStock;
         for (let i = 0; i < result.length; i += 1) {

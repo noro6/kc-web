@@ -438,6 +438,23 @@ export default class Const {
     { text: 'その他', types: [15, 16, 17, 19, 20, 22] },
   ];
 
+  /**
+   * 艦種一覧 省略系と含む艦種 艦隊分析用
+   * @static
+   * @memberof Const
+   */
+  public static readonly SHIP_TYPES_ALT2 = [
+    { text: '正規空母', types: [11, 18] },
+    { text: '軽空母', types: [7] },
+    { text: '戦艦級', types: [8, 9, 10] },
+    { text: '重巡級', types: [5, 6] },
+    { text: '軽巡級', types: [3, 4, 21] },
+    { text: '駆逐艦', types: [2] },
+    { text: '海防艦', types: [1] },
+    { text: '潜水艦', types: [13, 14] },
+    { text: '補助艦艇', types: [15, 16, 17, 19, 20, 22] },
+  ];
+
   public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114];
 
   public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
@@ -561,7 +578,7 @@ export default class Const {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
+      id: 17, text: 'その他', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'actualScout', 'avoid', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
     },
   ]
 

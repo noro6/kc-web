@@ -287,9 +287,9 @@ export default Vue.extend({
       // 計算結果の格納
       const mainData = this.$store.state.mainSaveData as SaveData;
       const needPutHistory = !manager.fleetInfo.calculated || !manager.airbaseInfo.calculated || !manager.battleInfo.calculated;
-      const isIgnoreHisotry = manager.fleetInfo.ignoreHistory || manager.airbaseInfo.ignoreHistory || manager.battleInfo.ignoreHistory;
+      const isIgnoreHistory = manager.fleetInfo.ignoreHistory || manager.airbaseInfo.ignoreHistory || manager.battleInfo.ignoreHistory;
       // シミュレータ内からの更新だった場合(外部のタブ操作やundo redoでの計算処理でない場合)のみ、履歴を更新
-      if (mainData && needPutHistory && !isIgnoreHisotry) {
+      if (mainData && needPutHistory && !isIgnoreHistory) {
         mainData.putHistory(manager);
       }
 

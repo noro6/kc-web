@@ -47,19 +47,6 @@
           <v-icon>mdi-twitter</v-icon>Twitterで共有
         </v-btn>
       </div>
-      <!-- <div class="my-8">
-        <v-btn
-          block
-          color="blue darken-3"
-          class="white--text"
-          style="text-transform: none"
-          :disabled="!jervisDeckBuilder"
-          :href="`https://kcjervis.github.io/jervis/?operation-json=${jervisDeckBuilder}`"
-          target="_blank"
-        >
-          作戦室 Jervis ORで開く
-        </v-btn>
-      </div> -->
       <div class="my-8">
         <v-btn
           block

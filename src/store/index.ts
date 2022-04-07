@@ -1,23 +1,23 @@
 import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { FirebaseApp, initializeApp } from 'firebase/app';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import ShipMaster from '@/classes/fleet/shipMaster';
-import ItemMaster from '@/classes/item/itemMaster';
-import EnemyMaster from '@/classes/enemy/enemyMaster';
-import CalcManager from '@/classes/calcManager';
-import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
-import SaveData from '@/classes/saveData/saveData';
+import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
+import KcWebDatabase from '@/classes/db';
+import CalcManager from '@/classes/calcManager';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ShipStock from '@/classes/fleet/shipStock';
-import KcWebDatabase from '@/classes/db';
-import Ship from '@/classes/fleet/ship';
-import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import ItemPreset from '@/classes/item/itemPreset';
+import SaveData from '@/classes/saveData/saveData';
+import ItemMaster from '@/classes/item/itemMaster';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
+import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
+import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import OutputHistory from '@/classes/saveData/outputHistory';
 
 Vue.use(Vuex);
 
@@ -25,24 +25,26 @@ export default new Vuex.Store({
   state: {
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
-    exSlotEquipShips: [] as MasterEquipmentExSlot[],
-    equipShips: [] as MasterEquipmentShip[],
     cells: [] as CellMaster[],
     itemStock: [] as ItemStock[],
     shipStock: [] as ShipStock[],
+    tempItemStock: [] as ItemStock[],
+    tempShipStock: [] as ShipStock[],
     itemPresets: [] as ItemPreset[],
-    defaultEnemies: [] as EnemyMaster[],
     manualEnemies: [] as EnemyMaster[],
+    defaultEnemies: [] as EnemyMaster[],
+    outputHistories: [] as OutputHistory[],
     saveData: new SaveData(),
+    equipShips: [] as MasterEquipmentShip[],
+    exSlotEquipShips: [] as MasterEquipmentExSlot[],
     calcManager: undefined as CalcManager | undefined,
     mainSaveData: new SaveData(),
     draggingShipData: new Ship(),
     draggingSaveData: new SaveData(),
     siteSetting: new SiteSetting(),
     kcWebDatabase: new KcWebDatabase(),
-    completed: false,
-    firebase: undefined as undefined | FirebaseApp,
     searchedList: [] as UploadedPreset[],
+    completed: false,
   },
   mutations: {
     setShips: (state, values: ShipMaster[]) => {
@@ -72,11 +74,20 @@ export default new Vuex.Store({
     updateShipStock: (state, values: ShipStock[]) => {
       state.shipStock = values;
     },
+    updateTempItemStock: (state, values: ItemStock[]) => {
+      state.tempItemStock = values;
+    },
+    updateTempShipStock: (state, values: ShipStock[]) => {
+      state.tempShipStock = values;
+    },
     updateItemPresets: (state, values: ItemPreset[]) => {
       state.itemPresets = values;
     },
     updateManualEnemies: (state, values: EnemyMaster[]) => {
       state.manualEnemies = values;
+    },
+    updateOutputHistories: (state, values: OutputHistory[]) => {
+      state.outputHistories = values;
     },
     setMainSaveData: (state, value: SaveData) => {
       state.mainSaveData = value;
@@ -92,9 +103,6 @@ export default new Vuex.Store({
     },
     completed: (state, value: boolean) => {
       state.completed = value;
-    },
-    setFirebase: (state, value: FirebaseApp) => {
-      state.firebase = value;
     },
     setSearchedList: (state, values: UploadedPreset[]) => {
       state.searchedList = values;
@@ -130,6 +138,12 @@ export default new Vuex.Store({
       });
       context.commit('updateShipStock', values);
     },
+    updateTempItemStock: (context, values: ItemStock[]) => {
+      context.commit('updateTempItemStock', values);
+    },
+    updateTempShipStock: (context, values: ShipStock[]) => {
+      context.commit('updateTempShipStock', values);
+    },
     updateItemPresets: (context, values: ItemPreset[]) => {
       context.state.kcWebDatabase.itemPresets.clear().then(() => {
         context.state.kcWebDatabase.itemPresets.bulkAdd(values);
@@ -141,6 +155,12 @@ export default new Vuex.Store({
         context.state.kcWebDatabase.manualEnemies.bulkAdd(values);
       });
       context.commit('updateManualEnemies', values);
+    },
+    updateOutputHistories: (context, values: OutputHistory[]) => {
+      context.state.kcWebDatabase.outputHistories.clear().then(() => {
+        context.state.kcWebDatabase.outputHistories.bulkAdd(values);
+      });
+      context.commit('updateOutputHistories', values);
     },
     updateSetting: (context, value: SiteSetting) => {
       context.state.kcWebDatabase.setting.put(value, 'setting');
@@ -192,17 +212,6 @@ export default new Vuex.Store({
       });
     },
     loadData: async (context) => {
-      const firebaseConfig = {
-        apiKey: 'AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s',
-        authDomain: 'development-74af0.firebaseapp.com',
-        databaseURL: 'https://development-74af0.firebaseio.com',
-        projectId: 'development-74af0',
-        storageBucket: 'development-74af0.appspot.com',
-        messagingSenderId: '789701529106',
-        appId: '1:789701529106:web:3498f515937607158592cb',
-        measurementId: 'G-90V5M1BZB9',
-      };
-      context.commit('setFirebase', initializeApp(firebaseConfig));
       getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
         const loading = axios.get(url)
           .then((response) => {
@@ -377,6 +386,10 @@ export default new Vuex.Store({
       db.manualEnemies.toArray().then((data) => {
         context.state.manualEnemies = data;
       });
+      // 出力履歴
+      db.outputHistories.toArray().then((data) => {
+        context.state.outputHistories = data;
+      });
     },
     loadSetting: async (context) => {
       const db = context.state.kcWebDatabase;
@@ -394,6 +407,7 @@ export default new Vuex.Store({
   },
   getters: {
     getCompleted: (state) => state.completed,
+    getExistsTempStock: (state) => !!state.tempItemStock.length || !!state.tempShipStock.length,
     getEnemies: (state) => {
       const enemies = state.defaultEnemies.concat();
       for (let i = 0; i < state.manualEnemies.length; i += 1) {

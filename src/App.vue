@@ -70,6 +70,16 @@
       </template>
     </v-app-bar>
     <v-main>
+      <div v-if="readOnlyMode" :class="{ 'info-container': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
+        <v-alert border="left" outlined type="info">
+          <div>URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
+          <div class="d-flex">
+            <div class="align-self-center">自分の登録情報に戻す場合は</div>
+            <v-btn class="mx-1" color="info" dark @click="resetTempData()">このボタン</v-btn>
+            <div class="align-self-center">を押下してください。</div>
+          </div>
+        </v-alert>
+      </div>
       <div class="px-2 px-md-4">
         <router-view @inform="inform" @openSidebar="drawer = true" />
       </div>
@@ -156,8 +166,13 @@
             <div class="header-divider"></div>
           </div>
           <div class="ml-3">
+            <v-alert class="mt-3" border="left" outlined type="warning" dense>
+              <div class="caption">数値が大きいほど制空計算の精度が上がりますが、</div>
+              <div class="caption">計算時のパフォーマンスが低下します。</div>
+            </v-alert>
             <div>
               <v-text-field
+                class="mt-0 pt-0"
                 type="number"
                 max="100000"
                 min="100"
@@ -165,9 +180,6 @@
                 :rules="[rules.simulationCountRange]"
               ></v-text-field>
             </div>
-            <v-alert border="left" outlined type="warning" dense>
-              <div class="caption">数値が大きいほど制空計算の精度が上がりますが、計算時のパフォーマンスが低下します。</div>
-            </v-alert>
           </div>
         </div>
       </v-card>
@@ -216,6 +228,7 @@ import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
 import SaveData from './classes/saveData/saveData';
 import SiteSetting from './classes/siteSetting';
+import FirebaseManager from './classes/firebaseManager';
 
 export default Vue.extend({
   name: 'App',
@@ -242,15 +255,20 @@ export default Vue.extend({
     editedName: '',
     editedRemarks: '',
     shareDialog: false,
-    urlParameters: {} as { data?: string; predeck?: string },
+    urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
     unsbscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
     },
+    readOnlyMode: false,
   }),
   computed: {
     completed() {
       return this.$store.getters.getCompleted;
+    },
+    isTempStockMode(): boolean {
+      // 一時所持情報データがあるなら
+      return this.$store.getters.getExistsTempStock;
     },
     getTextareaColor() {
       return this.somethingText && this.textareaHasError ? 'red darken-4' : 'primary';
@@ -266,12 +284,16 @@ export default Vue.extend({
     isNameEmptry(): boolean {
       return this.editedName.length <= 0;
     },
+    isManagerPage(): boolean {
+      return this.$route.path.endsWith('/manager');
+    },
   },
   watch: {
-    completed(value) {
+    async completed(value) {
       // 展開待ち中のデータがあれば読み込んで消す
       if (!!value && this.urlParameters) {
         if (this.urlParameters.data) {
+          // 編成データ解析
           const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
           urlData.isMain = true;
           urlData.isActive = true;
@@ -282,14 +304,41 @@ export default Vue.extend({
             this.$router.push('aircalc');
           }
         } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(decodeURIComponent(this.urlParameters.predeck))) {
+          // デッキビルダー解析
           this.readInformText = '編成の読み込みが完了しました。';
           this.readResultColor = 'success';
           this.readInform = true;
+        } else if (this.urlParameters.stockid) {
+          // 所持情報データ解析
+          const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
+
+          // 一時所持情報にセットして管理ページを展開
+          let available = false;
+          if (stockData.shipStocks.length) {
+            this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
+            available = true;
+          }
+          if (stockData.itemStocks.length) {
+            this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
+            available = true;
+          }
+
+          if (available) {
+            if (!this.$route.path.endsWith('/manager')) {
+              // ページ遷移
+              this.$router.push('manager');
+            }
+          } else {
+            this.inform('所持情報の読み取りに失敗しました。', true);
+          }
         }
         this.urlParameters = {};
       }
 
       this.loading = !value;
+    },
+    isTempStockMode(value) {
+      this.readOnlyMode = !!value;
     },
   },
   created() {
@@ -311,6 +360,7 @@ export default Vue.extend({
     });
   },
   mounted() {
+    // URLパラメータ取得 & 一時退避 => マスタ読み込み完了後に処理
     this.urlParameters = Object.freeze(this.getUrlParams());
   },
   methods: {
@@ -545,6 +595,11 @@ export default Vue.extend({
       this.readInform = true;
       this.readResultColor = isError ? 'error' : 'success';
     },
+    async resetTempData() {
+      this.$store.dispatch('updateTempShipStock', []);
+      this.$store.dispatch('updateTempItemStock', []);
+      this.inform('閲覧モードを終了しました');
+    },
   },
   beforeDestroy() {
     if (this.unsbscribe) {
@@ -575,6 +630,11 @@ export default Vue.extend({
   align-self: center;
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+
+.info-container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>
 
@@ -843,12 +903,14 @@ export default Vue.extend({
 .item-input.type-37,
 .item-input.type-38,
 .item-input.type-41,
+.item-input.type-48,
 .item-input.type-49 {
   box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15) !important;
 }
 .item-input.type-37:hover,
 .item-input.type-38:hover,
 .item-input.type-41:hover,
+.item-input.type-48:hover,
 .item-input.type-49:hover {
   box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.4) !important;
 }
@@ -957,6 +1019,7 @@ export default Vue.extend({
 .captured .item-input.type-37,
 .captured .item-input.type-38,
 .captured .item-input.type-41,
+.captured .item-input.type-48,
 .captured .item-input.type-49 {
   background: rgba(53, 199, 17, 0.05) !important;
 }

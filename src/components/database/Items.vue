@@ -180,6 +180,7 @@
               min="0"
               :label="`★+${i}`"
               hide-details
+              :readonly="readOnly"
               v-model.number="edittedStock[i]"
             ></v-text-field>
             <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" label="合計"></v-text-field>
@@ -187,8 +188,8 @@
         </div>
         <v-divider class="mb-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" @click.stop="registStock">更新</v-btn>
-          <v-btn class="ml-4" :disabled="!sumStock" color="error" @click.stop="clearStock">全破棄</v-btn>
+          <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="registStock">更新</v-btn>
+          <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">全破棄</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
         </div>
       </v-card>
@@ -352,7 +353,6 @@ import Vue from 'vue';
 import * as _ from 'lodash';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Const from '@/classes/const';
-import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
 import Item from '@/classes/item/item';
@@ -387,26 +387,18 @@ export default Vue.extend({
     edittedItem: undefined as ItemMaster | undefined,
     edittedStock: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     unsbscribe: undefined as unknown,
-    setting: new SiteSetting(),
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
+    readOnly: false,
   }),
   mounted() {
-    // 全データ取得
-    this.all = this.$store.state.items as ItemMaster[];
-    this.all = this.all.filter((v) => v.id < 500);
-    this.itemStock = this.$store.state.itemStock as ItemStock[];
-
-    // 種別セレクト初期化
-    const masters = Const.ITEM_TYPES_ALT;
-    for (let i = 0; i < masters.length; i += 1) {
-      this.types.push({ text: masters[i].text, value: i });
-      this.selectedTypes.push(i);
+    if (this.$store.getters.getExistsTempStock) {
+      this.readOnly = true;
     }
-
+    this.initialize();
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
@@ -414,11 +406,25 @@ export default Vue.extend({
         this.editDialog = false;
       }
     });
-    this.setting = this.$store.state.siteSetting as SiteSetting;
-
-    this.masterFilter();
+  },
+  watch: {
+    completed(value) {
+      if (value && !this.all.length) {
+        this.initialize();
+      }
+    },
+    isTempStockMode(value) {
+      this.readOnly = !!value;
+      this.initialize();
+    },
   },
   computed: {
+    completed() {
+      return this.$store.getters.getCompleted;
+    },
+    isTempStockMode(): boolean {
+      return this.$store.getters.getExistsTempStock;
+    },
     selectedAllType(): boolean {
       return this.selectedTypes.length === this.types.length;
     },
@@ -443,6 +449,28 @@ export default Vue.extend({
     }
   },
   methods: {
+    initialize() {
+      // 全データ取得
+      this.all = this.$store.state.items as ItemMaster[];
+      this.all = this.all.filter((v) => v.id < 500);
+      this.itemStock = this.$store.state.itemStock as ItemStock[];
+
+      if (this.readOnly) {
+        // 閲覧モード
+        this.itemStock = this.$store.state.tempItemStock as ItemStock[];
+      }
+
+      // 種別セレクト初期化
+      const masters = Const.ITEM_TYPES_ALT;
+      this.types = [];
+      this.selectedTypes = [];
+      for (let i = 0; i < masters.length; i += 1) {
+        this.types.push({ text: masters[i].text, value: i });
+        this.selectedTypes.push(i);
+      }
+
+      this.masterFilter();
+    },
     masterFilter() {
       // カテゴリ検索
       const typeIndexs = this.selectedTypes;

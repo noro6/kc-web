@@ -83,7 +83,7 @@
                 <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
               </div>
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
-                <v-img :src="`./img/util/area${data.area}.png`"  height="40" width="28"/>
+                <v-img :src="`./img/util/area${data.area}.png`" height="40" width="28" />
               </div>
             </div>
             <div class="flex-grow-1 ml-1">
@@ -358,6 +358,12 @@ export default Vue.extend({
       this.setting = this.$store.state.siteSetting as SiteSetting;
       this.isStockOnly = this.setting.isStockOnlyForShipList;
 
+      // 一時所持情報データがあるなら
+      if (this.$store.getters.getExistsTempStock) {
+        this.shipStock = this.$store.state.tempShipStock as ShipStock[];
+        this.isStockOnly = !!this.shipStock.length;
+      }
+
       // 現在の計算画面内で配備されている艦娘を列挙する
       this.usedShips = [];
       const mainData = this.$store.state.mainSaveData as SaveData;
@@ -446,7 +452,9 @@ export default Vue.extend({
             }
 
             // id 練度 運 海域を見て配備済みかどうか判定
-            const usedIndex = usedShips.findIndex((v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck && v.area === viewShip.area);
+            const usedIndex = usedShips.findIndex(
+              (v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck && v.area === viewShip.area,
+            );
             if (usedIndex >= 0) {
               // 配備済みなら減らす
               viewShip.count = 0;

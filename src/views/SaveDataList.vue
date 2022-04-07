@@ -193,7 +193,7 @@ export default Vue.extend({
       }
 
       try {
-        const db = getFirestore(this.$store.state.firebase);
+        const db = getFirestore();
         const fbLevel = 4 - this.level;
         let q: Query<DocumentData>;
         if (this.isEvent) {
