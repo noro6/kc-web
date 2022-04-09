@@ -59,7 +59,8 @@
         <span class="text--secondary mr-2">艦隊防空値:</span>
         <span>{{ fleetAntiAir }}</span>
       </div>
-      <div class="ml-auto">
+      <div class="ml-auto d-flex">
+        <v-checkbox class="mr-3" label="空襲マス" v-model="isAirRaid" dense hide-details @change="updateTable"></v-checkbox>
         <v-checkbox label="敵側式" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
       </div>
     </div>
@@ -194,6 +195,7 @@ export default Vue.extend({
     fleetAntiAir: '0.00',
     cutInId: 0,
     isEnemy: false,
+    isAirRaid: false,
     stage2Data: [] as Stage2Row[],
     colorTable: ['255, 64, 64', '64, 255, 64', '64, 64, 255', '255, 255, 64', '255, 64, 255'],
   }),
@@ -295,7 +297,7 @@ export default Vue.extend({
       if (cutIn) {
         aaci = new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, cutIn.rate);
       }
-      const stage2 = ShootDownInfo.getStage2(this.ships, this.isEnemy, this.fleet.isUnion, formation, aaci, manualAvoid);
+      const stage2 = ShootDownInfo.getStage2(this.ships, this.isEnemy, this.fleet.isUnion, formation, aaci, this.isAirRaid, manualAvoid);
       const d = stage2[stage2.length - 1];
       this.stage2Data = [];
       for (let i = 0; i < this.ships.length; i += 1) {

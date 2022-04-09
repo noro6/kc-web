@@ -99,7 +99,11 @@ export default class Calculator {
     // 結果表示戦闘かどうか
     if (calcStage2) {
       // 敵機撃墜処理
-      Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownList);
+      if (enemyFleet.cellType === CELL_TYPE.AIR_RAID) {
+        Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownListAirRaid);
+      } else {
+        Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownList);
+      }
     }
     // 味方撃墜処理
     Calculator.shootDownFleet(state, fleet, enemyFleet, battle);

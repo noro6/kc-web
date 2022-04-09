@@ -21,6 +21,7 @@ export default class ShipMaster {
 
   public isFinal = false;
 
+  /** 図鑑IDで紐づけているので注意！ */
   public originalId = 0;
 
   public range = 0;

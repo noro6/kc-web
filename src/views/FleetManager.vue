@@ -149,7 +149,7 @@
                 >共有URL作成</v-btn
               >
               <v-text-field
-                id="createdURL"
+                id="created-url"
                 v-show="createdURL"
                 readonly
                 append-icon="mdi-content-copy"
@@ -170,7 +170,7 @@
                   <div>{{ data.createdAt }}</div>
                 </div>
                 <div class="mr-2 align-self-center">
-                  <v-btn color="info" :disabled="btnClicked || readOnlyMode" @click="expandHistory(i)">展開</v-btn>
+                  <v-btn color="info" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">展開</v-btn>
                 </div>
                 <div class="mr-2 align-self-center">
                   <v-btn color="error" @click="clickedDeleteHistory(i)">削除</v-btn>
@@ -183,6 +183,53 @@
                 </div>
               </div>
             </v-card>
+          </div>
+        </v-card>
+        <v-card class="my-3 pa-2">
+          <div class="d-flex pt-3 pb-4">
+            <div class="align-self-center ml-3">他サイト連携</div>
+          </div>
+          <v-divider></v-divider>
+          <div class="pa-4">
+            <div class="mb-2">艦隊分析コード</div>
+            <div class="body-2">
+              <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank"
+                >艦隊分析スプレッドシート</a
+              >等で読み込めるコードです。現在閲覧中の情報が出力されています。
+            </div>
+            <div class="mt-4">
+              <v-text-field
+                id="analytics-ship-code"
+                v-model="kantaiAnalyticsShipsCode"
+                outlined
+                readonly
+                dense
+                label="艦隊コード"
+                append-icon="mdi-content-copy"
+                :hint="copiedShipCodeHint"
+                @click:append="copyShipCode"
+                @blur="clearShipCodeHint"
+              ></v-text-field>
+            </div>
+            <div>
+              <v-text-field
+                id="analytics-item-code"
+                v-model="kantaiAnalyticsItemsCode"
+                outlined
+                readonly
+                dense
+                label="装備コード"
+                append-icon="mdi-content-copy"
+                :hint="copiedItemCodeHint"
+                @click:append="copyItemCode"
+                @blur="clearItemCodeHint"
+              ></v-text-field>
+            </div>
+          </div>
+          <v-divider></v-divider>
+          <div class="pa-4">
+            <div class="mb-2">艦隊晒しページ(仮)</div>
+            <div class="body-2"><a :href="kantaiSarashiURL" target="_blank">艦隊晒しページ(仮)で展開する場合はこちらから</a></div>
           </div>
         </v-card>
       </v-tab-item>
@@ -254,6 +301,7 @@ import {
 import Const from '@/classes/const';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
   name: 'FleetManager',
@@ -268,17 +316,31 @@ export default Vue.extend({
     loadingURL: false,
     createdURL: '',
     copiedURLHint: '',
-    copiedDeckHint: '',
     outputHistories: [] as OutputHistory[],
     confirmDialog: false,
     deleteIndex: -1,
-    btnClicked: false,
+    expandBtnClicked: false,
+    kantaiAnalyticsShipsCode: '',
+    kantaiAnalyticsItemsCode: '',
+    copiedShipCodeHint: '',
+    copiedItemCodeHint: '',
+    unsbscribe: undefined as unknown,
+    kantaiSarashiURL: '',
   }),
   mounted() {
     const histories = this.$store.state.outputHistories as OutputHistory[];
     if (histories && histories.length) {
       this.outputHistories = histories.concat();
     }
+    this.generateKCAnalyticsCode();
+    this.generateKantaiSarashiURL();
+    this.unsbscribe = this.$store.subscribe((mutation) => {
+      if (mutation.type === 'updateShipStock' || mutation.type === 'updateItemStock') {
+        this.expandBtnClicked = false;
+        this.generateKCAnalyticsCode();
+        this.generateKantaiSarashiURL();
+      }
+    });
   },
   computed: {
     isTempStockMode(): boolean {
@@ -288,8 +350,15 @@ export default Vue.extend({
   watch: {
     isTempStockMode(value) {
       this.readOnlyMode = !!value;
-      this.btnClicked = false;
+      this.expandBtnClicked = false;
+      this.generateKCAnalyticsCode();
+      this.generateKantaiSarashiURL();
     },
+  },
+  beforeDestroy() {
+    if (this.unsbscribe) {
+      (this.unsbscribe as () => void)();
+    }
   },
   methods: {
     readJson() {
@@ -297,9 +366,11 @@ export default Vue.extend({
       if (this.setShipStock()) {
         // 在籍艦娘データ読み込み試行
         this.$emit('inform', '在籍艦娘データの更新が完了しました。');
+        this.loadingURL = false;
       } else if (this.setItemStock()) {
         // 所持装備データ読み込み試行
         this.$emit('inform', '所持装備データの更新が完了しました。');
+        this.loadingURL = false;
       } else {
         // 全部失敗
         this.$emit('inform', 'データの読み込みに失敗しました。正しいデータではない可能性があります。', true);
@@ -307,6 +378,8 @@ export default Vue.extend({
 
       // 後始末と通知
       this.inputText = '';
+      this.generateKCAnalyticsCode();
+      this.generateKantaiSarashiURL();
     },
     setShipStock(): boolean {
       // 在籍艦娘情報を更新
@@ -358,7 +431,7 @@ export default Vue.extend({
         ships: stockData.ships,
         items: stockData.items,
         date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
-        v: 2,
+        ver: 2,
       };
 
       try {
@@ -429,7 +502,7 @@ export default Vue.extend({
       this.$emit('inform', '共有URLを生成しました。');
     },
     copyURL() {
-      const textToCopy = document.getElementById('createdURL') as HTMLInputElement;
+      const textToCopy = document.getElementById('created-url') as HTMLInputElement;
       textToCopy.select();
       document.execCommand('copy');
       this.copiedURLHint = 'URLがコピーされました。';
@@ -438,7 +511,7 @@ export default Vue.extend({
       this.copiedURLHint = '';
     },
     async expandHistory(index: number) {
-      this.btnClicked = true;
+      this.expandBtnClicked = true;
 
       const history = this.outputHistories[index];
       // 所持情報データ解析
@@ -476,6 +549,114 @@ export default Vue.extend({
         this.outputHistories = newHistories;
         this.$store.dispatch('updateOutputHistories', newHistories);
         this.$emit('inform', '更新が完了しました。');
+      }
+    },
+    generateKCAnalyticsCode() {
+      this.kantaiAnalyticsShipsCode = '';
+      this.kantaiAnalyticsItemsCode = '';
+
+      let shipStock = this.$store.state.shipStock as ShipStock[];
+      let itemStock = this.$store.state.itemStock as ItemStock[];
+
+      if (this.readOnlyMode) {
+        // 閲覧モード
+        shipStock = this.$store.state.tempShipStock as ShipStock[];
+        itemStock = this.$store.state.tempItemStock as ItemStock[];
+      }
+
+      if (shipStock && shipStock.length) {
+        const shipJSONRows = [];
+        for (let i = 0; i < shipStock.length; i += 1) {
+          const stock = shipStock[i];
+          const nextLvObj = Const.LEVEL_BORDERS.find((v) => v.lv === stock.level + 1);
+          const nextExp = nextLvObj ? nextLvObj.req - stock.exp : 0;
+          const data = {
+            id: stock.id,
+            lv: stock.level,
+            st: [
+              stock.improvement.fire,
+              stock.improvement.torpedo,
+              stock.improvement.antiAir,
+              stock.improvement.armor,
+              stock.improvement.luck,
+              stock.improvement.hp,
+              stock.improvement.asw,
+            ],
+            exp: [stock.exp, nextExp, 0],
+          };
+          shipJSONRows.push(data);
+        }
+
+        this.kantaiAnalyticsShipsCode = JSON.stringify(shipJSONRows);
+      }
+
+      if (itemStock && itemStock.length && itemStock.some((v) => v.num.some((x) => x > 0))) {
+        const itemJSONRows = [];
+        for (let i = 0; i < itemStock.length; i += 1) {
+          const stock = itemStock[i];
+          for (let remodel = 0; remodel < stock.num.length; remodel += 1) {
+            const count = stock.num[remodel];
+            for (let j = 0; j < count; j += 1) {
+              itemJSONRows.push({ id: stock.id, lv: remodel });
+            }
+          }
+        }
+        this.kantaiAnalyticsItemsCode = JSON.stringify(itemJSONRows);
+      }
+    },
+    copyShipCode() {
+      const textToCopy = document.getElementById('analytics-ship-code') as HTMLInputElement;
+      textToCopy.select();
+      document.execCommand('copy');
+      this.copiedShipCodeHint = 'コピーされました。';
+    },
+    clearShipCodeHint() {
+      this.copiedShipCodeHint = '';
+    },
+    copyItemCode() {
+      const textToCopy = document.getElementById('analytics-item-code') as HTMLInputElement;
+      textToCopy.select();
+      document.execCommand('copy');
+      this.copiedItemCodeHint = 'コピーされました。';
+    },
+    clearItemCodeHint() {
+      this.copiedItemCodeHint = '';
+    },
+    generateKantaiSarashiURL() {
+      this.kantaiSarashiURL = 'http://kancolle-calc.net/kanmusu_list.html';
+
+      let shipStock = this.$store.state.shipStock as ShipStock[];
+
+      if (this.readOnlyMode) {
+        // 閲覧モード
+        shipStock = this.$store.state.tempShipStock as ShipStock[];
+      }
+      if (shipStock && shipStock.length) {
+        const all = this.$store.state.ships as ShipMaster[];
+        const firsts = all.filter((v) => v.version === 0);
+
+        const text = [];
+        for (let i = 0; i < firsts.length; i += 1) {
+          const first = firsts[i];
+          const versions = all.filter((v) => v.originalId === first.albumId);
+          const versionIds = versions.map((v) => v.id);
+          const stocks = shipStock.filter((v) => versionIds.includes(v.id));
+          if (stocks.length) {
+            // 明細データ
+            const levels = [];
+            for (let j = 0; j < stocks.length; j += 1) {
+              const stock = stocks[j];
+              const ver = all.find((v) => v.id === stock.id)?.version;
+              if (ver || ver === 0) {
+                levels.push({ lv: stock.level, ver: ver + 1 });
+              }
+            }
+
+            levels.sort((a, b) => b.lv - a.lv);
+            text.push(`${first.id === 699 ? 645 : first.id}:${levels.map((v) => `${v.lv}.${v.ver}`).join(',')}`);
+          }
+        }
+        this.kantaiSarashiURL = `http://kancolle-calc.net/kanmusu_list.html?data=${Convert.encode64(`.2|${text.join('|')}`)}`;
       }
     },
   },

@@ -22,11 +22,11 @@ export default class ShootDownInfo {
   /** 対空砲火可能艦数 */
   public readonly maxRange: number;
 
-  constructor(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, antiAirCutIn: AntiAirCutIn, border: number, formation?: Formation) {
+  constructor(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, antiAirCutIn: AntiAirCutIn, border: number, formation?: Formation, isAirRaid = false) {
     if (formation) {
-      this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, formation, antiAirCutIn);
+      this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, formation, antiAirCutIn, isAirRaid);
     } else {
-      this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, Const.FORMATIONS[0], antiAirCutIn);
+      this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, Const.FORMATIONS[0], antiAirCutIn, isAirRaid);
     }
     this.maxRange = ships.length;
     this.border = border;
@@ -40,11 +40,12 @@ export default class ShootDownInfo {
    * @param {boolean} isUnion 連合フラグ
    * @param {Formation} [formation] 陣形 未指定で単縦
    * @param {AntiAirCutIn} [cutIn] 対空CI 未指定で不発
+   * @param {boolean} [isAirRaid] 任意空襲 未指定でなし
    * @param {AvoidType} [avoid] 任意回避補正 未指定でなし
    * @return {*}  {ShootDownStatus[]}
    * @memberof ShootDownInfo
    */
-  public static getStage2(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, formation: Formation, cutIn = new AntiAirCutIn(), avoid?: AvoidType): ShootDownStatus[] {
+  public static getStage2(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, formation: Formation, cutIn = new AntiAirCutIn(), isAirRaid?: boolean, avoid?: AvoidType): ShootDownStatus[] {
     const stage2: ShootDownStatus[] = [];
     const shipCount = ships.length;
     if (shipCount === 0) {
@@ -97,7 +98,9 @@ export default class ShootDownInfo {
         unionFactor = 0.48;
       } else if (isUnion && !ship.isEscort) {
         unionFactor = 0.8;
-        // todo 空襲マス 0.72
+        if (isAirRaid) {
+          unionFactor = 0.72;
+        }
       }
 
       // 敵味方航空戦補正(味方:0.8, 敵:0.75)

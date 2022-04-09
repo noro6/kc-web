@@ -2,8 +2,15 @@
   <div class="site-top-container">
     <div class="site-title content">制空権シミュレータ v2.0.0 β</div>
     <v-card class="site-body content">
-      <v-alert border="left" outlined type="error" class="ma-3 pa-4">
-        <div>本バージョンは開発中です。未実装の機能や、予期しない動作や表示が行われる可能性があります。</div>
+      <v-alert border="left" outlined type="warning" class="ma-3 pa-4">
+        <div>
+          本サイトは公開テスト中です。何か不具合や気になる動き、要望等があれば<a
+            href="https://odaibako.net/u/noro_006"
+            class="blue--text text--accent-1"
+            target="_blank"
+            >お題箱</a
+          >や<a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>までご連絡ください。
+        </div>
       </v-alert>
       <div class="menu-buttons">
         <div class="ma-4">

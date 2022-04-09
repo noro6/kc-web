@@ -485,7 +485,7 @@ export default Vue.extend({
       // 名前変更ダイアログを展開する
       const data = this.saveData.getMainData();
       if (data) {
-        this.editedName = '';
+        this.editedName = data.name;
         this.editedRemarks = data.remarks;
         this.editDialog = true;
       }

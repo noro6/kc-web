@@ -525,7 +525,7 @@ export default Vue.extend({
           const { master, details, allCount } = items[j];
 
           // 検索語句で絞り込み
-          if (keyWord && master.name.indexOf(keyWord) === -1) {
+          if (keyWord && master.id !== +keyWord && master.name.indexOf(keyWord) === -1) {
             continue;
           }
           // 改修値で絞り込み

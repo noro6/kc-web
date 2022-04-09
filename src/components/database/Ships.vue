@@ -20,7 +20,7 @@
               <div class="d-flex flex-wrap my-2">
                 <v-text-field
                   class="search-input"
-                  label="id 名称検索"
+                  label="名称検索"
                   dense
                   v-model.trim="searchWord"
                   @input="masterFilter"
@@ -1088,6 +1088,7 @@ export default Vue.extend({
       const maxAsw = this.aswRange[1];
       const minAsw = this.aswRange[0];
       const buffHP = this.addHP;
+      const keyword = this.searchWord ? this.searchWord.trim() : '';
 
       const typeIndexs = this.selectedTypes;
       const types = Const.SHIP_TYPES_ALT.filter((v, i) => typeIndexs.includes(i))
@@ -1104,6 +1105,11 @@ export default Vue.extend({
         const base = baseShips[i];
         // 改造先を含めて全て取得
         const versions = masters.filter((v) => v.originalId === base.albumId);
+
+        // キーワード検索で全状態で引っかからなかったらさようなら
+        if (keyword && !versions.some((v) => v.name.indexOf(keyword) >= 0)) {
+          continue;
+        }
 
         // 在籍艦娘のなかから versions に含まれる艦娘を抽出
         const versionsIds = versions.map((v) => v.id);
@@ -1223,14 +1229,8 @@ export default Vue.extend({
     },
     masterFilter() {
       // マスターの条件でフィルタリング可能なものはここでフィルタリング
-      const keyword = this.searchWord ? this.searchWord.trim() : '';
-
-      this.filteredShips = this.all.filter((v) => {
-        // キーワードで絞る
-        if (keyword && keyword !== v.id.toString() && v.name.indexOf(keyword) < 0) return false;
-        return true;
-      });
-
+      // なくなっちゃった！
+      this.filteredShips = this.all.filter((v) => v.id > 0);
       this.filter();
     },
     toggleAllType() {

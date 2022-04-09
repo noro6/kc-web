@@ -39,7 +39,7 @@
           ></v-text-field>
         </div>
       </div>
-      <v-card class="my-3 px-3">
+      <v-card class="my-3">
         <table>
           <thead>
             <tr>
@@ -67,6 +67,37 @@
           </tbody>
         </table>
       </v-card>
+      <div class="graph-area">
+        <v-card class="py-4 exp-card">
+          <div class="d-flex justify-center">
+            <div class="body-2">艦種別Lv帯分析</div>
+          </div>
+          <radar-chart :data="radarGraphData" :options="options" />
+        </v-card>
+        <v-card class="py-4 exp-card">
+          <div class="d-flex justify-center">
+            <div class="body-2">艦娘別経験値ランキング</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <td></td>
+                <td class="text-left"></td>
+                <td>総経験値</td>
+                <td>経験値割合</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, i) in expRankTable" :key="`exp_rank_row${i}`">
+                <td>{{ row.rank }}</td>
+                <td class="text-left">{{ row.name }}</td>
+                <td>{{ row.exp }}</td>
+                <td>{{ row.rate }} %</td>
+              </tr>
+            </tbody>
+          </table>
+        </v-card>
+      </div>
     </v-card>
   </div>
 </template>
@@ -79,15 +110,16 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.9em;
 }
 
 table td {
-  padding: 0.5rem;
+  padding: 0.75rem;
   text-align: right;
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 table thead td {
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem;
 }
 
 table tbody tr {
@@ -97,25 +129,111 @@ table tbody tr:hover {
   background-color: rgba(128, 128, 128, 0.1);
 }
 
-.w-10 {
-  width: 10%;
+.graph-area {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 1rem;
+  column-gap: 1rem;
+  row-gap: 1rem;
+}
+
+@media (min-width: 1100px) {
+  .graph-area {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.exp-card {
+  height: 70vh;
+  overflow: auto;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import * as _ from 'lodash';
+import RadarChart from '@/components/graph/Radar.vue';
 import ShipStock from '@/classes/fleet/shipStock';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
 
+const radarDatasetLabels = ['最大Lv', '最小Lv', '平均Lv'];
+
 export default Vue.extend({
   name: 'Analytics',
+  components: { RadarChart },
   data: () => ({
     levelRange: [1, 175],
     summaryTable: [] as { name: string; data: unknown }[],
+    expRankTable: [] as { rank: number; name: string; exp: string; rate: string }[],
     unsbscribe: undefined as unknown,
     readOnly: false,
+    radarGraphData: {
+      labels: [] as string[],
+      datasets: [
+        {
+          label: radarDatasetLabels[0],
+          data: [] as number[],
+          fill: false,
+          backgroundColor: 'rgba(64, 164, 255, 0.1)',
+          borderColor: 'rgb(64, 164, 255)',
+          borderWidth: 2,
+          pointRadius: 4,
+        },
+        {
+          label: radarDatasetLabels[1],
+          data: [] as number[],
+          backgroundColor: 'rgba(255, 64, 64, 0.1)',
+          borderColor: 'rgb(255, 64, 64)',
+          borderWidth: 2,
+          pointRadius: 4,
+        },
+        {
+          label: radarDatasetLabels[2],
+          data: [] as number[],
+          fill: false,
+          backgroundColor: 'rgba(0, 200, 0, 0.1)',
+          borderColor: 'rgb(0, 200, 0)',
+          borderWidth: 2,
+          pointRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0,
+          max: 175,
+          ticks: {
+            stepSize: 25,
+            color: 'rgb(64, 64, 64)',
+            backdropColor: 'rgba(255, 255, 255, 0.7)',
+          },
+          angleLines: {
+            // 角度線
+            color: 'rgba(128, 128, 128, 0.4)',
+          },
+          pointLabels: {
+            // 外側のラベル
+            color: 'rgb(64, 64, 64)',
+          },
+          grid: {
+            // 目盛り線
+            color: 'rgba(128, 128, 128, 0.4)',
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { color: 'rgb(64, 64, 64)' },
+        },
+        title: { display: true },
+      },
+    },
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -161,17 +279,43 @@ export default Vue.extend({
       const expTable = [];
       let allExp = 0;
       let allLevel = 0;
+
+      // 経験値ランキング 初期艦毎
+      let expRanks: { id: number; name: string; exp: number; rate: number }[] = [];
+
+      this.radarGraphData.labels = [];
       for (let i = 0; i < types.length; i += 1) {
         const type = types[i];
+        this.radarGraphData.labels.push(type.text);
 
         // この艦種に該当する艦娘id
-        const shipIds = all.filter((v) => type.types.includes(v.type)).map((v) => v.id);
+        const shipMaster = all.filter((v) => type.types.includes(v.type));
+        const shipIds = shipMaster.map((v) => v.id);
         // 在籍情報から取得
         const stocks = shipStock.filter((v) => shipIds.includes(v.id) && v.level >= this.levelRange[0] && v.level <= this.levelRange[1]);
-
         if (stocks.length) {
-          const levels = stocks.map((v) => v.level);
-          const exps = stocks.map((v) => v.exp);
+          const levels = [];
+          const exps = [];
+
+          for (let j = 0; j < stocks.length; j += 1) {
+            const stock = stocks[j];
+            levels.push(stock.level);
+            exps.push(stock.exp);
+
+            const orgAlbumId = all.find((v) => v.id === stock.id)?.originalId;
+            const rankData = expRanks.find((v) => v.id === orgAlbumId);
+            if (rankData) {
+              rankData.exp += stock.exp;
+            } else if (orgAlbumId) {
+              expRanks.push({
+                id: orgAlbumId,
+                name: '',
+                exp: stock.exp,
+                rate: 0,
+              });
+            }
+          }
+
           const sumExp = _.sum(exps);
           allExp += sumExp;
           allLevel += _.sum(levels);
@@ -185,6 +329,9 @@ export default Vue.extend({
             expRate: 0,
           };
           expTable.push({ name: type.text, data });
+          this.radarGraphData.datasets[0].data[i] = data.maxLevel ? data.maxLevel : 0;
+          this.radarGraphData.datasets[1].data[i] = data.minLevel ? data.minLevel : 0;
+          this.radarGraphData.datasets[2].data[i] = data.avgLevel ? Math.floor(data.avgLevel) : 0;
         } else {
           const data = {
             count: 0,
@@ -196,6 +343,9 @@ export default Vue.extend({
             expRate: 0,
           };
           expTable.push({ name: type.text, data });
+          this.radarGraphData.datasets[0].data[i] = 0;
+          this.radarGraphData.datasets[1].data[i] = 0;
+          this.radarGraphData.datasets[2].data[i] = 0;
         }
       }
 
@@ -208,10 +358,10 @@ export default Vue.extend({
             count: row.data.count,
             maxLevel: row.data.maxLevel,
             minLevel: row.data.minLevel,
-            avgLevel: row.data.avgLevel.toFixed(1),
+            avgLevel: row.data.avgLevel ? row.data.avgLevel.toFixed(1) : 0,
             sumExp: row.data.sumExp.toLocaleString(),
             avgExp: Math.floor(row.data.avgExp).toLocaleString(),
-            expRate: Math.floor((1000 * row.data.sumExp) / allExp) / 10,
+            expRate: allExp ? Math.floor((1000 * row.data.sumExp) / allExp) / 10 : 0,
           },
         });
       }
@@ -224,12 +374,37 @@ export default Vue.extend({
           count: allCount,
           maxLevel: _.max(expTable.map((v) => v.data.maxLevel)),
           minLevel: _.min(expTable.map((v) => v.data.minLevel)),
-          avgLevel: (allLevel / allCount).toFixed(1),
+          avgLevel: allCount ? (allLevel / allCount).toFixed(1) : '0',
           sumExp: allExp.toLocaleString(),
-          avgExp: Math.floor(allExp / allCount).toLocaleString(),
-          expRate: 100,
+          avgExp: allCount ? Math.floor(allExp / allCount).toLocaleString() : '0',
+          expRate: allCount ? 100 : 0,
         },
       });
+
+      expRanks = expRanks
+        .sort((a, b) => {
+          if (b.exp !== a.exp) return b.exp - a.exp;
+          return a.id - b.id;
+        })
+        .splice(0, 50);
+      this.expRankTable = [];
+      for (let i = 0; i < expRanks.length; i += 1) {
+        const rankData = expRanks[i];
+        const name = all.find((v) => v.albumId === rankData.id)?.name;
+        if (name) {
+          rankData.name = name;
+        }
+        if (allExp) {
+          rankData.rate = (100 * rankData.exp) / allExp;
+        }
+
+        this.expRankTable.push({
+          rank: i + 1,
+          name: rankData.name,
+          exp: rankData.exp.toLocaleString(),
+          rate: rankData.rate.toFixed(2),
+        });
+      }
     },
   },
 });

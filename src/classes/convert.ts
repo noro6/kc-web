@@ -916,4 +916,82 @@ export default class Convert {
         return value;
     }
   }
+
+  /**
+   * Created by romulus on 2014/9/10.
+   * @static
+   * @param {string} dataString
+   * @return {*}  {string}
+   * @memberof Convert
+   */
+  public static encode64(dataString: string): string {
+    const CODE = ['0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
+      '1000', '1001', '1010', '1011', '1100', '1101'];
+    const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-';
+    let buff = '';
+    let outputString = '';
+    for (let j = 0; j < dataString.length; j += 1) {
+      const c = dataString.charAt(j);
+      let pos: number;
+      if (c === ',') {
+        pos = 10;
+      } else if (c === '|') {
+        pos = 11;
+      } else if (c === '.') {
+        pos = 12;
+      } else if (c === ':') {
+        pos = 13;
+      } else {
+        // eslint-disable-next-line radix
+        pos = parseInt(c);
+      }
+      buff += CODE[pos];
+      if (buff.length >= 6) {
+        const seg = buff.slice(0, 6);
+        outputString += BASE64.charAt(parseInt(seg, 2));
+        buff = buff.slice(6);
+      }
+    }
+    if (buff.length > 0) {
+      while (buff.length < 6) {
+        buff += '1';
+      }
+      outputString += BASE64.charAt(parseInt(buff, 2));
+    }
+    return outputString;
+  }
+
+  public static decode64(inputString: string): string {
+    const CODE = ['0000', '0001', '0010', '0011', '0100', '0101', '0110', '0111',
+      '1000', '1001', '1010', '1011', '1100', '1101'];
+    const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-';
+    let dataString = '';
+    let buff = '';
+    for (let j = 0; j < inputString.length; j += 1) {
+      let inp = BASE64.indexOf(inputString[j]).toString(2);
+      while (inp.length < 6) {
+        inp = `0${inp}`;
+      }
+      buff += inp;
+      while (buff.length >= 4) {
+        const seg = buff.slice(0, 4);
+        const pos = CODE.indexOf(seg);
+        if (pos === -1) {
+          // Padding, do nothing
+        } else if (pos === 10) {
+          dataString += ',';
+        } else if (pos === 11) {
+          dataString += '|';
+        } else if (pos === 12) {
+          dataString += '.';
+        } else if (pos === 13) {
+          dataString += ':';
+        } else {
+          dataString += pos;
+        }
+        buff = buff.slice(4);
+      }
+    }
+    return dataString;
+  }
 }
