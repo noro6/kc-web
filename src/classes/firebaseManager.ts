@@ -35,7 +35,6 @@ export default class FirebaseManager {
           postShips.push([data.id, [[data.uniqueId, data.level, data.exp, stArray, data.area, releaseExpand]]]);
         }
       }
-      console.log(postShips);
       result.ships = LZString.compressToEncodedURIComponent(JSON.stringify(postShips));
     }
     if (items && items.length && items.some((v) => v.num.some((x) => x > 0))) {
@@ -58,7 +57,6 @@ export default class FirebaseManager {
         }
         postItems.push(postItem);
       }
-      console.log(postItems);
       result.items = LZString.compressToEncodedURIComponent(JSON.stringify(postItems));
     }
     return result;
