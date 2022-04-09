@@ -328,10 +328,14 @@ export default Vue.extend({
     kantaiSarashiURL: '',
   }),
   mounted() {
+    // まず読み専か判定
+    this.readOnlyMode = this.$store.getters.getExistsTempStock;
+
     const histories = this.$store.state.outputHistories as OutputHistory[];
     if (histories && histories.length) {
       this.outputHistories = histories.concat();
     }
+
     this.generateKCAnalyticsCode();
     this.generateKantaiSarashiURL();
     this.unsbscribe = this.$store.subscribe((mutation) => {
