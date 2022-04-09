@@ -827,6 +827,7 @@ export default Vue.extend({
       }
     },
     clickedItem(data: { item: Item; count: number }) {
+      this.clearTooltip();
       if (data.count || this.confirmDialog) {
         this.confirmDialog = false;
         this.handleEquipItem(data.item);
