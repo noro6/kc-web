@@ -124,6 +124,25 @@ export default class Calculator {
   }
 
   /**
+   * 支援艦隊 -航空支援制空判定
+   * @static
+   * @param {Fleet} fleet
+   * @param {EnemyFleet} enemyFleet
+   * @memberof Calculator
+   */
+  public static calculateAerialSupportPhase(fleets: Fleet[], enemyFleet: EnemyFleet, battle: number): void {
+    for (let i = 0; i < fleets.length; i += 1) {
+      const fleet = fleets[i];
+      if (fleet.hasPlane) {
+        const state = CommonCalc.getAirState(fleet.supportAirPower, enemyFleet.airPower);
+        const result = fleet.results[battle];
+        result.addSupportRates(state);
+        result.loopSumEnemySupportAirPower += enemyFleet.airPower;
+      }
+    }
+  }
+
+  /**
    * 噴式強襲フェーズ計算 副作用は次の値の変更
    * Fleet: airPower
    * Item: airPower, slot

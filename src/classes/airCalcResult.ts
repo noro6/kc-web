@@ -11,13 +11,19 @@ export default class AirCalcResult {
   public airStateBarWidth = 0;
 
   /** 各制空状態の割合 */
-  public rates: number[] = [0, 0, 0, 0, 0, 0];
+  public rates = [0, 0, 0, 0, 0, 0];
+
+  /** 各制空状態の割合 */
+  public supportRates = [0, 0, 0, 0, 0, 0];
 
   /** 計算処理ループ中の表示戦闘での制空値記録用 */
   public loopSumAirPower = 0;
 
   /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
   public loopSumEnemyAirPower = 0;
+
+  /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
+  public loopSumEnemySupportAirPower = 0;
 
   /** 計算処理ループ中の表示戦闘での制空値記録用 */
   public avgAirPower = 0;
@@ -75,6 +81,15 @@ export default class AirCalcResult {
    */
   public addRates(state: number): void {
     this.rates[state] += 1;
+  }
+
+  /**
+   * 指定した制空状態の結果を1増加させる -支援艦隊
+   * @param {number} state
+   * @memberof AirCalcResult
+   */
+  public addSupportRates(state: number): void {
+    this.supportRates[state] += 1;
   }
 
   /**

@@ -94,10 +94,20 @@ export default class CalcManager {
       airbases[i].resultWave2 = new AirCalcResult();
     }
 
+    // 計算結果格納用リザルト全艦隊初期化
+    for (let i = 0; i < fleetInfo.fleets.length; i += 1) {
+      const f = fleetInfo.fleets[i];
+      f.results = [];
+      for (let j = 0; j < battleCount; j += 1) {
+        f.results.push(new AirCalcResult());
+      }
+    }
+
     fleet.results = [];
-    for (let i = 0; i < battleCount; i += 1) {
+    for (let j = 0; j < battleCount; j += 1) {
       fleet.results.push(new AirCalcResult());
     }
+
     // 艦載機の各戦闘開始時搭載数記録用の配列の初期化
     for (let i = 0; i < fleet.allPlanes.length; i += 1) {
       const item = fleet.allPlanes[i];
@@ -121,6 +131,7 @@ export default class CalcManager {
       // 設定された戦闘回数下記の各計算処理を行う
       for (let battle = 0; battle < battleCount; battle += 1) {
         const enemyFleet = battles[battle];
+        const isMainBattle = mainBattle === battle;
 
         /** ======= 基地航空隊フェーズ ======= */
         Calculator.calculateAirbasePhase(airbases, enemyFleet, battle);
@@ -132,11 +143,16 @@ export default class CalcManager {
         sumUsedSteels += Calculator.shootDownFleetJet(fleet, enemyFleet);
 
         /** ======= 本隊航空戦フェーズ ======= */
-        Calculator.calculateMainPhase(fleet, enemyFleet, battle, battle === mainBattle);
+        Calculator.calculateMainPhase(fleet, enemyFleet, battle, isMainBattle);
 
         /** ======= 本隊航空戦フェーズ2回目(航空戦マスなら) ======= */
         if (enemyFleet.cellType === CELL_TYPE.AERIAL_COMBAT) {
           Calculator.calculateAerialConbatCellPhase(fleet, enemyFleet);
+        }
+
+        /** ======= 支援艦隊 航空支援フェーズ ======= */
+        if (isMainBattle) {
+          Calculator.calculateAerialSupportPhase(fleetInfo.fleets, enemyFleet, battle);
         }
 
         // 減ったフラグがたってるなら
@@ -219,8 +235,8 @@ export default class CalcManager {
       }
     }
 
-    const enemyItems = this.battleInfo.fleets[this.mainBattle].allPlanes;
-    const calculatedEnemyItems = battles[this.mainBattle].allPlanes;
+    const enemyItems = this.battleInfo.fleets[mainBattle].allPlanes;
+    const calculatedEnemyItems = battles[mainBattle].allPlanes;
     for (let i = 0; i < enemyItems.length; i += 1) {
       const item = calculatedEnemyItems[i];
       const mainItem = enemyItems[i];
@@ -230,6 +246,19 @@ export default class CalcManager {
       if (mainItem.needRecord) {
         mainItem.dist = item.dist;
       }
+    }
+
+    // 支援艦隊の結果格納
+    for (let i = 0; i < fleetInfo.fleets.length; i += 1) {
+      const f = fleetInfo.fleets[i];
+      if (!this.fleetInfo.fleets[i].results[mainBattle]) {
+        this.fleetInfo.fleets[i].results = [];
+        for (let count = 0; count <= mainBattle; count += 1) {
+          this.fleetInfo.fleets[i].results.push(new AirCalcResult());
+        }
+      }
+      this.fleetInfo.fleets[i].results[mainBattle].supportRates = f.results[mainBattle].supportRates.map((v) => (100 * v) / maxCount);
+      this.fleetInfo.fleets[i].results[mainBattle].loopSumEnemySupportAirPower = f.results[mainBattle].loopSumEnemySupportAirPower / maxCount;
     }
   }
 

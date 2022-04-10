@@ -110,6 +110,12 @@ export default class Ship implements ShipBase {
   /** 制空値(搭載数満タン) */
   public readonly fullAirPower: number;
 
+  /** 支援制空値 */
+  public readonly supportAirPower: number;
+
+  /** 対潜支援参加可能 */
+  public readonly enabledASWSupport: boolean;
+
   /** 装備による索敵ボーナス */
   public readonly bonusScout: number;
 
@@ -196,6 +202,7 @@ export default class Ship implements ShipBase {
     }
 
     this.fullAirPower = 0;
+    this.supportAirPower = 0;
     this.antiAirBonus = 0;
     this.itemsScout = 0;
     this.itemAsw = 0;
@@ -210,6 +217,7 @@ export default class Ship implements ShipBase {
     this.koshaCount = 0;
     this.hunshinRate = 0;
     this.enabledTSBK = false;
+    this.enabledASWSupport = false;
 
     // 以下、計算により算出するステータス
     // レベルより算出
@@ -225,6 +233,9 @@ export default class Ship implements ShipBase {
     this.tp = this.getTransportPower();
     // 射程(基本値)
     this.actualRange = Math.max(this.data.range, 1);
+
+    // 対潜支援参加可能艦種
+    const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
 
     // 装備一覧より取得
     const items = this.items.concat(this.exItem);
@@ -249,6 +260,7 @@ export default class Ship implements ShipBase {
       if (item.fullSlot > 0 && item.isPlane && !item.isRecon && !item.isABAttacker) {
         // 通常制空値
         this.fullAirPower += item.fullAirPower;
+        this.supportAirPower += item.supportAirPower;
       }
       // ジェット機所持
       if (!this.hasJet && item.isJet) {
@@ -286,6 +298,11 @@ export default class Ship implements ShipBase {
       // SGレーダー(初期型) + [ アメリカ駆逐 / 丹陽 / 雪風改二 ] は射程長
       if (item.data.id === 315 && (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656)) {
         this.actualRange = 3;
+      }
+
+      // 対潜支援参加可装備チェック
+      if (!this.enabledASWSupport && enabledASWSupport && Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
+        this.enabledASWSupport = true;
       }
     }
 

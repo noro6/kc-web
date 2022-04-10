@@ -136,7 +136,7 @@
       </div>
     </v-card>
     <v-card class="ma-3 py-3 px-2">
-      <div class="body-2 px-2">各フェーズ制空状態の確率</div>
+      <div class="body-2 px-2 mb-1">各フェーズ制空状態の確率</div>
       <table>
         <thead>
           <tr>
@@ -235,6 +235,39 @@
       </table>
       <v-divider></v-divider>
     </v-card>
+    <v-card class="ma-3 py-3 px-2">
+      <div class="body-2 px-2">支援艦隊</div>
+      <table>
+        <thead>
+          <tr>
+            <th class="text-left py-1 pl-3">艦隊</th>
+            <th class="text-left">種別</th>
+            <th>制空値</th>
+            <th>敵制空値( 確保 / 優勢 / 拮抗 / 劣勢)</th>
+            <th class="pr-2">確保</th>
+            <th class="pr-2">優勢</th>
+            <th class="pr-2">拮抗</th>
+            <th class="pr-2">劣勢</th>
+            <th class="pr-2">喪失</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, i) in supportsTableRow" :key="`support_${i}`">
+            <td class="text-left py-2 pl-3">{{ row.name }}</td>
+            <td class="text-left">{{ row.typeName }}</td>
+            <td>{{ row.airPower }}</td>
+            <td>{{ row.enemyAirPower }}</td>
+            <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
+              <span v-if="rate">{{ rate }} %</span>
+              <span v-else>-</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <v-divider></v-divider>
+      <div class="pl-2 caption mt-1">※ 制空値は航空支援専用の制空値です。熟練度や改修値に影響されません。</div>
+      <div class="pl-2 caption">※ 敵制空値は本隊航空戦終了時点での制空値の平均です。</div>
+    </v-card>
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
@@ -285,7 +318,7 @@ table th {
 table tr td {
   border-top: 1px solid rgba(128, 128, 128, 0.25);
 }
-table tr:hover {
+table tbody tr:hover {
   background-color: rgba(128, 128, 128, 0.05);
 }
 .td-ship-name {
@@ -411,7 +444,7 @@ import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Fleet from '@/classes/fleet/fleet';
 import AirCalcResult from '@/classes/airCalcResult';
 import Item from '@/classes/item/item';
-import Const, { AB_MODE, Formation } from '@/classes/const';
+import Const, { AB_MODE, Formation, SUPPORT_TYPE } from '@/classes/const';
 import CommonCalc from '@/classes/commonCalc';
 import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
@@ -530,6 +563,43 @@ export default Vue.extend({
       }
       return enemies;
     },
+    supportsTableRow(): { name: string }[] {
+      const rows = [];
+      const fleets = this.value.fleetInfo.fleets.filter((v, i) => i < 4);
+      const supports = Const.SUPPORTS;
+      const mainIndex = this.value.fleetInfo.mainFleetIndex;
+      for (let i = 0; i < fleets.length; i += 1) {
+        // 出撃中のやつは出撃中フラグを建てる
+        let isMainFleet = false;
+        if (i === mainIndex || (this.value.fleetInfo.isUnion && mainIndex <= 1 && i <= 1)) {
+          isMainFleet = true;
+        }
+
+        const fleet = fleets[i];
+        const types = fleet.supportTypes;
+        const typeNames = types.map((v) => {
+          const support = supports.find((w) => w.value === v);
+          return support ? support.text : '-';
+        });
+
+        const needResult = types.includes(SUPPORT_TYPE.AIRSTRIKE) || types.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
+        const result = fleet.results.find((v) => v.supportRates.some((w) => w > 0));
+
+        const rates = needResult && result ? result.supportRates.map((v) => Math.round(10 * v) / 10) : [0, 0, 0, 0, 0];
+        const avg = needResult && result ? Math.round(result.loopSumEnemySupportAirPower) : 0;
+        const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
+        rows.push({
+          name: `第${i + 1}艦隊`,
+          typeName: typeNames.join(' / '),
+          airPower: fleet.supportAirPower,
+          enemyAirPower,
+          rates: rates.slice(0, 5),
+          isMainFleet,
+        });
+      }
+
+      return rows;
+    },
     battles(): EnemyFleet[] {
       return this.value.battleInfo.fleets;
     },
@@ -545,10 +615,7 @@ export default Vue.extend({
     calcSteel(): string {
       return this.value.fleetInfo.mainFleet.mainResult.avgUsedSteels.toFixed();
     },
-    airPowerBorders: () => (airPower: number) => {
-      CommonCalc.getAirStatusBorder(airPower).join(' / ');
-      return `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`;
-    },
+    airPowerBorders: () => (airPower: number) => `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`,
   },
   methods: {
     reflesh() {

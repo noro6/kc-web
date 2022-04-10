@@ -100,6 +100,17 @@ export const CAP = {
 } as const;
 type CAP = typeof CAP[keyof typeof CAP];
 
+/** 難易度 */
+export const SUPPORT_TYPE = {
+  SHELLING: 0,
+  AIRSTRIKE: 1,
+  ANTI_SUBMARINE: 2,
+  LONG_RANGE_TORPEDO: 3,
+  NOT_FOUND_DD: 4,
+  NONE: 5,
+} as const;
+type SUPPORT_TYPE = typeof SUPPORT_TYPE[keyof typeof SUPPORT_TYPE];
+
 export default class Const {
   /**
  * 基地航空隊札一覧
@@ -149,6 +160,8 @@ export default class Const {
   public static readonly BAKUSEN = [60, 154, 219, 447];
 
   public static readonly ENABLED_LANDBASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421];
+
+  public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
@@ -509,6 +522,20 @@ export default class Const {
     { text: '第二警戒', value: FORMATION.FORMATION2, correction: 1.0 },
     { text: '第三警戒', value: FORMATION.FORMATION3, correction: 1.5 },
     { text: '第四警戒', value: FORMATION.FORMATION4, correction: 1.0 },
+  ];
+
+  /**
+ * 支援一覧
+ * @static
+ * @memberof Const
+ */
+  public static readonly SUPPORTS = [
+    { text: '支援射撃', value: SUPPORT_TYPE.SHELLING },
+    { text: '航空支援', value: SUPPORT_TYPE.AIRSTRIKE },
+    { text: '対潜支援哨戒', value: SUPPORT_TYPE.ANTI_SUBMARINE },
+    { text: '支援長距離雷撃', value: SUPPORT_TYPE.LONG_RANGE_TORPEDO },
+    { text: '支援不可(要駆逐2)', value: SUPPORT_TYPE.NOT_FOUND_DD },
+    { text: '不発', value: SUPPORT_TYPE.NONE },
   ];
 
   /**

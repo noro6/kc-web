@@ -1,5 +1,7 @@
 import Ship from './ship';
-import Const, { AvoidType, FORMATION, Formation } from '../const';
+import Const, {
+  AvoidType, FORMATION, Formation, SHIP_TYPE, SUPPORT_TYPE,
+} from '../const';
 import Item from '../item/item';
 import AirCalcResult from '../airCalcResult';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
@@ -29,6 +31,12 @@ export default class Fleet {
 
   /** 艦隊制空値 */
   public readonly fullAirPower: number;
+
+  /** 支援タイプ Const.SUPPORT_TYPE参照 */
+  public readonly supportTypes: number[];
+
+  /** 支援制空値 */
+  public readonly supportAirPower: number;
 
   /** 輸送量 */
   public readonly tp: number;
@@ -90,6 +98,7 @@ export default class Fleet {
     this.fleetAntiAir = this.getFleetAntiAir(formation);
     this.tp = 0;
     this.fullAirPower = 0;
+    this.supportAirPower = 0;
     this.hasJet = false;
     this.hasPlane = false;
 
@@ -103,6 +112,7 @@ export default class Fleet {
       const ship = enabledShips[i];
       if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
+        this.supportAirPower += ship.supportAirPower;
         this.tp += ship.tp;
 
         for (let j = 0; j < ship.antiAirCutIn.length; j += 1) {
@@ -170,6 +180,8 @@ export default class Fleet {
       enabledShips[i].fixDown = noCutinData.shootDownStatusList[0].fixDownList[i];
       enabledShips[i].rateDown = noCutinData.shootDownStatusList[0].rateDownList[i];
     }
+
+    this.supportTypes = this.getSupportTypes();
   }
 
   /**
@@ -261,5 +273,57 @@ export default class Fleet {
   public getContactRates(isUnion = false): ContactRate[] {
     const items = isUnion ? this.allPlanes : this.allPlanes.filter((v) => !v.isEscortItem);
     return Item.getContactRates(items);
+  }
+
+  /**
+   * 発生する支援種別を返却
+   * @returns {number}
+   * @memberof Fleet
+   */
+  private getSupportTypes(): number[] {
+    // 駆逐2チェック
+    if (this.ships.filter((v) => v.data.type === SHIP_TYPE.DD).length < 2) {
+      return [SUPPORT_TYPE.NOT_FOUND_DD];
+    }
+
+    const types = this.ships.map((v) => v.data.type);
+    // 空母系
+    const countCA = types.filter((v) => v === SHIP_TYPE.CV || v === SHIP_TYPE.CVB || v === SHIP_TYPE.CVL).length;
+    // 航空支援系A(水母 揚陸艦)
+    const aerialACount = types.filter((v) => v === SHIP_TYPE.AV || v === SHIP_TYPE.LHA).length;
+    // 航空支援系B(航戦 航巡 補給)
+    const aerialBCount = types.filter((v) => v === SHIP_TYPE.BBV || v === SHIP_TYPE.CAV || v === SHIP_TYPE.AO || v === SHIP_TYPE.AO_2).length;
+    // 砲撃支援系存在(戦艦 重巡)
+    const hasFIreType = types.some((v) => v === SHIP_TYPE.BB || v === SHIP_TYPE.FBB || v === SHIP_TYPE.BBB || v === SHIP_TYPE.CA);
+
+    if (hasFIreType && (countCA + aerialACount < 2)) {
+      // 砲撃支援系存在し、空母系 + 航空支援系Aが2未満
+      return [SUPPORT_TYPE.SHELLING];
+    }
+
+    // 航空支援判定
+    if (countCA || aerialACount >= 2 || aerialBCount >= 2) {
+      const supports = [];
+      // 対潜支援判定 軽空母がいるかつ対潜艦1
+      const cvlIndex = this.ships.findIndex((v) => v.data.type === SHIP_TYPE.CVL);
+      // ↑の軽空母以外で対潜支援参加可能
+      if (cvlIndex >= 0 && this.ships.filter((v, i) => i !== cvlIndex && v.enabledASWSupport).length) {
+        supports.push(SUPPORT_TYPE.ANTI_SUBMARINE);
+      } if (cvlIndex >= 0 && this.ships.filter((v) => v.data.type === SHIP_TYPE.DE).length >= 2) {
+        // 海防艦 * 2でもOK
+        supports.push(SUPPORT_TYPE.ANTI_SUBMARINE);
+      }
+
+      // 航空支援
+      if (this.allPlanes.some((v) => v.isAttacker)) {
+        supports.push(SUPPORT_TYPE.AIRSTRIKE);
+      }
+
+      if (supports.length) {
+        return supports;
+      }
+      return [SUPPORT_TYPE.NONE];
+    }
+    return [SUPPORT_TYPE.LONG_RANGE_TORPEDO];
   }
 }

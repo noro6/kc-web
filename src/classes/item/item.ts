@@ -91,6 +91,9 @@ export default class Item {
   /** 装備制空値(防空時) */
   public readonly defenseAirPower: number;
 
+  /** 支援制空値 */
+  public readonly supportAirPower: number;
+
   /** 触接選択率 [確保時, 優勢時, 劣勢時] */
   public readonly contactSelectRates: number[];
 
@@ -250,9 +253,11 @@ export default class Item {
     if (this.isPlane) {
       this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
       this.defenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
+      this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
     } else {
       this.fullAirPower = 0;
       this.defenseAirPower = 0;
+      this.supportAirPower = 0;
     }
 
     // 現在制空値の初期化
