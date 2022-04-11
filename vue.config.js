@@ -4,7 +4,7 @@ module.exports = {
   pages: {
     index: {
       entry: 'src/main.ts',
-      title: '制空権シミュレータ',
+      title: '制空権シミュレータ v2',
     },
   },
 };
