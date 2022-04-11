@@ -40,7 +40,6 @@ export default class CalcManager {
   public async updateInfo(simulationCount = 10000): Promise<void> {
     this.isDefense = this.airbaseInfo.isDefense;
     this.mainBattle = this.mainBattle < 0 ? 0 : this.mainBattle;
-    console.time('mainCalculated');
 
     if (this.isDefense) {
       // 防空モード計算 & 結果格納
@@ -49,7 +48,6 @@ export default class CalcManager {
       // 通常モード計算
       this.calculate(simulationCount);
     }
-    console.timeEnd('mainCalculated');
   }
 
   /**

@@ -1,5 +1,5 @@
 <template>
-  <BarChart ref="doughnutRef" :chart-data="actualData" :options="actualOptions" :plugins="plugins" :style="styles" />
+  <BarChart ref="barRef" :chart-data="actualData" :options="actualOptions" :plugins="plugins" :style="styles" />
 </template>
 
 <script lang="ts">
@@ -81,7 +81,7 @@ export default Vue.use(vueCompositionApi).extend({
     },
   },
   data: () => ({
-    doughnutRef: {},
+    barRef: {},
     plugins: [ChartDataLabels],
   }),
   computed: {
