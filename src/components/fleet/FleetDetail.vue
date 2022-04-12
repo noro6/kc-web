@@ -11,6 +11,7 @@
     <v-tabs v-model="tab">
       <v-tab href="#stage2">対空砲火</v-tab>
       <v-tab href="#contact">触接</v-tab>
+      <v-tab href="#anti-submarine-calculator">対潜支援計算機</v-tab>
       <v-tab-item value="stage2" class="detail-fleet">
         <v-divider></v-divider>
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
@@ -18,6 +19,10 @@
       <v-tab-item value="contact" class="detail-fleet">
         <v-divider></v-divider>
         <contact-rates :fleet="fleet" />
+      </v-tab-item>
+      <v-tab-item value="anti-submarine-calculator" class="detail-fleet">
+        <v-divider></v-divider>
+        <anti-submarine-support :fleet="fleet" />
       </v-tab-item>
     </v-tabs>
   </v-card>
@@ -36,12 +41,14 @@
 <script lang="ts">
 import Vue from 'vue';
 import Fleet from '@/classes/fleet/fleet';
-import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import ContactRates from '@/components/result/ContactRates.vue';
+import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
+import AntiSubmarineSupport from '@/components/result/AntiSubmarineSupport.vue';
 
 export default Vue.extend({
   name: 'FleetDetail',
   components: {
+    AntiSubmarineSupport,
     AntiAirCalculator,
     ContactRates,
   },

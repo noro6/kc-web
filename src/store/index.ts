@@ -16,7 +16,9 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
-import { Master, MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import {
+  Master, MasterEnemy, MasterEquipmentExSlot, MasterEquipmentShip, MasterItem, MasterShip,
+} from '@/classes/interfaces/master';
 import OutputHistory from '@/classes/saveData/outputHistory';
 
 Vue.use(Vuex);
@@ -47,14 +49,35 @@ export default new Vuex.Store({
     completed: false,
   },
   mutations: {
-    setShips: (state, values: ShipMaster[]) => {
-      state.ships = values;
+    setShips: (state, values: MasterShip[]) => {
+      const ships: ShipMaster[] = [];
+      for (let i = 0; i < values.length; i += 1) {
+        const ship = new ShipMaster(values[i]);
+        if (ship.id) {
+          ships.push(ship);
+        }
+      }
+      state.ships = ships;
     },
-    setEnemies: (state, values: EnemyMaster[]) => {
-      state.defaultEnemies = values;
+    setEnemies: (state, values: MasterEnemy[]) => {
+      const enemies: EnemyMaster[] = [];
+      for (let i = 0; i < values.length; i += 1) {
+        const enemy = new EnemyMaster(values[i]);
+        if (enemy.id) {
+          enemies.push(enemy);
+        }
+      }
+      state.defaultEnemies = enemies;
     },
-    setItems: (state, values: ItemMaster[]) => {
-      state.items = values;
+    setItems: (state, values: MasterItem[]) => {
+      const items: ItemMaster[] = [];
+      for (let i = 0; i < values.length; i += 1) {
+        const item = new ItemMaster(values[i]);
+        if (item.id) {
+          items.push(item);
+        }
+      }
+      state.items = items;
     },
     setExSlotEquipShips: (state, values: MasterEquipmentExSlot[]) => {
       state.exSlotEquipShips = values;
@@ -219,37 +242,9 @@ export default new Vuex.Store({
               return;
             }
             const master = response.data as Master;
-            // 装備情報
-            const masterItems = master.items;
-            const items: ItemMaster[] = [];
-            for (let i = 0; i < masterItems.length; i += 1) {
-              const item = new ItemMaster(masterItems[i]);
-              if (item.id) {
-                items.push(item);
-              }
-            }
-            // 艦娘情報
-            const masterShips = master.ships;
-            const ships: ShipMaster[] = [];
-            for (let i = 0; i < masterShips.length; i += 1) {
-              const ship = new ShipMaster(masterShips[i]);
-              if (ship.id) {
-                ships.push(ship);
-              }
-            }
-            // 装備情報
-            const masterEnemies = master.enemies;
-            const enemies: EnemyMaster[] = [];
-            for (let i = 0; i < masterEnemies.length; i += 1) {
-              const enemy = new EnemyMaster(masterEnemies[i]);
-              if (enemy.id) {
-                enemies.push(enemy);
-              }
-            }
-
-            context.commit('setItems', items);
-            context.commit('setShips', ships);
-            context.commit('setEnemies', enemies);
+            context.commit('setItems', master.items);
+            context.commit('setShips', master.ships);
+            context.commit('setEnemies', master.enemies);
             context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
             context.commit('setEquipShips', master.api_mst_equip_ship);
           })
@@ -269,37 +264,9 @@ export default new Vuex.Store({
               return;
             }
             const master = response.data as Master;
-            // 装備情報
-            const masterItems = master.items;
-            const items: ItemMaster[] = [];
-            for (let i = 0; i < masterItems.length; i += 1) {
-              const item = new ItemMaster(masterItems[i]);
-              if (item.id) {
-                items.push(item);
-              }
-            }
-            // 艦娘情報
-            const masterShips = master.ships;
-            const ships: ShipMaster[] = [];
-            for (let i = 0; i < masterShips.length; i += 1) {
-              const ship = new ShipMaster(masterShips[i]);
-              if (ship.id) {
-                ships.push(ship);
-              }
-            }
-            // 装備情報
-            const masterEnemies = master.enemies;
-            const enemies: EnemyMaster[] = [];
-            for (let i = 0; i < masterEnemies.length; i += 1) {
-              const enemy = new EnemyMaster(masterEnemies[i]);
-              if (enemy.id) {
-                enemies.push(enemy);
-              }
-            }
-
-            context.commit('setItems', items);
-            context.commit('setShips', ships);
-            context.commit('setEnemies', enemies);
+            context.commit('setItems', master.items);
+            context.commit('setShips', master.ships);
+            context.commit('setEnemies', master.enemies);
             context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
             context.commit('setEquipShips', master.api_mst_equip_ship);
           })

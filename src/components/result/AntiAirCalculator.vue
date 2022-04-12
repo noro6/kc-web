@@ -79,8 +79,7 @@
     >
       <div class="d-flex flex-grow-1">
         <div class="align-self-center mr-2">
-          <v-img v-if="item.isEnemy" :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
-          <v-img v-else :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
+          <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
         </div>
         <div class="align-self-center d-none d-sm-block flex-grow-1">
           <div class="stage2-id primary--text" v-if="item.isEnemy">id:{{ item.id }}</div>
