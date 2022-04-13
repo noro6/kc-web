@@ -19,7 +19,7 @@
         <div class="d-flex">
           <div class="align-self-center item-slot">{{ item.fullSlot }}</div>
           <div>
-            <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="25" width="25"></v-img>
+            <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
           </div>
           <div class="ml-1 align-self-center tooltip-item-text id">id:{{ item.data.id }}</div>
           <div class="ml-1 align-self-center item-name">{{ item.data.name }}</div>

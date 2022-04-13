@@ -40,7 +40,7 @@
             <div v-for="(item, i) in presetItemView" :key="`view${i}`" class="view-item">
               <div class="caption">{{ i + 1 }}.</div>
               <div class="ml-1">
-                <v-img v-if="item.iconTypeId > 0" :src="`./img/type/icon${item.iconTypeId}.png`" width="24" height="24" />
+                <v-img v-if="item.iconTypeId > 0" :src="`./img/type/icon${item.iconTypeId}.png`" width="30" height="30" />
               </div>
               <div class="ml-1 body-2 text-truncate">{{ item.name }}</div>
             </div>

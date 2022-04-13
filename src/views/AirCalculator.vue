@@ -49,6 +49,7 @@
           v-show="!calcManager.isDefense"
           :handle-change-main-battle="changeMainBattle"
           :handle-change-formation="changeFormation"
+          :handle-more-calculate="calculateMore"
           :handle-minimize="toggleMinimizeResult"
           :sort-mode="sortMode"
           ref="mainResult"
@@ -276,20 +277,27 @@ export default Vue.extend({
       // 陣形を整える
       this.calcManager.fleetInfo = FleetInfo.getInfoWithChangedFormation(this.calcManager.fleetInfo, formation);
     },
-    calculate() {
+    calculateMore() {
+      this.calculate(100000);
+    },
+    calculate(count = 0) {
       // ドラッグ完了までは計算を実行しない
       if (document.getElementById('dragging-item')) {
         return;
       }
       const manager = this.calcManager;
 
-      manager.updateInfo(this.setting.simulationCount);
+      if (count > 0) {
+        manager.updateInfo(count);
+      } else {
+        manager.updateInfo(this.setting.simulationCount);
+      }
       // 計算結果の格納
       const mainData = this.$store.state.mainSaveData as SaveData;
       const needPutHistory = !manager.fleetInfo.calculated || !manager.airbaseInfo.calculated || !manager.battleInfo.calculated;
       const isIgnoreHistory = manager.fleetInfo.ignoreHistory || manager.airbaseInfo.ignoreHistory || manager.battleInfo.ignoreHistory;
       // シミュレータ内からの更新だった場合(外部のタブ操作やundo redoでの計算処理でない場合)のみ、履歴を更新
-      if (mainData && needPutHistory && !isIgnoreHistory) {
+      if (mainData && needPutHistory && !isIgnoreHistory && count === 0) {
         mainData.putHistory(manager);
       }
 
@@ -303,6 +311,7 @@ export default Vue.extend({
       if (resultForm) {
         resultForm.displayBattle = this.calcManager.mainBattle;
         resultForm.tab = `battle${this.calcManager.mainBattle}`;
+        resultForm.moreCalculateRequested = count > 0;
       }
 
       if (this.saveTriggerTimer) {
@@ -315,6 +324,10 @@ export default Vue.extend({
           const saveData = this.$store.state.saveData as SaveData;
           this.$store.dispatch('updateSaveData', saveData);
         }, 100);
+      }
+
+      if (count > 0) {
+        this.$emit('inform', `計算が完了しました。(+${count.toLocaleString()}回)`);
       }
     },
     startContentOrder() {

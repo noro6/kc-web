@@ -252,6 +252,19 @@ export default class AerialFirePowerCalculator {
     return resultPowers;
   }
 
+  /**
+   * 火力分布計算
+   * @private
+   * @static
+   * @param {Item} item
+   * @param {number} slot
+   * @param {FirePowerCalcArgs} args
+   * @param {boolean} isEscort
+   * @param {number} rate
+   * @param {boolean} [isJetPhase=false]
+   * @return {*}  {PowerDist[]}
+   * @memberof AerialFirePowerCalculator
+   */
   private static getAerialFirePower(item: Item, slot: number, args: FirePowerCalcArgs, isEscort: boolean, rate: number, isJetPhase = false): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
     const allAfterCapBonus = args.contactBonus * args.afterCapBonus;
@@ -313,5 +326,28 @@ export default class AerialFirePowerCalculator {
       retPowers.push({ power: p * allAfterCapBonus, rate: rate / loop });
     }
     return retPowers;
+  }
+
+  public static getAswSupportForePowers(asw: number, slot: number, isCritical: boolean): PowerDist[] {
+    const powers: { power: number, rate: number }[] = [];
+
+    // キャップ前攻撃力＝int(int(0.6 × 機体対潜値) × √(搭載数) + 3)
+    const base = Math.floor(Math.floor(0.6 * Math.max(asw, 0)) * Math.sqrt(slot) + 3);
+    // キャップ適用
+    const p = CommonCalc.softCap(base, CAP.AS);
+    // 変動倍率
+    const bonusList = [
+      { value: 1.2, rate: 0.4 },
+      { value: 1.5, rate: 0.1 },
+      { value: 2, rate: 0.5 },
+    ];
+
+    for (let i = 0; i < bonusList.length; i += 1) {
+      const bonus = bonusList[i];
+      // 最終攻撃力 ＝ キャップ後攻撃力 × 1.75 × 変動倍率 × クリティカル補正
+      const power = p * 1.75 * bonus.value * (isCritical ? 1.5 : 1);
+      powers.push({ power, rate: bonus.rate });
+    }
+    return powers;
   }
 }

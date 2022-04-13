@@ -138,8 +138,8 @@
 .item-icon,
 .item-icon img {
   text-align: center;
-  width: 28px;
-  height: 28px;
+  width: 29px;
+  height: 29px;
 }
 .item-icon i {
   font-size: 1.2em;

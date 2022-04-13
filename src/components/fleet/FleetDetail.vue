@@ -11,7 +11,7 @@
     <v-tabs v-model="tab">
       <v-tab href="#stage2">対空砲火</v-tab>
       <v-tab href="#contact">触接</v-tab>
-      <v-tab href="#anti-submarine-calculator">対潜支援計算機</v-tab>
+      <v-tab href="#anti-submarine-calculator">対潜支援火力</v-tab>
       <v-tab-item value="stage2" class="detail-fleet">
         <v-divider></v-divider>
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />

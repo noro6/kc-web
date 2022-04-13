@@ -29,6 +29,14 @@
       </v-tooltip>
     </div>
     <v-divider class="mb-3"></v-divider>
+    <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested">
+      <div class="d-flex">
+        <div class="align-self-center">出撃5000回分の計算結果が表示されています。</div>
+        <div class="align-self-center ml-2">
+          <v-btn small color="info" @click="calculateMore()" :disabled="moreCalculateRequested">再計算して精度を上げる</v-btn>
+        </div>
+      </div>
+    </v-alert>
     <div class="px-1">
       <div class="d-flex">
         <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
@@ -50,7 +58,7 @@
               <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.name }}</td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="22" width="22"></v-img>
+                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                 </div>
                 <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
               </td>
@@ -212,7 +220,7 @@
           <template v-for="(row, i) in enemyTableData">
             <tr v-for="(item, j) in row.items" :key="`${i}-${j}`">
               <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">{{ row.enemy.data.name }}</td>
-              <td :class="`text-left d-flex py-1 item-input type-${item.data.iconTypeId}`">
+              <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                 </div>
@@ -334,7 +342,8 @@ table tbody tr:hover {
   border-left: 1px solid rgba(128, 128, 128, 0.4);
 }
 td.item-input {
-  min-height: 22px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 .item-name {
   flex-grow: 1;
@@ -469,6 +478,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleMoreCalculate: {
+      type: Function,
+      required: true,
+    },
     handleMinimize: {
       type: Function,
       required: true,
@@ -483,6 +496,7 @@ export default Vue.extend({
     detailIndex: 0,
     detailFleetIndex: 0,
     capturing: false,
+    moreCalculateRequested: false,
   }),
   computed: {
     formations(): Formation[] {
@@ -636,6 +650,10 @@ export default Vue.extend({
     },
     changedFormation(formation: number) {
       this.handleChangeFormation(formation);
+    },
+    calculateMore() {
+      this.moreCalculateRequested = true;
+      this.handleMoreCalculate();
     },
     clickedAirbaseRow(index: number) {
       this.viewDetail(this.airbases[index], index);

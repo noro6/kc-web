@@ -147,7 +147,7 @@
             @mouseleave="clearTooltip"
           >
             <div>
-              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30"></v-img>
             </div>
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ v.item.data.name }}
@@ -302,8 +302,8 @@
   cursor: pointer;
   padding-left: 0.25rem;
   padding-right: 0.1rem;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
   transition: 0.1s;
   border-radius: 0.2rem;
 }
@@ -318,7 +318,7 @@
 }
 .item-name {
   flex-grow: 1;
-  font-size: 0.8em;
+  font-size: 0.82em;
   width: 10px;
   margin-left: 0.1rem;
 }

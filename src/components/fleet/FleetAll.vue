@@ -216,7 +216,7 @@
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
                 </div>
                 <div class="item-img">
-                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
                 <div class="temp-ship-item-name">{{ item.data.name ? item.data.name : "未装備" }}</div>
                 <div class="item-remodel" v-if="item.remodel">
@@ -271,7 +271,7 @@
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
                 </div>
                 <div class="item-img">
-                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
                 <div class="temp-ship-item-name">{{ item.data.name ? item.data.name : "未装備" }}</div>
                 <div class="item-remodel" v-if="item.remodel">
@@ -457,7 +457,8 @@
 }
 .temp-item {
   display: flex;
-  margin-bottom: 0.25rem;
+  height: 30px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
 }
 .temp-item > div {
   align-self: center;
@@ -468,7 +469,7 @@
   margin-right: 0.25rem;
 }
 .item-img {
-  width: 24px;
+  width: 30px;
 }
 .temp-ship-item-name {
   font-size: 0.8em;
