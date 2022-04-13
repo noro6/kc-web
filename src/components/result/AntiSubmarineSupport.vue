@@ -48,25 +48,24 @@
           max="999"
           v-model.number="slot"
           label="搭載数"
-          hide-details
           outlined
           dense
+          :rules="[rules.counter]"
           @input="calculate()"
         ></v-text-field>
         <v-text-field
-          class="mt-4"
           type="number"
           min="0"
           max="999"
           v-model.number="asw"
           label="対潜"
-          hide-details
           outlined
           dense
+          :rules="[rules.counter]"
           @input="calculate()"
         ></v-text-field>
         <div class="d-flex">
-          <v-checkbox class="mt-3" label="クリティカル" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
+          <v-checkbox class="mt-0 pt-0" label="クリティカル" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
         </div>
       </div>
     </div>
@@ -309,6 +308,9 @@ export default Vue.extend({
     isCritical: false,
     enemyRows: [] as DamageRow[],
     powers: [] as string[],
+    rules: {
+      counter: (value: number) => (value <= 999 && value >= 0) || '0 ~ 999までが有効です。',
+    },
   }),
   mounted() {
     const enemies = this.$store.getters.getEnemies as EnemyMaster[];
@@ -382,6 +384,20 @@ export default Vue.extend({
       this.calculate();
     },
     calculate() {
+      // 検証
+      if (!this.asw || this.asw < 0) {
+        this.asw = 0;
+      }
+      if (!this.slot || this.slot < 0) {
+        this.slot = 0;
+      }
+      if (this.asw > 999) {
+        this.asw = 999;
+      }
+      if (this.slot > 999) {
+        this.slot = 999;
+      }
+
       const powers = AerialFirePowerCalculator.getAswSupportForePowers(this.asw, this.slot, this.isCritical);
       this.powers = powers.map((v) => `${Math.floor(100 * v.power) / 100}(${100 * v.rate}%)`);
 
@@ -389,9 +405,9 @@ export default Vue.extend({
       this.enemyRows = [];
       for (let i = 0; i < enemies.length; i += 1) {
         const enemy = enemies[i];
-        // 火力分布より、被ダメージ分布を取得
         const HP = enemy.data.hp;
 
+        // 火力分布より、被ダメージ分布を取得
         const damageDist = CommonCalc.getDamageDistribution(powers, enemy.actualArmor, 1, HP, true);
         const damages = damageDist.map((v) => v.damage);
 
@@ -432,7 +448,6 @@ export default Vue.extend({
         if (maxDamage === 0) {
           row.damage = '割合';
         }
-
         if (this.slot <= 0) {
           row.damage = '';
           this.slot = 0;
