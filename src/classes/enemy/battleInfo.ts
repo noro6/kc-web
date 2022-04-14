@@ -14,8 +14,10 @@ export interface BattleInfoBuilder {
 export default class BattleInfo {
   public readonly battleCount: number;
 
+  /** 敵艦隊 戦闘の数だけ */
   public readonly fleets: EnemyFleet[];
 
+  /** 防空用敵艦隊 */
   public readonly airRaidFleet: EnemyFleet;
 
   /** 計算済みフラグ */

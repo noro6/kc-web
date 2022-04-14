@@ -551,6 +551,7 @@ export default Vue.extend({
       this.handleCloseShip(this.index);
     },
     showItemList(slotIndex: number): void {
+      this.clearTooltip();
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.handleShowItemList(this.index, slotIndex);
     },

@@ -1,6 +1,6 @@
 <template>
   <div class="active-tab-list">
-    <draggable animation="150" class="d-flex">
+    <draggable animation="150" class="d-flex" handle=".drag-tab-handle">
       <div
         class="tab-item"
         v-for="(saveData, i) in viewData"
@@ -9,13 +9,16 @@
         @mousedown.middle="handleCloseTab(saveData, $event)"
         @click="clickSaveData(saveData)"
       >
-        <div>
-          <v-btn icon small @click.stop="showNameEditDialog(saveData)">
-            <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
-            <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
-          </v-btn>
+        <div class="drag-tab-handle tab-item-icon">
+          <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
+          <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
         </div>
-        <div class="tab-item-name text-truncate">{{ saveData.name }}</div>
+        <v-tooltip bottom color="black" open-delay="300">
+          <template v-slot:activator="{ on, attrs }">
+            <div class="tab-item-name text-truncate" v-bind="attrs" v-on="on">{{ saveData.name }}</div>
+          </template>
+          <span>{{ saveData.name }}</span>
+        </v-tooltip>
         <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted }">
           <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
             <v-icon small>mdi-close</v-icon>
@@ -78,7 +81,6 @@
 }
 .tab-item {
   display: flex;
-  cursor: pointer;
   flex: 1 1 auto;
   overflow: hidden;
   max-width: 200px;
@@ -99,11 +101,24 @@
 .tab-item > div {
   align-self: center;
 }
+
+.drag-tab-handle {
+  cursor: move !important;
+}
+.tab-item-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 0.3rem;
+  height: 28px;
+}
+
 .tab-item-name {
   margin-left: 0.25rem;
   flex-grow: 1;
   user-select: none;
 }
+
 .btn-close.editted {
   position: relative;
 }
@@ -258,13 +273,17 @@ export default Vue.extend({
       this.$store.dispatch('updateSaveData', this.saveData);
     },
     clickSaveData(data: SaveData) {
-      // 他の全ての計算状態を解除
-      this.saveData.disabledMain();
-      // 自身を計算状態に変更
-      data.isMain = true;
-      this.$store.dispatch('setMainSaveData', data);
-      if (!this.$route.path.endsWith('/aircalc')) {
-        this.$router.push('aircalc');
+      if (!data.isMain) {
+        // 他の全ての計算状態を解除
+        this.saveData.disabledMain();
+        // 自身を計算状態に変更
+        data.isMain = true;
+        this.$store.dispatch('setMainSaveData', data);
+        if (!this.$route.path.endsWith('/aircalc')) {
+          this.$router.push('aircalc');
+        }
+      } else {
+        this.showNameEditDialog(data);
       }
     },
     addNewFile() {

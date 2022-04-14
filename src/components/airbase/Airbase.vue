@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-1 pt-1 pb-2" @dragover.prevent @drop.stop>
+  <v-card class="mx-1 pt-1" @dragover.prevent @drop.stop>
     <div class="d-flex mb-1">
       <div class="ml-2 align-self-end airbase-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
@@ -23,7 +23,7 @@
         </v-btn>
       </div>
     </div>
-    <div class="airbase-body">
+    <div>
       <div class="d-flex caption pl-2 sub-status-area">
         <div>
           制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
@@ -64,7 +64,7 @@
           @input="updateItem"
         />
       </div>
-      <div v-if="!isDefense" class="mx-1">
+      <div v-if="!isDefense" class="mx-1 pb-2">
         <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" class="mt-3" />
         <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" class="mt-3" />
       </div>
@@ -233,6 +233,7 @@ export default Vue.extend({
       }
     },
     showItemList(index: number) {
+      this.clearTooltip();
       this.handleShowItemList(this.index, index);
     },
     getStatusColor(value: number) {

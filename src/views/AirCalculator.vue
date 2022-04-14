@@ -52,6 +52,7 @@
           :handle-more-calculate="calculateMore"
           :handle-minimize="toggleMinimizeResult"
           :sort-mode="sortMode"
+          :calculate-count="setting.simulationCount"
           ref="mainResult"
         />
       </div>

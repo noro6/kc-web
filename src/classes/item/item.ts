@@ -89,7 +89,7 @@ export default class Item {
   public readonly fullAirPower: number;
 
   /** 装備制空値(防空時) */
-  public readonly defenseAirPower: number;
+  public readonly fullDefenseAirPower: number;
 
   /** 支援制空値 */
   public readonly supportAirPower: number;
@@ -148,8 +148,14 @@ export default class Item {
   /** 最大搭載数から1までの制空値を計算し終えた配列 機体のみ有効 計算用 */
   private readonly calculatedAirPower: number[];
 
+  /** 最大搭載数から1までの防空制空値を計算し終えた配列 機体のみ有効 計算用 */
+  private readonly calculatedDefenseAirPower: number[];
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
+
+  /** 現在搭載数における制空値 計算用 */
+  public defenseAirPower: number;
 
   /** 現在搭載数 計算用 */
   public slot: number;
@@ -252,25 +258,28 @@ export default class Item {
     // 制空値更新
     if (this.isPlane) {
       this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
-      this.defenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
+      this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
       this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
     } else {
       this.fullAirPower = 0;
+      this.fullDefenseAirPower = 0;
       this.defenseAirPower = 0;
       this.supportAirPower = 0;
     }
 
     // 現在制空値の初期化
     this.airPower = this.fullAirPower;
+    this.defenseAirPower = this.fullDefenseAirPower;
     // 現在搭載数の初期化
     this.slot = this.fullSlot;
 
     // 搭載数による制空値パターンを全て計算
     this.calculatedAirPower = [];
+    this.calculatedDefenseAirPower = [];
     if (this.fullSlot > 0 && this.isPlane) {
       for (let slot = 0; slot <= this.fullSlot; slot += 1) {
-        const ap = Math.floor(this.actualAntiAir * Math.sqrt(slot) + this.bonusAirPower);
-        this.calculatedAirPower.push(ap);
+        this.calculatedAirPower.push(Math.floor(this.actualAntiAir * Math.sqrt(slot) + this.bonusAirPower));
+        this.calculatedDefenseAirPower.push(Math.floor(this.actualDefenseAntiAir * Math.sqrt(slot) + this.bonusAirPower));
       }
     }
 
@@ -301,6 +310,19 @@ export default class Item {
   }
 
   /**
+   * 現在防空制空値を更新 計算用
+   * @memberof Item
+   */
+  public static updateDefenseAirPower(item: Item): void {
+    if (item.slot <= 0) {
+      item.defenseAirPower = 0;
+      item.slot = 0;
+    } else {
+      item.defenseAirPower = item.calculatedDefenseAirPower[item.slot];
+    }
+  }
+
+  /**
    * 計算で減衰した各種値を戻す 計算用
    * @memberof Item
    */
@@ -310,6 +332,7 @@ export default class Item {
     }
     item.slot = item.fullSlot;
     item.airPower = item.fullAirPower;
+    item.defenseAirPower = item.fullDefenseAirPower;
   }
 
   /**

@@ -29,9 +29,9 @@
       </v-tooltip>
     </div>
     <v-divider class="mb-3"></v-divider>
-    <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested">
+    <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested && !capturing">
       <div class="d-flex">
-        <div class="align-self-center">出撃5000回分の計算結果が表示されています。</div>
+        <div class="align-self-center">出撃{{ calculateCount.toLocaleString() }}回分の計算結果が表示されています。</div>
         <div class="align-self-center ml-2">
           <v-btn small color="info" @click="calculateMore()" :disabled="moreCalculateRequested">再計算して精度を上げる</v-btn>
         </div>
@@ -485,6 +485,10 @@ export default Vue.extend({
     handleMinimize: {
       type: Function,
       required: true,
+    },
+    calculateCount: {
+      type: Number,
+      default: 5000,
     },
   },
   data: () => ({

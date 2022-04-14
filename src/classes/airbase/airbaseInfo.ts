@@ -1,3 +1,4 @@
+import AirCalcResult from '../airCalcResult';
 import { DIFFICULTY_LEVEL, AB_MODE } from '../const';
 import Airbase from './airbase';
 
@@ -20,40 +21,47 @@ export default class AirbaseInfo {
    */
   public readonly airbases: Airbase[];
 
-  /**
-   * 防空モードか否か
-   * @type {boolean}
-   * @memberof AirbaseInfo
-   */
+  /** 防空モードか否か */
   public readonly isDefense: boolean;
 
-  /**
-   * 選択難易度 専ら防空(重爆)時専用 重爆補正がちがうっぽいね
-   * @type {number}
-   * @memberof AirbaseInfo
-   */
+  /** 選択難易度 専ら防空(重爆)時専用 重爆補正がちがうっぽいね */
   public readonly difficultyLevel: 0 | 1 | 2 | 3 | 4;
 
-  /**
-   * 防空時制空値
-   * @type {number}
-   * @memberof AirbaseInfo
-   */
+  /** 防空時制空値 */
   public readonly defenseAirPower: number;
 
-  /**
-   * 適用される対重爆補正
-   * @type {number}
-   * @memberof AirbaseInfo
-   */
+  /** 適用される対重爆補正 */
   public readonly highDeffenseCoefficient: number;
 
-  /**
-   * 防空時(重爆)制空値
-   * @type {number}
-   * @memberof AirbaseInfo
-   */
+  /** 防空時(重爆)制空値 */
   public readonly highDefenseAirPower: number;
+
+  /** 超重爆補正A */
+  public readonly superHighAirRaidCorrA: number;
+
+  /** 超重爆補正B */
+  public readonly superHighAirRaidCorrB: number;
+
+  /** 超重爆補正C */
+  public readonly superHighAirRaidCorrC: number;
+
+  /** 対超重爆ロケット補正A */
+  public readonly superHighAirRaidRocketCoefficientA: number;
+
+  /** 対超重爆ロケット補正B */
+  public readonly superHighAirRaidRocketCoefficientB: number;
+
+  /** 最終超重爆補正 */
+  public readonly superHighAirRaidCoefficient: number;
+
+  /** 防空時(超重爆)制空値 */
+  public readonly fullSuperHighDefenseAirPower: number;
+
+  /** 防空時(超重爆)各種Wave結果 */
+  public superHighAirRaidResults: AirCalcResult[];
+
+  /** 防空時(超重爆)制空値 計算中可変 */
+  public superHighDefenseAirPower: number;
 
   /** 計算済みフラグ */
   public calculated = false;
@@ -80,30 +88,109 @@ export default class AirbaseInfo {
 
     this.defenseAirPower = 0;
     this.highDefenseAirPower = 0;
+    this.superHighDefenseAirPower = 0;
+    this.superHighAirRaidRocketCoefficientA = 0;
+    this.superHighAirRaidRocketCoefficientB = 0;
 
     let rocketCount = 0;
-
+    let sumSuperHighAirRaidTypeAItemCount = 0;
+    let sumSuperHighAirRaidTypeBItemCount = 0;
+    let sumSuperHighAirRaidTypeCItemCount = 0;
     for (let i = 0; i < this.airbases.length; i += 1) {
       const airbase = this.airbases[i];
       if (airbase.mode === AB_MODE.DEFFENSE) {
         this.defenseAirPower += airbase.defenseAirPower;
-        this.highDefenseAirPower += airbase.defenseAirPower;
         rocketCount += airbase.rocketCount;
+        sumSuperHighAirRaidTypeAItemCount += airbase.superHighAirRaidTypeAItemCount;
+        sumSuperHighAirRaidTypeBItemCount += airbase.superHighAirRaidTypeBItemCount;
+        sumSuperHighAirRaidTypeCItemCount += airbase.superHighAirRaidTypeCItemCount;
       }
     }
 
     // 重爆補正
     this.highDeffenseCoefficient = 1.0;
-    const isHardorMedium = this.difficultyLevel === DIFFICULTY_LEVEL.HARD || this.difficultyLevel === DIFFICULTY_LEVEL.MEDIUM;
+    const isHardOrMedium = this.difficultyLevel === DIFFICULTY_LEVEL.HARD || this.difficultyLevel === DIFFICULTY_LEVEL.MEDIUM;
     if (rocketCount >= 3) {
       this.highDeffenseCoefficient = 1.2;
     } else if (rocketCount === 2) {
       this.highDeffenseCoefficient = 1.1;
-    } else if (rocketCount === 1 && isHardorMedium) {
+    } else if (rocketCount === 1 && isHardOrMedium) {
       this.highDeffenseCoefficient = 0.8;
-    } else if (rocketCount === 0 && isHardorMedium) {
+    } else if (rocketCount === 0 && isHardOrMedium) {
       this.highDeffenseCoefficient = 0.5;
     }
-    this.highDefenseAirPower = Math.floor(this.highDefenseAirPower * this.highDeffenseCoefficient);
+    this.highDefenseAirPower = Math.floor(this.defenseAirPower * this.highDeffenseCoefficient);
+
+    // 超重爆補正計算
+    // 超重爆補正A
+    this.superHighAirRaidCorrA = sumSuperHighAirRaidTypeAItemCount * 0.07;
+
+    // 超重爆補正B
+    switch (sumSuperHighAirRaidTypeBItemCount) {
+      case 0:
+        this.superHighAirRaidCorrB = 0;
+        break;
+      case 1:
+        this.superHighAirRaidCorrB = 0.11;
+        break;
+      case 2:
+        this.superHighAirRaidCorrB = 0.14;
+        break;
+      default:
+        // 3以上、不明
+        this.superHighAirRaidCorrB = 0.14;
+        break;
+    }
+
+    // 超重爆補正C
+    switch (sumSuperHighAirRaidTypeCItemCount) {
+      case 0:
+        this.superHighAirRaidCorrC = 0;
+        break;
+      case 1:
+        this.superHighAirRaidCorrC = 0.177;
+        break;
+      case 2:
+        this.superHighAirRaidCorrC = 0.287;
+        break;
+      default:
+        // 3以上、不明
+        this.superHighAirRaidCorrC = 0.397;
+        break;
+    }
+    switch (rocketCount) {
+      case 0:
+        this.superHighAirRaidRocketCoefficientA = 0.5;
+        this.superHighAirRaidRocketCoefficientB = 0.3;
+        break;
+      case 1:
+        this.superHighAirRaidRocketCoefficientA = 0.95;
+        this.superHighAirRaidRocketCoefficientB = 0.55;
+        break;
+      case 2:
+        this.superHighAirRaidRocketCoefficientA = 1; // 不明
+        this.superHighAirRaidRocketCoefficientB = 0.85;
+        break;
+      case 3:
+        this.superHighAirRaidRocketCoefficientA = 1;
+        this.superHighAirRaidRocketCoefficientB = 1;
+        break;
+      case 4:
+        this.superHighAirRaidRocketCoefficientA = 1;
+        this.superHighAirRaidRocketCoefficientB = 1.07;
+        break;
+      default:
+        // 5以上
+        this.superHighAirRaidRocketCoefficientA = 1; // 不明
+        this.superHighAirRaidRocketCoefficientB = 1.11;
+        break;
+    }
+
+    // 補正合計
+    this.superHighAirRaidCoefficient = (this.superHighAirRaidCorrA + this.superHighAirRaidCorrB + this.superHighAirRaidCorrC) * this.superHighAirRaidRocketCoefficientA + this.superHighAirRaidRocketCoefficientB;
+    // 超重爆最終制空値
+    this.superHighDefenseAirPower = Math.floor(this.defenseAirPower * this.superHighAirRaidCoefficient);
+    this.fullSuperHighDefenseAirPower = this.superHighDefenseAirPower;
+    this.superHighAirRaidResults = [new AirCalcResult(), new AirCalcResult(), new AirCalcResult()];
   }
 }

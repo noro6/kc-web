@@ -43,7 +43,7 @@ export default class CalcManager {
 
     if (this.isDefense) {
       // 防空モード計算 & 結果格納
-      this.calculateDefenseMode();
+      this.calculateDefenseMode(simulationCount);
     } else {
       // 通常モード計算
       this.calculate(simulationCount);
@@ -265,7 +265,7 @@ export default class CalcManager {
    * @private
    * @memberof CalcManager
    */
-  private calculateDefenseMode(): void {
+  private calculateDefenseMode(count: number): void {
     // 防空モード計算
     const lb = this.airbaseInfo;
     const enemy = this.battleInfo.airRaidFleet;
@@ -277,7 +277,16 @@ export default class CalcManager {
     const [b0, b1, b2, b3] = borders;
 
     // 使う制空値を決定
-    const airPower = enemy.cellType !== CELL_TYPE.HIGH_AIR_RAID ? lb.defenseAirPower : lb.highDefenseAirPower;
+    let airPower = lb.defenseAirPower;
+    if (enemy.cellType === CELL_TYPE.HIGH_AIR_RAID) {
+      airPower = lb.highDefenseAirPower;
+      lb.superHighAirRaidResults = [];
+    } else if (enemy.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID) {
+      // 超重爆は構造が違うため別関数で処理
+      this.calculateSuperAirRaid(count);
+      return;
+    }
+
     const result = new AirCalcResult();
     result.loopSumAirPower = airPower;
     result.loopSumEnemyAirPower = enemyAirPower;
@@ -309,5 +318,49 @@ export default class CalcManager {
       lb.airbases[i].resultWave1 = result;
       lb.airbases[i].resultWave2 = result;
     }
+  }
+
+  /**
+   * 防空モード(超重爆)計算を行い、結果を基地航空隊オブジェクトクラスにセット
+   * @private
+   * @param {number} maxCount
+   * @memberof CalcManager
+   */
+  private calculateSuperAirRaid(maxCount: number) {
+    // プロパティのみを取り出す
+    const cloned = JSON.stringify(this);
+    const calcInfo = JSON.parse(cloned) as CalcManager;
+    const allAairbase = calcInfo.airbaseInfo;
+
+    const wave1result = new AirCalcResult();
+    const wave2result = new AirCalcResult();
+    const wave3result = new AirCalcResult();
+
+    // 相手
+    const enemyFleet = calcInfo.battleInfo.airRaidFleet;
+
+    for (let count = 0; count < maxCount; count += 1) {
+      /** ======= 第1波 ======= */
+      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave1result);
+      /** ======= 第2波 ======= */
+      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave2result);
+      /** ======= 第3波 ======= */
+      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave3result);
+
+      // 次の計算に備え、減った艦載機や制空値を補給
+      for (let i = 0; i < allAairbase.airbases.length; i += 1) {
+        const airbase = allAairbase.airbases[i];
+        // 基地補給
+        Airbase.supply(allAairbase.airbases[i]);
+        airbase.needSupply = false;
+      }
+      allAairbase.superHighDefenseAirPower = allAairbase.fullSuperHighDefenseAirPower;
+    }
+
+    AirCalcResult.formatResult(wave1result, maxCount);
+    AirCalcResult.formatResult(wave2result, maxCount);
+    AirCalcResult.formatResult(wave3result, maxCount);
+
+    this.airbaseInfo.superHighAirRaidResults = [wave1result, wave2result, wave3result];
   }
 }

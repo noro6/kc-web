@@ -1,10 +1,12 @@
-import { AIR_STATE, CELL_TYPE } from './const';
+import { AB_MODE, AIR_STATE, CELL_TYPE } from './const';
 import EnemyFleet from './enemy/enemyFleet';
 import Airbase from './airbase/airbase';
 import Fleet from './fleet/fleet';
 import Item from './item/item';
 import CommonCalc from './commonCalc';
 import ShootDownInfo, { ShootDownStatus } from './aerialCombat/shootDownInfo';
+import AirbaseInfo from './airbase/airbaseInfo';
+import AirCalcResult from './airCalcResult';
 
 type JetPhaseResult = {
   sumAirPower: number;
@@ -196,21 +198,8 @@ export default class Calculator {
    */
   private static ShootDownAirbase(state: number, airbase: Airbase, enemyFleet: EnemyFleet) {
     let sumAirPower = 0;
-
     const st2List = enemyFleet.noCutInStage2;
     const randomRange = st2List[0].fixDownList.length;
-
-    // 基地は対空CIなし？
-    // if (enemyFleet.shootDownList.length > 1) {
-    //   // 対空CIの発動判定
-    //   const pickRate = Math.random();
-    //   const shootDown = enemyFleet.shootDownList.find((v) => v.border > pickRate);
-    //   if (shootDown) {
-    //     st2List = shootDown.shootDownStatusList;
-    //     randomRange = shootDown.maxRange;
-    //   }
-    // }
-
     const { items } = airbase;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
@@ -239,7 +228,7 @@ export default class Calculator {
       sumAirPower += item.airPower;
     }
 
-    // 基地噴式強襲フェーズ経過による制空値更新
+    // 制空値更新
     airbase.airPower = Math.floor(sumAirPower * airbase.reconCorr);
     airbase.needSupply = true;
   }
@@ -446,5 +435,68 @@ export default class Calculator {
     fleet.airPower = sumAirPower;
     fleet.airbaseAirPower = sumAirbaseAirPower;
     fleet.needSupply = true;
+  }
+
+  /**
+   * 超重爆防空1フェーズ分計算
+   * @static
+   * @param {AirbaseInfo} airbaseInfo
+   * @param {EnemyFleet} enemyFleet
+   * @param {AirCalcResult} result
+   * @memberof Calculator
+   */
+  public static calculateSuperAirRaid(airbaseInfo: AirbaseInfo, enemyFleet: EnemyFleet, result: AirCalcResult): void {
+    const state = CommonCalc.getAirState(airbaseInfo.superHighDefenseAirPower, enemyFleet.airbaseAirPower);
+    // 結果の格納
+    result.rates[state] += 1;
+    result.loopSumAirPower += airbaseInfo.superHighDefenseAirPower;
+    result.loopSumEnemyAirPower += enemyFleet.airbaseAirPower;
+
+    // 敵機撃墜処理 => 2022/3現在撃墜なし
+    // Calculator.shootDownEnemy(state, enemyFleet, [], true);
+
+    // 基地撃墜処理
+    Calculator.ShootDownAirbaseAirRaid(state, airbaseInfo);
+  }
+
+  /**
+   * 基地航空隊 超重爆防空撃墜処理 副作用は次の値の変更
+   * AirBaseInfo: superHighDefenseAirPower
+   * AirBase: defenseAirPower, slot
+   * Item: airPower, slot
+   * @private
+   * @static
+   * @param {Airbase} airbase
+   * @param {ShootDownInfo[]} shootDownList
+   * @memberof Calculator
+   */
+  private static ShootDownAirbaseAirRaid(state: number, airbaseInfo: AirbaseInfo) {
+    let sumAirPower = 0;
+    for (let i = 0; i < airbaseInfo.airbases.length; i += 1) {
+      const airbase = airbaseInfo.airbases[i];
+
+      if (airbase.mode !== AB_MODE.DEFFENSE) {
+        continue;
+      }
+
+      const { items } = airbase;
+      let sumAirbaseAirPower = 0;
+      for (let j = 0; j < items.length; j += 1) {
+        const item = items[j];
+        // ====== STAGE1 ======
+        // ジェットなら0.6倍 切り捨て
+        item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.isJet ? 0.6 : 1));
+
+        // 制空値を更新
+        Item.updateDefenseAirPower(item);
+        sumAirbaseAirPower += item.defenseAirPower;
+      }
+
+      // 制空値加算
+      sumAirPower += Math.floor(sumAirbaseAirPower * airbase.reconCorrDeff);
+    }
+
+    // 制空値更新
+    airbaseInfo.superHighDefenseAirPower = Math.floor(sumAirPower * airbaseInfo.superHighAirRaidCoefficient);
   }
 }

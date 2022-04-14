@@ -57,6 +57,15 @@ export default class Airbase {
   /** 配備時ボーキ消費 */
   public readonly bauxite: number;
 
+  /** 超重爆補正A適用機体数 */
+  public readonly superHighAirRaidTypeAItemCount: number;
+
+  /** 超重爆補正B適用機体数 */
+  public readonly superHighAirRaidTypeBItemCount: number;
+
+  /** 超重爆補正C適用機体数 */
+  public readonly superHighAirRaidTypeCItemCount: number;
+
   /** 計算結果の各制空状態の割合 */
   public resultWave1 = new AirCalcResult();
 
@@ -101,10 +110,14 @@ export default class Airbase {
     this.hasJet = false;
     this.reconCorr = 1;
     this.reconCorrDeff = 1;
+    this.superHighAirRaidTypeAItemCount = 0;
+    this.superHighAirRaidTypeBItemCount = 0;
+    this.superHighAirRaidTypeCItemCount = 0;
     this.fuel = 0;
     this.ammo = 0;
     this.steel = 0;
     this.bauxite = 0;
+
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       if (item.fullSlot > 0) {
@@ -126,6 +139,21 @@ export default class Airbase {
       if (this.reconCorrDeff < item.reconCorrDeff) {
         // 最大の補正値にする
         this.reconCorrDeff = item.reconCorrDeff;
+      }
+
+      // 超重爆A補正 => 屠龍(445) / 雷電(175) / 烈風改(333) / 飛燕244(177)
+      if ([445, 175, 177, 333].includes(item.data.id)) {
+        this.superHighAirRaidTypeAItemCount += 1;
+      }
+
+      // 超重爆補正B該当機の数加算 => 紫電343(263) / Fw190(354)
+      if ([263, 354].includes(item.data.id)) {
+        this.superHighAirRaidTypeBItemCount += 1;
+      }
+
+      // 超重爆補正C該当機の数加算 => 烈風改(三五二/熟練)(334) / キ96(452) / 屠龍丙(446)
+      if ([334, 452, 446].includes(item.data.id)) {
+        this.superHighAirRaidTypeCItemCount += 1;
       }
 
       this.fuel += item.fuel;

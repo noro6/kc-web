@@ -67,22 +67,63 @@
         </div>
       </div>
       <div class="d-flex ml-3 mb-2" v-if="airbaseInfo.isDefense">
-        <div class="align-self-center text--secondary body-2">防空時制空値:</div>
-        <div class="align-self-center ml-1">{{ airbaseInfo.defenseAirPower }}</div>
-        <div class="ml-5 align-self-center text--secondary body-2">対重爆制空値:</div>
-        <div class="align-self-center ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
-        <div class="ml-5 align-self-center text--secondary body-2">対重爆補正:</div>
-        <div class="align-self-center ml-1 body-2">&times;{{ airbaseInfo.highDeffenseCoefficient }}</div>
-        <div class="ml-8 difficulty-select">
-          <v-select
-            dense
-            v-model="airbaseInfo.difficultyLevel"
-            hide-details
-            :items="difficultyLevelItem"
-            label="難易度"
-            @change="setInfo"
-          ></v-select>
-        </div>
+        <template v-if="isNormalAirRaidMode">
+          <div class="align-self-center text--secondary body-2">防空時制空値:</div>
+          <div class="align-self-center ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+          <div class="ml-5 align-self-center text--secondary body-2">対重爆制空値:</div>
+          <div class="align-self-center ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
+          <div class="ml-5 align-self-center text--secondary body-2">対重爆補正:</div>
+          <div class="align-self-center ml-1 body-2">&times;{{ airbaseInfo.highDeffenseCoefficient }}</div>
+          <div class="ml-8 difficulty-select">
+            <v-select
+              dense
+              v-model="airbaseInfo.difficultyLevel"
+              hide-details
+              :items="difficultyLevelItem"
+              label="難易度"
+              @change="setInfo"
+            ></v-select>
+          </div>
+        </template>
+        <template v-else>
+          <div class="align-self-center text--secondary body-2">防空時制空値:</div>
+          <div class="align-self-center ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+          <div class="ml-5 align-self-center text--secondary body-2">対超重爆補正:</div>
+          <div class="align-self-center ml-1 body-2">
+            &times;{{ Math.floor(100000 * airbaseInfo.superHighAirRaidCoefficient) / 100000 }}
+          </div>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon class="align-self-center ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+            </template>
+            <div class="body-2">
+              <table>
+                <tr>
+                  <td>補正A</td>
+                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrA }}</td>
+                </tr>
+                <tr>
+                  <td>補正B</td>
+                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrB }}</td>
+                </tr>
+                <tr>
+                  <td>補正C</td>
+                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrC }}</td>
+                </tr>
+                <tr>
+                  <td>補正D1</td>
+                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientA }}</td>
+                </tr>
+                <tr>
+                  <td>補正D2</td>
+                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientB }}</td>
+                </tr>
+              </table>
+            </div>
+          </v-tooltip>
+          <div class="ml-5 align-self-center text--secondary body-2">対超重爆制空値:</div>
+          <div class="align-self-center ml-1">{{ airbaseInfo.fullSuperHighDefenseAirPower }}</div>
+        </template>
       </div>
     </div>
     <v-tabs class="small-airbases" v-model="tab" vertical>
@@ -122,8 +163,13 @@
         @input="setInfo"
       />
     </draggable>
-    <div v-if="airbaseInfo.isDefense" class="mx-1 mb-1 mt-3">
+    <div v-if="isNormalAirRaidMode" class="mx-2 mb-1 mt-3">
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
+    </div>
+    <div v-else-if="airbaseInfo.isDefense" class="mx-2 mb-1">
+      <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4">
+        <air-status-result-bar :result="result" />
+      </div>
     </div>
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
@@ -193,7 +239,14 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex">
-            <v-slider class="flex-grow-1 align-self-end" max="18" min="0" v-model.number="bulkUpdateSlotValue" hide-details></v-slider>
+            <v-slider
+              class="flex-grow-1 align-self-end"
+              max="18"
+              min="0"
+              v-model.number="bulkUpdateSlotValue"
+              hide-details
+              @input="bulkUpdateSlotChanged = true"
+            ></v-slider>
             <div class="d-flex">
               <v-text-field
                 class="slot-input mx-2"
@@ -202,6 +255,7 @@
                 min="0"
                 v-model.number="bulkUpdateSlotValue"
                 hide-details
+                @input="bulkUpdateSlotChanged = true"
               ></v-text-field>
               <v-btn outlined @click="resetSlot" class="align-self-end">初期値</v-btn>
             </div>
@@ -360,7 +414,7 @@ import ItemList from '@/components/item/ItemList.vue';
 import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import Airbase, { AirbaseBuilder } from '@/classes/airbase/airbase';
-import Const, { AB_MODE } from '@/classes/const';
+import Const, { AB_MODE, CELL_TYPE } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
@@ -401,6 +455,7 @@ export default Vue.extend({
     capturing: false,
     bulkUpdateDialog: false,
     bulkUpdateSlotValue: 18,
+    bulkUpdateSlotChanged: false,
     bulkUpdateTarget: [1, 1, 1],
     itemPresetDialog: false,
     tempAirbase: undefined as undefined | Airbase,
@@ -437,6 +492,9 @@ export default Vue.extend({
     },
     isbulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
+    },
+    isNormalAirRaidMode(): boolean {
+      return this.airbaseInfo.isDefense && this.battleInfo.airRaidFleet.cellType !== CELL_TYPE.SUPER_HIGH_AIR_RAID;
     },
   },
   methods: {
@@ -511,8 +569,13 @@ export default Vue.extend({
       this.setInfo();
     },
     supply() {
+      const targets = this.bulkUpdateTarget.concat();
+      this.bulkUpdateTarget = [1, 1, 1];
+
       this.bulkUpdateAllItem({ slot: 99 });
       this.setInfo();
+
+      this.bulkUpdateTarget = targets;
     },
     doAirRaid() {
       const { airbases } = this.airbaseInfo;
@@ -634,11 +697,13 @@ export default Vue.extend({
     },
     onBulkUpdateDialogToggle() {
       if (!this.bulkUpdateDialog) {
-        if (this.bulkUpdateSlotValue) {
+        if (this.bulkUpdateSlotValue && this.bulkUpdateSlotChanged) {
           this.bulkUpdateSlot();
         }
         this.setInfo();
       }
+
+      this.bulkUpdateSlotChanged = false;
     },
     showItemPresets(baseIndex: number) {
       const airbase = this.airbaseInfo.airbases[baseIndex];

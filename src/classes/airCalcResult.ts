@@ -70,8 +70,8 @@ export default class AirCalcResult {
 
     // 念のため
     result.airStateBarWidth = Math.min(result.airStateBarWidth, 100);
-    // レートを百分率表記に変換
-    result.rates = result.rates.map((v) => (100 * v) / maxCount);
+    // レートを百分率表記に変換 あといい感じに切る
+    result.rates = result.rates.map((v) => Math.floor(100 * ((100 * v) / maxCount)) / 100);
   }
 
   /**

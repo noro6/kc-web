@@ -80,6 +80,7 @@ export const CELL_TYPE = {
   NIGHT: 4,
   HIGH_AIR_RAID: 5,
   AERIAL_COMBAT: 6,
+  SUPER_HIGH_AIR_RAID: 7,
 } as const;
 type CELL_TYPE = typeof CELL_TYPE[keyof typeof CELL_TYPE];
 
@@ -621,6 +622,7 @@ export default class Const {
     { text: '夜戦', value: CELL_TYPE.NIGHT },
     { text: '重爆', value: CELL_TYPE.HIGH_AIR_RAID },
     { text: '航空戦', value: CELL_TYPE.AERIAL_COMBAT },
+    { text: '超重爆', value: CELL_TYPE.SUPER_HIGH_AIR_RAID },
   ];
 
   /**
