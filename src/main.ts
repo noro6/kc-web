@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { initializeApp } from 'firebase/app';
+import VueGtag from 'vue-gtag';
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -19,6 +20,10 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
+
+Vue.use(VueGtag, {
+  config: { id: 'UA-152888142-2' },
+});
 
 new Vue({
   router,
