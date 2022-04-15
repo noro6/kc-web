@@ -237,7 +237,7 @@
           <div class="damage-td">{{ row.ship.data.hp }}</div>
           <div class="damage-td">{{ row.ship.actualArmor }}</div>
           <div class="damage-td grow">{{ row.damage }}</div>
-          <div v-if="row.isASW" class="damage-td colspan-3 caption">対潜攻撃不可</div>
+          <div v-if="row.disabledASW" class="damage-td colspan-3 caption">対潜攻撃不可</div>
           <template v-else-if="row.death < 100">
             <div class="damage-td">{{ row.damage ? row.death + "%" : "" }}</div>
             <div class="damage-td">{{ row.damage ? row.taiha + "%" : "" }}</div>
@@ -481,7 +481,7 @@ interface DamageRowData {
   death: number;
   taiha: number;
   chuha: number;
-  isASW: boolean;
+  disabledASW: boolean;
 }
 
 export default Vue.extend({
@@ -703,7 +703,7 @@ export default Vue.extend({
           death: 0,
           taiha: 0,
           chuha: 0,
-          isASW: false,
+          disabledASW: false,
         });
       }
       return results;
@@ -839,7 +839,7 @@ export default Vue.extend({
       const rows = this.defenseShipRows;
       for (let i = 0; i < rows.length; i += 1) {
         const row = rows[i];
-        row.isASW = false;
+        row.disabledASW = false;
         // 防御艦
         const { ship } = row;
         // 潜水かどうか？
@@ -890,7 +890,7 @@ export default Vue.extend({
 
         // ダメージ表示調整
         if (!item.isAttacker) {
-          // 非攻撃機は基本表示なし ただし対潜攻撃可の場合はその限りでない
+          // 非攻撃機は基本表示なし ただし対潜攻撃可の場合はその限りでない => 水偵とか
           if (!isSubmarine || !enbaleAsw) {
             row.damage = '';
             row.death = 0;
@@ -902,7 +902,10 @@ export default Vue.extend({
         if (isSubmarine && !enbaleAsw) {
           // 対潜攻撃不可
           row.damage = '';
-          row.isASW = true;
+          row.death = 0;
+          row.taiha = 0;
+          row.chuha = 0;
+          row.disabledASW = true;
           continue;
         } else if (maxDamage === 0) {
           if (maxSlot > 0) {
