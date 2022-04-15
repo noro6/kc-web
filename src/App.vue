@@ -26,8 +26,15 @@
       </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn class="arrow-btn" text :disabled="$route.path !== '/aircalc' || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked"
-            ><v-icon small>mdi-undo</v-icon></v-btn
+          <v-btn
+            class="arrow-btn"
+            text
+            :disabled="$route.path !== '/aircalc' || !enabledUndo"
+            v-bind="attrs"
+            v-on="on"
+            @click="undoClicked"
+          >
+            <v-icon small>mdi-undo</v-icon></v-btn
           >
         </template>
         <span>元に戻す</span>
@@ -70,12 +77,12 @@
       </template>
     </v-app-bar>
     <v-main>
-      <div v-if="readOnlyMode" :class="{ 'info-container': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
-        <v-alert border="left" outlined type="info">
-          <div>URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
-          <div class="d-flex">
+      <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
+        <v-alert border="left" outlined type="info" :class="{ 'info-container': !isManagerPage }">
+          <div class="body-2">URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
+          <div class="d-flex body-2">
             <div class="align-self-center">自分の登録情報に戻す場合は</div>
-            <v-btn class="mx-1" color="info" dark @click="resetTempData()">このボタン</v-btn>
+            <v-btn class="mx-1" color="info" small dark @click="resetTempData()">このボタン</v-btn>
             <div class="align-self-center">を押下してください。</div>
           </div>
         </v-alert>
@@ -114,9 +121,9 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
       <v-card>
-        <div class="py-3 px-5">
-          <div class="d-flex mt-5">
-            <div class="caption">カラーテーマ</div>
+        <div class="px-5 pb-0 pt-5">
+          <div class="d-flex">
+            <div class="body-2">サイトカラーテーマ</div>
             <div class="header-divider"></div>
           </div>
           <div class="ml-3 mt-2">
@@ -142,7 +149,7 @@
             </v-btn>
           </div>
           <div class="d-flex mt-5">
-            <div class="caption">未保存の編成タブを閉じる際の挙動</div>
+            <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
             <div class="header-divider"></div>
           </div>
           <div class="ml-3">
@@ -152,7 +159,7 @@
             </div>
           </div>
           <div class="d-flex mt-5">
-            <div class="caption">装備選択時のデフォルト熟練度</div>
+            <div class="body-2">装備選択時のデフォルト熟練度</div>
             <div class="header-divider"></div>
           </div>
           <div class="ml-3">
@@ -162,23 +169,24 @@
             </div>
           </div>
           <div class="d-flex mt-5">
-            <div class="caption">制空計算時のシミュレーション回数</div>
+            <div class="body-2">制空計算時のシミュレーション回数</div>
             <div class="header-divider"></div>
           </div>
           <div class="ml-3">
-            <v-alert class="mt-3" border="left" outlined type="warning" dense>
-              <div class="caption">数値が大きいほど制空計算の精度が上がりますが、</div>
-              <div class="caption">計算時のパフォーマンスが低下します。</div>
+            <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
+              <div>数値が大きいほど計算の精度が上がりますが、</div>
+              <div>計算時のパフォーマンスが低下します。</div>
             </v-alert>
-            <div>
+            <div class="d-flex">
               <v-text-field
-                class="mt-0 pt-0"
+                class="mt-0 pt-0 text-right"
                 type="number"
                 max="100000"
                 min="100"
                 v-model.number="setting.simulationCount"
                 :rules="[rules.simulationCountRange]"
               ></v-text-field>
+              <div class="ml-3 align-self-center">回</div>
             </div>
           </div>
         </div>

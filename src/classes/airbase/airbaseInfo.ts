@@ -21,9 +21,6 @@ export default class AirbaseInfo {
    */
   public readonly airbases: Airbase[];
 
-  /** 防空モードか否か */
-  public readonly isDefense: boolean;
-
   /** 選択難易度 専ら防空(重爆)時専用 重爆補正がちがうっぽいね */
   public readonly difficultyLevel: 0 | 1 | 2 | 3 | 4;
 
@@ -62,6 +59,9 @@ export default class AirbaseInfo {
 
   /** 防空時(超重爆)制空値 計算中可変 */
   public superHighDefenseAirPower: number;
+
+  /** 防空モードか否か ここを変更して計算を起こすと対応したモードで計算される */
+  public isDefense: boolean;
 
   /** 計算済みフラグ */
   public calculated = false;

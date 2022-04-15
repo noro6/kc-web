@@ -391,6 +391,7 @@ export default Vue.extend({
         this.area = this.areas[0] ? this.areas[0].value : 0;
       }
 
+      // 該当するセルを取得
       const cells = this.allCells.filter((v) => v.area === this.area && (this.isEvent ? v.level === lv : true));
       const array: CellMaster[] = [];
       const cellItems: { text: string; value: number }[] = [];
@@ -409,6 +410,13 @@ export default Vue.extend({
         this.tab = 'fleet0';
       }
       this.imgMapItems = array;
+
+      // 空襲をてっぺんに
+      cellItems.sort((a, b) => {
+        if (a.text === '空襲' && b.text !== '空襲') return -1;
+        if (b.text === '空襲' && a.text !== '空襲') return 1;
+        return 0;
+      });
       this.cellItems = cellItems;
       this.cellChanged();
     },
@@ -457,6 +465,7 @@ export default Vue.extend({
             formation: cell.formation,
             cellType: cell.cellType,
             range: cell.radius,
+            area: cell.area,
             nodeName: clickedCell.node,
             mainFleetFormation,
           }),

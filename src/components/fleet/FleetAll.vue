@@ -91,7 +91,7 @@
         <template v-else>第{{ i }}艦隊</template>
       </v-tab>
       <v-tab href="#gkcoi" @click="initializeOutput()">画像出力</v-tab>
-      <v-tab href="#fleet4" disabled>【工事中】</v-tab>
+      <v-tab href="#fleet4" disabled></v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab">

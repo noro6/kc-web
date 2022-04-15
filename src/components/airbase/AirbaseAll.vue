@@ -59,7 +59,7 @@
     <div>
       <div class="d-flex">
         <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="'防空計算モード'" @click="setInfo"></v-switch>
-        <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1">
+        <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
@@ -164,11 +164,16 @@
       />
     </draggable>
     <div v-if="isNormalAirRaidMode" class="mx-2 mb-1 mt-3">
+      <!-- 通常防空時の計算結果 -->
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
     <div v-else-if="airbaseInfo.isDefense" class="mx-2 mb-1">
-      <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4">
-        <air-status-result-bar :result="result" />
+      <!-- 超重爆時の計算結果 -->
+      <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4 d-flex">
+        <div class="mr-1 align-self-center caption">第{{ i + 1 }}波</div>
+        <div class="flex-grow-1">
+          <air-status-result-bar :result="result" />
+        </div>
       </div>
     </div>
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
@@ -472,6 +477,9 @@ export default Vue.extend({
 
       return modes.map((v) => v !== AB_MODE.BATTLE);
     },
+    existsBattleAirbase(): boolean {
+      return this.airbaseInfo.airbases.some((v) => v.mode === AB_MODE.BATTLE);
+    },
     rangeError(): string {
       const errors: string[] = [];
       const { airbases } = this.value;
@@ -482,12 +490,18 @@ export default Vue.extend({
         }
 
         const [cell1, cell2] = airbase.battleTarget.map((v) => this.battleInfo.fleets[v]);
-        if ((cell1 && airbase.range < cell1.range) || (cell2 && airbase.range < cell2.range)) {
-          errors.push(`第${i + 1}`);
+        if (cell1 && airbase.range < cell1.range) {
+          // 6-4基地半径緩和チェック
+          if (cell1.area !== 64 || !airbase.hasJet) {
+            errors.push(`第${i + 1}`);
+          }
+        } else if (cell2 && airbase.range < cell2.range) {
+          // 6-4基地半径緩和チェック
+          if (cell2.area !== 64 || !airbase.hasJet) {
+            errors.push(`第${i + 1}`);
+          }
         }
       }
-
-      // todo 6-4基地半径
       return errors.length ? `${errors.join(',')}基地航空隊の半径が不足しています。` : '';
     },
     isbulkUpdateTargetAll(): boolean {

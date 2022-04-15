@@ -37,7 +37,7 @@
         </div>
       </div>
     </v-alert>
-    <div class="px-1">
+    <div class="px-3">
       <div class="d-flex">
         <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
         <div class="caption ml-auto" v-show="!capturing">※ 行クリックで詳細計算画面展開</div>
@@ -99,10 +99,10 @@
       </table>
       <v-divider></v-divider>
     </div>
-    <v-tabs v-model="tab" class="px-2">
+    <v-tabs v-model="tab" class="px-3">
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)"> {{ i + 1 }}戦目 </v-tab>
     </v-tabs>
-    <v-divider class="mx-2"></v-divider>
+    <v-divider class="mx-3"></v-divider>
     <v-card class="ma-3 py-3 pr-4 pl-2">
       <div class="d-flex mt-1">
         <div class="bar-label"></div>
@@ -197,7 +197,7 @@
         </div>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-icon class="align-self-center pt-2 mr-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+            <v-icon class="align-self-center pt-2 mr-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
           </template>
           <div class="caption">
             <div>このマスで選択する味方艦隊の陣形</div>

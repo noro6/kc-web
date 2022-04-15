@@ -25,12 +25,25 @@
     </div>
     <v-divider></v-divider>
     <div id="enemies-container" :class="{ captured: capturing }">
-      <div class="d-flex mx-2 mt-3 mb-2" v-if="!isDefense">
-        <div class="align-self-center mr-3" v-if="!capturing">
+      <div class="d-flex mx-1 mt-3" v-if="!isDefense">
+        <div class="align-self-center mr-3 pb-2" v-if="!capturing">
           <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
         </div>
-        <div class="align-self-center mr-4" v-if="!capturing" v-show="battleInfo.battleCount > 1">
-          <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
+        <div class="align-self-center mr-4 pb-2" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
+          <v-tooltip bottom color="red" :disabled="!alertAirbaseTarget">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                :outlined="!alertAirbaseTarget"
+                :color="airbaseTargetButtonColor"
+                @click.stop="targetDialog = true"
+                v-bind="attrs"
+                v-on="on"
+              >
+                基地派遣先設定
+              </v-btn>
+            </template>
+            <span>戦闘回数が変更されている可能性があります。派遣先を確認してください。</span>
+          </v-tooltip>
         </div>
         <div class="align-self-center mr-4" id="battle-count-select">
           <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
@@ -146,6 +159,7 @@ import ItemMaster from '@/classes/item/itemMaster';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import CommonCalc from '@/classes/commonCalc';
+import { AB_MODE } from '@/classes/const';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -187,6 +201,7 @@ export default Vue.extend({
     fleetStock: [] as EnemyFleet[],
     itemDialogWidth: 1200,
     capturing: false,
+    alertAirbaseTarget: false,
   }),
   computed: {
     battleInfo(): BattleInfo {
@@ -204,6 +219,12 @@ export default Vue.extend({
         return CommonCalc.getAirStatusBorder(this.battleInfo.airRaidFleet.airbaseAirPower);
       }
       return [];
+    },
+    existsBattleAirbase(): boolean {
+      return this.airbaseInfo.airbases.some((v) => v.mode === AB_MODE.BATTLE);
+    },
+    airbaseTargetButtonColor(): string {
+      return this.alertAirbaseTarget ? 'error' : 'success';
     },
   },
   methods: {
@@ -240,19 +261,24 @@ export default Vue.extend({
     async showWorldListContinuous() {
       this.fleetStock = [];
       await (this.worldListDialog = true);
-      (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = true;
-      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeName = '';
-      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeNames = [];
-      (this.$refs.worldList as InstanceType<typeof WorldList>).snackbar = false;
+      const ref = this.$refs.worldList as InstanceType<typeof WorldList>;
+      ref.continuousMode = true;
+      ref.selectedNodeName = '';
+      ref.selectedNodeNames = [];
+      ref.snackbar = false;
     },
     async showWorldList(index: number) {
       this.fleetStock = [];
       this.dialogTarget = [index, 0];
       await (this.worldListDialog = true);
-      (this.$refs.worldList as InstanceType<typeof WorldList>).continuousMode = false;
-      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeName = '';
-      (this.$refs.worldList as InstanceType<typeof WorldList>).selectedNodeNames = [];
-      (this.$refs.worldList as InstanceType<typeof WorldList>).snackbar = false;
+      const ref = this.$refs.worldList as InstanceType<typeof WorldList>;
+      ref.continuousMode = false;
+      ref.selectedNodeName = '';
+      ref.selectedNodeNames = [];
+      ref.snackbar = false;
+      if (ref.allCells.length) {
+        ref.cellChanged();
+      }
     },
     putEnemy(enemy: EnemyMaster) {
       this.enemyListDialog = false;
@@ -290,15 +316,17 @@ export default Vue.extend({
       console.log(this.itemDialogTarget);
     },
     setEnemyFleet(fleet: EnemyFleet, isCoutinue = false) {
-      if (isCoutinue && this.fleetStock.length < 9) {
+      if (fleet.nodeName === '空襲' || this.isDefense) {
+        this.airbaseInfo.isDefense = true;
+        // 空襲モード用敵編成に追加して終了
+        this.setInfo({ info: this.battleInfo, airRaidFleet: fleet });
+        this.worldListDialog = false;
+      } else if (isCoutinue && this.fleetStock.length < 9) {
         this.fleetStock.push(fleet);
       } else if (isCoutinue) {
         // 10制限 閉じる
         this.fleetStock.push(fleet);
         this.closeWorldList();
-      } else if (this.isDefense) {
-        // 空襲モード用敵編成に追加 それ以外は据え置き
-        this.setInfo({ info: this.battleInfo, airRaidFleet: fleet });
       } else {
         const index = this.dialogTarget[0];
         this.battleInfo.fleets[index] = new EnemyFleet({ fleet });
@@ -322,7 +350,15 @@ export default Vue.extend({
           fleets: this.fleetStock,
           battleCount,
         };
+
+        // setInfoによって更新されてしまう前に退避
+        const prevBattleCount = this.battleInfo.battleCount;
         this.setInfo(builder);
+
+        // 戦闘回数がsetInfoによる更新前後で変わっていたら基地ターゲットにアラートを出す
+        if (battleCount > 1 && prevBattleCount !== battleCount && this.existsBattleAirbase) {
+          this.alertAirbaseTarget = true;
+        }
       }
     },
     resetFleetAll() {
@@ -334,6 +370,7 @@ export default Vue.extend({
     },
     toggleTargetDialog() {
       if (!this.targetDialog) {
+        this.alertAirbaseTarget = false;
         this.setInfo();
       }
     },

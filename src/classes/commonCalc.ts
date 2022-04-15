@@ -1,4 +1,5 @@
 import Const, { AIR_STATE } from './const';
+import ItemMaster from './item/itemMaster';
 
 export default class CommonCalc {
   /**
@@ -154,7 +155,37 @@ export default class CommonCalc {
         }
       }
     }
-
     return damageDist;
+  }
+
+  /**
+   * 成長定数から所要戦闘回数を返却
+   * @static
+   * @param {ItemMaster} item
+   * @return {*}  {string} 所要戦闘回数文字列
+   * @memberof CommonCalc
+   */
+  public static getGrowSpeedString(item: ItemMaster): string {
+    // 求ム計算式
+    switch (item.grow) {
+      case 2:
+        return '100 戦';
+      case 3:
+        return '57 ~ 75 戦';
+      case 4:
+        return '39 ~ 47 戦';
+      case 5:
+        return '31 ~ 40 戦';
+      case 6:
+        return '25 ~ 31 戦';
+      case 7:
+        return '20 ~ 28 戦';
+      case 8:
+        return '18 ~ 23 戦';
+      case 9:
+        return '16 ~ 20 戦';
+      default:
+        return '不明';
+    }
   }
 }

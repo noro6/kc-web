@@ -216,6 +216,7 @@ export default Vue.extend({
       this.enemies = result;
     },
     clickedEnemy(enemy: EnemyMaster) {
+      this.clearTooltip();
       this.handleDecideEnemy(enemy);
     },
     close() {

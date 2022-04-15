@@ -4,7 +4,7 @@
       <div class="level-setting-container" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
         <template v-if="index >= 0">
           <div>
-            <v-img :src="`./img/type/type${typeId}.png`" height="24" width="24"></v-img>
+            <v-img :src="`./img/type/type${typeId}.png`" height="30" width="30"></v-img>
           </div>
           <div class="ml-1 item-name text-truncate">{{ typeName }}</div>
           <div class="item-level">
@@ -32,7 +32,7 @@
 .level-setting-container {
   display: flex;
   margin: 0 0.2rem;
-  padding: 0.25rem 1rem 0.25rem 0.5rem;
+  padding: 0 1rem 0 0.5rem;
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 }
 .level-setting-container > div {

@@ -204,6 +204,7 @@ export default Vue.extend({
       this.handleShowItemList(this.index, enemyIndex, slotIndex);
     },
     showEnemyList(index: number) {
+      this.clearTooltip();
       this.handleShowEnemyList(this.index, index);
     },
     async clickedInfo() {

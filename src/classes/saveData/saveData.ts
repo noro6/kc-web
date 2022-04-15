@@ -476,6 +476,7 @@ export default class SaveData {
           cellType: v.cellType,
           formation: v.formation,
           range: v.range,
+          area: v.area,
           nodeName: v.nodeName,
           mainFleetFormation: v.mainFleetFormation,
         };

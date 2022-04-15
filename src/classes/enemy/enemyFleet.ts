@@ -19,6 +19,8 @@ export interface EnemyFleetBuilder {
   cellType?: number;
   /** 半径 未指定ならfleetの半径で作成 */
   range?: number;
+  /** 海域 もっぱら基地のエラーのため */
+  area?: number;
   /** セル名称 */
   nodeName?: string;
   /** 味方の陣形 未指定ならfleetの陣形で作成 */
@@ -43,6 +45,9 @@ export default class EnemyFleet {
 
   /** 半径 */
   public readonly range: number;
+
+  /** 海域 */
+  public readonly area: number;
 
   /** セル名称 */
   public readonly nodeName: string;
@@ -115,6 +120,7 @@ export default class EnemyFleet {
       this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : builder.fleet.mainFleetFormation;
       this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
       this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
+      this.area = builder.area !== undefined ? builder.area : builder.fleet.area;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : builder.fleet.nodeName;
     } else {
       this.enemies = builder.enemies ? builder.enemies.concat() : [];
@@ -122,6 +128,7 @@ export default class EnemyFleet {
       this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : 1;
       this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
       this.range = builder.range !== undefined ? builder.range : 0;
+      this.area = builder.area !== undefined ? builder.area : 0;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : '';
 
       if (this.enemies.length === 0) {
@@ -196,7 +203,7 @@ export default class EnemyFleet {
     // 通常CIソート => (種別の降順)
     this.allAntiAirCutIn.sort((a, b) => b.id - a.id);
 
-    // 対空砲火情報更新 todo 陣形 空襲情報
+    // 対空砲火情報更新
     this.shootDownList = [];
     let sum = 1;
     let border = 0;
