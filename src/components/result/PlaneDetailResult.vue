@@ -376,7 +376,7 @@
   background-color: #fff;
 }
 .theme--dark .border-window .header-content > div {
-  background-color: rgb(30, 30, 30)
+  background-color: rgb(30, 30, 30);
 }
 .target-item {
   display: flex;
@@ -806,8 +806,11 @@ export default Vue.extend({
     },
     calculateFire() {
       const tempDist = this.selectedItem.dist;
+      const { attackerTorpedoBonus } = this.selectedItem;
       // 改修値 搭載数変更を適用して再インスタンス化
       this.selectedItem = new Item({ item: this.selectedItem, slot: this.attackerSlot });
+      // 雷装ボーナスあれば
+      this.selectedItem.attackerTorpedoBonus = attackerTorpedoBonus;
       // 計算結果の分布を引継ぎ
       this.selectedItem.dist = tempDist;
 
@@ -836,6 +839,7 @@ export default Vue.extend({
       const rows = this.defenseShipRows;
       for (let i = 0; i < rows.length; i += 1) {
         const row = rows[i];
+        row.isASW = false;
         // 防御艦
         const { ship } = row;
         // 潜水かどうか？

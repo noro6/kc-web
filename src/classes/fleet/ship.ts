@@ -101,6 +101,9 @@ export default class Ship implements ShipBase {
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
+  /** 航空戦雷装ボーナス一覧 */
+  public readonly torpedoBonuses: number[];
+
   /** 随伴艦フラグ */
   public readonly isEscort: boolean;
 
@@ -233,6 +236,10 @@ export default class Ship implements ShipBase {
     this.tp = this.getTransportPower();
     // 射程(基本値)
     this.actualRange = Math.max(this.data.range, 1);
+    // 雷装ボーナス一覧
+    this.torpedoBonuses = [];
+    // 雷装ボーナス適用装備(最も雷装 or 爆装が高い)
+    let maximumAttacker = new Item();
 
     // 対潜支援参加可能艦種
     const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
@@ -266,6 +273,19 @@ export default class Ship implements ShipBase {
       if (!this.hasJet && item.isJet) {
         this.hasJet = true;
       }
+
+      // 雷装ボーナス
+      if (item.isAttacker) {
+        this.torpedoBonuses.push(this.getAttackerTorpedoBonus(item));
+        item.attackerTorpedoBonus = 0;
+
+        const temp = Math.max(maximumAttacker.data.torpedo, maximumAttacker.data.bomber);
+        const value = Math.max(item.data.torpedo, item.data.bomber);
+        if (temp < value) {
+          maximumAttacker = item;
+        }
+      }
+
       // 高角砲カウント
       if (item.data.iconTypeId === 16 && !item.data.isSpecial) {
         this.kokakuCount += 1;
@@ -304,6 +324,12 @@ export default class Ship implements ShipBase {
       if (!this.enabledASWSupport && enabledASWSupport && Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
         this.enabledASWSupport = true;
       }
+    }
+
+    // 雷装ボーナス適用装備抽出 & セット
+    if (this.torpedoBonuses.length) {
+      // 適用装備の雷装ボーナスプロパティを更新
+      maximumAttacker.attackerTorpedoBonus = +this.torpedoBonuses.sort((a, b) => b - a)[0];
     }
 
     // 伊勢 / 日向 / 飛龍 / 蒼龍の改二 二式艦上偵察機で射程バフ +1
@@ -1181,6 +1207,82 @@ export default class Ship implements ShipBase {
     }
 
     return false;
+  }
+
+  /**
+   * 装備航空戦雷装ボーナスを取得
+   * @param {Item} item
+   * @return {*}  {number}
+   * @memberof Ship
+   */
+  public getAttackerTorpedoBonus(item: Item): number {
+    const ship = this.data;
+    const itemId = item.data.id;
+    if (itemId === 372) {
+      // 天山一二型甲
+      if (ship.id === 883 || ship.id === 888) {
+        // 龍鳳改二 / 戊
+        return 2;
+      }
+      if ([33, 43].includes(ship.type2)) {
+        // 翔鶴型 大鳳
+        return 1;
+      }
+    } else if (itemId === 373) {
+      // 天山一二型甲改(空六号電探改装備機)
+      if (ship.id === 883) {
+        // 龍鳳改二戊
+        return 3;
+      }
+      if (ship.id === 888 || [9, 33, 43].includes(ship.type2)) {
+        // 龍鳳改二 最上型 翔鶴型 大鳳
+        return 2;
+      }
+      if ([24, 51].includes(ship.type2) || [291, 292, 296, 297, 282, 555, 560].includes(ship.id)) {
+        // 飛鷹型 龍鳳型 祥鳳と千歳型の改以降っぽいかんじ
+        return 1;
+      }
+    } else if (itemId === 374) {
+      // 天山一二型甲改(熟練/空六号電探改装備機)
+      if ([461, 462, 466, 467, 153, 156].includes(ship.id)) {
+        // 鶴改二 / 改二甲 大鳳
+        return 3;
+      }
+      if ([883, 888, 508, 509, 283, 408].includes(ship.id)) {
+        // 龍鳳改二 最上型改二 飛鷹改 隼鷹改二
+        return 2;
+      }
+      if ([296, 297, 282, 555, 560, 318].includes(ship.id)) {
+        // 祥鳳と千歳型最終 龍鳳改
+        return 1;
+      }
+    } else if (itemId === 424) {
+      // Barracuda Mk.II
+      if (Const.GBR.includes(ship.type2)) {
+        // イギリス人
+        return 3;
+      }
+    } else if (itemId === 425) {
+      // Barracuda Mk.III
+      if (Const.GBR.includes(ship.type2)) {
+        // Ark Vict
+        return 1;
+      }
+    } else if (itemId === 368) {
+      // Swordfish Mk.III改(水上機型)
+      if (ship.id === 630) {
+        // Got andra
+        return 2;
+      }
+    } else if (itemId === 369) {
+      // Swordfish Mk.III改(水上機型/熟練)
+      if (ship.id === 630) {
+        // Got andra
+        return 3;
+      }
+    }
+
+    return 0;
   }
 
   /**

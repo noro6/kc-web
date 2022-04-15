@@ -296,12 +296,13 @@ export default class AerialFirePowerCalculator {
         break;
     }
 
+    // 雷装ボーナス適用
+    fire *= args.torpedoBonus;
+    fire += item.attackerTorpedoBonus;
+
     const loop = type === 8 ? 2 : 1;
     const retPowers = [];
     for (let i = 0; i < loop; i += 1) {
-      // 雷装ボーナス適用
-      fire *= args.torpedoBonus;
-
       // 基本攻撃力 = {(雷装 or 爆装) × √(搭載数) + 航空戦定数c} * キャップ前ボーナス
       let p = 0;
       if (type === 8 && i === 0) {

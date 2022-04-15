@@ -151,6 +151,9 @@ export default class Item {
   /** 最大搭載数から1までの防空制空値を計算し終えた配列 機体のみ有効 計算用 */
   private readonly calculatedDefenseAirPower: number[];
 
+  /** 航空戦雷装ボーナス 艦娘インスタンス化時限定変更 */
+  public attackerTorpedoBonus = 0;
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 
