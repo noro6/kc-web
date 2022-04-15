@@ -79,6 +79,17 @@ interface DeckBuilder {
   a3?: DeckBuilderAirbase,
 }
 
+type shipStockJson = { 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
+type shipStockJson2 = { 'id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
+type itemStockJson = { 'api_slotitem_id': number, 'api_level': number };
+type itemStockJson2 = { 'id': number, 'lv': number };
+
+type oldShipStockSt = { 'id': number, 'lv': number, 'exp': number, 'st': number[], 'ex': number, 'area': number };
+
+export interface OldShipStockJson {
+  id: number, details: oldShipStockSt[]
+}
+
 export default class Convert {
   /** 装備マスタ */
   private readonly itemMasters: ItemMaster[];
@@ -219,11 +230,8 @@ export default class Convert {
    * @memberof Convert
    */
   public static readItemStockJson(text: string): ItemStock[] {
-    type stockJson = { 'api_slotitem_id': number, 'api_level': number };
-    type stockJson2 = { 'id': number, 'lv': number };
-
     try {
-      const json = JSON.parse(text) as (stockJson | stockJson2)[];
+      const json = JSON.parse(text) as (itemStockJson | itemStockJson2)[];
       if (!json.length) {
         return [];
       }
@@ -264,11 +272,8 @@ export default class Convert {
    * @memberof Convert
    */
   public static readShipStockJson(text: string): ShipStock[] {
-    type stockJson = { 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
-    type stockJson2 = { 'id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
-
     try {
-      const json = JSON.parse(text) as (stockJson | stockJson2)[];
+      const json = JSON.parse(text) as (shipStockJson | shipStockJson2)[];
       if (!json.length) {
         return [];
       }
@@ -731,9 +736,9 @@ export default class Convert {
   /**
    * 旧シミュ形式から艦隊情報を復元、返却
    * @private
-   * @param {*} old
-   * @param {number} admiralLevel
-   * @return {*}  {AirbaseInfo}
+   * @param {any[]} old
+   * @param {number} [admiralLevel=120]
+   * @return {*}  {FleetInfo}
    * @memberof Convert
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -993,5 +998,75 @@ export default class Convert {
       }
     }
     return dataString;
+  }
+
+  /**
+   * 旧在籍艦娘情報を新版に変換
+   * @static
+   * @param {oldShipStockJson[]} data
+   * @return {*}  {ShipStock[]}
+   * @memberof Convert
+   */
+  public static restoreShipStock(data: OldShipStockJson[], shipMasters: ShipMaster[]): ShipStock[] {
+    const newStocks = [];
+    let uniqueId = 1;
+    for (let i = 0; i < data.length; i += 1) {
+      const shipAlbumId = data[i].id;
+      const oldDetails = data[i].details;
+
+      const shipMaster = shipMasters.find((v) => v.albumId === shipAlbumId);
+      if (!shipMaster) {
+        continue;
+      }
+      for (let j = 0; j < oldDetails.length; j += 1) {
+        const detail = oldDetails[j];
+
+        const newStock = new ShipStock();
+        newStock.uniqueId = uniqueId;
+        newStock.id = shipMaster.id;
+        newStock.area = detail.area && detail.area > 0 ? detail.area : 0;
+        newStock.exp = detail.exp ? detail.exp : 0;
+        newStock.level = detail.lv ? detail.lv : 1;
+        newStock.releaseExpand = !!detail.ex;
+        if (detail.st && detail.st.length) {
+          const status = detail.st;
+          newStock.improvement.fire = status[0] ? status[0] : 0;
+          newStock.improvement.torpedo = status[1] ? status[1] : 0;
+          newStock.improvement.antiAir = status[2] ? status[2] : 0;
+          newStock.improvement.armor = status[3] ? status[3] : 0;
+          newStock.improvement.luck = status[4] ? status[4] : 0;
+          newStock.improvement.hp = status[5] ? status[5] : 0;
+          newStock.improvement.asw = status[6] ? status[6] : 0;
+        }
+
+        newStocks.push(newStock);
+        uniqueId += 1;
+      }
+    }
+
+    return newStocks;
+  }
+
+  /**
+   * 旧所持装備情報を新版に変換
+   * @static
+   * @param {ItemStock[]} data
+   * @return {*}  {ItemStock[]}
+   * @memberof Convert
+   */
+  public static restoreItemStock(data: ItemStock[]): ItemStock[] {
+    const newStocks = [];
+
+    for (let i = 0; i < data.length; i += 1) {
+      const old = data[i] as ItemStock;
+
+      // 念のため不正データがないかチェック
+      if (old.id && old.num && old.num.length && old.num.length === 11) {
+        const newStock = new ItemStock(old.id);
+        newStock.num = old.num.concat();
+        newStocks.push(newStock);
+      }
+    }
+    return newStocks;
   }
 }

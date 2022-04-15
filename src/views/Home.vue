@@ -1,6 +1,6 @@
 <template>
   <div class="site-top-container">
-    <div class="site-title content">制空権シミュレータ v2.0.0 β</div>
+    <div class="site-title content">制空権シミュレータ <span class="body-1">v2.0.0 β</span></div>
     <v-card class="site-body content">
       <v-alert border="left" outlined type="warning" class="ma-3 pa-4">
         <div>
@@ -48,13 +48,16 @@
         </div>
       </div>
       <v-divider class="my-3"></v-divider>
-      <div class="menu-buttons">
-        <div class="ma-4 pt-3">
-          <v-btn color="teal" @click="checkOldData" :dark="!imported" :disabled="imported">データ引継ぎ</v-btn>
-          <div class="mt-2 body-2">
-            旧<a href="https://noro6.github.io/kcTools" target="_blank">制空権シミュレータ v1.x.x</a
-            >で作成していた編成データを引き継ぎます。
-          </div>
+      <div class="ma-2 pt-3">
+        <div class="d-flex flex-wrap">
+          <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">データ引継ぎ(編成)</v-btn>
+          <v-btn class="ma-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
+            データ引継ぎ(装備/艦娘)
+          </v-btn>
+        </div>
+        <div class="ma-2 body-2">
+          <a href="https://noro6.github.io/kcTools" target="_blank">旧制空権シミュレータ</a>
+          で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。
         </div>
       </div>
     </v-card>
@@ -78,6 +81,20 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="440">
+      <v-card class="pa-3">
+        <div class="ma-4">
+          <div class="body-2">既に本サイトで装備 / 艦娘情報が登録されているようです。</div>
+          <div class="body-2">引き継ぎを行うとこれらのデータは上書きされます。</div>
+          <div class="body-2 mt-3">本当に引き継ぎを行いますか？</div>
+        </div>
+        <v-divider class="my-2"></v-divider>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="primary" dark :disabled="!confirmDialog" @click.stop="importOldStockData()">実行</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">戻る</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -87,6 +104,7 @@
   max-width: 1200px;
 }
 .site-title {
+  margin-top: 1rem;
   font-size: 1.2em;
 }
 .site-body {
@@ -111,7 +129,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import SaveData from '@/classes/saveData/saveData';
-import Convert from '@/classes/convert';
+import Convert, { OldShipStockJson } from '@/classes/convert';
+import SiteSetting from '@/classes/siteSetting';
+import ItemStock from '@/classes/item/itemStock';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
   name: 'Home',
@@ -123,6 +144,8 @@ export default Vue.extend({
     imported: false,
     importConfirmDialog: false,
     importFileName: '引き継ぎデータ',
+    confirmDialog: false,
+    importedStock: false,
   }),
   computed: {
     isNameEmptry(): boolean {
@@ -171,6 +194,92 @@ export default Vue.extend({
 
       this.imported = false;
       this.importConfirmDialog = true;
+    },
+    checkOldStockData() {
+      this.importedStock = true;
+
+      // 過去データが存在するかチェック
+      const strage = window.localStorage;
+      if (!strage) {
+        this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
+        return;
+      }
+
+      const shipStocks = strage.getItem('shipStock');
+      const itemStocks = strage.getItem('planeStock');
+      const shipStocksJSON = shipStocks ? JSON.parse(shipStocks) : undefined;
+      const itemStocksJSON = itemStocks ? JSON.parse(itemStocks) : undefined;
+      if ((!shipStocksJSON || !shipStocksJSON.length) && (!itemStocksJSON || !itemStocksJSON.length)) {
+        this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
+        return;
+      }
+
+      const hasCurrentStock = !!this.$store.state.shipStock.length || !!this.$store.state.itemStock.length;
+      if (hasCurrentStock) {
+        // 既にデータがあるならダイアログ
+        this.confirmDialog = true;
+        this.importedStock = false;
+      } else {
+        this.importOldStockData();
+      }
+    },
+    importOldStockData() {
+      this.importedStock = true;
+
+      // 過去データが存在するかチェック
+      const strage = window.localStorage;
+      if (!strage) {
+        this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
+        return;
+      }
+
+      const shipStocks = strage.getItem('shipStock');
+      const itemStocks = strage.getItem('planeStock');
+      const shipStocksJSON = shipStocks ? JSON.parse(shipStocks) : undefined;
+      const itemStocksJSON = itemStocks ? JSON.parse(itemStocks) : undefined;
+      if ((!shipStocksJSON || !shipStocksJSON.length) && (!itemStocksJSON || !itemStocksJSON.length)) {
+        this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
+        return;
+      }
+
+      try {
+        const setting = this.$store.state.siteSetting as SiteSetting;
+        let restoreResult = false;
+        if (shipStocksJSON && shipStocksJSON.length) {
+          // 在籍艦娘情報変換 & 上書き
+          const newStocks = Convert.restoreShipStock(shipStocksJSON as OldShipStockJson[], this.$store.state.ships as ShipMaster[]);
+          if (newStocks.length) {
+            restoreResult = true;
+            // 設定書き換え
+            setting.isStockOnlyForShipList = true;
+            this.$store.dispatch('updateShipStock', newStocks);
+          }
+        }
+
+        if (itemStocksJSON && itemStocksJSON.length) {
+          // 所持装備情報変換 & 上書き
+          const newStocks = Convert.restoreItemStock(itemStocksJSON as ItemStock[]);
+          if (newStocks.length) {
+            restoreResult = true;
+            // 設定書き換え
+            setting.isStockOnlyForItemList = true;
+            this.$store.dispatch('updateItemStock', newStocks);
+          }
+        }
+
+        this.$store.dispatch('updateSetting', setting);
+
+        if (!restoreResult) {
+          this.$emit('inform', 'データを読み込みましたが、引き継ぎ可能な編成データがありませんでした。', true);
+          return;
+        }
+
+        this.$emit('inform', '所持装備 / 艦娘データの引き継ぎが完了しました。');
+      } catch (error) {
+        this.$emit('inform', 'データ引継ぎに失敗しました。', true);
+        console.error(error);
+      }
+      this.confirmDialog = false;
     },
     importOldData() {
       this.imported = true;
