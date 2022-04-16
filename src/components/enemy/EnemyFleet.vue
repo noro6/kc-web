@@ -1,7 +1,7 @@
 <template>
   <v-card class="ma-1 py-2">
     <div class="d-flex">
-      <div class="ml-2 align-self-center">{{ index + 1 }}戦目</div>
+      <div class="ml-2 align-self-center battle-title">{{ index + 1 }}戦目</div>
       <v-spacer></v-spacer>
       <div v-if="capturing && fleet.nodeName" class="mx-3">{{ fleet.nodeName }}</div>
       <div class="align-self-center mr-1" v-if="!capturing">

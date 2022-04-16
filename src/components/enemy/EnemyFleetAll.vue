@@ -70,18 +70,20 @@
           </v-chip>
         </div>
       </div>
-      <div class="d-flex flex-wrap" v-if="!isDefense">
-        <enemy-fleet-component
-          v-for="(i, index) in battleInfo.battleCount"
-          :key="i"
-          v-model="battleInfo.fleets[index]"
-          :index="index"
-          :handle-show-enemy-list="showEnemyList"
-          :handle-show-item-list="showItemList"
-          :handle-show-world-list="showWorldList"
-          :capturing="capturing"
-          @input="setInfo()"
-        ></enemy-fleet-component>
+      <div v-if="!isDefense">
+        <draggable v-model="battleInfo.fleets" handle=".battle-title" animation="150" @end="setInfo()" class="d-flex flex-wrap">
+          <enemy-fleet-component
+            v-for="(i, index) in battleInfo.battleCount"
+            :key="i"
+            v-model="battleInfo.fleets[index]"
+            :index="index"
+            :handle-show-enemy-list="showEnemyList"
+            :handle-show-item-list="showItemList"
+            :handle-show-world-list="showWorldList"
+            :capturing="capturing"
+            @input="setInfo()"
+          ></enemy-fleet-component>
+        </draggable>
       </div>
       <div class="d-flex flex-wrap" v-else>
         <enemy-fleet-component
@@ -146,6 +148,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import draggable from 'vuedraggable';
 import html2canvas from 'html2canvas';
 import AirbaseTarget from '@/components/airbase/AirbaseTarget.vue';
 import EnemyFleetComponent from '@/components/enemy/EnemyFleet.vue';
@@ -166,6 +169,7 @@ const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 export default Vue.extend({
   name: 'EnemyFleetAll',
   components: {
+    draggable,
     EnemyFleetComponent,
     EnemyList,
     WorldList,
