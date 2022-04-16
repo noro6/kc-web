@@ -71,7 +71,7 @@
               <div class="align-self-center body-2 ml-1">{{ fleet.mainAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              <enemy-input v-for="(enemy, i) in fleet.mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
             </div>
           </div>
           <v-divider v-if="fleet.isUnion"></v-divider>
@@ -84,7 +84,7 @@
               <div class="align-self-center body-2 ml-1">{{ fleet.escortAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in escorts" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              <enemy-input v-for="(enemy, i) in fleet.escortEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
             </div>
           </div>
         </div>
@@ -145,7 +145,6 @@ import Vue from 'vue';
 import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import ContactRates from '@/components/result/ContactRates.vue';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
-import Enemy from '@/classes/enemy/enemy';
 import EnemyInput from './EnemyInput.vue';
 
 export default Vue.extend({
@@ -171,17 +170,6 @@ export default Vue.extend({
   data: () => ({
     tab: 'stage2',
   }),
-  computed: {
-    enemies(): Enemy[] {
-      return this.fleet.enemies.filter((v) => v.data.id > 0);
-    },
-    mainEnemies(): Enemy[] {
-      return this.fleet.enemies.filter((v) => v.data.id > 0 && !v.isEscort);
-    },
-    escorts(): Enemy[] {
-      return this.fleet.enemies.filter((v) => v.data.id > 0 && v.isEscort);
-    },
-  },
   methods: {
     showItemList(enemyIndex: number, slotIndex: number): void {
       // 敵の装備変更

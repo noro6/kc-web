@@ -321,9 +321,14 @@ export default Vue.extend({
       if (mainData.isUnsaved) {
         // 未保存の編成だった場合、適当なタイミングでmanagerを更新しておく
         this.saveTriggerTimer = window.setTimeout(() => {
-          mainData.saveManagerData();
-          const saveData = this.$store.state.saveData as SaveData;
-          this.$store.dispatch('updateSaveData', saveData);
+          try {
+            mainData.saveManagerData();
+            const saveData = this.$store.state.saveData as SaveData;
+            this.$store.dispatch('updateSaveData', saveData);
+          } catch (error) {
+            // 対処済み(どうせ編成はもう閉じてるのでしなくていい)
+            console.error(error);
+          }
         }, 100);
       }
 

@@ -425,7 +425,7 @@ td.item-input {
 }
 
 #result-container.captured {
-  width: 800px !important;
+  width: 1000px !important;
   background: #fff !important;
   border: 1px solid #bbb;
   border-radius: 0.25rem;

@@ -21,9 +21,7 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
-Vue.use(VueGtag, {
-  config: { id: 'UA-152888142-2' },
-});
+Vue.use(VueGtag, { config: { id: 'UA-152888142-2' } }, router);
 
 new Vue({
   router,

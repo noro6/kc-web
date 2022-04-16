@@ -503,6 +503,9 @@ export default class SaveData {
 
     // 現在のインデックスのデータ
     const managerData = this.tempData[this.tempIndex];
+    if (!managerData) {
+      return '';
+    }
     // JSONにパースして保存
     const data = JSON.stringify(managerData, replacer);
     // 一度復元してチェック

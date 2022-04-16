@@ -282,8 +282,8 @@
 }
 .type-img,
 .type-img img {
-  height: 24px;
-  width: 24px;
+  height: 30px;
+  width: 30px;
 }
 
 .icon-img,
@@ -565,6 +565,7 @@ export default Vue.extend({
       }
     },
     clickItem(master: ItemMaster) {
+      this.clearTooltip();
       this.editDialog = true;
       this.edittedItem = master;
 

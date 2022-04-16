@@ -85,10 +85,10 @@ export default class EnemyFleet {
   /** 随伴艦制空値【対基地】 */
   public readonly escortAirbaseAirPower: number;
 
-  /** 敵主力艦隊一覧 */
+  /** 敵主力艦隊一覧 通常艦隊もここ(空の敵艦が除かれている) */
   public readonly mainEnemies: Enemy[];
 
-  /** 敵随伴艦隊一覧 */
+  /** 敵随伴艦隊一覧(空の敵艦が除かれている) */
   public readonly escortEnemies: Enemy[];
 
   /** stage2 対空CI不発時撃墜テーブル */
@@ -130,12 +130,13 @@ export default class EnemyFleet {
       this.range = builder.range !== undefined ? builder.range : 0;
       this.area = builder.area !== undefined ? builder.area : 0;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : '';
+    }
 
-      if (this.enemies.length === 0) {
-        // 0隻だった場合は6隻で初期化してやる
-        for (let i = 0; i < 6; i += 1) {
-          this.enemies.push(new Enemy());
-        }
+    const enemyCount = this.enemies.length;
+    if (enemyCount < 6) {
+      // 6隻までは増やす
+      for (let i = 0; i < 6 - enemyCount; i += 1) {
+        this.enemies.push(new Enemy());
       }
     }
 

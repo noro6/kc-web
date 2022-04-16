@@ -19,7 +19,7 @@
           </template>
           <span>{{ saveData.name }}</span>
         </v-tooltip>
-        <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted }">
+        <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted && !saveData.isUnsaved }">
           <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
             <v-icon small>mdi-close</v-icon>
           </v-btn>

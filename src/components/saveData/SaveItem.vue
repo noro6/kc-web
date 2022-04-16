@@ -10,7 +10,15 @@
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
   >
-    <div v-ripple class="save-list-item pl-1" :class="{ selected: value.selected }" @click="itemClicked" v-click-outside="onClickOutside">
+    <div
+      v-ripple
+      class="save-list-item pl-1"
+      :class="{ selected: value.selected }"
+      @click="itemClicked"
+      v-click-outside="onClickOutside"
+      @mouseenter.stop="bootTooltip(value, $event)"
+      @mouseleave.stop="clearTooltip"
+    >
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
@@ -18,9 +26,6 @@
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
       <div class="item-name text-truncate">{{ value.name }}</div>
       <div class="ml-auto file-action-buttons">
-        <v-btn icon small @click.stop @mouseenter.stop="bootTooltip(value, $event)" @mouseleave.stop="clearTooltip">
-          <v-icon small>mdi-help-circle-outline</v-icon>
-        </v-btn>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn v-if="!value.isUnsaved" icon small @click.stop="showEditDialog" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
@@ -271,13 +276,13 @@ export default Vue.extend({
     },
     showEditDialog() {
       this.editedName = this.value.name;
-      this.editedRemarks = this.value.remarks;
+      this.editedRemarks = this.value.remarks ? this.value.remarks : '';
       this.editDialog = true;
     },
     commitName() {
       this.editDialog = false;
       this.value.name = this.editedName.trim();
-      this.value.remarks = this.editedRemarks.trim();
+      this.value.remarks = this.editedRemarks ? this.editedRemarks.trim() : '';
       this.value.editedDate = Date.now();
       this.handleUpdateSaveData();
     },
@@ -350,6 +355,9 @@ export default Vue.extend({
       }
     },
     bootTooltip(data: SaveData, e: MouseEvent) {
+      if (data.isDirectory) {
+        return;
+      }
       const nameDiv = (e.target as HTMLDivElement).closest('.save-list')?.getElementsByClassName('item-name')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
@@ -357,7 +365,7 @@ export default Vue.extend({
         this.tooltipY = rect.y + rect.height;
         this.tooltipData = data;
         this.enabledTooltip = true;
-      }, 100);
+      }, 200);
     },
     clearTooltip() {
       this.enabledTooltip = false;
