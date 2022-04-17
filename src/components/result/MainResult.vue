@@ -224,7 +224,7 @@
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                 </div>
-                <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
+                <div class="align-self-center item-name py-1 text-truncate">{{ item.data.name }}</div>
               </td>
               <td>{{ item.fullSlot }}</td>
               <td>{{ item.slotResult }}</td>

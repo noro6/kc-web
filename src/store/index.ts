@@ -91,10 +91,10 @@ export default new Vuex.Store({
     updateSaveData: (state, value: SaveData) => {
       state.saveData = value;
     },
-    updateItemStock: (state, values: ItemStock[]) => {
+    setItemStock: (state, values: ItemStock[]) => {
       state.itemStock = values;
     },
-    updateShipStock: (state, values: ShipStock[]) => {
+    setShipStock: (state, values: ShipStock[]) => {
       state.shipStock = values;
     },
     updateTempItemStock: (state, values: ItemStock[]) => {
@@ -153,13 +153,13 @@ export default new Vuex.Store({
       context.state.kcWebDatabase.items.clear().then(() => {
         context.state.kcWebDatabase.items.bulkAdd(values);
       });
-      context.commit('updateItemStock', values);
+      context.commit('setItemStock', values);
     },
     updateShipStock: (context, values: ShipStock[]) => {
       context.state.kcWebDatabase.ships.clear().then(() => {
         context.state.kcWebDatabase.ships.bulkAdd(values);
       });
-      context.commit('updateShipStock', values);
+      context.commit('setShipStock', values);
     },
     updateTempItemStock: (context, values: ItemStock[]) => {
       context.commit('updateTempItemStock', values);
@@ -339,11 +339,11 @@ export default new Vuex.Store({
 
       // 艦娘在庫呼び出し
       db.ships.toArray().then((data) => {
-        context.state.shipStock = data;
+        context.commit('setShipStock', data);
       });
       // 装備呼び出し
       db.items.toArray().then((data) => {
-        context.state.itemStock = data;
+        context.commit('setItemStock', data);
       });
       // 装備プリセ呼び出し
       db.itemPresets.toArray().then((data) => {

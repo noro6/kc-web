@@ -909,7 +909,7 @@ export default Vue.extend({
     }
     this.initialize();
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
-      if (mutation.type === 'updateShipStock') {
+      if (mutation.type === 'setShipStock') {
         this.shipStock = state.shipStock as ShipStock[];
         this.masterFilter();
         this.editDialog = false;
@@ -918,8 +918,8 @@ export default Vue.extend({
   },
   watch: {
     completed(value) {
-      if (value && !this.all.length) {
-        this.initialize();
+      if (value) {
+        this.all = this.$store.state.ships as ShipMaster[];
       }
     },
     isTempStockMode(value) {

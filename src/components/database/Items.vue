@@ -400,7 +400,7 @@ export default Vue.extend({
     }
     this.initialize();
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
-      if (mutation.type === 'updateItemStock') {
+      if (mutation.type === 'setItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
         this.masterFilter();
         this.editDialog = false;

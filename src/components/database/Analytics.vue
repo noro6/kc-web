@@ -289,7 +289,7 @@ export default Vue.extend({
     }
     this.analyze();
     this.unsbscribe = this.$store.subscribe((mutation) => {
-      if (mutation.type === 'updateShipStock') {
+      if (mutation.type === 'setShipStock') {
         this.analyze();
       }
     });

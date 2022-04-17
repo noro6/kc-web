@@ -339,7 +339,7 @@ export default Vue.extend({
     this.generateKCAnalyticsCode();
     this.generateKantaiSarashiURL();
     this.unsbscribe = this.$store.subscribe((mutation) => {
-      if (mutation.type === 'updateShipStock' || mutation.type === 'updateItemStock') {
+      if (mutation.type === 'setShipStock' || mutation.type === 'setItemStock') {
         this.expandBtnClicked = false;
         this.generateKCAnalyticsCode();
         this.generateKantaiSarashiURL();
