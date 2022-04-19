@@ -43,7 +43,7 @@
             <div class="d-flex flex-wrap justify-end">
               <div class="d-flex mx-2">
                 <div><v-icon small>mdi-account</v-icon></div>
-                <div class="caption align-self-center">{{ preset.name }}</div>
+                <div class="caption align-self-center">{{ preset.user }}</div>
               </div>
               <div class="d-flex mx-2">
                 <div><v-icon small>mdi-clock-time-four-outline</v-icon></div>
@@ -126,6 +126,10 @@ import {
 import Convert from '@/classes/convert';
 import SaveData from '@/classes/saveData/saveData';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
+import LZString from 'lz-string';
+import ItemMaster from '@/classes/item/itemMaster';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
 
 const STEP = 20;
 
@@ -240,19 +244,32 @@ export default Vue.extend({
 
         const snapShot = await getDocs(q);
         const fetchData: UploadedPreset[] = [];
-        const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+        const items = this.$store.state.items as ItemMaster[];
+        const ships = this.$store.state.ships as ShipMaster[];
+        const enemies = this.$store.state.defaultEnemies as EnemyMaster[];
+        const converter = new Convert(items, ships, enemies);
         snapShot.forEach((doc) => {
           // 中間生成物
           const preset = doc.data() as UploadedPreset;
-          // 編成復元
-          const manager = converter.restoreOldSaveData(doc.data().data);
-          if (manager) {
-            preset.ships = manager.fleetInfo.fleets[0].ships;
-            preset.manager = manager;
-            preset.createdAt = Convert.formatDate(doc.data().createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss');
-            fetchData.push(preset);
+          if (preset.ver === 2) {
+            // 新版編成復元
+            const managerString = LZString.decompressFromBase64(doc.data().data) || '';
+            const manager = SaveData.loadSavedataManagerString(managerString, items, ships, enemies);
+            if (manager) {
+              preset.ships = manager.fleetInfo.fleets[0].ships;
+              preset.manager = manager;
+              preset.createdAt = Convert.formatDate(doc.data().createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss');
+              fetchData.push(preset);
+            }
           } else {
-            // 新版編成復元？ TODO
+            // 編成復元
+            const manager = converter.restoreOldSaveData(doc.data().data);
+            if (manager) {
+              preset.ships = manager.fleetInfo.fleets[0].ships;
+              preset.manager = manager;
+              preset.createdAt = Convert.formatDate(doc.data().createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss');
+              fetchData.push(preset);
+            }
           }
         });
 
@@ -273,9 +290,10 @@ export default Vue.extend({
         // 次回訪問時復帰するため保持
         this.$store.dispatch('setSearchedList', this.savedata);
       } catch (error) {
+        console.error(error);
         this.savedata = [];
+        this.$emit('inform', '編成データ読み込み中にエラーが発生しました。', true);
       }
-
       this.isLoading = false;
     },
     expandPreset(preset: UploadedPreset) {

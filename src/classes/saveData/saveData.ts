@@ -544,10 +544,14 @@ export default class SaveData {
   /**
    * この編成データに保存されているデータからcalcManagerインスタンスを生成
    * なければ初期データ いずれもcloneDeep適用済み
-   * @returns {CalcManager}
+   * @param {ItemMaster[]} itemMasters
+   * @param {ShipMaster[]} shipMasters
+   * @param {EnemyMaster[]} enemyMasters
+   * @param {number} [initialiAdmiralLevel=120] 新規データ時の初期司令部レベル
+   * @return {*}  {CalcManager}
    * @memberof SaveData
    */
-  public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
+  public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[], initialiAdmiralLevel = 120): CalcManager {
     if (this.tempData.length) {
       // 一時保存領域にデータがあればそちら
       if (this.tempIndex >= this.tempData.length) {
@@ -559,6 +563,7 @@ export default class SaveData {
 
     if (!this.manager) {
       const newData = new CalcManager();
+      newData.fleetInfo = new FleetInfo({ admiralLevel: initialiAdmiralLevel });
       newData.resetAll = true;
       // 一時保存データにこの情報を突っ込む
       this.tempData = [_.cloneDeep(newData)];
@@ -568,8 +573,31 @@ export default class SaveData {
     }
 
     // セーブデータ内文字列データから編成を復元 重いので本当に初回だけ呼ぶようにする
-    const manager = JSON.parse(this.manager) as CalcManager;
+    const resultData = SaveData.loadSavedataManagerString(this.manager, itemMasters, shipMasters, enemyMasters);
 
+    // 一時保存データにこの情報を突っ込む
+    this.tempData = [_.cloneDeep(resultData)];
+    this.tempIndex = 0;
+    this.tempSavedIndex = 0;
+
+    return resultData;
+  }
+
+  /**
+   * セーブデータ内文字列データから編成を復元
+   * @static
+   * @param {string} managerString
+   * @param {ItemMaster[]} itemMasters
+   * @param {ShipMaster[]} shipMasters
+   * @param {EnemyMaster[]} enemyMasters
+   * @return {*}  {CalcManager}
+   * @memberof SaveData
+   */
+  public static loadSavedataManagerString(managerString: string, itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
+    if (!managerString || !managerString.length) {
+      return new CalcManager();
+    }
+    const manager = JSON.parse(managerString) as CalcManager;
     // 基地復元
     const airbases: Airbase[] = [];
     const rawAirbases = manager.airbaseInfo.airbases;
@@ -680,11 +708,6 @@ export default class SaveData {
     resultData.battleInfo = manager.battleInfo;
     // タブ切り替えは全ての情報をリセットする
     resultData.resetAll = true;
-
-    // 一時保存データにこの情報を突っ込む
-    this.tempData = [_.cloneDeep(resultData)];
-    this.tempIndex = 0;
-    this.tempSavedIndex = 0;
 
     return resultData;
   }

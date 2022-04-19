@@ -43,6 +43,12 @@ export default class SiteSetting {
   /** シミュ回数 */
   public simulationCount: number;
 
+  /** 司令部レベル */
+  public admiralLevel: number;
+
+  /** アップロード名 */
+  public userName: string;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -58,6 +64,8 @@ export default class SiteSetting {
       this.isMinimizedEnemy = !!setting.isMinimizedEnemy;
       this.isMinimizedResult = !!setting.isMinimizedResult;
       this.simulationCount = setting.simulationCount ? setting.simulationCount : 5000;
+      this.admiralLevel = setting.admiralLevel ? setting.admiralLevel : 120;
+      this.userName = setting.userName ? setting.userName : '';
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -94,6 +102,8 @@ export default class SiteSetting {
       this.isMinimizedEnemy = false;
       this.isMinimizedResult = false;
       this.simulationCount = 5000;
+      this.admiralLevel = 120;
+      this.userName = '';
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

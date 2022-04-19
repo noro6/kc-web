@@ -226,6 +226,7 @@ export default Vue.extend({
       this.setAirbase();
     },
     setAirbase(value?: Airbase) {
+      this.clearTooltip();
       if (value === undefined) {
         this.$emit('input', new Airbase({ airbase: this.airbase }));
       } else {

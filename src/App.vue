@@ -202,22 +202,106 @@
     </v-dialog>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
-        <div class="mx-4 mt-4">
-          <v-text-field v-model="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
-          <v-textarea
-            v-model.trim="editedRemarks"
-            rows="10"
-            dense
-            outlined
-            hide-details
-            label="補足情報"
-            class="remarks-input"
-          ></v-textarea>
-          <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
-            <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
-          </div>
-        </div>
+        <v-tabs v-model="saveDialogTab" @change="changeUploadTabs">
+          <v-tab href="#save">編成保存</v-tab>
+          <v-tab href="#upload" :disabled="disabledUpload">編成アップロード</v-tab>
+        </v-tabs>
+        <v-divider></v-divider>
+        <v-tabs-items v-model="saveDialogTab">
+          <v-tab-item value="save">
+            <div class="mx-4 mt-4">
+              <v-text-field v-model="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
+              <v-textarea
+                v-model.trim="editedRemarks"
+                rows="10"
+                dense
+                outlined
+                hide-details
+                label="補足情報"
+                class="remarks-input"
+              ></v-textarea>
+              <div class="d-flex mt-3">
+                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+              </div>
+            </div>
+          </v-tab-item>
+          <v-tab-item value="upload">
+            <div class="mx-4 mt-4">
+              <v-alert border="left" outlined type="info" dense class="mt-2 mb-5">
+                <div class="body-2">アップロードした編成は「トップページ > みんなの編成」ページにて公開されます。</div>
+              </v-alert>
+              <v-form ref="uploadForm">
+                <v-text-field
+                  v-model="editedName"
+                  dense
+                  outlined
+                  counter="100"
+                  label="編成データ名"
+                  :rules="nameRules"
+                  required
+                ></v-text-field>
+                <v-textarea
+                  v-model.trim="editedRemarks"
+                  rows="8"
+                  dense
+                  outlined
+                  label="補足情報"
+                  required
+                  :rules="remarksRules"
+                  class="remarks-input mt-2"
+                ></v-textarea>
+                <div class="d-flex mt-2">
+                  <div class="flex-grow-1">
+                    <v-select
+                      dense
+                      v-model="area"
+                      outlined
+                      hide-details
+                      :items="areaItems"
+                      label="海域"
+                      :menu-props="{ maxHeight: '600px' }"
+                    ></v-select>
+                  </div>
+                  <div v-show="isEvent" class="ml-5">
+                    <v-select dense v-model="level" outlined hide-details :items="levelItems" label="難易度"></v-select>
+                  </div>
+                </div>
+                <div class="mt-5">
+                  <v-text-field v-model="uploadUserName" :rules="userNameRules" dense outlined counter="20" label="投稿者"></v-text-field>
+                </div>
+              </v-form>
+              <div class="d-flex">
+                <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">アップロード</v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+              </div>
+            </div>
+            <v-dialog v-model="uploadConfirmDialog" transition="scroll-x-transition" width="600">
+              <v-card class="pa-3">
+                <div class="ma-4">
+                  <div>編成のアップロードを行います。よろしいですか？</div>
+                  <div class="caption mt-5 mx-3">
+                    <div>海域、難易度の指定が正しいか、アップロード前に今一度確認してください。</div>
+                    <div>原則、アップロードした編成をあとから編集・削除することはできません。</div>
+                    <div>どうしても削除したい場合、編成名や投稿者、出撃海域、更新日時や編成の特徴など、</div>
+                    <div>
+                      削除対象が特定できる情報を添えて
+                      <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">こちら</a>
+                      等にご連絡ください。
+                    </div>
+                  </div>
+                </div>
+                <v-divider class="my-2"></v-divider>
+                <div class="d-flex">
+                  <v-btn class="ml-auto" color="primary" :dark="!uploadClicked" :disabled="uploadClicked" @click.stop="uploadSaveData"
+                    >続行</v-btn
+                  >
+                  <v-btn class="ml-4" color="secondary" @click.stop="uploadConfirmDialog = false">戻る</v-btn>
+                </div>
+              </v-card>
+            </v-dialog>
+          </v-tab-item>
+        </v-tabs-items>
       </v-card>
     </v-dialog>
     <v-dialog v-model="shareDialog" transition="scroll-x-transition" width="500">
@@ -233,10 +317,15 @@ import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
 import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
 import ShareDialog from '@/components/saveData/ShareDialog.vue';
+import {
+  addDoc, collection, getFirestore, serverTimestamp,
+} from 'firebase/firestore/lite';
+import LZString from 'lz-string';
 import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
 import SaveData from './classes/saveData/saveData';
 import SiteSetting from './classes/siteSetting';
 import FirebaseManager from './classes/firebaseManager';
+import Const, { DIFFICULTY_LEVEL } from './classes/const';
 
 export default Vue.extend({
   name: 'App',
@@ -269,6 +358,18 @@ export default Vue.extend({
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
     },
     readOnlyMode: false,
+    disabledUpload: true,
+    areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
+    area: 11,
+    level: DIFFICULTY_LEVEL.HARD,
+    levelItems: Const.DIFFICULTY_LEVELS,
+    uploadUserName: '',
+    saveDialogTab: 'save',
+    nameRules: [(v: string) => !!v || '編成名は必須です。', (v: string) => v.length <= 100 || '1～100文字以内で入力してください。'],
+    remarksRules: [(v: string) => !!v || '補足情報は必須です。'],
+    userNameRules: [(v: string) => v.length <= 20 || '0～20文字以内で入力してください。'],
+    uploadConfirmDialog: false,
+    uploadClicked: false,
   }),
   computed: {
     completed() {
@@ -292,8 +393,14 @@ export default Vue.extend({
     isNameEmptry(): boolean {
       return this.editedName.length <= 0;
     },
+    isRemarksEmptry(): boolean {
+      return !this.editedRemarks || this.editedRemarks.length <= 0;
+    },
     isManagerPage(): boolean {
       return this.$route.path.endsWith('/manager');
+    },
+    isEvent(): boolean {
+      return Math.floor(this.area / 10) > 40;
     },
   },
   watch: {
@@ -313,9 +420,7 @@ export default Vue.extend({
           }
         } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(decodeURIComponent(this.urlParameters.predeck))) {
           // デッキビルダー解析
-          this.readInformText = '編成の読み込みが完了しました。';
-          this.readResultColor = 'success';
-          this.readInform = true;
+          this.inform('編成の読み込みが完了しました。');
         } else if (this.urlParameters.stockid) {
           // 所持情報データ解析
           const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
@@ -376,26 +481,21 @@ export default Vue.extend({
       this.readState = 'primary';
       // デッキビルダー形式データ読み込み試行
       if (this.loadAndOpenFromDeckBuilder(this.somethingText)) {
-        this.readInformText = '編成の読み込みが完了しました。';
-        this.readResultColor = 'success';
+        this.inform('編成の読み込みが完了しました。');
       } else if (this.setShipStock()) {
         // 在籍艦娘データ読み込み試行
-        this.readInformText = '在籍艦娘データの更新が完了しました。';
-        this.readResultColor = 'success';
+        this.inform('在籍艦娘データの更新が完了しました。');
       } else if (this.setItemStock()) {
         // 所持装備データ読み込み試行
-        this.readInformText = '所持装備データの更新が完了しました。';
-        this.readResultColor = 'success';
+        this.inform('所持装備データの更新が完了しました。');
       } else {
         // 全部失敗
-        this.readInformText = 'データの読み込みに失敗しました。正しいデータではない可能性があります。';
-        this.readResultColor = 'error';
+        this.inform('データの読み込みに失敗しました。正しいデータではない可能性があります。', true);
       }
 
       // 後始末と通知
       this.somethingText = '';
       this.readState = false;
-      this.readInform = true;
     },
     loadAndOpenFromDeckBuilder(builder: string): boolean {
       // デッキビルダー形式データを計算データに設定して計算ページに移譲
@@ -479,13 +579,9 @@ export default Vue.extend({
           // DB更新を促す
           this.$store.dispatch('updateSaveData', this.saveData);
 
-          this.readInformText = '保存しました。';
-          this.readInform = true;
-          this.readResultColor = 'success';
+          this.inform('保存しました。');
         } catch (error) {
-          this.readInformText = '保存に失敗しました。';
-          this.readInform = true;
-          this.readResultColor = 'error';
+          this.inform('保存に失敗しました。', true);
         }
       }
     },
@@ -495,6 +591,8 @@ export default Vue.extend({
       if (data) {
         this.editedName = data.name;
         this.editedRemarks = data.remarks;
+        this.saveDialogTab = 'save';
+        this.disabledUpload = data.isDirectory;
         this.editDialog = true;
       }
     },
@@ -530,16 +628,12 @@ export default Vue.extend({
             // DB更新を促す
             this.$store.dispatch('updateSaveData', this.saveData);
 
-            this.readInformText = '保存しました。';
-            this.readInform = true;
-            this.readResultColor = 'success';
+            this.inform('保存しました。');
           } else {
             throw new Error('「保存されたデータ」フォルダーが見つかりませんでした。');
           }
         } catch (error) {
-          this.readInformText = '保存に失敗しました。';
-          this.readInform = true;
-          this.readResultColor = 'error';
+          this.inform('保存に失敗しました。', true);
         }
       }
       this.editDialog = false;
@@ -607,6 +701,90 @@ export default Vue.extend({
       this.$store.dispatch('updateTempShipStock', []);
       this.$store.dispatch('updateTempItemStock', []);
       this.inform('閲覧モードを終了しました');
+    },
+    changeUploadTabs(value: string) {
+      if (value !== 'upload') return;
+
+      // 海域セレクトボックス初期化
+      if (!this.areaItems.length) {
+        const items = [];
+        const worlds = Const.WORLDS;
+        for (let i = 0; i < worlds.length; i += 1) {
+          const world = worlds[i];
+          const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
+          if (!maps.length) {
+            continue;
+          }
+          if (i > 0) {
+            items.push({ divider: true });
+          }
+
+          items.push({ header: world.text });
+          for (let j = 0; j < maps.length; j += 1) {
+            const map = maps[j];
+            const worldText = world.value > 40 ? 'E' : `${world.value}`;
+            items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
+          }
+        }
+        this.areaItems = items;
+      }
+      this.uploadUserName = this.setting.userName;
+
+      // 現在計算画面で開かれているデータを取得
+      const data = this.saveData.getMainData();
+      if (data && data.tempData[data.tempIndex]) {
+        const manager = data.tempData[data.tempIndex];
+        const lastEnemyArea = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1].area;
+        // 最終戦闘マスのareaがあればそれを初期値とする
+        if (lastEnemyArea) {
+          this.area = lastEnemyArea;
+        }
+      }
+    },
+    validateUpload() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const valid = (this.$refs.uploadForm as any).validate() as boolean;
+      if (valid) {
+        this.uploadConfirmDialog = true;
+        this.uploadClicked = false;
+      }
+    },
+    async uploadSaveData() {
+      this.uploadClicked = true;
+      const data = this.saveData.getMainData();
+      if (data) {
+        try {
+          const tempSaveData = new SaveData();
+          tempSaveData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
+          tempSaveData.tempIndex = 0;
+          tempSaveData.saveManagerData();
+
+          const newPreset = {
+            id: tempSaveData.id,
+            name: this.editedName,
+            data: LZString.compressToBase64(tempSaveData.manager),
+            memo: this.editedRemarks,
+            createdAt: serverTimestamp(),
+            map: this.area,
+            level: this.area > 400 ? 4 - this.level : 0,
+            user: this.uploadUserName ? this.uploadUserName : '',
+            ver: 2,
+          };
+          const db = getFirestore();
+          await addDoc(collection(db, 'presets'), newPreset);
+          this.inform('アップロードが完了しました。');
+
+          if (this.uploadUserName) {
+            this.setting.userName = this.uploadUserName;
+            this.$store.dispatch('updateSetting', this.setting);
+          }
+        } catch (error) {
+          console.error(error);
+          this.inform('アップロードに失敗しました。', true);
+        }
+      }
+      this.uploadConfirmDialog = false;
+      this.editDialog = false;
     },
   },
   beforeDestroy() {

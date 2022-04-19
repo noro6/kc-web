@@ -511,6 +511,7 @@ export default Vue.extend({
       this.setShip();
     },
     setShip(value?: Ship) {
+      this.clearTooltip();
       if (value === undefined) {
         this.$emit('input', new Ship({ ship: this.ship }));
       } else {

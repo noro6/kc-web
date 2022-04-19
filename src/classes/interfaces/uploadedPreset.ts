@@ -11,4 +11,5 @@ export interface UploadedPreset {
   memo: string;
   level: number;
   createdAt: string;
+  ver: number;
 }

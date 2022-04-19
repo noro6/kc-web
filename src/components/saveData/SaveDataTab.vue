@@ -58,11 +58,11 @@
           <v-text-field v-model.trim="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
           <v-textarea
             v-model.trim="editedRemarks"
+            rows="10"
             outlined
             dense
             hide-details
             label="補足情報"
-            rows="10"
             class="remarks-input"
           ></v-textarea>
           <div class="d-flex mt-3">

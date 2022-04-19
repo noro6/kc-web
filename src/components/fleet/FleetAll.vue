@@ -820,7 +820,13 @@ export default Vue.extend({
     },
     onLevelMenuToggle() {
       if (!this.levelMenu) {
+        // 司令部レベル変更 => サイト設定値も変更してやる
         this.setInfo(new FleetInfo({ info: this.fleetInfo, admiralLevel: this.level }));
+        const setting = this.$store.state.siteSetting as SiteSetting;
+        if (setting) {
+          setting.admiralLevel = this.level;
+          this.$store.dispatch('updateSetting', setting);
+        }
       } else {
         this.level = this.fleetInfo.admiralLevel;
       }

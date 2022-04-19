@@ -983,17 +983,22 @@ export default Vue.extend({
         }
       }
 
-      // 艦型に応じて分けたい
+      // 艦型に応じて分けたい => 金剛型, 扶桑型...のアレ
       const altTypes = Const.SHIP_TYPES_ALT_INFO;
       const resultShips = [];
       for (let i = 0; i < altTypes.length; i += 1) {
         const type = altTypes[i];
+        // この○○型に該当する艦娘を取得
         const typeShips = viewShips.filter((v) => v.master.type2 === type.id);
         if (typeShips.length) {
-          // 同じ艦毎にまとめる
+          // 同じ未改造艦毎にグルーピング
           const array = _.groupBy(typeShips, (v) => v.master.originalId);
           const resultRows: AltShipRowData[][] = [];
-          Object.keys(array).forEach((v) => resultRows.push(array[v]));
+          Object.keys(array).forEach((v) => {
+            const sameOriginalShips = array[v];
+            sameOriginalShips.sort((a, b) => b.master.version - a.master.version);
+            resultRows.push(sameOriginalShips);
+          });
 
           resultRows.sort((a, b) => {
             const aMin = _.min(a.map((v) => v.master.sort));
@@ -1208,7 +1213,7 @@ export default Vue.extend({
             if (a.ship.version === b.ship.version) {
               return b.stockData.level - a.stockData.level;
             }
-            return a.ship.version - b.ship.version;
+            return b.ship.version - a.ship.version;
           });
         }
 
@@ -1351,7 +1356,12 @@ export default Vue.extend({
           (a: { [key: string]: number }, b: { [key: string]: number }) => (isDesc ? -1 : 1) * (a[key] - b[key]),
         );
       } else {
-        rowData.sort((a, b) => a.ship.sort - b.ship.sort);
+        rowData.sort((a, b) => {
+          if (a.ship.originalId !== b.ship.originalId) {
+            return a.ship.sort - b.ship.sort;
+          }
+          return b.ship.version - a.ship.version;
+        });
       }
     },
     changeViewMode(modeTable: boolean) {
