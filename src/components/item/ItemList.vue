@@ -344,7 +344,8 @@
 
 .item-status-header {
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-  background-color: #f8f8f8;
+  /** 追従するためrgba使用できない */
+  background-color: rgb(248, 248, 248);
   position: sticky;
   display: flex;
   justify-content: flex-end;
@@ -353,7 +354,12 @@
   top: 0;
 }
 .theme--dark .item-status-header {
-  background-color: #2a2a2a;
+  /** 追従するためrgba使用できない */
+  background-color: rgb(62, 62, 66);
+}
+.theme--dark.deep-sea .item-status-header {
+  /** 追従するためrgba使用できない */
+  background-color: rgb(52, 56, 72);
 }
 .item-status {
   align-self: center;

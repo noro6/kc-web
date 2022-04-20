@@ -113,7 +113,7 @@
 }
 .header.stage2-row {
   border-top: 1px solid rgba(128, 128, 128, 0.4);
-  background-color: rgba(128, 128, 128, 0.05);
+  background-color: rgba(128, 128, 128, 0.1);
   font-size: 12px !important;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;

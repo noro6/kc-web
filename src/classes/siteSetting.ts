@@ -7,6 +7,9 @@ export default class SiteSetting {
   /** サイトテーマ */
   public darkTheme: boolean;
 
+  /** サイトテーマ詳細 */
+  public themeDetail: 'light' | 'dark' | 'deep-sea' | '';
+
   /** 初期熟練度リスト */
   public planeInitialLevels: { id: number, level: number }[];
 
@@ -66,6 +69,7 @@ export default class SiteSetting {
       this.simulationCount = setting.simulationCount ? setting.simulationCount : 5000;
       this.admiralLevel = setting.admiralLevel ? setting.admiralLevel : 120;
       this.userName = setting.userName ? setting.userName : '';
+      this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -104,6 +108,7 @@ export default class SiteSetting {
       this.simulationCount = 5000;
       this.admiralLevel = 120;
       this.userName = '';
+      this.themeDetail = 'dark';
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

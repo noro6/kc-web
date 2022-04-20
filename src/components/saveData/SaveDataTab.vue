@@ -47,7 +47,7 @@
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="red" dark @click.stop="closeTab(deleteConfirmData)">閉じる</v-btn>
+          <v-btn class="ml-auto" color="red" dark @click.stop="closeTab(deleteConfirmData)">続行</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">戻る</v-btn>
         </div>
       </v-card>

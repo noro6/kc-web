@@ -92,7 +92,6 @@
 
 <style scoped>
 html {
-  color: rgb(94, 193, 255);
   color: rgb(100, 181, 246);
 }
 </style>

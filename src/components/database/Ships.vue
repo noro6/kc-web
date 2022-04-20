@@ -629,12 +629,9 @@
   position: sticky;
   top: 76px;
   padding: 0;
-  background-color: #eee;
   z-index: 1;
+  background-color: rgba(128, 128, 128, 0.2);
   border-top: 1px solid rgba(128, 128, 128, 0.2);
-}
-.theme--dark .ship-table .ship-tr.header {
-  background-color: #222;
 }
 .ship-table .ship-tr.header .status-td {
   padding: 0.75rem 0.5rem 0.75rem 0;

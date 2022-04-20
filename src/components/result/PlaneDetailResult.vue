@@ -376,7 +376,10 @@
   background-color: #fff;
 }
 .theme--dark .border-window .header-content > div {
-  background-color: rgb(30, 30, 30);
+  background-color: rgb(40, 40, 45);
+}
+.theme--dark.deep-sea .border-window .header-content > div {
+  background-color: rgb(26, 32, 44);
 }
 .target-item {
   display: flex;
@@ -399,14 +402,11 @@
 }
 
 .damage-header {
-  background-color: #f8f8f8;
+  background-color: rgba(128, 128, 128, 0.2);
   font-size: 0.75em;
   padding: 0.5rem 0;
   border-top: 1px solid rgba(128, 128, 128, 0.3);
   border-bottom: 1px solid rgba(128, 128, 128, 0.3);
-}
-.theme--dark .damage-header {
-  background-color: #2a2a2a;
 }
 .damage-tr {
   display: flex;

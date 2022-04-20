@@ -307,13 +307,21 @@
   font-size: 0.8em;
 }
 .theme--dark .detail-container {
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(30, 30, 35, 1) 35%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(40, 40, 45, 1) 35%);
 }
 .item-container:hover .detail-container {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(220, 240, 255, 1) 35%);
 }
 .theme--dark .item-container:hover .detail-container {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(40, 60, 80, 1) 35%);
+}
+
+/** ダークテーマ[深海]対応 */
+.theme--dark.deep-sea .item-all-container .v-card {
+  background-color: rgb(30, 38, 50) !important;
+}
+.theme--dark.deep-sea .detail-container {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgb(30, 38, 50) 35%);
 }
 
 .detail-container > div {

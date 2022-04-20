@@ -440,12 +440,12 @@ export default class Const {
    */
   public static readonly SHIP_TYPES_ALT = [
     { text: '空母', types: [11, 18] },
-    { text: '軽空母', types: [7] },
+    { text: '軽空', types: [7] },
     { text: '戦艦', types: [8, 9] },
     { text: '航戦', types: [10] },
     { text: '重巡', types: [5] },
     { text: '航巡', types: [6] },
-    { text: '軽巡級', types: [3, 4, 21] },
+    { text: '軽巡', types: [3, 4, 21] },
     { text: '駆逐', types: [2] },
     { text: '海防', types: [1] },
     { text: '潜水', types: [13, 14] },

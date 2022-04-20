@@ -1,15 +1,7 @@
 <template>
   <div>
     <v-card class="px-2">
-      <div class="d-flex pt-2 pb-1">
-        <div class="align-self-center ml-3">海域選択</div>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="close">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </div>
-      <v-divider></v-divider>
-      <div class="d-flex mt-6 px-4">
+      <div class="d-flex pt-7 px-4">
         <!-- <div class="world-select">
           <v-select dense v-model="world" hide-details :items="worlds" @change="worldChanged" label="海域"></v-select>
         </div>
@@ -34,8 +26,8 @@
           <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" label="セル"></v-select>
         </div>
       </div>
-      <div class="mt-2 map-img-area">
-        <img usemap="#click_map" class="mx-auto d-block" :src="`./img/map/${area}.png`" height="268" width="467" />
+      <div class="map-img-area">
+        <img usemap="#click_map" class="mx-auto d-block" :src="`./img/map/${area}.png`" />
         <map name="click_map">
           <area
             class="node"
@@ -156,6 +148,7 @@
         <div v-if="selectedNodeNames.length" class="body-2">選択したセル: {{ selectedNodeNames.join(" → ") }}</div>
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="commitFleet" :disabled="!enabledCommitBtn">展開</v-btn>
+        <v-btn color="secondary" @click="close">閉じる</v-btn>
       </v-card-actions>
     </v-card>
     <v-snackbar v-model="snackbar" color="primary" outlined>
@@ -257,6 +250,12 @@
   font-weight: 600;
   bottom: -5px;
   left: 28px;
+}
+</style>
+
+<style>
+.patterns-container .v-tabs-bar {
+  height: 38px !important;
 }
 </style>
 

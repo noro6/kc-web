@@ -67,7 +67,7 @@
         </div>
       </div>
     </div>
-    <v-snackbar v-model="snackbar" color="success" top>
+    <v-snackbar v-model="snackbar" color="success" :top="snackbar">
       {{ infoText }}
       <template v-slot:action="{ attrs }">
         <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>

@@ -171,9 +171,7 @@
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
-          <v-btn class="ml-auto" style="text-transform: none" @click="openGkcoiPage()"
-            ><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn
-          >
+          <v-btn class="ml-auto" style="text-transform: none" @click="openGkcoiPage()"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
         </div>
       </v-tab-item>
     </v-tabs-items>
@@ -339,7 +337,59 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex">
-            <v-btn outlined @click="resetSlot">初期値</v-btn>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">1機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="red--text">制空権喪失</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">2機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="orange--text">航空劣勢</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">3機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="yellow--text">航空拮抗</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">5機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="light-green--text">航空優勢</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">17機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="success--text">制空権確保</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-btn outlined @click="resetSlot" block>初期値</v-btn>
+            </div>
           </div>
         </div>
       </v-card>
@@ -969,6 +1019,9 @@ export default Vue.extend({
     resetSlot() {
       this.bulkUpdateAllItem({}, true);
     },
+    setSlot(value: number) {
+      this.bulkUpdateAllItem({ slot: value }, true);
+    },
     setMaxLevelOnlyFighter() {
       this.bulkUpdateAllItem({ level: 120 }, false, true);
     },
@@ -985,9 +1038,11 @@ export default Vue.extend({
           const { items } = ships[j];
           for (let k = 0; k < items.length; k += 1) {
             if (!onlyFighter || (onlyFighter && items[k].isFighter)) {
+              const isPlane = items[k] && items[k].isPlane;
+              const slot = itemBuilder.slot ? Math.min(itemBuilder.slot, shipMaster.slots[k]) : shipMaster.slots[k];
               items[k] = new Item({
                 item: items[k],
-                slot: isResetSlot ? shipMaster.slots[k] : undefined,
+                slot: isResetSlot && isPlane ? slot : undefined,
                 remodel: items[k].data.canRemodel ? itemBuilder.remodel : undefined,
                 level: itemBuilder.level,
               });

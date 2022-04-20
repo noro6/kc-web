@@ -262,7 +262,61 @@
                 hide-details
                 @input="bulkUpdateSlotChanged = true"
               ></v-text-field>
-              <v-btn outlined @click="resetSlot" class="align-self-end">初期値</v-btn>
+            </div>
+          </div>
+          <div class="d-flex mt-3">
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">1機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="red--text">制空権喪失</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">2機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="orange--text">航空劣勢</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">3機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="yellow--text">航空拮抗</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">5機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="light-green--text">航空優勢</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">17機</v-btn>
+                </template>
+                <div class="body-2">
+                  <div><span class="success--text">制空権確保</span>において、stage1被撃墜数が0となる最大機数</div>
+                </div>
+              </v-tooltip>
+            </div>
+            <div class="flex-grow-1 mx-2">
+              <v-btn outlined @click="resetSlot" block>18機</v-btn>
             </div>
           </div>
         </div>
@@ -666,7 +720,10 @@ export default Vue.extend({
       this.bulkUpdateAllItem({ remodel });
     },
     resetSlot() {
-      this.bulkUpdateSlotValue = 18;
+      this.setSlot(18);
+    },
+    setSlot(value: number) {
+      this.bulkUpdateSlotValue = value;
       this.bulkUpdateSlot();
     },
     bulkUpdateSlot() {

@@ -127,26 +127,9 @@
             <div class="header-divider"></div>
           </div>
           <div class="ml-3 mt-2">
-            <v-btn
-              @click="toggleSiteTheme(false)"
-              color="grey"
-              :class="{
-                primary: !$vuetify.theme.dark,
-                secondary: $vuetify.theme.dark,
-              }"
-            >
-              <span class="pr-2">Light</span><v-icon>mdi-brightness-5</v-icon>
-            </v-btn>
-            <span class="mx-1"></span>
-            <v-btn
-              @click="toggleSiteTheme(true)"
-              :class="{
-                primary: $vuetify.theme.dark,
-                secondary: !$vuetify.theme.dark,
-              }"
-            >
-              <span class="pr-2">Dark</span><v-icon>mdi-moon-waxing-crescent</v-icon>
-            </v-btn>
+            <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
+            <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
+            <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
           </div>
           <div class="d-flex mt-5">
             <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
@@ -227,79 +210,13 @@
             </div>
           </v-tab-item>
           <v-tab-item value="upload">
-            <div class="mx-4 mt-4">
-              <v-alert border="left" outlined type="info" dense class="mt-2 mb-5">
-                <div class="body-2">アップロードした編成は「トップページ > みんなの編成」ページにて公開されます。</div>
-              </v-alert>
-              <v-form ref="uploadForm">
-                <v-text-field
-                  v-model="editedName"
-                  dense
-                  outlined
-                  counter="100"
-                  label="編成データ名"
-                  :rules="nameRules"
-                  required
-                ></v-text-field>
-                <v-textarea
-                  v-model.trim="editedRemarks"
-                  rows="8"
-                  dense
-                  outlined
-                  label="補足情報"
-                  required
-                  :rules="remarksRules"
-                  class="remarks-input mt-2"
-                ></v-textarea>
-                <div class="d-flex mt-2">
-                  <div class="flex-grow-1">
-                    <v-select
-                      dense
-                      v-model="area"
-                      outlined
-                      hide-details
-                      :items="areaItems"
-                      label="海域"
-                      :menu-props="{ maxHeight: '600px' }"
-                    ></v-select>
-                  </div>
-                  <div v-show="isEvent" class="ml-5">
-                    <v-select dense v-model="level" outlined hide-details :items="levelItems" label="難易度"></v-select>
-                  </div>
-                </div>
-                <div class="mt-5">
-                  <v-text-field v-model="uploadUserName" :rules="userNameRules" dense outlined counter="20" label="投稿者"></v-text-field>
-                </div>
-              </v-form>
-              <div class="d-flex">
-                <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">アップロード</v-btn>
-                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
-              </div>
-            </div>
-            <v-dialog v-model="uploadConfirmDialog" transition="scroll-x-transition" width="600">
-              <v-card class="pa-3">
-                <div class="ma-4">
-                  <div>編成のアップロードを行います。よろしいですか？</div>
-                  <div class="caption mt-5 mx-3">
-                    <div>海域、難易度の指定が正しいか、アップロード前に今一度確認してください。</div>
-                    <div>原則、アップロードした編成をあとから編集・削除することはできません。</div>
-                    <div>どうしても削除したい場合、編成名や投稿者、出撃海域、更新日時や編成の特徴など、</div>
-                    <div>
-                      削除対象が特定できる情報を添えて
-                      <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">こちら</a>
-                      等にご連絡ください。
-                    </div>
-                  </div>
-                </div>
-                <v-divider class="my-2"></v-divider>
-                <div class="d-flex">
-                  <v-btn class="ml-auto" color="primary" :dark="!uploadClicked" :disabled="uploadClicked" @click.stop="uploadSaveData"
-                    >続行</v-btn
-                  >
-                  <v-btn class="ml-4" color="secondary" @click.stop="uploadConfirmDialog = false">戻る</v-btn>
-                </div>
-              </v-card>
-            </v-dialog>
+            <upload-save-data
+              ref="uploadSaveDataComp"
+              @inform="inform"
+              :dataName="editedName"
+              :dataRemarks="editedRemarks"
+              :saveData="saveData"
+            />
           </v-tab-item>
         </v-tabs-items>
       </v-card>
@@ -317,15 +234,11 @@ import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
 import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
 import ShareDialog from '@/components/saveData/ShareDialog.vue';
-import {
-  addDoc, collection, getFirestore, serverTimestamp,
-} from 'firebase/firestore/lite';
-import LZString from 'lz-string';
+import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
 import SaveData from './classes/saveData/saveData';
 import SiteSetting from './classes/siteSetting';
 import FirebaseManager from './classes/firebaseManager';
-import Const, { DIFFICULTY_LEVEL } from './classes/const';
 
 export default Vue.extend({
   name: 'App',
@@ -334,6 +247,7 @@ export default Vue.extend({
     SaveDataTab,
     ShareDialog,
     SettingInitialLevel,
+    UploadSaveData,
   },
   data: () => ({
     saveData: new SaveData(),
@@ -359,17 +273,7 @@ export default Vue.extend({
     },
     readOnlyMode: false,
     disabledUpload: true,
-    areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    area: 11,
-    level: DIFFICULTY_LEVEL.HARD,
-    levelItems: Const.DIFFICULTY_LEVELS,
-    uploadUserName: '',
     saveDialogTab: 'save',
-    nameRules: [(v: string) => !!v || '編成名は必須です。', (v: string) => v.length <= 100 || '1～100文字以内で入力してください。'],
-    remarksRules: [(v: string) => !!v || '補足情報は必須です。'],
-    userNameRules: [(v: string) => v.length <= 20 || '0～20文字以内で入力してください。'],
-    uploadConfirmDialog: false,
-    uploadClicked: false,
   }),
   computed: {
     completed() {
@@ -393,14 +297,23 @@ export default Vue.extend({
     isNameEmptry(): boolean {
       return this.editedName.length <= 0;
     },
-    isRemarksEmptry(): boolean {
-      return !this.editedRemarks || this.editedRemarks.length <= 0;
-    },
     isManagerPage(): boolean {
       return this.$route.path.endsWith('/manager');
     },
-    isEvent(): boolean {
-      return Math.floor(this.area / 10) > 40;
+    siteTheme(): string {
+      if (this.setting.themeDetail) {
+        return this.setting.themeDetail;
+      }
+      return this.setting.darkTheme ? 'dark' : 'light';
+    },
+    isLight(): boolean {
+      return !this.setting.darkTheme && this.setting.themeDetail === 'light';
+    },
+    isDark(): boolean {
+      return this.setting.darkTheme && this.setting.themeDetail === 'dark';
+    },
+    isDeepSea(): boolean {
+      return this.setting.darkTheme && this.setting.themeDetail === 'deep-sea';
     },
   },
   watch: {
@@ -468,7 +381,12 @@ export default Vue.extend({
       } else if (mutation.type === 'updateSetting') {
         // 設定情報の更新を購読 常に最新の状態を保つ
         this.setting = state.siteSetting as SiteSetting;
-        this.toggleSiteTheme(this.setting.darkTheme);
+        if (this.setting.themeDetail) {
+          this.changeSiteTheme(this.setting.themeDetail);
+        } else {
+          // 基本のテーマ2種
+          this.changeSiteTheme(this.setting.darkTheme ? 'dark' : 'light');
+        }
       }
     });
   },
@@ -654,9 +572,19 @@ export default Vue.extend({
         this.$store.dispatch('setMainSaveData', data);
       }
     },
-    toggleSiteTheme(isDark: boolean) {
-      this.setting.darkTheme = isDark;
-      this.$vuetify.theme.dark = isDark;
+    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea') {
+      const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
+      this.setting.darkTheme = isDarkTheme;
+      this.$vuetify.theme.dark = isDarkTheme;
+
+      const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
+      if (theme === 'deep-sea') {
+        app.classList.add('deep-sea');
+      } else {
+        app.classList.remove('deep-sea');
+      }
+
+      this.setting.themeDetail = theme;
     },
     toggleConfigDialog() {
       if (!this.configDialog) {
@@ -705,86 +633,10 @@ export default Vue.extend({
     changeUploadTabs(value: string) {
       if (value !== 'upload') return;
 
-      // 海域セレクトボックス初期化
-      if (!this.areaItems.length) {
-        const items = [];
-        const worlds = Const.WORLDS;
-        for (let i = 0; i < worlds.length; i += 1) {
-          const world = worlds[i];
-          const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
-          if (!maps.length) {
-            continue;
-          }
-          if (i > 0) {
-            items.push({ divider: true });
-          }
-
-          items.push({ header: world.text });
-          for (let j = 0; j < maps.length; j += 1) {
-            const map = maps[j];
-            const worldText = world.value > 40 ? 'E' : `${world.value}`;
-            items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
-          }
-        }
-        this.areaItems = items;
+      const form = this.$refs.uploadSaveDataComp as InstanceType<typeof UploadSaveData>;
+      if (form) {
+        form.initControl();
       }
-      this.uploadUserName = this.setting.userName;
-
-      // 現在計算画面で開かれているデータを取得
-      const data = this.saveData.getMainData();
-      if (data && data.tempData[data.tempIndex]) {
-        const manager = data.tempData[data.tempIndex];
-        const lastEnemyArea = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1].area;
-        // 最終戦闘マスのareaがあればそれを初期値とする
-        if (lastEnemyArea) {
-          this.area = lastEnemyArea;
-        }
-      }
-    },
-    validateUpload() {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const valid = (this.$refs.uploadForm as any).validate() as boolean;
-      if (valid) {
-        this.uploadConfirmDialog = true;
-        this.uploadClicked = false;
-      }
-    },
-    async uploadSaveData() {
-      this.uploadClicked = true;
-      const data = this.saveData.getMainData();
-      if (data) {
-        try {
-          const tempSaveData = new SaveData();
-          tempSaveData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
-          tempSaveData.tempIndex = 0;
-          tempSaveData.saveManagerData();
-
-          const newPreset = {
-            id: tempSaveData.id,
-            name: this.editedName,
-            data: LZString.compressToBase64(tempSaveData.manager),
-            memo: this.editedRemarks,
-            createdAt: serverTimestamp(),
-            map: this.area,
-            level: this.area > 400 ? 4 - this.level : 0,
-            user: this.uploadUserName ? this.uploadUserName : '',
-            ver: 2,
-          };
-          const db = getFirestore();
-          await addDoc(collection(db, 'presets'), newPreset);
-          this.inform('アップロードが完了しました。');
-
-          if (this.uploadUserName) {
-            this.setting.userName = this.uploadUserName;
-            this.$store.dispatch('updateSetting', this.setting);
-          }
-        } catch (error) {
-          console.error(error);
-          this.inform('アップロードに失敗しました。', true);
-        }
-      }
-      this.uploadConfirmDialog = false;
-      this.editDialog = false;
     },
   },
   beforeDestroy() {
@@ -829,18 +681,7 @@ export default Vue.extend({
 /* .v-application {
   font-family: "游ゴシック", sans-serif !important;
 } */
-/** 基本背景色変更 */
-.theme--light.v-application {
-  background-color: rgb(240, 235, 230) !important;
-}
-/** ダークテーマ 基本背景色変更 */
-.theme--dark.v-application {
-  background-color: rgb(20, 20, 28) !important;
-}
-/** ダークテーマ モーダル背景調整 */
-.theme--dark.v-application .v-overlay__scrim {
-  background-color: rgb(0, 0, 0) !important;
-}
+
 /** dense適用時フォントを小さく */
 .v-input--dense .v-select__selection,
 .v-input--dense.v-input--selection-controls .v-label {
@@ -876,18 +717,61 @@ export default Vue.extend({
   scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.2);
 }
 
+/** 基本背景色変更 */
+.theme--light.v-application {
+  background-color: rgb(240, 235, 230) !important;
+}
+
+/** ダークテーマ 基本背景色変更 */
+.theme--dark.v-application {
+  background-color: rgb(25, 25, 32) !important;
+}
+/** ダークテーマ[深海] 基本背景色変更 */
+.theme--dark.deep-sea.v-application {
+  background-color: rgb(16, 24, 36) !important;
+  background: linear-gradient(rgb(20, 40, 80), rgb(2, 4, 12)) !important;
+  background-attachment: fixed !important;
+}
+
+/** ダークテーマ モーダル背景調整 */
+.theme--dark.v-application .v-overlay__scrim {
+  background-color: rgb(0, 0, 0) !important;
+}
+
 /** ダークテーマ card1層目 */
 .theme--dark.v-card,
 .theme--dark .v-expansion-panel {
-  background-color: rgb(30, 30, 35) !important;
+  background-color: rgb(40, 40, 45) !important;
 }
 /** ダークテーマ card2層目 */
 .theme--dark.v-card .v-card {
-  background-color: rgb(42, 42, 48) !important;
+  background-color: rgb(52, 52, 56) !important;
 }
 /** ダークテーマ card3層目 */
 .theme--dark.v-card .v-card .v-card {
-  background-color: rgb(55, 55, 60) !important;
+  background-color: rgb(65, 65, 70) !important;
+}
+
+/** ダークテーマ[深海] card1層目 */
+.deep-sea .theme--dark.v-card,
+.deep-sea.theme--dark .v-expansion-panel {
+  background-color: rgba(36, 44, 54, 0.6) !important;
+}
+/** ダークテーマ[深海] card2層目 */
+.deep-sea .theme--dark.v-card .v-card {
+  background-color: rgba(48, 56, 68, 0.6) !important;
+}
+/** ダークテーマ[深海] card3層目 */
+.deep-sea .theme--dark.v-card .v-card .v-card {
+  background-color: rgba(60, 68, 80, 0.6) !important;
+}
+/** ダークテーマ[深海] ダイアログ */
+.deep-sea.theme--dark .v-dialog {
+  background-color: rgb(10, 15, 30) !important;
+}
+/** ダークテーマ[深海] ボタン背景範囲 */
+.deep-sea.theme--dark .v-btn-toggle {
+  background: none !important;
 }
 
 /** セーブデータ補足情報textarea指定 */

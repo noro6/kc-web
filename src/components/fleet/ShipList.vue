@@ -189,7 +189,7 @@
 .ship-list {
   display: flex;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.3rem;
   transition: 0.1s;
   border-radius: 0.2rem;
 }
@@ -236,15 +236,9 @@
   width: 22px;
 }
 
-.is-special {
-  color: #388e3c;
-}
-.theme--dark .is-special {
-  color: #66bb6a;
-}
-
 .ship-status-header {
   border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  /** 追従するためrgba使用できない */
   background-color: #f8f8f8;
   position: sticky;
   display: flex;
@@ -255,7 +249,12 @@
   top: 0;
 }
 .theme--dark .ship-status-header {
-  background-color: #333;
+  /** 追従するためrgba使用できない */
+  background-color: rgb(62, 62, 66);
+}
+.theme--dark.deep-sea .ship-status-header {
+  /** 追従するためrgba使用できない */
+  background-color: rgb(52, 56, 72);
 }
 .ship-status {
   align-self: center;
