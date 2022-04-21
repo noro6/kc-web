@@ -822,7 +822,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
+import min from 'lodash/min';
+import groupBy from 'lodash/groupBy';
+import cloneDeep from 'lodash/cloneDeep';
 import Analytics from '@/components/database/Analytics.vue';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
@@ -989,7 +992,7 @@ export default Vue.extend({
         const typeShips = viewShips.filter((v) => v.master.type2 === type.id);
         if (typeShips.length) {
           // 同じ未改造艦毎にグルーピング
-          const array = _.groupBy(typeShips, (v) => v.master.originalId);
+          const array = groupBy(typeShips, (v) => v.master.originalId);
           const resultRows: AltShipRowData[][] = [];
           Object.keys(array).forEach((v) => {
             const sameOriginalShips = array[v];
@@ -998,8 +1001,8 @@ export default Vue.extend({
           });
 
           resultRows.sort((a, b) => {
-            const aMin = _.min(a.map((v) => v.master.sort));
-            const bMin = _.min(b.map((v) => v.master.sort));
+            const aMin = min(a.map((v) => v.master.sort));
+            const bMin = min(b.map((v) => v.master.sort));
             return (aMin || 0) - (bMin || 0);
           });
           // 存在する艦型を生成
@@ -1265,7 +1268,7 @@ export default Vue.extend({
       this.version = index;
     },
     showEditDialog(rowData: ShipRowData) {
-      this.editRow = _.cloneDeep(rowData);
+      this.editRow = cloneDeep(rowData);
       const versions = this.all.filter((v) => v.originalId === rowData.ship.originalId).sort((a, b) => a.version - b.version);
       this.version = versions.findIndex((v) => v.id === rowData.ship.id);
       this.versionButtons = versions;
@@ -1288,14 +1291,14 @@ export default Vue.extend({
       const exp = Const.LEVEL_BORDERS.find((v) => v.lv === stockData.level);
       stockData.exp = exp ? exp.req : 0;
 
-      return _.cloneDeep(stockData);
+      return cloneDeep(stockData);
     },
     registStock() {
       this.btnPushed = true;
       // 最新の艦娘在籍データ取得
       const stockAll = this.$store.state.shipStock as ShipStock[];
       // 新規追加
-      let maxId = _.max(stockAll.map((v) => v.uniqueId));
+      let maxId = max(stockAll.map((v) => v.uniqueId));
       if (maxId === undefined) {
         maxId = 1;
       }

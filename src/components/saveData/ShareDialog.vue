@@ -100,7 +100,7 @@ html {
 import Vue from 'vue';
 import Convert from '@/classes/convert';
 import SaveData from '@/classes/saveData/saveData';
-import Const from '@/classes/const';
+import FirebaseManager from '@/classes/firebaseManager';
 
 export default Vue.extend({
   name: 'ShareDialog',
@@ -147,37 +147,26 @@ export default Vue.extend({
     },
     createURL() {
       this.loadingURL = true;
-
-      const saveData = this.$store.state.mainSaveData as SaveData;
-      if (!saveData) {
-        return;
-      }
-      if (!saveData.tempData[saveData.tempIndex]) {
-        return;
-      }
-
-      const { location } = document;
-      const url = `${location.protocol}//${location.host}${location.pathname}?data=${saveData.createURLSaveDataString()}`;
-
-      const data = {
-        longDynamicLink: `https://aircalc.page.link/?link=${url}`,
-        suffix: { option: 'SHORT' },
-      };
-
-      fetch(`https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${Const.ApiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      }).then((response) => {
-        response.json().then((json) => {
-          if (json.error || !json.shortLink) {
-            this.createdURL = 'URLの発行に失敗しました';
-            this.loadingURL = false;
-          } else {
-            this.createdURL = json.shortLink;
-            this.loadingURL = false;
-          }
-        });
+      const url = this.getLongSaveDataURL();
+      // URL取得要求
+      FirebaseManager.getShortURL(url).then((shortUrl) => {
+        if (shortUrl) {
+          this.createdURL = shortUrl;
+        } else {
+          this.createdURL = 'URLの発行に失敗しました。';
+        }
+        this.loadingURL = false;
+      });
+    },
+    shareTwitter() {
+      this.loadingTwitter = true;
+      const url = this.getLongSaveDataURL();
+      // URL取得要求
+      FirebaseManager.getShortURL(url).then((shortUrl) => {
+        if (shortUrl) {
+          window.open(`https://twitter.com/share?url=${shortUrl}`);
+        }
+        this.loadingTwitter = false;
       });
     },
     copyURL() {
@@ -198,36 +187,16 @@ export default Vue.extend({
     clearDeckHint() {
       this.copiedDeckHint = '';
     },
-    shareTwitter() {
-      this.loadingTwitter = true;
+    getLongSaveDataURL(): string {
       const saveData = this.$store.state.mainSaveData as SaveData;
-      if (!saveData) {
-        return;
+      if (!saveData || !saveData.tempData[saveData.tempIndex]) {
+        return '';
       }
-      if (!saveData.tempData[saveData.tempIndex]) {
-        return;
+      const data = saveData.createURLSaveDataString();
+      if (data) {
+        return `${document.location.protocol}//${document.location.host}${document.location.pathname}?data=${data}`;
       }
-      const { location } = document;
-      const url = `${location.protocol}//${location.host}${location.pathname}?data=${saveData.createURLSaveDataString()}`;
-      const data = {
-        longDynamicLink: `https://aircalc.page.link/?link=${url}`,
-        suffix: { option: 'SHORT' },
-      };
-
-      fetch(`https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${Const.ApiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      }).then((response) => {
-        response.json().then((json) => {
-          if (json.error || !json.shortLink) {
-            this.loadingTwitter = false;
-          } else {
-            this.loadingTwitter = false;
-            window.open(`https://twitter.com/share?url=${json.shortLink}`);
-          }
-        });
-      });
+      return '';
     },
   },
 });

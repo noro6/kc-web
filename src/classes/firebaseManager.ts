@@ -1,7 +1,7 @@
 import {
   child, get, getDatabase, ref,
 } from 'firebase/database';
-import * as _ from 'lodash';
+import sum from 'lodash/sum';
 import LZString from 'lz-string';
 import ShipStock from './fleet/shipStock';
 import ItemStock from './item/itemStock';
@@ -43,14 +43,14 @@ export default class FirebaseManager {
       for (let i = 0; i < items.length; i += 1) {
         const item = items[i];
         let postItem: [number] | [number, number[]] = [item.id, []];
-        let sum = _.sum(item.num);
-        if (sum) {
+        let sumItemCount = sum(item.num);
+        if (sumItemCount) {
           for (let remodel = 0; remodel < item.num.length; remodel += 1) {
             const count = item.num[remodel];
-            sum -= count;
+            sumItemCount -= count;
             postItem[1].push(count);
             // 全体所持数格納し終わったらその時点で終了 => 容量削減のため
-            if (sum <= 0) break;
+            if (sumItemCount <= 0) break;
           }
         } else {
           postItem = [item.id];
@@ -154,5 +154,39 @@ export default class FirebaseManager {
     }
 
     return result;
+  }
+
+  /**
+   * 短い(?)URL要求
+   * @static
+   * @param {string} url
+   * @return {*}  {Promise<string>}
+   * @memberof FirebaseManager
+   */
+  public static async getShortURL(url: string): Promise<string> {
+    if (!url) return '';
+    const data = {
+      longDynamicLink: `https://aircalc.page.link/?link=${url}`,
+      suffix: { option: 'SHORT' },
+    };
+
+    let createdURL = '';
+    const response = await fetch('https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).catch((error) => console.error(error));
+
+    if (response) {
+      await response.json().then((json) => {
+        if (json.error || !json.shortLink) {
+          console.log(json.error);
+        } else {
+          createdURL = json.shortLink;
+        }
+      });
+    }
+
+    return createdURL;
   }
 }

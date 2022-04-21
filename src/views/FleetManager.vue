@@ -288,7 +288,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
 import Ships from '@/components/database/Ships.vue';
 import Items from '@/components/database/Items.vue';
 import Convert from '@/classes/convert';
@@ -468,32 +468,21 @@ export default Vue.extend({
     },
     async generateShortURL(longURL: string): Promise<boolean> {
       let resutlStatus = false;
-      const response = await fetch(`https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=${Const.ApiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          longDynamicLink: `https://aircalc.page.link/?link=${longURL}`,
-          suffix: { option: 'SHORT' },
-        }),
-      });
-
-      await response.json().then((json) => {
-        if (json.error || !json.shortLink) {
-          this.createdURL = 'URLの発行に失敗しました';
-          this.loadingURL = false;
-        } else {
-          this.createdURL = json.shortLink;
-          this.loadingURL = false;
-          resutlStatus = true;
-        }
-      });
-
+      const url = await FirebaseManager.getShortURL(longURL);
+      if (!url) {
+        this.createdURL = 'URLの発行に失敗しました';
+        this.loadingURL = false;
+      } else {
+        this.createdURL = url;
+        this.loadingURL = false;
+        resutlStatus = true;
+      }
       return resutlStatus;
     },
     createHistory(key: string) {
       // URL発行履歴追加
       const histories = this.$store.state.outputHistories as OutputHistory[];
-      const maxId = _.max(histories.map((v) => v.id)) || 0;
+      const maxId = max(histories.map((v) => v.id)) || 0;
 
       const newHistories = histories.concat();
       const history = new OutputHistory();

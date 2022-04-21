@@ -1,8 +1,17 @@
 <template>
   <v-sheet drak>
     <div class="d-flex pa-1">
-      <div class="d-flex home pl-1 pr-3" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
-        <div class="align-self-center mb-1 mr-1"><v-icon small>mdi-home</v-icon></div>
+      <div>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon small @click="openGitHub()" v-bind="attrs" v-on="on">
+              <v-icon>mdi-github</v-icon>
+            </v-btn>
+          </template>
+          <span>GitHub Repository</span>
+        </v-tooltip>
+      </div>
+      <div class="d-flex home px-1" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
         <div class="align-self-center">制空権シミュレータ</div>
         <div class="ml-1 align-self-center">v2.0.0</div>
       </div>
@@ -145,6 +154,9 @@ export default Vue.extend({
       this.handleInform('削除が完了しました。');
       // セーブデータの更新を通知
       this.$store.dispatch('updateSaveData', this.rootData);
+    },
+    openGitHub() {
+      window.open('https://github.com/noro6/kc-web/', '_blank');
     },
   },
 });

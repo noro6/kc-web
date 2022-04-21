@@ -545,7 +545,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import html2canvas from 'html2canvas';
 import { Lang } from 'gkcoi/dist/lang';
 import { DeckBuilder, Theme } from 'gkcoi/dist/type';
@@ -665,7 +665,7 @@ export default Vue.extend({
       if (this.tempShip) {
         // 一時保存リストに追加
         this.enabledPushTempShip = false;
-        this.tempShipList.push(_.cloneDeep(this.tempShip));
+        this.tempShipList.push(cloneDeep(this.tempShip));
       }
     },
     popTempShip(ship: Ship) {

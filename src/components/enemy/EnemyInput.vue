@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import sum from 'lodash/sum';
 import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Enemy from '@/classes/enemy/enemy';
@@ -116,7 +116,7 @@ export default Vue.extend({
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     sumSlot(): number {
-      return _.sum(this.enemy.items.map((v) => v.fullSlot));
+      return sum(this.enemy.items.map((v) => v.fullSlot));
     },
   },
   methods: {

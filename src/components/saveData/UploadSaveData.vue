@@ -66,7 +66,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import Const, { DIFFICULTY_LEVEL } from '@/classes/const';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';

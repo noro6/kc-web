@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import sum from 'lodash/sum';
 import ShipMaster from './shipMaster';
 import Item from '../item/item';
 import Const, { SHIP_TYPE } from '../const';
@@ -1349,7 +1349,7 @@ export default class Ship implements ShipBase {
     // 艦種チェック
     if (hunshinCount && [6, 7, 10, 11, 16, 18].includes(this.data.type)) {
       // 艦船加重対空値(改式) = int(素対空 / 2 + Σ(装備対空値 * 装備倍率))
-      const antiAirWeight = this.antiAir + 2 * _.sum(items.map((v) => v.antiAirWeight));
+      const antiAirWeight = this.antiAir + 2 * sum(items.map((v) => v.antiAirWeight));
       rate = (0.9 * Math.min(this.luck, 50) + Math.floor(antiAirWeight)) / 281;
 
       // 複数積みボーナス

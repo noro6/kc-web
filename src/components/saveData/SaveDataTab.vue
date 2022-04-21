@@ -234,8 +234,9 @@ export default Vue.extend({
         // メイン計算処理を他のデータに移譲
         const actives = this.saveData.fetchActiveData();
         if (actives.length) {
-          actives[0].isMain = true;
-          this.$store.dispatch('setMainSaveData', actives[0]);
+          const nextData = actives[actives.length - 1];
+          nextData.isMain = true;
+          this.$store.dispatch('setMainSaveData', nextData);
         }
       }
 

@@ -1,3 +1,5 @@
+export type SiteTheme = 'light' | 'dark' | 'deep-sea' | '';
+
 export default class SiteSetting {
   public id: string;
 
@@ -8,7 +10,7 @@ export default class SiteSetting {
   public darkTheme: boolean;
 
   /** サイトテーマ詳細 */
-  public themeDetail: 'light' | 'dark' | 'deep-sea' | '';
+  public themeDetail: SiteTheme;
 
   /** 初期熟練度リスト */
   public planeInitialLevels: { id: number, level: number }[];

@@ -123,7 +123,7 @@
   width: 56px;
 }
 .item-status-value {
-  width: 32px;
+  width: 36px;
   display: inline-block;
   text-align: right;
   color: #60c5ff;
@@ -174,7 +174,7 @@ export default Vue.extend({
   },
   data: () => ({
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
-    rangeText: ['', '短', '中', '長', '超長'],
+    rangeText: ['', '短', '中', '長', '超長', '超長+'],
   }),
   computed: {
     formatStatus() {

@@ -149,7 +149,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import ItemList from '@/components/item/ItemList.vue';
 import EnemyList from '@/components/enemy/EnemyList.vue';
 import EnemyInput from '@/components/enemy/EnemyInput.vue';
@@ -209,7 +209,7 @@ export default Vue.extend({
     },
     putEnemy(enemy: EnemyMaster) {
       if (enemy && enemy.id) {
-        this.editingEnemy = Enemy.createEnemyFromMaster(_.cloneDeep(enemy), false, this.items);
+        this.editingEnemy = Enemy.createEnemyFromMaster(cloneDeep(enemy), false, this.items);
         this.enemyEditDialog = true;
       }
     },
@@ -253,7 +253,7 @@ export default Vue.extend({
       }
       const master = this.defaultEnemies.find((v) => v.id === enemy.data.id);
       if (master) {
-        this.editingEnemy = Enemy.createEnemyFromMaster(_.cloneDeep(master), false, this.items);
+        this.editingEnemy = Enemy.createEnemyFromMaster(cloneDeep(master), false, this.items);
       }
     },
     commitManualEnemy() {

@@ -99,6 +99,7 @@
 import Vue from 'vue';
 import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
+import CommonCalc from '@/classes/commonCalc';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -131,29 +132,7 @@ export default Vue.extend({
       return this.index >= 0 ? this.setting.planeInitialLevels[this.index].level : this.allLevel;
     },
     levelValue(): number {
-      const lv = this.index >= 0 ? this.setting.planeInitialLevels[this.index].level : this.allLevel;
-      if (lv < 10) {
-        return 0;
-      }
-      if (lv < 25) {
-        return 1;
-      }
-      if (lv < 40) {
-        return 2;
-      }
-      if (lv < 55) {
-        return 3;
-      }
-      if (lv < 70) {
-        return 4;
-      }
-      if (lv < 85) {
-        return 5;
-      }
-      if (lv < 100) {
-        return 6;
-      }
-      return 7;
+      return CommonCalc.getProfLevel(this.level);
     },
   },
   methods: {

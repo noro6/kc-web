@@ -229,16 +229,17 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import colors from 'vuetify/lib/util/colors';
 import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
 import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
 import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
-import SettingInitialLevel from './components/item/SettingInitialLevel.vue';
-import SaveData from './classes/saveData/saveData';
-import SiteSetting from './classes/siteSetting';
-import FirebaseManager from './classes/firebaseManager';
+import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
+import SaveData from '@/classes/saveData/saveData';
+import SiteSetting from '@/classes/siteSetting';
+import FirebaseManager from '@/classes/firebaseManager';
 
 export default Vue.extend({
   name: 'App',
@@ -526,7 +527,7 @@ export default Vue.extend({
             newData = data;
           } else {
             newData = new SaveData();
-            newData.tempData = [_.cloneDeep(data.tempData[data.tempIndex])];
+            newData.tempData = [cloneDeep(data.tempData[data.tempIndex])];
             newData.tempIndex = 0;
           }
 
@@ -576,12 +577,13 @@ export default Vue.extend({
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
+      this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
       const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
+      app.classList.remove('deep-sea');
       if (theme === 'deep-sea') {
+        this.$vuetify.theme.themes.dark.primary = colors.blue.lighten1;
         app.classList.add('deep-sea');
-      } else {
-        app.classList.remove('deep-sea');
       }
 
       this.setting.themeDetail = theme;
@@ -677,10 +679,7 @@ export default Vue.extend({
 </style>
 
 <style>
-/** 日本語フォント設定 */
-/* .v-application {
-  font-family: "游ゴシック", sans-serif !important;
-} */
+/** システム共通CSS定義 */
 
 /** dense適用時フォントを小さく */
 .v-input--dense .v-select__selection,
@@ -768,6 +767,10 @@ export default Vue.extend({
 /** ダークテーマ[深海] ダイアログ */
 .deep-sea.theme--dark .v-dialog {
   background-color: rgb(10, 15, 30) !important;
+}
+/** ダークテーマ[深海] メニュー背景 */
+.deep-sea.theme--dark .v-menu__content {
+  background-color: rgb(30, 38, 60) !important;
 }
 /** ダークテーマ[深海] ボタン背景範囲 */
 .deep-sea.theme--dark .v-btn-toggle {

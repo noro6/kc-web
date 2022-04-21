@@ -907,8 +907,6 @@ export default class Const {
     { value: 535, text: '東シナ海～北九州沖' },
   ];
 
-  public static readonly ApiKey = 'AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s';
-
   public static readonly EnabledAreaCount = 8;
 
   /**

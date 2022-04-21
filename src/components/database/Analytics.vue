@@ -161,7 +161,10 @@ table tbody tr:hover {
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
+import min from 'lodash/min';
+import sum from 'lodash/sum';
+import mean from 'lodash/mean';
 import RadarChart from '@/components/graph/Radar.vue';
 import StackedBar from '@/components/graph/StackedBar.vue';
 import ShipStock from '@/classes/fleet/shipStock';
@@ -382,17 +385,17 @@ export default Vue.extend({
             }
           }
 
-          const sumExp = _.sum(exps);
+          const sumExp = sum(exps);
           allExp += sumExp;
           allLevels = allLevels.concat(levels);
           const data = {
             count: stocks.length,
-            maxLevel: _.max(levels),
-            minLevel: _.min(levels),
+            maxLevel: max(levels),
+            minLevel: min(levels),
             midLevel: this.getMidValue(levels),
-            avgLevel: _.mean(levels),
+            avgLevel: mean(levels),
             sumExp,
-            avgExp: _.mean(exps),
+            avgExp: mean(exps),
             expRate: 0,
           };
           expTable.push({ name: type.text, data });
@@ -440,14 +443,14 @@ export default Vue.extend({
       }
 
       // 合計行
-      const allLevel = _.sum(allLevels);
+      const allLevel = sum(allLevels);
       const allCount = allLevels.length;
       this.summaryTable.push({
         name: '合計',
         data: {
           count: allCount,
-          maxLevel: _.max(expTable.map((v) => v.data.maxLevel)),
-          minLevel: _.min(expTable.map((v) => v.data.minLevel)),
+          maxLevel: max(expTable.map((v) => v.data.maxLevel)),
+          minLevel: min(expTable.map((v) => v.data.minLevel)),
           midLevel: this.getMidValue(allLevels),
           avgLevel: allCount ? (allLevel / allCount).toFixed(1) : '0',
           sumExp: allExp.toLocaleString(),

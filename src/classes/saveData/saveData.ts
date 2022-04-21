@@ -1,4 +1,5 @@
-import * as _ from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import max from 'lodash/max';
 import LZString from 'lz-string';
 import CalcManager from '../calcManager';
 import Airbase from '../airbase/airbase';
@@ -196,7 +197,7 @@ export default class SaveData {
     }
 
     const childs = this.childItems.filter((v) => v.name.startsWith('新規データ'));
-    const maxNumber = _.max(childs.map((v) => +v.name.replace(/[^0-9]/g, '')));
+    const maxNumber = max(childs.map((v) => +v.name.replace(/[^0-9]/g, '')));
 
     if (maxNumber !== undefined && maxNumber >= 0) {
       return `新規データ${maxNumber + 1}`;
@@ -413,7 +414,7 @@ export default class SaveData {
     }
 
     // ひたすらケツに突っ込むことだけを考える
-    this.tempData.push(_.cloneDeep(calcManager));
+    this.tempData.push(cloneDeep(calcManager));
     this.tempIndex += 1;
 
     const maxCount = 20;
@@ -558,7 +559,7 @@ export default class SaveData {
         // 一応範囲外チェック
         this.tempIndex = this.tempData.length - 1;
       }
-      return _.cloneDeep(this.tempData[this.tempIndex]);
+      return cloneDeep(this.tempData[this.tempIndex]);
     }
 
     if (!this.manager) {
@@ -566,7 +567,7 @@ export default class SaveData {
       newData.fleetInfo = new FleetInfo({ admiralLevel: initialiAdmiralLevel });
       newData.resetAll = true;
       // 一時保存データにこの情報を突っ込む
-      this.tempData = [_.cloneDeep(newData)];
+      this.tempData = [cloneDeep(newData)];
       this.tempIndex = 0;
       this.tempSavedIndex = 0;
       return newData;
@@ -576,7 +577,7 @@ export default class SaveData {
     const resultData = SaveData.loadSavedataManagerString(this.manager, itemMasters, shipMasters, enemyMasters);
 
     // 一時保存データにこの情報を突っ込む
-    this.tempData = [_.cloneDeep(resultData)];
+    this.tempData = [cloneDeep(resultData)];
     this.tempIndex = 0;
     this.tempSavedIndex = 0;
 

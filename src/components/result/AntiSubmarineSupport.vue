@@ -271,7 +271,9 @@ table tbody tr.tr-death:hover {
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
+import min from 'lodash/min';
+import sum from 'lodash/sum';
 import { SHIP_TYPE } from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
@@ -412,8 +414,8 @@ export default Vue.extend({
         const damages = damageDist.map((v) => v.damage);
 
         // 最低 最大ダメ
-        const minDamage = _.min(damages) as number;
-        const maxDamage = _.max(damages) as number;
+        const minDamage = min(damages) as number;
+        const maxDamage = max(damages) as number;
 
         // 各損傷状態必要ダメージボーダーとその確率 [死, 大, 中]
         const damageBorders = [
@@ -428,7 +430,7 @@ export default Vue.extend({
           const borderMax = obj.max;
           // 各損傷状態を満たすボーダーを上回る確率を合計したもの => つまり〇〇率
           const okPowers = damageDist.filter((v) => v.damage >= borderMin && v.damage < borderMax).map((v) => v.rate);
-          const rate = okPowers.length === damageDist.length ? 1 : (_.sum(okPowers) as number);
+          const rate = okPowers.length === damageDist.length ? 1 : (sum(okPowers) as number);
           obj.rate = rate;
         }
 

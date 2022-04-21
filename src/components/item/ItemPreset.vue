@@ -137,7 +137,8 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
+import cloneDeep from 'lodash/cloneDeep';
 import Ship from '@/classes/fleet/ship';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -202,12 +203,12 @@ export default Vue.extend({
     clickedPreset(index: number) {
       if (index < this.presets.length) {
         this.selectedIndex = index;
-        this.selectedPreset = _.cloneDeep(this.presets[index]);
+        this.selectedPreset = cloneDeep(this.presets[index]);
       }
     },
     readyPreset() {
       const newPreset = new ItemPreset();
-      const maxId = _.max(this.presets.map((v) => v.id));
+      const maxId = max(this.presets.map((v) => v.id));
       if (maxId) {
         newPreset.id = maxId;
       }

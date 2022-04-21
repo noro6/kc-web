@@ -455,7 +455,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import max from 'lodash/max';
+import min from 'lodash/min';
+import sum from 'lodash/sum';
+import groupBy from 'lodash/groupBy';
+import cloneDeep from 'lodash/cloneDeep';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import BarChart, { BarGraphData, LabelCallbackArg } from '@/components/graph/Bar.vue';
 import CalcManager from '@/classes/calcManager';
@@ -750,10 +754,10 @@ export default Vue.extend({
       this.calcManager.updateInfo();
 
       if (item) {
-        this.selectedItem = _.cloneDeep(item);
+        this.selectedItem = cloneDeep(item);
         // 集計
-        const dist = _.groupBy(item.dist);
-        const sum = item.dist.length;
+        const dist = groupBy(item.dist);
+        const sumDist = item.dist.length;
         // リセット
         item.dist = [];
 
@@ -766,14 +770,14 @@ export default Vue.extend({
 
         Object.keys(dist).forEach((key) => {
           labels.push(`${key}`);
-          const rate = dist[key].length / sum;
+          const rate = dist[key].length / sumDist;
           sumRate += rate;
           rates.push(Math.floor(1000 * rate) / 10);
           sumRates.push(Math.round(100 * sumRate));
         });
 
-        const max = +(_.max(rates) || 100);
-        this.options.scales.main.max = Math.min(Math.floor(10 * Math.ceil(max / 10)), 100);
+        const maxRate = +(max(rates) || 100);
+        this.options.scales.main.max = Math.min(Math.floor(10 * Math.ceil(maxRate / 10)), 100);
 
         this.graphData.labels = labels;
         this.graphData.datasets[0].data = rates;
@@ -817,21 +821,21 @@ export default Vue.extend({
       const item = this.selectedItem;
 
       // 搭載数分布オブジェクト作成
-      const sum = this.selectedItem.dist.length;
+      const sumDist = this.selectedItem.dist.length;
       const slotDist: SlotDist[] = [];
-      const data = _.groupBy(this.selectedItem.dist);
+      const data = groupBy(this.selectedItem.dist);
 
       if (this.useResult) {
         // 搭載数分布の結果を利用
         Object.keys(data).forEach((key) => {
-          slotDist.push({ slot: +key, rate: data[key].length / sum });
+          slotDist.push({ slot: +key, rate: data[key].length / sumDist });
         });
       } else {
         // 搭載数キメ打ち
         slotDist.push({ slot: item.fullSlot, rate: 1 });
       }
-      const maxSlot = +(this.useResult ? _.max(Object.keys(data)) || 0 : item.fullSlot);
-      const minSlot = +(this.useResult ? _.min(Object.keys(data)) || 0 : item.fullSlot);
+      const maxSlot = +(this.useResult ? max(Object.keys(data)) || 0 : item.fullSlot);
+      const minSlot = +(this.useResult ? min(Object.keys(data)) || 0 : item.fullSlot);
 
       // 引数調整
       this.calcArgs.unionBonus = this.calcArgs.isUnion ? 1.1 : 1;
@@ -868,8 +872,8 @@ export default Vue.extend({
         const damages = damageDist.map((v) => v.damage);
 
         // 最低 最大ダメ
-        const minDamage = _.min(damages) as number;
-        const maxDamage = _.max(damages) as number;
+        const minDamage = min(damages) as number;
+        const maxDamage = max(damages) as number;
 
         // 各損傷状態必要ダメージボーダーとその確率 [死, 大, 中]
         const damageBorders = [
@@ -884,7 +888,7 @@ export default Vue.extend({
           const borderMax = obj.max;
           // 各損傷状態を満たすボーダーを上回る確率を合計したもの => つまり〇〇率
           const okPowers = damageDist.filter((v) => v.damage >= borderMin && v.damage < borderMax).map((v) => v.rate);
-          const rate = okPowers.length === damageDist.length ? 1 : (_.sum(okPowers) as number);
+          const rate = okPowers.length === damageDist.length ? 1 : (sum(okPowers) as number);
           obj.rate = rate;
         }
 

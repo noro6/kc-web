@@ -358,7 +358,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import * as _ from 'lodash';
+import sum from 'lodash/sum';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Const from '@/classes/const';
 import ItemStock from '@/classes/item/itemStock';
@@ -445,7 +445,7 @@ export default Vue.extend({
       return 'mdi-checkbox-blank-outline';
     },
     sumStock(): number {
-      return _.sum(this.edittedStock);
+      return sum(this.edittedStock);
     },
     convertStatusString() {
       return (value: string) => Convert.convertAttibuteString(value);
@@ -540,7 +540,7 @@ export default Vue.extend({
           const filteredItems = details.filter((v) => v.remodel >= minRemodel && v.remodel <= maxRemodel);
 
           if (filteredItems.length) {
-            viewRow.items.push({ master, details: filteredItems, allCount: _.sum(filteredItems.map((v) => v.count)) });
+            viewRow.items.push({ master, details: filteredItems, allCount: sum(filteredItems.map((v) => v.count)) });
           } else if (minRemodel === 0 && allCount === 0 && !this.onlyStock) {
             // 元から0ならそのまま投入
             viewRow.items.push(items[j]);
