@@ -193,7 +193,7 @@
 }
 
 .patterns-container {
-  min-height: 340px;
+  height: 340px;
 }
 
 .v-tabs-bar .v-tab {

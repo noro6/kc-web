@@ -1,17 +1,7 @@
 <template>
   <div class="site-top-container">
-    <div class="site-title content">制空権シミュレータ <span class="body-1">v2.0.0 β</span></div>
+    <div class="site-title content">制空権シミュレータ <span class="body-1">v2.0.0</span></div>
     <v-card class="site-body content">
-      <v-alert border="left" outlined type="warning" class="ma-3 pa-4">
-        <div>
-          本サイトは公開テスト中です。何か不具合や気になる動き、要望等があれば<a
-            href="https://odaibako.net/u/noro_006"
-            class="blue--text text--accent-1"
-            target="_blank"
-            >お題箱</a
-          >や<a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>までご連絡ください。
-        </div>
-      </v-alert>
       <div class="menu-buttons">
         <div class="my-2 mx-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
