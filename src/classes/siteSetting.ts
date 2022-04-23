@@ -54,6 +54,9 @@ export default class SiteSetting {
   /** アップロード名 */
   public userName: string;
 
+  /** 装備所持数 総所持数カウント */
+  public visibleItemStockAllCount: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -72,6 +75,7 @@ export default class SiteSetting {
       this.admiralLevel = setting.admiralLevel ? setting.admiralLevel : 120;
       this.userName = setting.userName ? setting.userName : '';
       this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
+      this.visibleItemStockAllCount = !!setting.visibleItemStockAllCount;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -111,6 +115,7 @@ export default class SiteSetting {
       this.admiralLevel = 120;
       this.userName = '';
       this.themeDetail = 'dark';
+      this.visibleItemStockAllCount = false;
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

@@ -87,7 +87,7 @@
             </template>
           </v-select>
           <div>
-            <v-checkbox class="mx-2" dense v-model="visibleAllCount" label="総所持数表示"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" label="総所持数表示"></v-checkbox>
           </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -365,6 +365,7 @@ import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
 import Item from '@/classes/item/item';
 import Convert from '@/classes/convert';
+import SiteSetting from '@/classes/siteSetting';
 
 interface ItemRowDetailData {
   remodel: number;
@@ -406,6 +407,10 @@ export default Vue.extend({
     if (this.$store.getters.getExistsTempStock) {
       this.readOnly = true;
     }
+
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.visibleAllCount = setting.visibleItemStockAllCount;
+
     this.initialize();
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setItemStock') {
@@ -625,6 +630,12 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    changeVisibleAllCount() {
+      // 設定書き換え
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.visibleItemStockAllCount = this.visibleAllCount;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });

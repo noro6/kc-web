@@ -897,7 +897,6 @@ export default Vue.extend({
     btnPushed: false,
     allCount: 0,
     modeTable: true,
-    setting: new SiteSetting(),
     selectedArea: [] as number[],
     visibleNoArea: true,
     readOnly: false,
@@ -920,6 +919,7 @@ export default Vue.extend({
     completed(value) {
       if (value) {
         this.all = this.$store.state.ships as ShipMaster[];
+        this.initialize();
       }
     },
     isTempStockMode(value) {
@@ -1072,8 +1072,10 @@ export default Vue.extend({
 
       this.masterFilter();
 
-      this.setting = this.$store.state.siteSetting as SiteSetting;
-      this.changeViewMode(this.setting.viewTableMode);
+      if (this.completed) {
+        const setting = this.$store.state.siteSetting as SiteSetting;
+        this.changeViewMode(setting.viewTableMode);
+      }
 
       // 海域札セレクト初期化
       this.selectedArea = [];
@@ -1367,8 +1369,9 @@ export default Vue.extend({
     changeViewMode(modeTable: boolean) {
       this.modeTable = modeTable;
       // 設定書き換え
-      this.setting.viewTableMode = modeTable;
-      this.$store.dispatch('updateSetting', this.setting);
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.viewTableMode = modeTable;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });

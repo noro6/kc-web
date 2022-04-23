@@ -772,8 +772,8 @@ export default Vue.extend({
 .deep-sea.theme--dark .v-menu__content {
   background-color: rgb(30, 38, 60) !important;
 }
-/** ダークテーマ[深海] ボタン背景範囲 */
-.deep-sea.theme--dark .v-btn-toggle {
+/** ダークテーマ ボタン背景範囲 */
+.theme--dark .v-btn-toggle {
   background: none !important;
 }
 
