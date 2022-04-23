@@ -1,6 +1,6 @@
 <template>
   <div class="site-top-container">
-    <div class="site-title content">制空権シミュレータ <span class="body-1">v2.0.0</span></div>
+    <div class="site-title content">制空権シミュレータ <span class="body-1">v{{$store.state.siteVersion}}</span></div>
     <v-card class="site-body content">
       <div class="menu-buttons">
         <div class="my-2 mx-4">

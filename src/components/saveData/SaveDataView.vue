@@ -13,7 +13,7 @@
       </div>
       <div class="d-flex home px-1" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
         <div class="align-self-center">制空権シミュレータ</div>
-        <div class="ml-1 align-self-center">v2.0.0</div>
+        <div class="ml-1 align-self-center">v{{$store.state.siteVersion}}</div>
       </div>
       <div class="ml-auto btn-icons">
         <v-tooltip bottom color="black">

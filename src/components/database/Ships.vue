@@ -917,8 +917,13 @@ export default Vue.extend({
   },
   watch: {
     completed(value) {
-      if (value) {
+      if (value && !this.all.length) {
         this.all = this.$store.state.ships as ShipMaster[];
+        this.initialize();
+      }
+    },
+    saveDataLoadCompleted(value) {
+      if (value && !this.shipStock.length) {
         this.initialize();
       }
     },
@@ -930,6 +935,9 @@ export default Vue.extend({
   computed: {
     completed() {
       return this.$store.getters.getCompleted;
+    },
+    saveDataLoadCompleted() {
+      return this.$store.getters.getSaveDataLoadCompleted;
     },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;

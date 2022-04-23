@@ -6,9 +6,9 @@
     </div>
     <v-tabs v-model="tab">
       <v-tab href="#ships">艦娘</v-tab>
-      <v-tab href="#items">装備</v-tab>
-      <v-tab href="#read" :disabled="readOnlyMode">反映</v-tab>
-      <v-tab href="#share">共有</v-tab>
+      <v-tab href="#items" :disabled="loading">装備</v-tab>
+      <v-tab href="#read" :disabled="readOnlyMode || loading">反映</v-tab>
+      <v-tab href="#share" :disabled="loading">共有</v-tab>
     </v-tabs>
     <v-divider></v-divider>
     <v-tabs-items v-model="tab">
@@ -253,6 +253,14 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="loading" persistent width="300">
+      <v-card dark>
+        <v-card-text>
+          <div class="pt-2">在籍艦娘 / 所持装備データ読込中...</div>
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -326,6 +334,7 @@ export default Vue.extend({
     copiedItemCodeHint: '',
     unsbscribe: undefined as unknown,
     kantaiSarashiURL: '',
+    loading: false,
   }),
   mounted() {
     // まず読み専か判定
@@ -345,13 +354,29 @@ export default Vue.extend({
         this.generateKantaiSarashiURL();
       }
     });
+
+    this.loading = !this.$store.getters.getSaveDataLoadCompleted;
   },
   computed: {
+    completed() {
+      return this.$store.getters.getSaveDataLoadCompleted;
+    },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
     },
   },
   watch: {
+    completed(value) {
+      if (value) {
+        this.loading = false;
+        const histories = this.$store.state.outputHistories as OutputHistory[];
+        if (histories && histories.length) {
+          this.outputHistories = histories.concat();
+        }
+        this.generateKCAnalyticsCode();
+        this.generateKantaiSarashiURL();
+      }
+    },
     isTempStockMode(value) {
       this.readOnlyMode = !!value;
       this.expandBtnClicked = false;

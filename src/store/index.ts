@@ -25,6 +25,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    siteVersion: '2.0.1',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -47,6 +48,7 @@ export default new Vuex.Store({
     kcWebDatabase: new KcWebDatabase(),
     searchedList: [] as UploadedPreset[],
     completed: false,
+    saveDataLoadCompleted: false,
   },
   mutations: {
     setShips: (state, values: MasterShip[]) => {
@@ -126,6 +128,9 @@ export default new Vuex.Store({
     },
     completed: (state, value: boolean) => {
       state.completed = value;
+    },
+    saveDataLoadCompleted: (state, value: boolean) => {
+      state.saveDataLoadCompleted = value;
     },
     setSearchedList: (state, values: UploadedPreset[]) => {
       state.searchedList = values;
@@ -281,6 +286,9 @@ export default new Vuex.Store({
       });
     },
     loadSaveData: async (context) => {
+      // ロード画面を入れる
+      context.commit('saveDataLoadCompleted', false);
+
       const db = context.state.kcWebDatabase;
       // セーブデータ読込
       const saveData = await db.savedata.get('root');
@@ -338,24 +346,29 @@ export default new Vuex.Store({
       }
 
       // 艦娘在庫呼び出し
-      db.ships.toArray().then((data) => {
+      const loadShipStock = db.ships.toArray().then((data) => {
         context.commit('setShipStock', data);
       });
       // 装備呼び出し
-      db.items.toArray().then((data) => {
+      const loadItemStock = db.items.toArray().then((data) => {
         context.commit('setItemStock', data);
       });
       // 装備プリセ呼び出し
-      db.itemPresets.toArray().then((data) => {
+      const loadItemPreset = db.itemPresets.toArray().then((data) => {
         context.state.itemPresets = data;
       });
       // 手動設定敵艦
-      db.manualEnemies.toArray().then((data) => {
+      const loadManualEnemy = db.manualEnemies.toArray().then((data) => {
         context.state.manualEnemies = data;
       });
       // 出力履歴
-      db.outputHistories.toArray().then((data) => {
+      const loadHistory = db.outputHistories.toArray().then((data) => {
         context.state.outputHistories = data;
+      });
+
+      const loader = [loadShipStock, loadItemStock, loadItemPreset, loadManualEnemy, loadHistory];
+      Promise.all(loader).then(() => {
+        context.commit('saveDataLoadCompleted', true);
       });
     },
     loadSetting: async (context) => {
@@ -374,6 +387,7 @@ export default new Vuex.Store({
   },
   getters: {
     getCompleted: (state) => state.completed,
+    getSaveDataLoadCompleted: (state) => state.saveDataLoadCompleted,
     getExistsTempStock: (state) => !!state.tempItemStock.length || !!state.tempShipStock.length,
     getEnemies: (state) => {
       const enemies = state.defaultEnemies.concat();
