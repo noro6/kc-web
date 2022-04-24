@@ -209,7 +209,7 @@ export default class Item {
 
     if (this.isShinzan) {
       this.fullSlot = Math.min(this.fullSlot, 9);
-    } else if (this.isRecon) {
+    } else if (this.data.apiTypeId === 49) {
       this.fullSlot = Math.min(this.fullSlot, 4);
     }
 

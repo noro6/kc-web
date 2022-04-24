@@ -182,7 +182,12 @@ export default class Convert {
     Object.keys(a.items).forEach((key) => {
       const item = a.items[key] || { id: 0, rf: 0, mas: 0 };
       const master = this.itemMasters.find((v) => v.id === item.id) || new ItemMaster();
-      const slot = Const.RECONNAISSANCES.includes(master?.apiTypeId) ? 4 : 18;
+      let slot = 18;
+      if (Const.RECONNAISSANCES.includes(master?.apiTypeId)) {
+        slot = 4;
+      } else if (Const.AB_ATTACKERS_LARGE.includes(master?.apiTypeId)) {
+        slot = 9;
+      }
       items.push(new Item({
         master, remodel: item.rf, level: Const.PROF_LEVEL_BORDER[item.mas], slot,
       }));
