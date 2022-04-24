@@ -207,6 +207,12 @@ export default class Item {
       this.data.isSpecial = this.isRocket || this.enabledAttackLandbase;
     }
 
+    if (this.isShinzan) {
+      this.fullSlot = Math.min(this.fullSlot, 9);
+    } else if (this.isRecon) {
+      this.fullSlot = Math.min(this.fullSlot, 4);
+    }
+
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();
     this.antiAirWeight = this.getAntiAirWeight();

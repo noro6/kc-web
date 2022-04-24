@@ -36,7 +36,7 @@
             <v-divider></v-divider>
             <div class="d-flex flex-wrap my-1">
               <div v-for="(ship, j) in preset.ships" :key="`ship${i}_${j}`">
-                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
               </div>
             </div>
             <div class="preset-memo" v-if="preset.memo">{{ preset.memo }}</div>

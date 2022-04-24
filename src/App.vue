@@ -724,6 +724,8 @@ export default Vue.extend({
 /** ダークテーマ 基本背景色変更 */
 .theme--dark.v-application {
   background-color: rgb(25, 25, 32) !important;
+  background: linear-gradient(rgb(22, 22, 28), 90%, rgb(40, 40, 46)) !important;
+  background-attachment: fixed !important;
 }
 /** ダークテーマ[深海] 基本背景色変更 */
 .theme--dark.deep-sea.v-application {
