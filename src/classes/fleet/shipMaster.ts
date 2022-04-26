@@ -2,65 +2,99 @@ import Const, { SHIP_TYPE } from '../const';
 import { MasterEquipmentExSlot, MasterEquipmentShip, MasterShip } from '../interfaces/master';
 import ItemMaster from '../item/itemMaster';
 
+/**
+ * 艦娘マスタクラス
+ * マスターデータより算出されるオブジェクト
+ * @export
+ * @class ShipMaster
+ */
 export default class ShipMaster {
-  public id = 0;
+  /** id */
+  public readonly id: number;
 
-  public albumId = 0;
+  /** 図鑑No */
+  public readonly albumId: number;
 
-  public name = '';
+  /** 名称 */
+  public readonly name: string;
 
-  public type = 0;
+  /** 艦種id */
+  public readonly type: number;
 
-  public type2 = 0;
+  /** 艦型 〇〇型的なやつのid */
+  public readonly type2: number;
 
-  public slotCount = 0;
+  /** 装備スロット数 */
+  public readonly slotCount: number;
 
-  public slots: number[] = [];
+  /** 装備搭載数 */
+  public readonly slots: number[];
 
-  public version = 0;
+  /** 改造段階 0で無印 */
+  public readonly version: number;
 
-  public isFinal = false;
+  /** 最終改造状態か否か */
+  public readonly isFinal: boolean;
 
   /** 図鑑IDで紐づけているので注意！ */
-  public originalId = 0;
+  public readonly originalId: number;
 
-  public range = 0;
+  /** デフォルト射程 */
+  public readonly range: number;
 
-  public hp = 0;
+  /** 耐久 */
+  public readonly hp: number;
 
-  public hp2 = 0;
+  /** ケッコン後耐久 */
+  public readonly hp2: number;
 
-  public maxHp = 0;
+  /** 最大耐久(改修の限界) */
+  public readonly maxHp: number;
 
-  public fire = 0;
+  /** 火力 */
+  public readonly fire: number;
 
-  public torpedo = 0;
+  /** 雷装 */
+  public readonly torpedo: number;
 
-  public antiAir = 0;
+  /** 対空 */
+  public readonly antiAir: number;
 
-  public armor = 0;
+  /** 装甲 */
+  public readonly armor: number;
 
-  public luck = 0;
+  /** 運初期値 */
+  public readonly luck: number;
 
-  public maxLuck = 0;
+  /** 運最大値 */
+  public readonly maxLuck: number;
 
-  public minScout = 0;
+  /** 索敵初期値 */
+  public readonly minScout: number;
 
-  public maxScout = 0;
+  /** 索敵最大値 */
+  public readonly maxScout: number;
 
-  public minAsw = 0;
+  /** 対潜初期値 */
+  public readonly minAsw: number;
 
-  public maxAsw = 0;
+  /** 対潜最大値 */
+  public readonly maxAsw: number;
 
-  public minAvoid = 0;
+  /** 回避初期値 */
+  public readonly minAvoid: number;
 
-  public maxAvoid = 0;
+  /** 回避最大値 */
+  public readonly maxAvoid: number;
 
-  public beforId = 0;
+  /** 改装直前のid */
+  public readonly beforId: number;
 
-  public nextLv = 0;
+  /** 次改装Lv */
+  public readonly nextLv: number;
 
-  public sort = 0;
+  /** 母港マスタソート順 */
+  public readonly sort: number;
 
   /**
    * Creates an instance of ShipMaster.
@@ -98,6 +132,36 @@ export default class ShipMaster {
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
       this.originalId = ship.orig ? ship.orig : 0;
+    } else {
+      this.id = 0;
+      this.albumId = 0;
+      this.name = '';
+      this.type = 0;
+      this.type2 = 0;
+      this.slotCount = 0;
+      this.version = 0;
+      this.isFinal = false;
+      this.range = 0;
+      this.hp = 0;
+      this.hp2 = 0;
+      this.maxHp = 0;
+      this.fire = 0;
+      this.torpedo = 0;
+      this.antiAir = 0;
+      this.armor = 0;
+      this.luck = 0;
+      this.maxLuck = 0;
+      this.minScout = 0;
+      this.maxScout = 0;
+      this.minAsw = 0;
+      this.maxAsw = 0;
+      this.minAvoid = 0;
+      this.maxAvoid = 0;
+      this.beforId = 0;
+      this.nextLv = 0;
+      this.sort = 0;
+      this.slots = [];
+      this.originalId = 0;
     }
   }
 

@@ -73,7 +73,7 @@
       </div>
       <v-btn icon @click="configDialog = true"><v-icon>mdi-cog</v-icon></v-btn>
       <template v-slot:extension>
-        <save-data-tab :save-data="saveData" :setting="setting" />
+        <save-data-tab :save-data="saveData" />
       </template>
     </v-app-bar>
     <v-main>

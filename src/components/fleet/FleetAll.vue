@@ -741,6 +741,7 @@ export default Vue.extend({
         hp: viewShip.hp,
         level: viewShip.level,
         luck: viewShip.luck,
+        asw: viewShip.asw + Ship.getStatusFromLevel(viewShip.level, ship.maxAsw, ship.minAsw),
         area: viewShip.area,
       });
 
@@ -772,13 +773,24 @@ export default Vue.extend({
       }
 
       if (slotIndex < items.length) {
-        // 装備を置き換え
-        items[slotIndex] = new Item({
-          item: items[slotIndex],
-          master,
-          remodel: item.remodel,
-          level,
-        });
+        if (item.data.id === 138 && ship.data.type2 === 90) {
+          // 日進 & 二式大艇
+          items[slotIndex] = new Item({
+            item: items[slotIndex],
+            master,
+            remodel: item.remodel,
+            level,
+            slot: 1,
+          });
+        } else {
+          // 装備を置き換え
+          items[slotIndex] = new Item({
+            item: items[slotIndex],
+            master,
+            remodel: item.remodel,
+            level,
+          });
+        }
         // 装備を変更した艦娘インスタンス再生成
         newShip = new Ship({ ship, items });
       } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
@@ -803,13 +815,13 @@ export default Vue.extend({
     },
     expandItemPreset(preset: ItemPreset) {
       const itemMasters = this.$store.state.items as ItemMaster[];
-      const items = [];
-      for (let i = 0; i < preset.itemIds.length; i += 1) {
-        const item = itemMasters.find((v) => v.id === preset.itemIds[i]);
+      const items: Item[] = [];
+      for (let i = 0; i < preset.items.length; i += 1) {
+        const item = itemMasters.find((v) => v.id === preset.items[i].id);
         if (item) {
-          items.push(item);
+          items.push(new Item({ master: item, remodel: preset.items[i].remodel }));
         } else {
-          items.push(new ItemMaster());
+          items.push(new Item());
         }
       }
 
@@ -829,19 +841,29 @@ export default Vue.extend({
       for (let slotIndex = 0; slotIndex < newItems.length; slotIndex += 1) {
         if (slotIndex < items.length) {
           const newItem = items[slotIndex];
-          if (newItem && ship.isValidItem(newItem, link, exLink, slotIndex)) {
+          if (newItem && ship.isValidItem(newItem.data, link, exLink, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             // 初期熟練度設定
             const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
             let level = 0;
             if (initialLevels) {
               // 設定情報より初期熟練度を解決
-              const initData = initialLevels.find((v) => v.id === newItem.apiTypeId);
+              const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
               if (initData) {
                 level = initData.level;
               }
             }
-            newItems[slotIndex] = new Item({ master: newItem, item: newItems[slotIndex], level });
+
+            if (newItem.data.id === 138 && ship.type2 === 90) {
+              // 日進 & 二式大艇
+              newItems[slotIndex] = new Item({
+                master: newItem.data, item: newItems[slotIndex], level, remodel: newItem.remodel, slot: 1,
+              });
+            } else {
+              newItems[slotIndex] = new Item({
+                master: newItem.data, item: newItems[slotIndex], level, remodel: newItem.remodel,
+              });
+            }
           } else {
             // 不適合、外す
             newItems[slotIndex] = new Item();
@@ -850,11 +872,11 @@ export default Vue.extend({
       }
 
       // 補強増設チェック
-      const presetExItem = itemMasters.find((v) => v.id === preset.exItemId);
+      const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
       let exItem;
       if (presetExItem && ship.isValidItem(presetExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
         // 搭載可能なら入れ替え
-        exItem = new Item({ master: presetExItem });
+        exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       }
 
       // 元々いた艦娘を置き換える
@@ -919,7 +941,7 @@ export default Vue.extend({
         html2canvas(div, { scale: 2, width: 1200 }).then((canvas) => {
           const link = document.createElement('a');
           link.href = canvas.toDataURL();
-          link.download = 'export_image.png';
+          link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
           link.click();
           this.capturing = false;
         });
@@ -1037,8 +1059,8 @@ export default Vue.extend({
           const shipMaster = ships[j].data;
           const { items } = ships[j];
           for (let k = 0; k < items.length; k += 1) {
-            if (!onlyFighter || (onlyFighter && items[k].isFighter)) {
-              const isPlane = items[k] && items[k].isPlane;
+            if (!onlyFighter || (onlyFighter && items[k].data.isFighter)) {
+              const isPlane = items[k] && items[k].data.isPlane;
               const slot = itemBuilder.slot ? Math.min(itemBuilder.slot, shipMaster.slots[k]) : shipMaster.slots[k];
               items[k] = new Item({
                 item: items[k],
@@ -1128,7 +1150,7 @@ export default Vue.extend({
         const base64 = canvas.toDataURL('image/jpeg');
         const download = document.getElementById('gkcoi-doownload') as HTMLAnchorElement;
         download.href = base64;
-        download.download = 'image.jpg';
+        download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
         download.click();
       }
     },

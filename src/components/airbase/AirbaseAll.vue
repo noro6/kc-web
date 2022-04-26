@@ -479,6 +479,7 @@ import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
+import Convert from '@/classes/convert';
 
 export default Vue.extend({
   name: 'AirbaseAll',
@@ -697,7 +698,7 @@ export default Vue.extend({
         html2canvas(div, { scale: 2 }).then((canvas) => {
           const link = document.createElement('a');
           link.href = canvas.toDataURL();
-          link.download = 'export_image.png';
+          link.download = `airbase_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
           link.click();
           this.capturing = false;
         });
@@ -742,13 +743,13 @@ export default Vue.extend({
         const { items } = airbases[i];
         for (let j = 0; j < items.length; j += 1) {
           const item = items[j];
-          if (!onlyFighter || (onlyFighter && item.isFighter)) {
+          if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
             let { slot } = item;
-            if (item.isRecon && itemBuilder.slot !== undefined) {
+            if (item.data.isRecon && itemBuilder.slot !== undefined) {
               slot = Math.min(4, itemBuilder.slot);
-            } else if (item.isShinzan && itemBuilder.slot !== undefined) {
+            } else if (item.data.isShinzan && itemBuilder.slot !== undefined) {
               slot = Math.min(9, itemBuilder.slot);
-            } else if (item.isPlane && itemBuilder.slot !== undefined) {
+            } else if (item.data.isPlane && itemBuilder.slot !== undefined) {
               slot = Math.min(18, itemBuilder.slot);
             }
             items[j] = new Item({
@@ -784,13 +785,13 @@ export default Vue.extend({
     },
     expandItemPreset(preset: ItemPreset) {
       const itemMasters = this.$store.state.items as ItemMaster[];
-      const items = [];
-      for (let i = 0; i < preset.itemIds.length; i += 1) {
-        const item = itemMasters.find((v) => v.id === preset.itemIds[i]);
+      const items: Item[] = [];
+      for (let i = 0; i < preset.items.length; i += 1) {
+        const item = itemMasters.find((v) => v.id === preset.items[i].id);
         if (item) {
-          items.push(item);
+          items.push(new Item({ master: item, remodel: preset.items[i].remodel }));
         } else {
-          items.push(new ItemMaster());
+          items.push(new Item());
         }
       }
       const index = this.dialogTarget[0];
@@ -801,12 +802,12 @@ export default Vue.extend({
       for (let slotIndex = 0; slotIndex < airbase.items.length; slotIndex += 1) {
         if (slotIndex < items.length) {
           const newItem = items[slotIndex];
-          if (newItem && Const.PLANE_TYPES.includes(newItem.apiTypeId)) {
+          if (newItem && Const.PLANE_TYPES.includes(newItem.data.apiTypeId)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             let slot = 18;
-            if (Const.RECONNAISSANCES.includes(newItem.apiTypeId)) {
+            if (Const.RECONNAISSANCES.includes(newItem.data.apiTypeId)) {
               slot = 4;
-            } else if (Const.AB_ATTACKERS_LARGE.includes(newItem.apiTypeId)) {
+            } else if (Const.AB_ATTACKERS_LARGE.includes(newItem.data.apiTypeId)) {
               slot = 9;
             }
 
@@ -815,24 +816,25 @@ export default Vue.extend({
             let level = 0;
             if (initialLevels) {
               // 設定情報より初期熟練度を解決
-              const initData = initialLevels.find((v) => v.id === newItem.apiTypeId);
+              const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
               if (initData) {
                 level = initData.level;
               }
 
-              if (newItem.id === 312 && level > 25) {
+              if (newItem.data.id === 312 && level > 25) {
                 // 陸上偵察機(熟練)の制御
                 level = 25;
-              } else if (newItem.id === 311) {
+              } else if (newItem.data.id === 311) {
                 // 陸上偵察機無印の制御
                 level = 0;
               }
             }
             newItems[slotIndex] = new Item({
-              master: newItem,
+              master: newItem.data,
               item: newItems[slotIndex],
               slot,
               level,
+              remodel: newItem.remodel,
             });
           } else {
             // 不適合、外す

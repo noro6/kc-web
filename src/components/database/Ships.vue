@@ -3,6 +3,7 @@
     <v-tabs v-model="tab">
       <v-tab href="#list">一覧</v-tab>
       <v-tab href="#analytics">経験値</v-tab>
+      <v-tab href="#compare" v-if="readOnly">比較</v-tab>
     </v-tabs>
     <v-divider class="mb-2"></v-divider>
     <v-tabs-items v-model="tab">
@@ -387,6 +388,9 @@
       </v-tab-item>
       <v-tab-item value="analytics">
         <analytics />
+      </v-tab-item>
+      <v-tab-item value="compare">
+        <compare />
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
@@ -827,6 +831,7 @@ import min from 'lodash/min';
 import groupBy from 'lodash/groupBy';
 import cloneDeep from 'lodash/cloneDeep';
 import Analytics from '@/components/database/Analytics.vue';
+import Compare from '@/components/database/Compare.vue';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
@@ -859,7 +864,7 @@ interface AltShipRowData {
 
 export default Vue.extend({
   name: 'Ships',
-  components: { Analytics },
+  components: { Analytics, Compare },
   data: () => ({
     all: [] as ShipMaster[],
     filteredShips: [] as ShipMaster[],

@@ -57,6 +57,9 @@ export default class SiteSetting {
   /** 装備所持数 総所持数カウント */
   public visibleItemStockAllCount: boolean;
 
+  /** 艦隊画面 最大列数を2にするかどうか */
+  public IsshipView2Line: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -76,6 +79,7 @@ export default class SiteSetting {
       this.userName = setting.userName ? setting.userName : '';
       this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
       this.visibleItemStockAllCount = !!setting.visibleItemStockAllCount;
+      this.IsshipView2Line = !!setting.IsshipView2Line;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -116,6 +120,7 @@ export default class SiteSetting {
       this.userName = '';
       this.themeDetail = 'dark';
       this.visibleItemStockAllCount = false;
+      this.IsshipView2Line = false;
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

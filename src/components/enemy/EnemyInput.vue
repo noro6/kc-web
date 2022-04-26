@@ -108,7 +108,7 @@ export default Vue.extend({
   }),
   computed: {
     airPowerDetail() {
-      const airPowers = this.enemy.items.map((v) => (v.isRecon ? 0 : v.fullAirPower));
+      const airPowers = this.enemy.items.map((v) => (v.data.isRecon ? 0 : v.fullAirPower));
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     airPowerDetailAB() {

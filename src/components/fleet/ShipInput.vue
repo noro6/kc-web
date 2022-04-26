@@ -288,7 +288,7 @@
 
 .empty-ship {
   height: 100%;
-  min-height: 220px;
+  min-height: 80px;
   display: flex;
   justify-content: center;
   cursor: pointer;
@@ -491,7 +491,7 @@ export default Vue.extend({
       return this.value;
     },
     airPowerDetail(): string {
-      const airPowers = this.ship.items.map((v) => (v.fullAirPower && !v.isRecon ? v.fullAirPower : 0));
+      const airPowers = this.ship.items.map((v) => (v.fullAirPower && !v.data.isRecon ? v.fullAirPower : 0));
       return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
     },
     isNoShip(): boolean {

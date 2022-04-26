@@ -133,7 +133,7 @@
                   <div v-if="!fleet.isUnion" class="item-preview">
                     <div v-for="(item, k) in enemy.items" :key="k" class="mr-4 item-image-area">
                       <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
-                      <div class="slot" v-if="item.isPlane">{{ item.fullSlot }}</div>
+                      <div class="slot" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
                     </div>
                   </div>
                 </div>

@@ -1,51 +1,111 @@
+import Const from '../const';
 import { MasterItem } from '../interfaces/master';
 
+/**
+ * 装備マスタクラス
+ * マスターデータより算出されるオブジェクト
+ * @export
+ * @class ItemMaster
+ */
 export default class ItemMaster {
-  public id = 0;
+  /** id */
+  public id: number;
 
-  public apiTypeId = 0;
+  /** 種別 */
+  public apiTypeId: number;
 
-  public iconTypeId = 0;
+  /** アイコン用種別 */
+  public readonly iconTypeId: number;
 
-  public name = '';
+  /** 名称 */
+  public readonly name: string;
 
-  public abbr = '';
+  /** 略称 */
+  public readonly abbr: string;
 
-  public fire = 0;
+  /** 火力 */
+  public readonly fire: number;
 
-  public torpedo = 0;
+  /** 雷装 */
+  public readonly torpedo: number;
 
-  public bomber = 0;
+  /** 爆装 */
+  public readonly bomber: number;
 
-  public antiAir = 0;
+  /** 対空 */
+  public readonly antiAir: number;
 
-  public armor = 0;
+  /** 装甲 */
+  public readonly armor: number;
 
-  public asw = 0;
+  /** 対潜 */
+  public readonly asw: number;
 
-  public antiBomber = 0;
+  /** 対爆 */
+  public readonly antiBomber: number;
 
-  public accuracy = 0;
+  /** 命中 */
+  public readonly accuracy: number;
 
-  public interception = 0;
+  /** 迎撃 */
+  public readonly interception: number;
 
-  public avoid = 0;
+  /** 回避 */
+  public readonly avoid: number;
 
-  public scout = 0;
+  /** 索敵 */
+  public readonly scout: number;
 
-  public range = 0;
+  /** 射程 */
+  public readonly range: number;
 
-  public radius = 0;
+  /** 半径 */
+  public readonly radius: number;
 
-  public cost = 0;
+  /** コスト */
+  public readonly cost: number;
 
-  public canRemodel = false;
+  /** 改修可否 */
+  public readonly canRemodel: boolean;
 
-  public avoidId = 0;
+  /** 射撃回避id */
+  public readonly avoidId: number;
 
-  public grow = 0;
+  /** 熟練度成長定数 */
+  public readonly grow: number;
 
-  public isSpecial = false;
+  /** 特殊機銃とか高角砲とかそういうの 一覧で緑色になる */
+  public readonly isSpecial: boolean;
+
+  /** 航空機フラグ */
+  public readonly isPlane: boolean;
+
+  /** 艦戦フラグ */
+  public readonly isFighter: boolean;
+
+  /** 攻撃機フラグ */
+  public readonly isAttacker: boolean;
+
+  /** 基地攻撃機フラグ */
+  public readonly isABAttacker: boolean;
+
+  /** 噴式機フラグ */
+  public readonly isJet: boolean;
+
+  /** カテゴリ(爆戦)フラグ */
+  public readonly isBakusen: boolean;
+
+  /** ロケット戦闘機フラグ */
+  public readonly isRocket: boolean;
+
+  /** 偵察機フラグ */
+  public readonly isRecon: boolean;
+
+  /** 大型陸上機フラグ */
+  public readonly isShinzan: boolean;
+
+  /** 対地可能フラグ */
+  public readonly enabledAttackLandbase: boolean;
 
   /**
    * Creates an instance of ItemMaster.
@@ -77,9 +137,48 @@ export default class ItemMaster {
       this.canRemodel = !!item.canRemodel;
       this.avoidId = item.avoid ? +item.avoid : 0;
       this.grow = item.grow ? +item.grow : 0;
+    } else {
+      this.id = 0;
+      this.apiTypeId = 0;
+      this.iconTypeId = 0;
+      this.name = '';
+      this.abbr = '';
+      this.fire = 0;
+      this.torpedo = 0;
+      this.bomber = 0;
+      this.antiAir = 0;
+      this.armor = 0;
+      this.asw = 0;
+      this.antiBomber = 0;
+      this.accuracy = 0;
+      this.interception = 0;
+      this.avoid = 0;
+      this.scout = 0;
+      this.range = 0;
+      this.radius = 0;
+      this.cost = 0;
+      this.canRemodel = false;
+      this.avoidId = 0;
+      this.grow = 0;
     }
 
-    // 特殊機銃 特殊高角砲判定
+    // 特殊機銃(対空9以上) 特殊高角砲(対空8以上)判定
     this.isSpecial = (this.apiTypeId === 21 && this.antiAir > 8) || (this.iconTypeId === 16 && this.antiAir > 7);
+
+    // その他区分解決
+    this.isPlane = Const.PLANE_TYPES.includes(this.apiTypeId);
+    this.isFighter = Const.FIGHTERS.includes(this.apiTypeId);
+    this.isAttacker = Const.ATTACKERS.includes(this.apiTypeId);
+    this.isRecon = Const.RECONNAISSANCES.includes(this.apiTypeId);
+    this.isABAttacker = Const.AB_ATTACKERS.includes(this.apiTypeId);
+    this.isBakusen = Const.BAKUSEN.includes(this.id);
+    this.isRocket = Const.ROCKET.includes(this.id);
+    this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
+    this.isJet = this.apiTypeId === 57;
+    this.enabledAttackLandbase = Const.ENABLED_LANDBASE_ATTACK.includes(this.id);
+
+    if (!this.isSpecial) {
+      this.isSpecial = this.isRocket || this.enabledAttackLandbase;
+    }
   }
 }

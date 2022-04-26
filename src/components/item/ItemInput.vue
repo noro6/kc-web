@@ -17,7 +17,7 @@
       transition="slide-y-transition"
       bottom
       right
-      :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow"
+      :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow"
       v-model="slotMenu"
       @input="onSlotMenuToggle"
     >
@@ -71,7 +71,7 @@
         </v-card>
       </v-menu>
       <!-- 熟練度 -->
-      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
+      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
             <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
@@ -374,7 +374,7 @@ export default Vue.extend({
       if (this.isNoItem) {
         classes.push('no-item');
       }
-      if (!this.value.isPlane) {
+      if (!this.value.data.isPlane) {
         classes.push('not-plane');
       }
       if (!this.isDraggabe) {

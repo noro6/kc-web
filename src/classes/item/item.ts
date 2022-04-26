@@ -1,5 +1,4 @@
 import CommonCalc from '../commonCalc';
-import Const from '../const';
 import { ContactRate } from '../interfaces/contactRate';
 import ItemMaster from './itemMaster';
 
@@ -16,6 +15,11 @@ export interface ItemBuilder {
   remodel?: number;
 }
 
+/**
+ * 装備中の装備クラス
+ * @export
+ * @class Item
+ */
 export default class Item {
   public readonly data: ItemMaster;
 
@@ -100,16 +104,16 @@ export default class Item {
   /** 輸送量 */
   public readonly tp: number;
 
-  /** 燃料 */
+  /** 基地1出撃燃料 */
   public readonly fuel: number;
 
-  /** 弾薬 */
+  /** 基地1出撃弾薬 */
   public readonly ammo: number;
 
   /** 鋼材 */
   public readonly steel: number;
 
-  /** 輸送量 */
+  /** 基地配備時消費ボーキ */
   public readonly bauxite: number;
 
   /** 偵察機補正 -出撃時 */
@@ -117,33 +121,6 @@ export default class Item {
 
   /** 偵察機補正 -防空時 */
   public readonly reconCorrDeff: number;
-
-  /** 航空機フラグ */
-  public readonly isPlane: boolean;
-
-  /** 艦戦フラグ */
-  public readonly isFighter: boolean;
-
-  /** 攻撃機フラグ */
-  public readonly isAttacker: boolean;
-
-  /** 攻撃機フラグ */
-  public readonly isABAttacker: boolean;
-
-  /** 噴式機フラグ */
-  public readonly isJet: boolean;
-
-  /** ロケット戦闘機フラグ */
-  public readonly isRocket: boolean;
-
-  /** 偵察機フラグ */
-  public readonly isRecon: boolean;
-
-  /** 大型陸上機フラグ */
-  public readonly isShinzan: boolean;
-
-  /** 対地可能フラグ */
-  public readonly enabledAttackLandbase: boolean;
 
   /** 最大搭載数から1までの制空値を計算し終えた配列 機体のみ有効 計算用 */
   private readonly calculatedAirPower: number[];
@@ -194,24 +171,9 @@ export default class Item {
       this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
       this.level = builder.level !== undefined ? builder.level : 0;
     }
-    this.isPlane = Const.PLANE_TYPES.includes(this.data.apiTypeId);
-    this.isFighter = Const.FIGHTERS.includes(this.data.apiTypeId);
-    this.isAttacker = Const.ATTACKERS.includes(this.data.apiTypeId);
-    this.isRecon = Const.RECONNAISSANCES.includes(this.data.apiTypeId);
-    this.isABAttacker = Const.AB_ATTACKERS.includes(this.data.apiTypeId);
-    this.isRocket = Const.ROCKET.includes(this.data.id);
-    this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.data.apiTypeId);
-    this.isJet = this.data.apiTypeId === 57;
-    this.enabledAttackLandbase = Const.ENABLED_LANDBASE_ATTACK.includes(this.data.id);
-    if (!this.data.isSpecial) {
-      this.data.isSpecial = this.isRocket || this.enabledAttackLandbase;
-    }
 
-    if (this.isShinzan) {
-      this.fullSlot = Math.min(this.fullSlot, 9);
-    } else if (this.data.apiTypeId === 49) {
-      this.fullSlot = Math.min(this.fullSlot, 4);
-    }
+    // 現在搭載数の初期化
+    this.slot = this.fullSlot;
 
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();
@@ -231,16 +193,6 @@ export default class Item {
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
-    this.actualAntiAir = 0;
-    this.actualDefenseAntiAir = 0;
-
-    if (this.isPlane) {
-      // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
-      this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
-      // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
-      this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomber + this.bonusAntiAir;
-    }
-
     this.actualFire = this.data.fire + this.bonusFire;
     this.actualTorpedo = this.data.torpedo + this.bonusTorpedo;
     this.actualBomber = this.data.bomber + this.bonusBomber;
@@ -248,50 +200,68 @@ export default class Item {
     this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
     this.actualScout = this.data.scout + this.bonusScout;
 
-    // 出撃コスト算出
-    this.fuel = this.fullSlot;
-    this.ammo = Math.ceil(this.fullSlot * 0.6);
-    this.bauxite = this.data.cost * (this.isRecon ? 4 : 18);
-    this.steel = this.isJet ? Math.round(this.fullSlot * this.data.cost * 0.2) : 0;
-    if (this.isABAttacker) {
-      // 陸攻補正
-      this.fuel = Math.ceil(this.fullSlot * (this.isShinzan ? 2 : 1.5));
-      this.ammo = this.isShinzan ? this.fullSlot * 2 : Math.floor(this.fullSlot * 0.7);
-      this.bauxite = this.data.cost * (this.isShinzan ? 9 : 18);
-    } else if (this.data.apiTypeId === 41) {
-      // 大型偵察機補正
-      this.fuel = this.fullSlot * 3;
-      this.ammo = this.fullSlot;
-    }
-
-    // 制空値更新
-    if (this.isPlane) {
-      this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
-      this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
-      this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
-    } else {
-      this.fullAirPower = 0;
-      this.fullDefenseAirPower = 0;
-      this.defenseAirPower = 0;
-      this.supportAirPower = 0;
-    }
-
-    // 現在制空値の初期化
-    this.airPower = this.fullAirPower;
-    this.defenseAirPower = this.fullDefenseAirPower;
-    // 現在搭載数の初期化
-    this.slot = this.fullSlot;
-
-    // 搭載数による制空値パターンを全て計算
     this.calculatedAirPower = [];
     this.calculatedDefenseAirPower = [];
-    if (this.fullSlot > 0 && this.isPlane) {
-      for (let slot = 0; slot <= this.fullSlot; slot += 1) {
-        this.calculatedAirPower.push(Math.floor(this.actualAntiAir * Math.sqrt(slot) + this.bonusAirPower));
-        this.calculatedDefenseAirPower.push(Math.floor(this.actualDefenseAntiAir * Math.sqrt(slot) + this.bonusAirPower));
-      }
-    }
 
+    if (this.data.isPlane) {
+      // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
+      this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
+      // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
+      this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomber + this.bonusAntiAir;
+
+      // 出撃コスト算出
+      this.fuel = this.fullSlot;
+      this.ammo = Math.ceil(this.fullSlot * 0.6);
+      this.bauxite = this.data.cost * (this.data.isRecon ? 4 : 18);
+      this.steel = this.data.isJet ? Math.round(this.fullSlot * this.data.cost * 0.2) : 0;
+      if (this.data.isABAttacker) {
+        // 陸攻補正
+        this.fuel = Math.ceil(this.fullSlot * (this.data.isShinzan ? 2 : 1.5));
+        this.ammo = this.data.isShinzan ? this.fullSlot * 2 : Math.floor(this.fullSlot * 0.7);
+        this.bauxite = this.data.cost * (this.data.isShinzan ? 9 : 18);
+      } else if (this.data.apiTypeId === 41) {
+        // 大型偵察機補正
+        this.fuel = this.fullSlot * 3;
+        this.ammo = this.fullSlot;
+      }
+
+      // 制空値更新
+      if (this.data.isPlane) {
+        this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
+        this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
+        this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
+      } else {
+        this.fullAirPower = 0;
+        this.fullDefenseAirPower = 0;
+        this.defenseAirPower = 0;
+        this.supportAirPower = 0;
+      }
+
+      // 現在制空値の初期化
+      this.airPower = this.fullAirPower;
+      this.defenseAirPower = this.fullDefenseAirPower;
+
+      // 搭載数による制空値パターンを全て計算しておく
+      if (this.fullSlot > 0 && this.data.isPlane) {
+        for (let slot = 0; slot <= this.fullSlot; slot += 1) {
+          this.calculatedAirPower.push(Math.floor(this.actualAntiAir * Math.sqrt(slot) + this.bonusAirPower));
+          this.calculatedDefenseAirPower.push(Math.floor(this.actualDefenseAntiAir * Math.sqrt(slot) + this.bonusAirPower));
+        }
+      }
+    } else {
+      // 以下、航空機でないなら関係ない数値たち
+      this.actualAntiAir = 0;
+      this.actualDefenseAntiAir = 0;
+      this.fuel = 0;
+      this.ammo = 0;
+      this.bauxite = 0;
+      this.steel = 0;
+      this.fullAirPower = 0;
+      this.fullDefenseAirPower = 0;
+      this.supportAirPower = 0;
+      this.airPower = 0;
+      this.defenseAirPower = 0;
+    }
     this.slotHistories = [];
   }
 
@@ -351,38 +321,38 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAirPower(): number {
-    if (this.data.id === 0 || this.fullSlot === 0 || !this.isPlane) {
+    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane) {
       return 0;
     }
     const type = this.data.apiTypeId;
     let sum = 0;
 
     if (this.level >= 100) {
-      if (this.isFighter) {
+      if (this.data.isFighter) {
         sum += 22;
       } else if (type === 11) {
         sum += 6;
       }
     } else if (this.level >= 70) {
-      if (this.isFighter) {
+      if (this.data.isFighter) {
         sum += 14;
       } else if (type === 11) {
         sum += 3;
       }
     } else if (this.level >= 55) {
-      if (this.isFighter) {
+      if (this.data.isFighter) {
         sum += 9;
       } else if (type === 11) {
         sum += 1;
       }
     } else if (this.level >= 40) {
-      if (this.isFighter) {
+      if (this.data.isFighter) {
         sum += 5;
       } else if (type === 11) {
         sum += 1;
       }
     } else if (this.level >= 25) {
-      if (this.isFighter) {
+      if (this.data.isFighter) {
         sum += 2;
       } else if (type === 11) {
         sum += 1;
@@ -443,7 +413,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 陸攻 重爆
-    if (this.isABAttacker) {
+    if (this.data.isABAttacker) {
       return 0.7 * Math.sqrt(this.remodel);
     }
     // 魚雷 / 機銃
@@ -462,10 +432,9 @@ export default class Item {
    * @memberof Item
    */
   private getBonusBomber(): number {
-    const itemId = this.data.id;
     const type = this.data.apiTypeId;
     // 艦爆 (爆戦ってついてないやつ)
-    if (type === 7 && !Const.BAKUSEN.includes(itemId)) {
+    if (type === 7 && !this.data.isBakusen) {
       return 0.2 * this.remodel;
     }
     // 水爆
@@ -482,18 +451,16 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAntiAir(): number {
-    const itemId = this.data.id;
-    const type = this.data.apiTypeId;
     // 艦戦 夜戦 水戦
-    if (Const.FIGHTERS.includes(type)) {
+    if (this.data.isFighter) {
       return 0.2 * this.remodel;
     }
     // 艦爆(爆戦って付いてるやつ)
-    if (type === 7 && Const.BAKUSEN.includes(itemId)) {
+    if (this.data.apiTypeId === 7 && this.data.isBakusen) {
       return 0.25 * this.remodel;
     }
     // 陸攻
-    if (this.isABAttacker) {
+    if (this.data.isABAttacker) {
       return 0.5 * Math.sqrt(this.remodel);
     }
     return 0;
@@ -506,7 +473,6 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAsw(): number {
-    const itemId = this.data.id;
     const type = this.data.apiTypeId;
     // ソナー 爆雷
     if ([14, 15].includes(type)) {
@@ -517,7 +483,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 艦爆 (爆戦ってついてないやつ)
-    if (type === 7 && !Const.BAKUSEN.includes(itemId)) {
+    if (type === 7 && !this.data.isBakusen) {
       return 0.2 * this.remodel;
     }
     return 0;
@@ -555,7 +521,7 @@ export default class Item {
     } else if (this.data.apiTypeId === 13) {
       // 大型電探
       bonus = 1.4 * Math.sqrt(this.remodel);
-    } else if ([9, 10, 41].includes(this.data.apiTypeId)) {
+    } else if (this.data.isRecon) {
       // 偵察機
       bonus = 1.2 * Math.sqrt(this.remodel);
     } else if (this.data.apiTypeId === 11) {
@@ -738,8 +704,8 @@ export default class Item {
       // 艦上偵察機補正
       return (this.data.scout > 8 ? 1.3 : 1.2);
     }
-    if ([10, 41].includes(this.data.apiTypeId)) {
-      // 水上偵察機補正
+    if (this.data.isRecon) {
+      // それ以外の偵察機補正
       if (this.data.scout > 8) {
         return 1.16;
       } if (this.data.scout === 8) {
@@ -809,7 +775,7 @@ export default class Item {
   public getProfCriticalBonus(): number {
     let bonus = 0;
     // 搭載数が存在する攻撃機か大型飛行艇
-    if (this.slot > 0 && (this.isAttacker || this.data.apiTypeId === 41)) {
+    if (this.slot > 0 && (this.data.isAttacker || this.data.apiTypeId === 41)) {
       // 熟練度定数C
       const c = [0, 1, 2, 3, 4, 5, 7, 10][this.levelAlt];
       bonus += Math.floor(Math.sqrt(this.level) + c) / 100;
@@ -819,7 +785,7 @@ export default class Item {
   }
 
   /**
-   * 触接情報テーブルを取得
+   * 装備配列より触接情報テーブルを取得
    * @returns {ContactRate[]}
    * @memberof Fleet
    */
@@ -832,7 +798,7 @@ export default class Item {
 
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
-      if (item.isRecon) {
+      if (item.data.isRecon) {
         sumCotactValue += Math.floor(item.data.scout * Math.sqrt(item.fullSlot));
       }
       // 制空状態3つループ

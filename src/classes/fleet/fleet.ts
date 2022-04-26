@@ -88,8 +88,10 @@ export default class Fleet {
       this.formation = builder.formation !== undefined ? builder.formation : FORMATION.LINE_AHEAD;
 
       if (this.ships.length === 0) {
-        // 0隻だった場合は空の艦娘を1隻つっこむ
-        this.ships.push(new Ship());
+        // 0隻だった場合は空の艦娘を6隻分つっこむ
+        for (let i = 0; i < 6; i += 1) {
+          this.ships.push(new Ship());
+        }
       }
     }
 
@@ -122,7 +124,7 @@ export default class Fleet {
           else generalCutin.push(cutIn);
         }
 
-        const shipPlanes = ship.items.filter((v) => v.isPlane && v.fullSlot > 0);
+        const shipPlanes = ship.items.filter((v) => v.data.isPlane && v.fullSlot > 0);
         if (shipPlanes.length) {
           // 連合かつ第2艦隊なら艦載機の随伴機フラグを挙げる
           if (this.isUnion && ship.isEscort) {
@@ -136,7 +138,7 @@ export default class Fleet {
             }
           }
           this.allPlanes = this.allPlanes.concat(shipPlanes);
-          if (!this.hasPlane && this.allPlanes.find((v) => !v.isRecon)) {
+          if (!this.hasPlane && this.allPlanes.find((v) => !v.data.isRecon)) {
             this.hasPlane = true;
           }
         }
@@ -315,7 +317,7 @@ export default class Fleet {
       }
 
       // 航空支援
-      if (this.allPlanes.some((v) => v.isAttacker)) {
+      if (this.allPlanes.some((v) => v.data.isAttacker)) {
         supports.push(SUPPORT_TYPE.AIRSTRIKE);
       }
 

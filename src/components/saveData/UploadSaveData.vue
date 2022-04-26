@@ -62,8 +62,6 @@
   </div>
 </template>
 
-<style scoped></style>
-
 <script lang="ts">
 import Vue from 'vue';
 import cloneDeep from 'lodash/cloneDeep';

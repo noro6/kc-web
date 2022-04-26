@@ -1,3 +1,28 @@
+export interface PresetItem {
+  /** 装備id */
+  id: number;
+  /** 改修値 */
+  remodel: number;
+}
+
+/**
+ * 旧装備プリセットデータ構造
+ * @interface OldItemPreset
+ */
+export interface OldItemPreset {
+  /** id */
+  id: number;
+
+  /** プリセット名称 */
+  name: string;
+
+  /** プリセット装備 */
+  itemIds: number[];
+
+  /** プリセット補強増設装備 */
+  exItemId: number;
+}
+
 /**
  * 装備プリセット
  * @export
@@ -11,8 +36,39 @@ export default class ItemPreset {
   public name = '';
 
   /** プリセット装備 */
-  public itemIds = [] as number[];
+  public items = [] as PresetItem[];
 
   /** プリセット補強増設装備 */
-  public exItemId = 0;
+  public exItem: PresetItem = { id: 0, remodel: 0 };
+
+  /**
+   * 旧プリセデータを変換
+   * @static
+   * @param {OldItemPreset[]} oldPresets
+   * @return {*}  {ItemPreset[]}
+   * @memberof ItemPreset
+   */
+  public static convertOldItemPresets(oldPresets: (ItemPreset | OldItemPreset)[]): ItemPreset[] {
+    if (!oldPresets || !oldPresets.length) {
+      return [];
+    }
+    const presets: ItemPreset[] = [];
+    for (let i = 0; i < oldPresets.length; i += 1) {
+      const old = oldPresets[i];
+      if ('items' in old && 'exItem' in old) {
+        presets.push(old);
+      } else if ('itemIds' in old && 'exItemId' in old) {
+        const newPreset = new ItemPreset();
+        newPreset.id = old.id;
+        newPreset.name = old.name;
+        for (let j = 0; j < old.itemIds.length; j += 1) {
+          newPreset.items.push({ id: old.itemIds[j], remodel: 0 });
+        }
+        newPreset.exItem = { id: old.exItemId, remodel: 0 };
+        presets.push(newPreset);
+      }
+    }
+
+    return presets;
+  }
 }

@@ -75,7 +75,7 @@
       <div v-if="value.data.radius">
         <span class="item-status-text">半径</span><span class="item-status-value">{{ value.data.radius }}</span>
       </div>
-      <div v-if="value.enabledAttackLandbase">
+      <div v-if="value.data.enabledAttackLandbase">
         <span class="item-status-text">対地</span><span class="item-status-value special caption">可</span>
       </div>
       <div v-if="value.data.avoidId">
@@ -83,7 +83,7 @@
       </div>
     </div>
     <div class="item-status-grid no-grid">
-      <template v-if="value.isPlane">
+      <template v-if="value.data.isPlane">
         <div>熟練度</div>
         <div><img class="grow-img" :src="`./img/util/prof7.png`" /></div>
         <div>まで</div>

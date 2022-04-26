@@ -58,8 +58,8 @@
           v-model="airbase.items[i]"
           :index="i"
           :handle-show-item-list="showItemList"
-          :max="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
-          :init="item.isRecon ? 4 : item.isShinzan ? 9 : 18"
+          :max="item.data.isRecon ? 4 : item.data.isShinzan ? 9 : 18"
+          :init="item.data.isRecon ? 4 : item.data.isShinzan ? 9 : 18"
           :handle-drag-start="clearTooltip"
           @input="updateItem"
         />

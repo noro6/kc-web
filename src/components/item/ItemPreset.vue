@@ -37,27 +37,35 @@
             </div>
           </div>
           <div class="items-container pa-2" v-if="!isPresetItemEmpty">
-            <div v-for="(item, i) in presetItemView" :key="`view${i}`" class="view-item">
+            <div v-for="(item, i) in itemView" :key="`view${i}`" class="view-item">
               <div class="caption">{{ i + 1 }}.</div>
               <div class="ml-1">
-                <v-img v-if="item.iconTypeId > 0" :src="`./img/type/icon${item.iconTypeId}.png`" width="30" height="30" />
+                <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
               </div>
-              <div class="ml-1 body-2 text-truncate">{{ item.name }}</div>
+              <div class="ml-1 body-2 text-truncate preset-item-name">{{ item.data.name }}</div>
+              <div class="ml-1 body-2" v-if="item.remodel">
+                <v-icon small color="teal accent-4">mdi-star</v-icon>
+                <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+              </div>
             </div>
-            <div v-if="presetExItemView" class="mt-4 d-flex ml-1">
+            <div v-if="exItemView.data.id" class="mt-4 d-flex ml-1">
               <div class="caption">補強増設</div>
               <div class="divider-line"></div>
             </div>
-            <div v-if="presetExItemView" class="view-item">
+            <div v-if="exItemView.data.id" class="view-item">
               <div class="ml-2">
                 <v-img
-                  v-if="presetExItemView.iconTypeId > 0"
-                  :src="`./img/type/icon${presetExItemView.iconTypeId}.png`"
+                  v-if="exItemView.data.iconTypeId > 0"
+                  :src="`./img/type/icon${exItemView.data.iconTypeId}.png`"
                   width="24"
                   height="24"
                 />
               </div>
-              <div class="ml-2 body-2 text-truncate">{{ presetExItemView.name }}</div>
+              <div class="ml-2 body-2 text-truncate preset-item-name">{{ exItemView.data.name }}</div>
+              <div class="ml-1 body-2" v-if="exItemView.remodel">
+                <v-icon small color="teal accent-4">mdi-star</v-icon>
+                <span class="teal--text text--accent-4">{{ exItemView.remodel }}</span>
+              </div>
             </div>
           </div>
           <div class="d-flex my-3 justify-end" v-if="!isPresetItemEmpty">
@@ -133,6 +141,11 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
+
+.preset-item-name {
+  flex-grow: 1;
+  width: 10px;
+}
 </style>
 
 <script lang="ts">
@@ -140,9 +153,10 @@ import Vue from 'vue';
 import max from 'lodash/max';
 import cloneDeep from 'lodash/cloneDeep';
 import Ship from '@/classes/fleet/ship';
-import ItemPreset from '@/classes/item/itemPreset';
+import ItemPreset, { OldItemPreset } from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
+import Item from '@/classes/item/item';
 
 export default Vue.extend({
   name: 'ItemPreset',
@@ -170,7 +184,8 @@ export default Vue.extend({
   }),
   mounted() {
     this.presets = [];
-    this.presets = this.$store.state.itemPresets as ItemPreset[];
+    const savedPresets = this.$store.state.itemPresets as (ItemPreset | OldItemPreset)[];
+    this.presets = ItemPreset.convertOldItemPresets(savedPresets);
     this.items = this.$store.state.items as ItemMaster[];
   },
   computed: {
@@ -180,23 +195,25 @@ export default Vue.extend({
       }
       return this.value.items.concat(this.value.exItem).filter((v) => v.data.id > 0).length === 0;
     },
-    presetItemView(): ItemMaster[] {
+    itemView(): Item[] {
       const itemMasters = [];
-      for (let i = 0; i < this.selectedPreset.itemIds.length; i += 1) {
-        const item = this.items.find((v) => v.id === this.selectedPreset.itemIds[i]);
+      for (let i = 0; i < this.selectedPreset.items.length; i += 1) {
+        const item = this.items.find((v) => v.id === this.selectedPreset.items[i].id);
         if (item) {
-          itemMasters.push(item);
+          itemMasters.push(new Item({ master: item, remodel: this.selectedPreset.items[i].remodel }));
         } else {
-          itemMasters.push(new ItemMaster());
+          itemMasters.push(new Item());
         }
       }
       return itemMasters;
     },
-    presetExItemView(): ItemMaster | undefined {
-      return this.items.find((v) => v.id === this.selectedPreset.exItemId);
+    exItemView(): Item {
+      const item = this.items.find((v) => v.id === this.selectedPreset.exItem.id);
+
+      return new Item({ master: item, remodel: this.selectedPreset.exItem.remodel });
     },
     isPresetItemEmpty(): boolean {
-      return !this.selectedPreset.itemIds.some((v) => v > 0) && this.selectedPreset.exItemId === 0;
+      return !this.selectedPreset.items.some((v) => v.id > 0) && this.selectedPreset.exItem.id === 0;
     },
   },
   methods: {
@@ -215,9 +232,12 @@ export default Vue.extend({
       newPreset.id += 1;
       newPreset.name = `装備プリセット${newPreset.id}`;
       // 装備id一覧
-      newPreset.itemIds = this.value.items.map((v) => v.data.id);
+      for (let i = 0; i < this.value.items.length; i += 1) {
+        const item = this.value.items[i];
+        newPreset.items.push({ id: item.data.id, remodel: item.remodel });
+      }
       if (this.value instanceof Ship) {
-        newPreset.exItemId = this.value.exItem.data.id;
+        newPreset.exItem = { id: this.value.exItem.data.id, remodel: this.value.exItem.remodel };
       }
 
       this.selectedIndex = -1;

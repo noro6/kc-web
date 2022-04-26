@@ -332,6 +332,7 @@ export default Vue.extend({
       }
 
       const types = Const.SHIP_TYPES_ALT2;
+      // 艦種別経験値解析テーブル
       const expTable = [];
       let allExp = 0;
       let allLevels: number[] = [];

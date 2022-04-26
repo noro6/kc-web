@@ -216,6 +216,10 @@ export default class Convert {
       if (key === 'ix' || index >= master.slotCount) {
         // ないとは思うがインデックス外のアイテムが複数来た場合は後に来たものが優先
         exItem = new Item({ master: itemMaster, remodel: item.rf, level });
+      } else if (itemMaster && itemMaster.id === 138 && master.type2 === 90) {
+        items.push(new Item({
+          master: itemMaster, remodel: item.rf, level, slot: 1,
+        }));
       } else {
         items.push(new Item({
           master: itemMaster, remodel: item.rf, level, slot: master.slots[index],

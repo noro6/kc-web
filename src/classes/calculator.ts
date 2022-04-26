@@ -205,10 +205,10 @@ export default class Calculator {
       const item = items[j];
       // ====== STAGE1 ======
       // ジェットなら0.6倍 切り捨て
-      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.isJet ? 0.6 : 1));
+      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
 
       // ====== STAGE2 ======
-      if (item.isAttacker) {
+      if (item.data.isAttacker) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
         if (Math.random() >= 0.5) {
@@ -249,7 +249,7 @@ export default class Calculator {
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
-      if (!item.isJet || item.isEscortItem) {
+      if (!item.data.isJet || item.isEscortItem) {
         sumAirPower += item.airPower;
         continue;
       }
@@ -324,9 +324,9 @@ export default class Calculator {
         item.slotHistories[battle] += item.slot;
       }
 
-      if (isSkip || item.isRecon || (item.isEscortItem && !isGrand)) {
+      if (isSkip || item.data.isRecon || (item.isEscortItem && !isGrand)) {
         // 夜戦マス、または偵察機、または非連合マスでの随伴機体は制空争いを行わないのでスキップ 制空値だけは加算
-        if (!item.isRecon) {
+        if (!item.data.isRecon) {
           if (item.isEscortItem) {
             sumEscortAirPower += item.airPower;
           } else {
@@ -338,10 +338,10 @@ export default class Calculator {
 
       // ====== STAGE1 ======
       // ジェットなら0.6倍 切り捨て
-      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.isJet ? 0.6 : 1));
+      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
 
       // ====== STAGE2 ======
-      if (!isSkipStage2 && st2List.length && item.isAttacker) {
+      if (!isSkipStage2 && st2List.length && item.data.isAttacker) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
         if (Math.random() >= 0.5) {
@@ -402,12 +402,12 @@ export default class Calculator {
       const item = items[i];
 
       // 基地は全て、通常航空戦は攻撃機かつ陸攻でない
-      if (isAirbase || (!isAirbase && !item.isABAttacker && !item.isRecon)) {
+      if (isAirbase || (!isAirbase && !item.data.isABAttacker && !item.data.isRecon)) {
         // ====== STAGE1 ======
         item.slot -= CommonCalc.getStage1ShootDownValueEnemy(state, item.slot);
 
         // ====== STAGE2 ======
-        if (randomRange && item.isAttacker) {
+        if (randomRange && item.data.isAttacker) {
           // 撃墜担当を選出
           const index = Math.floor(Math.random() * randomRange);
           const { avoidId } = item.data;
@@ -426,7 +426,7 @@ export default class Calculator {
 
       // 制空値を更新
       Item.updateAirPower(item);
-      if (!item.isRecon && !item.isABAttacker) {
+      if (!item.data.isRecon && !item.data.isABAttacker) {
         sumAirPower += item.airPower;
       }
       sumAirbaseAirPower += item.airPower;
@@ -485,7 +485,7 @@ export default class Calculator {
         const item = items[j];
         // ====== STAGE1 ======
         // ジェットなら0.6倍 切り捨て
-        item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.isJet ? 0.6 : 1));
+        item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
 
         // 制空値を更新
         Item.updateDefenseAirPower(item);

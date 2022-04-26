@@ -33,8 +33,8 @@
                 :key="`item_${i}`"
                 v-ripple="{ class: 'info--text' }"
                 class="calc-item"
-                :class="{ selected: selectedIndex === i, 'no-item': !item.isPlane }"
-                @click="selectItem(item.isPlane ? i : -1)"
+                :class="{ selected: selectedIndex === i, 'no-item': !item.data.isPlane }"
+                @click="selectItem(item.data.isPlane ? i : -1)"
               >
                 <div class="align-self-center caption slot-area">{{ item.fullSlot }}</div>
                 <div>
@@ -49,13 +49,13 @@
                   <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
                   <span class="level-value">{{ item.level }}</span>
                 </div>
-                <div v-if="item.isPlane" class="item-simple-status d-flex ml-3">
+                <div v-if="item.data.isPlane" class="item-simple-status d-flex ml-3">
                   <div>(</div>
-                  <template v-if="item.isAttacker">
+                  <template v-if="item.data.isAttacker">
                     <div class="mx-1" v-if="item.actualTorpedo">雷装 {{ item.actualTorpedo.toFixed(1) }}</div>
                     <div class="mx-1" v-if="item.actualBomber">爆装 {{ item.actualBomber.toFixed(1) }}</div>
                   </template>
-                  <template v-else-if="item.isPlane">
+                  <template v-else-if="item.data.isPlane">
                     <div class="mx-1" v-if="item.actualAntiAir">対空 {{ item.actualAntiAir.toFixed(1) }}</div>
                   </template>
                   <div class="mx-1" v-if="item.data.radius">半径 {{ item.data.radius }}</div>
@@ -67,6 +67,10 @@
         </div>
         <div class="bar-area">
           <bar-chart :data="graphData" :options="options" title-text="残機数分布" />
+        </div>
+        <div class="d-flex">
+          <textarea class="d-none" id="slot-rate-table-string" v-model="slotRateTableText" />
+          <v-btn color="teal" dark small @click="copySlotRate()"> <v-icon small>mdi-file-table-outline</v-icon>残機数分布をコピー </v-btn>
         </div>
       </div>
       <div class="fire-calc-container border-window mt-4" :class="{ show: !dispSlotRate }">
@@ -538,7 +542,7 @@ export default Vue.extend({
       scales: {
         x: {
           scaleLabel: { display: true, labelString: '累積確率 [%]' },
-          grid: { color: 'rgba(128, 128, 128, 0.3)' },
+          grid: { color: 'rgba(128, 128, 128, 0.4)' },
           title: { display: true, text: '残機数 [機]' },
         },
         main: {
@@ -547,7 +551,7 @@ export default Vue.extend({
           beginAtZero: true,
           max: 100,
           min: 0,
-          grid: { color: 'rgba(255, 128, 128, 0.3)' },
+          grid: { color: 'rgba(255, 128, 128, 0.4)' },
           title: { display: true, text: '確率分布 [%]' },
         },
         sub: {
@@ -556,7 +560,7 @@ export default Vue.extend({
           beginAtZero: true,
           max: 100,
           min: 0,
-          grid: { color: 'rgba(128, 128, 255, 0.3)' },
+          grid: { color: 'rgba(128, 128, 255, 0.4)' },
           title: { display: true, text: '累積確率 [%]' },
         },
       },
@@ -608,6 +612,7 @@ export default Vue.extend({
     defenseIndex: 0,
     defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean }[],
     enabledTooltip: false,
+    slotRateTableText: '',
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
     tooltipX: 0,
@@ -683,12 +688,12 @@ export default Vue.extend({
     // ないとバグる 意味不明！！！！！！！！！！！！！！！
     setTimeout(() => {
       // 最初の攻撃機
-      const attackerIndex = this.parent.items.findIndex((v) => v.isAttacker);
+      const attackerIndex = this.parent.items.findIndex((v) => v.data.isAttacker);
       if (attackerIndex >= 0) {
         this.selectItem(attackerIndex);
       } else {
         // なければ艦載機
-        const index = this.parent.items.findIndex((v) => v.isPlane);
+        const index = this.parent.items.findIndex((v) => v.data.isPlane);
         this.selectItem(Math.max(0, index));
       }
     }, 50);
@@ -775,6 +780,16 @@ export default Vue.extend({
           rates.push(Math.floor(1000 * rate) / 10);
           sumRates.push(Math.round(100 * sumRate));
         });
+
+        this.slotRateTableText = '';
+        for (let i = item.fullSlot; i >= 0; i -= 1) {
+          const slot = dist[`${i}`];
+          if (slot) {
+            this.slotRateTableText += `${i}\t${slot.length / sumDist}\r\n`;
+          } else {
+            this.slotRateTableText += `${i}\t${0}\r\n`;
+          }
+        }
 
         const maxRate = +(max(rates) || 100);
         this.options.scales.main.max = Math.min(Math.floor(10 * Math.ceil(maxRate / 10)), 100);
@@ -893,7 +908,7 @@ export default Vue.extend({
         }
 
         // ダメージ表示調整
-        if (!item.isAttacker) {
+        if (!item.data.isAttacker) {
           // 非攻撃機は基本表示なし ただし対潜攻撃可の場合はその限りでない => 水偵とか
           if (!isSubmarine || !enbaleAsw) {
             row.damage = '';
@@ -947,6 +962,13 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    copySlotRate() {
+      const textToCopy = document.getElementById('slot-rate-table-string') as HTMLInputElement;
+      textToCopy.classList.remove('d-none');
+      textToCopy.select();
+      document.execCommand('copy');
+      textToCopy.classList.add('d-none');
     },
   },
 });

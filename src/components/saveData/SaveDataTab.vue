@@ -164,10 +164,6 @@ export default Vue.extend({
       type: SaveData,
       required: true,
     },
-    setting: {
-      type: SiteSetting,
-      required: true,
-    },
   },
   data: () => ({
     deleteConfirmDialog: false,
@@ -208,7 +204,8 @@ export default Vue.extend({
       event.stopPropagation();
       event.preventDefault();
 
-      if (this.setting.confirmCloseTab && data.isEditted) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.confirmCloseTab && data.isEditted) {
         this.deleteConfirmDialog = true;
         this.deleteConfirmData = data;
         return;
@@ -249,8 +246,10 @@ export default Vue.extend({
       }
 
       // 設定書き換え
-      if (this.disabledConfirm && this.setting.confirmCloseTab) {
-        this.setting.confirmCloseTab = false;
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (this.disabledConfirm && setting.confirmCloseTab) {
+        setting.confirmCloseTab = false;
+        this.$store.dispatch('updateSetting', setting);
       }
 
       // 閉じたということでDB更新を促す

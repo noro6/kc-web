@@ -184,12 +184,12 @@ export default class EnemyFleet {
 
       // 艦載機を持つ敵のみ格納
       if (enemy.hasPlane) {
-        const planes = enemy.items.filter((v) => v.isPlane);
+        const planes = enemy.items.filter((v) => v.data.isPlane);
         for (let j = 0; j < planes.length; j += 1) {
           planes[j].isEscortItem = this.isUnion && enemy.isEscort;
         }
         this.allPlanes = this.allPlanes.concat(planes);
-        if (!this.hasPlane && planes.find((v) => !v.isRecon)) {
+        if (!this.hasPlane && planes.find((v) => !v.data.isRecon)) {
           this.hasPlane = true;
         }
       }

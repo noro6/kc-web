@@ -458,6 +458,7 @@ import CommonCalc from '@/classes/commonCalc';
 import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
+import Convert from '@/classes/convert';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -548,7 +549,7 @@ export default Vue.extend({
 
       const activeShips = fleet.ships.filter((v) => v.isActive && !v.isEmpty);
       for (let i = 0; i < activeShips.length; i += 1) {
-        const planes = activeShips[i].items.filter((v) => v.isPlane);
+        const planes = activeShips[i].items.filter((v) => v.data.isPlane);
         if (planes.length) {
           ships.push({ name: activeShips[i].data.name, items: planes, index: i });
         }
@@ -561,12 +562,12 @@ export default Vue.extend({
 
       for (let i = 0; i < fleet.enemies.length; i += 1) {
         const enemy = fleet.enemies[i];
-        const planes = enemy.items.filter((v) => v.isPlane && !v.isRecon);
+        const planes = enemy.items.filter((v) => v.data.isPlane && !v.data.isRecon);
         if (planes.length) {
           let allDeathRate = 1;
           for (let j = 0; j < planes.length; j += 1) {
             const plane = planes[j];
-            if (plane.isAttacker) {
+            if (plane.data.isAttacker) {
               allDeathRate *= plane.deathRate / 100;
               plane.deathRate = Math.round(plane.deathRate);
             }
@@ -703,7 +704,7 @@ export default Vue.extend({
         html2canvas(div, { scale: 2 }).then((canvas) => {
           const link = document.createElement('a');
           link.href = canvas.toDataURL();
-          link.download = 'export_image.png';
+          link.download = `result_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
           link.click();
           this.capturing = false;
         });

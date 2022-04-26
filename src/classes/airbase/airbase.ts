@@ -124,10 +124,10 @@ export default class Airbase {
         this.fullAirPower += item.fullAirPower;
         this.defenseAirPower += item.defenseAirPower;
       }
-      if (item.isRocket) {
+      if (item.data.isRocket) {
         this.rocketCount += 1;
       }
-      if (!this.hasJet && item.isJet) {
+      if (!this.hasJet && item.data.isJet) {
         this.hasJet = true;
       }
 
@@ -199,7 +199,7 @@ export default class Airbase {
         minRange = item.data.radius < minRange ? item.data.radius : minRange;
 
         // 偵察機の中でで最も長い半径を取得
-        if (item.isRecon) {
+        if (item.data.isRecon) {
           maxLos = maxLos < item.data.radius ? item.data.radius : maxLos;
         }
       }

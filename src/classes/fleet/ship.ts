@@ -19,6 +19,8 @@ export interface ShipBuilder {
   level?: number;
   /** 運 */
   luck?: number;
+  /** 対潜 */
+  asw?: number;
   /** 対空 */
   antiAir?: number;
   /** 耐久 */
@@ -157,6 +159,7 @@ export default class Ship implements ShipBase {
       this.data = builder.master !== undefined ? builder.master : builder.ship.data;
       this.level = builder.level !== undefined ? builder.level : builder.ship.level;
       this.luck = builder.luck !== undefined ? builder.luck : builder.ship.luck;
+      this.asw = builder.asw !== undefined ? builder.asw : builder.ship.asw;
       this.antiAir = builder.antiAir !== undefined ? builder.antiAir : builder.ship.antiAir;
       this.items = builder.items !== undefined ? builder.items.concat() : builder.ship.items.concat();
       this.exItem = builder.exItem !== undefined ? builder.exItem : builder.ship.exItem;
@@ -168,6 +171,7 @@ export default class Ship implements ShipBase {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
       this.luck = builder.luck !== undefined ? builder.luck : this.data.luck;
+      this.asw = builder.asw !== undefined ? builder.asw : Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
       this.antiAir = builder.antiAir !== undefined ? builder.antiAir : this.data.antiAir;
       this.items = builder.items !== undefined ? builder.items.concat() : [];
       this.exItem = builder.exItem !== undefined ? builder.exItem : new Item();
@@ -226,7 +230,6 @@ export default class Ship implements ShipBase {
     // レベルより算出
     this.scout = Ship.getStatusFromLevel(this.level, this.data.maxScout, this.data.minScout);
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
-    this.asw = Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
 
     // 索敵ボーナス
     this.bonusScout = this.getBonusScout();
@@ -264,18 +267,18 @@ export default class Ship implements ShipBase {
         this.actualRange = item.data.range;
       }
 
-      if (item.fullSlot > 0 && item.isPlane && !item.isRecon && !item.isABAttacker) {
+      if (item.fullSlot > 0 && item.data.isPlane && !item.data.isRecon && !item.data.isABAttacker) {
         // 通常制空値
         this.fullAirPower += item.fullAirPower;
         this.supportAirPower += item.supportAirPower;
       }
       // ジェット機所持
-      if (!this.hasJet && item.isJet) {
+      if (!this.hasJet && item.data.isJet) {
         this.hasJet = true;
       }
 
       // 雷装ボーナス
-      if (item.isAttacker) {
+      if (item.data.isAttacker) {
         this.torpedoBonuses.push(this.getAttackerTorpedoBonus(item));
         item.attackerTorpedoBonus = 0;
 
@@ -433,7 +436,7 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       // 対象は搭載数が存在する攻撃機か大型飛行艇
-      if (item.slot > 0 && (item.isAttacker || item.data.apiTypeId === 41)) {
+      if (item.slot > 0 && (item.data.isAttacker || item.data.apiTypeId === 41)) {
         // 熟練度定数C
         const c = [0, 1, 2, 3, 4, 5, 7, 10][item.levelAlt];
         // 隊長機補正
@@ -1170,7 +1173,7 @@ export default class Ship implements ShipBase {
     if ((this.data.type2 === 76 && this.data.name.indexOf('改') >= 0) || this.data.id === 646) {
       // 大鷹型改 改二 or 加賀改二護
       // => 対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機
-      return items.some((v) => (v.isAttacker && v.data.asw >= 1) || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      return items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
     }
 
     if (type === SHIP_TYPE.CVL) {
@@ -1186,7 +1189,7 @@ export default class Ship implements ShipBase {
       }
       if (hasSonar && this.actualAsw >= 100) {
         // => 対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
-        return hasASWPlane || items.some((v) => v.isAttacker && v.data.asw >= 1);
+        return hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1);
       }
     }
 

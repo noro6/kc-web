@@ -163,6 +163,7 @@ import Enemy from '@/classes/enemy/enemy';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import CommonCalc from '@/classes/commonCalc';
 import { AB_MODE } from '@/classes/const';
+import Convert from '@/classes/convert';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -396,7 +397,7 @@ export default Vue.extend({
         html2canvas(div, { scale: 2, width: 1160 }).then((canvas) => {
           const link = document.createElement('a');
           link.href = canvas.toDataURL();
-          link.download = 'export_image.png';
+          link.download = `enemy_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
           link.click();
           this.capturing = false;
         });

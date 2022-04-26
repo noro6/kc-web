@@ -29,17 +29,15 @@
           </div>
         </div>
       </div>
-      <div class="d-flex ml-auto">
+      <div class="d-flex ml-6">
+        <div class="mt-1 align-self-center caption">艦隊詳細:</div>
         <div class="operation-button">
-          <v-tooltip bottom color="black">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="info" icon @click="clickedInfo" v-bind="attrs" v-on="on">
-                <v-icon>mdi-information-outline</v-icon>
-              </v-btn>
-            </template>
-            <span>艦隊詳細</span>
-          </v-tooltip>
+          <v-btn color="info" icon @click="clickedInfo">
+            <v-icon>mdi-information-outline</v-icon>
+          </v-btn>
         </div>
+      </div>
+      <div class="d-flex ml-auto">
         <div class="operation-button">
           <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
             <v-icon>mdi-minus</v-icon>
@@ -58,9 +56,19 @@
             <span>艦隊リセット</span>
           </v-tooltip>
         </div>
+        <div class="operation-button ship-line-setting">
+          <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
+            <v-btn :value="true" small :class="{ 'blue darken-2 white--text': isShipView2Line }" @click="toggleViewLine(true)">
+              <span>2列</span>
+            </v-btn>
+            <v-btn :value="false" small :class="{ 'blue darken-2 white--text': !isShipView2Line }" @click="toggleViewLine(false)">
+              <span>3列</span>
+            </v-btn>
+          </v-btn-toggle>
+        </div>
       </div>
     </div>
-    <div class="ship-inputs-container">
+    <div class="ship-inputs-container" :class="{ line3: !isShipView2Line }">
       <ship-input
         v-for="(ship, i) in fleet.ships"
         :key="i"
@@ -130,14 +138,20 @@
   grid-template-columns: 1fr;
   display: grid;
 }
+.ship-line-setting {
+  display: none;
+}
 @media (min-width: 660px) {
   .ship-inputs-container {
     grid-template-columns: 1fr 1fr;
   }
 }
 @media (min-width: 1060px) {
-  .ship-inputs-container {
+  .ship-inputs-container.line3 {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+  .ship-line-setting {
+    display: flex;
   }
 }
 
@@ -157,6 +171,7 @@ import FleetDetail from '@/components/fleet/FleetDetail.vue';
 import Const from '@/classes/const';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'Fleet',
@@ -208,7 +223,12 @@ export default Vue.extend({
     detailDialog: false,
     destroyDialog: false,
     lastTab: 'stage2',
+    isShipView2Line: false,
   }),
+  mounted() {
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.isShipView2Line = setting.IsshipView2Line;
+  },
   computed: {
     fleet() {
       return this.value;
@@ -274,9 +294,11 @@ export default Vue.extend({
       }
     },
     resetFleet() {
-      // 空にして最初の1隻を初期化する感じ
-      const ships = this.fleet.ships.filter((v, i) => i === 0);
-      ships[ships.length - 1] = new Ship();
+      // 初期化
+      const ships = [];
+      for (let i = 0; i < 6; i += 1) {
+        ships.push(new Ship());
+      }
       this.setFleet(new Fleet({ fleet: this.fleet, ships }));
     },
     removeShip(index: number) {
@@ -314,6 +336,11 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+    },
+    toggleViewLine(value: boolean) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.IsshipView2Line = value;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });
