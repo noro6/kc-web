@@ -70,7 +70,9 @@
         </div>
         <div class="d-flex">
           <textarea class="d-none" id="slot-rate-table-string" v-model="slotRateTableText" />
-          <v-btn color="teal" dark small @click="copySlotRate()"> <v-icon small>mdi-file-table-outline</v-icon>残機数分布をコピー </v-btn>
+          <v-btn class="ml-auto" color="teal" dark small @click="copySlotRate()">
+            <v-icon small>mdi-file-table-outline</v-icon>残機数分布をコピー
+          </v-btn>
         </div>
       </div>
       <div class="fire-calc-container border-window mt-4" :class="{ show: !dispSlotRate }">
