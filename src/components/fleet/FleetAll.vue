@@ -171,7 +171,7 @@
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
-          <v-btn class="ml-auto" style="text-transform: none" @click="openGkcoiPage()"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
+          <v-btn class="ml-auto" @click="openGkcoiPage()"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
         </div>
       </v-tab-item>
     </v-tabs-items>
@@ -419,8 +419,11 @@
   padding: 0.75rem;
 }
 .theme--dark .fleet-container.captured {
-  background: #111;
+  background: rgb(40, 40, 45);
   border: 1px solid #444;
+}
+.deep-sea .theme--dark .fleet-container.captured {
+  background: rgb(8, 18, 42);
 }
 
 .remodel-list-item i,

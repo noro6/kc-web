@@ -404,8 +404,11 @@
   border: 1px solid #bbb;
 }
 .theme--dark .normal-airbases.captured {
-  background: #111;
+  background: rgb(40, 40, 45);
   border: 1px solid #444;
+}
+.deep-sea .theme--dark .normal-airbases.captured {
+  background: rgb(8, 18, 42);
 }
 .theme--dark .normal-airbases.captured > div {
   border: 1px solid #444;

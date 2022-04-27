@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="d-flex ml-6">
-        <div class="mt-1 align-self-center caption">艦隊詳細:</div>
+        <div class="mt-1 align-self-center caption d-capture-none">艦隊詳細:</div>
         <div class="operation-button">
           <v-btn color="info" icon @click="clickedInfo">
             <v-icon>mdi-information-outline</v-icon>
@@ -58,11 +58,11 @@
         </div>
         <div class="operation-button ship-line-setting">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
-            <v-btn :value="true" small :class="{ 'blue darken-2 white--text': isShipView2Line }" @click="toggleViewLine(true)">
-              <span>2列</span>
+            <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
+              <span class="white--text">2列</span>
             </v-btn>
-            <v-btn :value="false" small :class="{ 'blue darken-2 white--text': !isShipView2Line }" @click="toggleViewLine(false)">
-              <span>3列</span>
+            <v-btn :value="false" small :class="{ blue: !isShipView2Line, secondary: isShipView2Line }" @click="toggleViewLine(false)">
+              <span class="white--text">3列</span>
             </v-btn>
           </v-btn-toggle>
         </div>
@@ -159,6 +159,9 @@
   grid-template-columns: 1fr 1fr 1fr;
 }
 .captured .operation-button {
+  display: none;
+}
+.captured .d-capture-none {
   display: none;
 }
 </style>

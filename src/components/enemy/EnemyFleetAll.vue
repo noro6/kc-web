@@ -48,7 +48,10 @@
         <div class="align-self-center mr-4" id="battle-count-select">
           <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
         </div>
-        <div class="align-self-center body-2 text--secondary" v-if="nodeString">航路: {{ nodeString }}</div>
+        <div class="align-self-center body-2" v-if="nodeString">
+          <span class="text--secondary mr-3">航路:</span>
+          <span>{{ nodeString }}</span>
+        </div>
       </div>
       <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-1">
         <div>
@@ -128,7 +131,11 @@
   box-shadow: none !important;
 }
 .theme--dark #enemies-container.captured {
-  background: rgb(20, 20, 25);
+  background: rgb(40, 40, 45);
+  border: 1px solid #444;
+}
+.deep-sea .theme--dark #enemies-container.captured {
+  background: rgb(8, 18, 42);
 }
 #enemies-container.captured .v-card {
   border: 1px solid #ddd;
@@ -215,7 +222,13 @@ export default Vue.extend({
     nodeString(): string {
       const nodeList = this.value.fleets.map((v) => v.nodeName);
       if (nodeList.some((v) => v !== '')) {
-        return nodeList.map((v) => (v === '' ? '?' : v)).join(' → ');
+        let map = '';
+        const lastBattle = this.value.fleets[this.value.fleets.length - 1];
+        if (lastBattle && lastBattle.area) {
+          const world = Math.floor(lastBattle.area / 10);
+          map = `${world > 40 ? 'E' : world}-${lastBattle.area % 10}`;
+        }
+        return `${map} : ${nodeList.map((v) => (v === '' ? '?' : v)).join(' → ')}`;
       }
       return '';
     },

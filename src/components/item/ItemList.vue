@@ -40,13 +40,13 @@
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
-          <v-btn :value="false" :class="{ 'blue darken-2 white--text': !multiLine }" @click.stop="changeMultiLine(false)">
-            <v-icon>mdi-view-headline</v-icon>
-            <span>一列</span>
+          <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
+            <v-icon color="white">mdi-view-headline</v-icon>
+            <span class="white--text">一列</span>
           </v-btn>
-          <v-btn :value="true" :class="{ 'blue darken-2 white--text': multiLine }" @click.stop="changeMultiLine(true)">
-            <v-icon>mdi-view-comfy</v-icon>
-            <span>複数列</span>
+          <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
+            <v-icon color="white">mdi-view-comfy</v-icon>
+            <span class="white--text">複数列</span>
           </v-btn>
         </v-btn-toggle>
       </div>

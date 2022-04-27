@@ -35,15 +35,7 @@
         ></v-text-field>
       </div>
       <div class="my-8">
-        <v-btn
-          block
-          color="blue"
-          class="white--text"
-          @click="shareTwitter()"
-          :loading="loadingTwitter"
-          :disabled="loadingTwitter"
-          style="text-transform: none"
-        >
+        <v-btn block color="blue" class="white--text" @click="shareTwitter()" :loading="loadingTwitter" :disabled="loadingTwitter">
           <v-icon>mdi-twitter</v-icon>Twitterで共有
         </v-btn>
       </div>
@@ -52,7 +44,6 @@
           block
           color="blue darken-4"
           class="white--text"
-          style="text-transform: none"
           :disabled="!deckBuilder"
           :href="`https://jervis.vercel.app/?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"

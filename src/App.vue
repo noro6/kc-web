@@ -8,48 +8,29 @@
       <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
-      <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="saveCurrentData">
+      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
         <v-icon small>mdi-content-save</v-icon>
         <span class="d-none d-md-inline">編成</span>保存
       </v-btn>
-      <v-btn
-        class="header-btn"
-        :disabled="$route.path !== '/aircalc' || mainSaveData.isUnsaved"
-        text
-        @click.stop="handleSaveAndRenameCurrentData"
-      >
+      <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData">
         <v-icon small>mdi-content-duplicate</v-icon>別名保存
       </v-btn>
-      <v-btn class="header-btn" :disabled="$route.path !== '/aircalc'" text @click.stop="clickedShare">
+      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare">
         <v-icon small>mdi-share-variant</v-icon>
         <span class="d-none d-md-inline">編成</span>共有
       </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="arrow-btn"
-            text
-            :disabled="$route.path !== '/aircalc' || !enabledUndo"
-            v-bind="attrs"
-            v-on="on"
-            @click="undoClicked"
-          >
-            <v-icon small>mdi-undo</v-icon></v-btn
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked">
+            <v-icon small>mdi-undo-variant</v-icon></v-btn
           >
         </template>
         <span>元に戻す</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="arrow-btn"
-            text
-            :disabled="$route.path !== '/aircalc' || !enabledRedo"
-            v-bind="attrs"
-            v-on="on"
-            @click="redoClicked"
-          >
-            <v-icon small>mdi-redo</v-icon>
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledRedo" v-bind="attrs" v-on="on" @click="redoClicked">
+            <v-icon small>mdi-redo-variant</v-icon>
           </v-btn>
         </template>
         <span>やり直す</span>
@@ -73,7 +54,7 @@
       </div>
       <v-btn icon @click="configDialog = true"><v-icon>mdi-cog</v-icon></v-btn>
       <template v-slot:extension>
-        <save-data-tab :save-data="saveData" />
+        <save-data-tab :save-data="saveData" ref="saveDataTab" />
       </template>
     </v-app-bar>
     <v-main>
@@ -87,7 +68,7 @@
           </div>
         </v-alert>
       </div>
-      <div class="px-2 px-md-4">
+      <div :class="{ 'pl-2 pl-md-4 pr-12 pr-lg-4': showFooterBtn, 'px-2 px-md-4': !showFooterBtn }">
         <router-view @inform="inform" @openSidebar="drawer = true" />
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
@@ -97,7 +78,154 @@
         </template>
       </v-snackbar>
     </v-main>
-    <v-footer app dark class="d-flex justify-center">
+    <v-footer app class="d-flex justify-center">
+      <v-fab-transition>
+        <v-btn color="grey darken-3" class="footer-btn" v-show="isAirCalcPage" fab small dark @click="toggleMenuButton()">
+          <v-icon small v-if="showFooterBtn">mdi-close</v-icon>
+          <v-icon small v-else>mdi-menu</v-icon>
+        </v-btn>
+      </v-fab-transition>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="grey darken-2"
+              class="footer-btn no-2 white--text"
+              v-show="showFooterBtn"
+              fab
+              small
+              dark
+              v-bind="attrs"
+              v-on="on"
+              @click="$route.path !== '/' && $router.push({ path: '/' })"
+              :disabled="$route.path === '/'"
+            >
+              <v-icon small>mdi-home</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>トップ画面へ戻る</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="indigo"
+              class="footer-btn no-3 white--text"
+              v-show="showFooterBtn"
+              fab
+              small
+              dark
+              v-bind="attrs"
+              v-on="on"
+              @click="$router.push('manager')"
+            >
+              <v-icon small>mdi-database-cog</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>艦娘 / 装備管理ページ</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="blue-grey"
+              class="footer-btn no-4 white--text"
+              v-show="showFooterBtn"
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              :disabled="!isAirCalcPage || !enabledRedo"
+              @click="redoClicked()"
+            >
+              <v-icon small>mdi-redo-variant</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>やり直す</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="blue-grey"
+              class="footer-btn no-5 white--text"
+              v-show="showFooterBtn"
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              :disabled="!isAirCalcPage || !enabledUndo"
+              @click="undoClicked()"
+            >
+              <v-icon small>mdi-undo-variant</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>元に戻す</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="teal"
+              class="footer-btn no-6"
+              v-show="showFooterBtn"
+              dark
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              @click="saveCurrentData()"
+            >
+              <v-icon small>mdi-content-save</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>編成保存</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="success"
+              class="footer-btn no-7"
+              v-show="showFooterBtn"
+              dark
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              @click="clickedShare()"
+            >
+              <v-icon small>mdi-share-variant</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>編成共有</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="blue"
+              class="footer-btn no-8"
+              v-show="showFooterBtn"
+              dark
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              @click="clickCommentButton()"
+            >
+              <v-icon small>mdi-comment-processing-outline</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>編成名 / 補足情報</span>
+      </v-tooltip>
       <span class="d-md-none text-caption">
         <span class="mr-2">要望・バグ報告:</span>
         <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
@@ -130,6 +258,44 @@
             <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
             <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
             <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
+          </div>
+          <div class="d-flex mt-5">
+            <div class="body-2">装備表示UI調整</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3 mt-2 d-flex">
+            <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: HasItemUIBorder, secondary: !HasItemUIBorder }">
+              枠線
+            </v-btn>
+            <v-btn
+              :disabled="!HasItemUIBorder"
+              @click="toggleItemUIIsBold()"
+              class="mr-2"
+              :class="{ primary: IsItemUIBold, secondary: !IsItemUIBold }"
+            >
+              太枠
+            </v-btn>
+            <v-btn
+              :disabled="!HasItemUIBorder"
+              @click="toggleItemUIIsRadius()"
+              class="mr-2"
+              :class="{ primary: IsItemUIRadius, secondary: !IsItemUIRadius }"
+            >
+              角丸
+            </v-btn>
+            <div class="align-self-center flex-grow-1">
+              <v-divider v-if="!HasItemUIBorder"></v-divider>
+              <div class="item-input my-0 type-6 d-flex">
+                <div class="align-self-center body-2 ml-2">24</div>
+                <div class="mx-1 item-icon">
+                  <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
+                </div>
+                <div class="align-self-center body-2 flex-grow-1 text-truncate">さんぷる</div>
+                <div class="ml-1 align-self-center">
+                  <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="d-flex mt-5">
             <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
@@ -301,6 +467,9 @@ export default Vue.extend({
     isManagerPage(): boolean {
       return this.$route.path.endsWith('/manager');
     },
+    isAirCalcPage(): boolean {
+      return this.$route.path.endsWith('/aircalc');
+    },
     siteTheme(): string {
       if (this.setting.themeDetail) {
         return this.setting.themeDetail;
@@ -316,6 +485,18 @@ export default Vue.extend({
     isDeepSea(): boolean {
       return this.setting.darkTheme && this.setting.themeDetail === 'deep-sea';
     },
+    HasItemUIBorder(): boolean {
+      return this.setting.itemUI.border;
+    },
+    IsItemUIBold(): boolean {
+      return this.setting.itemUI.bold;
+    },
+    IsItemUIRadius(): boolean {
+      return this.setting.itemUI.radius;
+    },
+    showFooterBtn(): boolean {
+      return this.isAirCalcPage && this.setting.visibleAirCalcMenuButton;
+    },
   },
   watch: {
     async completed(value) {
@@ -328,7 +509,7 @@ export default Vue.extend({
           urlData.isActive = true;
           this.saveData.childItems.push(urlData);
           this.$store.dispatch('setMainSaveData', urlData);
-          if (!this.$route.path.endsWith('/aircalc')) {
+          if (!this.isAirCalcPage) {
             // ページ遷移
             this.$router.push('aircalc');
           }
@@ -441,7 +622,7 @@ export default Vue.extend({
           this.saveData.childItems.push(mainData);
         }
         this.$store.dispatch('setMainSaveData', mainData);
-        if (!this.$route.path.endsWith('/aircalc')) {
+        if (!this.isAirCalcPage) {
           // ページ遷移
           this.$router.push('aircalc');
         }
@@ -577,6 +758,7 @@ export default Vue.extend({
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
+      this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
       const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
@@ -587,6 +769,39 @@ export default Vue.extend({
       }
 
       this.setting.themeDetail = theme;
+
+      window.setTimeout(() => {
+        this.updateItemUI();
+      }, 50);
+    },
+    toggleItemUIHasBorder() {
+      this.setting.itemUI.border = !this.setting.itemUI.border;
+      this.updateItemUI();
+    },
+    toggleItemUIIsBold() {
+      this.setting.itemUI.bold = !this.setting.itemUI.bold;
+      this.updateItemUI();
+    },
+    toggleItemUIIsRadius() {
+      this.setting.itemUI.radius = !this.setting.itemUI.radius;
+      this.updateItemUI();
+    },
+    updateItemUI() {
+      if (!this.setting.itemUI) {
+        return;
+      }
+      // 装備UI設定値を反映
+      const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
+      app.classList.remove('item-ui-border', 'item-ui-bold', 'item-ui-radius');
+      if (this.setting.itemUI.border) {
+        app.classList.add('item-ui-border');
+      }
+      if (this.setting.itemUI.bold) {
+        app.classList.add('item-ui-bold');
+      }
+      if (this.setting.itemUI.radius) {
+        app.classList.add('item-ui-radius');
+      }
     },
     toggleConfigDialog() {
       if (!this.configDialog) {
@@ -640,6 +855,17 @@ export default Vue.extend({
         form.initControl();
       }
     },
+    toggleMenuButton() {
+      this.setting.visibleAirCalcMenuButton = !this.setting.visibleAirCalcMenuButton;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    clickCommentButton() {
+      const form = this.$refs.saveDataTab as InstanceType<typeof SaveDataTab>;
+      const mainData = this.saveData.getMainData();
+      if (form && mainData) {
+        form.showNameEditDialog(mainData);
+      }
+    },
   },
   beforeDestroy() {
     if (this.unsbscribe) {
@@ -676,6 +902,37 @@ export default Vue.extend({
   max-width: 1200px;
   margin: 0 auto;
 }
+
+.v-footer {
+  background-color: rgb(39, 39, 39) !important;
+  color: #fff !important;
+}
+.footer-btn {
+  position: absolute;
+  top: -48px;
+  right: 2px;
+}
+.footer-btn.no-2 {
+  top: -92px;
+}
+.footer-btn.no-3 {
+  top: -136px;
+}
+.footer-btn.no-4 {
+  top: -180px;
+}
+.footer-btn.no-5 {
+  top: -224px;
+}
+.footer-btn.no-6 {
+  top: -268px;
+}
+.footer-btn.no-7 {
+  top: -312px;
+}
+.footer-btn.no-8 {
+  top: -356px;
+}
 </style>
 
 <style>
@@ -688,6 +945,11 @@ export default Vue.extend({
 }
 .v-text-field.v-input--dense {
   font-size: 1em;
+}
+
+/** v-btn 自動で大文字にさせない */
+.v-btn {
+  text-transform: none;
 }
 
 /* スクロールバー webkit系 */
@@ -814,12 +1076,34 @@ export default Vue.extend({
   height: 31px !important;
 }
 
+#app:not(.item-ui-border) .item-input {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25) !important;
+}
+#app.item-ui-border .item-input {
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+#app.item-ui-border.item-ui-bold .item-input {
+  border: 2px solid rgba(128, 128, 128, 0.5);
+}
+#app.item-ui-border.item-ui-radius .item-input {
+  border-radius: 3px;
+}
+#app.item-ui-border.item-ui-bold.item-ui-radius .item-input {
+  border-radius: 4px;
+}
+
 /** アイコン毎の背景色 */
 .item-input.type-1,
 .item-input.type-2,
 .item-input.type-3,
 .item-input.type-7 {
   box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.15) !important;
+  border-color: rgb(247, 110, 110) !important;
 }
 .item-input.type-1:hover,
 .item-input.type-2:hover,
@@ -834,6 +1118,7 @@ export default Vue.extend({
 .item-input.type-39,
 .item-input.type-40 {
   box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15) !important;
+  border-color: rgb(255, 200, 10) !important;
 }
 .item-input.type-4:hover,
 .item-input.type-9:hover,
@@ -847,6 +1132,7 @@ export default Vue.extend({
 .item-input.type-8,
 .item-input.type-46 {
   box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15) !important;
+  border-color: rgb(100, 190, 255) !important;
 }
 .item-input.type-5:hover,
 .item-input.type-8:hover,
@@ -861,6 +1147,7 @@ export default Vue.extend({
 .item-input.type-44,
 .item-input.type-45 {
   box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
+  border-color: rgb(100, 200, 120) !important;
 }
 .item-input.type-6:hover,
 .item-input.type-12:hover,
@@ -875,6 +1162,7 @@ export default Vue.extend({
 .item-input.type-33,
 .item-input.type-43 {
   box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15) !important;
+  border-color: rgb(140, 205, 150) !important;
 }
 .item-input.type-10:hover,
 .item-input.type-33:hover,
@@ -883,12 +1171,14 @@ export default Vue.extend({
 }
 .item-input.type-11 {
   box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15) !important;
+  border-color: rgb(210, 120, 20) !important;
 }
 .item-input.type-11:hover {
   box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4) !important;
 }
 .item-input.type-13 {
   box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15) !important;
+  border-color: rgb(255, 125, 125) !important;
 }
 .item-input.type-13:hover {
   box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4) !important;
@@ -896,6 +1186,7 @@ export default Vue.extend({
 .item-input.type-14,
 .item-input.type-34 {
   box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25) !important;
+  border-color: rgb(196, 196, 196) !important;
 }
 .item-input.type-14:hover,
 .item-input.type-34:hover {
@@ -905,6 +1196,7 @@ export default Vue.extend({
 .item-input.type-18,
 .item-input.type-22 {
   box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15) !important;
+  border-color: rgb(128, 216, 255) !important;
 }
 .item-input.type-17:hover,
 .item-input.type-18:hover,
@@ -914,6 +1206,7 @@ export default Vue.extend({
 .item-input.type-20,
 .item-input.type-36 {
   box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.15) !important;
+  border-color: rgb(155, 165, 95) !important;
 }
 .item-input.type-20:hover,
 .item-input.type-36:hover {
@@ -921,18 +1214,21 @@ export default Vue.extend({
 }
 .item-input.type-23 {
   box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.25) !important;
+  border-color: rgb(150, 125, 175) !important;
 }
 .item-input.type-23:hover {
   box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5) !important;
 }
 .item-input.type-24 {
   box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15) !important;
+  border-color: (240, 130, 60) !important;
 }
 .item-input.type-24:hover {
   box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4) !important;
 }
 .item-input.type-25 {
   box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25) !important;
+  border-color: rgb(128, 128, 128) !important;
 }
 .item-input.type-25:hover {
   box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5) !important;
@@ -940,6 +1236,7 @@ export default Vue.extend({
 .item-input.type-26,
 .item-input.type-29 {
   box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.15) !important;
+  border-color: rgb(205, 165, 100) !important;
 }
 .item-input.type-26:hover,
 .item-input.type-29:hover {
@@ -947,30 +1244,35 @@ export default Vue.extend({
 }
 .item-input.type-28 {
   box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.15) !important;
+  border-color: rgb(140, 120, 170) !important;
 }
 .item-input.type-28:hover {
   box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.4) !important;
 }
 .item-input.type-30 {
   box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.15) !important;
+  border-color: rgb(135, 150, 75) !important;
 }
 .item-input.type-30:hover {
   box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4) !important;
 }
 .item-input.type-31 {
   box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15) !important;
+  border-color: rgb(255, 55, 55) !important;
 }
 .item-input.type-31:hover {
   box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4) !important;
 }
 .item-input.type-32 {
   box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.15) !important;
+  border-color: rgb(190, 240, 150) !important;
 }
 .item-input.type-32:hover {
   box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.4) !important;
 }
 .item-input.type-35 {
   box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.15) !important;
+  border-color: rgb(95, 195, 155) !important;
 }
 .item-input.type-35:hover {
   box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.4) !important;
@@ -981,6 +1283,7 @@ export default Vue.extend({
 .item-input.type-48,
 .item-input.type-49 {
   box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15) !important;
+  border-color: rgb(60, 170, 30) !important;
 }
 .item-input.type-37:hover,
 .item-input.type-38:hover,
@@ -991,21 +1294,14 @@ export default Vue.extend({
 }
 .item-input.type-44 {
   box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.15) !important;
+  border-color: rgb(150, 230, 165) !important;
 }
 .item-input.type-44:hover {
   box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4) !important;
 }
-/* アイコンで判別つきにくいので背景色を紫にしない */
-/* .item-input.type-45,
-.item-input.type-46 {
-  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.15) !important;
-}
-.item-input.type-45:hover,
-.item-input.type-46:hover {
-  box-shadow: inset 0 0 24px rgba(122, 98, 255, 0.4) !important;
-} */
 .item-input.type-47 {
   box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15) !important;
+  border-color: rgb(110, 135, 205) !important;
 }
 .item-input.type-47:hover {
   box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4) !important;

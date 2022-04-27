@@ -342,6 +342,11 @@ table tbody tr:hover {
   border-left: 1px solid rgba(128, 128, 128, 0.4);
 }
 td.item-input {
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  border-top: 1px solid rgba(128, 128, 128, 0.25) !important;
+  margin: 0 !important;
   padding-top: 2px;
   padding-bottom: 2px;
 }
@@ -431,8 +436,11 @@ td.item-input {
   border-radius: 0.25rem;
 }
 .theme--dark #result-container.captured {
-  background: #1a1a1a !important;
+  background: rgb(40, 40, 45) !important;
   border: 1px solid #444;
+}
+.deep-sea.theme--dark #result-container.captured {
+  background: rgb(8, 18, 42) !important;
 }
 .captured .v-card {
   box-shadow: none !important;

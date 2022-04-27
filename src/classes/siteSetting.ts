@@ -1,5 +1,12 @@
 export type SiteTheme = 'light' | 'dark' | 'deep-sea' | '';
 
+/** 装備UI設定 */
+export interface itemUISetting {
+  border: boolean;
+  bold: boolean;
+  radius: boolean;
+}
+
 export default class SiteSetting {
   public id: string;
 
@@ -60,6 +67,12 @@ export default class SiteSetting {
   /** 艦隊画面 最大列数を2にするかどうか */
   public IsshipView2Line: boolean;
 
+  /** 装備所持数 総所持数カウント */
+  public visibleAirCalcMenuButton: boolean;
+
+  /** 装備表示UI */
+  public itemUI: itemUISetting;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -80,6 +93,8 @@ export default class SiteSetting {
       this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
       this.visibleItemStockAllCount = !!setting.visibleItemStockAllCount;
       this.IsshipView2Line = !!setting.IsshipView2Line;
+      this.visibleAirCalcMenuButton = !!setting.visibleAirCalcMenuButton;
+      this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -121,6 +136,8 @@ export default class SiteSetting {
       this.themeDetail = 'dark';
       this.visibleItemStockAllCount = false;
       this.IsshipView2Line = false;
+      this.visibleAirCalcMenuButton = false;
+      this.itemUI = { border: false, bold: true, radius: true };
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },
