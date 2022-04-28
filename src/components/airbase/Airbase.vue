@@ -52,7 +52,7 @@
           </v-btn>
         </div>
       </div>
-      <v-divider></v-divider>
+      <v-divider class="item-input-divider"></v-divider>
       <div v-for="(item, i) in airbase.items" :key="i" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip">
         <item-input
           v-model="airbase.items[i]"
@@ -121,6 +121,10 @@
 
 .operation-buttons .v-icon {
   font-size: 20px !important;
+}
+
+body.item-ui-border .item-input-divider {
+  display: none !important;
 }
 </style>
 
@@ -236,24 +240,6 @@ export default Vue.extend({
     showItemList(index: number) {
       this.clearTooltip();
       this.handleShowItemList(this.index, index);
-    },
-    getStatusColor(value: number) {
-      if (value >= 90) {
-        return 'success';
-      }
-      if (value >= 45) {
-        return 'light-green';
-      }
-      if (value >= 20) {
-        return 'yellow';
-      }
-      if (value >= 10) {
-        return 'orange';
-      }
-      if (value === 0) {
-        return 'secondary';
-      }
-      return 'red';
     },
     resetItems(): void {
       this.setAirbase(new Airbase());

@@ -37,7 +37,7 @@
       <span class="ml-3 text--secondary">総搭載数:</span>
       <span class="ml-1 font-weight-medium">{{ sumSlot }}</span>
     </div>
-    <v-divider></v-divider>
+    <v-divider class="item-input-divider"></v-divider>
     <div>
       <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in enemy.items" :key="j">
         <item-input
@@ -72,6 +72,10 @@
   flex-grow: 1;
   width: 100px;
   font-size: 0.8em;
+}
+
+body.item-ui-border .item-input-divider {
+  display: none !important;
 }
 </style>
 

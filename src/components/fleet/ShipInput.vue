@@ -228,7 +228,7 @@
           </div>
         </div>
       </div>
-      <v-divider class="mx-1"></v-divider>
+      <v-divider class="mx-1 item-input-divider"></v-divider>
       <!-- 装備一覧 -->
       <div class="px-1" v-if="!ship.isEmpty">
         <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
@@ -417,6 +417,10 @@
 }
 .ship-buttons .v-icon {
   font-size: 18px !important;
+}
+
+body.item-ui-border .item-input-divider {
+  display: none !important;
 }
 </style>
 
