@@ -1,19 +1,19 @@
 <template>
   <v-sheet drak>
-    <div class="d-flex pa-1">
+    <div class="d-flex header">
       <div>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon small @click="openGitHub()" v-bind="attrs" v-on="on">
+            <v-btn icon large @click="openGitHub()" v-bind="attrs" v-on="on">
               <v-icon>mdi-github</v-icon>
             </v-btn>
           </template>
           <span>GitHub Repository</span>
         </v-tooltip>
       </div>
-      <div class="d-flex home px-1" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
+      <div class="d-flex home px-1 my-1" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
         <div class="align-self-center">制空権シミュレータ</div>
-        <div class="ml-1 align-self-center">v{{$store.state.siteVersion}}</div>
+        <div class="ml-1 align-self-center">v{{ $store.state.siteVersion }}</div>
       </div>
       <div class="ml-auto btn-icons">
         <v-tooltip bottom color="black">
@@ -48,6 +48,16 @@
           </template>
           <span>フォルダーを全て閉じる</span>
         </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="grey lighten-2" v-show="enabledFixDrawer" icon small @click="toggleFixDrawer()" v-bind="attrs" v-on="on">
+              <v-icon v-if="fixedDrawer">mdi-pin</v-icon>
+              <v-icon v-else>mdi-pin-outline</v-icon>
+            </v-btn>
+          </template>
+          <span v-if="!fixedDrawer">サイドバー固定</span>
+          <span v-else>サイドバー固定解除</span>
+        </v-tooltip>
       </div>
     </div>
     <v-divider></v-divider>
@@ -64,6 +74,13 @@
   display: flex;
   flex-flow: column;
 }
+.header {
+  padding: 2px;
+}
+.btn-icons {
+  align-self: center;
+}
+
 .btn-icons .v-icon {
   font-size: 20px !important;
 }
@@ -86,6 +103,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import SaveData from '@/classes/saveData/saveData';
+import SiteSetting from '@/classes/siteSetting';
 import SaveItem from './SaveItem.vue';
 
 export default Vue.extend({
@@ -99,6 +117,14 @@ export default Vue.extend({
     handleInform: {
       type: Function,
       required: true,
+    },
+    enabledFixDrawer: {
+      type: Boolean,
+      default: false,
+    },
+    fixedDrawer: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
@@ -157,6 +183,11 @@ export default Vue.extend({
     },
     openGitHub() {
       window.open('https://github.com/noro6/kc-web/', '_blank');
+    },
+    toggleFixDrawer() {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.fixedDrawer = !setting.fixedDrawer;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });

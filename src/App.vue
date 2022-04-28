@@ -1,10 +1,15 @@
 <template>
-  <v-app>
-    <v-navigation-drawer v-model="drawer" app temporary dark width="480">
-      <save-data-view :root-data="saveData" :handle-inform="inform" />
+  <v-app v-resize="onResize">
+    <v-navigation-drawer v-model="drawer" app dark width="390" :permanent="drawerFixed" :temporary="!drawerFixed">
+      <save-data-view
+        :root-data="saveData"
+        :handle-inform="inform"
+        :enabled-fix-drawer="enabledFixDrawer"
+        :fixed-drawer="setting.fixedDrawer"
+      />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-if="!drawerFixed" @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
@@ -68,7 +73,7 @@
           </div>
         </v-alert>
       </div>
-      <div :class="{ 'pl-2 pl-md-4 pr-12 pr-lg-4': showFooterBtn, 'px-2 px-md-4': !showFooterBtn }">
+      <div :class="routerViewClass">
         <router-view @inform="inform" @openSidebar="drawer = true" />
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
@@ -110,7 +115,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
             <v-btn
-              color="indigo"
+              color="blue-grey"
               class="footer-btn no-3 white--text"
               v-show="showFooterBtn"
               fab
@@ -130,7 +135,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
             <v-btn
-              color="blue-grey"
+              color="teal darken-1"
               class="footer-btn no-4 white--text"
               v-show="showFooterBtn"
               fab
@@ -150,7 +155,7 @@
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
             <v-btn
-              color="blue-grey"
+              color="teal"
               class="footer-btn no-5 white--text"
               v-show="showFooterBtn"
               fab
@@ -170,28 +175,8 @@
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
             <v-btn
-              color="teal"
+              color="green"
               class="footer-btn no-6"
-              v-show="showFooterBtn"
-              dark
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              @click="saveCurrentData()"
-            >
-              <v-icon small>mdi-content-save</v-icon>
-            </v-btn>
-          </v-fab-transition>
-        </template>
-        <span>編成保存</span>
-      </v-tooltip>
-      <v-tooltip left color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-fab-transition>
-            <v-btn
-              color="success"
-              class="footer-btn no-7"
               v-show="showFooterBtn"
               dark
               fab
@@ -211,7 +196,7 @@
           <v-fab-transition>
             <v-btn
               color="blue"
-              class="footer-btn no-8"
+              class="footer-btn no-7"
               v-show="showFooterBtn"
               dark
               fab
@@ -220,11 +205,31 @@
               v-on="on"
               @click="clickCommentButton()"
             >
-              <v-icon small>mdi-comment-processing-outline</v-icon>
+              <v-icon small>mdi-comment-processing</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
         <span>編成名 / 補足情報</span>
+      </v-tooltip>
+      <v-tooltip left color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-fab-transition>
+            <v-btn
+              color="indigo lighten-1"
+              class="footer-btn no-8"
+              v-show="showFooterBtn"
+              dark
+              fab
+              small
+              v-bind="attrs"
+              v-on="on"
+              @click="saveCurrentData()"
+            >
+              <v-icon small>mdi-content-save</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </template>
+        <span>編成保存</span>
       </v-tooltip>
       <span class="d-md-none text-caption">
         <span class="mr-2">要望・バグ報告:</span>
@@ -419,7 +424,7 @@ export default Vue.extend({
   data: () => ({
     saveData: new SaveData(),
     mainSaveData: new SaveData(),
-    drawer: null,
+    drawer: false,
     configDialog: false,
     loading: true,
     somethingText: '',
@@ -441,6 +446,7 @@ export default Vue.extend({
     readOnlyMode: false,
     disabledUpload: true,
     saveDialogTab: 'save',
+    enabledFixDrawer: false,
   }),
   computed: {
     completed() {
@@ -470,12 +476,6 @@ export default Vue.extend({
     isAirCalcPage(): boolean {
       return this.$route.path.endsWith('/aircalc');
     },
-    siteTheme(): string {
-      if (this.setting.themeDetail) {
-        return this.setting.themeDetail;
-      }
-      return this.setting.darkTheme ? 'dark' : 'light';
-    },
     isLight(): boolean {
       return !this.setting.darkTheme && this.setting.themeDetail === 'light';
     },
@@ -496,6 +496,18 @@ export default Vue.extend({
     },
     showFooterBtn(): boolean {
       return this.isAirCalcPage && this.setting.visibleAirCalcMenuButton;
+    },
+    drawerFixed(): boolean {
+      return this.enabledFixDrawer && this.setting.fixedDrawer;
+    },
+    routerViewClass(): string {
+      if (this.showFooterBtn && this.drawerFixed) {
+        return 'pl-2 pl-md-4 pr-12 pr-xl-4';
+      }
+      if (this.showFooterBtn && !this.drawerFixed) {
+        return 'pl-2 pl-md-4 pr-12 pr-lg-4';
+      }
+      return 'px-2 px-md-4';
     },
   },
   watch: {
@@ -569,6 +581,11 @@ export default Vue.extend({
           // 基本のテーマ2種
           this.changeSiteTheme(this.setting.darkTheme ? 'dark' : 'light');
         }
+
+        if (!this.setting.fixedDrawer) {
+          this.drawer = false;
+        }
+        this.onResize();
       }
     });
   },
@@ -761,18 +778,14 @@ export default Vue.extend({
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
-      const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
-      app.classList.remove('deep-sea');
+      document.body.classList.remove('deep-sea');
       if (theme === 'deep-sea') {
         this.$vuetify.theme.themes.dark.primary = colors.blue.lighten1;
-        app.classList.add('deep-sea');
+        document.body.classList.add(theme);
       }
 
       this.setting.themeDetail = theme;
-
-      window.setTimeout(() => {
-        this.updateItemUI();
-      }, 50);
+      this.updateItemUI();
     },
     toggleItemUIHasBorder() {
       this.setting.itemUI.border = !this.setting.itemUI.border;
@@ -791,22 +804,20 @@ export default Vue.extend({
         return;
       }
       // 装備UI設定値を反映
-      const app = document.getElementsByClassName('v-application')[0] as HTMLDivElement;
-      app.classList.remove('item-ui-border', 'item-ui-bold', 'item-ui-radius');
+      document.body.classList.remove('item-ui-border', 'item-ui-bold', 'item-ui-radius');
       if (this.setting.itemUI.border) {
-        app.classList.add('item-ui-border');
+        document.body.classList.add('item-ui-border');
       }
       if (this.setting.itemUI.bold) {
-        app.classList.add('item-ui-bold');
+        document.body.classList.add('item-ui-bold');
       }
       if (this.setting.itemUI.radius) {
-        app.classList.add('item-ui-radius');
+        document.body.classList.add('item-ui-radius');
       }
     },
     toggleConfigDialog() {
       if (!this.configDialog) {
-        // 設定保存
-
+        // 設定ダイアログを閉じると同時に保存
         // へんなのチェック
         if (this.setting.simulationCount > 100000) {
           this.setting.simulationCount = 100000;
@@ -864,6 +875,13 @@ export default Vue.extend({
       const mainData = this.saveData.getMainData();
       if (form && mainData) {
         form.showNameEditDialog(mainData);
+      }
+    },
+    onResize() {
+      if (this.enabledFixDrawer && window.innerWidth < 1480) {
+        this.enabledFixDrawer = false;
+      } else if (!this.enabledFixDrawer && window.innerWidth >= 1480) {
+        this.enabledFixDrawer = true;
       }
     },
   },
@@ -990,7 +1008,7 @@ export default Vue.extend({
   background-attachment: fixed !important;
 }
 /** ダークテーマ[深海] 基本背景色変更 */
-.theme--dark.deep-sea.v-application {
+.deep-sea .theme--dark.v-application {
   background-color: rgb(16, 24, 36) !important;
   background: linear-gradient(rgb(20, 40, 80), rgb(2, 4, 12)) !important;
   background-attachment: fixed !important;
@@ -1017,7 +1035,7 @@ export default Vue.extend({
 
 /** ダークテーマ[深海] card1層目 */
 .deep-sea .theme--dark.v-card,
-.deep-sea.theme--dark .v-expansion-panel {
+.deep-sea .theme--dark .v-expansion-panel {
   background-color: rgba(36, 44, 54, 0.6) !important;
 }
 /** ダークテーマ[深海] card2層目 */
@@ -1029,11 +1047,11 @@ export default Vue.extend({
   background-color: rgba(60, 68, 80, 0.6) !important;
 }
 /** ダークテーマ[深海] ダイアログ */
-.deep-sea.theme--dark .v-dialog {
+.deep-sea .theme--dark .v-dialog {
   background-color: rgb(10, 15, 30) !important;
 }
 /** ダークテーマ[深海] メニュー背景 */
-.deep-sea.theme--dark .v-menu__content {
+.deep-sea .theme--dark .v-menu__content {
   background-color: rgb(30, 38, 60) !important;
 }
 /** ダークテーマ ボタン背景範囲 */
@@ -1076,24 +1094,23 @@ export default Vue.extend({
   height: 31px !important;
 }
 
-#app:not(.item-ui-border) .item-input {
+body:not(.item-ui-border) .item-input {
   border-top: none;
   border-left: none;
   border-right: none;
   border-bottom: 1px solid rgba(128, 128, 128, 0.25) !important;
 }
-#app.item-ui-border .item-input {
+body.item-ui-border .item-input {
   border: 1px solid rgba(128, 128, 128, 0.5);
-  margin-top: 2px;
-  margin-bottom: 2px;
+  margin: 2px 1px;
 }
-#app.item-ui-border.item-ui-bold .item-input {
+body.item-ui-border.item-ui-bold .item-input {
   border: 2px solid rgba(128, 128, 128, 0.5);
 }
-#app.item-ui-border.item-ui-radius .item-input {
+body.item-ui-border.item-ui-radius .item-input {
   border-radius: 3px;
 }
-#app.item-ui-border.item-ui-bold.item-ui-radius .item-input {
+body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
   border-radius: 4px;
 }
 
