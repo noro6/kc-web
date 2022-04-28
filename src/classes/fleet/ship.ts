@@ -318,8 +318,8 @@ export default class Ship implements ShipBase {
         this.koshaCount += 1;
       }
 
-      // SGレーダー(初期型) + [ アメリカ駆逐 / 丹陽 / 雪風改二 ] は射程長
-      if (item.data.id === 315 && (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656)) {
+      // SGレーダー(初期型/後期型) + [ アメリカ駆逐 / 丹陽 / 雪風改二 ] は射程長
+      if ((item.data.id === 315 || item.data.id === 456) && (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656)) {
         this.actualRange = 3;
       }
 
@@ -476,12 +476,12 @@ export default class Ship implements ShipBase {
     // 21号対空電探
     if (items.some((v) => v.data.id === 30)) {
       // 秋月型か最上改二
-      if (type2 === 54 || id === 301 || id === 306) sumBonus += 2;
+      if (type2 === 54 || id === 501 || id === 506) sumBonus += 2;
     }
     // 21号対空電探改二
     if (items.some((v) => v.data.id === 410)) {
       // 秋月型か最上改二
-      if (type2 === 54 || id === 301 || id === 306) sumBonus += 2;
+      if (type2 === 54 || id === 501 || id === 506) sumBonus += 2;
     }
     // OS2U
     if (items.some((v) => v.data.id === 171)) {
@@ -519,7 +519,7 @@ export default class Ship implements ShipBase {
     // Fairey Seafox改
     if (items.some((v) => v.data.id === 371)) {
       // Gotland andra
-      if (id === 430) sumBonus += 9;
+      if (id === 630) sumBonus += 9;
       // Gotland
       else if (type2 === 89) sumBonus += 6;
       // Nelson
@@ -530,12 +530,12 @@ export default class Ship implements ShipBase {
       else if (type2 === 67 || type2 === 79 || type2 === 108) sumBonus += 3;
     }
     // Swordfish Mk.III改(水上機型)
-    if (id === 430 && items.some((v) => v.data.id === 368)) {
+    if (id === 630 && items.some((v) => v.data.id === 368)) {
       // Gotoland andra 1つめだけ
       sumBonus += 1;
     }
     // Swordfish Mk.III改(水上機型/熟練)
-    if (id === 430 && items.some((v) => v.data.id === 369)) {
+    if (id === 630 && items.some((v) => v.data.id === 369)) {
       // Gotoland andra 1つめだけ
       sumBonus += 2;
     }
@@ -554,7 +554,7 @@ export default class Ship implements ShipBase {
       } else if (type2 === 25) {
         // 飛龍
         if (remodel >= 1) sumBonus += 2;
-      } else if ([308, 309, 360].includes(id)) {
+      } else if ([508, 509, 560].includes(id)) {
         // 鈴熊 瑞鳳改二乙
         if (remodel >= 1) sumBonus += 1;
       }
@@ -574,6 +574,27 @@ export default class Ship implements ShipBase {
       if (remodel === 10) sumBonus += 3;
       else if (remodel >= 6) sumBonus += 2;
       else if (remodel >= 2) sumBonus += 1;
+    }
+    // 装甲艇(AB)
+    if (items.some((v) => v.data.id === 408)) {
+      // 神州丸
+      if (type2 === 97) sumBonus += 2;
+      // あきつ丸か駆逐
+      else if (type2 === 45 || type === 2) sumBonus += 1;
+    }
+    // SGレーダー(初期型)
+    if (items.some((v) => v.data.id === 315)) {
+      // 雪風改二 / 丹陽
+      if (id === 651 || id === 656) {
+        sumBonus += 3;
+      }
+    }
+    // SGレーダー(後期型)
+    if (items.some((v) => v.data.id === 456)) {
+      // 雪風改二 / 丹陽
+      if (id === 651 || id === 656) {
+        sumBonus += 3;
+      }
     }
 
     // 累積可能装備ボーナス
@@ -611,13 +632,6 @@ export default class Ship implements ShipBase {
         // 瑞穂 神威
         else if ([62, 72].includes(type2)) sumBonus += 2;
       }
-      // 装甲艇(AB)
-      if (item.data.id === 408) {
-        // 神州丸
-        if (type2 === 97) sumBonus += 2;
-        // あきつ丸か駆逐
-        else if (type2 === 45 || type === 2) sumBonus += 1;
-      }
       // 熟練見張員
       if (isJapanese && item.data.id === 129) {
         // 日本軽巡 重巡
@@ -631,6 +645,23 @@ export default class Ship implements ShipBase {
         if ([3, 4].includes(type)) sumBonus += 3;
         // 日本駆逐 重巡級
         else if ([2, 5, 6].includes(type)) sumBonus += 1;
+      }
+      // SGレーダー(初期型)
+      if (item.data.id === 315) {
+        // アメリカ人
+        if (isAmerica) {
+          sumBonus += 4;
+        }
+      }
+      // SGレーダー(後期型)
+      if (item.data.id === 456) {
+        if (isAmerica) {
+          // アメリカ人
+          sumBonus += 4;
+        } else if (Const.GBR.includes(this.data.type2)) {
+          // イギリス人
+          sumBonus += 2;
+        }
       }
     }
 
@@ -1011,6 +1042,12 @@ export default class Ship implements ShipBase {
         // 装甲艇(AB艇) / 武装大発
         if (type2 === 45) {
           // あきつ丸 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 455) {
+        // 試製 長12.7cm連装砲A型改四
+        if (id === 647) {
+          // 浦波改二 => +1
           sumBonusAsw += 1;
         }
       }
