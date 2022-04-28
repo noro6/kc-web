@@ -287,6 +287,7 @@ export default Vue.extend({
       this.handleUpdateSaveData();
     },
     dragStart(e: DragEvent) {
+      this.clearTooltip();
       const target = e.target as HTMLDivElement;
       target.style.opacity = '0.6';
       target.id = 'dragging-item';

@@ -40,6 +40,18 @@ export default class EnemyFleet {
   /** 戦闘形式 */
   public readonly cellType: number;
 
+  /** 航空戦発生しない戦闘形式 (夜戦マス) */
+  public readonly isSkipAerialCombatCell: boolean;
+
+  /** 空襲マス */
+  public readonly isAirRaidCell: boolean;
+
+  /** 航空戦マス */
+  public readonly isAerialCombatCell: boolean;
+
+  /** 通常戦闘マス (通常 / 連合マス) */
+  public readonly isSurfaceCell: boolean;
+
   /** 連合艦隊かそうでないか */
   public readonly isUnion: boolean;
 
@@ -139,6 +151,12 @@ export default class EnemyFleet {
         this.enemies.push(new Enemy());
       }
     }
+
+    // 航空戦のスキップ設定
+    this.isSkipAerialCombatCell = this.cellType === CELL_TYPE.NIGHT;
+    this.isAirRaidCell = this.cellType === CELL_TYPE.AIR_RAID;
+    this.isAerialCombatCell = this.cellType === CELL_TYPE.AERIAL_COMBAT;
+    this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND;
 
     // 計算により算出するステータス
     this.isAllSubmarine = true;

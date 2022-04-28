@@ -161,27 +161,27 @@
               <span>{{ v.count }}</span>
             </div>
             <template v-if="!multiLine">
-              <div class="item-status" v-show="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
-              <div class="item-status" v-show="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
-              <div class="item-status" v-show="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
-              <div class="item-status" v-show="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
-              <div class="item-status" v-show="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
-              <div class="item-status" v-show="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
-              <div class="item-status" v-show="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
-              <div class="item-status" v-show="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
-              <div class="item-status" v-show="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
-              <div class="item-status" v-show="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
-              <div class="item-status" v-show="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
-              <div class="item-status" v-show="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
-              <div class="item-status" v-show="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
-              <div class="item-status" v-show="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
-              <div class="item-status" v-show="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
-              <div class="item-status" v-show="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
-              <div class="item-status" v-show="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
-              <div class="item-status" v-show="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
-              <div class="item-status" v-show="isShowAvoidText">{{ avoidTexts[v.item.data.avoidId] }}</div>
-              <div class="item-status" v-show="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
-              <div class="item-status" v-show="isShowDefAirPower">
+              <div class="item-status" v-if="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
+              <div class="item-status" v-if="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
+              <div class="item-status" v-if="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
+              <div class="item-status" v-if="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
+              <div class="item-status" v-if="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
+              <div class="item-status" v-if="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
+              <div class="item-status" v-if="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
+              <div class="item-status" v-if="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
+              <div class="item-status" v-if="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
+              <div class="item-status" v-if="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
+              <div class="item-status" v-if="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
+              <div class="item-status" v-if="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
+              <div class="item-status" v-if="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
+              <div class="item-status" v-if="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
+              <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
+              <div class="item-status" v-if="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
+              <div class="item-status" v-if="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
+              <div class="item-status" v-if="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
+              <div class="item-status" v-if="isShowAvoidText">{{ avoidTexts[v.item.data.avoidId] }}</div>
+              <div class="item-status" v-if="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
+              <div class="item-status" v-if="isShowDefAirPower">
                 {{ v.item.defenseAirPower ? v.item.defenseAirPower : "" }}
               </div>
             </template>
@@ -357,7 +357,7 @@
   /** 追従するためrgba使用できない */
   background-color: rgb(62, 62, 66);
 }
-.theme--dark.deep-sea .item-status-header {
+.deep-sea .theme--dark .item-status-header {
   /** 追従するためrgba使用できない */
   background-color: rgb(52, 56, 72);
 }

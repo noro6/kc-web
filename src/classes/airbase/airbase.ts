@@ -24,6 +24,9 @@ export default class Airbase {
   /** 出撃戦闘 1波 2波 */
   public readonly battleTarget: number[];
 
+  /** 基地分散かどうか */
+  public readonly isSeparate: boolean;
+
   /** 基地半径 */
   public readonly range: number;
 
@@ -117,6 +120,7 @@ export default class Airbase {
     this.ammo = 0;
     this.steel = 0;
     this.bauxite = 0;
+    this.isSeparate = this.battleTarget[0] !== this.battleTarget[1];
 
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];

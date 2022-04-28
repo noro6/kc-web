@@ -77,7 +77,7 @@
       </div>
       <div class="fire-calc-container border-window mt-4" :class="{ show: !dispSlotRate }">
         <div class="header-content">
-          <div class="align-self-center pl-2 body-2">簡易火力計算機</div>
+          <div class="align-self-center pl-2 body-2">航空戦火力計算機</div>
           <div class="target-item" @mouseenter="bootTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
             <div class="pl-5">
               <v-img :src="`./img/type/icon${selectedItem.data.iconTypeId}.png`" height="24" width="24"></v-img>
@@ -384,7 +384,7 @@
 .theme--dark .border-window .header-content > div {
   background-color: rgb(40, 40, 45);
 }
-.theme--dark.deep-sea .border-window .header-content > div {
+.deep-sea .theme--dark .border-window .header-content > div {
   background-color: rgb(26, 32, 44);
 }
 .target-item {

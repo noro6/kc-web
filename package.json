@@ -9,7 +9,6 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@types/html2canvas": "^1.0.0",
     "@vue/composition-api": "^1.4.3",
     "axios": "^0.24.0",
     "chart.js": "^3.1.0",
@@ -30,6 +29,7 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
+    "@types/html2canvas": "^1.0.0",
     "@types/lodash": "^4.14.178",
     "@types/lz-string": "^1.3.34",
     "@typescript-eslint/eslint-plugin": "^4.18.0",

@@ -439,7 +439,7 @@ td.item-input {
   background: rgb(40, 40, 45) !important;
   border: 1px solid #444;
 }
-.deep-sea.theme--dark #result-container.captured {
+.deep-sea .theme--dark #result-container.captured {
   background: rgb(8, 18, 42) !important;
 }
 .captured .v-card {

@@ -376,7 +376,6 @@ export default new Vuex.Store({
       // 設定情報呼び出し
       const setting = await db.setting.get('setting');
       if (setting) {
-        context.state.siteSetting = setting;
         context.commit('updateSetting', new SiteSetting(setting));
       } else {
         context.commit('updateSetting', new SiteSetting());

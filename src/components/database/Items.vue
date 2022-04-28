@@ -317,10 +317,10 @@
 }
 
 /** ダークテーマ[深海]対応 */
-.theme--dark.deep-sea .item-all-container .v-card {
+.deep-sea .theme--dark .item-all-container .v-card {
   background-color: rgb(30, 38, 50) !important;
 }
-.theme--dark.deep-sea .detail-container {
+.deep-sea .theme--dark .detail-container {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgb(30, 38, 50) 35%);
 }
 

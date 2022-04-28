@@ -19,6 +19,9 @@ export default class SiteSetting {
   /** サイトテーマ詳細 */
   public themeDetail: SiteTheme;
 
+  /** サイドバー固定表示 */
+  public fixedDrawer: boolean;
+
   /** 初期熟練度リスト */
   public planeInitialLevels: { id: number, level: number }[];
 
@@ -78,6 +81,7 @@ export default class SiteSetting {
       this.id = setting.id;
       this.confirmCloseTab = !!setting.confirmCloseTab;
       this.darkTheme = !!setting.darkTheme;
+      this.fixedDrawer = !!setting.fixedDrawer;
       this.isMultiLineForItemList = !!setting.isMultiLineForItemList;
       this.isMultiLineForShipList = !!setting.isMultiLineForShipList;
       this.isStockOnlyForItemList = !!setting.isStockOnlyForItemList;
@@ -121,6 +125,7 @@ export default class SiteSetting {
       this.id = 'setting';
       this.confirmCloseTab = true;
       this.darkTheme = false;
+      this.fixedDrawer = false;
       this.isMultiLineForItemList = true;
       this.isMultiLineForShipList = true;
       this.isStockOnlyForItemList = false;

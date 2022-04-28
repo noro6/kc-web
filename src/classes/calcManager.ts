@@ -124,7 +124,6 @@ export default class CalcManager {
         item.deathRate = 0;
       }
     }
-
     for (let count = 0; count < maxCount; count += 1) {
       // 設定された戦闘回数下記の各計算処理を行う
       for (let battle = 0; battle < battleCount; battle += 1) {
@@ -144,7 +143,7 @@ export default class CalcManager {
         Calculator.calculateMainPhase(fleet, enemyFleet, battle, isMainBattle);
 
         /** ======= 本隊航空戦フェーズ2回目(航空戦マスなら) ======= */
-        if (enemyFleet.cellType === CELL_TYPE.AERIAL_COMBAT) {
+        if (enemyFleet.isAerialCombatCell) {
           Calculator.calculateAerialConbatCellPhase(fleet, enemyFleet);
         }
 

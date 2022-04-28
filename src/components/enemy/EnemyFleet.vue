@@ -58,12 +58,10 @@
             </div>
             <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ (index % 6) + 1 }}</div>
           </div>
-          <div v-show="enemy.data.id > 0">
+          <div v-if="enemy.data.id > 0">
             <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
           </div>
-          <div v-show="enemy.data.id === 0" class="enemy-name text-truncate">
-            {{ enemy.data.name ? enemy.data.name : "敵艦選択" }}
-          </div>
+          <div v-if="enemy.data.id === 0" class="enemy-name text-truncate">敵艦選択</div>
           <div class="mx-1 caption text--secondary">制空:</div>
           <div class="body-2 enemy-air-power" v-if="enemy.fullAirPower === enemy.fullLBAirPower">{{ enemy.fullAirPower }}</div>
           <div class="body-2 enemy-air-power" v-else>({{ enemy.fullLBAirPower }})</div>
@@ -88,7 +86,6 @@
 </template>
 
 <style scoped>
-
 .battle-title {
   cursor: move;
 }

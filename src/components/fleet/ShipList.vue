@@ -252,7 +252,7 @@
   /** 追従するためrgba使用できない */
   background-color: rgb(62, 62, 66);
 }
-.theme--dark.deep-sea .ship-status-header {
+.deep-sea .theme--dark .ship-status-header {
   /** 追従するためrgba使用できない */
   background-color: rgb(52, 56, 72);
 }
