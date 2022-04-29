@@ -1188,7 +1188,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 .item-input.type-11 {
   box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15) !important;
-  border-color: rgb(210, 120, 20) !important;
+  border-color: rgb(210, 150, 70) !important;
 }
 .item-input.type-11:hover {
   box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4) !important;

@@ -273,6 +273,8 @@
                 lv99: rowData.stockData.level === 99,
               }"
               @click.stop="showEditDialog(rowData)"
+              @mouseenter="bootTooltip(rowData, $event)"
+              @mouseleave="clearTooltip"
             >
               <div class="edit-stock-img">
                 <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
@@ -340,6 +342,8 @@
                           lv99: data.stockData.level === 99,
                         }"
                         @click.stop="showEditDialog(data)"
+                        @mouseenter="bootTooltip(data, $event)"
+                        @mouseleave="clearTooltip"
                       >
                         <template v-if="data.count">
                           <div class="status-col sm">
@@ -532,6 +536,17 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <ship-tooltip :value="tooltipShip" />
+    </v-tooltip>
   </div>
 </template>
 
@@ -826,6 +841,7 @@ import groupBy from 'lodash/groupBy';
 import cloneDeep from 'lodash/cloneDeep';
 import Analytics from '@/components/database/Analytics.vue';
 import Compare from '@/components/database/Compare.vue';
+import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
@@ -838,10 +854,13 @@ interface ShipRowData {
   ship: ShipMaster;
   stockData: ShipStock;
   level: number;
+  /** 表示値HP */
   hp: number;
   impHP: number;
+  /** 表示値運 */
   luck: number;
   impLuck: number;
+  /** 表示値対潜 */
   asw: number;
   impAsw: number;
   scout: number;
@@ -858,7 +877,7 @@ interface AltShipRowData {
 
 export default Vue.extend({
   name: 'Ships',
-  components: { Analytics, Compare },
+  components: { Analytics, Compare, ShipTooltip },
   data: () => ({
     all: [] as ShipMaster[],
     filteredShips: [] as ShipMaster[],
@@ -900,6 +919,11 @@ export default Vue.extend({
     visibleNoArea: true,
     readOnly: false,
     tab: 'list',
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipShip: new Ship(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1379,6 +1403,25 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.viewTableMode = modeTable;
       this.$store.dispatch('updateSetting', setting);
+    },
+    bootTooltip(ship: ShipRowData, e: MouseEvent) {
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+        const toolTipShip = new Ship({
+          master: ship.ship,
+          level: ship.level,
+          hp: ship.hp,
+          luck: ship.luck,
+          asw: ship.asw,
+        });
+        this.tooltipShip = toolTipShip;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

@@ -77,6 +77,8 @@
             :class="{ 'pr-3': !multiLine, 'no-stock': !data.count }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data)"
+            @mouseenter="bootTooltip(data, $event)"
+            @mouseleave="clearTooltip"
           >
             <div class="ship-img">
               <div>
@@ -110,6 +112,17 @@
       </div>
       <div v-show="ships.length === 0" class="body-2 text-center mt-10">探したけど見つからなかったよ&#128546;</div>
     </div>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <ship-tooltip v-model="tooltipShip" />
+    </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3" v-if="confirmShip.ship">
         <div class="ma-4">
@@ -269,6 +282,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
@@ -283,14 +297,18 @@ export interface ViewShip {
   count: number;
   area: number;
   level: number;
+  /** 耐久 表示値 */
   hp: number;
+  /** 運 表示値 */
   luck: number;
+  /** 対潜 改修値!! */
   asw: number;
   expanded: boolean;
 }
 
 export default Vue.extend({
   name: 'ShipList',
+  components: { ShipTooltip },
   props: {
     handleDecideShip: {
       type: Function,
@@ -323,6 +341,11 @@ export default Vue.extend({
     naikateiOK: false,
     isReleaseExSlotOnly: false,
     maxAreas: Const.EnabledAreaCount,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipShip: new Ship(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     const existTypes: number[] = [];
@@ -452,9 +475,14 @@ export default Vue.extend({
               continue;
             }
 
-            // id 練度 運 海域を見て配備済みかどうか判定
+            // id 練度 運 対潜 耐久 海域を見て配備済みかどうか判定
             const usedIndex = usedShips.findIndex(
-              (v) => v.data.id === master.id && v.level === viewShip.level && v.luck === viewShip.luck && v.area === viewShip.area,
+              (v) => v.data.id === master.id
+                && v.level === viewShip.level
+                && v.hp === viewShip.hp
+                && v.asw === viewShip.asw
+                && v.luck === viewShip.luck
+                && v.area === viewShip.area,
             );
             if (usedIndex >= 0) {
               // 配備済みなら減らす
@@ -462,12 +490,14 @@ export default Vue.extend({
               usedShips = usedShips.filter((v, index) => index !== usedIndex);
             }
 
-            // まとめられそうな艦娘がいないか？
+            // まとめられそうな艦娘がいないか？(id 練度 運 対潜 耐久 海域 が一致)
             const serach = ships.find(
               (v) => v.ship.id === viewShip.ship.id
                 && v.level === viewShip.level
                 && v.luck === viewShip.luck
                 && v.area === viewShip.area
+                && v.hp === viewShip.hp
+                && v.asw === viewShip.asw
                 && v.expanded === viewShip.expanded,
             );
             if (serach) {
@@ -534,6 +564,27 @@ export default Vue.extend({
       // 設定書き換え
       this.setting.isMultiLineForShipList = isMulti;
       this.$store.dispatch('updateSetting', this.setting);
+    },
+    bootTooltip(viewShip: ViewShip, e: MouseEvent) {
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+
+        const baseAsw = Ship.getStatusFromLevel(viewShip.level, viewShip.ship.maxAsw, viewShip.ship.minAsw);
+        const ship = new Ship({
+          master: viewShip.ship,
+          hp: viewShip.hp,
+          level: viewShip.level,
+          luck: viewShip.luck,
+          asw: baseAsw + viewShip.asw,
+        });
+        this.tooltipShip = ship;
+        this.enabledTooltip = true;
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });
