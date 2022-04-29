@@ -174,7 +174,7 @@ export default Vue.extend({
   },
   data: () => ({
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
-    rangeText: ['', '短', '中', '長', '超長', '超長+'],
+    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
   }),
   computed: {
     formatStatus() {

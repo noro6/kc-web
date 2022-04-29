@@ -318,11 +318,6 @@ export default class Ship implements ShipBase {
         this.koshaCount += 1;
       }
 
-      // SGレーダー(初期型/後期型) + [ アメリカ駆逐 / 丹陽 / 雪風改二 ] は射程長
-      if ((item.data.id === 315 || item.data.id === 456) && (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656)) {
-        this.actualRange = 3;
-      }
-
       // 対潜支援参加可装備チェック
       if (!this.enabledASWSupport && enabledASWSupport && Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
         this.enabledASWSupport = true;
@@ -338,6 +333,18 @@ export default class Ship implements ShipBase {
     // 伊勢 / 日向 / 飛龍 / 蒼龍の改二 二式艦上偵察機で射程バフ +1
     if (this.items.some((v) => v.data.id === 61) && [553, 554, 196, 197].includes(this.data.id)) {
       this.actualRange += 1;
+    }
+
+    // アメリカ駆逐 / 丹陽 / 雪風改二
+    if (this.data.type2 === 87 || this.data.type2 === 91 || this.data.id === 651 || this.data.id === 656) {
+      // SGレーダー(初期型) 射程+1
+      if (this.items.some((v) => v.data.id === 315)) {
+        this.actualRange += 1;
+      }
+      // SGレーダー(後期型) 射程+1
+      if (this.items.some((v) => v.data.id === 456)) {
+        this.actualRange += 1;
+      }
     }
 
     // 発動可能対空CI取得

@@ -487,7 +487,7 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
-    rangeText: ['', '短', '中', '長', '超長', '超長+'],
+    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     maxAreas: Const.EnabledAreaCount,
   }),
   computed: {

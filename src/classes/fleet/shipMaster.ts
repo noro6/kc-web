@@ -190,8 +190,12 @@ export default class ShipMaster {
         // 装甲空母ならOK
         return type === SHIP_TYPE.CVB;
       }
-      // 15m二重測距儀+21号電探改二 => 大前提は戦艦系のみ
-      if (item.id === 142 && (type === SHIP_TYPE.FBB || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBV)) {
+      // 15m二重測距儀+21号電探改二
+      if (item.id === 142) {
+        // 戦艦系のみ
+        if (type !== SHIP_TYPE.FBB && type !== SHIP_TYPE.BB && type !== SHIP_TYPE.BBV) {
+          return false;
+        }
         const special = itemLink.find((v) => v.api_ship_id === this.id);
         if (special && !special.api_equip_type.includes(13)) {
           // 特定艦で大型電探が省かれていたらアウト
