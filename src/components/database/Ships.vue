@@ -214,7 +214,8 @@
           </div>
           <div v-else class="d-flex">
             <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength" class="mb-4"></v-pagination>
-            <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
+            <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()"> お札一斉解除 </v-btn>
+            <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-5">
               <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
                 <v-icon>mdi-view-headline</v-icon>
                 <span>一覧表示</span>
@@ -932,6 +933,7 @@ export default Vue.extend({
     this.initialize();
     this.unsbscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setShipStock') {
+        // データ更新されたら読み込みなおし ダイアログも消す
         this.shipStock = state.shipStock as ShipStock[];
         this.masterFilter();
         this.editDialog = false;
@@ -1101,8 +1103,6 @@ export default Vue.extend({
         this.addHP.push(i);
       }
 
-      this.masterFilter();
-
       if (this.completed) {
         const setting = this.$store.state.siteSetting as SiteSetting;
         this.changeViewMode(setting.viewTableMode);
@@ -1113,7 +1113,7 @@ export default Vue.extend({
       for (let i = 0; i <= this.maxAreas; i += 1) {
         this.selectedArea.push(i);
       }
-      this.filter();
+      this.masterFilter();
     },
     filter() {
       const masters = this.filteredShips;
@@ -1403,6 +1403,14 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.viewTableMode = modeTable;
       this.$store.dispatch('updateSetting', setting);
+    },
+    resetAreaHuda() {
+      // お札一斉解除
+      const stockAll = this.$store.state.shipStock as ShipStock[];
+      for (let i = 0; i < stockAll.length; i += 1) {
+        stockAll[i].area = 0;
+      }
+      this.$store.dispatch('updateShipStock', stockAll);
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {
