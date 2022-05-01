@@ -190,18 +190,21 @@ export default Vue.extend({
   }),
   created() {
     // 初期化はお早めに
-    this.rates = this.fleet.getContactRates();
-    this.unionRates = this.fleet.getContactRates(true);
-
-    this.graphData = this.getGraphData(this.rates[this.airState]);
-    this.unionGraphData = this.getGraphData(this.unionRates[this.airState]);
-
-    this.graphLegends = [];
-    for (let i = 0; i < 4; i += 1) {
-      this.graphLegends.push({ text: contactGraphLabels[i], color: contactGraphColors[i] });
-    }
+    this.calculate();
   },
   methods: {
+    calculate() {
+      this.rates = this.fleet.getContactRates();
+      this.unionRates = this.fleet.getContactRates(true);
+
+      this.graphData = this.getGraphData(this.rates[this.airState]);
+      this.unionGraphData = this.getGraphData(this.unionRates[this.airState]);
+
+      this.graphLegends = [];
+      for (let i = 0; i < 4; i += 1) {
+        this.graphLegends.push({ text: contactGraphLabels[i], color: contactGraphColors[i] });
+      }
+    },
     changeAirState(): void {
       this.graphData = this.getGraphData(this.rates[this.airState]);
       this.unionGraphData = this.getGraphData(this.unionRates[this.airState]);

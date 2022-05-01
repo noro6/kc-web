@@ -18,7 +18,7 @@
       </v-tab-item>
       <v-tab-item value="contact" class="detail-fleet">
         <v-divider></v-divider>
-        <contact-rates :fleet="fleet" />
+        <contact-rates :fleet="fleet" ref="contactRates" />
       </v-tab-item>
       <v-tab-item value="anti-submarine-calculator" class="detail-fleet">
         <v-divider></v-divider>
@@ -73,6 +73,16 @@ export default Vue.extend({
   data: () => ({
     tab: 'stage2',
   }),
+  mounted() {
+    const contact = this.$refs.contactRates as InstanceType<typeof ContactRates>;
+    if (contact) {
+      contact.calculate();
+    }
+    const antiAirCalculator = this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>;
+    if (antiAirCalculator) {
+      antiAirCalculator.updateTable();
+    }
+  },
   methods: {
     close() {
       this.handleClose();

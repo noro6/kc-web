@@ -71,7 +71,12 @@
               <div class="align-self-center body-2 ml-1">{{ fleet.mainAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in fleet.mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              <enemy-input
+                v-for="(enemy, i) in fleet.mainEnemies"
+                :key="i"
+                :enemy="enemy"
+                :handle-show-item-list="showItemList"
+              ></enemy-input>
             </div>
           </div>
           <v-divider v-if="fleet.isUnion"></v-divider>
@@ -84,18 +89,23 @@
               <div class="align-self-center body-2 ml-1">{{ fleet.escortAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
-              <enemy-input v-for="(enemy, i) in fleet.escortEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
+              <enemy-input
+                v-for="(enemy, i) in fleet.escortEnemies"
+                :key="i"
+                :enemy="enemy"
+                :handle-show-item-list="showItemList"
+              ></enemy-input>
             </div>
           </div>
         </div>
       </v-tab-item>
       <v-tab-item value="stage2" class="detail-fleet">
         <v-divider></v-divider>
-        <anti-air-calculator :fleet="fleet" />
+        <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
       </v-tab-item>
       <v-tab-item value="contact" class="detail-fleet">
         <v-divider></v-divider>
-        <contact-rates :fleet="fleet" />
+        <contact-rates :fleet="fleet" ref="contactRates" />
       </v-tab-item>
     </v-tabs>
   </v-card>
@@ -170,6 +180,16 @@ export default Vue.extend({
   data: () => ({
     tab: 'stage2',
   }),
+  mounted() {
+    const contact = this.$refs.contactRates as InstanceType<typeof ContactRates>;
+    if (contact) {
+      contact.calculate();
+    }
+    const antiAirCalculator = this.$refs.antiAirCalculator as InstanceType<typeof AntiAirCalculator>;
+    if (antiAirCalculator) {
+      antiAirCalculator.updateTable();
+    }
+  },
   methods: {
     showItemList(enemyIndex: number, slotIndex: number): void {
       // 敵の装備変更

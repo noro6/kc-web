@@ -213,9 +213,8 @@
             <div>みつからないよ</div>
           </div>
           <div v-else class="d-flex">
-            <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength" class="mb-4"></v-pagination>
-            <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()"> お札一斉解除 </v-btn>
-            <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-5">
+            <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength"></v-pagination>
+            <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
               <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
                 <v-icon>mdi-view-headline</v-icon>
                 <span>一覧表示</span>
@@ -225,6 +224,9 @@
                 <span>艦隊分析表示</span>
               </v-btn>
             </v-btn-toggle>
+          </div>
+          <div class="d-flex my-2">
+            <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()"> お札一斉解除 </v-btn>
           </div>
           <div class="ship-table" v-if="modeTable">
             <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
