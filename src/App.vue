@@ -357,7 +357,6 @@
               <div class="flex-grow-1 align-self-center mt-3">
                 <v-file-input
                   v-model="fileValue"
-                  accept="text/plain"
                   label="復元するバックアップファイルを選択"
                   @change="handleFileSelect"
                   dense
@@ -913,16 +912,13 @@ export default Vue.extend({
     downloadBackupFile() {
       const data = JSON.stringify(this.saveData.getMinifyData());
       const minify = LZString.compressToUTF16(data);
-      const blob = new Blob([minify], { type: 'text/plain' });
-      saveAs(blob, `backup_${Convert.formatDate(new Date(), 'yyyyMMdd')}.txt`);
+      const blob = new Blob([minify], { type: 'application/octet-stream' });
+      saveAs(blob, `backup_${Convert.formatDate(new Date(), 'yyyyMMdd')}`);
     },
     async handleFileSelect(file: File) {
       this.backupString = undefined;
       if (!file) {
         return;
-      }
-      if (file.type !== 'text/plain') {
-        this.inform('読み込み失敗 -正しいバックアップデータを指定してください。', true);
       }
       try {
         const minify = await file.text();
