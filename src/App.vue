@@ -254,7 +254,7 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
       <v-card>
-        <div class="px-5 pb-0 pt-5">
+        <div class="pa-5">
           <div class="d-flex">
             <div class="body-2">サイトカラーテーマ</div>
             <div class="header-divider"></div>
@@ -343,6 +343,28 @@
               <div class="ml-3 align-self-center">回</div>
             </div>
           </div>
+          <div class="d-flex mt-5">
+            <div class="body-2">編成データのバックアップ</div>
+            <div class="header-divider"></div>
+          </div>
+          <div class="ml-3 mt-2">
+            <div class="d-flex">
+              <v-btn color="primary" @click="downloadBackupFile()">作成</v-btn>
+              <div class="caption align-self-center ml-4">… 保存した編成データのバックアップファイルを生成します。</div>
+            </div>
+            <div class="d-flex mt-3">
+              <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">復元</v-btn>
+              <div class="flex-grow-1 align-self-center mt-3">
+                <v-file-input
+                  v-model="fileValue"
+                  accept="text/plain"
+                  label="復元するバックアップファイルを選択"
+                  @change="handleFileSelect"
+                  dense
+                ></v-file-input>
+              </div>
+            </div>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -400,6 +422,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import { saveAs } from 'file-saver';
 import cloneDeep from 'lodash/cloneDeep';
 import colors from 'vuetify/lib/util/colors';
 import Convert from '@/classes/convert';
@@ -411,6 +434,7 @@ import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
+import LZString from 'lz-string';
 
 export default Vue.extend({
   name: 'App',
@@ -447,6 +471,8 @@ export default Vue.extend({
     disabledUpload: true,
     saveDialogTab: 'save',
     enabledFixDrawer: false,
+    backupString: undefined as undefined | string,
+    fileValue: undefined as File | undefined,
   }),
   computed: {
     completed() {
@@ -882,6 +908,62 @@ export default Vue.extend({
         this.enabledFixDrawer = false;
       } else if (!this.enabledFixDrawer && window.innerWidth >= 1480) {
         this.enabledFixDrawer = true;
+      }
+    },
+    downloadBackupFile() {
+      const data = JSON.stringify(this.saveData.getMinifyData());
+      const minify = LZString.compressToUTF16(data);
+      const blob = new Blob([minify], { type: 'text/plain' });
+      saveAs(blob, `backup_${Convert.formatDate(new Date(), 'yyyyMMdd')}.txt`);
+    },
+    async handleFileSelect(file: File) {
+      this.backupString = undefined;
+      if (!file) {
+        return;
+      }
+      if (file.type !== 'text/plain') {
+        this.inform('読み込み失敗 -正しいバックアップデータを指定してください。', true);
+      }
+      try {
+        const minify = await file.text();
+        const saveDataString = LZString.decompressFromUTF16(minify);
+        // セーブデータとして復元できるかチェック
+        if (saveDataString && SaveData.IsSaveData(JSON.parse(saveDataString) as SaveData)) {
+          this.backupString = saveDataString;
+        } else {
+          throw new Error('復号に失敗');
+        }
+      } catch (error) {
+        console.error(error);
+        this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイル', true);
+      }
+    },
+    importBackupData() {
+      const str = this.backupString;
+      this.backupString = undefined;
+      this.fileValue = undefined;
+      if (str) {
+        if (this.isAirCalcPage) {
+          // ページ遷移
+          this.$router.push('/');
+        }
+        const saveData = SaveData.getInstance(JSON.parse(str) as SaveData);
+        saveData.isReadonly = true;
+
+        for (let i = 0; i < saveData.childItems.length; i += 1) {
+          const unsavedData = saveData.childItems[i];
+          // ディレクトリ以外は非保存データなので書き換え
+          if (!unsavedData.isDirectory) {
+            unsavedData.isUnsaved = true;
+            unsavedData.isActive = true;
+          } else {
+            unsavedData.isOpen = true;
+            unsavedData.isReadonly = true;
+          }
+        }
+
+        this.$store.dispatch('updateSaveData', saveData);
+        this.inform('バックアップデータを復元しました。');
       }
     },
   },

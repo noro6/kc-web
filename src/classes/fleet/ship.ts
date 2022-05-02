@@ -468,12 +468,12 @@ export default class Ship implements ShipBase {
     const isJapanese = Const.isJPN(type2);
 
     // 累積不可
-    // SKレーダー
+    // SK レーダー
     if (items.some((v) => v.data.id === 278)) {
       // 米艦
       if (isAmerica) sumBonus += 1;
     }
-    // SK＋SGレーダー
+    // SK＋SG レーダー
     if (items.some((v) => v.data.id === 279)) {
       // 米艦
       if (isAmerica) sumBonus += 2;

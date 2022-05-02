@@ -1,6 +1,8 @@
 <template>
   <div class="site-top-container">
-    <div class="site-title content">制空権シミュレータ <span class="body-1">v{{$store.state.siteVersion}}</span></div>
+    <div class="site-title content">
+      制空権シミュレータ <span class="body-1">v{{ $store.state.siteVersion }}</span>
+    </div>
     <v-card class="site-body content">
       <div class="menu-buttons">
         <div class="my-2 mx-4">
@@ -23,7 +25,7 @@
           <div class="mt-2 body-2">
             <div>サブの機能です。</div>
             <div class="mt-2">
-              自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってたっけ…？と迷う心配がなくなります。
+              自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってた…？と悩む心配がなくなります。
             </div>
           </div>
         </div>

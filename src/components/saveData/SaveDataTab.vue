@@ -33,22 +33,21 @@
     </draggable>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="520">
       <v-card class="pa-3">
-        <div class="ma-4">
-          <div class="body-2">未保存の変更内容がありますが、このままこの編成タブを閉じますか？</div>
+        <div class="mx-4 mt-4">
+          <div class="body-2">未保存の変更内容がありますが、このまま編成タブを閉じますか？</div>
           <div class="mt-3 caption">
             戻って保存するには、画面上部の「<v-icon small>mdi-content-save</v-icon>編成保存」を押してください。
           </div>
           <div class="caption">変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。</div>
-          <v-divider class="mt-5"></v-divider>
-          <div>
-            <v-checkbox v-model="disabledConfirm" label="次回以降表示しない" hide-details dense></v-checkbox>
-          </div>
-          <div class="caption mt-1 ml-1">設定（サイト最右上の<v-icon small>mdi-cog</v-icon>）からいつでも変更できます。</div>
         </div>
-        <v-divider class="my-2"></v-divider>
-        <div class="d-flex">
-          <v-btn class="ml-auto" color="red" dark @click.stop="closeTab(deleteConfirmData)">続行</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">戻る</v-btn>
+        <v-divider class="mt-4"></v-divider>
+        <div class="d-flex mt-1">
+          <div class="ml-4">
+            <v-checkbox v-model="disabledConfirm" label="次回以降表示しない" hide-details dense></v-checkbox>
+            <div class="caption ml-1">設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
+          </div>
+          <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">続行</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">戻る</v-btn>
         </div>
       </v-card>
     </v-dialog>

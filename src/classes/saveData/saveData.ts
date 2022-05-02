@@ -157,8 +157,34 @@ export default class SaveData {
   }
 
   /**
+   * 引数のオブジェクトがSaveDataたり得るか
+   * @static
+   * @param {SaveData} data
+   * @return {*}  {boolean}
+   * @memberof SaveData
+   */
+  public static IsSaveData(data: SaveData): boolean {
+    if (data.id === undefined
+      || data.name === undefined
+      || data.manager === undefined
+      || data.isDirectory === undefined
+      || data.childItems === undefined
+      || data.childItems.length === undefined) {
+      return false;
+    }
+    // 子要素を再帰的にチェック
+    for (let i = 0; i < data.childItems.length; i += 1) {
+      if (!SaveData.IsSaveData(data.childItems[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
    * 実際にブラウザに保存する用のデータ
-   * 未保存のデータ（Undo Redo配列）は一切保存しない
+   * Undo Redo配列は保存しない
    * @returns {SaveData}
    * @memberof SaveData
    */
