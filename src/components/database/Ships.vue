@@ -225,7 +225,7 @@
               </v-btn>
             </v-btn-toggle>
           </div>
-          <div class="d-flex my-2">
+          <div class="d-flex my-2" v-if="!readOnly">
             <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()"> お札一斉解除 </v-btn>
           </div>
           <div class="ship-table" v-if="modeTable">
