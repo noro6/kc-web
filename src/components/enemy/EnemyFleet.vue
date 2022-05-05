@@ -261,6 +261,7 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+      this.toggleDetailDialog();
     },
     bootTooltip(enemy: Enemy, e: MouseEvent) {
       if (!enemy.data.id) {

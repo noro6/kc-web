@@ -339,6 +339,7 @@ export default Vue.extend({
     },
     closeDetail() {
       this.detailDialog = false;
+      this.toggleDetailDialog();
     },
     toggleViewLine(value: boolean) {
       const setting = this.$store.state.siteSetting as SiteSetting;
