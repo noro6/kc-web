@@ -33,13 +33,13 @@ export default class Calculator {
         continue;
       }
 
-      /** ======= 基地噴式強襲 ======= */
-      if (airbase.hasJet) {
-        Calculator.ShootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
-      }
-
       /** ======= 基地航空隊 第1波 ======= */
       if (wave1 === battle) {
+        /** ======= 基地噴式強襲 ======= */
+        if (airbase.hasJet) {
+          Calculator.ShootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
+        }
+
         const state = CommonCalc.getAirState(airbase.airPower, enemyFleet.airbaseAirPower);
         // 結果の格納
         airbase.resultWave1.rates[state] += 1;
@@ -56,8 +56,9 @@ export default class Calculator {
 
       /** ======= 基地航空隊 第2波 ======= */
       if (wave2 === battle) {
-        if (airbase.isSeparate) {
-          // 基地噴式強襲をもう一度
+        /** ======= 基地噴式強襲 ======= */
+        if (airbase.hasJet && airbase.isSeparate) {
+          // 分散のときだけ
           Calculator.ShootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
         }
 
