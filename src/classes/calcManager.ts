@@ -60,6 +60,11 @@ export default class CalcManager {
     // 計算結果表示戦闘
     const { mainBattle } = this;
 
+    // 基地タゲの昇順化
+    for (let i = 0; i < this.airbaseInfo.airbases.length; i += 1) {
+      this.airbaseInfo.airbases[i].battleTarget.sort((a, b) => a - b);
+    }
+
     // プロパティのみを取り出す
     const cloned = JSON.stringify(this);
     const calcInfo = JSON.parse(cloned) as CalcManager;
