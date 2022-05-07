@@ -550,12 +550,12 @@ export default Vue.extend({
         const [cell1, cell2] = airbase.battleTarget.map((v) => this.battleInfo.fleets[v]);
         if (cell1 && airbase.range < cell1.range) {
           // 6-4基地半径緩和チェック
-          if (cell1.area !== 64 || !airbase.hasJet) {
+          if (cell1.area !== 64 || cell1.nodeName !== 'N' || !airbase.hasJet) {
             errors.push(`第${i + 1}`);
           }
         } else if (cell2 && airbase.range < cell2.range) {
           // 6-4基地半径緩和チェック
-          if (cell2.area !== 64 || !airbase.hasJet) {
+          if (cell2.area !== 64 || cell2.nodeName !== 'N' || !airbase.hasJet) {
             errors.push(`第${i + 1}`);
           }
         }
