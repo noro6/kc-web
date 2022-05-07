@@ -776,8 +776,8 @@ export default Vue.extend({
       }
 
       if (slotIndex < items.length) {
-        if (item.data.id === 138 && ship.data.type2 === 90) {
-          // 日進 & 二式大艇
+        if (item.data.apiTypeId === 41 && ship.data.type2 === 90) {
+          // 日進 & 大型飛行艇
           items[slotIndex] = new Item({
             item: items[slotIndex],
             master,

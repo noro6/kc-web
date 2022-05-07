@@ -71,7 +71,12 @@
         </v-card>
       </v-menu>
       <!-- 熟練度 -->
-      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
+      <v-menu
+        offset-y
+        transition="slide-y-transition"
+        left
+        :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy"
+      >
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
             <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
@@ -504,8 +509,17 @@ export default Vue.extend({
       if (droppedData) {
         const builder: ItemBuilder = { item: JSON.parse(droppedData) as Item };
         if (!this.dragSlot) {
-          // 搭載数変更しないオプションがついているなら搭載数は据え置く
-          builder.slot = this.value.fullSlot;
+          // 搭載数変更しないオプションがついている => 専ら艦娘画面でのドラッグ操作
+          if (builder.item && builder.item.data.apiTypeId === 41) {
+            // 大型飛行艇で上書きする => 搭載数を1に減少させる
+            builder.slot = 1;
+          } else if (this.value.data.apiTypeId === 41) {
+            // もともと大型飛行艇が入っていた => 搭載数を引き継がず、初期搭載にする
+            builder.slot = this.init;
+          } else {
+            // 元々入っていた装備の搭載数を引き継ぐ
+            builder.slot = this.value.fullSlot;
+          }
         }
         this.setItem(new Item(builder));
       }
@@ -515,6 +529,16 @@ export default Vue.extend({
       const itemInputs = document.getElementsByClassName('item-input');
       for (let i = 0; i < itemInputs.length; i += 1) {
         itemInputs[i].classList.remove('dragging');
+      }
+
+      // 判定されていた全てのitem-input情報から判定を解除
+      const elements1 = document.getElementsByClassName('enabled-drop');
+      while (elements1.length > 0) {
+        elements1[0].classList.remove('enabled-drop');
+      }
+      const elements2 = document.getElementsByClassName('disabled-drop');
+      while (elements2.length > 0) {
+        elements2[0].classList.remove('disabled-drop');
       }
 
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
@@ -541,10 +565,23 @@ export default Vue.extend({
         // 交換前にチェック
         const link = this.$store.state.equipShips as MasterEquipmentShip[];
         const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-        if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(builder.item.data, link, exLink, this.index)) {
-          // 搭載不可なので外す
-          builder.item = undefined;
-          this.setItem(new Item(builder));
+        if (this.itemParent instanceof Ship) {
+          if (!this.itemParent.data.isValidItem(builder.item.data, link, exLink, this.index)) {
+            // 搭載不可なので外す
+            builder.item = undefined;
+            this.setItem(new Item(builder));
+          } else {
+            // 日進 & 大型飛行艇調整
+            if (builder.item.data.apiTypeId === 41) {
+              // 交換として受け渡されてきた装備が大型飛行艇 => 搭載数を1に矯正
+              builder.slot = 1;
+            } else if (this.value.data.apiTypeId === 41) {
+              // 元々ここにあった装備が大型飛行艇 => 搭載数をいったん初期値に矯正
+              builder.slot = this.init;
+            }
+            this.setItem(new Item(builder));
+            delete draggingDiv.dataset.item;
+          }
         } else {
           this.setItem(new Item(builder));
           delete draggingDiv.dataset.item;
@@ -556,16 +593,6 @@ export default Vue.extend({
       } else {
         // 計算を発火
         this.setItem(new Item({ item: this.value }));
-      }
-
-      // 判定されていた全てのitem-input情報から判定を解除
-      const elements1 = document.getElementsByClassName('enabled-drop');
-      for (let i = 0; i < elements1.length; i += 1) {
-        elements1[i].classList.remove('enabled-drop');
-      }
-      const elements2 = document.getElementsByClassName('disabled-drop');
-      for (let i = 0; i < elements2.length; i += 1) {
-        elements2[i].classList.remove('disabled-drop');
       }
 
       // drag処理の終了
