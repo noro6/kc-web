@@ -498,7 +498,11 @@ export default Vue.extend({
     this.changeMultiLine(this.setting.isMultiLineForItemList);
 
     for (let i = 0; i < this.headerItems.length; i += 1) {
-      this.filterStatusItems.push({ text: this.headerItems[i].text, value: this.headerItems[i].key });
+      const { text, key } = this.headerItems[i];
+      if (text === '対潜' && this.filterStatusItems.find((v) => v.text === '対潜')) {
+        continue;
+      }
+      this.filterStatusItems.push({ text, value: key });
     }
   },
   computed: {

@@ -524,7 +524,8 @@ export default Vue.extend({
     },
     onLevelMenuToggle() {
       if (!this.levelMenu) {
-        const builder: ShipBuilder = { ship: this.ship, level: this.level };
+        const asw = Ship.getStatusFromLevel(this.level, this.ship.data.maxAsw, this.value.data.minAsw);
+        const builder: ShipBuilder = { ship: this.ship, level: this.level, asw };
         this.setShip(new Ship(builder));
       } else {
         this.level = this.ship.level;
