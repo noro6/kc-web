@@ -86,7 +86,7 @@
     </div>
     <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
     <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
-      <div v-if="!multiLine && viewItems.length" class="item-status-header pr-3">
+      <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div
           class="item-status"
           v-for="(data, i) in headerItems"
@@ -368,6 +368,7 @@
   font-size: 0.8em;
 }
 .item-status-header .item-status {
+  padding-right: 4px;
   font-size: 11px;
   opacity: 0.8;
   cursor: pointer;
@@ -813,15 +814,14 @@ export default Vue.extend({
       if (this.filterStatus && this.filterStatusValue) {
         const filterKey = this.filterStatus;
         const value = this.filterStatusValue;
+        const isActualFilterKey = filterKey.indexOf('actual') >= 0
+          || filterKey === 'tp'
+          || filterKey === 'airPower'
+          || filterKey === 'defenseAirPower'
+          || filterKey === 'antiAirWeight'
+          || filterKey === 'antiAirBonus';
         this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
-          if (
-            filterKey.indexOf('actual') >= 0
-            || filterKey === 'tp'
-            || filterKey === 'airPower'
-            || filterKey === 'defenseAirPower'
-            || filterKey === 'antiAirWeight'
-            || filterKey === 'antiAirBonus'
-          ) {
+          if (isActualFilterKey) {
             return v.item[filterKey] >= value;
           }
           return (v.item.data as { [key: string]: number })[filterKey] >= value;
@@ -864,25 +864,26 @@ export default Vue.extend({
       } else if (this.sortKey === value && !this.isDesc) {
         // 3回目 ソート解除
         this.sortKey = '';
+        this.filter();
+        return;
       }
 
-      this.filter();
+      this.sortItems();
     },
     sortItems() {
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
+      const isActualValue = key.indexOf('actual') >= 0
+        || key === 'tp'
+        || key === 'airPower'
+        || key === 'defenseAirPower'
+        || key === 'antiAirWeight'
+        || key === 'antiAirBonus';
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
-        if (
-          key.indexOf('actual') >= 0
-          || key === 'tp'
-          || key === 'airPower'
-          || key === 'defenseAirPower'
-          || key === 'antiAirWeight'
-          || key === 'antiAirBonus'
-        ) {
+        if (isActualValue) {
           return desc * ((b.item[key] as number) - (a.item[key] as number));
         }
-        return desc * (b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key];
+        return desc * ((b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key]);
       });
     },
     bootTooltip(item: Item, e: MouseEvent) {
