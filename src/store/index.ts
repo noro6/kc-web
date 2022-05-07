@@ -3,7 +3,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import Ship from '@/classes/fleet/ship';
-import Const from '@/classes/const';
 import KcWebDatabase from '@/classes/db';
 import CalcManager from '@/classes/calcManager';
 import SiteSetting from '@/classes/siteSetting';
@@ -49,6 +48,7 @@ export default new Vuex.Store({
     searchedList: [] as UploadedPreset[],
     completed: false,
     saveDataLoadCompleted: false,
+    disabledDatabase: false,
   },
   mutations: {
     setShips: (state, values: MasterShip[]) => {
@@ -135,13 +135,18 @@ export default new Vuex.Store({
     setSearchedList: (state, values: UploadedPreset[]) => {
       state.searchedList = values;
     },
+    setDisabledDatabase: (state, value: boolean) => {
+      state.disabledDatabase = value;
+    },
   },
   actions: {
     updateSaveData(context, value: SaveData) {
       const minifyData = value.getMinifyData();
       // root直下の非保存データを除去 => 中止 そのまま残す
       // minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
-      context.state.kcWebDatabase.savedata.put(minifyData);
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.savedata.put(minifyData);
+      }
 
       context.commit('updateSaveData', value);
     },
@@ -155,15 +160,19 @@ export default new Vuex.Store({
       context.commit('setDraggingShipData', value);
     },
     updateItemStock: (context, values: ItemStock[]) => {
-      context.state.kcWebDatabase.items.clear().then(() => {
-        context.state.kcWebDatabase.items.bulkAdd(values);
-      });
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.items.clear().then(() => {
+          context.state.kcWebDatabase.items.bulkAdd(values);
+        });
+      }
       context.commit('setItemStock', values);
     },
     updateShipStock: (context, values: ShipStock[]) => {
-      context.state.kcWebDatabase.ships.clear().then(() => {
-        context.state.kcWebDatabase.ships.bulkAdd(values);
-      });
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.ships.clear().then(() => {
+          context.state.kcWebDatabase.ships.bulkAdd(values);
+        });
+      }
       context.commit('setShipStock', values);
     },
     updateTempItemStock: (context, values: ItemStock[]) => {
@@ -173,25 +182,33 @@ export default new Vuex.Store({
       context.commit('updateTempShipStock', values);
     },
     updateItemPresets: (context, values: ItemPreset[]) => {
-      context.state.kcWebDatabase.itemPresets.clear().then(() => {
-        context.state.kcWebDatabase.itemPresets.bulkAdd(values);
-      });
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.itemPresets.clear().then(() => {
+          context.state.kcWebDatabase.itemPresets.bulkAdd(values);
+        });
+      }
       context.commit('updateItemPresets', values);
     },
     updateManualEnemies: (context, values: EnemyMaster[]) => {
-      context.state.kcWebDatabase.manualEnemies.clear().then(() => {
-        context.state.kcWebDatabase.manualEnemies.bulkAdd(values);
-      });
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.manualEnemies.clear().then(() => {
+          context.state.kcWebDatabase.manualEnemies.bulkAdd(values);
+        });
+      }
       context.commit('updateManualEnemies', values);
     },
     updateOutputHistories: (context, values: OutputHistory[]) => {
-      context.state.kcWebDatabase.outputHistories.clear().then(() => {
-        context.state.kcWebDatabase.outputHistories.bulkAdd(values);
-      });
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.outputHistories.clear().then(() => {
+          context.state.kcWebDatabase.outputHistories.bulkAdd(values);
+        });
+      }
       context.commit('updateOutputHistories', values);
     },
     updateSetting: (context, value: SiteSetting) => {
-      context.state.kcWebDatabase.setting.put(value, 'setting');
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.setting.put(value, 'setting');
+      }
       context.commit('updateSetting', value);
     },
     setSearchedList(context, values: UploadedPreset[]) {
@@ -289,9 +306,21 @@ export default new Vuex.Store({
       // ロード画面を入れる
       context.commit('saveDataLoadCompleted', false);
 
-      const db = context.state.kcWebDatabase;
+      let db: KcWebDatabase;
       // セーブデータ読込
-      const saveData = await db.savedata.get('root');
+      let saveData: SaveData | undefined;
+      try {
+        db = context.state.kcWebDatabase;
+        saveData = await db.savedata.get('root');
+      } catch (error) {
+        // おそらくindexedDBが使えないから
+        console.error(error);
+
+        context.commit('setDisabledDatabase', true);
+        context.commit('updateSaveData', SaveData.createInitialSaveData());
+        context.commit('saveDataLoadCompleted', true);
+        return;
+      }
       if (saveData && saveData.childItems.length) {
         // データあり 再インスタンス化してからstoreにセット
         const data = SaveData.getInstance(saveData);
@@ -313,35 +342,10 @@ export default new Vuex.Store({
         for (let i = 0; i < alreadyChildFile.length; i += 1) {
           data.childItems.push(alreadyChildFile[i]);
         }
-        context.state.saveData = data;
         context.commit('updateSaveData', data);
       } else {
         // 初期セーブデータ作成
-        const root = new SaveData('root');
-        root.isDirectory = true;
-        root.isReadonly = true;
-
-        const folder = new SaveData();
-        folder.name = '保存されたデータ';
-        folder.isDirectory = true;
-        folder.isReadonly = true;
-        folder.isOpen = true;
-        root.childItems.push(folder);
-
-        // 初期フォルダー作成 第1～7海域まで作ってやる
-        for (let i = 1; i <= 7; i += 1) {
-          const world = Const.WORLDS.find((v) => v.value === i);
-          if (world) {
-            const newFolder = new SaveData();
-            newFolder.name = world.text;
-            newFolder.isDirectory = true;
-            newFolder.isUnsaved = false;
-            folder.childItems.push(newFolder);
-          }
-        }
-        folder.sortChild();
-
-        context.state.saveData = root;
+        const root = SaveData.createInitialSaveData();
         context.commit('updateSaveData', root);
       }
 
@@ -355,15 +359,15 @@ export default new Vuex.Store({
       });
       // 装備プリセ呼び出し
       const loadItemPreset = db.itemPresets.toArray().then((data) => {
-        context.state.itemPresets = data;
+        context.commit('updateItemPresets', data);
       });
       // 手動設定敵艦
       const loadManualEnemy = db.manualEnemies.toArray().then((data) => {
-        context.state.manualEnemies = data;
+        context.commit('updateManualEnemies', data);
       });
       // 出力履歴
       const loadHistory = db.outputHistories.toArray().then((data) => {
-        context.state.outputHistories = data;
+        context.commit('updateOutputHistories', data);
       });
 
       const loader = [loadShipStock, loadItemStock, loadItemPreset, loadManualEnemy, loadHistory];
@@ -372,12 +376,19 @@ export default new Vuex.Store({
       });
     },
     loadSetting: async (context) => {
-      const db = context.state.kcWebDatabase;
-      // 設定情報呼び出し
-      const setting = await db.setting.get('setting');
-      if (setting) {
-        context.commit('updateSetting', new SiteSetting(setting));
-      } else {
+      try {
+        const db = context.state.kcWebDatabase;
+        // 設定情報呼び出し
+        const setting = await db.setting.get('setting');
+        if (setting) {
+          context.commit('updateSetting', new SiteSetting(setting));
+        } else {
+          context.commit('updateSetting', new SiteSetting());
+        }
+      } catch (error) {
+        // おそらくindexedDBが使えない
+        console.error(error);
+        context.commit('setDisabledDatabase', true);
         context.commit('updateSetting', new SiteSetting());
       }
     },

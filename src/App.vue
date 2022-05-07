@@ -254,7 +254,7 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
       <v-card>
-        <div class="pa-5">
+        <div class="px-5 pt-4 pb-2">
           <div class="d-flex">
             <div class="body-2">サイトカラーテーマ</div>
             <div class="header-divider"></div>
@@ -302,7 +302,7 @@
               </div>
             </div>
           </div>
-          <div class="d-flex mt-5">
+          <div class="d-flex mt-3">
             <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
             <div class="header-divider"></div>
           </div>
@@ -312,7 +312,7 @@
               <v-spacer></v-spacer>
             </div>
           </div>
-          <div class="d-flex mt-5">
+          <div class="d-flex mt-3">
             <div class="body-2">装備選択時のデフォルト熟練度</div>
             <div class="header-divider"></div>
           </div>
@@ -343,7 +343,7 @@
               <div class="ml-3 align-self-center">回</div>
             </div>
           </div>
-          <div class="d-flex mt-5">
+          <div class="d-flex">
             <div class="body-2">編成データのバックアップ</div>
             <div class="header-divider"></div>
           </div>
@@ -373,6 +373,18 @@
           <div class="pt-2">マスターデータ読込中...</div>
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="disabledIndexedDB" persistent width="520">
+      <v-card class="pt-5 pb-3 px-5">
+        <v-alert border="left" dense outlined type="error">本ブラウザではデータ保存機能が利用できません。</v-alert>
+        <div class="mt-2 body-2">お使いのブラウザはIndexedDB非対応のようです。</div>
+        <div class="body-2">編成、設定、艦娘/装備を含む全データは本サイトを閉じた時点で削除されます。</div>
+        <div class="body-2">別のブラウザのご利用をお勧めします。</div>
+        <v-divider class="my-3"></v-divider>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="secondary" @click.stop="disabledIndexedDB = false">OK</v-btn>
+        </div>
       </v-card>
     </v-dialog>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
@@ -472,6 +484,7 @@ export default Vue.extend({
     enabledFixDrawer: false,
     backupString: undefined as undefined | string,
     fileValue: undefined as File | undefined,
+    disabledIndexedDB: false,
   }),
   computed: {
     completed() {
@@ -581,6 +594,7 @@ export default Vue.extend({
       }
 
       this.loading = !value;
+      this.disabledIndexedDB = this.$store.state.disabledDatabase;
     },
     isTempStockMode(value) {
       this.readOnlyMode = !!value;
