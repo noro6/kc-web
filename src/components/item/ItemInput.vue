@@ -23,7 +23,8 @@
     >
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on" class="item-slot">
-          {{ item.fullSlot }}
+          <span v-if="!isExpandSlot">{{ item.fullSlot }}</span>
+          <v-icon v-else>mdi-wrench</v-icon>
         </div>
       </template>
       <v-card class="px-2">
@@ -37,7 +38,6 @@
     <!-- 装備種別 -->
     <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
       <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
-      <v-icon v-else-if="isExpandSlot">mdi-wrench</v-icon>
     </div>
     <!-- 装備名称 -->
     <div
@@ -136,6 +136,11 @@
 .theme--dark .item-slot:hover {
   filter: drop-shadow(0 0 2px #fff);
 }
+.item-slot .v-icon {
+  margin-top: 2px;
+  font-size: 18px;
+}
+
 .item-icon.draggable {
   cursor: move;
 }
@@ -280,7 +285,6 @@
 }
 /** その他けしてもいいやつ */
 .not-plane .item-level,
-.expand .item-slot,
 .expand .item-level {
   cursor: default;
   opacity: 0;
