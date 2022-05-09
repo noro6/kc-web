@@ -70,6 +70,9 @@ export default class Ship implements ShipBase {
   /** 対潜値 */
   public readonly asw: number;
 
+  /** 改修分対潜値 */
+  public readonly improveAsw: number;
+
   /** 装備による対潜上昇値 */
   public readonly itemAsw: number;
 
@@ -230,6 +233,7 @@ export default class Ship implements ShipBase {
     // レベルより算出
     this.scout = Ship.getStatusFromLevel(this.level, this.data.maxScout, this.data.minScout);
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
+    this.improveAsw = Math.max(this.asw - Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw), 0);
 
     // 索敵ボーナス
     this.bonusScout = this.getBonusScout();

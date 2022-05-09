@@ -459,7 +459,7 @@ export default Vue.extend({
           const ships: ViewShip[] = [];
           for (let j = 0; j < stockData.length; j += 1) {
             const shipData = stockData[j];
-            const viewShip = {
+            const viewShip: ViewShip = {
               ship: master,
               count: 1,
               level: shipData.level,
@@ -480,9 +480,9 @@ export default Vue.extend({
               (v) => v.data.id === master.id
                 && v.level === viewShip.level
                 && v.hp === viewShip.hp
-                && v.asw === viewShip.asw
                 && v.luck === viewShip.luck
-                && v.area === viewShip.area,
+                && v.area === viewShip.area
+                && v.improveAsw === viewShip.asw,
             );
             if (usedIndex >= 0) {
               // 配備済みなら減らす
