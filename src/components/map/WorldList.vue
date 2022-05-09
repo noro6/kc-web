@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="map-img-area">
-        <img usemap="#click_map" class="mx-auto d-block" :src="`./img/map/${area}.png`" />
+        <img usemap="#click_map" class="mx-auto d-block" :src="`https://res.cloudinary.com/aircalc/kc-web/map/${area}.png`" />
         <map name="click_map">
           <area
             class="node"
