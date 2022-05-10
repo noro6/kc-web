@@ -81,7 +81,8 @@ export default class AirbaseInfo {
     }
 
     if (this.airbases.length < 3) {
-      for (let i = 0; i < 3; i += 1) {
+      const sub = 3 - this.airbases.length;
+      for (let i = 0; i < sub; i += 1) {
         this.airbases.push(new Airbase());
       }
     }

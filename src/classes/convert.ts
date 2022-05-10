@@ -134,6 +134,10 @@ export default class Convert {
         const fleet = json.f1;
         const ships: Ship[] = [];
         Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
+        const sub = 6 - ships.length;
+        for (let i = 0; i < sub; i += 1) {
+          ships.push(new Ship());
+        }
         fleets.push(new Fleet({ ships }));
       }
       if (json.f2) {
@@ -206,7 +210,10 @@ export default class Convert {
   private convertDeckToShip(s: DeckBuilderShip): Ship {
     const master = this.shipMasters.find((v) => v.id === +s.id) || new ShipMaster();
     const shipLv = s.lv || 99;
-    const luck = (s.luck && s.luck) > 0 ? s.luck : master.luck;
+    const luck = (s.luck && s.luck > 0) ? s.luck : master.luck;
+    const baseHP = (shipLv > 99 ? master.hp2 : master.hp);
+    const hp = (s.hp && s.hp > 0) ? s.hp : baseHP;
+    const asw = (s.asw && s.asw > 0) ? s.asw : Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
     const items: Item[] = [];
     let exItem = new Item();
     Object.keys(s.items).forEach((key, index) => {
@@ -228,7 +235,7 @@ export default class Convert {
       }
     });
     return new Ship({
-      master, level: shipLv, luck, items, exItem,
+      master, level: shipLv, luck, items, exItem, asw, hp,
     });
   }
 
@@ -241,6 +248,9 @@ export default class Convert {
    */
   public static readItemStockJson(text: string): ItemStock[] {
     try {
+      if (!text) {
+        return [];
+      }
       const json = JSON.parse(text) as (itemStockJson | itemStockJson2)[];
       if (!json.length) {
         return [];
@@ -283,6 +293,9 @@ export default class Convert {
    */
   public static readShipStockJson(text: string): ShipStock[] {
     try {
+      if (!text) {
+        return [];
+      }
       const json = JSON.parse(text) as (shipStockJson | shipStockJson2)[];
       if (!json.length) {
         return [];
@@ -306,6 +319,11 @@ export default class Convert {
           shipStock.exp = +data.exp[0];
         } else {
           // 判別不能！次！
+          continue;
+        }
+
+        if (!shipStock.id) {
+          // なんかデータおかしいので次
           continue;
         }
 
@@ -346,6 +364,18 @@ export default class Convert {
         } else if ('area' in data) {
           shipStock.area = data.area;
         }
+
+        // エラーチェック & 修正
+        if (!shipStock.level) shipStock.level = 1;
+        if (!shipStock.exp) shipStock.exp = 0;
+        if (!shipStock.improvement.fire) shipStock.improvement.fire = 0;
+        if (!shipStock.improvement.torpedo) shipStock.improvement.torpedo = 0;
+        if (!shipStock.improvement.antiAir) shipStock.improvement.antiAir = 0;
+        if (!shipStock.improvement.armor) shipStock.improvement.armor = 0;
+        if (!shipStock.improvement.luck) shipStock.improvement.luck = 0;
+        if (!shipStock.improvement.hp) shipStock.improvement.hp = 0;
+        if (!shipStock.improvement.asw) shipStock.improvement.asw = 0;
+        if (!shipStock.area) shipStock.area = 0;
 
         // 晴れてようやく追加
         shipList.push(shipStock);
