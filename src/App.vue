@@ -252,115 +252,125 @@
         >から。
       </span>
     </v-footer>
-    <v-dialog v-model="configDialog" width="500" @input="toggleConfigDialog">
+    <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
       <v-card>
-        <div class="px-5 pt-4 pb-2">
-          <div class="d-flex">
-            <div class="body-2">サイトカラーテーマ</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3 mt-2">
-            <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
-            <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
-            <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
-          </div>
-          <div class="d-flex mt-5">
-            <div class="body-2">装備表示UI調整</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3 mt-2 d-flex">
-            <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: HasItemUIBorder, secondary: !HasItemUIBorder }">
-              枠線
-            </v-btn>
-            <v-btn
-              :disabled="!HasItemUIBorder"
-              @click="toggleItemUIIsBold()"
-              class="mr-2"
-              :class="{ primary: IsItemUIBold, secondary: !IsItemUIBold }"
-            >
-              太枠
-            </v-btn>
-            <v-btn
-              :disabled="!HasItemUIBorder"
-              @click="toggleItemUIIsRadius()"
-              class="mr-2"
-              :class="{ primary: IsItemUIRadius, secondary: !IsItemUIRadius }"
-            >
-              角丸
-            </v-btn>
-            <div class="align-self-center flex-grow-1">
-              <v-divider v-if="!HasItemUIBorder"></v-divider>
-              <div class="item-input my-0 type-6 d-flex">
-                <div class="align-self-center body-2 ml-2">24</div>
-                <div class="mx-1 item-icon">
-                  <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
-                </div>
-                <div class="align-self-center body-2 flex-grow-1 text-truncate">さんぷる</div>
-                <div class="ml-1 align-self-center">
-                  <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
+        <div class="site-setting-container px-5 pb-2">
+          <div class="mt-5">
+            <div class="d-flex">
+              <div class="body-2">サイトカラーテーマ</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2">
+              <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
+              <v-btn @click="changeSiteTheme('ice')" class="mr-2" :class="{ primary: isIce, secondary: !isIce }">空色</v-btn>
+              <v-btn @click="changeSiteTheme('pink')" class="mr-2" :class="{ primary: isPink, secondary: !isPink }">桜色</v-btn>
+              <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
+              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
+            </div>
+            <div class="d-flex mt-5">
+              <div class="body-2">装備表示UI調整</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2 d-flex">
+              <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: HasItemUIBorder, secondary: !HasItemUIBorder }">
+                枠線
+              </v-btn>
+              <v-btn
+                :disabled="!HasItemUIBorder"
+                @click="toggleItemUIIsBold()"
+                class="mr-2"
+                :class="{ primary: IsItemUIBold, secondary: !IsItemUIBold }"
+              >
+                太枠
+              </v-btn>
+              <v-btn
+                :disabled="!HasItemUIBorder"
+                @click="toggleItemUIIsRadius()"
+                class="mr-2"
+                :class="{ primary: IsItemUIRadius, secondary: !IsItemUIRadius }"
+              >
+                角丸
+              </v-btn>
+              <div class="align-self-center flex-grow-1">
+                <v-divider v-if="!HasItemUIBorder"></v-divider>
+                <div class="item-input my-0 type-6 d-flex">
+                  <div class="align-self-center body-2 ml-2">24</div>
+                  <div class="mx-1 item-icon">
+                    <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
+                  </div>
+                  <div class="align-self-center body-2 flex-grow-1 text-truncate">さんぷる</div>
+                  <div class="ml-1 align-self-center">
+                    <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="d-flex mt-5">
+              <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3">
+              <div class="d-flex">
+                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense label="確認ダイアログを表示する"></v-checkbox>
+                <v-spacer></v-spacer>
+              </div>
+            </div>
           </div>
-          <div class="d-flex mt-3">
-            <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3">
+          <div class="mt-5">
             <div class="d-flex">
-              <v-checkbox v-model="setting.confirmCloseTab" hide-details dense label="確認ダイアログを表示する"></v-checkbox>
-              <v-spacer></v-spacer>
+              <div class="body-2">装備選択時のデフォルト熟練度</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3">
+              <div class="initial-level-items">
+                <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
+                <setting-initial-level :index="-1" :setting="setting" />
+              </div>
             </div>
           </div>
-          <div class="d-flex mt-3">
-            <div class="body-2">装備選択時のデフォルト熟練度</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3">
-            <div class="initial-level-items">
-              <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
-              <setting-initial-level :index="-1" :setting="setting" />
-            </div>
-          </div>
-          <div class="d-flex mt-5">
-            <div class="body-2">制空計算時のシミュレーション回数</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3">
-            <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
-              <div>数値が大きいほど計算の精度が上がりますが、</div>
-              <div>計算時のパフォーマンスが低下します。</div>
-            </v-alert>
-            <div class="d-flex">
-              <v-text-field
-                class="mt-0 pt-0 text-right"
-                type="number"
-                max="100000"
-                min="100"
-                v-model.number="setting.simulationCount"
-                :rules="[rules.simulationCountRange]"
-              ></v-text-field>
-              <div class="ml-3 align-self-center">回</div>
-            </div>
-          </div>
-          <div class="d-flex">
-            <div class="body-2">編成データのバックアップ</div>
-            <div class="header-divider"></div>
-          </div>
-          <div class="ml-3 mt-2">
-            <div class="d-flex">
-              <v-btn color="primary" @click="downloadBackupFile()">作成</v-btn>
-              <div class="caption align-self-center ml-4">… 保存した編成データのバックアップファイルを生成します。</div>
-            </div>
+          <div>
             <div class="d-flex mt-3">
-              <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">復元</v-btn>
-              <div class="flex-grow-1 align-self-center mt-3">
-                <v-file-input
-                  v-model="fileValue"
-                  label="復元するバックアップファイルを選択"
-                  @change="handleFileSelect"
-                  dense
-                ></v-file-input>
+              <div class="body-2">制空計算時のシミュレーション回数</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3">
+              <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
+                <div>数値が大きいほど計算の精度が上がりますが、</div>
+                <div>計算時のパフォーマンスが低下します。</div>
+              </v-alert>
+              <div class="d-flex">
+                <v-text-field
+                  class="mt-0 pt-0 text-right"
+                  type="number"
+                  max="100000"
+                  min="100"
+                  v-model.number="setting.simulationCount"
+                  :rules="[rules.simulationCountRange]"
+                ></v-text-field>
+                <div class="ml-3 align-self-center">回</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex mt-3">
+              <div class="body-2">編成データのバックアップ</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2">
+              <div class="d-flex">
+                <v-btn color="primary" @click="downloadBackupFile()">作成</v-btn>
+                <div class="caption align-self-center ml-4">… 保存した編成データのバックアップファイルを作成します</div>
+              </div>
+              <div class="d-flex mt-3">
+                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">復元</v-btn>
+                <div class="flex-grow-1 align-self-center mt-3">
+                  <v-file-input
+                    v-model="fileValue"
+                    label="復元するバックアップファイルを選択"
+                    @change="handleFileSelect"
+                    dense
+                  ></v-file-input>
+                </div>
               </div>
             </div>
           </div>
@@ -387,7 +397,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
+    <v-dialog v-model="editDialog" width="800">
       <v-card class="pa-3">
         <v-tabs v-model="saveDialogTab" @change="changeUploadTabs">
           <v-tab href="#save">編成保存</v-tab>
@@ -425,7 +435,7 @@
         </v-tabs-items>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="shareDialog" transition="scroll-x-transition" width="500">
+    <v-dialog v-model="shareDialog" width="500">
       <share-dialog :handle-close="closeShareDialog" ref="shareDialog" />
     </v-dialog>
   </v-app>
@@ -446,6 +456,8 @@ import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
 import LZString from 'lz-string';
+import ShipStock from './classes/fleet/shipStock';
+import ItemStock from './classes/item/itemStock';
 
 export default Vue.extend({
   name: 'App',
@@ -474,6 +486,7 @@ export default Vue.extend({
     editedRemarks: '',
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
+    urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[] },
     unsbscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
@@ -487,8 +500,8 @@ export default Vue.extend({
     disabledIndexedDB: false,
   }),
   computed: {
-    completed() {
-      return this.$store.getters.getCompleted;
+    getCompletedAll() {
+      return this.$store.getters.getCompletedAll;
     },
     isTempStockMode(): boolean {
       // 一時所持情報データがあるなら
@@ -516,6 +529,12 @@ export default Vue.extend({
     },
     isLight(): boolean {
       return !this.setting.darkTheme && this.setting.themeDetail === 'light';
+    },
+    isIce(): boolean {
+      return !this.setting.darkTheme && this.setting.themeDetail === 'ice';
+    },
+    isPink(): boolean {
+      return !this.setting.darkTheme && this.setting.themeDetail === 'pink';
     },
     isDark(): boolean {
       return this.setting.darkTheme && this.setting.themeDetail === 'dark';
@@ -549,51 +568,11 @@ export default Vue.extend({
     },
   },
   watch: {
-    async completed(value) {
-      // 展開待ち中のデータがあれば読み込んで消す
-      if (!!value && this.urlParameters) {
-        if (this.urlParameters.data) {
-          // 編成データ解析
-          const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
-          urlData.isMain = true;
-          urlData.isActive = true;
-          this.saveData.childItems.push(urlData);
-          this.$store.dispatch('setMainSaveData', urlData);
-          if (!this.isAirCalcPage) {
-            // ページ遷移
-            this.$router.push('aircalc');
-          }
-        } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(decodeURIComponent(this.urlParameters.predeck))) {
-          // デッキビルダー解析
-          this.inform('編成の読み込みが完了しました。');
-        } else if (this.urlParameters.stockid) {
-          // 所持情報データ解析
-          const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
-
-          // 一時所持情報にセットして管理ページを展開
-          let available = false;
-          if (stockData.shipStocks.length) {
-            this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
-            available = true;
-          }
-          if (stockData.itemStocks.length) {
-            this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
-            available = true;
-          }
-
-          if (available) {
-            if (!this.$route.path.endsWith('/manager')) {
-              // ページ遷移
-              this.$router.push('manager');
-            }
-          } else {
-            this.inform('所持情報の読み取りに失敗しました。', true);
-          }
-        }
-        this.urlParameters = {};
-      }
-
+    getCompletedAll(value) {
       this.loading = !value;
+      if (value) {
+        this.loadURLInfomation();
+      }
       this.disabledIndexedDB = this.$store.state.disabledDatabase;
     },
     isTempStockMode(value) {
@@ -627,12 +606,87 @@ export default Vue.extend({
         this.onResize();
       }
     });
-  },
-  mounted() {
-    // URLパラメータ取得 & 一時退避 => マスタ読み込み完了後に処理
-    this.urlParameters = Object.freeze(this.getUrlParams());
+
+    // URLパラメータ or fragments取得 & 一時退避 => マスタ読み込み完了後に処理
+    const { search, hash } = document.location;
+    if (search || hash) {
+      this.getUrlParams(search);
+      this.setUrlFragments(hash);
+      if (!this.loading) {
+        this.loadURLInfomation();
+      }
+    }
   },
   methods: {
+    async loadURLInfomation() {
+      // 展開待ち中のデータがあれば読み込んで消す
+      if (Object.keys(this.urlParameters).length) {
+        if (this.urlParameters.data) {
+          // 編成データ解析
+          const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
+          urlData.isMain = true;
+          urlData.isActive = true;
+          this.saveData.childItems.push(urlData);
+          this.$store.dispatch('setMainSaveData', urlData);
+          if (!this.isAirCalcPage) {
+            // ページ遷移
+            this.$router.push('aircalc');
+          }
+        } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(this.urlParameters.predeck)) {
+          // デッキビルダー解析
+          this.inform('編成の読み込みが完了しました。');
+        } else if (this.urlParameters.stockid) {
+          // 所持情報データ解析
+          const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
+
+          // 一時所持情報にセットして管理ページを展開
+          let available = false;
+          if (stockData.shipStocks.length) {
+            this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
+            available = true;
+          }
+          if (stockData.itemStocks.length) {
+            this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
+            available = true;
+          }
+
+          if (available) {
+            if (!this.$route.path.endsWith('/manager')) {
+              // ページ遷移
+              this.$router.push('manager');
+            }
+          } else {
+            this.inform('所持情報の読み取りに失敗しました。', true);
+          }
+        }
+        // 処理完了後除去
+        this.urlParameters = {};
+      } else if (Object.keys(this.urlFragments).length) {
+        const informText: string[] = [];
+        if (this.urlFragments.ships && this.urlFragments.ships.length) {
+          // 艦隊反映
+          informText.push('在籍艦娘の更新');
+          this.setting.isStockOnlyForShipList = true;
+          this.$store.dispatch('updateSetting', this.setting);
+          this.$store.dispatch('updateShipStock', this.urlFragments.ships);
+        }
+        if (this.urlFragments.items && this.urlFragments.items.length) {
+          // 装備反映
+          informText.push('所持装備の更新');
+          this.setting.isStockOnlyForItemList = true;
+          this.$store.dispatch('updateSetting', this.setting);
+          this.$store.dispatch('updateItemStock', this.urlFragments.items);
+        }
+        if (this.urlFragments.predeck && this.loadAndOpenFromDeckBuilder(this.urlFragments.predeck)) {
+          informText.push('編成の読み込み');
+        }
+        if (informText.length) {
+          this.inform(`URL fragmentより、${informText.join(', ')}が実行されました。`);
+        }
+        // 処理完了後除去
+        this.urlFragments = {};
+      }
+    },
     readSomethingText() {
       this.readState = 'primary';
       // デッキビルダー形式データ読み込み試行
@@ -810,16 +864,19 @@ export default Vue.extend({
         this.$store.dispatch('setMainSaveData', data);
       }
     },
-    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea') {
+    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink') {
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
-      document.body.classList.remove('deep-sea');
+      document.body.classList.remove('deep-sea', 'ice', 'pink');
       if (theme === 'deep-sea') {
         this.$vuetify.theme.themes.dark.primary = colors.blue.lighten1;
+        document.body.classList.add(theme);
+      }
+      if (theme === 'ice' || theme === 'pink') {
         document.body.classList.add(theme);
       }
 
@@ -874,9 +931,9 @@ export default Vue.extend({
     closeShareDialog() {
       this.shareDialog = false;
     },
-    getUrlParams() {
-      const value = document.location.search;
-      if (value === '') return {};
+    getUrlParams(value: string) {
+      this.urlParameters = {};
+      if (!value) return;
       const retVal: { [key: string]: string } = {};
       const array = value.slice(1).split('&');
       for (let i = 0; i < array.length; i += 1) {
@@ -884,8 +941,41 @@ export default Vue.extend({
         const set = str.split('=');
         retVal[set[0]] = decodeURIComponent(set[1]);
       }
+      this.urlParameters = Object.freeze(retVal);
       window.history.replaceState(null, '', `${document.location.pathname}#/`);
-      return retVal;
+    },
+    setUrlFragments(value: string) {
+      // URLフラグメントより編成、装備、艦隊状況を読み込む
+      this.urlFragments = {};
+      if (!value) return;
+      const sp = value.split('import:');
+      if (!sp || sp.length < 2) return;
+      this.$router.push({ path: '/' });
+
+      const dataString = decodeURIComponent(sp[1]);
+      let json;
+      try {
+        json = JSON.parse(dataString) as { ships?: unknown; items?: unknown; predeck?: unknown };
+      } catch (error) {
+        // 読み込んだデータが何かおかしい
+        console.error(error);
+        return;
+      }
+      try {
+        this.urlFragments.predeck = JSON.stringify(json.predeck);
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        this.urlFragments.ships = Convert.readShipStockJson(json.ships ? JSON.stringify(json.ships) : '');
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        this.urlFragments.items = Convert.readItemStockJson(json.items ? JSON.stringify(json.items) : '');
+      } catch (e) {
+        console.error(e);
+      }
     },
     inform(text: string, isError = false) {
       this.readInformText = text;
@@ -1043,6 +1133,21 @@ export default Vue.extend({
 .footer-btn.no-8 {
   top: -356px;
 }
+
+.site-setting-container {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  .site-setting-container {
+    grid-template-columns: 1fr 1fr;
+  }
+  .site-setting-container > div:nth-child(2n) {
+    margin-left: 1rem;
+    padding-left: 1rem;
+    border-left: 1px solid rgba(128, 128, 128, 0.6);
+  }
+}
 </style>
 
 <style>
@@ -1088,9 +1193,22 @@ export default Vue.extend({
   scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.2);
 }
 
-/** 基本背景色変更 */
+/** 基本背景色 */
 .theme--light.v-application {
   background-color: rgb(240, 235, 230) !important;
+  background-attachment: fixed !important;
+}
+/** テーマ空色 */
+.ice .theme--light.v-application {
+  background-color: rgb(225, 245, 255) !important;
+  background: linear-gradient(rgb(200, 230, 255), rgb(245, 250, 255)) !important;
+  background-attachment: fixed !important;
+}
+/** テーマ桜色 */
+.pink .theme--light.v-application {
+  background-color: rgb(255, 225, 225) !important;
+  background: linear-gradient(rgb(255, 225, 225), rgb(255, 245, 245)) !important;
+  background-attachment: fixed !important;
 }
 
 /** ダークテーマ 基本背景色変更 */
@@ -1330,7 +1448,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 .item-input.type-24 {
   box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15) !important;
-  border-color: (240, 130, 60) !important;
+  border-color: rgba(240, 130, 60) !important;
 }
 .item-input.type-24:hover {
   box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4) !important;

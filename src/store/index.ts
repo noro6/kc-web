@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.3.4',
+    siteVersion: '2.4.0',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -47,6 +47,7 @@ export default new Vuex.Store({
     kcWebDatabase: new KcWebDatabase(),
     searchedList: [] as UploadedPreset[],
     completed: false,
+    settingLoadCompleted: false,
     saveDataLoadCompleted: false,
     disabledDatabase: false,
   },
@@ -128,6 +129,9 @@ export default new Vuex.Store({
     },
     completed: (state, value: boolean) => {
       state.completed = value;
+    },
+    settingLoadCompleted: (state, value: boolean) => {
+      state.settingLoadCompleted = value;
     },
     saveDataLoadCompleted: (state, value: boolean) => {
       state.saveDataLoadCompleted = value;
@@ -377,6 +381,7 @@ export default new Vuex.Store({
     },
     loadSetting: async (context) => {
       try {
+        context.commit('settingLoadCompleted', false);
         const db = context.state.kcWebDatabase;
         // 設定情報呼び出し
         const setting = await db.setting.get('setting');
@@ -385,11 +390,13 @@ export default new Vuex.Store({
         } else {
           context.commit('updateSetting', new SiteSetting());
         }
+        context.commit('settingLoadCompleted', true);
       } catch (error) {
         // おそらくindexedDBが使えない
         console.error(error);
         context.commit('setDisabledDatabase', true);
         context.commit('updateSetting', new SiteSetting());
+        context.commit('settingLoadCompleted', true);
       }
     },
   },
@@ -397,6 +404,7 @@ export default new Vuex.Store({
   },
   getters: {
     getCompleted: (state) => state.completed,
+    getCompletedAll: (state) => state.completed && state.saveDataLoadCompleted && state.settingLoadCompleted,
     getSaveDataLoadCompleted: (state) => state.saveDataLoadCompleted,
     getExistsTempStock: (state) => !!state.tempItemStock.length || !!state.tempShipStock.length,
     getEnemies: (state) => {
