@@ -101,9 +101,6 @@ export default Vue.extend({
     },
   },
   computed: {
-    completed() {
-      return this.$store.getters.getCompleted;
-    },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
     },

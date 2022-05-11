@@ -355,11 +355,11 @@ export default Vue.extend({
       }
     });
 
-    this.loading = !this.$store.getters.getSaveDataLoadCompleted;
+    this.loading = !this.$store.getters.getCompletedAll;
   },
   computed: {
     completed() {
-      return this.$store.getters.getSaveDataLoadCompleted;
+      return this.$store.getters.getCompletedAll;
     },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
@@ -424,7 +424,8 @@ export default Vue.extend({
         this.$store.dispatch('updateSetting', setting);
         this.$store.dispatch('updateShipStock', shipList);
         return true;
-      } catch (error) {
+      } catch (e) {
+        console.error(e);
         return false;
       }
     },
@@ -441,7 +442,8 @@ export default Vue.extend({
         this.$store.dispatch('updateSetting', setting);
         this.$store.dispatch('updateItemStock', itemList);
         return true;
-      } catch (error) {
+      } catch (e) {
+        console.error(e);
         return false;
       }
     },

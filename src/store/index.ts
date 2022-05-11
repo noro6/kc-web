@@ -403,9 +403,7 @@ export default new Vuex.Store({
   modules: {
   },
   getters: {
-    getCompleted: (state) => state.completed,
     getCompletedAll: (state) => state.completed && state.saveDataLoadCompleted && state.settingLoadCompleted,
-    getSaveDataLoadCompleted: (state) => state.saveDataLoadCompleted,
     getExistsTempStock: (state) => !!state.tempItemStock.length || !!state.tempShipStock.length,
     getEnemies: (state) => {
       const enemies = state.defaultEnemies.concat();

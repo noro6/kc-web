@@ -750,11 +750,14 @@ export default Vue.extend({
           return false;
         }
         // 設定書き換え
+        if (!this.loading) {
         this.setting.isStockOnlyForShipList = true;
         this.$store.dispatch('updateSetting', this.setting);
+        }
         this.$store.dispatch('updateShipStock', shipList);
         return true;
-      } catch (error) {
+      } catch (e) {
+        console.error(e);
         return false;
       }
     },
@@ -766,11 +769,15 @@ export default Vue.extend({
           // 何もない所持装備データは無意味なので返す
           return false;
         }
+        // 設定書き換え
+        if (!this.loading) {
         this.setting.isStockOnlyForItemList = true;
         this.$store.dispatch('updateSetting', this.setting);
+        }
         this.$store.dispatch('updateItemStock', itemList);
         return true;
-      } catch (error) {
+      } catch (e) {
+        console.error(e);
         return false;
       }
     },
@@ -1035,7 +1042,7 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイル', true);
+        this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイルです', true);
       }
     },
     importBackupData() {

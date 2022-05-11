@@ -247,41 +247,37 @@ export default class Convert {
    * @memberof Convert
    */
   public static readItemStockJson(text: string): ItemStock[] {
-    try {
-      if (!text) {
-        return [];
-      }
-      const json = JSON.parse(text) as (itemStockJson | itemStockJson2)[];
-      if (!json.length) {
-        return [];
-      }
-      const itemList: ItemStock[] = [];
-      for (let i = 0; i < json.length; i += 1) {
-        const data = json[i];
-        if ('api_slotitem_id' in data && 'api_level' in data) {
-          const id = data.api_slotitem_id;
-          const remodel = data.api_level;
-          const itemStock = itemList.find((v) => v.id === id);
-          if (itemStock) {
-            itemStock.num[remodel] += 1;
-          } else {
-            itemList.push(new ItemStock(id, remodel));
-          }
-        } else if ('id' in data && 'lv' in data) {
-          const { id } = data;
-          const remodel = data.lv;
-          const itemStock = itemList.find((v) => v.id === id);
-          if (itemStock) {
-            itemStock.num[remodel] += 1;
-          } else {
-            itemList.push(new ItemStock(id, remodel));
-          }
+    if (!text) {
+      return [];
+    }
+    const json = JSON.parse(text) as (itemStockJson | itemStockJson2)[];
+    if (!json.length) {
+      return [];
+    }
+    const itemList: ItemStock[] = [];
+    for (let i = 0; i < json.length; i += 1) {
+      const data = json[i];
+      if ('api_slotitem_id' in data && 'api_level' in data) {
+        const id = data.api_slotitem_id;
+        const remodel = Math.min(data.api_level, 10);
+        const itemStock = itemList.find((v) => v.id === id);
+        if (itemStock) {
+          itemStock.num[remodel] += 1;
+        } else {
+          itemList.push(new ItemStock(id, remodel));
+        }
+      } else if ('id' in data && 'lv' in data) {
+        const { id } = data;
+        const remodel = Math.min(data.lv, 10);
+        const itemStock = itemList.find((v) => v.id === id);
+        if (itemStock) {
+          itemStock.num[remodel] += 1;
+        } else {
+          itemList.push(new ItemStock(id, remodel));
         }
       }
-      return itemList;
-    } catch (error) {
-      throw new Error('装備所持数情報ではありませんでした。');
     }
+    return itemList;
   }
 
   /**
@@ -292,98 +288,94 @@ export default class Convert {
    * @memberof Convert
    */
   public static readShipStockJson(text: string): ShipStock[] {
-    try {
-      if (!text) {
-        return [];
-      }
-      const json = JSON.parse(text) as (shipStockJson | shipStockJson2)[];
-      if (!json.length) {
-        return [];
-      }
-
-      const shipList: ShipStock[] = [];
-      let uniqueId = 1;
-      for (let i = 0; i < json.length; i += 1) {
-        const data = json[i];
-        const shipStock = new ShipStock();
-
-        // 基本の情報 どちらかに入らなければ飛ばす
-        if ('api_ship_id' in data && 'api_lv' in data && 'api_exp') {
-          shipStock.id = +data.api_ship_id;
-          shipStock.level = +data.api_lv;
-          // 参考：経験値 [0]=累積, [1]=次のレベルまで, [2]=経験値バー割合
-          shipStock.exp = +data.api_exp[0];
-        } else if ('id' in data && 'lv' in data && 'exp' in data) {
-          shipStock.id = +data.id;
-          shipStock.level = +data.lv;
-          shipStock.exp = +data.exp[0];
-        } else {
-          // 判別不能！次！
-          continue;
-        }
-
-        if (!shipStock.id) {
-          // なんかデータおかしいので次
-          continue;
-        }
-
-        // 被りなしid付与
-        shipStock.uniqueId = uniqueId;
-        uniqueId += 1;
-
-        // 拡張情報 -補強増設解放
-        if ('api_slot_ex' in data) {
-          shipStock.releaseExpand = data.api_slot_ex !== undefined && data.api_slot_ex !== 0;
-        } else if ('ex' in data) {
-          shipStock.releaseExpand = data.ex !== undefined && data.ex !== 0;
-        }
-
-        // 拡張情報 -補強増設解放
-        // 参考：近代化改修状態 [0]=火力, [1]=雷装, [2]=対空, [3]=装甲, [4]=運, [5]=耐久, [6]=対潜
-        if ('api_kyouka' in data && data.api_kyouka.length >= 7) {
-          shipStock.improvement.fire = +data.api_kyouka[0];
-          shipStock.improvement.torpedo = +data.api_kyouka[1];
-          shipStock.improvement.antiAir = +data.api_kyouka[2];
-          shipStock.improvement.armor = +data.api_kyouka[3];
-          shipStock.improvement.luck = +data.api_kyouka[4];
-          shipStock.improvement.hp = +data.api_kyouka[5];
-          shipStock.improvement.asw = +data.api_kyouka[6];
-        } else if ('st' in data && data.st.length >= 7) {
-          shipStock.improvement.fire = +data.st[0];
-          shipStock.improvement.torpedo = +data.st[1];
-          shipStock.improvement.antiAir = +data.st[2];
-          shipStock.improvement.armor = +data.st[3];
-          shipStock.improvement.luck = +data.st[4];
-          shipStock.improvement.hp = +data.st[5];
-          shipStock.improvement.asw = +data.st[6];
-        }
-
-        // 拡張情報 -出撃海域札
-        if ('api_sally_area' in data) {
-          shipStock.area = data.api_sally_area;
-        } else if ('area' in data) {
-          shipStock.area = data.area;
-        }
-
-        // エラーチェック & 修正
-        if (!shipStock.level) shipStock.level = 1;
-        if (!shipStock.exp) shipStock.exp = 0;
-        if (!shipStock.improvement.fire) shipStock.improvement.fire = 0;
-        if (!shipStock.improvement.torpedo) shipStock.improvement.torpedo = 0;
-        if (!shipStock.improvement.antiAir) shipStock.improvement.antiAir = 0;
-        if (!shipStock.improvement.armor) shipStock.improvement.armor = 0;
-        if (!shipStock.improvement.luck) shipStock.improvement.luck = 0;
-        if (!shipStock.improvement.hp) shipStock.improvement.hp = 0;
-        if (!shipStock.improvement.asw) shipStock.improvement.asw = 0;
-        if (!shipStock.area) shipStock.area = 0;
-
-        // 晴れてようやく追加
-        shipList.push(shipStock);
-      }
-      return shipList;
-    } catch (error) {
-      throw new Error('艦娘在籍数情報ではありませんでした。');
+    if (!text) {
+      return [];
     }
+    const json = JSON.parse(text) as (shipStockJson | shipStockJson2)[];
+    if (!json.length) {
+      return [];
+    }
+
+    const shipList: ShipStock[] = [];
+    let uniqueId = 1;
+    for (let i = 0; i < json.length; i += 1) {
+      const data = json[i];
+      const shipStock = new ShipStock();
+
+      // 基本の情報 どちらかに入らなければ飛ばす
+      if ('api_ship_id' in data && 'api_lv' in data && 'api_exp') {
+        shipStock.id = +data.api_ship_id;
+        shipStock.level = +data.api_lv;
+        // 参考：経験値 [0]=累積, [1]=次のレベルまで, [2]=経験値バー割合
+        shipStock.exp = +data.api_exp[0];
+      } else if ('id' in data && 'lv' in data && 'exp' in data) {
+        shipStock.id = +data.id;
+        shipStock.level = +data.lv;
+        shipStock.exp = +data.exp[0];
+      } else {
+        // 判別不能！次！
+        continue;
+      }
+
+      if (!shipStock.id) {
+        // なんかデータおかしいので次
+        continue;
+      }
+
+      // 被りなしid付与
+      shipStock.uniqueId = uniqueId;
+      uniqueId += 1;
+
+      // 拡張情報 -補強増設解放
+      if ('api_slot_ex' in data) {
+        shipStock.releaseExpand = data.api_slot_ex !== undefined && data.api_slot_ex !== 0;
+      } else if ('ex' in data) {
+        shipStock.releaseExpand = data.ex !== undefined && data.ex !== 0;
+      }
+
+      // 拡張情報 -補強増設解放
+      // 参考：近代化改修状態 [0]=火力, [1]=雷装, [2]=対空, [3]=装甲, [4]=運, [5]=耐久, [6]=対潜
+      if ('api_kyouka' in data && data.api_kyouka.length >= 7) {
+        shipStock.improvement.fire = +data.api_kyouka[0];
+        shipStock.improvement.torpedo = +data.api_kyouka[1];
+        shipStock.improvement.antiAir = +data.api_kyouka[2];
+        shipStock.improvement.armor = +data.api_kyouka[3];
+        shipStock.improvement.luck = +data.api_kyouka[4];
+        shipStock.improvement.hp = +data.api_kyouka[5];
+        shipStock.improvement.asw = +data.api_kyouka[6];
+      } else if ('st' in data && data.st.length >= 7) {
+        shipStock.improvement.fire = +data.st[0];
+        shipStock.improvement.torpedo = +data.st[1];
+        shipStock.improvement.antiAir = +data.st[2];
+        shipStock.improvement.armor = +data.st[3];
+        shipStock.improvement.luck = +data.st[4];
+        shipStock.improvement.hp = +data.st[5];
+        shipStock.improvement.asw = +data.st[6];
+      }
+
+      // 拡張情報 -出撃海域札
+      if ('api_sally_area' in data) {
+        shipStock.area = data.api_sally_area;
+      } else if ('area' in data) {
+        shipStock.area = data.area;
+      }
+
+      // エラーチェック & 修正
+      if (!shipStock.level) shipStock.level = 1;
+      if (!shipStock.exp) shipStock.exp = 0;
+      if (!shipStock.improvement.fire) shipStock.improvement.fire = 0;
+      if (!shipStock.improvement.torpedo) shipStock.improvement.torpedo = 0;
+      if (!shipStock.improvement.antiAir) shipStock.improvement.antiAir = 0;
+      if (!shipStock.improvement.armor) shipStock.improvement.armor = 0;
+      if (!shipStock.improvement.luck) shipStock.improvement.luck = 0;
+      if (!shipStock.improvement.hp) shipStock.improvement.hp = 0;
+      if (!shipStock.improvement.asw) shipStock.improvement.asw = 0;
+      if (!shipStock.area) shipStock.area = 0;
+
+      // 晴れてようやく追加
+      shipList.push(shipStock);
+    }
+    return shipList;
   }
 
   /**
