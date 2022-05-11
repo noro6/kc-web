@@ -622,6 +622,7 @@ export default Vue.extend({
     const w = window as any;
     w.loadShipData = this.setShipStock;
     w.loadItemData = this.setItemStock;
+    w.loadDeckBuilder = this.loadAndOpenFromDeckBuilder;
   },
   methods: {
     async loadURLInfomation() {
