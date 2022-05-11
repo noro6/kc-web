@@ -617,6 +617,12 @@ export default Vue.extend({
       }
     }
   },
+  mounted() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    w.loadShipData = this.setShipStock;
+    w.loadItemData = this.setItemStock;
+  },
   methods: {
     async loadURLInfomation() {
       // 展開待ち中のデータがあれば読み込んで消す
@@ -692,10 +698,10 @@ export default Vue.extend({
       // デッキビルダー形式データ読み込み試行
       if (this.loadAndOpenFromDeckBuilder(this.somethingText)) {
         this.inform('編成の読み込みが完了しました。');
-      } else if (this.setShipStock()) {
+      } else if (this.setShipStock(this.somethingText)) {
         // 在籍艦娘データ読み込み試行
         this.inform('在籍艦娘データの更新が完了しました。');
-      } else if (this.setItemStock()) {
+      } else if (this.setItemStock(this.somethingText)) {
         // 所持装備データ読み込み試行
         this.inform('所持装備データの更新が完了しました。');
       } else {
@@ -741,18 +747,18 @@ export default Vue.extend({
         return false;
       }
     },
-    setShipStock(): boolean {
+    setShipStock(data: string): boolean {
       // 在籍艦娘情報を更新
       try {
-        const shipList = Convert.readShipStockJson(this.somethingText);
+        const shipList = Convert.readShipStockJson(data);
         if (shipList.length === 0) {
           // 何もない在籍データは無意味なので返す
           return false;
         }
         // 設定書き換え
         if (!this.loading) {
-        this.setting.isStockOnlyForShipList = true;
-        this.$store.dispatch('updateSetting', this.setting);
+          this.setting.isStockOnlyForShipList = true;
+          this.$store.dispatch('updateSetting', this.setting);
         }
         this.$store.dispatch('updateShipStock', shipList);
         return true;
@@ -761,18 +767,18 @@ export default Vue.extend({
         return false;
       }
     },
-    setItemStock(): boolean {
+    setItemStock(data: string): boolean {
       // 所持装備情報を更新
       try {
-        const itemList = Convert.readItemStockJson(this.somethingText);
+        const itemList = Convert.readItemStockJson(data);
         if (itemList.length === 0) {
           // 何もない所持装備データは無意味なので返す
           return false;
         }
         // 設定書き換え
         if (!this.loading) {
-        this.setting.isStockOnlyForItemList = true;
-        this.$store.dispatch('updateSetting', this.setting);
+          this.setting.isStockOnlyForItemList = true;
+          this.$store.dispatch('updateSetting', this.setting);
         }
         this.$store.dispatch('updateItemStock', itemList);
         return true;
