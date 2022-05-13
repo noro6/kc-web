@@ -183,7 +183,8 @@ export default class Convert {
    */
   private convertDeckToAirbase(a: DeckBuilderAirbase): Airbase {
     const items: Item[] = [];
-    Object.keys(a.items).forEach((key) => {
+    for (let i = 1; i <= 4; i += 1) {
+      const key = `i${i}`;
       const item = a.items[key] || { id: 0, rf: 0, mas: 0 };
       const master = this.itemMasters.find((v) => v.id === item.id) || new ItemMaster();
       let slot = 18;
@@ -195,7 +196,7 @@ export default class Convert {
       items.push(new Item({
         master, remodel: item.rf, level: Const.PROF_LEVEL_BORDER[item.mas], slot,
       }));
-    });
+    }
     return new Airbase({ mode: a.mode, items });
   }
 
