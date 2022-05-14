@@ -139,24 +139,33 @@ export default class Convert {
           ships.push(new Ship());
         }
         fleets.push(new Fleet({ ships }));
+      } else {
+        fleets.push(new Fleet());
       }
+
       if (json.f2) {
         const fleet = json.f2;
         const ships: Ship[] = [];
         Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
+      } else {
+        fleets.push(new Fleet());
       }
       if (json.f3) {
         const ships: Ship[] = [];
         const fleet = json.f3;
         Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
+      } else {
+        fleets.push(new Fleet());
       }
       if (json.f4) {
         const fleet = json.f4;
         const ships: Ship[] = [];
         Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
         fleets.push(new Fleet({ ships }));
+      } else {
+        fleets.push(new Fleet());
       }
 
       if (!airbases.length && !fleets.length) {
@@ -217,24 +226,32 @@ export default class Convert {
     const asw = (s.asw && s.asw > 0) ? s.asw : Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
     const items: Item[] = [];
     let exItem = new Item();
-    Object.keys(s.items).forEach((key, index) => {
+
+    for (let i = 0; i < master.slotCount; i += 1) {
+      const key = `i${i + 1}`;
       const item = s.items[key] || { id: 0, rf: 0, mas: 0 };
       const itemMaster = this.itemMasters.find((v) => v.id === item.id);
       const level = Const.PROF_LEVEL_BORDER[item.mas];
-      if (key === 'ix' || index >= master.slotCount) {
-        // ないとは思うがインデックス外のアイテムが複数来た場合は後に来たものが優先
-        exItem = new Item({ master: itemMaster, remodel: item.rf, level });
-      } else if (itemMaster && itemMaster.apiTypeId === 41 && master.type2 === 90) {
+      if (itemMaster && itemMaster.apiTypeId === 41 && master.type2 === 90) {
         // 日進 & 大型飛行艇
         items.push(new Item({
           master: itemMaster, remodel: item.rf, level, slot: 1,
         }));
       } else {
         items.push(new Item({
-          master: itemMaster, remodel: item.rf, level, slot: master.slots[index],
+          master: itemMaster, remodel: item.rf, level, slot: master.slots[i],
         }));
       }
-    });
+    }
+
+    // 補強増設 keyがixか、装備スロットインデックス+1を検索
+    if (Object.keys(s.items).includes('ix') || Object.keys(s.items).includes(`i${master.slotCount + 1}`)) {
+      const item = s.items.ix || s.items[`i${master.slotCount + 1}`] || { id: 0, rf: 0, mas: 0 };
+      const itemMaster = this.itemMasters.find((v) => v.id === item.id);
+      const level = Const.PROF_LEVEL_BORDER[item.mas];
+      exItem = new Item({ master: itemMaster, remodel: item.rf, level });
+    }
+
     return new Ship({
       master, level: shipLv, luck, items, exItem, asw, hp,
     });
