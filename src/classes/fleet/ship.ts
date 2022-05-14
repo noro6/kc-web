@@ -58,7 +58,7 @@ export default class Ship implements ShipBase {
   /** 計算で適用する装甲 */
   public readonly actualArmor: number;
 
-  /** 索敵値 */
+  /** 素の索敵値 */
   public readonly scout: number;
 
   /** 全装備による索敵値 */
@@ -151,6 +151,9 @@ export default class Ship implements ShipBase {
   /** 高射装置所持数 */
   public readonly koshaCount: number;
 
+  /** 水偵/水爆の裝備索敵值 * int(sqrt(水偵/水爆の機數) */
+  public readonly sumSPRos: number;
+
   /** 固定撃墜 画面表示用 */
   public fixDown = 0;
 
@@ -228,6 +231,7 @@ export default class Ship implements ShipBase {
     this.hunshinRate = 0;
     this.enabledTSBK = false;
     this.enabledASWSupport = false;
+    this.sumSPRos = 0;
 
     // 以下、計算により算出するステータス
     // レベルより算出
@@ -279,6 +283,11 @@ export default class Ship implements ShipBase {
       // ジェット機所持
       if (!this.hasJet && item.data.isJet) {
         this.hasJet = true;
+      }
+
+      if (item.fullSlot > 0 && (item.data.apiTypeId === 10 || item.data.apiTypeId === 11)) {
+        // 水偵/水爆の裝備索敵值 * int(sqrt(水偵/水爆の機數)
+        this.sumSPRos += item.data.scout * Math.floor(Math.sqrt(item.fullSlot));
       }
 
       // 雷装ボーナス
@@ -1417,5 +1426,87 @@ export default class Ship implements ShipBase {
     }
 
     return 100 * rate;
+  }
+
+  /**
+   * 昼戦特殊攻撃発動率を返却
+   * @param {number} fleetRosCorr
+   * @param {boolean} isFragship
+   * @return {*}  {{ text: string, rate: number[] }[]}
+   * @memberof Ship
+   */
+  public getDayBattleSpecialAttackRate(fleetRosCorr: number, isFragship: boolean): { text: string, rate: number[] }[] {
+    const items = this.items.concat(this.exItem);
+    const specialAttackes: { text: string, value: number }[] = [];
+
+    // 弾着観測射撃判定
+    if (items.some((v) => v.data.apiTypeId === 10 || v.data.apiTypeId === 11)) {
+      // 水上機は必須
+      const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
+      const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
+      // 主主CI or 連撃 => 主砲 * 2
+      if (mainGunCount >= 2) {
+        if (items.some((v) => v.data.apiTypeId === 19)) {
+          // + 徹甲弾
+          specialAttackes.push({ text: '主主CI', value: 150 });
+        }
+        specialAttackes.push({ text: '連撃', value: 130 });
+      }
+      // 主徹CI => 主 + 副 + 徹
+      if (mainGunCount && subGunCount && items.some((v) => v.data.apiTypeId === 19)) {
+        specialAttackes.push({ text: '主徹CI', value: 140 });
+      }
+      // 主電CI => 主 + 副 + 電
+      if (mainGunCount && subGunCount && items.some((v) => [12, 13].includes(v.data.apiTypeId))) {
+        specialAttackes.push({ text: '主電CI', value: 130 });
+      }
+      // 主副CI => 主 + 副
+      if (mainGunCount && subGunCount) {
+        specialAttackes.push({ text: '主副CI', value: 120 });
+      }
+    }
+
+    // 空母カットイン判定
+    if (this.items.some((v) => v.data.apiTypeId === 8)) {
+      // 艦攻は必須
+      const bomberCount = items.filter((v) => v.data.apiTypeId === 7).length;
+      // FBA => 艦攻 + 艦爆 + 艦戦
+      if (this.items.some((v) => v.data.apiTypeId === 6) && bomberCount) {
+        specialAttackes.push({ text: 'FBA', value: 125 });
+      }
+      // BBA => 艦攻 + 艦爆2
+      if (bomberCount >= 2) {
+        specialAttackes.push({ text: 'BBA', value: 140 });
+      }
+      // BA => 艦攻 + 艦爆
+      if (bomberCount) {
+        specialAttackes.push({ text: 'BA', value: 155 });
+      }
+    }
+
+    // 旗艦補正 + 15
+    const fragshipCorr = isFragship ? 15 : 0;
+    const results = [];
+
+    const sumItemScout = sum(items.map((v) => v.data.scout));
+    // 観測項算出
+    // 制空確保: int( int( sqrt(運) + 10 ) + 0.7 * ( 艦隊索敵補正 + 1.6 * 攻擊艦の裝備索敵值合計 ) + 10 ) + 旗艦補正
+    // 航空優勢: int( int( sqrt(運) + 10 ) + 0.6 * ( 艦隊索敵補正 + 1.2 * 攻擊艦の裝備索敵值合計 ) ) + 旗艦補正
+    const rosValue = [
+      Math.floor(Math.floor(Math.sqrt(this.luck) + 10) + 0.7 * (fleetRosCorr + 1.6 * sumItemScout) + 10) + fragshipCorr,
+      Math.floor(Math.floor(Math.sqrt(this.luck) + 10) + 0.6 * (fleetRosCorr + 1.2 * sumItemScout)) + fragshipCorr,
+    ];
+
+    const sumRate = [1, 1];
+    for (let i = 0; i < specialAttackes.length; i += 1) {
+      const attack = specialAttackes[i];
+      // 発動率 = Roundup(観測項) / 観測種別定數
+      const rate = rosValue.map((v, index) => (sumRate[index] * Math.ceil(v)) / attack.value);
+      sumRate[0] -= rate[0];
+      sumRate[1] -= rate[1];
+      results.push({ text: attack.text, rate });
+    }
+
+    return results;
   }
 }

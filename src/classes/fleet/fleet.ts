@@ -62,6 +62,9 @@ export default class Fleet {
   /** 発動可能対空CI全種 */
   public readonly allAntiAirCutIn: AntiAirCutIn[];
 
+  /** 艦隊索敵補正 */
+  public readonly fleetRosCorr: number;
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 
@@ -101,6 +104,7 @@ export default class Fleet {
     this.tp = 0;
     this.fullAirPower = 0;
     this.supportAirPower = 0;
+    this.fleetRosCorr = 0;
     this.hasJet = false;
     this.hasPlane = false;
 
@@ -110,12 +114,16 @@ export default class Fleet {
     const specialCutin: AntiAirCutIn[] = [];
     const enabledShips = this.ships.filter((v) => v.isActive && !v.isEmpty);
 
+    let sumShipRos = 0;
+    let sumSPRos = 0;
     for (let i = 0; i < enabledShips.length; i += 1) {
       const ship = enabledShips[i];
       if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
         this.supportAirPower += ship.supportAirPower;
         this.tp += ship.tp;
+        sumShipRos += ship.scout;
+        sumSPRos += ship.sumSPRos;
 
         for (let j = 0; j < ship.antiAirCutIn.length; j += 1) {
           const cutIn = ship.antiAirCutIn[j];
@@ -147,6 +155,11 @@ export default class Fleet {
         }
       }
     }
+
+    // 艦隊索敵補正: A = ∑(艦船の素索敵值) + ∑(水偵/水爆の裝備索敵值*int(sqrt(水偵/水爆の機數)))
+    // 艦隊索敵補正 = int(sqrt(A) + 0.1 * A)
+    const rosA = sumShipRos + sumSPRos;
+    this.fleetRosCorr = Math.floor(Math.sqrt(rosA) + 0.1 * rosA);
 
     this.airPower = this.fullAirPower;
 

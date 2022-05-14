@@ -14,7 +14,7 @@
     <div>
       <table>
         <tr>
-          <td class="text-left">耐久：</td>
+          <td class="text-left">耐久</td>
           <td>{{ baseHP }}</td>
           <td class="text-right">
             <template v-if="buffHP">
@@ -40,7 +40,7 @@
           <td>{{ maxAsw }}</td>
         </tr>
         <tr>
-          <td class="text-left">運：</td>
+          <td class="text-left">運</td>
           <td>{{ baseLuck }}</td>
           <td class="text-right">
             <template v-if="buffLuck">
@@ -53,14 +53,31 @@
           <td>{{ maxLuck }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">一撃大破：</td>
+          <td class="text-left" colspan="3">一撃大破</td>
           <td colspan="2">{{ taihaRate }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">一撃中破：</td>
+          <td class="text-left" colspan="3">一撃中破</td>
           <td colspan="2">{{ chuhaRate }}</td>
         </tr>
       </table>
+      <template v-if="specialAttacks.length">
+        <v-divider class="my-3"></v-divider>
+        <table>
+          <tr>
+            <td class="caption text--secondary text-left">特殊攻撃</td>
+            <td class="caption text--secondary px-8">確保</td>
+            <td class="caption text--secondary">優勢</td>
+          </tr>
+          <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
+            <td class="text-left">
+              <span :class="{ 'orange--text text--lighten-2': row.text !== '合計' }" label outlined>{{ row.text }}</span>
+            </td>
+            <td class="px-8">{{ row.rate[0] }} %</td>
+            <td>{{ row.rate[1] }} %</td>
+          </tr>
+        </table>
+      </template>
     </div>
   </div>
 </template>
@@ -78,6 +95,7 @@ table {
 
 <script lang="ts">
 import Vue from 'vue';
+import sum from 'lodash/sum';
 import Ship from '@/classes/fleet/ship';
 
 export default Vue.extend({
@@ -86,6 +104,14 @@ export default Vue.extend({
     value: {
       type: Ship,
       required: true,
+    },
+    fleetRosCorr: {
+      type: Number,
+      default: 0,
+    },
+    isFragship: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {
@@ -144,6 +170,20 @@ export default Vue.extend({
         }
       }
       return `${((100 * count) / curHP).toFixed(1)} %`;
+    },
+    specialAttacks(): { text: string; rate: number[] }[] {
+      if (this.fleetRosCorr) {
+        const array = this.value.getDayBattleSpecialAttackRate(this.fleetRosCorr, this.isFragship);
+        if (array.length) {
+          array.push({ text: '合計', rate: [sum(array.map((v) => v.rate[0])), sum(array.map((v) => v.rate[1]))] });
+        }
+
+        array.forEach((v) => {
+          v.rate = v.rate.map((x) => Math.round(1000 * x) / 10);
+        });
+        return array;
+      }
+      return [];
     },
   },
 });
