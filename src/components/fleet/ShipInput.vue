@@ -17,7 +17,7 @@
     <template v-else>
       <div class="d-flex ship-header px-2">
         <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
-          <div class="ship-img">
+          <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
@@ -271,6 +271,17 @@
     >
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
+    <v-tooltip
+      v-model="enabledShipTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-fragship="index === 0" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -428,6 +439,7 @@ body.item-ui-border .item-input-divider {
 import Vue from 'vue';
 import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
+import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
@@ -435,7 +447,7 @@ import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces
 import Const from '@/classes/const';
 
 export default Vue.extend({
-  components: { ItemInput, ItemTooltip },
+  components: { ItemInput, ItemTooltip, ShipTooltip },
   name: 'ShipInput',
   props: {
     handleShowItemList: {
@@ -474,6 +486,10 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
+    fleetRosCorr: {
+      type: Number,
+      default: 0,
+    },
   },
   data: () => ({
     level: 99,
@@ -483,6 +499,7 @@ export default Vue.extend({
     luckMenu: false,
     antiAirMenu: false,
     enabledTooltip: false,
+    enabledShipTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
     tooltipX: 0,
@@ -737,8 +754,16 @@ export default Vue.extend({
         this.enabledTooltip = true;
       }, 400);
     },
+    bootShipTooltip(e: MouseEvent) {
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+        this.enabledShipTooltip = true;
+      }, 400);
+    },
     clearTooltip() {
       this.enabledTooltip = false;
+      this.enabledShipTooltip = false;
       window.clearTimeout(this.tooltipTimer);
     },
   },

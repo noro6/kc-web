@@ -81,6 +81,7 @@
         :handle-close-ship="removeShip"
         :fix-down="ship.fixDown"
         :rate-down="ship.rateDown"
+        :fleet-ros-corr="fleet.fleetRosCorr"
         @input="updateShip"
       ></ship-input>
     </div>
