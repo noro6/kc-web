@@ -116,6 +116,10 @@ export default class Convert {
     try {
       const json = JSON.parse(text) as DeckBuilder;
 
+      if (!(json.a1 || json.a2 || json.a3 || json.f1 || json.f2 || json.f3 || json.f4)) {
+        return undefined;
+      }
+
       // 基地情報の取得生成
       const airbases: Airbase[] = [];
       if (json.a1) {
