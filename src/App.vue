@@ -6,6 +6,7 @@
         :handle-inform="inform"
         :enabled-fix-drawer="enabledFixDrawer"
         :fixed-drawer="setting.fixedDrawer"
+        :handle-close="closeSideBar"
       />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
@@ -627,6 +628,9 @@ export default Vue.extend({
     document.addEventListener('keyup', this.keyupHandler);
   },
   methods: {
+    closeSideBar() {
+      this.drawer = false;
+    },
     async loadURLInfomation() {
       // 展開待ち中のデータがあれば読み込んで消す
       if (Object.keys(this.urlParameters).length) {

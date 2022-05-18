@@ -1,19 +1,22 @@
 <template>
   <v-sheet drak>
     <div class="d-flex header">
-      <div>
+      <div v-if="!fixedDrawer">
+        <v-btn icon large @click="handleClose()">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
+      </div>
+      <div class="align-self-center">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon large @click="openGitHub()" v-bind="attrs" v-on="on">
+            <div class="home d-flex px-1 flex-grow-1" v-ripple @click="openGitHub()" v-bind="attrs" v-on="on">
               <v-icon>mdi-github</v-icon>
-            </v-btn>
+              <div class="align-self-center mx-1">制空権シミュレータ</div>
+              <div class="align-self-center caption">v{{ $store.state.siteVersion }}</div>
+            </div>
           </template>
           <span>GitHub Repository</span>
         </v-tooltip>
-      </div>
-      <div class="d-flex home px-1 my-1" v-ripple @click="$route.path !== '/' && $router.push({ path: '/' })">
-        <div class="align-self-center">制空権シミュレータ</div>
-        <div class="ml-1 align-self-center">v{{ $store.state.siteVersion }}</div>
       </div>
       <div class="ml-auto btn-icons">
         <v-tooltip bottom color="black">
@@ -91,6 +94,9 @@
 }
 
 .home {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  height: 36px;
   cursor: pointer;
   user-select: none;
   border-radius: 0.2rem;
@@ -125,6 +131,10 @@ export default Vue.extend({
     fixedDrawer: {
       type: Boolean,
       default: false,
+    },
+    handleClose: {
+      type: Function,
+      required: true,
     },
   },
   methods: {
