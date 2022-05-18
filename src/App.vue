@@ -623,6 +623,8 @@ export default Vue.extend({
     w.loadShipData = this.setShipStock;
     w.loadItemData = this.setItemStock;
     w.loadDeckBuilder = this.loadAndOpenFromDeckBuilder;
+
+    document.addEventListener('keyup', this.keyupHandler);
   },
   methods: {
     async loadURLInfomation() {
@@ -1080,11 +1082,23 @@ export default Vue.extend({
         this.inform('バックアップデータを復元しました。');
       }
     },
+    keyupHandler(event: KeyboardEvent) {
+      if (this.isAirCalcPage) {
+        if (event.ctrlKey && event.code === 'KeyZ' && this.enabledUndo) {
+          this.undoClicked();
+        } else if (event.ctrlKey && event.code === 'KeyY' && this.enabledRedo) {
+          this.redoClicked();
+        }
+      }
+    },
   },
   beforeDestroy() {
     if (this.unsbscribe) {
       (this.unsbscribe as () => void)();
     }
+  },
+  destroyed() {
+    document.removeEventListener('keyup', this.keyupHandler);
   },
 });
 </script>
