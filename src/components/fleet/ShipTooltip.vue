@@ -30,7 +30,7 @@
           <td class="text-left">対潜：</td>
           <td>{{ baseAsw }}</td>
           <td class="text-right">
-            <template v-if="buffAsw">
+            <template v-if="buffAsw > 0">
               <span>(</span>
               <span class="mx-1 bonus">+{{ buffAsw }}</span>
               <span>)</span>

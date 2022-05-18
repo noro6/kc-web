@@ -37,6 +37,10 @@ export default class BattleInfo {
       this.airRaidFleet = builder.airRaidFleet !== undefined ? builder.airRaidFleet : new EnemyFleet();
     }
 
+    // 最低戦闘数チェック
+    if (this.battleCount < 1) {
+      this.battleCount = 1;
+    }
     if (this.fleets.length > this.battleCount) {
       // 戦闘数まで減らす
       this.fleets = this.fleets.slice(0, this.battleCount);
