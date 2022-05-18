@@ -154,6 +154,9 @@ export default class Ship implements ShipBase {
   /** 水偵/水爆の裝備索敵值 * int(sqrt(水偵/水爆の機數) */
   public readonly sumSPRos: number;
 
+  /** 夜偵発動率 */
+  public readonly nightContactRate: number;
+
   /** 固定撃墜 画面表示用 */
   public fixDown = 0;
 
@@ -255,6 +258,7 @@ export default class Ship implements ShipBase {
     // 対潜支援参加可能艦種
     const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
 
+    let nightContactFailureRate = 1;
     // 装備一覧より取得
     const items = this.items.concat(this.exItem);
     for (let i = 0; i < items.length; i += 1) {
@@ -335,7 +339,15 @@ export default class Ship implements ShipBase {
       if (!this.enabledASWSupport && enabledASWSupport && Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
         this.enabledASWSupport = true;
       }
+
+      // 夜偵
+      if (item.fullSlot && item.data.id === 102) {
+        // 夜偵発動率 = (int(sqrt(偵察機索敵值)*sqrt(Lv))) / 25
+        nightContactFailureRate -= nightContactFailureRate * (Math.floor(Math.sqrt(item.data.scout) * Math.sqrt(this.level)) / 25);
+      }
     }
+
+    this.nightContactRate = 1 - nightContactFailureRate;
 
     // 雷装ボーナス適用装備抽出 & セット
     if (this.torpedoBonuses.length) {

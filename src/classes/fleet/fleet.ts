@@ -11,7 +11,7 @@ import { ContactRate } from '../interfaces/contactRate';
 export interface FleetBuilder {
   // eslint-disable-next-line no-use-before-define
   fleet?: Fleet | undefined;
-  /** 敵一覧 未指定ならfleetの敵一覧で作成 */
+  /** 艦一覧 未指定ならfleetの艦一覧で作成 */
   ships?: Ship[];
   /** 陣形 未指定ならfleetの陣形で作成 */
   formation?: number;
@@ -65,6 +65,9 @@ export default class Fleet {
   /** 艦隊索敵補正 */
   public readonly fleetRosCorr: number;
 
+  /** 夜偵発動率 */
+  public readonly nightContactRate: number;
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 
@@ -116,6 +119,7 @@ export default class Fleet {
 
     let sumShipRos = 0;
     let sumSPRos = 0;
+    let nightContactFailureRate = 1;
     for (let i = 0; i < enabledShips.length; i += 1) {
       const ship = enabledShips[i];
       if (ship.isActive && !ship.isEmpty) {
@@ -124,6 +128,11 @@ export default class Fleet {
         this.tp += ship.tp;
         sumShipRos += ship.scout;
         sumSPRos += ship.sumSPRos;
+
+        // 夜偵発動率計算
+        if (!this.isUnion || (this.isUnion && ship.isEscort)) {
+          nightContactFailureRate -= nightContactFailureRate * ship.nightContactRate;
+        }
 
         for (let j = 0; j < ship.antiAirCutIn.length; j += 1) {
           const cutIn = ship.antiAirCutIn[j];
@@ -155,6 +164,8 @@ export default class Fleet {
         }
       }
     }
+
+    this.nightContactRate = 1 - nightContactFailureRate;
 
     // 艦隊索敵補正: A = ∑(艦船の素索敵值) + ∑(水偵/水爆の裝備索敵值*int(sqrt(水偵/水爆の機數)))
     // 艦隊索敵補正 = int(sqrt(A) + 0.1 * A)

@@ -5,6 +5,8 @@
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
       <div class="mt-1 caption text--secondary">触接:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>
+      <div class="mt-1 caption text--secondary">夜偵:</div>
+      <div class="mt-1 ml-1 mr-3 body-2">{{ nightContactRate }}%</div>
       <!-- 索敵値 -->
       <div class="mt-1 mr-3 d-flex">
         <div class="option-status mr-1" v-for="(scout, i) in fleetScouts" :key="i">
@@ -239,9 +241,15 @@ export default Vue.extend({
     },
     contactRate() {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return this.unionFleet.getContactRates(true)[0].sumRate.toFixed(2);
+        return this.unionFleet.getContactRates(true)[0].sumRate.toFixed(1);
       }
-      return this.value.getContactRates()[0].sumRate.toFixed(2);
+      return this.value.getContactRates()[0].sumRate.toFixed(1);
+    },
+    nightContactRate() {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return (100 * this.unionFleet.nightContactRate).toFixed(1);
+      }
+      return (100 * this.value.nightContactRate).toFixed(1);
     },
     fleetScouts(): number[] {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
