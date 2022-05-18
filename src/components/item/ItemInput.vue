@@ -156,6 +156,7 @@
 }
 .item-icon img {
   user-select: none;
+  pointer-events: none;
   -webkit-user-drag: none;
   -moz-user-select: none;
 }
