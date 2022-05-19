@@ -480,7 +480,9 @@ export default Vue.extend({
         }
 
         // 味方陣形 => 空襲のとき輪形
-        const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
+        const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID
+          || cell.cellType === CELL_TYPE.HIGH_AIR_RAID
+          || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
         this.isAirRaid = isAirRaid;
         const mainFleetFormation = isAirRaid ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
 
