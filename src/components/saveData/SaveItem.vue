@@ -265,7 +265,6 @@ export default Vue.extend({
     },
     copyAndOpen() {
       const data = this.saveData;
-      data.selected = true;
       if (!data.isDirectory) {
         if (data.isActive && data.isMain) {
           // 何度もやらせない
@@ -402,7 +401,7 @@ export default Vue.extend({
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x;
-        this.tooltipY = rect.y + rect.height;
+        this.tooltipY = rect.y + rect.height + 30;
         this.tooltipData = data;
         this.enabledTooltip = true;
       }, 200);
