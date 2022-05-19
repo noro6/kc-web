@@ -247,7 +247,9 @@ export default class Calculator {
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       if (!item.data.isJet || item.isEscortItem) {
-        sumAirPower += item.airPower;
+        if (!item.data.isRecon) {
+          sumAirPower += item.airPower;
+        }
         continue;
       }
       // 鋼材のお支払い
