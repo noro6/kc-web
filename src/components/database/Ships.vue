@@ -2,6 +2,7 @@
   <div class="mt-3">
     <v-tabs v-model="tab">
       <v-tab href="#list">一覧</v-tab>
+      <v-tab href="#group" v-if="shipStock.length">札管理</v-tab>
       <v-tab href="#analytics">経験値</v-tab>
       <v-tab href="#compare" v-if="readOnly">比較</v-tab>
     </v-tabs>
@@ -225,9 +226,6 @@
               </v-btn>
             </v-btn-toggle>
           </div>
-          <div class="d-flex my-2" v-if="!readOnly">
-            <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()"> お札一斉解除 </v-btn>
-          </div>
           <div class="ship-table" v-if="modeTable">
             <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
               <v-spacer></v-spacer>
@@ -392,6 +390,9 @@
             </div>
           </template>
         </v-card>
+      </v-tab-item>
+      <v-tab-item value="group">
+        <area-manager :readonly="readOnly" />
       </v-tab-item>
       <v-tab-item value="analytics">
         <analytics />
@@ -844,6 +845,7 @@ import groupBy from 'lodash/groupBy';
 import cloneDeep from 'lodash/cloneDeep';
 import Analytics from '@/components/database/Analytics.vue';
 import Compare from '@/components/database/Compare.vue';
+import AreaManager from '@/components/database/AreaManager.vue';
 import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
@@ -880,7 +882,9 @@ interface AltShipRowData {
 
 export default Vue.extend({
   name: 'Ships',
-  components: { Analytics, Compare, ShipTooltip },
+  components: {
+    Analytics, Compare, ShipTooltip, AreaManager,
+  },
   data: () => ({
     all: [] as ShipMaster[],
     filteredShips: [] as ShipMaster[],
@@ -1359,7 +1363,7 @@ export default Vue.extend({
       const stockAll = this.$store.state.shipStock as ShipStock[];
       const deletedList = stockAll.filter((v) => v.uniqueId !== id);
       this.$store.dispatch('updateShipStock', deletedList);
-      this.shipStock = stockAll;
+      this.shipStock = deletedList;
     },
     toggleSortKey(key: string) {
       if (this.sortKey !== key) {
@@ -1397,14 +1401,6 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.viewTableMode = modeTable;
       this.$store.dispatch('updateSetting', setting);
-    },
-    resetAreaHuda() {
-      // お札一斉解除
-      const stockAll = this.$store.state.shipStock as ShipStock[];
-      for (let i = 0; i < stockAll.length; i += 1) {
-        stockAll[i].area = 0;
-      }
-      this.$store.dispatch('updateShipStock', stockAll);
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {

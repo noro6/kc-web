@@ -44,7 +44,7 @@
         <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="'補強増設あり'"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="shipStock.length">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly()" dense hide-details :label="'在籍艦娘反映'"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly()" dense hide-details :label="'在籍艦娘反映'" :disabled="disabledStockOnlyChange"></v-checkbox>
       </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
@@ -85,7 +85,7 @@
                 <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
               </div>
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
-                <v-img :src="`./img/util/area${data.area}.png`" height="40" width="28" />
+                <v-img :src="`./img/util/area${data.area}.png`" height="40" width="27" />
               </div>
             </div>
             <div class="flex-grow-1 ml-1">
@@ -341,6 +341,7 @@ export default Vue.extend({
     naikateiOK: false,
     isReleaseExSlotOnly: false,
     maxAreas: Const.EnabledAreaCount,
+    disabledStockOnlyChange: false,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipShip: new Ship(),
@@ -375,7 +376,7 @@ export default Vue.extend({
       this.$store.dispatch('updateSetting', this.setting);
       this.filter();
     },
-    initialize() {
+    initialize(enabledUserShip = true) {
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
       this.setting = this.$store.state.siteSetting as SiteSetting;
@@ -391,7 +392,7 @@ export default Vue.extend({
       this.usedShips = [];
       const mainData = this.$store.state.mainSaveData as SaveData;
       const manager = mainData.tempData[mainData.tempIndex];
-      if (manager) {
+      if (enabledUserShip && manager) {
         let allShips: Ship[] = [];
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
           if (i === 4) {
