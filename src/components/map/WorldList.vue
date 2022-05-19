@@ -61,7 +61,29 @@
                 <v-icon>mdi-information-outline</v-icon>
               </v-btn>
             </div>
-            <div v-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
+            <div v-if="isAirRaid" class="d-flex cell-info-row flex-wrap px-2">
+              <div class="text--secondary">制空値:</div>
+              <div class="mx-3">{{ fleet.fullAirbaseAirPower }}</div>
+              <div>
+                <v-chip class="mr-1" color="green" label outlined>
+                  <span>確保:</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="light-green" label outlined>
+                  <span>優勢:</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="orange" label outlined>
+                  <span>拮抗:</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
+                </v-chip>
+                <v-chip class="mr-1" color="deep-orange" label outlined>
+                  <span>劣勢:</span>
+                  <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
+                </v-chip>
+              </div>
+            </div>
+            <div v-else-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
               <div class="text--secondary">制空値:</div>
               <div class="mx-3">{{ fleet.fullAirPower }}</div>
               <div>
@@ -304,6 +326,7 @@ export default Vue.extend({
     imgMapItems: [] as CellMaster[],
     tabNames: [] as string[],
     fleetPatterns: [] as EnemyFleet[],
+    isAirRaid: false,
     detailDialog: false,
     destroyDialog: false,
     selectedFleet: undefined as undefined | EnemyFleet,
@@ -430,6 +453,7 @@ export default Vue.extend({
       const enemiesMaster = this.$store.getters.getEnemies as EnemyMaster[];
       const items = this.$store.state.items as ItemMaster[];
       const clickedCell = this.imgMapItems[index];
+      this.isAirRaid = false;
       if (!clickedCell) {
         this.fleetPatterns = [];
         this.tabNames = [];
@@ -456,7 +480,9 @@ export default Vue.extend({
         }
 
         // 味方陣形 => 空襲のとき輪形
-        const mainFleetFormation = cell.cellType === CELL_TYPE.AIR_RAID ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
+        const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
+        this.isAirRaid = isAirRaid;
+        const mainFleetFormation = isAirRaid ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
 
         enemyFleets.push(
           new EnemyFleet({
