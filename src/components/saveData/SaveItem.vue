@@ -28,6 +28,14 @@
       <div class="ml-auto file-action-buttons">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
+            <v-btn v-if="!value.isUnsaved && !value.isDirectory" icon small @click.stop="copyAndOpen" v-bind="attrs" v-on="on">
+              <v-icon small>mdi-content-duplicate</v-icon>
+            </v-btn>
+          </template>
+          <span>複製して開く</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
             <v-btn v-if="!value.isUnsaved" icon small @click.stop="showEditDialog" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
               <v-icon small>mdi-file-document-edit-outline</v-icon>
             </v-btn>
@@ -245,6 +253,37 @@ export default Vue.extend({
         data.isActive = true;
         data.isMain = true;
         this.$store.dispatch('setMainSaveData', data);
+
+        this.handleUpdateSaveData();
+        if (!this.$route.path.endsWith('/aircalc')) {
+          // ページ遷移
+          this.$router.push('aircalc');
+        }
+        return;
+      }
+      data.isOpen = !data.isOpen;
+    },
+    copyAndOpen() {
+      const data = this.saveData;
+      data.selected = true;
+      if (!data.isDirectory) {
+        if (data.isActive && data.isMain) {
+          // 何度もやらせない
+          return;
+        }
+        // ルートのセーブデータを取得し、いったん全てのメイン状態を解除
+        const saveData = this.$store.state.saveData as SaveData;
+        saveData.disabledMain();
+
+        // クリックされたこれを複製
+        const newData = new SaveData();
+        newData.name = `${data.name}_コピー`;
+        newData.manager = data.manager;
+        newData.isActive = true;
+        newData.isMain = true;
+
+        saveData.childItems.push(newData);
+        this.$store.dispatch('setMainSaveData', newData);
 
         this.handleUpdateSaveData();
         if (!this.$route.path.endsWith('/aircalc')) {
