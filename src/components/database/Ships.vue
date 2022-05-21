@@ -426,7 +426,7 @@
                 label="練度(Lv)"
                 type="number"
                 max="175"
-                :min="minLevel"
+                min="1"
                 v-model="editRow.stockData.level"
                 hide-details
               ></v-text-field>
@@ -435,7 +435,7 @@
               class="mx-5 align-self-center"
               hide-details
               max="175"
-              :min="minLevel"
+              min="1"
               v-model="editRow.stockData.level"
               thumb-label
             ></v-slider>

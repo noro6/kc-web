@@ -97,7 +97,7 @@ export default class AerialFirePowerCalculator {
    */
   private static getAirbaseFirePower(item: Item, slot: number, args: FirePowerCalcArgs, defense: Ship | Enemy, rate: number): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
-    const allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
+    let allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
 
     if (slot <= 0) return [{ power: 0, rate }];
 
@@ -130,18 +130,26 @@ export default class AerialFirePowerCalculator {
         if (item.data.id === 224 && shipType === SHIP_TYPE.DD) {
           // 65戦隊 VS 駆逐の場合、雷装値25として計算
           fire = 25 + item.bonusTorpedo;
-        } else if (item.data.id === 444) {
-          // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
-          fire = item.data.torpedo * 1.15 + item.bonusTorpedo;
         } else if (item.data.id === 405 && shipType === SHIP_TYPE.DD) {
           // Do 217 E-5+Hs293 VS 駆逐の場合 雷装1.1倍
           fire = item.data.torpedo * 1.1 + item.bonusTorpedo;
         } else if (item.data.id === 406 && (SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.BBB === shipType)) {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.1倍
           fire = item.data.torpedo * 1.1 + item.bonusTorpedo;
+        } else if (item.data.id === 444) {
+          // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
+          fire = item.data.torpedo * 1.15 + item.bonusTorpedo;
+        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA)) {
+          // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 の場合 雷装1.16倍
+          fire = item.data.torpedo * 1.16 + item.bonusTorpedo;
         } else {
           // 陸攻 上記以外
           fire = item.actualTorpedo;
+        }
+
+        // 空母棲姫特効 3.2倍
+        if (defense.data.id === 1586 || defense.data.id === 1620) {
+          allAfterCapBonus *= 3.2;
         }
         adj = 0.8;
         break;
