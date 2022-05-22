@@ -266,10 +266,6 @@ export default Vue.extend({
     copyAndOpen() {
       const data = this.saveData;
       if (!data.isDirectory) {
-        if (data.isActive && data.isMain) {
-          // 何度もやらせない
-          return;
-        }
         // ルートのセーブデータを取得し、いったん全てのメイン状態を解除
         const saveData = this.$store.state.saveData as SaveData;
         saveData.disabledMain();
