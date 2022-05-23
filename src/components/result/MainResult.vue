@@ -743,16 +743,16 @@ export default Vue.extend({
     airPowerBorders: () => (airPower: number) => `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`,
     remainingFuelAndAmmos(): { fuel: { value: number; color: string }; ammo: { value: number; color: string } }[] {
       // 残りの燃料弾薬を計算 表示用
-      const values = [[1, 1]];
+      const values = [[100, 100]];
       const array = this.value.battleInfo.consumptions;
       for (let i = 0; i < array.length - 1; i += 1) {
-        values.push([values[i][0] - array[i][0], values[i][1] - array[i][1]]);
+        values.push([Math.max(values[i][0] - array[i][0], 0), Math.max(values[i][1] - array[i][1], 0)]);
       }
 
       const results = [];
       for (let i = 0; i < values.length; i += 1) {
-        const fuel = Math.floor(values[i][0] * 100);
-        const ammo = Math.floor(values[i][1] * 100);
+        const fuel = values[i][0];
+        const ammo = values[i][1];
         results.push({
           fuel: { value: fuel, color: this.getFuelTextColor(fuel) },
           ammo: { value: ammo, color: this.getAmmoTextColor(ammo) },
@@ -768,8 +768,8 @@ export default Vue.extend({
       for (let i = 0; i < array.length; i += 1) {
         const isLast = i === array.length - 1;
         // この戦闘で消費する燃料弾薬 %
-        const fuelConsumptionRate = array[i][0];
-        const ammoConsumptionRate = array[i][1];
+        const fuelConsumptionRate = array[i][0] / 100;
+        const ammoConsumptionRate = array[i][1] / 100;
         for (let j = 0; j < ships.length; j += 1) {
           const { fuel, ammo } = ships[j].data;
           // 消費記録
@@ -792,13 +792,18 @@ export default Vue.extend({
       let sumAmmo = 0;
       for (let j = 0; j < ships.length; j += 1) {
         const isMarige = ships[j].level > 99;
-        const { consumptionFuel, consumptionAmmo } = ships[j];
+        const { consumptionFuel, consumptionAmmo, data } = ships[j];
         // 消費記録
-        if (consumptionFuel) {
+        if (consumptionFuel < data.fuel) {
           sumFuel += Math.max(Math.floor(consumptionFuel * (isMarige ? 0.85 : 1)), 1);
+        } else {
+          sumFuel += Math.max(Math.floor(data.fuel * (isMarige ? 0.85 : 1)), 1);
         }
-        if (consumptionAmmo) {
+
+        if (consumptionAmmo < data.ammo) {
           sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarige ? 0.85 : 1)), 1);
+        } else {
+          sumAmmo += Math.max(Math.floor(data.ammo * (isMarige ? 0.85 : 1)), 1);
         }
       }
       return [sumFuel, sumAmmo];

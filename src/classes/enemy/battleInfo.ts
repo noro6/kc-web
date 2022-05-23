@@ -65,19 +65,19 @@ export default class BattleInfo {
         // 空襲マス
         if (world === 6) {
           // 6-4 6-5
-          this.consumptions.push([0.04, 0.08]);
+          this.consumptions.push([4, 8]);
         } else {
-          this.consumptions.push([0.06, 0.04]);
+          this.consumptions.push([6, 4]);
         }
       } else if (cellType === CELL_TYPE.NIGHT) {
         // 開幕夜戦マス
-        this.consumptions.push([0.1, 0.1]);
+        this.consumptions.push([10, 10]);
       } else if (isAllSubmarine && i < this.fleets.length - 1 && area !== 41 && area !== 43) {
         // 全員潜水艦(第4海域以外、最終戦闘以外)
-        this.consumptions.push([0.08, 0]);
+        this.consumptions.push([8, 0]);
       } else {
         // その他のマス
-        this.consumptions.push([0.2, 0.2]);
+        this.consumptions.push([20, 20]);
       }
     }
   }
