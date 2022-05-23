@@ -130,6 +130,7 @@ import LZString from 'lz-string';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
+import { MasterMap, MasterWorld } from '@/classes/interfaces/master';
 
 const STEP = 20;
 
@@ -148,34 +149,16 @@ export default Vue.extend({
     lastDocument: undefined as undefined | QueryDocumentSnapshot<DocumentData>,
   }),
   mounted() {
-    // 海域セレクトボックス初期化
-    const items = [];
-    const worlds = Const.WORLDS;
-    for (let i = 0; i < worlds.length; i += 1) {
-      const world = worlds[i];
-      const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
-      if (!maps.length) {
-        continue;
-      }
-      if (i > 0) {
-        items.push({ divider: true });
-      }
-
-      items.push({ header: world.text });
-      for (let j = 0; j < maps.length; j += 1) {
-        const map = maps[j];
-        const worldText = world.value > 40 ? 'E' : `${world.value}`;
-        items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
-      }
-    }
-    this.areaItems = items;
-
+    this.initWorlds();
     const initialiList = this.$store.state.searchedList as UploadedPreset[];
     if (initialiList && initialiList.length) {
       this.savedata = initialiList;
     }
   },
   computed: {
+    getCompletedAll() {
+      return this.$store.getters.getCompletedAll;
+    },
     isEvent(): boolean {
       return Math.floor(this.selectedArea / 10) > 40;
     },
@@ -186,7 +169,40 @@ export default Vue.extend({
       return !!this.lastDocument && this.isSameSearchCondition;
     },
   },
+  watch: {
+    getCompletedAll(value) {
+      if (value) {
+        this.initWorlds();
+      }
+    },
+  },
   methods: {
+    initWorlds() {
+      // 海域セレクトボックス初期化
+      const items = [];
+      const worlds = this.$store.state.worlds as MasterWorld[];
+      const masterMaps = this.$store.state.maps as MasterMap[];
+      if (worlds && masterMaps) {
+        for (let i = 0; i < worlds.length; i += 1) {
+          const world = worlds[i];
+          const maps = masterMaps.filter((v) => Math.floor(v.area / 10) === world.world);
+          if (!maps.length) {
+            continue;
+          }
+          if (i > 0) {
+            items.push({ divider: true });
+          }
+
+          items.push({ header: world.name });
+          for (let j = 0; j < maps.length; j += 1) {
+            const map = maps[j];
+            const worldText = world.world > 40 ? 'E' : `${world.world}`;
+            items.push({ value: map.area, text: `${worldText}-${map.area % 10}：${map.name}`, group: world.name });
+          }
+        }
+      }
+      this.areaItems = items;
+    },
     changedWorld() {
       this.isLoading = false;
     },

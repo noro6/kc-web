@@ -201,8 +201,17 @@ export default class SaveData {
     root.childItems.push(folder);
 
     // 初期フォルダー作成 第1～7海域まで作ってやる
+    const worlds = [
+      { value: 1, text: '1: 鎮守府海域' },
+      { value: 2, text: '2: 南西諸島海域' },
+      { value: 3, text: '3: 北方海域' },
+      { value: 7, text: '7: 南西海域' },
+      { value: 4, text: '4: 西方海域' },
+      { value: 5, text: '5: 南方海域' },
+      { value: 6, text: '6: 中部海域' },
+    ];
     for (let i = 1; i <= 7; i += 1) {
-      const world = Const.WORLDS.find((v) => v.value === i);
+      const world = worlds.find((v) => v.value === i);
       if (world) {
         const newFolder = new SaveData();
         newFolder.name = world.text;

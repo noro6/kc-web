@@ -16,7 +16,7 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
 import {
-  Master, MasterEnemy, MasterEquipmentExSlot, MasterEquipmentShip, MasterItem, MasterShip,
+  Master, MasterEnemy, MasterEquipmentExSlot, MasterEquipmentShip, MasterItem, MasterMap, MasterShip, MasterWorld,
 } from '@/classes/interfaces/master';
 import OutputHistory from '@/classes/saveData/outputHistory';
 
@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.7.1',
+    siteVersion: '2.7.2',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -39,6 +39,8 @@ export default new Vuex.Store({
     saveData: new SaveData(),
     equipShips: [] as MasterEquipmentShip[],
     exSlotEquipShips: [] as MasterEquipmentExSlot[],
+    worlds: [] as MasterWorld[],
+    maps: [] as MasterMap[],
     calcManager: undefined as CalcManager | undefined,
     mainSaveData: new SaveData(),
     draggingShipData: new Ship(),
@@ -87,6 +89,12 @@ export default new Vuex.Store({
     },
     setEquipShips: (state, values: MasterEquipmentShip[]) => {
       state.equipShips = values;
+    },
+    setWorlds: (state, values: MasterWorld[]) => {
+      state.worlds = values;
+    },
+    setMaps: (state, values: MasterMap[]) => {
+      state.maps = values;
     },
     setCells: (state, values: CellMaster[]) => {
       state.cells = values;
@@ -273,6 +281,8 @@ export default new Vuex.Store({
             context.commit('setEnemies', master.enemies);
             context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
             context.commit('setEquipShips', master.api_mst_equip_ship);
+            context.commit('setWorlds', master.worlds);
+            context.commit('setMaps', master.maps);
           })
           .catch((error) => {
             console.error(error);
@@ -295,6 +305,8 @@ export default new Vuex.Store({
             context.commit('setEnemies', master.enemies);
             context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
             context.commit('setEquipShips', master.api_mst_equip_ship);
+            context.commit('setWorlds', master.worlds);
+            context.commit('setMaps', master.maps);
           })
           .catch((error3) => {
             console.error(error3);

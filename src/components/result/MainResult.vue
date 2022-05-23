@@ -741,10 +741,13 @@ export default Vue.extend({
       return this.value.fleetInfo.mainFleet.mainResult.avgUsedSteels.toFixed();
     },
     airPowerBorders: () => (airPower: number) => `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`,
+    consumptions(): number[][] {
+      return this.value.battleInfo.getResourceConsumptions(this.$store.state.maps);
+    },
     remainingFuelAndAmmos(): { fuel: { value: number; color: string }; ammo: { value: number; color: string } }[] {
       // 残りの燃料弾薬を計算 表示用
       const values = [[100, 100]];
-      const array = this.value.battleInfo.consumptions;
+      const array = this.consumptions;
       for (let i = 0; i < array.length - 1; i += 1) {
         values.push([Math.max(values[i][0] - array[i][0], 0), Math.max(values[i][1] - array[i][1], 0)]);
       }
@@ -764,7 +767,7 @@ export default Vue.extend({
       const ships = this.fleet.ships
         .filter((v) => v.isActive && !v.isEmpty)
         .map((v) => Object.assign(v, { consumptionFuel: 0, consumptionAmmo: 0, consumptionAmmo2: 0 }));
-      const array = this.value.battleInfo.consumptions;
+      const array = this.consumptions;
       for (let i = 0; i < array.length; i += 1) {
         const isLast = i === array.length - 1;
         // この戦闘で消費する燃料弾薬 %

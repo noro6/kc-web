@@ -1,4 +1,5 @@
 import { CELL_TYPE } from '../const';
+import { MasterMap } from '../interfaces/master';
 import EnemyFleet from './enemyFleet';
 
 export interface BattleInfoBuilder {
@@ -20,9 +21,6 @@ export default class BattleInfo {
 
   /** 防空用敵艦隊 */
   public readonly airRaidFleet: EnemyFleet;
-
-  /** 燃料弾薬消費% */
-  public readonly consumptions: number[][];
 
   /** 計算済みフラグ */
   public calculated = false;
@@ -55,30 +53,37 @@ export default class BattleInfo {
         this.fleets.push(new EnemyFleet());
       }
     }
+  }
 
+  public getResourceConsumptions(maps: MasterMap[]): number[][] {
     // 消費量を計算
-    this.consumptions = [];
+    const consumptions: number[][] = [];
     for (let i = 0; i < this.fleets.length; i += 1) {
-      const { cellType, isAllSubmarine, area } = this.fleets[i];
+      const {
+        cellType, isAllSubmarine, area, nodeName,
+      } = this.fleets[i];
+      const isBoss = maps.some((v) => v.area === area && v.boss.includes(nodeName));
       const world = area ? Math.floor(area / 10) : 1;
       if (cellType === CELL_TYPE.AIR_RAID) {
         // 空襲マス
         if (world === 6) {
           // 6-4 6-5
-          this.consumptions.push([4, 8]);
+          consumptions.push([4, 8]);
         } else {
-          this.consumptions.push([6, 4]);
+          consumptions.push([6, 4]);
         }
       } else if (cellType === CELL_TYPE.NIGHT) {
         // 開幕夜戦マス
-        this.consumptions.push([10, 10]);
-      } else if (isAllSubmarine && i < this.fleets.length - 1 && area !== 41 && area !== 43) {
-        // 全員潜水艦(第4海域以外、最終戦闘以外)
-        this.consumptions.push([8, 0]);
+        consumptions.push([10, 10]);
+      } else if (isAllSubmarine && !isBoss && area !== 41 && area !== 43) {
+        // 全員潜水艦(第4海域以外、ボス戦闘以外)
+        consumptions.push([8, 0]);
       } else {
         // その他のマス
-        this.consumptions.push([20, 20]);
+        consumptions.push([20, 20]);
       }
     }
+
+    return consumptions;
   }
 }

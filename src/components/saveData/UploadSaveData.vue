@@ -72,6 +72,7 @@ import {
   addDoc, collection, getFirestore, serverTimestamp,
 } from 'firebase/firestore/lite';
 import LZString from 'lz-string';
+import { MasterMap, MasterWorld } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   name: 'UploadSaveData',
@@ -107,10 +108,11 @@ export default Vue.extend({
     // 海域セレクトボックス初期化
     if (!this.areaItems.length) {
       const items = [];
-      const worlds = Const.WORLDS;
+      const worlds = this.$store.state.worlds as MasterWorld[];
+      const masterMaps = this.$store.state.maps as MasterMap[];
       for (let i = 0; i < worlds.length; i += 1) {
         const world = worlds[i];
-        const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
+        const maps = masterMaps.filter((v) => Math.floor(v.area / 10) === world.world);
         if (!maps.length) {
           continue;
         }
@@ -118,13 +120,13 @@ export default Vue.extend({
           items.push({ divider: true });
         }
 
-        items.push({ header: world.text });
+        items.push({ header: world.name });
         for (let j = 0; j < maps.length; j += 1) {
           const map = maps[j];
-          const area = map.value;
-          const mapName = map.text;
-          const worldText = world.value > 40 ? 'E' : `${world.value}`;
-          items.push({ value: area, text: `${worldText}-${area % 10} : ${mapName}`, group: world.text });
+          const { area } = map;
+          const mapName = map.name;
+          const worldText = world.world > 40 ? 'E' : `${world.world}`;
+          items.push({ value: area, text: `${worldText}-${area % 10} : ${mapName}`, group: world.name });
         }
       }
       this.areaItems = items;

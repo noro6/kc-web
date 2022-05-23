@@ -2,12 +2,6 @@
   <div>
     <v-card class="px-2">
       <div class="d-flex pt-7 px-4">
-        <!-- <div class="world-select">
-          <v-select dense v-model="world" hide-details :items="worlds" @change="worldChanged" label="海域"></v-select>
-        </div>
-        <div class="world-select">
-          <v-select dense v-model="area" hide-details :items="areas" @change="worldChanged" label="マップ"></v-select>
-        </div> -->
         <div class="world-select-all">
           <v-select
             dense
@@ -291,6 +285,7 @@ import EnemyFleet from '@/classes/enemy/enemyFleet';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Enemy from '@/classes/enemy/enemy';
 import ItemMaster from '@/classes/item/itemMaster';
+import { MasterMap, MasterWorld } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   name: 'WorldList',
@@ -313,9 +308,8 @@ export default Vue.extend({
     tab: 'fleet0',
     formations: Const.FORMATIONS,
     allCells: [] as CellMaster[],
-    worlds: Const.WORLDS,
     world: 1,
-    areas: Const.MAPS,
+    areas: [] as MasterMap[],
     area: 11,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
     selectedArea: 11,
@@ -348,10 +342,11 @@ export default Vue.extend({
 
     // 海域セレクトボックス初期化
     const items = [];
-    const worlds = Const.WORLDS;
+    const worlds = this.$store.state.worlds as MasterWorld[];
+    const masterMaps = this.$store.state.maps as MasterMap[];
     for (let i = 0; i < worlds.length; i += 1) {
       const world = worlds[i];
-      const maps = Const.MAPS.filter((v) => Math.floor(v.value / 10) === world.value);
+      const maps = masterMaps.filter((v) => Math.floor(v.area / 10) === world.world);
       if (!maps.length) {
         continue;
       }
@@ -359,11 +354,11 @@ export default Vue.extend({
         items.push({ divider: true });
       }
 
-      items.push({ header: world.text });
+      items.push({ header: world.name });
       for (let j = 0; j < maps.length; j += 1) {
         const map = maps[j];
-        const worldText = world.value > 40 ? 'E' : `${world.value}`;
-        items.push({ value: map.value, text: `${worldText}-${map.value % 10}：${map.text}`, group: world.text });
+        const worldText = world.world > 40 ? 'E' : `${world.world}`;
+        items.push({ value: map.area, text: `${worldText}-${map.area % 10}：${map.name}`, group: world.name });
       }
     }
     this.areaItems = items;
@@ -408,9 +403,10 @@ export default Vue.extend({
       this.area = this.selectedArea;
 
       const lv = this.rawLevel;
-      this.areas = Const.MAPS.filter((v) => Math.floor(v.value / 10) === this.world);
-      if (!this.areas.some((v) => v.value === this.area)) {
-        this.area = this.areas[0] ? this.areas[0].value : 0;
+      const maps = this.$store.state.maps as MasterMap[];
+      this.areas = maps.filter((v) => Math.floor(v.area / 10) === this.world);
+      if (!this.areas.some((v) => v.area === this.area)) {
+        this.area = this.areas[0] ? this.areas[0].area : 0;
       }
 
       // 該当するセルを取得
