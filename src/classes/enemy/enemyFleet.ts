@@ -162,8 +162,8 @@ export default class EnemyFleet {
     this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AIR_RAID || this.cellType === CELL_TYPE.AERIAL_COMBAT;
 
     // 計算により算出するステータス
-    this.isAllSubmarine = true;
-    this.isAllPT = true;
+    this.isAllSubmarine = this.enemies.some((v) => v.data.id);
+    this.isAllPT = this.enemies.some((v) => v.data.id);
     this.hasPlane = false;
     this.isUnion = this.cellType === CELL_TYPE.GRAND;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation) as Formation;

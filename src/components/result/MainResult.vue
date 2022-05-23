@@ -96,7 +96,7 @@
             </td>
           </tr>
           <tr class="tr-status tr-fuel-ammo">
-            <td class="text-center" colspan="2">残燃料 弾薬</td>
+            <td class="text-center" colspan="2">燃料 &amp; 弾薬</td>
             <td v-for="(value, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
               <div class="d-flex" @mouseenter="bootTooltip(value.fuel.value, value.ammo.value, $event)" @mouseleave="clearTooltip">
                 <v-spacer></v-spacer>
@@ -794,16 +794,20 @@ export default Vue.extend({
         const isMarige = ships[j].level > 99;
         const { consumptionFuel, consumptionAmmo, data } = ships[j];
         // 消費記録
-        if (consumptionFuel < data.fuel) {
-          sumFuel += Math.max(Math.floor(consumptionFuel * (isMarige ? 0.85 : 1)), 1);
-        } else {
-          sumFuel += Math.max(Math.floor(data.fuel * (isMarige ? 0.85 : 1)), 1);
+        if (consumptionFuel) {
+          if (consumptionFuel < data.fuel) {
+            sumFuel += Math.max(Math.floor(consumptionFuel * (isMarige ? 0.85 : 1)), 1);
+          } else {
+            sumFuel += Math.max(Math.floor(data.fuel * (isMarige ? 0.85 : 1)), 1);
+          }
         }
 
-        if (consumptionAmmo < data.ammo) {
-          sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarige ? 0.85 : 1)), 1);
-        } else {
-          sumAmmo += Math.max(Math.floor(data.ammo * (isMarige ? 0.85 : 1)), 1);
+        if (consumptionAmmo) {
+          if (consumptionAmmo < data.ammo) {
+            sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarige ? 0.85 : 1)), 1);
+          } else {
+            sumAmmo += Math.max(Math.floor(data.ammo * (isMarige ? 0.85 : 1)), 1);
+          }
         }
       }
       return [sumFuel, sumAmmo];
