@@ -96,6 +96,12 @@ export default class ShipMaster {
   /** 母港マスタソート順 */
   public readonly sort: number;
 
+  /** 搭載燃料 */
+  public readonly fuel: number;
+
+  /** 搭載弾薬 */
+  public readonly ammo: number;
+
   /**
    * Creates an instance of ShipMaster.
    * @param {MasterShip} ship
@@ -132,6 +138,8 @@ export default class ShipMaster {
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
       this.originalId = ship.orig ? ship.orig : 0;
+      this.fuel = ship.fuel ? ship.fuel : 0;
+      this.ammo = ship.ammo ? ship.ammo : 0;
     } else {
       this.id = 0;
       this.albumId = 0;
@@ -162,6 +170,8 @@ export default class ShipMaster {
       this.sort = 0;
       this.slots = [];
       this.originalId = 0;
+      this.fuel = 0;
+      this.ammo = 0;
     }
   }
 

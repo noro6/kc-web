@@ -1,3 +1,4 @@
+import { CELL_TYPE } from '../const';
 import EnemyFleet from './enemyFleet';
 
 export interface BattleInfoBuilder {
@@ -19,6 +20,9 @@ export default class BattleInfo {
 
   /** 防空用敵艦隊 */
   public readonly airRaidFleet: EnemyFleet;
+
+  /** 燃料弾薬消費% */
+  public readonly consumptions: number[][];
 
   /** 計算済みフラグ */
   public calculated = false;
@@ -49,6 +53,31 @@ export default class BattleInfo {
       for (let i = 0; i < sub; i += 1) {
         // 戦闘数まで敵艦隊を増やす
         this.fleets.push(new EnemyFleet());
+      }
+    }
+
+    // 消費量を計算
+    this.consumptions = [];
+    for (let i = 0; i < this.fleets.length; i += 1) {
+      const { cellType, isAllSubmarine, area } = this.fleets[i];
+      const world = area ? Math.floor(area / 10) : 1;
+      if (cellType === CELL_TYPE.AIR_RAID) {
+        // 空襲マス
+        if (world === 6) {
+          // 6-4 6-5
+          this.consumptions.push([0.04, 0.08]);
+        } else {
+          this.consumptions.push([0.06, 0.04]);
+        }
+      } else if (cellType === CELL_TYPE.NIGHT) {
+        // 開幕夜戦マス
+        this.consumptions.push([0.1, 0.1]);
+      } else if (isAllSubmarine && i < this.fleets.length - 1 && area !== 41 && area !== 43) {
+        // 全員潜水艦(第4海域以外、最終戦闘以外)
+        this.consumptions.push([0.08, 0]);
+      } else {
+        // その他のマス
+        this.consumptions.push([0.2, 0.2]);
       }
     }
   }

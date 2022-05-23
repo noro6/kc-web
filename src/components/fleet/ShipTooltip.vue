@@ -27,7 +27,7 @@
           <td>{{ value.data.maxHp }}</td>
         </tr>
         <tr v-if="value.asw">
-          <td class="text-left">対潜：</td>
+          <td class="text-left">対潜</td>
           <td>{{ baseAsw }}</td>
           <td class="text-right">
             <template v-if="buffAsw > 0">

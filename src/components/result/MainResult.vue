@@ -71,7 +71,7 @@
             <td class="text-center" rowspan="2">制空値(平均)</td>
             <td class="text-center py-1">自艦隊</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
-            <td class="text-center header-td" colspan="2">消費平均</td>
+            <td class="text-center header-td" colspan="2">消費予測</td>
           </tr>
           <tr>
             <td class="text-center py-1">敵艦隊</td>
@@ -79,12 +79,12 @@
             <td colspan="2" rowspan="2">
               <div class="flex-grow-1 d-flex flex-column">
                 <div class="d-flex mx-auto">
-                  <div><v-img :src="`./img/util/bauxite.png`" height="18" width="18"></v-img></div>
-                  <div>：{{ calcBauxite }}</div>
+                  <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20"></v-img></div>
+                  <div class="ml-1">{{ calcBauxite }}</div>
                 </div>
                 <div class="d-flex mx-auto" v-if="calcSteel !== '0'">
-                  <div><v-img :src="`./img/util/steel.png`" height="18" width="18"></v-img></div>
-                  <div>：{{ calcSteel }}</div>
+                  <div><v-img :src="`./img/util/steel.png`" height="20" width="20"></v-img></div>
+                  <div class="ml-1">{{ calcSteel }}</div>
                 </div>
               </div>
             </td>
@@ -95,12 +95,44 @@
               <span :class="`state-label state-${result.airState.value}`">{{ result.airState.text }}</span>
             </td>
           </tr>
+          <tr class="tr-status tr-fuel-ammo">
+            <td class="text-center" colspan="2">残燃料 弾薬</td>
+            <td v-for="(value, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
+              <div class="d-flex" @mouseenter="bootTooltip(value.fuel.value, value.ammo.value, $event)" @mouseleave="clearTooltip">
+                <v-spacer></v-spacer>
+                <div class="d-flex flex-wrap">
+                  <div class="d-flex">
+                    <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
+                    <div class="align-self-center ml-0_5" :class="value.fuel.color">{{ value.fuel.value }}%</div>
+                  </div>
+                  <div class="mr-1"></div>
+                  <div class="d-flex">
+                    <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
+                    <div class="align-self-center ml-0_5" :class="value.ammo.color">{{ value.ammo.value }}%</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td colspan="2" class="border-top-none">
+              <div class="d-flex flex-wrap justify-center">
+                <div class="d-flex">
+                  <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
+                  <div class="align-self-center ml-1">{{ sumFuelAndAmmo[0] }}</div>
+                </div>
+                <div class="mr-1"></div>
+                <div class="d-flex">
+                  <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
+                  <div class="align-self-center ml-1">{{ sumFuelAndAmmo[1] }}</div>
+                </div>
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
       <v-divider></v-divider>
     </div>
     <v-tabs v-model="tab" class="px-3">
-      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)"> {{ i + 1 }}戦目 </v-tab>
+      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ i + 1 }}戦目</v-tab>
     </v-tabs>
     <v-divider class="mx-3"></v-divider>
     <v-card class="ma-3 py-3 pr-4 pl-2">
@@ -294,6 +326,34 @@
         />
       </v-card>
     </v-dialog>
+    <v-tooltip
+      v-model="enabledTooltip"
+      color="black"
+      bottom
+      right
+      transition="slide-y-transition"
+      :position-x="tooltipX"
+      :position-y="tooltipY"
+    >
+      <div>
+        <table class="border-top-none body-2">
+          <tr>
+            <td class="border-top-none py-1 d-flex">
+              <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
+              <div class="ml-1 align-self-center">燃料補正</div>
+            </td>
+            <td class="border-top-none pl-5">{{ fuelCorr }}</td>
+          </tr>
+          <tr>
+            <td class="border-top-none py-1 d-flex">
+              <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
+              <div class="ml-1 align-self-center">弾薬補正</div>
+            </td>
+            <td class="border-top-none pl-5">{{ ammoCorr }}</td>
+          </tr>
+        </table>
+      </div>
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -326,6 +386,11 @@ table th {
 table tr td {
   border-top: 1px solid rgba(128, 128, 128, 0.25);
 }
+table.border-top-none,
+table tr td.border-top-none {
+  border-top: none;
+}
+
 table tbody tr:hover {
   background-color: rgba(128, 128, 128, 0.05);
 }
@@ -362,6 +427,33 @@ td.item-input {
 .tr-status td {
   position: relative;
 }
+.tr-fuel-ammo td {
+  cursor: default;
+}
+.ml-0_5 {
+  margin-left: 2px;
+}
+.fuel-warning {
+  font-weight: 700;
+  color: rgb(240, 164, 0);
+}
+.fuel-warning1 {
+  font-weight: 700;
+  color: rgb(255, 123, 0);
+}
+.fuel-warning2 {
+  font-weight: 700;
+  color: rgb(255, 94, 0);
+}
+.fuel-warning3 {
+  font-weight: 700;
+  color: rgb(255, 60, 0);
+}
+.fuel-warning4 {
+  font-weight: 700;
+  color: rgb(255, 0, 0);
+}
+
 .state-label {
   position: absolute;
   text-align: center;
@@ -510,6 +602,12 @@ export default Vue.extend({
     detailFleetIndex: 0,
     capturing: false,
     moreCalculateRequested: false,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipX: 0,
+    tooltipY: 0,
+    fuelCorr: '',
+    ammoCorr: '',
   }),
   computed: {
     formations(): Formation[] {
@@ -643,6 +741,68 @@ export default Vue.extend({
       return this.value.fleetInfo.mainFleet.mainResult.avgUsedSteels.toFixed();
     },
     airPowerBorders: () => (airPower: number) => `${airPower}（ ${CommonCalc.getAirStatusBorder(airPower).slice(0, 4).join(' / ')} ）`,
+    remainingFuelAndAmmos(): { fuel: { value: number; color: string }; ammo: { value: number; color: string } }[] {
+      // 残りの燃料弾薬を計算 表示用
+      const values = [[1, 1]];
+      const array = this.value.battleInfo.consumptions;
+      for (let i = 0; i < array.length - 1; i += 1) {
+        values.push([values[i][0] - array[i][0], values[i][1] - array[i][1]]);
+      }
+
+      const results = [];
+      for (let i = 0; i < values.length; i += 1) {
+        const fuel = Math.floor(values[i][0] * 100);
+        const ammo = Math.floor(values[i][1] * 100);
+        results.push({
+          fuel: { value: fuel, color: this.getFuelTextColor(fuel) },
+          ammo: { value: ammo, color: this.getAmmoTextColor(ammo) },
+        });
+      }
+      return results;
+    },
+    sumFuelAndAmmo(): number[] {
+      const ships = this.fleet.ships
+        .filter((v) => v.isActive && !v.isEmpty)
+        .map((v) => Object.assign(v, { consumptionFuel: 0, consumptionAmmo: 0, consumptionAmmo2: 0 }));
+      const array = this.value.battleInfo.consumptions;
+      for (let i = 0; i < array.length; i += 1) {
+        const isLast = i === array.length - 1;
+        // この戦闘で消費する燃料弾薬 %
+        const fuelConsumptionRate = array[i][0];
+        const ammoConsumptionRate = array[i][1];
+        for (let j = 0; j < ships.length; j += 1) {
+          const { fuel, ammo } = ships[j].data;
+          // 消費記録
+          if (fuelConsumptionRate) {
+            ships[j].consumptionFuel += Math.max(Math.floor(fuel * fuelConsumptionRate), 1);
+          }
+          if (ammoConsumptionRate) {
+            ships[j].consumptionAmmo += Math.max(Math.floor(ammo * ammoConsumptionRate), 1);
+            if (isLast) {
+              // todo 最終戦闘 夜戦した時の消費の仕様
+              ships[j].consumptionAmmo2 += Math.max(Math.floor(ammo * ammoConsumptionRate), 1);
+            } else {
+              ships[j].consumptionAmmo2 += Math.max(Math.floor(ammo * ammoConsumptionRate), 1);
+            }
+          }
+        }
+      }
+
+      let sumFuel = 0;
+      let sumAmmo = 0;
+      for (let j = 0; j < ships.length; j += 1) {
+        const isMarige = ships[j].level > 99;
+        const { consumptionFuel, consumptionAmmo } = ships[j];
+        // 消費記録
+        if (consumptionFuel) {
+          sumFuel += Math.max(Math.floor(consumptionFuel * (isMarige ? 0.85 : 1)), 1);
+        }
+        if (consumptionAmmo) {
+          sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarige ? 0.85 : 1)), 1);
+        }
+      }
+      return [sumFuel, sumAmmo];
+    },
   },
   methods: {
     reflesh() {
@@ -717,6 +877,56 @@ export default Vue.extend({
           this.capturing = false;
         });
       }, 10);
+    },
+    getFuelTextColor(value: number): string {
+      if (value <= 10) {
+        return 'fuel-warning4';
+      }
+      if (value <= 20) {
+        return 'fuel-warning3';
+      }
+      if (value <= 30) {
+        return 'fuel-warning2';
+      }
+      if (value <= 50) {
+        return 'fuel-warning1';
+      }
+      if (value < 75) {
+        return 'fuel-warning';
+      }
+      return 'fuel-normal';
+    },
+    getAmmoTextColor(value: number): string {
+      if (value <= 15) {
+        return 'fuel-warning4';
+      }
+      if (value <= 25) {
+        return 'fuel-warning3';
+      }
+      if (value <= 35) {
+        return 'fuel-warning2';
+      }
+      if (value <= 40) {
+        return 'fuel-warning1';
+      }
+      if (value < 50) {
+        return 'fuel-warning';
+      }
+      return 'fuel-normal';
+    },
+    bootTooltip(fuel: number, ammo: number, e: MouseEvent) {
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+        this.enabledTooltip = true;
+
+        this.fuelCorr = fuel < 75 ? `回避項 -${75 - fuel}` : 'なし';
+        this.ammoCorr = ammo < 50 ? `ダメージ ${(ammo * 2) / 100}倍` : 'なし';
+      }, 400);
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

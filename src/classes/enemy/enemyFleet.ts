@@ -67,6 +67,9 @@ export default class EnemyFleet {
   /** 全員潜水艦かどうか */
   public readonly isAllSubmarine: boolean;
 
+  /** 全員PTかどうか */
+  public readonly isAllPT: boolean;
+
   /** 艦載機を保持しているかどうか */
   public readonly hasPlane: boolean;
 
@@ -160,6 +163,7 @@ export default class EnemyFleet {
 
     // 計算により算出するステータス
     this.isAllSubmarine = true;
+    this.isAllPT = true;
     this.hasPlane = false;
     this.isUnion = this.cellType === CELL_TYPE.GRAND;
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation) as Formation;
@@ -198,6 +202,10 @@ export default class EnemyFleet {
 
       if (this.isAllSubmarine && !enemy.isSubmarine) {
         this.isAllSubmarine = false;
+      }
+
+      if (this.isAllPT && enemy.data.name.indexOf('PT') < 0) {
+        this.isAllPT = false;
       }
 
       // 艦載機を持つ敵のみ格納
