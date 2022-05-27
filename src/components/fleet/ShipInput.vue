@@ -16,7 +16,14 @@
     </template>
     <template v-else>
       <div class="d-flex ship-header px-2">
-        <div class="align-self-center drag-handle" v-if="!isNoShip" @mousedown="setDraggable" @mouseup="resetDraggable">
+        <div
+          class="align-self-center drag-handle"
+          v-if="!isNoShip"
+          v-ripple="{ class: 'info--text' }"
+          @mousedown="setDraggable"
+          @mouseup="resetDraggable"
+          @click.stop="showShipList"
+        >
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
@@ -118,7 +125,7 @@
               </v-menu>
             </div>
           </div>
-          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click="showShipList">
+          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
             <div class="ship-name text-truncate">{{ ship.data.name ? ship.data.name : "艦娘選択" }}</div>
           </div>
         </div>
@@ -294,7 +301,7 @@
   pointer-events: none;
 }
 .drag-handle {
-  cursor: move;
+  cursor: pointer;
 }
 
 .empty-ship {
@@ -581,6 +588,7 @@ export default Vue.extend({
     },
     showShipList(): void {
       // 艦娘indexを付与してFleet.vueへスルーパス
+      this.clearTooltip();
       this.handleShowShipList(this.index);
     },
     showTempShip() {
@@ -759,7 +767,7 @@ export default Vue.extend({
     bootShipTooltip(e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
-        this.tooltipY = e.clientY;
+        this.tooltipY = e.clientY + 20;
         this.enabledShipTooltip = true;
       }, 400);
     },
