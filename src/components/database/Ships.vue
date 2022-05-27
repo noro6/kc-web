@@ -7,7 +7,7 @@
       <v-tab href="#compare" v-if="readOnly">比較</v-tab>
     </v-tabs>
     <v-divider class="mb-2"></v-divider>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item value="list">
         <v-expansion-panels>
           <v-expansion-panel>
@@ -422,14 +422,7 @@
           <v-divider class="mt-3"></v-divider>
           <div class="d-flex mt-3">
             <div class="range-input">
-              <v-text-field
-                label="練度(Lv)"
-                type="number"
-                max="175"
-                min="1"
-                v-model="editRow.stockData.level"
-                hide-details
-              ></v-text-field>
+              <v-text-field label="練度(Lv)" type="number" max="175" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
             </div>
             <v-slider
               class="mx-5 align-self-center"
@@ -883,7 +876,10 @@ interface AltShipRowData {
 export default Vue.extend({
   name: 'Ships',
   components: {
-    Analytics, Compare, ShipTooltip, AreaManager,
+    Analytics,
+    Compare,
+    ShipTooltip,
+    AreaManager,
   },
   data: () => ({
     all: [] as ShipMaster[],

@@ -230,90 +230,69 @@ export default new Vuex.Store({
       // ロード画面を入れる
       context.commit('completed', false);
 
+      const getCellJson = (url: string): Promise<void> => axios.get(url)
+        .then((response) => {
+          const cells: CellMaster[] = [];
+          const masters = response.data.patterns;
+          for (let i = 0; i < masters.length; i += 1) {
+            cells.push(new CellMaster(masters[i] as RawCell));
+          }
+          context.commit('setCells', cells);
+        });
+
       // マスタ問い合わせ
       getDownloadURL(ref(getStorage(), 'cells.json')).then((url) => {
-        const loadCell = axios.get(url)
-          .then((response) => {
-            const cells: CellMaster[] = [];
-            const masters = response.data.patterns;
-            for (let i = 0; i < masters.length; i += 1) {
-              cells.push(new CellMaster(masters[i] as RawCell));
-            }
-            context.commit('setCells', cells);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-        const loader = [loadCell];
-        Promise.all(loader).then(() => {
+        getCellJson(url).then(() => {
           context.commit('completed', true);
+        }).catch((error) => {
+          console.error(error);
+          // バックアップデータを読み出す
+          getCellJson('./master_bk/cells.json').then(() => {
+            console.log('セル(backup)利用');
+            context.commit('completed', true);
+          });
         });
       }).catch((error) => {
         console.error(error);
-        const loadCell = axios.get('./master_bk/cells.json')
-          .then((response) => {
-            const cells: CellMaster[] = [];
-            const masters = response.data.patterns;
-            for (let i = 0; i < masters.length; i += 1) {
-              cells.push(new CellMaster(masters[i] as RawCell));
-            }
-            context.commit('setCells', cells);
-          })
-          .catch((error2) => {
-            console.error(error2);
-          });
-        const loader = [loadCell];
-        Promise.all(loader).then(() => {
+        // バックアップデータを読み出す
+        getCellJson('./master_bk/cells.json').then(() => {
+          console.log('セル(backup)利用');
           context.commit('completed', true);
         });
       });
     },
     loadData: async (context) => {
-      getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
-        const loading = axios.get(url)
-          .then((response) => {
-            if (response.status !== 200 || !response.data) {
-              return;
-            }
-            const master = response.data as Master;
-            context.commit('setItems', master.items);
-            context.commit('setShips', master.ships);
-            context.commit('setEnemies', master.enemies);
-            context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
-            context.commit('setEquipShips', master.api_mst_equip_ship);
-            context.commit('setWorlds', master.worlds);
-            context.commit('setMaps', master.maps);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+      const getMasterJson = (url: string): Promise<void> => axios.get(url)
+        .then((response) => {
+          if (response.status !== 200 || !response.data) {
+            return;
+          }
+          const master = response.data as Master;
+          context.commit('setItems', master.items);
+          context.commit('setShips', master.ships);
+          context.commit('setEnemies', master.enemies);
+          context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
+          context.commit('setEquipShips', master.api_mst_equip_ship);
+          context.commit('setWorlds', master.worlds);
+          context.commit('setMaps', master.maps);
+        });
 
-        const loader = [loading];
-        Promise.all(loader).then(() => {
+      getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
+        getMasterJson(url).then(() => {
           context.commit('completed', true);
+        }).catch((error) => {
+          console.error(error);
+          // バックアップデータを読み出す
+          getMasterJson('./master_bk/master.json').then(() => {
+            console.log('マスター(backup)利用');
+            context.commit('completed', true);
+          });
         });
       }).catch((error) => {
         console.error(error);
-        const loading = axios.get('./master_bk/master.json')
-          .then((response) => {
-            if (response.status !== 200 || !response.data) {
-              return;
-            }
-            const master = response.data as Master;
-            context.commit('setItems', master.items);
-            context.commit('setShips', master.ships);
-            context.commit('setEnemies', master.enemies);
-            context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
-            context.commit('setEquipShips', master.api_mst_equip_ship);
-            context.commit('setWorlds', master.worlds);
-            context.commit('setMaps', master.maps);
-          })
-          .catch((error3) => {
-            console.error(error3);
-          });
-
-        const loader = [loading];
-        Promise.all(loader).then(() => {
+        // バックアップデータを読み出す
+        getMasterJson('./master_bk/master.json').then(() => {
+          console.log('マスター(backup)利用');
           context.commit('completed', true);
         });
       });

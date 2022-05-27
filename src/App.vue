@@ -428,7 +428,7 @@
           <v-tab href="#upload" :disabled="disabledUpload">編成アップロード</v-tab>
         </v-tabs>
         <v-divider></v-divider>
-        <v-tabs-items v-model="saveDialogTab">
+        <v-tabs-items v-model="saveDialogTab" :touchless="true">
           <v-tab-item value="save">
             <div class="mx-4 mt-4">
               <v-text-field v-model="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>

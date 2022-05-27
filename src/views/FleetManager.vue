@@ -11,7 +11,7 @@
       <v-tab href="#share" :disabled="loading">共有</v-tab>
     </v-tabs>
     <v-divider></v-divider>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item value="ships">
         <ships />
       </v-tab-item>
@@ -83,7 +83,7 @@
                 <v-tab href="#item_code">装備</v-tab>
               </v-tabs>
             </div>
-            <v-tabs-items v-model="code_tab">
+            <v-tabs-items v-model="code_tab" :touchless="true">
               <v-tab-item value="ship_code">
                 <v-card class="copy_code">
                   copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id':

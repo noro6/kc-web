@@ -94,7 +94,7 @@
       <v-tab href="#fleet4" disabled></v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item
         v-for="(fleet, i) in fleetInfo.fleets"
         :key="i"
