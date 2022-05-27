@@ -198,6 +198,7 @@
   max-width: 70%;
 }
 .map-img-area {
+  height: 268px;
   user-select: none;
 }
 .node {
@@ -310,9 +311,9 @@ export default Vue.extend({
     allCells: [] as CellMaster[],
     world: 1,
     areas: [] as MasterMap[],
-    area: 11,
+    area: 541,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 11,
+    selectedArea: 541,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
