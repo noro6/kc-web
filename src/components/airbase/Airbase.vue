@@ -138,6 +138,7 @@ import ContactRates from '@/components/result/ContactRates.vue';
 import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   components: {
@@ -265,7 +266,8 @@ export default Vue.extend({
       this.handleShowItemPresets(this.index);
     },
     bootTooltip(item: Item, e: MouseEvent) {
-      if (!item.data.id) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (!item.data.id || setting.disabledItemTooltip) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

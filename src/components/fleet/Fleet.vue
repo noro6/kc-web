@@ -233,7 +233,7 @@ export default Vue.extend({
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
-    this.isShipView2Line = setting.IsshipView2Line;
+    this.isShipView2Line = setting.isShipView2Line;
   },
   computed: {
     fleet() {
@@ -352,7 +352,7 @@ export default Vue.extend({
     },
     toggleViewLine(value: boolean) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      setting.IsshipView2Line = value;
+      setting.isShipView2Line = value;
       this.$store.dispatch('updateSetting', setting);
     },
   },

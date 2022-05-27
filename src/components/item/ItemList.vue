@@ -891,6 +891,10 @@ export default Vue.extend({
       });
     },
     bootTooltip(item: Item, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.disabledItemTooltip) {
+        return;
+      }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();

@@ -55,6 +55,12 @@ export default class BattleInfo {
     }
   }
 
+  /**
+   * 設定された各戦闘での燃料 弾薬消費を取得
+   * @param {MasterMap[]} maps
+   * @returns {number[][]}
+   * @memberof BattleInfo
+   */
   public getResourceConsumptions(maps: MasterMap[]): number[][] {
     // 消費量を計算
     const consumptions: number[][] = [];

@@ -482,6 +482,7 @@ import CommonCalc from '@/classes/commonCalc';
 import { SHIP_TYPE } from '@/classes/const';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import BattleInfo from '@/classes/enemy/battleInfo';
+import SiteSetting from '@/classes/siteSetting';
 
 const labelCallback = (c: LabelCallbackArg) => `${c.formattedValue} %`;
 
@@ -952,6 +953,10 @@ export default Vue.extend({
       }
     },
     bootTooltip(item: Item, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (!item.data.id || setting.disabledItemTooltip) {
+        return;
+      }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();

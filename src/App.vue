@@ -255,7 +255,7 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
       <v-card>
-        <div class="site-setting-container px-5 pb-2">
+        <div class="site-setting-container px-5 pb-5">
           <div class="mt-5">
             <div class="d-flex">
               <div class="body-2">サイトカラーテーマ</div>
@@ -273,27 +273,27 @@
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: HasItemUIBorder, secondary: !HasItemUIBorder }">
+              <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
                 枠線
               </v-btn>
               <v-btn
-                :disabled="!HasItemUIBorder"
+                :disabled="!hasItemUIBorder"
                 @click="toggleItemUIIsBold()"
                 class="mr-2"
-                :class="{ primary: IsItemUIBold, secondary: !IsItemUIBold }"
+                :class="{ primary: isItemUIBold, secondary: !isItemUIBold }"
               >
                 太枠
               </v-btn>
               <v-btn
-                :disabled="!HasItemUIBorder"
+                :disabled="!hasItemUIBorder"
                 @click="toggleItemUIIsRadius()"
                 class="mr-2"
-                :class="{ primary: IsItemUIRadius, secondary: !IsItemUIRadius }"
+                :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }"
               >
                 角丸
               </v-btn>
               <div class="align-self-center flex-grow-1">
-                <v-divider v-if="!HasItemUIBorder"></v-divider>
+                <v-divider v-if="!hasItemUIBorder"></v-divider>
                 <div class="item-input my-0 type-6 d-flex">
                   <div class="align-self-center body-2 ml-2">24</div>
                   <div class="mx-1 item-icon">
@@ -375,6 +375,29 @@
               </div>
             </div>
           </div>
+          <div>
+            <div class="d-flex mt-3">
+              <div class="body-2">装備マウスホバー時の詳細情報表示</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2 d-flex">
+              <v-btn
+                @click="toggleEnabledItemTooltip(true)"
+                class="mr-2"
+                :class="{ primary: !disabledItemTooltip, secondary: disabledItemTooltip }"
+              >
+                有効
+              </v-btn>
+              <v-btn
+                @click="toggleEnabledItemTooltip(false)"
+                class="mr-2"
+                :class="{ primary: disabledItemTooltip, secondary: !disabledItemTooltip }"
+              >
+                無効
+              </v-btn>
+            </div>
+          </div>
+          <div></div>
         </div>
       </v-card>
     </v-dialog>
@@ -543,13 +566,13 @@ export default Vue.extend({
     isDeepSea(): boolean {
       return this.setting.darkTheme && this.setting.themeDetail === 'deep-sea';
     },
-    HasItemUIBorder(): boolean {
+    hasItemUIBorder(): boolean {
       return this.setting.itemUI.border;
     },
-    IsItemUIBold(): boolean {
+    isItemUIBold(): boolean {
       return this.setting.itemUI.bold;
     },
-    IsItemUIRadius(): boolean {
+    isItemUIRadius(): boolean {
       return this.setting.itemUI.radius;
     },
     showFooterBtn(): boolean {
@@ -566,6 +589,9 @@ export default Vue.extend({
         return 'pl-2 pl-md-4 pr-12 pr-lg-4';
       }
       return 'px-2 px-md-4';
+    },
+    disabledItemTooltip(): boolean {
+      return this.setting.disabledItemTooltip;
     },
   },
   watch: {
@@ -930,6 +956,9 @@ export default Vue.extend({
       if (this.setting.itemUI.radius) {
         document.body.classList.add('item-ui-radius');
       }
+    },
+    toggleEnabledItemTooltip(enabled: boolean) {
+      this.setting.disabledItemTooltip = !enabled;
     },
     toggleConfigDialog() {
       if (!this.configDialog) {

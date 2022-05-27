@@ -445,6 +445,7 @@ import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import Const from '@/classes/const';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip, ShipTooltip },
@@ -742,7 +743,8 @@ export default Vue.extend({
       }
     },
     bootTooltip(item: Item, e: MouseEvent) {
-      if (!item.data.id) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (!item.data.id || setting.disabledItemTooltip) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

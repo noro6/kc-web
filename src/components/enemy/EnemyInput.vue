@@ -86,6 +86,7 @@ import ItemInput from '@/components/item/ItemInput.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Enemy from '@/classes/enemy/enemy';
 import Item from '@/classes/item/item';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip },
@@ -135,7 +136,8 @@ export default Vue.extend({
       }
     },
     bootTooltip(item: Item, e: MouseEvent) {
-      if (!item.data.id) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (!item.data.id || setting.disabledItemTooltip) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

@@ -68,13 +68,16 @@ export default class SiteSetting {
   public visibleItemStockAllCount: boolean;
 
   /** 艦隊画面 最大列数を2にするかどうか */
-  public IsshipView2Line: boolean;
+  public isShipView2Line: boolean;
 
   /** 装備所持数 総所持数カウント */
   public visibleAirCalcMenuButton: boolean;
 
   /** 装備表示UI */
   public itemUI: itemUISetting;
+
+  /** 装備詳細ポップアップoff */
+  public disabledItemTooltip: boolean;
 
   constructor(setting?: SiteSetting) {
     if (setting) {
@@ -96,9 +99,10 @@ export default class SiteSetting {
       this.userName = setting.userName ? setting.userName : '';
       this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
       this.visibleItemStockAllCount = !!setting.visibleItemStockAllCount;
-      this.IsshipView2Line = !!setting.IsshipView2Line;
+      this.isShipView2Line = !!setting.isShipView2Line;
       this.visibleAirCalcMenuButton = !!setting.visibleAirCalcMenuButton;
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
+      this.disabledItemTooltip = !!setting.disabledItemTooltip;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -140,9 +144,10 @@ export default class SiteSetting {
       this.userName = '';
       this.themeDetail = 'dark';
       this.visibleItemStockAllCount = false;
-      this.IsshipView2Line = false;
+      this.isShipView2Line = false;
       this.visibleAirCalcMenuButton = false;
       this.itemUI = { border: false, bold: true, radius: true };
+      this.disabledItemTooltip = false;
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },
