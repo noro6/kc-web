@@ -380,7 +380,7 @@ export default Vue.extend({
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
       this.setting = this.$store.state.siteSetting as SiteSetting;
-      this.isStockOnly = this.setting.isStockOnlyForShipList;
+      this.isStockOnly = this.setting.isStockOnlyForShipList || this.disabledStockOnlyChange;
 
       // 一時所持情報データがあるなら
       if (this.$store.getters.getExistsTempStock) {

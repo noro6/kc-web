@@ -64,6 +64,10 @@
       </template>
     </v-app-bar>
     <v-main>
+      <div class="event-banner">
+        <v-img class="banner-normal" :src="`./img/util/banner.png`" height="100" width="760" />
+        <v-img class="banner-on" :src="`./img/util/banner_on.png`" height="100" width="760" />
+      </div>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
         <v-alert border="left" outlined type="info" :class="{ 'info-container': !isManagerPage }">
           <div class="body-2">URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
@@ -1208,6 +1212,23 @@ export default Vue.extend({
     padding-left: 1rem;
     border-left: 1px solid rgba(128, 128, 128, 0.6);
   }
+}
+
+.event-banner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.event-banner .banner-normal {
+  display: unset;
+}
+.event-banner:hover .banner-normal {
+  display: none;
+}
+.event-banner .banner-on {
+  display: none;
+}
+.event-banner:hover .banner-on {
+  display: unset;
 }
 </style>
 
