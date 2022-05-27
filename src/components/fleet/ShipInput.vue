@@ -2,6 +2,8 @@
   <v-card
     class="ma-1 ship-input"
     :class="{ disabled: !ship.isActive, 'py-1': !ship.isEmpty }"
+    @mousedown="setDraggable"
+    @mouseup="resetDraggable"
     @dragstart="dragStart($event)"
     @dragend="dragEnd($event)"
     @dragenter="dragEnter($event)"
@@ -10,20 +12,13 @@
     @dragover.prevent
   >
     <template v-if="ship.isEmpty">
-      <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click="showShipList">
+      <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
         <div class="align-self-center">艦娘選択</div>
       </div>
     </template>
     <template v-else>
       <div class="d-flex ship-header px-2">
-        <div
-          class="align-self-center drag-handle"
-          v-if="!isNoShip"
-          v-ripple="{ class: 'info--text' }"
-          @mousedown="setDraggable"
-          @mouseup="resetDraggable"
-          @click.stop="showShipList"
-        >
+        <div class="align-self-center cur-pointer" v-if="!isNoShip" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
@@ -49,12 +44,12 @@
               </template>
               <v-card class="pa-3">
                 <div class="d-flex mt-1">
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 1">Lv1</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 50" color="primary">Lv50</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 80" color="teal">Lv80</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 99" color="teal">Lv99</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 145" color="red lighten-2">Lv145</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click="level = 175" color="red lighten-2">Lv175</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 1">Lv1</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 50" color="primary">Lv50</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 80" color="teal">Lv80</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 99" color="teal">Lv99</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 145" color="red lighten-2">Lv145</v-btn>
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 175" color="red lighten-2">Lv175</v-btn>
                 </div>
                 <div class="d-flex mt-4 pl-2">
                   <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
@@ -82,8 +77,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
-                    <v-btn class="mx-2" @click="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
                   </div>
                   <v-text-field
                     v-model.number="luck"
@@ -111,8 +106,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
-                    <v-btn class="mx-2" @click="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
                   </div>
                   <v-text-field
                     v-model.number="antiAir"
@@ -131,7 +126,7 @@
         </div>
         <!-- 艦娘解除 -->
         <div class="ship-remove mt-1">
-          <v-btn icon @click="removeShip">
+          <v-btn icon @click.stop="removeShip">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
@@ -194,7 +189,7 @@
         <div class="ml-auto ship-buttons">
           <v-tooltip bottom color="black" v-if="enabledConvert">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon color="blue lighten-1" small v-bind="attrs" v-on="on" @click="toggleVersion()">
+              <v-btn icon color="blue lighten-1" small v-bind="attrs" v-on="on" @click.stop="toggleVersion()">
                 <v-icon>mdi-sync</v-icon>
               </v-btn>
             </template>
@@ -202,7 +197,7 @@
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click="showTempShip()">
+              <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
                 <v-icon>mdi-upload</v-icon>
               </v-btn>
             </template>
@@ -210,7 +205,7 @@
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click="showItemPresets()">
+              <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
                 <v-icon>mdi-briefcase-variant</v-icon>
               </v-btn>
             </template>
@@ -218,17 +213,17 @@
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click="changeActive(false)">
+              <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click.stop="changeActive(false)">
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
             </template>
             <span>計算対象から省く</span>
           </v-tooltip>
-          <v-btn icon small v-show="!ship.isActive" @click="changeActive(true)">
+          <v-btn icon small v-show="!ship.isActive" @click.stop="changeActive(true)">
             <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
-            <v-btn icon small @click="resetItems()">
+            <v-btn icon small @click.stop="resetItems()">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
@@ -300,7 +295,10 @@
 .ship-input.dragging * {
   pointer-events: none;
 }
-.drag-handle {
+.ship-input {
+  cursor: move;
+}
+.cur-pointer {
   cursor: pointer;
 }
 
@@ -323,6 +321,7 @@
   position: relative !important;
 }
 .ship-remove {
+  opacity: 0.6;
   position: absolute;
   right: 1px;
   top: -6px;
@@ -767,7 +766,7 @@ export default Vue.extend({
     bootShipTooltip(e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
-        this.tooltipY = e.clientY + 20;
+        this.tooltipY = e.clientY;
         this.enabledShipTooltip = true;
       }, 400);
     },

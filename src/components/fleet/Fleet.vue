@@ -296,6 +296,10 @@ export default Vue.extend({
       (this.$refs.fleetDetail as InstanceType<typeof FleetDetail>).tab = this.lastTab;
     },
     updateShip() {
+      if (document.getElementById('dragging-item')) {
+        // ドラッグ交換中はここで伝播キャンセルする
+        return;
+      }
       this.setFleet();
     },
     setFleet(fleet?: Fleet) {

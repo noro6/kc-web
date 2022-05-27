@@ -97,19 +97,19 @@
           </tr>
           <tr class="tr-status tr-fuel-ammo">
             <td class="text-center" colspan="2">燃料 &amp; 弾薬</td>
-            <td v-for="(value, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
-              <div class="d-flex" @mouseenter="bootTooltip(value.fuel.value, value.ammo.value, $event)" @mouseleave="clearTooltip">
-                <v-spacer></v-spacer>
-                <div class="d-flex flex-wrap">
-                  <div class="d-flex">
-                    <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
-                    <div class="align-self-center ml-0_5" :class="value.fuel.color">{{ value.fuel.value }}%</div>
-                  </div>
-                  <div class="mr-1"></div>
-                  <div class="d-flex">
-                    <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
-                    <div class="align-self-center ml-0_5" :class="value.ammo.color">{{ value.ammo.value }}%</div>
-                  </div>
+            <td v-for="(row, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
+              <div
+                class="d-flex flex-wrap justify-end"
+                @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)"
+                @mouseleave="clearTooltip"
+              >
+                <div class="d-flex">
+                  <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
+                  <div class="align-self-center ml-0_5" :class="row.fuel.color">{{ row.fuel.value }}%</div>
+                </div>
+                <div class="d-flex">
+                  <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
+                  <div class="align-self-center ml-0_5" :class="row.ammo.color">{{ row.ammo.value }}%</div>
                 </div>
               </div>
             </td>
@@ -119,7 +119,6 @@
                   <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
                   <div class="align-self-center ml-1">{{ sumFuelAndAmmo[0] }}</div>
                 </div>
-                <div class="mr-1"></div>
                 <div class="d-flex">
                   <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
                   <div class="align-self-center ml-1">{{ sumFuelAndAmmo[1] }}</div>
@@ -418,7 +417,7 @@ td.item-input {
 .item-name {
   flex-grow: 1;
   font-size: 0.9em;
-  width: 26px;
+  width: 85px;
 }
 
 .tr-status {
