@@ -37,6 +37,9 @@ export default class AirCalcResult {
   /** 使われた鋼材合計 */
   public avgUsedSteels = 0;
 
+  /** 敵制空値が不明 */
+  public isUnknownEnemyAirPower = false;
+
   /**
    * 計算結果をいい感じに整形
    * @param {number} maxCount

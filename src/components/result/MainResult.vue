@@ -37,6 +37,9 @@
         </div>
       </div>
     </v-alert>
+    <v-alert border="left" dense outlined type="warning" class="ma-3 body-2" v-if="existUnknownEnemy">
+      <div>搭載数が未確定の敵艦が含まれています。計算結果が実際の制空状態と異なる可能性があります。</div>
+    </v-alert>
     <div class="px-3">
       <div class="d-flex">
         <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
@@ -75,7 +78,12 @@
           </tr>
           <tr>
             <td class="text-center py-1">敵艦隊</td>
-            <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgEnemyAirPower }}</td>
+            <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">
+              <span :class="{ 'orange--text text--darken-2': result.isUnknownEnemyAirPower }">
+                {{ result.avgEnemyAirPower }}
+                {{ result.isUnknownEnemyAirPower ? "?" : "" }}
+              </span>
+            </td>
             <td colspan="2" rowspan="2">
               <div class="flex-grow-1 d-flex flex-column">
                 <div class="d-flex mx-auto">
@@ -613,7 +621,7 @@ export default Vue.extend({
       return Const.FORMATIONS;
     },
     airbaseWaveResults(): { text: string; result: AirCalcResult; baseIndex: number }[] {
-      const results: { text: string; result: AirCalcResult; baseIndex: number }[] = [];
+      const waveResults: { text: string; result: AirCalcResult; baseIndex: number }[] = [];
       for (let i = 0; i < this.value.airbaseInfo.airbases.length; i += 1) {
         const airbase = this.value.airbaseInfo.airbases[i];
 
@@ -622,14 +630,14 @@ export default Vue.extend({
         }
 
         if (airbase.battleTarget[0] === this.displayBattle) {
-          results.push({ text: `基地${i + 1} 1波目`, result: airbase.resultWave1, baseIndex: i });
+          waveResults.push({ text: `基地${i + 1} 1波目`, result: airbase.resultWave1, baseIndex: i });
         }
         if (airbase.battleTarget[1] === this.displayBattle) {
-          results.push({ text: `基地${i + 1} 2波目`, result: airbase.resultWave2, baseIndex: i });
+          waveResults.push({ text: `基地${i + 1} 2波目`, result: airbase.resultWave2, baseIndex: i });
         }
       }
 
-      return results;
+      return waveResults;
     },
     fleet(): Fleet {
       return this.value.fleetInfo.mainFleet;
@@ -639,14 +647,14 @@ export default Vue.extend({
     },
     enabledAirbase(): { airbase: Airbase; index: number }[] {
       const target = this.value.mainBattle;
-      const results = [];
+      const airbases = [];
       for (let i = 0; i < this.value.airbaseInfo.airbases.length; i += 1) {
         const airbase = this.value.airbaseInfo.airbases[i];
         if (airbase.mode === AB_MODE.BATTLE && airbase.battleTarget.includes(target)) {
-          results.push({ airbase, index: i });
+          airbases.push({ airbase, index: i });
         }
       }
-      return results;
+      return airbases;
     },
     tableData(): { name: string; items: Item[]; index: number }[] {
       const fleet = this.value.fleetInfo.mainFleet;
@@ -751,16 +759,16 @@ export default Vue.extend({
         values.push([Math.max(values[i][0] - array[i][0], 0), Math.max(values[i][1] - array[i][1], 0)]);
       }
 
-      const results = [];
+      const remainings = [];
       for (let i = 0; i < values.length; i += 1) {
         const fuel = values[i][0];
         const ammo = values[i][1];
-        results.push({
+        remainings.push({
           fuel: { value: fuel, color: this.getFuelTextColor(fuel) },
           ammo: { value: ammo, color: this.getAmmoTextColor(ammo) },
         });
       }
-      return results;
+      return remainings;
     },
     sumFuelAndAmmo(): number[] {
       const ships = this.fleet.ships
@@ -813,6 +821,9 @@ export default Vue.extend({
         }
       }
       return [sumFuel, sumAmmo];
+    },
+    existUnknownEnemy(): boolean {
+      return this.value.battleInfo.fleets.some((v) => v.existUnknownEnemy);
     },
   },
   methods: {

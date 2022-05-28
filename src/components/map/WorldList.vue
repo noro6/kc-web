@@ -56,9 +56,18 @@
               </v-btn>
             </div>
             <div v-if="isAirRaid" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary">制空値:</div>
-              <div class="mx-3">{{ fleet.fullAirbaseAirPower }}</div>
-              <div>
+              <div class="text--secondary mr-2">制空値:</div>
+              <div>{{ fleet.fullAirbaseAirPower }}</div>
+              <div v-if="fleet.existUnknownEnemy" class="mx-2">
+                <v-tooltip bottom color="black">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
+                  </template>
+                  <div>搭載数が未確定の敵艦が含まれています。</div>
+                  <div>表示制空値は目安のもので、正確な制空値ではありません。</div>
+                </v-tooltip>
+              </div>
+              <div class="ml-2">
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
@@ -115,10 +124,13 @@
                     <div class="d-flex text-id">
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
                       <div class="ml-2" v-if="enemy.fullAirPower">制空: {{ enemy.fullAirPower }}</div>
+                      <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
                       <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">制空:({{ enemy.fullLBAirPower }})</div>
                     </div>
                     <div class="d-flex">
-                      <div class="text-name text-truncate">{{ enemy.data.name }}</div>
+                      <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
+                        {{ enemy.data.name }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -139,11 +151,14 @@
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
                       <div class="ml-2" v-if="enemy.fullAirPower">制空:{{ enemy.fullAirPower }}</div>
                       <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">制空:({{ enemy.fullLBAirPower }})</div>
+                      <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
                       <div class="ml-2 text--secondary" v-if="!fleet.isUnion">耐久: {{ enemy.data.hp }}</div>
                       <div class="ml-2 text--secondary" v-if="!fleet.isUnion">装甲: {{ enemy.actualArmor }}</div>
                     </div>
                     <div class="d-flex">
-                      <div class="text-name text-truncate">{{ enemy.data.name }}</div>
+                      <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
+                        {{ enemy.data.name }}
+                      </div>
                     </div>
                   </div>
                   <div v-if="!fleet.isUnion" class="item-preview">

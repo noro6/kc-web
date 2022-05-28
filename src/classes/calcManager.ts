@@ -218,6 +218,7 @@ export default class CalcManager {
     const { mainFleet } = this.fleetInfo;
     for (let i = 0; i < battleCount; i += 1) {
       AirCalcResult.formatResult(fleet.results[i], maxCount);
+      fleet.results[i].isUnknownEnemyAirPower = battles[i].existUnknownEnemy;
       mainFleet.results = fleet.results;
     }
     mainFleet.mainResult = fleet.results[mainBattle];

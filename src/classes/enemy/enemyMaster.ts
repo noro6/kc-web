@@ -25,6 +25,8 @@ export default class EnemyMaster {
 
   public isLandbase = false;
 
+  public isUnknown = false;
+
   /**
    * Creates an instance of EnemyMaster.
    * @param {MasterEnemy} enemy
@@ -40,6 +42,7 @@ export default class EnemyMaster {
       this.armor = enemy.armor ? +enemy.armor : 0;
       this.slotCount = enemy.slot_count ? +enemy.slot_count : 0;
       this.isLandbase = !!enemy.landbase;
+      this.isUnknown = !!enemy.unknown;
 
       this.slots = enemy.slots ? enemy.slots : [];
       this.items = enemy.items ? enemy.items : [];

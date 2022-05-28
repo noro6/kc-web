@@ -1216,17 +1216,14 @@ export default Vue.extend({
 
 .event-banner {
   max-width: 760px;
+  height: 100px;
   margin: 0 auto;
 }
-.event-banner .banner-normal {
-  display: unset;
-}
+.event-banner .banner-on,
 .event-banner:hover .banner-normal {
   display: none;
 }
-.event-banner .banner-on {
-  display: none;
-}
+.event-banner .banner-normal,
 .event-banner:hover .banner-on {
   display: unset;
 }

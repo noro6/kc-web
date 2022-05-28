@@ -115,6 +115,9 @@ export default class EnemyFleet {
   /** 発動可能対空CI全種 */
   public readonly allAntiAirCutIn: AntiAirCutIn[];
 
+  /** 未確定の敵がいるかどうか */
+  public readonly existUnknownEnemy: boolean;
+
   /** 制空値 計算用 */
   public airPower: number;
 
@@ -182,6 +185,7 @@ export default class EnemyFleet {
     this.escortEnemies = [];
     const enabledEnemies = this.enemies.filter((v) => v.data.id > 0);
     this.allAntiAirCutIn = [];
+    this.existUnknownEnemy = false;
 
     for (let i = 0; i < enabledEnemies.length; i += 1) {
       const enemy = enabledEnemies[i];
@@ -218,6 +222,10 @@ export default class EnemyFleet {
         if (!this.hasPlane && planes.find((v) => !v.data.isRecon)) {
           this.hasPlane = true;
         }
+      }
+
+      if (!this.existUnknownEnemy && enemy.data.isUnknown) {
+        this.existUnknownEnemy = true;
       }
     }
 
