@@ -66,7 +66,7 @@ export default class BattleInfo {
     const consumptions: number[][] = [];
     for (let i = 0; i < this.fleets.length; i += 1) {
       const {
-        cellType, isAllSubmarine, area, nodeName,
+        cellType, isAllSubmarine, isAllPT, area, nodeName,
       } = this.fleets[i];
       const isBoss = maps.some((v) => v.area === area && v.boss.includes(nodeName));
       const world = area ? Math.floor(area / 10) : 1;
@@ -78,6 +78,9 @@ export default class BattleInfo {
         } else {
           consumptions.push([6, 4]);
         }
+      } else if (isAllPT) {
+        // 全員PTマス
+        consumptions.push([4, 8]);
       } else if (cellType === CELL_TYPE.NIGHT) {
         // 開幕夜戦マス
         consumptions.push([10, 10]);
