@@ -761,6 +761,8 @@ export default Vue.extend({
         }
         let mainData = this.saveData.getMainData();
         if (mainData) {
+          // 敵情報はないので元の情報を使う
+          manager.battleInfo = mainData.tempData[mainData.tempIndex].battleInfo;
           // もともと開いている編成があるならそこに追加
           mainData.tempData.push(manager);
           mainData.tempIndex += 1;
@@ -1221,11 +1223,11 @@ export default Vue.extend({
 }
 .event-banner .banner-on,
 .event-banner:hover .banner-normal {
-  display: none;
+  height: 0px !important;
 }
 .event-banner .banner-normal,
 .event-banner:hover .banner-on {
-  display: unset;
+  height: unset !important;
 }
 </style>
 

@@ -812,8 +812,6 @@ export default class Const {
     },
   ];
 
-  public static readonly EnabledAreaCount = 5;
-
   /**
    * 経験値最低値ボーダー
    * @static

@@ -18,5 +18,6 @@ export interface Master {
   maps: MasterMap[],
   ships: MasterShip[],
   items: MasterItem[],
-  enemies: MasterEnemy[]
+  enemies: MasterEnemy[],
+  area_count: number
 }

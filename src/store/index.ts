@@ -52,6 +52,7 @@ export default new Vuex.Store({
     settingLoadCompleted: false,
     saveDataLoadCompleted: false,
     disabledDatabase: false,
+    areaCount: 0,
   },
   mutations: {
     setShips: (state, values: MasterShip[]) => {
@@ -95,6 +96,9 @@ export default new Vuex.Store({
     },
     setMaps: (state, values: MasterMap[]) => {
       state.maps = values;
+    },
+    setAreaCount: (state, value: number) => {
+      state.areaCount = value;
     },
     setCells: (state, values: CellMaster[]) => {
       state.cells = values;
@@ -275,6 +279,7 @@ export default new Vuex.Store({
           context.commit('setEquipShips', master.api_mst_equip_ship);
           context.commit('setWorlds', master.worlds);
           context.commit('setMaps', master.maps);
+          context.commit('setAreaCount', master.area_count);
         });
 
       getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {

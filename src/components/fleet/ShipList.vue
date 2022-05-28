@@ -44,7 +44,14 @@
         <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="'補強増設あり'"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="shipStock.length">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly()" dense hide-details :label="'在籍艦娘反映'" :disabled="disabledStockOnlyChange"></v-checkbox>
+        <v-checkbox
+          v-model="isStockOnly"
+          @click="clickedStockOnly()"
+          dense
+          hide-details
+          :label="'在籍艦娘反映'"
+          :disabled="disabledStockOnlyChange"
+        ></v-checkbox>
       </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
@@ -85,7 +92,7 @@
                 <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
               </div>
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
-                <v-img :src="`./img/util/area${data.area}.png`" height="40" width="27" />
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}.png`" height="40" width="27" />
               </div>
             </div>
             <div class="flex-grow-1 ml-1">
@@ -340,7 +347,7 @@ export default Vue.extend({
     daihatsuOK: false,
     naikateiOK: false,
     isReleaseExSlotOnly: false,
-    maxAreas: Const.EnabledAreaCount,
+    maxAreas: 0,
     disabledStockOnlyChange: false,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
@@ -349,6 +356,7 @@ export default Vue.extend({
     tooltipY: 0,
   }),
   mounted() {
+    this.maxAreas = this.$store.state.areaCount as number;
     const existTypes: number[] = [];
     const ships = this.$store.state.ships as ShipMaster[];
     for (let i = 0; i < ships.length; i += 1) {
@@ -467,7 +475,7 @@ export default Vue.extend({
               hp: shipData.improvement.hp + (shipData.level > 99 ? master.hp2 : master.hp),
               luck: shipData.improvement.luck + master.luck,
               asw: shipData.improvement.asw,
-              area: shipData.area <= Const.EnabledAreaCount ? Math.max(shipData.area, 0) : 0,
+              area: shipData.area <= this.maxAreas ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
             };
 

@@ -14,7 +14,6 @@ import Item from '../item/item';
 import ShipMaster from '../fleet/shipMaster';
 import EnemyMaster from '../enemy/enemyMaster';
 import ItemMaster from '../item/itemMaster';
-import Const from '../const';
 
 interface SavedItem {
   /** 装備id */
@@ -535,7 +534,7 @@ export default class SaveData {
         } as SavedShip;
         if (v.luck) data.lu = v.luck;
         if (v.level) data.lv = v.level;
-        if (v.area > 0 && v.area <= Const.EnabledAreaCount) data.ar = v.area;
+        if (v.area > 0) data.ar = v.area;
         if (v.exItem) data.ex = v.exItem;
         if (v.antiAir) data.aa = v.antiAir;
         return data;
@@ -728,7 +727,7 @@ export default class SaveData {
 
         // 現行マスタから艦娘情報を取得
         const shipMaster = shipMasters.find((v) => v.id === ship.i);
-        const area = ship.ar && ship.ar <= Const.EnabledAreaCount ? ship.ar : undefined;
+        const area = ship.ar && ship.ar > 0 ? ship.ar : undefined;
         if (shipMaster) {
           ships.push(new Ship({
             master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area,

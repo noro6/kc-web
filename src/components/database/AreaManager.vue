@@ -19,7 +19,7 @@
     <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
       <div class="d-flex">
         <div class="area-banner">
-          <v-img :src="`./img/util/area${data.area}.png`" height="55" width="38"></v-img>
+          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}.png`" height="55" width="38"></v-img>
         </div>
         <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit"> 配備 </v-btn>
         <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit"> 解散 </v-btn>
@@ -46,7 +46,7 @@
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
               </div>
               <div class="ship-area-banner">
-                <v-img :src="`./img/util/area${data.area}_min.png`" height="33" width="30" />
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}_min.png`" height="33" width="30" />
               </div>
               <div class="slot-ex-img" v-if="ship.expand">
                 <v-img :src="`./img/util/slot_ex.png`" height="27" width="27"></v-img>
@@ -279,7 +279,8 @@ export default Vue.extend({
     loadShipStock() {
       // 海域グループ初期化
       this.areaShipList = [];
-      for (let i = 0; i < Const.EnabledAreaCount; i += 1) {
+      const maxArea = this.$store.state.areaCount as number;
+      for (let i = 0; i < maxArea; i += 1) {
         const typeShips = [];
         const types = Const.SHIP_TYPES_ALT;
         for (let j = 0; j < types.length; j += 1) {

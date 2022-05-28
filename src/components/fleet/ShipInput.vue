@@ -23,7 +23,7 @@
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
-            <v-img :src="`./img/util/area${ship.area}.png`" height="40" width="28" />
+            <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${ship.area}.png`" height="40" width="28" />
           </div>
         </div>
         <div class="flex-grow-1">
@@ -450,7 +450,6 @@ import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
-import Const from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
@@ -512,7 +511,6 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
-    maxAreas: Const.EnabledAreaCount,
   }),
   computed: {
     ship(): Ship {
@@ -532,6 +530,9 @@ export default Vue.extend({
       const ships = this.$store.state.ships as ShipMaster[];
       const master = this.value.data;
       return this.value.data.isFinal && ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).length >= 2;
+    },
+    maxAreas(): number {
+      return this.$store.state.areaCount as number;
     },
   },
   methods: {

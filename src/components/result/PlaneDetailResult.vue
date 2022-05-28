@@ -739,23 +739,18 @@ export default Vue.extend({
       if (this.parent instanceof Ship) {
         // 艦隊
         item = this.calcManager.fleetInfo.mainFleet.ships[this.index].items[index];
-        if (item) {
-          item.needRecord = true;
-        }
       } else if (this.parent instanceof Airbase) {
         // 基地
         this.calcManager.airbaseInfo.airbases[this.index].needShootDown = true;
         item = this.calcManager.airbaseInfo.airbases[this.index].items[index];
-        if (item) {
-          item.needRecord = true;
-        }
       } else {
         // 敵
         this.calcManager.mainBattle = this.fleetIndex;
         item = this.calcManager.battleInfo.fleets[this.fleetIndex].enemies[this.index].items[index];
-        if (item) {
-          item.needRecord = true;
-        }
+      }
+
+      if (item) {
+        item.needRecord = true;
       }
 
       // 計算実行
