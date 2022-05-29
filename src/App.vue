@@ -269,6 +269,7 @@
               <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
               <v-btn @click="changeSiteTheme('ice')" class="mr-2" :class="{ primary: isIce, secondary: !isIce }">空色</v-btn>
               <v-btn @click="changeSiteTheme('pink')" class="mr-2" :class="{ primary: isPink, secondary: !isPink }">桜色</v-btn>
+              <v-btn @click="changeSiteTheme('green')" class="mr-2" :class="{ primary: isGreen, secondary: !isGreen }">翠色</v-btn>
               <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
               <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
             </div>
@@ -563,6 +564,9 @@ export default Vue.extend({
     },
     isPink(): boolean {
       return !this.setting.darkTheme && this.setting.themeDetail === 'pink';
+    },
+    isGreen(): boolean {
+      return !this.setting.darkTheme && this.setting.themeDetail === 'green';
     },
     isDark(): boolean {
       return this.setting.darkTheme && this.setting.themeDetail === 'dark';
@@ -916,19 +920,19 @@ export default Vue.extend({
         this.$store.dispatch('setMainSaveData', data);
       }
     },
-    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink') {
+    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink' | 'green') {
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
-      document.body.classList.remove('deep-sea', 'ice', 'pink');
+      document.body.classList.remove('deep-sea', 'ice', 'pink', 'green');
       if (theme === 'deep-sea') {
         this.$vuetify.theme.themes.dark.primary = colors.blue.lighten1;
         document.body.classList.add(theme);
       }
-      if (theme === 'ice' || theme === 'pink') {
+      if (theme === 'ice' || theme === 'pink' || theme === 'green') {
         document.body.classList.add(theme);
       }
 
@@ -1289,6 +1293,12 @@ export default Vue.extend({
 .pink .theme--light.v-application {
   background-color: rgb(255, 225, 225) !important;
   background: linear-gradient(rgb(255, 225, 225), rgb(255, 245, 245)) !important;
+  background-attachment: fixed !important;
+}
+/** テーマ翠色 */
+.green .theme--light.v-application {
+  background-color: rgb(255, 225, 225) !important;
+  background: linear-gradient(rgb(220, 255, 230), rgb(250, 255, 250)) !important;
   background-attachment: fixed !important;
 }
 

@@ -42,4 +42,7 @@ export interface ShipBase {
 
   /** 高射装置所持数 */
   readonly koshaCount: number
+
+  /** 実耐久値 */
+  readonly hp: number;
 }

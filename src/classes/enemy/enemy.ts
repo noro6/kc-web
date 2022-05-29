@@ -22,6 +22,9 @@ export default class Enemy implements ShipBase {
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
+  /** 実耐久値 */
+  public readonly hp: number;
+
   /** 実装甲値 */
   public readonly actualArmor: number;
 
@@ -70,6 +73,7 @@ export default class Enemy implements ShipBase {
     this.isEscort = isEscort;
 
     this.actualArmor = this.data.armor;
+    this.hp = this.data.hp;
     this.sumItemAccuracy = 0;
     this.fullLBAirPower = 0;
     this.fullAirPower = 0;

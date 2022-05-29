@@ -1,4 +1,4 @@
-export type SiteTheme = 'light' | 'ice' | 'pink' | 'dark' | 'deep-sea' | '';
+export type SiteTheme = 'light' | 'ice' | 'pink' | 'green' | 'dark' | 'deep-sea' | '';
 
 /** 装備UI設定 */
 export interface itemUISetting {

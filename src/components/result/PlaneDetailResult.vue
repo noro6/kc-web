@@ -240,7 +240,7 @@
           <div>
             <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120"></v-img>
           </div>
-          <div class="damage-td">{{ row.ship.data.hp }}</div>
+          <div class="damage-td">{{ row.ship.hp }}</div>
           <div class="damage-td">{{ row.ship.actualArmor }}</div>
           <div class="damage-td grow">{{ row.damage }}</div>
           <div v-if="row.disabledASW" class="damage-td colspan-3 caption">対潜攻撃不可</div>
@@ -878,7 +878,7 @@ export default Vue.extend({
         }
 
         const isEnemy = ship instanceof Enemy;
-        const HP = ship instanceof Ship && ship.level > 99 ? ship.data.hp2 : ship.data.hp;
+        const HP = ship.hp;
 
         // 火力分布より、被ダメージ分布を取得
         const damageDist = CommonCalc.getDamageDistribution(powers, ship.actualArmor, this.ammo, HP, isEnemy);
