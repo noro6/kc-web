@@ -730,7 +730,7 @@ export default Vue.extend({
       const oldExItem = oldShip.exItem.data;
       let exItem;
       if (oldExItem.id && ship.isValidItem(oldExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
-        exItem = new Item({ master: oldExItem });
+        exItem = new Item({ master: oldExItem, remodel: oldShip.exItem.remodel });
       } else {
         exItem = new Item();
       }

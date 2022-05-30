@@ -1297,7 +1297,7 @@ export default Vue.extend({
 }
 /** テーマ翠色 */
 .green .theme--light.v-application {
-  background-color: rgb(255, 225, 225) !important;
+  background-color: rgb(225, 255, 225) !important;
   background: linear-gradient(rgb(220, 255, 230), rgb(250, 255, 250)) !important;
   background-attachment: fixed !important;
 }
