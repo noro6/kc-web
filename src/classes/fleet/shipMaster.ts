@@ -201,7 +201,7 @@ export default class ShipMaster {
         return type === SHIP_TYPE.CVB;
       }
       // 15m二重測距儀+21号電探改二
-      if (item.id === 142) {
+      if (item.id === 142 || item.id === 460) {
         // 戦艦系のみ
         if (type !== SHIP_TYPE.FBB && type !== SHIP_TYPE.BB && type !== SHIP_TYPE.BBV) {
           return false;
