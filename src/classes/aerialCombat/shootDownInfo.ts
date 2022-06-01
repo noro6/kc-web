@@ -318,11 +318,11 @@ export default class ShootDownInfo {
       } else if (shipId === 478) {
         // 龍田改二
         // 24種 (高角砲, 通常機銃)
-        if (kokakuCount && kijuCount) cutInIds.push(24);
+        if (allKokaku && kijuCount) cutInIds.push(24);
       } else if (shipId === 477) {
         // 天龍改二
         // 24種 (高角砲, 通常機銃)
-        if (kokakuCount && kijuCount) cutInIds.push(24);
+        if (allKokaku && kijuCount) cutInIds.push(24);
         // 30種 (高角砲3)
         if (allKokaku >= 3) cutInIds.push(30);
         // 31種 (高角砲2)
