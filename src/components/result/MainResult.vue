@@ -698,7 +698,6 @@ export default Vue.extend({
     supportsTableRow(): { name: string }[] {
       const rows = [];
       const fleets = this.value.fleetInfo.fleets.filter((v, i) => i < 4);
-      const supports = Const.SUPPORTS;
       const mainIndex = this.value.fleetInfo.mainFleetIndex;
       for (let i = 0; i < fleets.length; i += 1) {
         // 出撃中のやつは出撃中フラグを建てる
@@ -709,10 +708,6 @@ export default Vue.extend({
 
         const fleet = fleets[i];
         const types = fleet.supportTypes;
-        const typeNames = types.map((v) => {
-          const support = supports.find((w) => w.value === v);
-          return support ? support.text : '-';
-        });
 
         const needResult = types.includes(SUPPORT_TYPE.AIRSTRIKE) || types.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
         const result = fleet.results.find((v) => v.supportRates.some((w) => w > 0));
@@ -722,7 +717,7 @@ export default Vue.extend({
         const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
         rows.push({
           name: `第${i + 1}艦隊`,
-          typeName: typeNames.join(' / '),
+          typeName: fleet.getSupportTypeName(),
           airPower: fleet.supportAirPower,
           enemyAirPower,
           rates: rates.slice(0, 5),

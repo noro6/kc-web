@@ -352,4 +352,13 @@ export default class Fleet {
     }
     return [SUPPORT_TYPE.LONG_RANGE_TORPEDO];
   }
+
+  public getSupportTypeName(): string {
+    const supports = Const.SUPPORTS;
+    const typeNames = this.supportTypes.map((v) => {
+      const support = supports.find((w) => w.value === v);
+      return support ? support.text : '-';
+    });
+    return typeNames.join(' / ');
+  }
 }

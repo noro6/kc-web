@@ -259,7 +259,7 @@
     </v-footer>
     <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
       <v-card>
-        <div class="site-setting-container px-5 pb-5">
+        <div class="site-setting-container px-5 pb-3">
           <div class="mt-5">
             <div class="d-flex">
               <div class="body-2">サイトカラーテーマ</div>
@@ -336,6 +336,24 @@
           </div>
           <div>
             <div class="d-flex mt-3">
+              <div class="body-2">装備マウスホバー時の詳細情報表示</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2 d-flex">
+              <v-checkbox v-model="setting.disabledItemTooltip" dense label="詳細情報を表示しない"></v-checkbox>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex mt-3">
+              <div class="body-2">デッキビルダー形式データ読込設定</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2 d-flex">
+              <v-checkbox v-model="setting.importAllDeck" dense label="常に全艦隊データを読み込む"></v-checkbox>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex mt-3">
               <div class="body-2">制空計算時のシミュレーション回数</div>
               <div class="header-divider"></div>
             </div>
@@ -380,29 +398,6 @@
               </div>
             </div>
           </div>
-          <div>
-            <div class="d-flex mt-3">
-              <div class="body-2">装備マウスホバー時の詳細情報表示</div>
-              <div class="header-divider"></div>
-            </div>
-            <div class="ml-3 mt-2 d-flex">
-              <v-btn
-                @click="toggleEnabledItemTooltip(true)"
-                class="mr-2"
-                :class="{ primary: !disabledItemTooltip, secondary: disabledItemTooltip }"
-              >
-                有効
-              </v-btn>
-              <v-btn
-                @click="toggleEnabledItemTooltip(false)"
-                class="mr-2"
-                :class="{ primary: disabledItemTooltip, secondary: !disabledItemTooltip }"
-              >
-                無効
-              </v-btn>
-            </div>
-          </div>
-          <div></div>
         </div>
       </v-card>
     </v-dialog>
@@ -467,6 +462,44 @@
     <v-dialog v-model="shareDialog" width="500">
       <share-dialog :handle-close="closeShareDialog" ref="shareDialog" />
     </v-dialog>
+    <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
+      <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
+        <div>艦隊選択</div>
+        <v-divider class="my-3"></v-divider>
+        <div class="body-2">取り込む艦隊を選択し、取り込みボタンを押してください。</div>
+        <div
+          v-for="(row, i) in selectableFleets"
+          :key="`fleet_${i}`"
+          v-ripple="{ class: 'info--text' }"
+          class="selectable-fleet-container"
+          :class="{ selected: row.selected }"
+          @click.stop="row.selected = !row.selected"
+        >
+          <div class="d-flex mb-1">
+            <div>
+              <v-icon v-if="row.selected" color="info">mdi-checkbox-outline</v-icon>
+              <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
+            </div>
+            <div class="align-self-end body-2 ml-3">第{{ i + 1 }}艦隊</div>
+            <div class="align-self-end caption ml-auto">支援: {{ row.supportTypeName }}</div>
+          </div>
+          <div class="d-flex flex-wrap">
+            <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
+              <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="25" width="100"></v-img>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex mt-2">
+          <div>
+            <v-checkbox v-model="setting.importAllDeck" label="常に全艦隊取り込む" hide-details dense></v-checkbox>
+            <div class="caption ml-1">チェックすると、次回以降、常に全ての艦隊を取り込むようになります。</div>
+            <div class="caption ml-1">この設定は、設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
+          </div>
+          <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">取込</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">戻る</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -487,6 +520,9 @@ import FirebaseManager from '@/classes/firebaseManager';
 import LZString from 'lz-string';
 import ShipStock from './classes/fleet/shipStock';
 import ItemStock from './classes/item/itemStock';
+import Fleet from './classes/fleet/fleet';
+import CalcManager from './classes/calcManager';
+import FleetInfo from './classes/fleet/fleetInfo';
 
 export default Vue.extend({
   name: 'App',
@@ -527,6 +563,9 @@ export default Vue.extend({
     backupString: undefined as undefined | string,
     fileValue: undefined as File | undefined,
     disabledIndexedDB: false,
+    fleetSelectDialog: false,
+    selectableFleets: [] as { selected: boolean; fleet: Fleet; supportTypeName: string }[],
+    tempManager: undefined as undefined | CalcManager,
   }),
   computed: {
     getCompletedAll() {
@@ -598,8 +637,8 @@ export default Vue.extend({
       }
       return 'px-2 px-md-4';
     },
-    disabledItemTooltip(): boolean {
-      return this.setting.disabledItemTooltip;
+    selectedAnyFleet(): boolean {
+      return this.selectableFleets.some((v) => v.selected);
     },
   },
   watch: {
@@ -737,8 +776,8 @@ export default Vue.extend({
     readSomethingText() {
       this.readState = 'primary';
       // デッキビルダー形式データ読み込み試行
-      if (this.loadAndOpenFromDeckBuilder(this.somethingText)) {
-        this.inform('編成の読み込みが完了しました。');
+      if (this.loadAndConfirmDeckBuilder(this.somethingText)) {
+        this.inform('デッキビルダー形式編成データを読み込みました。');
       } else if (this.setShipStock(this.somethingText)) {
         // 在籍艦娘データ読み込み試行
         this.inform('在籍艦娘データの更新が完了しました。');
@@ -754,6 +793,38 @@ export default Vue.extend({
       this.somethingText = '';
       this.readState = false;
     },
+    loadAndConfirmDeckBuilder(builder: string): boolean {
+      if (this.setting.importAllDeck) {
+        return this.loadAndOpenFromDeckBuilder(builder);
+      }
+      try {
+        const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+        const manager = converter.loadDeckBuilder(builder);
+        if (!manager) {
+          // 何もない編成データは無意味なので返す
+          return false;
+        }
+
+        this.selectableFleets = [];
+        for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+          const fleet = manager.fleetInfo.fleets[i];
+          if (fleet.ships.some((v) => v.data.id > 0)) {
+            this.selectableFleets.push({ selected: true, fleet, supportTypeName: fleet.getSupportTypeName() });
+          }
+        }
+        if (this.selectableFleets.length > 1) {
+          // 有効な艦隊が2つ以上
+          this.fleetSelectDialog = true;
+          // 一時退避
+          this.tempManager = manager;
+          return true;
+        }
+
+        return this.loadAndOpenFromDeckBuilder(builder);
+      } catch (error) {
+        return false;
+      }
+    },
     loadAndOpenFromDeckBuilder(builder: string): boolean {
       // デッキビルダー形式データを計算データに設定して計算ページに移譲
       try {
@@ -763,31 +834,49 @@ export default Vue.extend({
           // 何もない編成データは無意味なので返す
           return false;
         }
-        let mainData = this.saveData.getMainData();
-        if (mainData) {
-          // 敵情報はないので元の情報を使う
-          manager.battleInfo = mainData.tempData[mainData.tempIndex].battleInfo;
-          // もともと開いている編成があるならそこに追加
-          mainData.tempData.push(manager);
-          mainData.tempIndex += 1;
-        } else {
-          mainData = new SaveData();
-          mainData.name = '外部データ';
-          mainData.isActive = true;
-          mainData.isMain = true;
-          mainData.tempData = [manager];
-          mainData.tempIndex = 0;
-          mainData.tempSavedIndex = 0;
-          this.saveData.childItems.push(mainData);
-        }
-        this.$store.dispatch('setMainSaveData', mainData);
-        if (!this.isAirCalcPage) {
-          // ページ遷移
-          this.$router.push('aircalc');
-        }
+        this.expandCalcManager(manager);
         return true;
       } catch (error) {
         return false;
+      }
+    },
+    importSelectedFleet(): void {
+      if (!this.selectedAnyFleet) {
+        return;
+      }
+      const manager = this.tempManager;
+      if (!manager) {
+        return;
+      }
+      const fleets = this.selectableFleets.filter((v) => v.selected).map((v) => v.fleet);
+      // 選択された艦隊で置き換え
+      manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets });
+      this.expandCalcManager(manager);
+      this.fleetSelectDialog = false;
+      this.inform('デッキビルダー形式編成データを読み込みました。');
+    },
+    expandCalcManager(manager: CalcManager): void {
+      let mainData = this.saveData.getMainData();
+      if (mainData) {
+        // 敵情報はないので元の情報を使う
+        manager.battleInfo = mainData.tempData[mainData.tempIndex].battleInfo;
+        // もともと開いている編成があるならそこに追加
+        mainData.tempData.push(manager);
+        mainData.tempIndex += 1;
+      } else {
+        mainData = new SaveData();
+        mainData.name = '外部データ';
+        mainData.isActive = true;
+        mainData.isMain = true;
+        mainData.tempData = [manager];
+        mainData.tempIndex = 0;
+        mainData.tempSavedIndex = 0;
+        this.saveData.childItems.push(mainData);
+      }
+      this.$store.dispatch('setMainSaveData', mainData);
+      if (!this.isAirCalcPage) {
+        // ページ遷移
+        this.$router.push('aircalc');
       }
     },
     setShipStock(data: string): boolean {
@@ -967,9 +1056,6 @@ export default Vue.extend({
         document.body.classList.add('item-ui-radius');
       }
     },
-    toggleEnabledItemTooltip(enabled: boolean) {
-      this.setting.disabledItemTooltip = !enabled;
-    },
     toggleConfigDialog() {
       if (!this.configDialog) {
         // 設定ダイアログを閉じると同時に保存
@@ -980,6 +1066,13 @@ export default Vue.extend({
           this.setting.simulationCount = 100;
         }
 
+        this.$store.dispatch('updateSetting', this.setting);
+      }
+    },
+    toggleFleetSelectDialog() {
+      if (!this.fleetSelectDialog) {
+        this.tempManager = undefined;
+        // 設定ダイアログを閉じると同時に保存
         this.$store.dispatch('updateSetting', this.setting);
       }
     },
@@ -1232,6 +1325,26 @@ export default Vue.extend({
 .event-banner .banner-normal,
 .event-banner:hover .banner-on {
   height: unset !important;
+}
+
+.selectable-fleet-container {
+  margin-top: 0.25rem;
+  padding: 3px 6px 6px 6px;
+  border: 2px solid rgba(128, 128, 128, 0.4);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: 0.3s;
+  opacity: 0.6;
+}
+.selectable-fleet-container:hover {
+  opacity: 1;
+  border-color: rgba(33, 150, 243, 0.4);
+  background-color: rgba(33, 150, 243, 0.05);
+}
+.selectable-fleet-container.selected {
+  opacity: 1;
+  border-color: rgb(33, 150, 243);
+  box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.5);
 }
 </style>
 
