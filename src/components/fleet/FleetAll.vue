@@ -654,13 +654,13 @@ export default Vue.extend({
     showItemPreset(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.shipDialogTarget = [fleetIndex, shipIndex];
-      this.tempShip = ship;
+      this.tempShip = cloneDeep(ship);
       this.itemPresetDialog = true;
     },
     showTempShipList(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.shipDialogTarget = [fleetIndex, shipIndex];
-      this.tempShip = ship;
+      this.tempShip = cloneDeep(ship);
       this.tempShipListDialog = true;
       this.enabledPushTempShip = true;
     },
@@ -668,7 +668,7 @@ export default Vue.extend({
       if (this.tempShip) {
         // 一時保存リストに追加
         this.enabledPushTempShip = false;
-        this.tempShipList.push(cloneDeep(this.tempShip));
+        this.tempShipList.push(this.tempShip);
       }
     },
     popTempShip(ship: Ship) {
@@ -676,7 +676,13 @@ export default Vue.extend({
       const index = this.shipDialogTarget[1];
       const fleet = this.fleetInfo.fleets[fleetIndex];
       // 元々いた艦娘を置き換える
-      fleet.ships[index] = new Ship({ ship });
+      const original = fleet.ships[index];
+      const items = [];
+      for (let i = 0; i < ship.items.length; i += 1) {
+        items.push(new Item({ item: ship.items[i] }));
+      }
+      fleet.ships[index] = new Ship({ ship, isEscort: original.isEscort, items });
+
       // 編成が更新されたため、艦隊を再インスタンス化し更新
       this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
@@ -860,11 +866,18 @@ export default Vue.extend({
             if (newItem.data.id === 138 && ship.type2 === 90) {
               // 日進 & 二式大艇
               newItems[slotIndex] = new Item({
-                master: newItem.data, item: newItems[slotIndex], level, remodel: newItem.remodel, slot: 1,
+                master: newItem.data,
+                item: newItems[slotIndex],
+                level,
+                remodel: newItem.remodel,
+                slot: 1,
               });
             } else {
               newItems[slotIndex] = new Item({
-                master: newItem.data, item: newItems[slotIndex], level, remodel: newItem.remodel,
+                master: newItem.data,
+                item: newItems[slotIndex],
+                level,
+                remodel: newItem.remodel,
               });
             }
           } else {
