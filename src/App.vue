@@ -58,7 +58,20 @@
           @click:append="readSomethingText"
         ></v-textarea>
       </div>
-      <v-btn icon @click="configDialog = true"><v-icon>mdi-cog</v-icon></v-btn>
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn :disabled="isManagerPage" icon @click="$router.push({ path: '/manager' })" v-bind="attrs" v-on="on">
+            <v-icon>mdi-database-cog</v-icon>
+          </v-btn>
+        </template>
+        <span>艦娘 / 装備管理ページ</span>
+      </v-tooltip>
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="configDialog = true" v-bind="attrs" v-on="on"><v-icon>mdi-cog</v-icon></v-btn>
+        </template>
+        <span>サイト設定</span>
+      </v-tooltip>
       <template v-slot:extension>
         <save-data-tab :save-data="saveData" ref="saveDataTab" />
       </template>

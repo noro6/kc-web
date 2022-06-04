@@ -158,22 +158,14 @@ export default Vue.extend({
       const saveData = this.$store.state.saveData as SaveData;
       saveData.disabledMain();
 
-      const actives = saveData.fetchActiveData();
-      if (actives.length) {
-        // タブがあるならそれの最初のやつ
-        actives[0].isMain = true;
-        this.$store.dispatch('updateSaveData', saveData);
-        this.$store.dispatch('setMainSaveData', actives[0]);
-      } else {
-        // ルートに無題のデータを生成
-        const data = new SaveData();
-        data.name = saveData.getNewSavedataName();
-        data.isActive = true;
-        data.isMain = true;
-        saveData.childItems.push(data);
-        this.$store.dispatch('updateSaveData', saveData);
-        this.$store.dispatch('setMainSaveData', data);
-      }
+      // ルートに無題のデータを生成
+      const data = new SaveData();
+      data.name = saveData.getNewSavedataName();
+      data.isActive = true;
+      data.isMain = true;
+      saveData.childItems.push(data);
+      this.$store.dispatch('updateSaveData', saveData);
+      this.$store.dispatch('setMainSaveData', data);
       this.$router.push('aircalc');
     },
     checkOldData() {
