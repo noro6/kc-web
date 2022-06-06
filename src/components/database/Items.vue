@@ -190,7 +190,7 @@
         <div class="d-flex">
           <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="registStock">更新</v-btn>
           <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">全破棄</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

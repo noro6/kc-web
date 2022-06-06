@@ -64,13 +64,13 @@
             <v-icon>mdi-database-cog</v-icon>
           </v-btn>
         </template>
-        <span>艦娘 / 装備管理ページ</span>
+        <span>{{ $t("Manager.title") }}</span>
       </v-tooltip>
       <v-tooltip left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="configDialog = true" v-bind="attrs" v-on="on"><v-icon>mdi-cog</v-icon></v-btn>
         </template>
-        <span>サイト設定</span>
+        <span>{{ $t("Top.siteSetting") }}</span>
       </v-tooltip>
       <template v-slot:extension>
         <save-data-tab :save-data="saveData" ref="saveDataTab" />
@@ -273,26 +273,49 @@
     <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
       <v-card>
         <div class="site-setting-container px-5 pb-3">
-          <div class="mt-5">
-            <div class="d-flex">
-              <div class="body-2">サイトカラーテーマ</div>
+          <div>
+            <div class="d-flex mt-3">
+              <div class="body-2">{{ $t("Setting.language") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
-              <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">通常</v-btn>
-              <v-btn @click="changeSiteTheme('ice')" class="mr-2" :class="{ primary: isIce, secondary: !isIce }">空色</v-btn>
-              <v-btn @click="changeSiteTheme('pink')" class="mr-2" :class="{ primary: isPink, secondary: !isPink }">桜色</v-btn>
-              <v-btn @click="changeSiteTheme('green')" class="mr-2" :class="{ primary: isGreen, secondary: !isGreen }">翠色</v-btn>
-              <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">暗色</v-btn>
-              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">深海</v-btn>
+              <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
+              <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
+            </div>
+          </div>
+          <div></div>
+          <div class="pt-5">
+            <div class="d-flex">
+              <div class="body-2">{{ $t("Setting.colorTheme.title") }}</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2">
+              <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">
+                {{ $t("Setting.colorTheme.normal") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('ice')" class="mr-2" :class="{ primary: isIce, secondary: !isIce }">
+                {{ $t("Setting.colorTheme.sky") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('pink')" class="mr-2" :class="{ primary: isPink, secondary: !isPink }">
+                {{ $t("Setting.colorTheme.pink") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('green')" class="mr-2" :class="{ primary: isGreen, secondary: !isGreen }">
+                {{ $t("Setting.colorTheme.green") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">
+                {{ $t("Setting.colorTheme.dark") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">
+                {{ $t("Setting.colorTheme.deepSea") }}
+              </v-btn>
             </div>
             <div class="d-flex mt-5">
-              <div class="body-2">装備表示UI調整</div>
+              <div class="body-2">{{ $t("Setting.equipmentUISetting.title") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
               <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
-                枠線
+                {{ $t("Setting.equipmentUISetting.border") }}
               </v-btn>
               <v-btn
                 :disabled="!hasItemUIBorder"
@@ -300,7 +323,7 @@
                 class="mr-2"
                 :class="{ primary: isItemUIBold, secondary: !isItemUIBold }"
               >
-                太枠
+                {{ $t("Setting.equipmentUISetting.bold") }}
               </v-btn>
               <v-btn
                 :disabled="!hasItemUIBorder"
@@ -308,7 +331,7 @@
                 class="mr-2"
                 :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }"
               >
-                角丸
+                {{ $t("Setting.equipmentUISetting.radius") }}
               </v-btn>
               <div class="align-self-center flex-grow-1">
                 <v-divider v-if="!hasItemUIBorder"></v-divider>
@@ -317,7 +340,7 @@
                   <div class="mx-1 item-icon">
                     <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
                   </div>
-                  <div class="align-self-center body-2 flex-grow-1 text-truncate">さんぷる</div>
+                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ $t("Setting.equipmentUISetting.sample") }}</div>
                   <div class="ml-1 align-self-center">
                     <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
                   </div>
@@ -325,19 +348,19 @@
               </div>
             </div>
             <div class="d-flex mt-5">
-              <div class="body-2">未保存の編成タブを閉じる際の挙動</div>
+              <div class="body-2">{{ $t("Setting.closeTabSetting") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
               <div class="d-flex">
-                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense label="確認ダイアログを表示する"></v-checkbox>
+                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.closeTabConfig')"></v-checkbox>
                 <v-spacer></v-spacer>
               </div>
             </div>
           </div>
-          <div class="mt-5">
+          <div class="pt-5">
             <div class="d-flex">
-              <div class="body-2">装備選択時のデフォルト熟練度</div>
+              <div class="body-2">{{ $t("Setting.defaultProficiency.title") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
@@ -349,31 +372,32 @@
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">装備マウスホバー時の詳細情報表示</div>
+              <div class="body-2">{{ $t("Setting.equipmentDetailsVisible") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.disabledItemTooltip" dense label="詳細情報を表示しない"></v-checkbox>
+              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.invisibleDetails')"></v-checkbox>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">デッキビルダー形式データ読込設定</div>
+              <div class="body-2">{{ $t("Setting.deckBuilderReadingSetting") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.importAllDeck" dense label="常に全艦隊データを読み込む"></v-checkbox>
+              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.loadAllFleet')"></v-checkbox>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">制空計算時のシミュレーション回数</div>
+              <div class="body-2">{{ $t("Setting.simulationCount.title") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
               <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
-                <div>数値が大きいほど計算の精度が上がりますが、</div>
-                <div>計算時のパフォーマンスが低下します。</div>
+                <div>{{ $t("Setting.simulationCount.description1") }}</div>
+                <div>{{ $t("Setting.simulationCount.description2") }}</div>
+                <div></div>
               </v-alert>
               <div class="d-flex">
                 <v-text-field
@@ -384,26 +408,28 @@
                   v-model.number="setting.simulationCount"
                   :rules="[rules.simulationCountRange]"
                 ></v-text-field>
-                <div class="ml-3 align-self-center">回</div>
+                <div class="ml-3 align-self-center">{{ $t("Setting.simulationCount.unit") }}</div>
               </div>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">編成データのバックアップ</div>
+              <div class="body-2">{{ $t("Setting.saveDataBackUp.title") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
               <div class="d-flex">
-                <v-btn color="primary" @click="downloadBackupFile()">作成</v-btn>
-                <div class="caption align-self-center ml-4">… 保存した編成データのバックアップファイルを作成します</div>
+                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
+                <div class="caption align-self-center ml-4">… {{ $t("Setting.saveDataBackUp.description1") }}</div>
               </div>
               <div class="d-flex mt-3">
-                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">復元</v-btn>
+                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">{{
+                  $t("Setting.saveDataBackUp.restore")
+                }}</v-btn>
                 <div class="flex-grow-1 align-self-center mt-3">
                   <v-file-input
                     v-model="fileValue"
-                    label="復元するバックアップファイルを選択"
+                    :label="$t('Setting.saveDataBackUp.description2')"
                     @change="handleFileSelect"
                     dense
                   ></v-file-input>
@@ -456,7 +482,7 @@
               ></v-textarea>
               <div class="d-flex mt-3">
                 <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
-                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
               </div>
             </div>
           </v-tab-item>
@@ -509,7 +535,7 @@
             <div class="caption ml-1">この設定は、設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
           </div>
           <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">取込</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">戻る</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -653,6 +679,12 @@ export default Vue.extend({
     selectedAnyFleet(): boolean {
       return this.selectableFleets.some((v) => v.selected);
     },
+    isJapanese(): boolean {
+      return this.setting.locale === 'ja';
+    },
+    isEnglish(): boolean {
+      return this.setting.locale === 'en';
+    },
   },
   watch: {
     getCompletedAll(value) {
@@ -685,6 +717,10 @@ export default Vue.extend({
         } else {
           // 基本のテーマ2種
           this.changeSiteTheme(this.setting.darkTheme ? 'dark' : 'light');
+        }
+
+        if (this.setting.locale) {
+          this.changeLocale(this.setting.locale);
         }
 
         if (!this.setting.fixedDrawer) {
@@ -1040,6 +1076,10 @@ export default Vue.extend({
 
       this.setting.themeDetail = theme;
       this.updateItemUI();
+    },
+    changeLocale(local: 'ja' | 'en') {
+      this.setting.locale = local;
+      this.$i18n.locale = local;
     },
     toggleItemUIHasBorder() {
       this.setting.itemUI.border = !this.setting.itemUI.border;

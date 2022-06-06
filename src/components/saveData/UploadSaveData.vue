@@ -35,7 +35,7 @@
     </v-form>
     <div class="d-flex">
       <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">アップロード</v-btn>
-      <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+      <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
     </div>
     <v-dialog v-model="uploadConfirmDialog" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
@@ -55,7 +55,7 @@
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" :dark="!uploadClicked" :disabled="uploadClicked" @click.stop="uploadSaveData">続行</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="uploadConfirmDialog = false">戻る</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="uploadConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

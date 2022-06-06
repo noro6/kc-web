@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import { initializeApp } from 'firebase/app';
 import VueGtag from 'vue-gtag';
+import VueI18n from 'vue-i18n';
 import App from './App.vue';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
+import Lang from './lib/lang';
 
 Vue.config.productionTip = false;
 
@@ -20,13 +22,19 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
+Vue.use(VueI18n);
+Vue.use(VueGtag, { config: { id: 'UA-152888142-2' } }, router, VueI18n);
 
-Vue.use(VueGtag, { config: { id: 'UA-152888142-2' } }, router);
+const i18n = new VueI18n({
+  locale: 'ja',
+  messages: Lang,
+});
 
 new Vue({
   router,
   store,
   vuetify,
+  i18n,
   render: (h) => h(App),
   created() {
     this.$store.dispatch('loadSetting');

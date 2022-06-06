@@ -524,7 +524,7 @@
             <v-btn class="ml-4" :disabled="!editRow.stockData.uniqueId || readOnly" color="error" @click.stop="confirmDialog = true"
               >除籍</v-btn
             >
-            <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
           </div>
         </div>
       </v-card>

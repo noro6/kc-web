@@ -8,76 +8,76 @@
         <div class="my-2 mx-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
             <v-icon>mdi-calculator</v-icon>
-            <span class="ml-1">制空権シミュレータ</span>
+            <span class="ml-1">{{ $t("Home.title") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
-            <div>本サイトの主要機能です。</div>
+            <div>{{ $t("Home.description1") }}</div>
             <div class="mt-2">
-              基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。
+              {{ $t("Home.description2") }}
             </div>
           </div>
         </div>
         <div class="my-2 mx-4">
           <v-btn x-large dark color="blue" @click="$router.push('manager')">
             <v-icon>mdi-database-cog</v-icon>
-            <span class="ml-1">艦娘 / 装備管理</span>
+            <span class="ml-1">{{ $t("Manager.title") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
-            <div>サブの機能です。</div>
+            <div>{{ $t("Manager.description1") }}</div>
             <div class="mt-2">
-              自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってた…？と悩む心配がなくなります。
+              {{ $t("Manager.description2") }}
             </div>
           </div>
         </div>
         <div class="mt-4 mx-4">
           <v-btn x-large dark color="blue darken-4" @click="$router.push('list')">
             <v-icon>mdi-human-greeting-variant</v-icon>
-            <span class="ml-1">みんなの編成</span>
+            <span class="ml-1">{{ $t("OtherData.title") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
-            <div>他の人がアップロードした編成データを閲覧できます。</div>
+            <div>{{ $t("OtherData.description1") }}</div>
           </div>
         </div>
       </div>
       <v-divider class="my-4"></v-divider>
       <div class="ma-2">
-        <div class="ml-2">データ引継ぎ</div>
+        <div class="ml-2">{{ $t("DataImport.title") }}</div>
         <div class="ml-4 mt-2 body-2">
-          <a href="https://noro6.github.io/kcTools" target="_blank">旧制空権シミュレータ</a>
-          で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。
+          <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("DataImport.oldVersion") }}</a>
+          {{ $t("DataImport.description1") }}
         </div>
         <div class="d-flex flex-wrap ml-2">
-          <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">データ引継ぎ(編成)</v-btn>
+          <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
+            {{ $t("DataImport.importSaveData") }}
+          </v-btn>
           <v-btn class="ma-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
-            データ引継ぎ(装備/艦娘)
+            {{ $t("DataImport.importShipAndItem") }}
           </v-btn>
         </div>
       </div>
       <v-divider class="my-4"></v-divider>
       <div class="ma-2">
-        <div class="ml-2">サイト連携</div>
+        <div class="ml-2">{{ $t("Linkage.title") }}</div>
         <div class="ml-4 mt-2 body-2">
-          <div>デッキビルダー形式をURLに?predeck=...で埋め込めば編成を読み込めます。</div>
+          <div>{{ $t("Linkage.description1") }}</div>
           <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
         </div>
       </div>
     </v-card>
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
-      <div class="caption">
-        著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
-      </div>
-      <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
+      <div class="caption">{{ $t("Warning.message1") }}</div>
+      <div class="caption">{{ $t("Warning.message2") }}</div>
     </div>
     <v-dialog v-model="importConfirmDialog" transition="scroll-x-transition" width="500">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <div class="body-2">引き継ぎ対象のデータを格納するフォルダーを作成します。</div>
-          <div class="mb-5 body-2">フォルダー名を指定し、実行を押すと引き継ぎを開始します。</div>
+          <div class="body-2">{{ $t("DataImport.confirm1.description1") }}</div>
+          <div class="mb-5 body-2">{{ $t("DataImport.confirm1.description2") }}</div>
           <v-text-field v-model="importFileName" dense outlined maxlength="100" counter label="フォルダー名"></v-text-field>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmptry || imported">実行</v-btn>
-            <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">戻る</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmptry || imported">{{ $t("Common.実行") }}</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -85,14 +85,14 @@
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="440">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div class="body-2">既に本サイトで装備 / 艦娘情報が登録されているようです。</div>
-          <div class="body-2">引き継ぎを行うとこれらのデータは上書きされます。</div>
-          <div class="body-2 mt-3">本当に引き継ぎを行いますか？</div>
+          <div class="body-2">{{ $t("DataImport.confirm2.description1") }}</div>
+          <div class="body-2">{{ $t("DataImport.confirm2.description2") }}</div>
+          <div class="body-2 mt-3">{{ $t("DataImport.confirm2.description3") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="primary" dark :disabled="!confirmDialog" @click.stop="importOldStockData()">実行</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">戻る</v-btn>
+          <v-btn class="ml-auto" color="success" dark :disabled="!confirmDialog" @click.stop="importOldStockData()">{{ $t("Common.実行") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

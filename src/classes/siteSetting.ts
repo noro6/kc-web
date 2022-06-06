@@ -82,6 +82,9 @@ export default class SiteSetting {
   /** デッキビルダーからの取込時、全て取り込む */
   public importAllDeck: boolean;
 
+  /** 言語 */
+  public locale: 'ja' | 'en';
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -107,6 +110,7 @@ export default class SiteSetting {
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
+      this.locale = setting.locale ? setting.locale : 'ja';
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -153,6 +157,7 @@ export default class SiteSetting {
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
+      this.locale = 'ja';
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },
