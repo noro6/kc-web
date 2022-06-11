@@ -175,8 +175,19 @@ export default class Fleet {
     this.airPower = this.fullAirPower;
 
     // 対空砲火情報を更新
-    // 特殊CIソート => (性能順, 38種以降)
-    specialCutin.sort((a, b) => (a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorrA - a.fixCorrA));
+    // 特殊CIソート
+    specialCutin.sort((a, b) => {
+      if (a.id > 41 && b.id <= 41) {
+        return -1;
+      }
+      if (a.id <= 41 && b.id > 41) {
+        return 1;
+      }
+      if (a.id <= 41 && b.id <= 41) {
+        return a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorrA - a.fixCorrA;
+      }
+      return a.id - b.id;
+    });
     // 通常CIソート => (種別の降順)
     generalCutin.sort((a, b) => b.id - a.id);
     // 特殊CIを最優先とし、後続に通常CIを格納した対空CI配列 これで対空CI確定

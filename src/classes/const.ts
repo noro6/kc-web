@@ -810,6 +810,18 @@ export default class Const {
     {
       id: 41, text: '41種', rateBonus: 1.65, c1: 5, c2: 5, rate: 60, remarks: 'Atlanta',
     },
+    {
+      id: 42, text: '42種', rateBonus: 1.65, c1: 10, c2: 1, rate: 65, remarks: '大和型改二',
+    },
+    {
+      id: 43, text: '43種', rateBonus: 1.6, c1: 8, c2: 1, rate: 60, remarks: '大和型改二',
+    },
+    {
+      id: 44, text: '44種', rateBonus: 1.6, c1: 6, c2: 1, rate: 55, remarks: '大和型改二',
+    },
+    {
+      id: 45, text: '45種', rateBonus: 1.55, c1: 5, c2: 1, rate: 50, remarks: '大和型改二',
+    },
   ];
 
   /**
