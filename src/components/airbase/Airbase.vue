@@ -4,7 +4,7 @@
       <div class="ml-2 align-self-end airbase-title">第{{ index + 1 }}基地航空隊</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
-        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!enabledDetail"></v-select>
+        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem"></v-select>
       </div>
       <div class="mr-1 align-self-end operation-buttons">
         <v-btn color="info" icon small @click="viewDetail" :disabled="!enabledDetail">
@@ -222,8 +222,11 @@ export default Vue.extend({
     resultBarValue() {
       return [this.value.resultWave1.airStateBarWidth, this.value.resultWave2.airStateBarWidth];
     },
-    enabledDetail() {
+    hasItem() {
       return this.value.items.some((v) => v.data.id > 0);
+    },
+    enabledDetail() {
+      return this.value.mode === AB_MODE.BATTLE && this.value.items.some((v) => v.data.id > 0);
     },
   },
   methods: {
