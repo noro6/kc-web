@@ -82,6 +82,12 @@ export default class SiteSetting {
   /** デッキビルダーからの取込時、全て取り込む */
   public importAllDeck: boolean;
 
+  /** 最後の装備フィルタ */
+  public itemFilterKey: string;
+
+  /** 最後の装備フィルタ値 */
+  public itemFilterValue: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -107,6 +113,8 @@ export default class SiteSetting {
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
+      this.itemFilterKey = setting.itemFilterKey ? setting.itemFilterKey : 'radius';
+      this.itemFilterValue = setting.itemFilterValue ? setting.itemFilterValue : 0;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -153,6 +161,8 @@ export default class SiteSetting {
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
+      this.itemFilterKey = 'radius';
+      this.itemFilterValue = 0;
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

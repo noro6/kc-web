@@ -482,7 +482,7 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
-    filterStatus: 'actualFire',
+    filterStatus: 'radius',
     filterStatusItems: [] as { text: string; value: string }[],
     filterStatusValue: 0,
     filterStatusValueMenu: false,
@@ -503,6 +503,13 @@ export default Vue.extend({
         continue;
       }
       this.filterStatusItems.push({ text, value: key });
+    }
+
+    if (this.setting.itemFilterKey) {
+      this.filterStatus = this.setting.itemFilterKey;
+    }
+    if (this.setting.itemFilterValue) {
+      this.filterStatusValue = this.setting.itemFilterValue;
     }
   },
   computed: {
@@ -729,6 +736,10 @@ export default Vue.extend({
     filter() {
       const word = this.keyword;
       let result = this.baseItems.concat();
+
+      this.setting.itemFilterKey = this.filterStatus;
+      this.setting.itemFilterValue = this.filterStatusValue;
+      this.$store.dispatch('updateSetting', this.setting);
 
       if (this.isEnemyMode) {
         // 敵装備
