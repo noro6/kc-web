@@ -35,7 +35,7 @@
     </v-form>
     <div class="d-flex">
       <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">アップロード</v-btn>
-      <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+      <v-btn class="ml-4" color="secondary" @click.stop="cancelDialog()">戻る</v-btn>
     </div>
     <v-dialog v-model="uploadConfirmDialog" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
@@ -87,6 +87,10 @@ export default Vue.extend({
     },
     dataRemarks: {
       type: String,
+      required: true,
+    },
+    cancelDialog: {
+      type: Function,
       required: true,
     },
   },

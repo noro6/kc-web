@@ -467,6 +467,7 @@
               :dataName="editedName"
               :dataRemarks="editedRemarks"
               :saveData="saveData"
+              :cancelDialog="closeEditDialog"
             />
           </v-tab-item>
         </v-tabs-items>
@@ -1004,6 +1005,9 @@ export default Vue.extend({
           this.inform('保存に失敗しました。', true);
         }
       }
+      this.editDialog = false;
+    },
+    closeEditDialog() {
       this.editDialog = false;
     },
     undoClicked() {
