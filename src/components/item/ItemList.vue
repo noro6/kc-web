@@ -13,7 +13,7 @@
         ></v-text-field>
       </div>
       <div class="ml-5 align-self-center filter-select">
-        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="filter()"></v-select>
+        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()"></v-select>
       </div>
       <div class="align-self-center filter-value-select">
         <v-menu
@@ -23,7 +23,7 @@
           bottom
           right
           v-model="filterStatusValueMenu"
-          @input="filter()"
+          @input="changedFilter()"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field v-bind="attrs" v-on="on" dense v-model="filterStatusValue" hide-details readonly></v-text-field>
@@ -504,13 +504,6 @@ export default Vue.extend({
       }
       this.filterStatusItems.push({ text, value: key });
     }
-
-    if (this.setting.itemFilterKey) {
-      this.filterStatus = this.setting.itemFilterKey;
-    }
-    if (this.setting.itemFilterValue) {
-      this.filterStatusValue = this.setting.itemFilterValue;
-    }
   },
   computed: {
     itemListData(): { typeName: string; items: { item: Item; count: number }[] }[] {
@@ -626,6 +619,10 @@ export default Vue.extend({
     },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
       this.itemParent = parent;
+      this.isEnemyMode = false;
+
+      this.filterStatus = 'radius';
+      this.filterStatusValue = 0;
 
       // 現行の所持装備情報を更新
       this.itemStock = this.$store.state.itemStock as ItemStock[];
@@ -686,6 +683,15 @@ export default Vue.extend({
           // カテゴリがおかしかったら最初のカテゴリにする
           this.type = this.enabledTypes[0].id;
         }
+
+        const filterData = this.setting.savedfilter.find((v) => v.parent === 'ship');
+        if (filterData && filterData.key) {
+          this.filterStatus = filterData.key;
+        }
+        if (filterData && filterData.value) {
+          this.filterStatusValue = filterData.value;
+        }
+
         this.filter();
         return;
       }
@@ -707,6 +713,14 @@ export default Vue.extend({
         if (!this.slot) {
           // 搭載数を18に
           this.slot = 18;
+        }
+
+        const filterData = this.setting.savedfilter.find((v) => v.parent === 'airbase');
+        if (filterData && filterData.key) {
+          this.filterStatus = filterData.key;
+        }
+        if (filterData && filterData.value) {
+          this.filterStatusValue = filterData.value;
         }
       } else if (parent instanceof Enemy) {
         // 基本は全装備
@@ -733,13 +747,32 @@ export default Vue.extend({
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
       this.filter();
     },
+    changedFilter() {
+      const filterData = { parent: 'ship' as 'ship' | 'airbase', key: this.filterStatus, value: this.filterStatusValue };
+      if (this.itemParent instanceof Ship) {
+        filterData.parent = 'ship';
+      } else if (this.itemParent instanceof Airbase) {
+        filterData.parent = 'airbase';
+      } else {
+        this.filter();
+        return;
+      }
+
+      if (!this.setting.savedfilter) {
+        this.filter();
+        return;
+      }
+
+      const index = this.setting.savedfilter.findIndex((v) => v.parent === filterData.parent);
+      if (index >= 0) {
+        this.setting.savedfilter[index] = filterData;
+        this.$store.dispatch('updateSetting', this.setting);
+      }
+      this.filter();
+    },
     filter() {
       const word = this.keyword;
       let result = this.baseItems.concat();
-
-      this.setting.itemFilterKey = this.filterStatus;
-      this.setting.itemFilterValue = this.filterStatusValue;
-      this.$store.dispatch('updateSetting', this.setting);
 
       if (this.isEnemyMode) {
         // 敵装備
