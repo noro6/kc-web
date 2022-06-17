@@ -88,7 +88,7 @@
         <div class="d-flex">
           <v-btn class="ml-auto" color="red" dark @click.stop="removeShip()" v-if="confirmShip">解除</v-btn>
           <v-btn class="ml-auto" color="red" dark @click.stop="resetShips()" v-else>解散</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

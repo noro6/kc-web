@@ -47,7 +47,7 @@
             <div class="caption ml-1">設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
           </div>
           <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">続行</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

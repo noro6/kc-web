@@ -5,20 +5,20 @@ export default {
       siteSetting: 'Site setting',
     },
     Common: {
-      実行: 'OK',
-      戻る: 'Cancel',
-      作成: 'Create',
+      OK: 'OK',
+      Cancel: 'Cancel',
+      Create: 'Create',
     },
     Setting: {
       language: 'language',
       colorTheme: {
         title: 'Site Color Themes',
-        normal: 'light',
+        normal: 'normal',
         sky: 'sky',
         pink: 'pink',
         green: 'green',
         dark: 'dark',
-        deepSea: 'abyss',
+        deepSea: 'deep sea',
       },
       equipmentUISetting: {
         title: 'Equipment display UI adjustment',

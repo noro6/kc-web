@@ -5,9 +5,9 @@ export default {
       siteSetting: 'サイト設定',
     },
     Common: {
-      実行: '実行',
-      戻る: '戻る',
-      作成: '作成',
+      OK: '実行',
+      Cancel: '戻る',
+      Create: '作成',
     },
     Setting: {
       language: '言語',

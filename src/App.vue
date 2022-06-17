@@ -290,22 +290,22 @@
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
-              <v-btn @click="changeSiteTheme('light')" class="mr-2" :class="{ primary: isLight, secondary: !isLight }">
+              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }">
                 {{ $t("Setting.colorTheme.normal") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('ice')" class="mr-2" :class="{ primary: isIce, secondary: !isIce }">
+              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }">
                 {{ $t("Setting.colorTheme.sky") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('pink')" class="mr-2" :class="{ primary: isPink, secondary: !isPink }">
+              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }">
                 {{ $t("Setting.colorTheme.pink") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('green')" class="mr-2" :class="{ primary: isGreen, secondary: !isGreen }">
+              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }">
                 {{ $t("Setting.colorTheme.green") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('dark')" class="mr-2" :class="{ primary: isDark, secondary: !isDark }">
+              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }">
                 {{ $t("Setting.colorTheme.dark") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2" :class="{ primary: isDeepSea, secondary: !isDeepSea }">
+              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }">
                 {{ $t("Setting.colorTheme.deepSea") }}
               </v-btn>
             </div>
@@ -419,7 +419,7 @@
             </div>
             <div class="ml-3 mt-2">
               <div class="d-flex">
-                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
+                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.Create") }}</v-btn>
                 <div class="caption align-self-center ml-4">… {{ $t("Setting.saveDataBackUp.description1") }}</div>
               </div>
               <div class="d-flex mt-3">
@@ -482,7 +482,7 @@
               ></v-textarea>
               <div class="d-flex mt-3">
                 <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
-                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.Cancel") }}</v-btn>
               </div>
             </div>
           </v-tab-item>
@@ -536,7 +536,7 @@
             <div class="caption ml-1">この設定は、設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
           </div>
           <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">取込</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.Cancel") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

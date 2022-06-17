@@ -71,7 +71,7 @@
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
           <v-btn class="ml-auto" color="red" dark @click.stop="deleteData">削除</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
