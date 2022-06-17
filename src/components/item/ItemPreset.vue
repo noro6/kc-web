@@ -13,17 +13,19 @@
       <v-divider class="mt-3"></v-divider>
       <div class="preset-container py-1">
         <div class="preset-list">
-          <div
-            v-for="(preset, i) in presets"
-            :key="`preset${i}`"
-            class="preset-item"
-            :class="{ selected: i === selectedIndex }"
-            v-ripple="{ class: 'info--text' }"
-            @click="clickedPreset(i)"
-          >
-            <div class="preset-id primary--text">{{ preset.id }}.</div>
-            <div class="preset-name text-truncate">{{ preset.name }}</div>
-          </div>
+          <draggable handle=".preset-id" animation="150" @end="sortEnd()" v-model="presets">
+            <div
+              v-for="(preset, i) in presets"
+              :key="`preset${i}`"
+              class="preset-item"
+              :class="{ selected: i === selectedIndex }"
+              v-ripple="{ class: 'info--text' }"
+              @click="clickedPreset(i)"
+            >
+              <div class="preset-id primary--text">{{ preset.id }}.</div>
+              <div class="preset-name text-truncate">{{ preset.name }}</div>
+            </div>
+          </draggable>
         </div>
         <div class="preset-view pl-2">
           <div class="mt-5 d-flex" v-if="!isPresetItemEmpty">
@@ -98,7 +100,6 @@
   display: flex;
   cursor: pointer;
   padding: 0.5rem 0.1rem;
-  transition: 0.1s;
   border: 1px solid transparent;
   border-radius: 0.2rem;
 }
@@ -110,6 +111,7 @@
   border-color: rgba(0, 164, 255, 0.6);
 }
 .preset-id {
+  cursor: move !important;
   width: 28px;
   text-align: right;
   font-size: 0.75em;
@@ -150,6 +152,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import draggable from 'vuedraggable';
 import max from 'lodash/max';
 import cloneDeep from 'lodash/cloneDeep';
 import Ship from '@/classes/fleet/ship';
@@ -160,6 +163,7 @@ import Item from '@/classes/item/item';
 
 export default Vue.extend({
   name: 'ItemPreset',
+  components: { draggable },
   props: {
     value: {
       type: [Ship, Airbase],
@@ -272,6 +276,12 @@ export default Vue.extend({
         this.handleExpandItemPreset(this.selectedPreset);
         this.handleClose();
       }
+    },
+    sortEnd() {
+      for (let i = 0; i < this.presets.length; i += 1) {
+        this.presets[i].id = i + 1;
+      }
+      this.$store.dispatch('updateItemPresets', this.presets);
     },
   },
 });

@@ -65,9 +65,9 @@
         <v-divider class="my-3"></v-divider>
         <table>
           <tr>
-            <td class="caption text--secondary text-left">特殊攻撃</td>
-            <td class="caption text--secondary px-8">確保</td>
-            <td class="caption text--secondary">優勢</td>
+            <td class="caption grey--text text--lighten-1 text-left">特殊攻撃</td>
+            <td class="caption grey--text text--lighten-1 px-8">確保</td>
+            <td class="caption grey--text text--lighten-1">優勢</td>
           </tr>
           <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
             <td class="text-left">

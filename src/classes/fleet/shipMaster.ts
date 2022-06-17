@@ -214,7 +214,7 @@ export default class ShipMaster {
         return true;
       }
       // 51cm連装砲系
-      if (item.id === 128 || item.id === 281) {
+      if (item.id === 128 || item.id === 281 || item.id === 465) {
         // 長門型改以上か大和型のみ
         return this.type2 === 37 || (this.type2 === 19 && this.version > 0);
       }

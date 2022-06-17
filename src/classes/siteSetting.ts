@@ -85,6 +85,9 @@ export default class SiteSetting {
   /** 言語 */
   public locale: 'ja' | 'en';
 
+  /** フィルタ保存値 */
+  public savedfilter: { parent: 'ship' | 'airbase', key: string, value: number }[]
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -111,6 +114,7 @@ export default class SiteSetting {
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
       this.locale = setting.locale ? setting.locale : 'ja';
+      this.savedfilter = setting.savedfilter ? setting.savedfilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -158,6 +162,7 @@ export default class SiteSetting {
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
       this.locale = 'ja';
+      this.savedfilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

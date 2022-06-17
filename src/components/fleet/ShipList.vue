@@ -94,6 +94,9 @@
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
                 <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}.png`" height="40" width="27" />
               </div>
+              <div class="slot-ex-img" v-if="data.expanded">
+                <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>
+              </div>
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
@@ -230,6 +233,13 @@
   position: absolute;
   top: -4px;
   left: 22px;
+}
+.slot-ex-img {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 25px;
+  height: 25px;
 }
 
 .ship-caption {
@@ -499,7 +509,7 @@ export default Vue.extend({
               usedShips = usedShips.filter((v, index) => index !== usedIndex);
             }
 
-            // まとめられそうな艦娘がいないか？(id 練度 運 対潜 耐久 海域 が一致)
+            // まとめられそうな艦娘がいないか？(id 練度 運 対潜 耐久 海域 増設 が一致)
             const serach = ships.find(
               (v) => v.ship.id === viewShip.ship.id
                 && v.level === viewShip.level

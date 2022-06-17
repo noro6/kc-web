@@ -254,6 +254,28 @@ export default class ShootDownInfo {
         // 伊勢型改 / 改二
         // 25種 (噴進砲改二, 対空電探, 三式弾)
         if (antiAirRadarCount && hasSanshiki && items.some((v) => v.data.id === 274)) cutInIds.push(25);
+      } else if ([911, 916, 546].includes(shipId)) {
+        // 大和型改二
+        if (items.some((v) => v.data.id === 142 || v.data.id === 460)) {
+          const syuchu10cmCount = items.filter((v) => v.data.id === 464).length;
+          const hasMore6AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 6);
+          if (syuchu10cmCount >= 2 && hasMore6AAKiju) {
+            // 42種（大和電探 + 10cm高角砲集中配備 * 2 + 素対空6以上の機銃）
+            cutInIds.push(42);
+          }
+          if (syuchu10cmCount >= 2) {
+            // 43種（大和電探 + 10cm高角砲集中配備 * 2）
+            cutInIds.push(43);
+          }
+          if (syuchu10cmCount && hasMore6AAKiju) {
+            // 44種（大和電探 + 10cm高角砲集中配備 + 素対空6以上の機銃）
+            cutInIds.push(44);
+          }
+          if (syuchu10cmCount) {
+            // 45種（大和電探 + 10cm高角砲集中配備）
+            cutInIds.push(45);
+          }
+        }
       }
 
       // 汎用
@@ -271,10 +293,10 @@ export default class ShootDownInfo {
       // 7種 (高角砲, 高射装置, 対空電探)
       if (hasKoukaku && koshaCount && antiAirRadarCount) cutInIds.push(7);
 
-      if (shipId === 148 || shipId === 546) {
-        // 武蔵改 / 改二
-        // 26種 (武蔵改二, 10cm改+増設, 対空電探)
-        if (shipId === 546 && antiAirRadarCount && items.some((v) => v.data.id === 275)) cutInIds.push(26);
+      if (shipId === 148 || shipId === 546 || shipId === 911 || shipId === 916) {
+        // 武蔵改 / 大和型改二
+        // 26種 (大和型改二, 10cm改+増設, 対空電探)
+        if ((shipId === 546 || shipId === 911 || shipId === 916) && antiAirRadarCount && items.some((v) => v.data.id === 275)) cutInIds.push(26);
         // 28種 (噴進砲改二, 対空電探)
         if (antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
       } else if ([82, 88, 553, 554].includes(shipId)) {
@@ -292,8 +314,8 @@ export default class ShootDownInfo {
 
       // Gotland改以降
       if (shipId === 579 || shipId === 630) {
-        // 33種 (高角砲, 通常機銃)
-        if (hasKoukaku && kijuCount) cutInIds.push(33);
+        // 33種 (高角砲, 素対空値4以上の機銃)
+        if (hasKoukaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
       }
 
       // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
@@ -352,8 +374,8 @@ export default class ShootDownInfo {
       if (!cutIn) continue;
 
       const rate = cutIn.rate / 101;
-      if (cutIn.id >= 34) {
-        // 34種以降の対空CIは通常発動率でOK
+      if (cutIn.id >= 34 && cutIn.id <= 41) {
+        // 34種～41種の対空CIは通常発動率でOK
         antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, rate));
       } else if (rate > maxRate) {
         // 通常CI 既に格納済みのCIより発動率が高いなら格納OK ただし発動率は差っ引かれる
