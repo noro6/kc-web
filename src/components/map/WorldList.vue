@@ -34,6 +34,11 @@
             @dblclick="commitFleet"
           />
         </map>
+        <div class="map-expand-button" v-if="hasBigMap">
+          <v-btn fab text color="grey lighten-2" @click.stop="expandMap()">
+            <v-icon large>mdi-magnify-plus-outline</v-icon>
+          </v-btn>
+        </div>
       </div>
       <div class="patterns-container px-2">
         <v-tabs v-model="tab" @change="fleetTabChanged" v-show="enabledCommitBtn">
@@ -191,6 +196,11 @@
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
+    <v-dialog width="1200" v-model="expandMapDialog">
+      <v-card class="py-3">
+        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" height="665" width="1160" />
+      </v-card>
+    </v-dialog>
     <v-tooltip
       v-model="enabledTooltip"
       color="black"
@@ -215,6 +225,12 @@
 .map-img-area {
   height: 268px;
   user-select: none;
+  position: relative;
+}
+.map-expand-button {
+  position: absolute;
+  bottom: 10px;
+  left: calc(50% - 220px);
 }
 .node {
   cursor: pointer;
@@ -346,6 +362,8 @@ export default Vue.extend({
     unsbscribe: undefined as unknown,
     selectedNodeName: '',
     selectedNodeNames: [] as string[],
+    expandMapDialog: false,
+    hasBigMap: false,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipEnemy: new Enemy(),
@@ -421,9 +439,11 @@ export default Vue.extend({
       const lv = this.rawLevel;
       const maps = this.$store.state.maps as MasterMap[];
       this.areas = maps.filter((v) => Math.floor(v.area / 10) === this.world);
+
       if (!this.areas.some((v) => v.area === this.area)) {
         this.area = this.areas[0] ? this.areas[0].area : 0;
       }
+      this.hasBigMap = maps.some((v) => v.area === this.area && v.has_detail);
 
       // 該当するセルを取得
       const cells = this.allCells.filter((v) => v.area === this.area && (this.isEvent ? v.level === lv : true));
@@ -565,6 +585,9 @@ export default Vue.extend({
       if (this.continuousMode) {
         this.snackbar = true;
       }
+    },
+    expandMap() {
+      this.expandMapDialog = true;
     },
     close() {
       this.handleClose();

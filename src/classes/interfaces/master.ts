@@ -8,7 +8,7 @@ export interface MasterEquipmentShip { api_ship_id: number, api_equip_type: numb
 /** 特定艦娘が補強増設に装備可能な装備id */
 export interface MasterEquipmentExSlot { api_slotitem_id: number, api_ship_ids: number[] }
 export interface MasterWorld { world: number, name: string }
-export interface MasterMap { area: number, name: string, boss: string[] }
+export interface MasterMap { area: number, name: string, boss: string[], has_detail: number }
 
 export interface Master {
   api_mst_equip_exslot_ship: MasterEquipmentExSlot[],
