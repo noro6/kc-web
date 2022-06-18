@@ -197,8 +197,8 @@
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
     <v-dialog width="1200" v-model="expandMapDialog">
-      <v-card class="py-3">
-        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" height="665" width="1160" />
+      <v-card class="py-3 map-container">
+        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" />
       </v-card>
     </v-dialog>
     <v-tooltip
@@ -298,6 +298,10 @@
   font-weight: 600;
   bottom: -5px;
   left: 28px;
+}
+
+.map-container {
+  max-width: 1200px;
 }
 </style>
 
