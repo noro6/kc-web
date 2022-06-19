@@ -98,6 +98,7 @@ export default class AerialFirePowerCalculator {
   private static getAirbaseFirePower(item: Item, slot: number, args: FirePowerCalcArgs, defense: Ship | Enemy, rate: number): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
     let allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
+    args.beforCapBonus = 1;
 
     if (slot <= 0) return [{ power: 0, rate }];
 
@@ -142,6 +143,26 @@ export default class AerialFirePowerCalculator {
         } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA)) {
           // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 の場合 雷装1.16倍
           fire = item.data.torpedo * 1.16 + item.bonusTorpedo;
+        } else if (item.data.id === 459) {
+          fire = item.actualTorpedo;
+
+          // B-25補正
+          if (shipType === SHIP_TYPE.DD) {
+            // 駆逐 1.9倍
+            args.beforCapBonus = 1.9;
+          } else if (shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CLT || shipType === SHIP_TYPE.CT) {
+            // 軽巡級 1.75倍
+            args.beforCapBonus = 1.75;
+          } else if (shipType === SHIP_TYPE.CA || shipType === SHIP_TYPE.CAV) {
+            // 重巡級 1.6倍
+            args.beforCapBonus = 1.6;
+          } else if (shipType === SHIP_TYPE.CVL) {
+            // 軽空母 1.3倍
+            args.beforCapBonus = 1.3;
+          } else if (shipType === SHIP_TYPE.FBB || shipType === SHIP_TYPE.BB || shipType === SHIP_TYPE.BBV || shipType === SHIP_TYPE.BBB) {
+            // 戦艦級 1.3倍
+            args.beforCapBonus = 1.3;
+          }
         } else {
           // 陸攻 上記以外
           fire = item.actualTorpedo;
@@ -183,17 +204,17 @@ export default class AerialFirePowerCalculator {
   }
 
   /**
- * 航空戦火力を返却 -基地航空隊
- * @private
- * @static
- * @param {Item} item 攻撃機
- * @param {number} slot 搭載数
- * @param {FirePowerCalcArgs} args 航空戦火力引数群
- * @param {(Ship | Enemy)} defense 防御側艦
- * @param {number} rate この搭載数の確率
- * @return {*}  {PowerDist[]}
- * @memberof AerialFirePowerCalculator
- */
+   * 航空戦火力(対陸上)を返却 -基地航空隊
+   * @private
+   * @static
+   * @param {Item} item 攻撃機
+   * @param {number} slot 搭載数
+   * @param {FirePowerCalcArgs} args 航空戦火力引数群
+   * @param {(Ship | Enemy)} defense 防御側艦
+   * @param {number} rate この搭載数の確率
+   * @return {*}  {PowerDist[]}
+   * @memberof AerialFirePowerCalculator
+   */
   private static getAirbaseFirePowerLandBase(item: Item, slot: number, args: FirePowerCalcArgs, defense: Ship | Enemy, rate: number): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
     const allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;

@@ -612,6 +612,7 @@ export default Vue.extend({
     gkcoiThemes: [
       { value: 'dark', text: 'Dark' },
       { value: 'dark-ex', text: 'Dark(遠征)' },
+      { value: 'white', text: 'Light' },
       { value: '74lc', text: '74式(大型)' },
       { value: '74mc', text: '74式(中型)' },
       { value: '74sb', text: '74式(小型)' },
