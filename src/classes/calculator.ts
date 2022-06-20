@@ -10,6 +10,7 @@ import AirCalcResult from './airCalcResult';
 
 type JetPhaseResult = {
   sumAirPower: number;
+  escortAirPower: number;
   usedSteel: number;
 };
 
@@ -159,6 +160,9 @@ export default class Calculator {
       const jetPhaseResult = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.noCutInStage2);
       // 噴式強襲フェーズ経過による制空値更新
       fleet.airPower = Math.floor(jetPhaseResult.sumAirPower);
+      if (fleet.isUnion) {
+        fleet.escortAirPower = Math.floor(jetPhaseResult.escortAirPower);
+      }
 
       return jetPhaseResult.usedSteel;
     }
@@ -242,13 +246,15 @@ export default class Calculator {
    */
   private static shootDownJetPhase(items: Item[], stage2List: ShootDownStatus[]): JetPhaseResult {
     let sumAirPower = 0;
+    let escortAirPower = 0;
     let usedSteel = 0;
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       if (!item.data.isJet || item.isEscortItem) {
         if (!item.data.isRecon) {
-          sumAirPower += item.airPower;
+          if (!item.isEscortItem) sumAirPower += item.airPower;
+          else escortAirPower += item.airPower;
         }
         continue;
       }
@@ -277,7 +283,7 @@ export default class Calculator {
     }
 
     // 渡されたItem[]の制空値の合計 撃墜が発生している場合は下がっている
-    return { sumAirPower, usedSteel };
+    return { sumAirPower, escortAirPower, usedSteel };
   }
 
   /**

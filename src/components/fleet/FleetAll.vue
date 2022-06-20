@@ -169,6 +169,11 @@
             <v-progress-circular size="100" width="4" color="secondary" indeterminate></v-progress-circular>
           </div>
         </div>
+        <div v-if="generateError">
+        <v-alert border="left" outlined type="error">
+          {{ generateError }}
+        </v-alert>
+        </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
           <v-btn class="ml-auto" @click="openGkcoiPage()"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
@@ -612,19 +617,22 @@ export default Vue.extend({
     gkcoiThemes: [
       { value: 'dark', text: 'Dark' },
       { value: 'dark-ex', text: 'Dark(遠征)' },
-      { value: 'white', text: 'Light' },
+      // { value: 'light', text: 'Light' },
+      // { value: 'light-ex', text: 'Light(遠征)' },
+      { value: 'white', text: 'White' },
       { value: '74lc', text: '74式(大型)' },
       { value: '74mc', text: '74式(中型)' },
       { value: '74sb', text: '74式(小型)' },
       { value: 'official', text: '公式' },
     ],
     gkcoiTheme: 'dark' as Theme,
-    gkcoiLangs: ['jp', 'en', 'kr', 'scn'],
+    gkcoiLangs: ['jp', 'en', 'kr', 'scn', 'tcn'],
     gkcoiLang: 'jp' as Lang,
     gkcoiOutputTarget: [1, 0, 0, 0],
     generatedCanvas: undefined as undefined | HTMLCanvasElement,
     enabledOutput: false,
     generatingImage: false,
+    generateError: '',
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -1132,6 +1140,7 @@ export default Vue.extend({
       this.enabledOutput = false;
       this.generatedCanvas = undefined;
       this.generatingImage = true;
+      this.generateError = '';
       const imageArea = document.getElementById('image-area') as HTMLDivElement;
       imageArea.innerHTML = '';
 
@@ -1154,12 +1163,17 @@ export default Vue.extend({
         theme: this.gkcoiTheme,
         cmt: '',
       });
-      generate(gkcoiBuilder).then((canvas) => {
-        canvas.style.maxWidth = '100%';
-        imageArea.appendChild(canvas);
-        this.generatedCanvas = canvas;
-        this.generatingImage = false;
-      });
+      generate(gkcoiBuilder)
+        .then((canvas) => {
+          canvas.style.maxWidth = '100%';
+          imageArea.appendChild(canvas);
+          this.generatedCanvas = canvas;
+          this.generatingImage = false;
+        })
+        .catch((e) => {
+          this.generatingImage = false;
+          this.generateError = e;
+        });
     },
     saveImage() {
       const canvas = this.generatedCanvas;

@@ -21,19 +21,24 @@
         </div>
       </div>
       <div class="map-img-area">
-        <img usemap="#click_map" class="mx-auto d-block" :src="`https://res.cloudinary.com/aircalc/image/upload/kc-web/map/${area}.png`" />
-        <map name="click_map">
-          <area
-            class="node"
-            v-for="(item, i) in imgMapItems"
-            :key="i"
-            :title="item.node"
-            :coords="item.coords"
-            shape="rect"
-            @click="cellClicked(i)"
-            @dblclick="commitFleet"
-          />
-        </map>
+        <div>
+          <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/image/upload/kc-web/map/${area}.png`" width="467" height="268" />
+        </div>
+        <div class="dummy-map">
+          <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" />
+          <map name="click_map">
+            <area
+              class="node"
+              v-for="(item, i) in imgMapItems"
+              :key="i"
+              :title="item.node"
+              :coords="item.coords"
+              shape="rect"
+              @click="cellClicked(i)"
+              @dblclick="commitFleet"
+            />
+          </map>
+        </div>
         <div class="map-expand-button" v-if="hasBigMap">
           <v-btn fab text color="grey lighten-2" @click.stop="expandMap()">
             <v-icon large>mdi-magnify-plus-outline</v-icon>
@@ -226,6 +231,11 @@
   height: 268px;
   user-select: none;
   position: relative;
+}
+.dummy-map {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 233px);
 }
 .map-expand-button {
   position: absolute;
