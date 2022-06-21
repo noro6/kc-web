@@ -43,7 +43,7 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'戦闘機搭載可'"></v-checkbox>
       </div>
-      <div class="mr-3 align-self-center">
+      <div class="mr-3 align-self-center" v-if="isStockOnly">
         <v-checkbox v-model="hasAreaOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="'札あり'"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">

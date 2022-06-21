@@ -218,6 +218,14 @@ export default class ShipMaster {
         // 長門型改以上か大和型のみ
         return this.type2 === 37 || (this.type2 === 19 && this.version > 0);
       }
+      // 5inch連装砲(副砲配置)集中配備
+      if (item.id === 467) {
+        // 軽巡系、軽空母、水母搭載不可
+        if (type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.CVL || type === SHIP_TYPE.AV) {
+          return false;
+        }
+        return true;
+      }
     }
 
     // 特定艦娘判定
