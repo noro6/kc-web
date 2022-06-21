@@ -40,6 +40,12 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="naikateiOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'内火艇搭載可'"></v-checkbox>
       </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'戦闘機搭載可'"></v-checkbox>
+      </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="hasAreaOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="'札あり'"></v-checkbox>
+      </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">
         <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="'補強増設あり'"></v-checkbox>
       </div>
@@ -356,6 +362,8 @@ export default Vue.extend({
     setting: new SiteSetting(),
     daihatsuOK: false,
     naikateiOK: false,
+    fighterOK: false,
+    hasAreaOnly: false,
     isReleaseExSlotOnly: false,
     maxAreas: 0,
     disabledStockOnlyChange: false,
@@ -436,6 +444,8 @@ export default Vue.extend({
       if (word) {
         result = result.filter((v) => v.albumId === +word || v.name.indexOf(word) >= 0);
       } else {
+        // カテゴリ検索
+        result = result.filter((v) => t.types.includes(v.type));
         if (this.isFinal) {
           // 最終改造状態ONLY
           result = result.filter((v) => v.isFinal);
@@ -458,8 +468,16 @@ export default Vue.extend({
             result = result.filter((v) => v.isValidItem(naikatei, link, exLink));
           }
         }
-        // カテゴリ検索
-        result = result.filter((v) => t.types.includes(v.type));
+        if (this.fighterOK) {
+          // 戦闘機搭載可
+          const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
+          const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
+          const link = this.$store.state.equipShips as MasterEquipmentShip[];
+          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
+          if (fighter && fighter2) {
+            result = result.filter((v) => v.isValidItem(fighter, link, exLink) || v.isValidItem(fighter2, link, exLink));
+          }
+        }
       }
 
       let usedShips = this.usedShips.concat();
@@ -491,6 +509,10 @@ export default Vue.extend({
 
             // 補強増設開放済み検索
             if (this.isReleaseExSlotOnly && !viewShip.expanded) {
+              continue;
+            }
+            // 札あり限定検索
+            if (this.hasAreaOnly && viewShip.area <= 0) {
               continue;
             }
 

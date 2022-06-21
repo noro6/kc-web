@@ -140,7 +140,7 @@
         </template>
         <span class="ml-2 text--secondary">射程:</span>
         <span class="ml-1 font-weight-medium">{{ rangeText[ship.actualRange] }}</span>
-        <template v-if="ship.data.minAsw || ship.enabledTSBK">
+        <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <span class="asw-view" v-bind="attrs" v-on="on">
