@@ -161,7 +161,7 @@
                   hide-details
                   outlined
                   dense
-                  step="0.1"
+                  step="0.01"
                   @input="calculateFire"
                 ></v-text-field>
               </template>
