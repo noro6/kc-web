@@ -60,6 +60,13 @@ export default class FleetInfo {
     if (this.isUnion && (this.mainFleetIndex === 0 || this.mainFleetIndex === 1)) {
       // 連合艦隊にチェックが入っている場合連合艦隊オブジェクトを生成
 
+      const mains = this.fleets[0].ships;
+      // 第1艦隊全艦をnot随伴としてインスタンス化
+      for (let i = 0; i < mains.length; i += 1) {
+        const ship = mains[i];
+        mains[i] = new Ship({ ship, isEscort: false });
+      }
+
       const escorts = this.fleets[1].ships;
       // 第2艦隊全艦を随伴としてインスタンス化
       for (let i = 0; i < escorts.length; i += 1) {
