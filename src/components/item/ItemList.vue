@@ -413,7 +413,7 @@ import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import SaveData from '@/classes/saveData/saveData';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 
@@ -675,16 +675,14 @@ export default Vue.extend({
       // 装備可能フィルタ
       let types: number[] = [];
       if (parent instanceof Ship && parent.data.id) {
-        const link = this.$store.state.equipShips as MasterEquipmentShip[];
-        const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
         // 渡された艦娘情報より装備可能種別を取得
-        this.baseItems = this.all.filter((item) => parent.data.isValidItem(item, link, exLink, slotIndex));
+        this.baseItems = this.all.filter((item) => ShipValidation.isValidItem(parent.data, item, slotIndex));
         if (this.enabledTypes.length && this.type !== -1 && !this.enabledTypes.find((v) => v.id === this.type)) {
           // カテゴリがおかしかったら最初のカテゴリにする
           this.type = this.enabledTypes[0].id;
         }
 
-        const filterData = this.setting.savedfilter.find((v) => v.parent === 'ship');
+        const filterData = this.setting.savedItemListfilter.find((v) => v.parent === 'ship');
         if (filterData && filterData.key) {
           this.filterStatus = filterData.key;
         }
@@ -715,7 +713,7 @@ export default Vue.extend({
           this.slot = 18;
         }
 
-        const filterData = this.setting.savedfilter.find((v) => v.parent === 'airbase');
+        const filterData = this.setting.savedItemListfilter.find((v) => v.parent === 'airbase');
         if (filterData && filterData.key) {
           this.filterStatus = filterData.key;
         }
@@ -758,14 +756,14 @@ export default Vue.extend({
         return;
       }
 
-      if (!this.setting.savedfilter) {
+      if (!this.setting.savedItemListfilter) {
         this.filter();
         return;
       }
 
-      const index = this.setting.savedfilter.findIndex((v) => v.parent === filterData.parent);
+      const index = this.setting.savedItemListfilter.findIndex((v) => v.parent === filterData.parent);
       if (index >= 0) {
-        this.setting.savedfilter[index] = filterData;
+        this.setting.savedItemListfilter[index] = filterData;
         this.$store.dispatch('updateSetting', this.setting);
       }
       this.filter();

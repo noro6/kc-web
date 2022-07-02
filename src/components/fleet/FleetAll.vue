@@ -170,9 +170,12 @@
           </div>
         </div>
         <div v-if="generateError">
-        <v-alert border="left" outlined type="error">
-          {{ generateError }}
-        </v-alert>
+          <v-alert border="left" outlined type="error">
+            <div>
+              画像出力ライブラリ側でエラーが発生しました。新装備や新艦娘が未対応である可能性があります。更新されるまでお待ちください。
+            </div>
+            <div class="caption">{{ generateError }}</div>
+          </v-alert>
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
@@ -565,10 +568,10 @@ import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
+import ShipValidation from '@/classes/fleet/shipValidation';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import Const, { Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Convert from '@/classes/convert';
@@ -617,8 +620,8 @@ export default Vue.extend({
     gkcoiThemes: [
       { value: 'dark', text: 'Dark' },
       { value: 'dark-ex', text: 'Dark(遠征)' },
-      // { value: 'light', text: 'Light' },
-      // { value: 'light-ex', text: 'Light(遠征)' },
+      { value: 'light', text: 'Light' },
+      { value: 'light-ex', text: 'Light(遠征)' },
       { value: 'white', text: 'White' },
       { value: '74lc', text: '74式(大型)' },
       { value: '74mc', text: '74式(中型)' },
@@ -714,10 +717,6 @@ export default Vue.extend({
       const oldItems: Item[] = oldShip.items.concat();
       const newItems: Item[] = [];
 
-      // 装備搭載可否情報マスタ
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-
       // 元々が空の艦で、艦娘数と配置番号が一致している場合、自動で空の艦娘を追加するが6隻まで
       if (oldShip.isEmpty && index === fleet.ships.length - 1 && fleet.ships.length < 6) {
         fleet.ships.push(new Ship());
@@ -728,7 +727,7 @@ export default Vue.extend({
         if (slotIndex < oldItems.length) {
           const oldItem = oldItems[slotIndex];
           const itemMaster = oldItem.data;
-          if (ship.isValidItem(itemMaster, link, exLink, slotIndex)) {
+          if (ShipValidation.isValidItem(ship, itemMaster, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             newItems.push(new Item({ item: oldItem, slot }));
           } else {
@@ -744,7 +743,7 @@ export default Vue.extend({
       // 補強増設チェック
       const oldExItem = oldShip.exItem.data;
       let exItem;
-      if (oldExItem.id && ship.isValidItem(oldExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
+      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX)) {
         exItem = new Item({ master: oldExItem, remodel: oldShip.exItem.remodel });
       } else {
         exItem = new Item();
@@ -852,14 +851,10 @@ export default Vue.extend({
       const ship = oldShip.data;
       const newItems = oldShip.items.concat();
 
-      // 装備搭載可否情報マスタ
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-
       for (let slotIndex = 0; slotIndex < newItems.length; slotIndex += 1) {
         if (slotIndex < items.length) {
           const newItem = items[slotIndex];
-          if (newItem && ship.isValidItem(newItem.data, link, exLink, slotIndex)) {
+          if (newItem && ShipValidation.isValidItem(ship, newItem.data, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             // 初期熟練度設定
             const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
@@ -899,7 +894,7 @@ export default Vue.extend({
       // 補強増設チェック
       const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
       let exItem;
-      if (presetExItem && ship.isValidItem(presetExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
+      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
         // 搭載可能なら入れ替え
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       }

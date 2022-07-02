@@ -14,9 +14,6 @@ export default class SiteSetting {
   public confirmCloseTab: boolean;
 
   /** サイトテーマ */
-  public darkTheme: boolean;
-
-  /** サイトテーマ詳細 */
   public themeDetail: SiteTheme;
 
   /** サイドバー固定表示 */
@@ -83,13 +80,15 @@ export default class SiteSetting {
   public importAllDeck: boolean;
 
   /** フィルタ保存値 */
-  public savedfilter: { parent: 'ship' | 'airbase', key: string, value: number }[]
+  public savedItemListfilter: { parent: 'ship' | 'airbase', key: string, value: number }[];
+
+  /** 艦娘一覧 検索条件保存値 */
+  public savedShipListFilter: { isFinalOnly: boolean }
 
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
       this.confirmCloseTab = !!setting.confirmCloseTab;
-      this.darkTheme = !!setting.darkTheme;
       this.fixedDrawer = !!setting.fixedDrawer;
       this.isMultiLineForItemList = !!setting.isMultiLineForItemList;
       this.isMultiLineForShipList = !!setting.isMultiLineForShipList;
@@ -110,7 +109,8 @@ export default class SiteSetting {
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
-      this.savedfilter = setting.savedfilter ? setting.savedfilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedItemListfilter = setting.savedItemListfilter ? setting.savedItemListfilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -136,7 +136,6 @@ export default class SiteSetting {
     } else {
       this.id = 'setting';
       this.confirmCloseTab = true;
-      this.darkTheme = false;
       this.fixedDrawer = false;
       this.isMultiLineForItemList = true;
       this.isMultiLineForShipList = true;
@@ -157,7 +156,10 @@ export default class SiteSetting {
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
-      this.savedfilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedItemListfilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedShipListFilter = {
+        isFinalOnly: true,
+      };
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },

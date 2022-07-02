@@ -298,7 +298,7 @@ import Item, { ItemBuilder } from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -468,9 +468,7 @@ export default Vue.extend({
       const item = new ItemMaster();
       item.id = +draggingDiv.dataset.itemId;
       item.apiTypeId = +draggingDiv.dataset.apiType;
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-      if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(item, link, exLink, this.index)) {
+      if (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index)) {
         // 搭載不可なので背景色を変な色にする
         target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
         // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
@@ -568,10 +566,8 @@ export default Vue.extend({
         // 交換
         builder.item = JSON.parse(itemData) as Item;
         // 交換前にチェック
-        const link = this.$store.state.equipShips as MasterEquipmentShip[];
-        const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
         if (this.itemParent instanceof Ship) {
-          if (!this.itemParent.data.isValidItem(builder.item.data, link, exLink, this.index)) {
+          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index)) {
             // 搭載不可なので外す
             builder.item = undefined;
             this.setItem(new Item(builder));

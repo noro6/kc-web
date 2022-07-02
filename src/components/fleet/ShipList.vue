@@ -32,7 +32,7 @@
     <v-divider></v-divider>
     <div class="d-flex pl-4 pt-1 pb-2 flex-wrap">
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="isFinal" :disabled="!!keyword" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
+        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="daihatsuOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'大発搭載可'"></v-checkbox>
@@ -312,8 +312,8 @@ import SiteSetting from '@/classes/siteSetting';
 import ShipStock from '@/classes/fleet/shipStock';
 import SaveData from '@/classes/saveData/saveData';
 import Ship from '@/classes/fleet/ship';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import ItemMaster from '@/classes/item/itemMaster';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export interface ViewShip {
   ship: ShipMaster;
@@ -351,7 +351,7 @@ export default Vue.extend({
     ships: [] as { typeName: string; ships: ViewShip[] }[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
-    isFinal: true,
+    isFinalOnly: true,
     keyword: '',
     multiLine: true,
     isStockOnly: false,
@@ -390,7 +390,6 @@ export default Vue.extend({
         this.types.push({ text: data.text, types: data.types });
       }
     }
-    this.filter();
   },
   methods: {
     changeType(index = 0) {
@@ -407,6 +406,9 @@ export default Vue.extend({
       this.shipStock = this.$store.state.shipStock as ShipStock[];
       this.setting = this.$store.state.siteSetting as SiteSetting;
       this.isStockOnly = this.setting.isStockOnlyForShipList || this.disabledStockOnlyChange;
+
+      // 設置値復元
+      this.isFinalOnly = this.setting.savedShipListFilter.isFinalOnly;
 
       // 一時所持情報データがあるなら
       if (this.$store.getters.getExistsTempStock) {
@@ -440,42 +442,40 @@ export default Vue.extend({
       let result = this.all.concat();
       const t = this.types[this.type];
 
+      this.setting.savedShipListFilter.isFinalOnly = this.isFinalOnly;
+      this.$store.dispatch('updateSetting', this.setting);
+
       // 検索語句あればこれ以外の検索はしない
       if (word) {
         result = result.filter((v) => v.albumId === +word || v.name.indexOf(word) >= 0);
       } else {
         // カテゴリ検索
         result = result.filter((v) => t.types.includes(v.type));
-        if (this.isFinal) {
+        const isValid = ShipValidation.isValidItem;
+        if (this.isFinalOnly) {
           // 最終改造状態ONLY
           result = result.filter((v) => v.isFinal);
         }
         if (this.daihatsuOK) {
           // 大発搭載可能
           const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
-          const link = this.$store.state.equipShips as MasterEquipmentShip[];
-          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
           if (daihatsu) {
-            result = result.filter((v) => v.isValidItem(daihatsu, link, exLink));
+            result = result.filter((v) => isValid(v, daihatsu));
           }
         }
         if (this.naikateiOK) {
           // 内火艇搭載可能
           const naikatei = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
-          const link = this.$store.state.equipShips as MasterEquipmentShip[];
-          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
           if (naikatei) {
-            result = result.filter((v) => v.isValidItem(naikatei, link, exLink));
+            result = result.filter((v) => isValid(v, naikatei));
           }
         }
         if (this.fighterOK) {
           // 戦闘機搭載可
           const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
           const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
-          const link = this.$store.state.equipShips as MasterEquipmentShip[];
-          const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
           if (fighter && fighter2) {
-            result = result.filter((v) => v.isValidItem(fighter, link, exLink) || v.isValidItem(fighter2, link, exLink));
+            result = result.filter((v) => isValid(v, fighter) || isValid(v, fighter2));
           }
         }
       }

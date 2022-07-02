@@ -573,7 +573,10 @@ export default class Const {
       id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'avoid', 'armor'], types: [5, 22, 32],
     },
     {
-      id: 10, text: '水上機', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'radius', 'avoidId'], types: [10, 11],
+      id: 10, text: '水上機', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [10],
+    },
+    {
+      id: 1100, text: '水爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [11],
     },
     {
       id: 45, text: '水戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'airPower'], types: [45],
@@ -597,7 +600,7 @@ export default class Const {
       id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
     },
     {
-      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
+      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'cost'], types: [47, 53],
     },
     {
       id: 48, text: '局戦', viewStatus: ['antiBomber', 'actualAntiAir', 'radius', 'actualDefenseAntiAir', 'airPower', 'defenseAirPower'], types: [48],

@@ -614,22 +614,22 @@ export default Vue.extend({
       return this.$route.path.endsWith('/aircalc');
     },
     isLight(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'light';
+      return this.setting.themeDetail === 'light';
     },
     isIce(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'ice';
+      return this.setting.themeDetail === 'ice';
     },
     isPink(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'pink';
+      return this.setting.themeDetail === 'pink';
     },
     isGreen(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'green';
+      return this.setting.themeDetail === 'green';
     },
     isDark(): boolean {
-      return this.setting.darkTheme && this.setting.themeDetail === 'dark';
+      return this.setting.themeDetail === 'dark';
     },
     isDeepSea(): boolean {
-      return this.setting.darkTheme && this.setting.themeDetail === 'deep-sea';
+      return this.setting.themeDetail === 'deep-sea';
     },
     hasItemUIBorder(): boolean {
       return this.setting.itemUI.border;
@@ -689,7 +689,7 @@ export default Vue.extend({
           this.changeSiteTheme(this.setting.themeDetail);
         } else {
           // 基本のテーマ2種
-          this.changeSiteTheme(this.setting.darkTheme ? 'dark' : 'light');
+          this.changeSiteTheme('dark');
         }
 
         if (!this.setting.fixedDrawer) {
@@ -1032,7 +1032,6 @@ export default Vue.extend({
     },
     changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink' | 'green') {
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
-      this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;

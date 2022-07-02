@@ -449,8 +449,8 @@ import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import SiteSetting from '@/classes/siteSetting';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip, ShipTooltip },
@@ -618,20 +618,18 @@ export default Vue.extend({
       }
 
       // 装備検証
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
       const { items, exItem } = this.value;
       const newItems = [];
       let newExItem: Item;
       for (let i = 0; i < newVersion.slots.length; i += 1) {
         const item = items[i];
-        if (item && newVersion.isValidItem(item.data, link, exLink, i)) {
+        if (item && ShipValidation.isValidItem(newVersion, item.data, i)) {
           newItems.push(new Item({ item, slot: newVersion.slots[i] }));
         } else {
           newItems.push(new Item());
         }
       }
-      if (newVersion.isValidItem(exItem.data, link, exLink)) {
+      if (ShipValidation.isValidItem(newVersion, exItem.data)) {
         newExItem = new Item({ item: exItem });
       } else {
         newExItem = new Item();
