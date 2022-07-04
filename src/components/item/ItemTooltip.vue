@@ -81,6 +81,9 @@
       <div v-if="value.data.avoidId">
         <span class="item-status-text">射撃回避</span><span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
       </div>
+      <div v-if="value.data.cost">
+        <span class="item-status-text">コスト</span><span class="item-status-value caption">{{ value.data.cost }}</span>
+      </div>
     </div>
     <div class="item-status-grid no-grid">
       <template v-if="value.data.isPlane">

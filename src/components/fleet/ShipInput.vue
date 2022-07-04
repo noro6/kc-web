@@ -683,7 +683,7 @@ export default Vue.extend({
     dragEnter(e: DragEvent): void {
       const d = document.getElementById('dragging-item');
       const t = e.target as HTMLDivElement;
-      if (!d || !d.classList.contains('ship-input') || !t || !t.classList.contains('ship-input') || this.value.isEmpty) {
+      if (!d || !d.classList.contains('ship-input') || !t || !t.classList.contains('ship-input')) {
         return;
       }
       // 受け入れ可能 背景色を青っぽく
@@ -703,10 +703,6 @@ export default Vue.extend({
       target.style.boxShadow = '';
       if (target.id) {
         // 自身へのドロップ禁止
-        return;
-      }
-      if (this.value.isEmpty) {
-        // 自身が艦娘データ以外であったら無理
         return;
       }
       // 一時退避していたデータをセット

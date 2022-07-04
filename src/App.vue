@@ -812,12 +812,13 @@ export default Vue.extend({
       this.readState = false;
     },
     loadAndConfirmDeckBuilder(builder: string): boolean {
+      const text = builder.indexOf('predeck=') >= 0 ? builder.split('predeck=')[1] : builder;
       if (this.setting.importAllDeck) {
-        return this.loadAndOpenFromDeckBuilder(builder);
+        return this.loadAndOpenFromDeckBuilder(text);
       }
       try {
         const converter = new Convert(this.$store.state.items, this.$store.state.ships);
-        const manager = converter.loadDeckBuilder(builder);
+        const manager = converter.loadDeckBuilder(text);
         if (!manager) {
           // 何もない編成データは無意味なので返す
           return false;
@@ -838,7 +839,7 @@ export default Vue.extend({
           return true;
         }
 
-        return this.loadAndOpenFromDeckBuilder(builder);
+        return this.loadAndOpenFromDeckBuilder(text);
       } catch (error) {
         return false;
       }
