@@ -60,7 +60,6 @@ export default class ShipValidation {
         if (type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.CVL || type === SHIP_TYPE.AV) {
           return false;
         }
-        return true;
       }
     }
 
