@@ -33,7 +33,7 @@ interface DeckBuilderItem {
 /** デッキビルダー 艦娘 */
 interface DeckBuilderShip {
   /** 艦娘id */
-  id: string,
+  id: number,
   /** 艦娘Level */
   lv: number,
   /** 艦娘運 -1で通常 */
@@ -508,7 +508,7 @@ export default class Convert {
       }
 
       const data: DeckBuilderShip = {
-        id: `${ship.data.id}`,
+        id: ship.data.id,
         lv: ship.level,
         hp: ship.hp,
         luck: ship.luck,
