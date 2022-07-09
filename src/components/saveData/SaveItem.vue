@@ -16,8 +16,6 @@
       :class="{ selected: value.selected }"
       @click="itemClicked"
       v-click-outside="onClickOutside"
-      @mouseenter.stop="bootTooltip(value, $event)"
-      @mouseleave.stop="clearTooltip"
     >
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>

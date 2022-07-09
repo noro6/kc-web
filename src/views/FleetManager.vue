@@ -310,6 +310,7 @@ import Const from '@/classes/const';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import SaveData from '@/classes/saveData/saveData';
 
 export default Vue.extend({
   name: 'FleetManager',
@@ -337,6 +338,9 @@ export default Vue.extend({
     loading: false,
   }),
   mounted() {
+    const saveData = this.$store.state.saveData as SaveData;
+    saveData.disabledMain();
+
     // まず読み専か判定
     this.readOnlyMode = this.$store.getters.getExistsTempStock;
 
