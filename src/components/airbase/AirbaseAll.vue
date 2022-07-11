@@ -187,7 +187,7 @@
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">装備一括設定</div>
           <v-spacer></v-spacer>
-          <v-btn icon @click="bulkUpdateDialog = false">
+          <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
@@ -769,6 +769,10 @@ export default Vue.extend({
       const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
       newInfo.calculated = true;
       this.$emit('input', newInfo);
+    },
+    closeBulkUpdateDialog() {
+      this.bulkUpdateDialog = false;
+      this.onBulkUpdateDialogToggle();
     },
     onBulkUpdateDialogToggle() {
       if (!this.bulkUpdateDialog) {
