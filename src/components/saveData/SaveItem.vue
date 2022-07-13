@@ -95,7 +95,7 @@
             class="remarks-input"
           ></v-textarea>
           <div class="d-flex mt-2">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">更新</v-btn>
           </div>
         </div>
       </v-card>
@@ -214,7 +214,7 @@ export default Vue.extend({
     saveData(): SaveData {
       return this.value;
     },
-    isNameEmptry(): boolean {
+    isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
   },

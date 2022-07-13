@@ -75,7 +75,7 @@
       <div v-if="value.data.radius">
         <span class="item-status-text">半径</span><span class="item-status-value">{{ value.data.radius }}</span>
       </div>
-      <div v-if="value.data.enabledAttackLandbase">
+      <div v-if="value.data.enabledAttackLandBase">
         <span class="item-status-text">対地</span><span class="item-status-value special caption">可</span>
       </div>
       <div v-if="value.data.avoidId">

@@ -28,7 +28,7 @@ export default class AirbaseInfo {
   public readonly defenseAirPower: number;
 
   /** 適用される対重爆補正 */
-  public readonly highDeffenseCoefficient: number;
+  public readonly highDefenseCoefficient: number;
 
   /** 防空時(重爆)制空値 */
   public readonly highDefenseAirPower: number;
@@ -99,7 +99,7 @@ export default class AirbaseInfo {
     let sumSuperHighAirRaidTypeCItemCount = 0;
     for (let i = 0; i < this.airbases.length; i += 1) {
       const airbase = this.airbases[i];
-      if (airbase.mode === AB_MODE.DEFFENSE) {
+      if (airbase.mode === AB_MODE.DEFENSE) {
         this.defenseAirPower += airbase.defenseAirPower;
         rocketCount += airbase.rocketCount;
         sumSuperHighAirRaidTypeAItemCount += airbase.superHighAirRaidTypeAItemCount;
@@ -109,18 +109,18 @@ export default class AirbaseInfo {
     }
 
     // 重爆補正
-    this.highDeffenseCoefficient = 1.0;
+    this.highDefenseCoefficient = 1.0;
     const isHardOrMedium = this.difficultyLevel === DIFFICULTY_LEVEL.HARD || this.difficultyLevel === DIFFICULTY_LEVEL.MEDIUM;
     if (rocketCount >= 3) {
-      this.highDeffenseCoefficient = 1.2;
+      this.highDefenseCoefficient = 1.2;
     } else if (rocketCount === 2) {
-      this.highDeffenseCoefficient = 1.1;
+      this.highDefenseCoefficient = 1.1;
     } else if (rocketCount === 1 && isHardOrMedium) {
-      this.highDeffenseCoefficient = 0.8;
+      this.highDefenseCoefficient = 0.8;
     } else if (rocketCount === 0 && isHardOrMedium) {
-      this.highDeffenseCoefficient = 0.5;
+      this.highDefenseCoefficient = 0.5;
     }
-    this.highDefenseAirPower = Math.floor(this.defenseAirPower * this.highDeffenseCoefficient);
+    this.highDefenseAirPower = Math.floor(this.defenseAirPower * this.highDefenseCoefficient);
 
     // 超重爆補正計算
     // 超重爆補正A

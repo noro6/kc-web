@@ -173,7 +173,7 @@
               <div class="item-status" v-if="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
               <div class="item-status" v-if="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
               <div class="item-status" v-if="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
-              <div class="item-status" v-if="isShowantiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
+              <div class="item-status" v-if="isShowAntiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
               <div class="item-status" v-if="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
               <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
               <div class="item-status" v-if="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
@@ -528,14 +528,14 @@ export default Vue.extend({
     },
     enabledTypes() {
       const apis = this.baseItems.map((v) => v.apiTypeId);
-      const enableds = [];
+      const enabledItems = [];
       for (let i = 0; i < this.types.length; i += 1) {
         const d = this.types[i].types;
         if (apis.find((api) => d.includes(api))) {
-          enableds.push(this.types[i]);
+          enabledItems.push(this.types[i]);
         }
       }
-      return enableds;
+      return enabledItems;
     },
     isShow() {
       return (key: string, items: string[]) => items.includes(key);
@@ -576,7 +576,7 @@ export default Vue.extend({
     isShowAccuracy(): boolean {
       return this.viewStatus.includes('actualAccuracy');
     },
-    isShowantiBomber(): boolean {
+    isShowAntiBomber(): boolean {
       return this.viewStatus.includes('antiBomber');
     },
     isShowAntiAirWeight(): boolean {
@@ -682,7 +682,7 @@ export default Vue.extend({
           this.type = this.enabledTypes[0].id;
         }
 
-        const filterData = this.setting.savedItemListfilter.find((v) => v.parent === 'ship');
+        const filterData = this.setting.savedItemListFilter.find((v) => v.parent === 'ship');
         if (filterData && filterData.key) {
           this.filterStatus = filterData.key;
         }
@@ -713,7 +713,7 @@ export default Vue.extend({
           this.slot = 18;
         }
 
-        const filterData = this.setting.savedItemListfilter.find((v) => v.parent === 'airbase');
+        const filterData = this.setting.savedItemListFilter.find((v) => v.parent === 'airbase');
         if (filterData && filterData.key) {
           this.filterStatus = filterData.key;
         }
@@ -738,8 +738,8 @@ export default Vue.extend({
 
       if (isExpand) {
         // 補強増設枠フィルタ
-        const enableds = Const.EXPANDED_ITEM_TYPE;
-        types = types.filter((v) => enableds.includes(v));
+        const enabledItems = Const.EXPANDED_ITEM_TYPE;
+        types = types.filter((v) => enabledItems.includes(v));
       }
 
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
@@ -756,14 +756,14 @@ export default Vue.extend({
         return;
       }
 
-      if (!this.setting.savedItemListfilter) {
+      if (!this.setting.savedItemListFilter) {
         this.filter();
         return;
       }
 
-      const index = this.setting.savedItemListfilter.findIndex((v) => v.parent === filterData.parent);
+      const index = this.setting.savedItemListFilter.findIndex((v) => v.parent === filterData.parent);
       if (index >= 0) {
-        this.setting.savedItemListfilter[index] = filterData;
+        this.setting.savedItemListFilter[index] = filterData;
         this.$store.dispatch('updateSetting', this.setting);
       }
       this.filter();

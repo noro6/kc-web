@@ -333,15 +333,15 @@ export default Vue.extend({
       console.log(item);
       console.log(this.itemDialogTarget);
     },
-    setEnemyFleet(fleet: EnemyFleet, isCoutinue = false) {
+    setEnemyFleet(fleet: EnemyFleet, isContinue = false) {
       if (fleet.nodeName === '空襲' || this.isDefense) {
         this.airbaseInfo.isDefense = true;
         // 空襲モード用敵編成に追加して終了
         this.setInfo({ info: this.battleInfo, airRaidFleet: fleet });
         this.worldListDialog = false;
-      } else if (isCoutinue && this.fleetStock.length < 9) {
+      } else if (isContinue && this.fleetStock.length < 9) {
         this.fleetStock.push(fleet);
-      } else if (isCoutinue) {
+      } else if (isContinue) {
         // 10制限 閉じる
         this.fleetStock.push(fleet);
         this.closeWorldList();

@@ -19,7 +19,7 @@
           </template>
           <span>{{ saveData.name }}</span>
         </v-tooltip>
-        <div class="ml-auto btn-close" :class="{ editted: saveData.isEditted && !saveData.isUnsaved }">
+        <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
           <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
             <v-icon small>mdi-close</v-icon>
           </v-btn>
@@ -65,7 +65,7 @@
             class="remarks-input"
           ></v-textarea>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">更新</v-btn>
           </div>
         </div>
       </v-card>
@@ -118,10 +118,10 @@
   user-select: none;
 }
 
-.btn-close.editted {
+.btn-close.edited {
   position: relative;
 }
-.btn-close.editted::before {
+.btn-close.edited::before {
   content: "";
   position: absolute;
   background-color: #eee;
@@ -132,13 +132,13 @@
   height: 10px;
   transition: 0.2s;
 }
-.btn-close.editted .v-icon {
+.btn-close.edited .v-icon {
   opacity: 0;
 }
-.btn-close.editted:hover::before {
+.btn-close.edited:hover::before {
   opacity: 0;
 }
-.btn-close.editted:hover .v-icon {
+.btn-close.edited:hover .v-icon {
   opacity: 1;
 }
 .tab-add-button {
@@ -185,7 +185,7 @@ export default Vue.extend({
       }
       return activeData;
     },
-    isNameEmptry(): boolean {
+    isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
     mainData(): SaveData | undefined {
@@ -204,7 +204,7 @@ export default Vue.extend({
       event.preventDefault();
 
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.confirmCloseTab && data.isEditted) {
+      if (setting.confirmCloseTab && data.isEdited) {
         this.deleteConfirmDialog = true;
         this.deleteConfirmData = data;
         return;
@@ -288,7 +288,7 @@ export default Vue.extend({
     addNewFile() {
       // 新規タブ追加
       const data = new SaveData();
-      data.name = this.saveData.getNewSavedataName();
+      data.name = this.saveData.getNewSaveDataName();
       data.isActive = true;
       // 追加先はルート直下
       this.saveData.childItems.push(data);

@@ -131,14 +131,14 @@ export default Vue.extend({
   },
   data: () => ({
     calcManager: new CalcManager(),
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     stockData: undefined as undefined | SaveData,
     setting: new SiteSetting(),
     sortMode: false,
     saveTriggerTimer: undefined as undefined | number,
   }),
   mounted() {
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       this.setting = this.$store.state.siteSetting as SiteSetting;
       if (mutation.type === 'setMainSaveData') {
         const saveData = state.mainSaveData as SaveData;
@@ -208,8 +208,8 @@ export default Vue.extend({
     }
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   computed: {

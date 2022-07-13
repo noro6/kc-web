@@ -119,7 +119,7 @@ export default class Calculator {
    * @param {EnemyFleet} enemyFleet
    * @memberof Calculator
    */
-  public static calculateAerialConbatCellPhase(fleet: Fleet, enemyFleet: EnemyFleet): void {
+  public static calculateAerialCombatCellPhase(fleet: Fleet, enemyFleet: EnemyFleet): void {
     const state = CommonCalc.getAirState(fleet.airPower, enemyFleet.airPower, fleet.hasPlane);
     // 味方撃墜処理
     Calculator.shootDownFleet(state, fleet, enemyFleet);
@@ -410,17 +410,17 @@ export default class Calculator {
         if (randomRange && item.data.isAttacker) {
           // 撃墜担当を選出
           const index = Math.floor(Math.random() * randomRange);
-          const shootDwonStatus = st2List[item.data.avoidId];
+          const shootDownStatus = st2List[item.data.avoidId];
           if (Math.random() >= 0.5) {
             // 割合撃墜 50%で成功
-            item.slot -= Math.floor(shootDwonStatus.rateDownList[index] * item.slot);
+            item.slot -= Math.floor(shootDownStatus.rateDownList[index] * item.slot);
           }
           if (Math.random() >= 0.5) {
             // 固定撃墜 50%で成功
-            item.slot -= shootDwonStatus.fixDownList[index];
+            item.slot -= shootDownStatus.fixDownList[index];
           }
           // 最低保証
-          item.slot -= shootDwonStatus.minimumDownList[index];
+          item.slot -= shootDownStatus.minimumDownList[index];
         }
       }
 
@@ -475,7 +475,7 @@ export default class Calculator {
     for (let i = 0; i < airbaseInfo.airbases.length; i += 1) {
       const airbase = airbaseInfo.airbases[i];
 
-      if (airbase.mode !== AB_MODE.DEFFENSE) {
+      if (airbase.mode !== AB_MODE.DEFENSE) {
         continue;
       }
 
@@ -493,7 +493,7 @@ export default class Calculator {
       }
 
       // 制空値加算
-      sumAirPower += Math.floor(sumAirbaseAirPower * airbase.reconCorrDeff);
+      sumAirPower += Math.floor(sumAirbaseAirPower * airbase.reconCorrDefense);
     }
 
     // 制空値更新

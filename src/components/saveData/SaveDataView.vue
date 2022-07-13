@@ -1,5 +1,5 @@
 <template>
-  <v-sheet drak>
+  <v-sheet dark>
     <div class="d-flex header">
       <div v-if="!fixedDrawer">
         <v-btn icon large @click="handleClose()">
@@ -169,7 +169,7 @@ export default Vue.extend({
       const folder = this.rootData.childItems.find((v) => v.isDirectory);
       if (folder) {
         if (!saveData.isDirectory) {
-          saveData.name = folder.getNewSavedataName();
+          saveData.name = folder.getNewSaveDataName();
         }
         folder.isOpen = true;
         folder.childItems.push(saveData);

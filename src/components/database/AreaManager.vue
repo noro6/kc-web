@@ -216,7 +216,7 @@ export default Vue.extend({
     visibleShipName: false,
     existStock: false,
     areaShipList: [] as { area: number; headers: Header[] }[],
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     shipListDialog: false,
     shipDialogWidth: 1200,
     selectedArea: 0,
@@ -229,7 +229,7 @@ export default Vue.extend({
     tooltipY: 0,
   }),
   mounted() {
-    this.unsbscribe = this.$store.subscribe((mutation) => {
+    this.unsubscribe = this.$store.subscribe((mutation) => {
       if (mutation.type === 'setShipStock') {
         this.loadShipStock();
       }
@@ -271,8 +271,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {

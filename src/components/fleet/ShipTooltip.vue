@@ -109,7 +109,7 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
-    isFragship: {
+    isFlagship: {
       type: Boolean,
       default: false,
     },
@@ -173,7 +173,7 @@ export default Vue.extend({
     },
     specialAttacks(): { text: string; rate: number[] }[] {
       if (this.fleetRosCorr) {
-        const array = this.value.getDayBattleSpecialAttackRate(this.fleetRosCorr, this.isFragship);
+        const array = this.value.getDayBattleSpecialAttackRate(this.fleetRosCorr, this.isFlagship);
         if (array.length) {
           array.push({ text: '合計', rate: [sum(array.map((v) => v.rate[0])), sum(array.map((v) => v.rate[1]))] });
         }

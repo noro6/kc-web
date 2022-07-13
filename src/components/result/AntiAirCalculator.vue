@@ -229,7 +229,7 @@ export default Vue.extend({
 
         const { id } = cutIns[i];
         // 何種CIかのテキストが欲しいがために
-        const cutin = Const.ANTIAIR_CUTIN.find((v) => v.id === id);
+        const cutin = Const.ANTI_AIR_CUTIN.find((v) => v.id === id);
         const rate = 100 * border - sumRate;
         sumRate += rate;
 
@@ -292,7 +292,7 @@ export default Vue.extend({
 
       // 対空砲火テーブルを取得
       let aaci = new AntiAirCutIn();
-      const cutIn = Const.ANTIAIR_CUTIN.find((v) => v.id === this.cutInId);
+      const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === this.cutInId);
       if (cutIn) {
         aaci = new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, cutIn.rate);
       }

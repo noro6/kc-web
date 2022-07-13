@@ -120,7 +120,7 @@ export default class Item {
   public readonly reconCorr: number;
 
   /** 偵察機補正 -防空時 */
-  public readonly reconCorrDeff: number;
+  public readonly reconCorrDefense: number;
 
   /** 最大搭載数から1までの制空値を計算し終えた配列 機体のみ有効 計算用 */
   private readonly calculatedAirPower: number[];
@@ -188,8 +188,8 @@ export default class Item {
     this.antiAirBonus = this.getAntiAirBonus();
     this.tp = this.getTransportPower();
     this.reconCorr = this.getReconCorr();
-    this.reconCorrDeff = this.getReconCorrDeff();
-    this.contactSelectRates = this.getContancSelectRates();
+    this.reconCorrDefense = this.getReconCorrDefense();
+    this.contactSelectRates = this.getContactSelectRates();
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
@@ -694,7 +694,7 @@ export default class Item {
    * @return {*}  {number}
    * @memberof Item
    */
-  private getReconCorrDeff(): number {
+  private getReconCorrDefense(): number {
     // 防空時補正
     if (this.data.apiTypeId === 49) {
       // 陸上偵察機補正
@@ -722,7 +722,7 @@ export default class Item {
    * @returns {number[]}
    * @memberof Item
    */
-  private getContancSelectRates(): number[] {
+  private getContactSelectRates(): number[] {
     if ([8, 9, 10, 41, 49].includes(this.data.apiTypeId)) {
       const { remodel } = this;
       let { scout } = this.data;
@@ -790,7 +790,7 @@ export default class Item {
    * @memberof Fleet
    */
   public static getContactRates(items: Item[]): ContactRate[] {
-    let sumCotactValue = 0;
+    let sumContactValue = 0;
     // 補正率別 触接選択率テーブル[ 0:確保時, 1:優勢時, 2:劣勢時 ]
     const contact120 = [[] as number[], [] as number[], [] as number[]];
     const contact117 = [[] as number[], [] as number[], [] as number[]];
@@ -799,7 +799,7 @@ export default class Item {
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       if (item.data.isRecon) {
-        sumCotactValue += Math.floor(item.data.scout * Math.sqrt(item.fullSlot));
+        sumContactValue += Math.floor(item.data.scout * Math.sqrt(item.fullSlot));
       }
       // 制空状態3つループ
       for (let j = 0; j < 3; j += 1) {
@@ -809,7 +809,7 @@ export default class Item {
       }
     }
     // 触接開始率 = int(sum(索敵 * sqrt(搭載)) + 1) / (70 - 15 * c)
-    const a = Math.floor(sumCotactValue) + 1;
+    const a = Math.floor(sumContactValue) + 1;
     const contactStartRate = [
       Math.min(a / 25, 1),
       Math.min(a / 40, 1),

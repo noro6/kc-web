@@ -364,6 +364,11 @@ export default class Fleet {
     return [SUPPORT_TYPE.LONG_RANGE_TORPEDO];
   }
 
+  /**
+   * 支援種別名称を返却
+   * @return {*}  {string}
+   * @memberof Fleet
+   */
   public getSupportTypeName(): string {
     const supports = Const.SUPPORTS;
     const typeNames = this.supportTypes.map((v) => {

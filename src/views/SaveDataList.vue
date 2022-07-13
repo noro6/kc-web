@@ -21,11 +21,11 @@
             <div class="ml-3">
               <v-btn color="success" @click="searchPreset()" :disabled="isLoading || isSameSearchCondition">検索</v-btn>
             </div>
-            <div class="ml-auto align-self-end caption" v-if="savedata && savedata.length">{{ savedata.length }}件</div>
+            <div class="ml-auto align-self-end caption" v-if="saveData && saveData.length">{{ saveData.length }}件</div>
           </div>
         </div>
         <div class="pa-3">
-          <v-card v-for="(preset, i) in savedata" :key="`data_${i}`" class="preset-item">
+          <v-card v-for="(preset, i) in saveData" :key="`data_${i}`" class="preset-item">
             <div class="d-flex">
               <div class="align-self-end">{{ preset.name }}</div>
               <v-spacer></v-spacer>
@@ -142,7 +142,7 @@ export default Vue.extend({
     selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
-    savedata: [] as UploadedPreset[],
+    saveData: [] as UploadedPreset[],
     isLoading: false,
     lastMap: 0,
     lastLevel: 0,
@@ -150,9 +150,9 @@ export default Vue.extend({
   }),
   mounted() {
     this.initWorlds();
-    const initialiList = this.$store.state.searchedList as UploadedPreset[];
-    if (initialiList && initialiList.length) {
-      this.savedata = initialiList;
+    const initialList = this.$store.state.searchedList as UploadedPreset[];
+    if (initialList && initialList.length) {
+      this.saveData = initialList;
     }
   },
   computed: {
@@ -209,7 +209,7 @@ export default Vue.extend({
     async searchPreset() {
       this.isLoading = true;
       if (!this.enabledMoreLoad) {
-        this.savedata = [];
+        this.saveData = [];
       }
 
       try {
@@ -270,7 +270,7 @@ export default Vue.extend({
           if (preset.ver === 2) {
             // 新版編成復元
             const managerString = LZString.decompressFromBase64(doc.data().data) || '';
-            const manager = SaveData.loadSavedataManagerString(managerString, items, ships, enemies);
+            const manager = SaveData.loadSaveDataManagerString(managerString, items, ships, enemies);
             if (manager) {
               preset.ships = manager.fleetInfo.fleets[0].ships;
               preset.manager = manager;
@@ -289,11 +289,11 @@ export default Vue.extend({
           }
         });
 
-        if (this.lastDocument && this.savedata) {
+        if (this.lastDocument && this.saveData) {
           // 追加読み込みの場合はpushする
-          this.savedata = this.savedata.concat(fetchData);
+          this.saveData = this.saveData.concat(fetchData);
         } else {
-          this.savedata = fetchData;
+          this.saveData = fetchData;
         }
 
         // 追加読み込み制御
@@ -304,10 +304,10 @@ export default Vue.extend({
         }
 
         // 次回訪問時復帰するため保持
-        this.$store.dispatch('setSearchedList', this.savedata);
+        this.$store.dispatch('setSearchedList', this.saveData);
       } catch (error) {
         console.error(error);
-        this.savedata = [];
+        this.saveData = [];
         this.$emit('inform', '編成データ読み込み中にエラーが発生しました。', true);
       }
       this.isLoading = false;

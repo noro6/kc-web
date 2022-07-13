@@ -356,9 +356,9 @@ export default Vue.extend({
     allCells: [] as CellMaster[],
     world: 1,
     areas: [] as MasterMap[],
-    area: 541,
+    area: 11,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 541,
+    selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
@@ -373,7 +373,7 @@ export default Vue.extend({
     enabledCommitBtn: false,
     continuousMode: false,
     snackbar: false,
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     selectedNodeName: '',
     selectedNodeNames: [] as string[],
     expandMapDialog: false,
@@ -419,7 +419,7 @@ export default Vue.extend({
 
     // マスタデータ読み込み開始
     this.$store.dispatch('loadCellData');
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setCells') {
         this.initCells(state.cells);
       }
@@ -434,8 +434,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {

@@ -532,7 +532,7 @@ export default Vue.extend({
             }
 
             // まとめられそうな艦娘がいないか？(id 練度 運 対潜 耐久 海域 増設 が一致)
-            const serach = ships.find(
+            const search = ships.find(
               (v) => v.ship.id === viewShip.ship.id
                 && v.level === viewShip.level
                 && v.luck === viewShip.luck
@@ -541,9 +541,9 @@ export default Vue.extend({
                 && v.asw === viewShip.asw
                 && v.expanded === viewShip.expanded,
             );
-            if (serach) {
+            if (search) {
               // いたらcountだけインクリメント
-              serach.count += viewShip.count;
+              search.count += viewShip.count;
             } else {
               // いなければ追加
               ships.push(viewShip);

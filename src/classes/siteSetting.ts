@@ -80,7 +80,7 @@ export default class SiteSetting {
   public importAllDeck: boolean;
 
   /** フィルタ保存値 */
-  public savedItemListfilter: { parent: 'ship' | 'airbase', key: string, value: number }[];
+  public savedItemListFilter: { parent: 'ship' | 'airbase', key: string, value: number }[];
 
   /** 艦娘一覧 検索条件保存値 */
   public savedShipListFilter: { isFinalOnly: boolean }
@@ -109,7 +109,7 @@ export default class SiteSetting {
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
-      this.savedItemListfilter = setting.savedItemListfilter ? setting.savedItemListfilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
@@ -156,7 +156,7 @@ export default class SiteSetting {
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
-      this.savedItemListfilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
+      this.savedItemListFilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = {
         isFinalOnly: true,
       };

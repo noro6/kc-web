@@ -154,16 +154,16 @@
         </div>
       </v-card>
     </div>
-    <v-dialog v-model="editDialog" v-if="edittedItem" transition="scroll-x-transition" width="600">
+    <v-dialog v-model="editDialog" v-if="editedItem" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
         <div class="mx-2 mb-2">
           <div class="d-flex">
             <div class="align-self-center">
-              <v-img :src="`./img/type/icon${edittedItem.iconTypeId}.png`" width="40" height="40"></v-img>
+              <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40"></v-img>
             </div>
             <div class="align-self-center ml-1">
-              <div class="caption info--text">ID: {{ edittedItem.id }}</div>
-              <div class="body-2">{{ edittedItem.name }}</div>
+              <div class="caption info--text">ID: {{ editedItem.id }}</div>
+              <div class="body-2">{{ editedItem.name }}</div>
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@
           <div class="caption">所持数</div>
           <div class="stock-inputs">
             <v-text-field
-              v-for="(value, i) in edittedStock"
+              v-for="(value, i) in editedStock"
               :key="`stock$${i}`"
               class="stock-input"
               type="number"
@@ -181,7 +181,7 @@
               :label="`★+${i}`"
               hide-details
               :readonly="readOnly"
-              v-model.number="edittedStock[i]"
+              v-model.number="editedStock[i]"
             ></v-text-field>
             <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" label="合計"></v-text-field>
           </div>
@@ -393,9 +393,9 @@ export default Vue.extend({
     baseViewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
     viewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
     editDialog: false,
-    edittedItem: undefined as ItemMaster | undefined,
-    edittedStock: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    unsbscribe: undefined as unknown,
+    editedItem: undefined as ItemMaster | undefined,
+    editedStock: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    unsubscribe: undefined as unknown,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
@@ -412,7 +412,7 @@ export default Vue.extend({
     this.visibleAllCount = setting.visibleItemStockAllCount;
 
     this.initialize();
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
         this.masterFilter();
@@ -450,15 +450,15 @@ export default Vue.extend({
       return 'mdi-checkbox-blank-outline';
     },
     sumStock(): number {
-      return sum(this.edittedStock);
+      return sum(this.editedStock);
     },
     convertStatusString() {
-      return (value: string) => Convert.convertAttibuteString(value);
+      return (value: string) => Convert.convertAttributeString(value);
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {
@@ -486,8 +486,8 @@ export default Vue.extend({
     },
     masterFilter() {
       // カテゴリ検索
-      const typeIndexs = this.selectedTypes;
-      const types = Const.ITEM_TYPES_ALT.filter((v, i) => typeIndexs.includes(i))
+      const typeIndexes = this.selectedTypes;
+      const types = Const.ITEM_TYPES_ALT.filter((v, i) => typeIndexes.includes(i))
         .map((v) => v.types)
         .flat();
 
@@ -580,29 +580,29 @@ export default Vue.extend({
     clickItem(master: ItemMaster) {
       this.clearTooltip();
       this.editDialog = true;
-      this.edittedItem = master;
+      this.editedItem = master;
 
       // 所持数状況を読み込み
       const stock = this.itemStock.find((v) => v.id === master.id);
       if (stock) {
-        this.edittedStock = stock.num;
+        this.editedStock = stock.num;
       } else {
-        this.edittedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this.editedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       }
     },
     clearStock() {
-      this.edittedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      this.editedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     },
     registStock() {
-      if (this.edittedItem) {
-        const itemId = this.edittedItem.id;
+      if (this.editedItem) {
+        const itemId = this.editedItem.id;
         const stock = this.itemStock.find((v) => v.id === itemId);
 
         if (stock) {
-          stock.num = this.edittedStock;
+          stock.num = this.editedStock;
         } else {
           const newData = new ItemStock(itemId);
-          newData.num = this.edittedStock;
+          newData.num = this.editedStock;
           this.itemStock.push(newData);
         }
 
@@ -610,7 +610,7 @@ export default Vue.extend({
         this.masterFilter();
         this.editDialog = false;
         window.setTimeout(() => {
-          this.edittedItem = undefined;
+          this.editedItem = undefined;
         }, 100);
       }
     },

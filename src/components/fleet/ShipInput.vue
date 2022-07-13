@@ -282,7 +282,7 @@
       :position-x="tooltipX"
       :position-y="tooltipY"
     >
-      <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-fragship="index === 0" />
+      <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-flagship="index === 0" />
     </v-tooltip>
   </v-card>
 </template>

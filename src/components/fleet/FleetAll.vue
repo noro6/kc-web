@@ -5,6 +5,14 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="optimizeFighterSlot()" v-bind="attrs" v-on="on">
+            <v-icon>mdi-refresh-auto</v-icon>
+          </v-btn>
+        </template>
+        <span>戦闘機スロットを最適化</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
@@ -161,7 +169,7 @@
           </div>
           <div class="my-1" v-if="generatedCanvas">
             <v-btn @click="saveImage()" color="success"><v-icon small>mdi-content-save</v-icon>保存</v-btn>
-            <a class="d-none" id="gkcoi-doownload" />
+            <a class="d-none" id="gkcoi-download" />
           </div>
         </div>
         <div v-if="generatingImage">
@@ -272,7 +280,7 @@
                 </div>
               </div>
               <v-divider class="mb-1"></v-divider>
-              <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempSship${i}item${j}`" class="temp-item">
+              <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempShip${i}item${j}`" class="temp-item">
                 <div class="caption temp-slot">
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
                 </div>
@@ -308,7 +316,7 @@
             </div>
             <div class="caption">選択されている艦隊の全艦娘に対し、下記の設定を適用します。</div>
             <div class="d-flex justify-space-between">
-              <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly></v-checkbox>
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -644,7 +652,7 @@ export default Vue.extend({
     formations(): Formation[] {
       return Const.FORMATIONS;
     },
-    isbulkUpdateTargetAll(): boolean {
+    isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
     },
   },
@@ -1115,6 +1123,12 @@ export default Vue.extend({
         this.setInfo(new FleetInfo({ info: this.fleetInfo }));
       }
     },
+    optimizeFighterSlot() {
+      const { ships } = this.value.fleets[this.value.mainFleetIndex];
+      const newShips = ShipValidation.getOptimizedFighterFleet(ships);
+      this.value.fleets[this.value.mainFleetIndex] = new Fleet({ ships: newShips });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
     initializeOutput() {
       // 画像出力初期化
       const saveData = this.$store.state.mainSaveData as SaveData;
@@ -1178,7 +1192,7 @@ export default Vue.extend({
       const canvas = this.generatedCanvas;
       if (canvas) {
         const base64 = canvas.toDataURL('image/jpeg');
-        const download = document.getElementById('gkcoi-doownload') as HTMLAnchorElement;
+        const download = document.getElementById('gkcoi-download') as HTMLAnchorElement;
         download.href = base64;
         download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
         download.click();

@@ -25,7 +25,7 @@ export interface FirePowerCalcArgs {
   /** その他特効補正 */
   specialBonus: number;
   /** キャップ前補正 */
-  beforCapBonus: number;
+  beforeCapBonus: number;
   /** キャップ後補正 */
   afterCapBonus: number;
   /** 雷装ボーナス(装備フィットによる) */
@@ -56,7 +56,7 @@ export default class AerialFirePowerCalculator {
   public static getAirbaseFirePowers(item: Item, dist: SlotDist[], defense: Ship | Enemy, args: FirePowerCalcArgs): PowerDist[] {
     // 防御側が潜水かどうか？
     const isSubmarine = defense.data.type === SHIP_TYPE.SS || defense.data.type === SHIP_TYPE.SSV;
-    const isLandbase = defense instanceof Enemy && defense.data.isLandbase;
+    const isLandBase = defense instanceof Enemy && defense.data.isLandBase;
     const resultPowers: PowerDist[] = [];
     for (let i = 0; i < dist.length; i += 1) {
       const { slot, rate } = dist[i];
@@ -64,7 +64,7 @@ export default class AerialFirePowerCalculator {
       if (isSubmarine) {
         // 対潜
         powers = AerialFirePowerCalculator.getAirbaseASWPowerDist(item, slot, args, rate);
-      } else if (isLandbase) {
+      } else if (isLandBase) {
         // 対地
         powers = AerialFirePowerCalculator.getAirbaseFirePowerLandBase(item, slot, args, defense, rate);
       } else {
@@ -98,7 +98,7 @@ export default class AerialFirePowerCalculator {
   private static getAirbaseFirePower(item: Item, slot: number, args: FirePowerCalcArgs, defense: Ship | Enemy, rate: number): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
     let allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
-    args.beforCapBonus = 1;
+    args.beforeCapBonus = 1;
 
     if (slot <= 0) return [{ power: 0, rate }];
 
@@ -149,19 +149,19 @@ export default class AerialFirePowerCalculator {
           // B-25補正
           if (shipType === SHIP_TYPE.DD) {
             // 駆逐 1.9倍
-            args.beforCapBonus = 1.9;
+            args.beforeCapBonus = 1.9;
           } else if (shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CLT || shipType === SHIP_TYPE.CT) {
             // 軽巡級 1.75倍
-            args.beforCapBonus = 1.75;
+            args.beforeCapBonus = 1.75;
           } else if (shipType === SHIP_TYPE.CA || shipType === SHIP_TYPE.CAV) {
             // 重巡級 1.6倍
-            args.beforCapBonus = 1.6;
+            args.beforeCapBonus = 1.6;
           } else if (shipType === SHIP_TYPE.CVL) {
             // 軽空母 1.3倍
-            args.beforCapBonus = 1.3;
+            args.beforeCapBonus = 1.3;
           } else if (shipType === SHIP_TYPE.FBB || shipType === SHIP_TYPE.BB || shipType === SHIP_TYPE.BBV || shipType === SHIP_TYPE.BBB) {
             // 戦艦級 1.3倍
-            args.beforCapBonus = 1.3;
+            args.beforeCapBonus = 1.3;
           }
         } else {
           // 陸攻 上記以外
@@ -187,7 +187,7 @@ export default class AerialFirePowerCalculator {
     // 雷装ボーナス適用
     fire *= args.torpedoBonus;
     // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 25} * キャップ前ボーナス
-    let p = Math.floor(adj * (fire * Math.sqrt(adj2 * slot) + 25) * args.beforCapBonus);
+    let p = Math.floor(adj * (fire * Math.sqrt(adj2 * slot) + 25) * args.beforeCapBonus);
 
     // キャップ
     p = CommonCalc.softCap(p, CAP.AS);
@@ -262,7 +262,7 @@ export default class AerialFirePowerCalculator {
     // 雷装ボーナス適用
     fire *= args.torpedoBonus;
     // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 25} * キャップ前ボーナス
-    let p = adj * (fire * Math.sqrt(adj2 * slot) + 25) * args.beforCapBonus;
+    let p = adj * (fire * Math.sqrt(adj2 * slot) + 25) * args.beforeCapBonus;
 
     // 爆撃特効適用対象機体か 艦爆 水爆 陸攻 噴式
     const isBomber = [7, 11, 47, 53, 57].includes(item.data.apiTypeId);
@@ -422,13 +422,13 @@ export default class AerialFirePowerCalculator {
       let p = 0;
       if (type === 8 && i === 0) {
         // 艦攻 0.8倍
-        p = Math.floor((fire * Math.sqrt(slot) + c) * 0.8 * args.beforCapBonus);
+        p = Math.floor((fire * Math.sqrt(slot) + c) * 0.8 * args.beforeCapBonus);
       } else if (type === 8) {
         // 艦攻 1.5倍
-        p = Math.floor((fire * Math.sqrt(slot) + c) * 1.5 * args.beforCapBonus);
+        p = Math.floor((fire * Math.sqrt(slot) + c) * 1.5 * args.beforeCapBonus);
       } else {
         // それ以外 通常
-        p = Math.floor((fire * Math.sqrt(slot) + c) * args.beforCapBonus);
+        p = Math.floor((fire * Math.sqrt(slot) + c) * args.beforeCapBonus);
       }
 
       // キャップ適用
