@@ -97,8 +97,17 @@
               </div>
             </div>
             <div v-else-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary">制空値:</div>
-              <div class="mx-3">{{ fleet.fullAirPower }}</div>
+              <div class="text--secondary mr-2">制空値:</div>
+              <div>{{ fleet.fullAirPower }}</div>
+              <div v-if="fleet.existUnknownEnemy" class="mx-2">
+                <v-tooltip bottom color="black">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
+                  </template>
+                  <div>搭載数が未確定の敵艦が含まれています。</div>
+                  <div>表示制空値は目安のもので、正確な制空値ではありません。</div>
+                </v-tooltip>
+              </div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
