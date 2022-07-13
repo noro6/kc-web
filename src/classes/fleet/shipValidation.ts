@@ -1,6 +1,8 @@
 import store from '@/store/index';
 import Const, { SHIP_TYPE } from '../const';
+import Item from '../item/item';
 import ItemMaster from '../item/itemMaster';
+import Ship from './ship';
 import ShipMaster from './shipMaster';
 
 /**
@@ -99,14 +101,14 @@ export default class ShipValidation {
 
     // スロット番号制限チェック
     if (slotIndex >= 0) {
-      const forbiddens = Const.FORBIDDEN_LINK_SHIP_ITEM.find((v) => v.shipId === ship.id && v.index.includes(slotIndex + 1));
-      if (forbiddens) {
+      const forbiddenItems = Const.FORBIDDEN_LINK_SHIP_ITEM.find((v) => v.shipId === ship.id && v.index.includes(slotIndex + 1));
+      if (forbiddenItems) {
         // 禁止カテゴリに存在したら終わり
-        if (forbiddens.itemType.includes(item.apiTypeId)) {
+        if (forbiddenItems.itemType.includes(item.apiTypeId)) {
           return false;
         }
         // 禁止装備 キメ撃ち
-        if (forbiddens.itemIDs.includes(item.id)) {
+        if (forbiddenItems.itemIDs.includes(item.id)) {
           return false;
         }
       }
@@ -114,5 +116,67 @@ export default class ShipValidation {
 
     // 最終チェック
     return types.includes(item.apiTypeId);
+  }
+
+  /**
+   * 戦闘機を最適化した新しい艦隊データを返却
+   * @static
+   * @memberof Fleet
+   */
+  public static getOptimizedFighterFleet(ships: Ship[]): Ship[] {
+    // 戦闘機を抽出
+    const allFighterSlots: { shipIndex: number, slotIndex: number, slot: number }[] = [];
+    const allFighters: Item[] = [];
+    const allSPFighterSlots: { shipIndex: number, slotIndex: number, slot: number }[] = [];
+    const allSPFighters: Item[] = [];
+
+    for (let i = 0; i < ships.length; i += 1) {
+      const ship = ships[i];
+      if (ship.isEmpty || !ship.isActive) {
+        continue;
+      }
+
+      for (let j = 0; j < ship.items.length; j += 1) {
+        const item = ship.items[j];
+        if (item.data.isFighter) {
+          if (item.data.apiTypeId === 6) {
+            // 艦戦
+            allFighterSlots.push({ shipIndex: i, slotIndex: j, slot: item.fullSlot });
+            allFighters.push(item);
+          } else if (item.data.apiTypeId === 45) {
+            // 水戦
+            allSPFighterSlots.push({ shipIndex: i, slotIndex: j, slot: item.fullSlot });
+            allSPFighters.push(item);
+          }
+        }
+      }
+    }
+
+    // 搭載数の多い順にソート
+    allFighterSlots.sort((a, b) => b.slot - a.slot);
+    allSPFighterSlots.sort((a, b) => b.slot - a.slot);
+    // 対空の高い順にソート
+    allFighters.sort((a, b) => b.actualAntiAir - a.actualAntiAir);
+    allSPFighters.sort((a, b) => b.actualAntiAir - a.actualAntiAir);
+
+    // 艦戦 出撃対空順に、最大のスロットに埋めていく
+    for (let i = 0; i < allFighters.length; i += 1) {
+      const { shipIndex, slotIndex, slot } = allFighterSlots[i];
+      ships[shipIndex].items[slotIndex] = new Item({ item: allFighters[i], slot });
+    }
+    // 水戦 出撃対空順に、最大のスロットに埋めていく
+    for (let i = 0; i < allSPFighterSlots.length; i += 1) {
+      const { shipIndex, slotIndex, slot } = allSPFighterSlots[i];
+      ships[shipIndex].items[slotIndex] = new Item({ item: allSPFighters[i], slot });
+    }
+
+    // 装備群を再装備させる形で最インスタンス化
+    const resultShips = [];
+    for (let i = 0; i < ships.length; i += 1) {
+      const ship = ships[i];
+      resultShips.push(new Ship({ ship, items: ship.items }));
+    }
+
+    return resultShips;
   }
 }
