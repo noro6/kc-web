@@ -77,10 +77,16 @@
       </template>
     </v-app-bar>
     <v-main>
-      <div class="event-banner">
-        <v-img class="banner-normal" :src="`./img/util/banner.png`" height="100" width="760" />
-        <v-img class="banner-on" :src="`./img/util/banner_on.png`" height="100" width="760" />
-      </div>
+      <template v-if="false">
+        <div class="event-banner">
+          <v-img class="banner-normal" :src="`./img/util/banner.png`" />
+          <v-img class="banner-on" :src="`./img/util/banner_on.png`" />
+        </div>
+        <div class="event-banner">
+          <v-img class="banner-normal" :src="`./img/util/banner2.png`" />
+          <v-img class="banner-on" :src="`./img/util/banner2_on.png`" />
+        </div>
+      </template>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
         <v-alert border="left" outlined type="info" :class="{ 'info-container': !isManagerPage }">
           <div class="body-2">URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
@@ -481,7 +487,7 @@
                 class="remarks-input"
               ></v-textarea>
               <div class="d-flex mt-3">
-                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmptry">保存</v-btn>
+                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">保存</v-btn>
                 <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.Cancel") }}</v-btn>
               </div>
             </div>
@@ -592,7 +598,7 @@ export default Vue.extend({
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
     urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[] },
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
     },
@@ -626,7 +632,7 @@ export default Vue.extend({
       const data = this.mainSaveData;
       return data ? data.tempIndex < data.tempData.length - 1 : false;
     },
-    isNameEmptry(): boolean {
+    isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
     isManagerPage(): boolean {
@@ -636,22 +642,22 @@ export default Vue.extend({
       return this.$route.path.endsWith('/aircalc');
     },
     isLight(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'light';
+      return this.setting.themeDetail === 'light';
     },
     isIce(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'ice';
+      return this.setting.themeDetail === 'ice';
     },
     isPink(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'pink';
+      return this.setting.themeDetail === 'pink';
     },
     isGreen(): boolean {
-      return !this.setting.darkTheme && this.setting.themeDetail === 'green';
+      return this.setting.themeDetail === 'green';
     },
     isDark(): boolean {
-      return this.setting.darkTheme && this.setting.themeDetail === 'dark';
+      return this.setting.themeDetail === 'dark';
     },
     isDeepSea(): boolean {
-      return this.setting.darkTheme && this.setting.themeDetail === 'deep-sea';
+      return this.setting.themeDetail === 'deep-sea';
     },
     hasItemUIBorder(): boolean {
       return this.setting.itemUI.border;
@@ -691,7 +697,7 @@ export default Vue.extend({
     getCompletedAll(value) {
       this.loading = !value;
       if (value) {
-        this.loadURLInfomation();
+        this.loadURLInformation();
       }
       this.disabledIndexedDB = this.$store.state.disabledDatabase;
     },
@@ -703,7 +709,7 @@ export default Vue.extend({
     this.setting = this.$store.state.siteSetting as SiteSetting;
     this.saveData = this.$store.state.saveData as SaveData;
     // セーブデータの更新を購読
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateSaveData') {
         // 計算処理更新の購読 常に最新の状態を保つ
         this.saveData = state.saveData as SaveData;
@@ -717,7 +723,7 @@ export default Vue.extend({
           this.changeSiteTheme(this.setting.themeDetail);
         } else {
           // 基本のテーマ2種
-          this.changeSiteTheme(this.setting.darkTheme ? 'dark' : 'light');
+          this.changeSiteTheme('dark');
         }
 
         if (this.setting.locale) {
@@ -737,7 +743,7 @@ export default Vue.extend({
       this.getUrlParams(search);
       this.setUrlFragments(hash);
       if (!this.loading) {
-        this.loadURLInfomation();
+        this.loadURLInformation();
       }
     }
   },
@@ -754,7 +760,7 @@ export default Vue.extend({
     closeSideBar() {
       this.drawer = false;
     },
-    async loadURLInfomation() {
+    async loadURLInformation() {
       // 展開待ち中のデータがあれば読み込んで消す
       if (Object.keys(this.urlParameters).length) {
         if (this.urlParameters.data) {
@@ -844,12 +850,13 @@ export default Vue.extend({
       this.readState = false;
     },
     loadAndConfirmDeckBuilder(builder: string): boolean {
+      const text = builder.indexOf('predeck=') >= 0 ? builder.split('predeck=')[1] : builder;
       if (this.setting.importAllDeck) {
-        return this.loadAndOpenFromDeckBuilder(builder);
+        return this.loadAndOpenFromDeckBuilder(text);
       }
       try {
         const converter = new Convert(this.$store.state.items, this.$store.state.ships);
-        const manager = converter.loadDeckBuilder(builder);
+        const manager = converter.loadDeckBuilder(text);
         if (!manager) {
           // 何もない編成データは無意味なので返す
           return false;
@@ -870,7 +877,7 @@ export default Vue.extend({
           return true;
         }
 
-        return this.loadAndOpenFromDeckBuilder(builder);
+        return this.loadAndOpenFromDeckBuilder(text);
       } catch (error) {
         return false;
       }
@@ -1064,7 +1071,6 @@ export default Vue.extend({
     },
     changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink' | 'green') {
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
-      this.setting.darkTheme = isDarkTheme;
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
       this.$vuetify.theme.themes.dark.primary = colors.blue.base;
@@ -1286,8 +1292,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   destroyed() {
@@ -1371,17 +1377,21 @@ export default Vue.extend({
 }
 
 .event-banner {
+  position: relative;
   max-width: 760px;
   height: 100px;
   margin: 0 auto;
 }
 .event-banner .banner-on,
-.event-banner:hover .banner-normal {
-  height: 0px !important;
+.event-banner .banner-normal {
+  position: absolute;
 }
-.event-banner .banner-normal,
-.event-banner:hover .banner-on {
-  height: unset !important;
+.event-banner .banner-on {
+  transition: 0.2s;
+  opacity: 0;
+}
+.event-banner .banner-on:hover {
+  opacity: 1;
 }
 
 .selectable-fleet-container {

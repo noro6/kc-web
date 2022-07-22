@@ -140,7 +140,7 @@
         </template>
         <span class="ml-2 text--secondary">射程:</span>
         <span class="ml-1 font-weight-medium">{{ rangeText[ship.actualRange] }}</span>
-        <template v-if="ship.data.minAsw || ship.enabledTSBK">
+        <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <span class="asw-view" v-bind="attrs" v-on="on">
@@ -282,7 +282,7 @@
       :position-x="tooltipX"
       :position-y="tooltipY"
     >
-      <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-fragship="index === 0" />
+      <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-flagship="index === 0" />
     </v-tooltip>
   </v-card>
 </template>
@@ -449,8 +449,8 @@ import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import SiteSetting from '@/classes/siteSetting';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip, ShipTooltip },
@@ -618,20 +618,18 @@ export default Vue.extend({
       }
 
       // 装備検証
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
       const { items, exItem } = this.value;
       const newItems = [];
       let newExItem: Item;
       for (let i = 0; i < newVersion.slots.length; i += 1) {
         const item = items[i];
-        if (item && newVersion.isValidItem(item.data, link, exLink, i)) {
+        if (item && ShipValidation.isValidItem(newVersion, item.data, i)) {
           newItems.push(new Item({ item, slot: newVersion.slots[i] }));
         } else {
           newItems.push(new Item());
         }
       }
-      if (newVersion.isValidItem(exItem.data, link, exLink)) {
+      if (ShipValidation.isValidItem(newVersion, exItem.data)) {
         newExItem = new Item({ item: exItem });
       } else {
         newExItem = new Item();
@@ -685,7 +683,7 @@ export default Vue.extend({
     dragEnter(e: DragEvent): void {
       const d = document.getElementById('dragging-item');
       const t = e.target as HTMLDivElement;
-      if (!d || !d.classList.contains('ship-input') || !t || !t.classList.contains('ship-input') || this.value.isEmpty) {
+      if (!d || !d.classList.contains('ship-input') || !t || !t.classList.contains('ship-input')) {
         return;
       }
       // 受け入れ可能 背景色を青っぽく
@@ -705,10 +703,6 @@ export default Vue.extend({
       target.style.boxShadow = '';
       if (target.id) {
         // 自身へのドロップ禁止
-        return;
-      }
-      if (this.value.isEmpty) {
-        // 自身が艦娘データ以外であったら無理
         return;
       }
       // 一時退避していたデータをセット

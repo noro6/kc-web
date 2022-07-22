@@ -53,7 +53,7 @@ type SHIP_TYPE = typeof SHIP_TYPE[keyof typeof SHIP_TYPE];
 export const AB_MODE = {
   WAIT: 0,
   BATTLE: 1,
-  DEFFENSE: 2,
+  DEFENSE: 2,
 } as const;
 type AB_MODE = typeof AB_MODE[keyof typeof AB_MODE];
 
@@ -134,7 +134,7 @@ export default class Const {
    */
   public static readonly AB_MODE_ITEMS = [
     { text: '出撃', value: AB_MODE.BATTLE },
-    { text: '防空', value: AB_MODE.DEFFENSE },
+    { text: '防空', value: AB_MODE.DEFENSE },
     { text: '待機', value: AB_MODE.WAIT },
   ];
 
@@ -160,7 +160,7 @@ export default class Const {
 
   public static readonly BAKUSEN = [60, 154, 219, 447];
 
-  public static readonly ENABLED_LANDBASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421];
+  public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421];
 
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
@@ -573,7 +573,10 @@ export default class Const {
       id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'avoid', 'armor'], types: [5, 22, 32],
     },
     {
-      id: 10, text: '水上機', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'radius', 'avoidId'], types: [10, 11],
+      id: 10, text: '水上機', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [10],
+    },
+    {
+      id: 1100, text: '水爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [11],
     },
     {
       id: 45, text: '水戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'airPower'], types: [45],
@@ -597,7 +600,7 @@ export default class Const {
       id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'avoid', 'armor', 'tp'], types: [24, 30, 46],
     },
     {
-      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'airPower'], types: [47, 53],
+      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'cost'], types: [47, 53],
     },
     {
       id: 48, text: '局戦', viewStatus: ['antiBomber', 'actualAntiAir', 'radius', 'actualDefenseAntiAir', 'airPower', 'defenseAirPower'], types: [48],
@@ -689,7 +692,7 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static readonly ANTIAIR_CUTIN = [
+  public static readonly ANTI_AIR_CUTIN = [
     {
       id: 0, text: '不発', rateBonus: 1, c1: 1, c2: 0, rate: 100, remarks: '',
     },

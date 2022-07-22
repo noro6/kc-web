@@ -149,7 +149,7 @@ export default class CalcManager {
 
         /** ======= 本隊航空戦フェーズ2回目(航空戦マスなら) ======= */
         if (enemyFleet.isAerialCombatCell) {
-          Calculator.calculateAerialConbatCellPhase(fleet, enemyFleet);
+          Calculator.calculateAerialCombatCellPhase(fleet, enemyFleet);
         }
 
         /** ======= 支援艦隊 航空支援フェーズ ======= */
@@ -335,7 +335,7 @@ export default class CalcManager {
     // プロパティのみを取り出す
     const cloned = JSON.stringify(this);
     const calcInfo = JSON.parse(cloned) as CalcManager;
-    const allAairbase = calcInfo.airbaseInfo;
+    const allAirbase = calcInfo.airbaseInfo;
 
     const wave1result = new AirCalcResult();
     const wave2result = new AirCalcResult();
@@ -346,20 +346,20 @@ export default class CalcManager {
 
     for (let count = 0; count < maxCount; count += 1) {
       /** ======= 第1波 ======= */
-      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave1result);
+      Calculator.calculateSuperAirRaid(allAirbase, enemyFleet, wave1result);
       /** ======= 第2波 ======= */
-      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave2result);
+      Calculator.calculateSuperAirRaid(allAirbase, enemyFleet, wave2result);
       /** ======= 第3波 ======= */
-      Calculator.calculateSuperAirRaid(allAairbase, enemyFleet, wave3result);
+      Calculator.calculateSuperAirRaid(allAirbase, enemyFleet, wave3result);
 
       // 次の計算に備え、減った艦載機や制空値を補給
-      for (let i = 0; i < allAairbase.airbases.length; i += 1) {
-        const airbase = allAairbase.airbases[i];
+      for (let i = 0; i < allAirbase.airbases.length; i += 1) {
+        const airbase = allAirbase.airbases[i];
         // 基地補給
-        Airbase.supply(allAairbase.airbases[i]);
+        Airbase.supply(allAirbase.airbases[i]);
         airbase.needSupply = false;
       }
-      allAairbase.superHighDefenseAirPower = allAairbase.fullSuperHighDefenseAirPower;
+      allAirbase.superHighDefenseAirPower = allAirbase.fullSuperHighDefenseAirPower;
     }
 
     AirCalcResult.formatResult(wave1result, maxCount);

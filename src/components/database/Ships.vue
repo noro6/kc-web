@@ -249,7 +249,7 @@
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 索敵
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('acurracy')" :class="{ sorted: sortKey === 'acurracy' }">
+              <div class="status-td" @click.stop="toggleSortKey('accuracy')" :class="{ sorted: sortKey === 'accuracy' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 命中項
               </div>
@@ -305,7 +305,7 @@
                 <div class="status-td-absolute" v-if="rowData.impAsw">↑{{ rowData.impAsw }}</div>
               </div>
               <div class="status-td" v-if="rowData.count">{{ rowData.scout }}</div>
-              <div class="status-td" v-if="rowData.count">{{ rowData.acurracy }}</div>
+              <div class="status-td" v-if="rowData.count">{{ rowData.accuracy }}</div>
               <div class="status-td" v-if="rowData.count">{{ rowData.avoid }}</div>
               <div class="status-td" v-if="rowData.count">{{ rowData.ci }}</div>
               <div v-else class="status-td no-status d-flex">
@@ -870,7 +870,7 @@ interface ShipRowData {
   asw: number;
   impAsw: number;
   scout: number;
-  acurracy: number;
+  accuracy: number;
   avoid: number;
   ci: number;
 }
@@ -922,7 +922,7 @@ export default Vue.extend({
     isDesc: false,
     maxAreas: 0,
     confirmDialog: false,
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     btnPushed: false,
     allCount: 0,
     modeTable: true,
@@ -941,7 +941,7 @@ export default Vue.extend({
       this.readOnly = true;
     }
     this.initialize();
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setShipStock') {
         // データ更新されたら読み込みなおし ダイアログも消す
         this.shipStock = state.shipStock as ShipStock[];
@@ -990,12 +990,12 @@ export default Vue.extend({
     minLevel(): number {
       const selectedVersion = this.versionButtons[this.version];
 
-      if (!selectedVersion || selectedVersion.beforId <= 0 || selectedVersion.name === '山城改二') {
+      if (!selectedVersion || selectedVersion.beforeId <= 0 || selectedVersion.name === '山城改二') {
         return 1;
       }
-      const befor = this.all.find((v) => v.id === selectedVersion.beforId);
+      const before = this.all.find((v) => v.id === selectedVersion.beforeId);
 
-      return befor ? befor.nextLv : 1;
+      return before ? before.nextLv : 1;
     },
     altViewShips(): { typeName: string; rows: AltShipRowData[][] }[] {
       const rows = this.viewShips;
@@ -1049,8 +1049,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {
@@ -1131,8 +1131,8 @@ export default Vue.extend({
       const buffHP = this.addHP;
       const keyword = this.searchWord ? this.searchWord.trim() : '';
 
-      const typeIndexs = this.selectedTypes;
-      const types = Const.SHIP_TYPES_ALT.filter((v, i) => typeIndexs.includes(i))
+      const typeIndexes = this.selectedTypes;
+      const types = Const.SHIP_TYPES_ALT.filter((v, i) => typeIndexes.includes(i))
         .map((v) => v.types)
         .flat();
 
@@ -1188,7 +1188,7 @@ export default Vue.extend({
             level: 0,
             asw: -1,
             scout: -1,
-            acurracy: -1,
+            accuracy: -1,
             avoid: -1,
             ci: -1,
           });
@@ -1238,7 +1238,7 @@ export default Vue.extend({
               impAsw: stockData.improvement.asw,
               asw: Ship.getStatusFromLevel(stockData.level, master.maxAsw, master.minAsw) + stockData.improvement.asw,
               scout: Ship.getStatusFromLevel(stockData.level, master.maxScout, master.minScout),
-              acurracy: Ship.getAccuracyValue(stockData.level, luck),
+              accuracy: Ship.getAccuracyValue(stockData.level, luck),
               avoid: Ship.getAvoidValue(avoid, luck),
               ci: Ship.getCIValue(stockData.level, luck),
             });

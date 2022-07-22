@@ -5,6 +5,14 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="optimizeFighterSlot()" v-bind="attrs" v-on="on">
+            <v-icon>mdi-refresh-auto</v-icon>
+          </v-btn>
+        </template>
+        <span>戦闘機スロットを最適化</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
@@ -161,13 +169,21 @@
           </div>
           <div class="my-1" v-if="generatedCanvas">
             <v-btn @click="saveImage()" color="success"><v-icon small>mdi-content-save</v-icon>保存</v-btn>
-            <a class="d-none" id="gkcoi-doownload" />
+            <a class="d-none" id="gkcoi-download" />
           </div>
         </div>
         <div v-if="generatingImage">
           <div class="d-flex justify-center">
             <v-progress-circular size="100" width="4" color="secondary" indeterminate></v-progress-circular>
           </div>
+        </div>
+        <div v-if="generateError">
+          <v-alert border="left" outlined type="error">
+            <div>
+              画像出力ライブラリ側でエラーが発生しました。新装備や新艦娘が未対応である可能性があります。更新されるまでお待ちください。
+            </div>
+            <div class="caption">{{ generateError }}</div>
+          </v-alert>
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
@@ -264,7 +280,7 @@
                 </div>
               </div>
               <v-divider class="mb-1"></v-divider>
-              <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempSship${i}item${j}`" class="temp-item">
+              <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempShip${i}item${j}`" class="temp-item">
                 <div class="caption temp-slot">
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
                 </div>
@@ -287,7 +303,7 @@
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">装備一括設定</div>
           <v-spacer></v-spacer>
-          <v-btn icon @click="bulkUpdateDialog = false">
+          <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
@@ -300,7 +316,7 @@
             </div>
             <div class="caption">選択されている艦隊の全艦娘に対し、下記の設定を適用します。</div>
             <div class="d-flex justify-space-between">
-              <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isbulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox label="全艦隊" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly></v-checkbox>
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -560,10 +576,10 @@ import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
+import ShipValidation from '@/classes/fleet/shipValidation';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import Const, { Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Convert from '@/classes/convert';
@@ -612,18 +628,22 @@ export default Vue.extend({
     gkcoiThemes: [
       { value: 'dark', text: 'Dark' },
       { value: 'dark-ex', text: 'Dark(遠征)' },
+      { value: 'light', text: 'Light' },
+      { value: 'light-ex', text: 'Light(遠征)' },
+      { value: 'white', text: 'White' },
       { value: '74lc', text: '74式(大型)' },
       { value: '74mc', text: '74式(中型)' },
       { value: '74sb', text: '74式(小型)' },
       { value: 'official', text: '公式' },
     ],
     gkcoiTheme: 'dark' as Theme,
-    gkcoiLangs: ['jp', 'en', 'kr', 'scn'],
+    gkcoiLangs: ['jp', 'en', 'kr', 'scn', 'tcn'],
     gkcoiLang: 'jp' as Lang,
     gkcoiOutputTarget: [1, 0, 0, 0],
     generatedCanvas: undefined as undefined | HTMLCanvasElement,
     enabledOutput: false,
     generatingImage: false,
+    generateError: '',
   }),
   computed: {
     fleetInfo(): FleetInfo {
@@ -632,7 +652,7 @@ export default Vue.extend({
     formations(): Formation[] {
       return Const.FORMATIONS;
     },
-    isbulkUpdateTargetAll(): boolean {
+    isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
     },
   },
@@ -705,10 +725,6 @@ export default Vue.extend({
       const oldItems: Item[] = oldShip.items.concat();
       const newItems: Item[] = [];
 
-      // 装備搭載可否情報マスタ
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-
       // 元々が空の艦で、艦娘数と配置番号が一致している場合、自動で空の艦娘を追加するが6隻まで
       if (oldShip.isEmpty && index === fleet.ships.length - 1 && fleet.ships.length < 6) {
         fleet.ships.push(new Ship());
@@ -719,7 +735,7 @@ export default Vue.extend({
         if (slotIndex < oldItems.length) {
           const oldItem = oldItems[slotIndex];
           const itemMaster = oldItem.data;
-          if (ship.isValidItem(itemMaster, link, exLink, slotIndex)) {
+          if (ShipValidation.isValidItem(ship, itemMaster, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             newItems.push(new Item({ item: oldItem, slot }));
           } else {
@@ -735,7 +751,7 @@ export default Vue.extend({
       // 補強増設チェック
       const oldExItem = oldShip.exItem.data;
       let exItem;
-      if (oldExItem.id && ship.isValidItem(oldExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
+      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX)) {
         exItem = new Item({ master: oldExItem, remodel: oldShip.exItem.remodel });
       } else {
         exItem = new Item();
@@ -843,14 +859,10 @@ export default Vue.extend({
       const ship = oldShip.data;
       const newItems = oldShip.items.concat();
 
-      // 装備搭載可否情報マスタ
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-
       for (let slotIndex = 0; slotIndex < newItems.length; slotIndex += 1) {
         if (slotIndex < items.length) {
           const newItem = items[slotIndex];
-          if (newItem && ship.isValidItem(newItem.data, link, exLink, slotIndex)) {
+          if (newItem && ShipValidation.isValidItem(ship, newItem.data, slotIndex)) {
             // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
             // 初期熟練度設定
             const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
@@ -890,7 +902,7 @@ export default Vue.extend({
       // 補強増設チェック
       const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
       let exItem;
-      if (presetExItem && ship.isValidItem(presetExItem, link, exLink, Const.EXPAND_SLOT_INDEX)) {
+      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
         // 搭載可能なら入れ替え
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       }
@@ -1102,10 +1114,20 @@ export default Vue.extend({
       newInfo.calculated = true;
       this.setInfo(newInfo);
     },
+    closeBulkUpdateDialog() {
+      this.bulkUpdateDialog = false;
+      this.onBulkUpdateDialogToggle();
+    },
     onBulkUpdateDialogToggle() {
       if (!this.bulkUpdateDialog) {
         this.setInfo(new FleetInfo({ info: this.fleetInfo }));
       }
+    },
+    optimizeFighterSlot() {
+      const { ships } = this.value.fleets[this.value.mainFleetIndex];
+      const newShips = ShipValidation.getOptimizedFighterFleet(ships);
+      this.value.fleets[this.value.mainFleetIndex] = new Fleet({ ships: newShips });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     initializeOutput() {
       // 画像出力初期化
@@ -1131,6 +1153,7 @@ export default Vue.extend({
       this.enabledOutput = false;
       this.generatedCanvas = undefined;
       this.generatingImage = true;
+      this.generateError = '';
       const imageArea = document.getElementById('image-area') as HTMLDivElement;
       imageArea.innerHTML = '';
 
@@ -1153,18 +1176,23 @@ export default Vue.extend({
         theme: this.gkcoiTheme,
         cmt: '',
       });
-      generate(gkcoiBuilder).then((canvas) => {
-        canvas.style.maxWidth = '100%';
-        imageArea.appendChild(canvas);
-        this.generatedCanvas = canvas;
-        this.generatingImage = false;
-      });
+      generate(gkcoiBuilder)
+        .then((canvas) => {
+          canvas.style.maxWidth = '100%';
+          imageArea.appendChild(canvas);
+          this.generatedCanvas = canvas;
+          this.generatingImage = false;
+        })
+        .catch((e) => {
+          this.generatingImage = false;
+          this.generateError = e;
+        });
     },
     saveImage() {
       const canvas = this.generatedCanvas;
       if (canvas) {
         const base64 = canvas.toDataURL('image/jpeg');
-        const download = document.getElementById('gkcoi-doownload') as HTMLAnchorElement;
+        const download = document.getElementById('gkcoi-download') as HTMLAnchorElement;
         download.href = base64;
         download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
         download.click();

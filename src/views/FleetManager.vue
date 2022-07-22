@@ -310,6 +310,7 @@ import Const from '@/classes/const';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import SaveData from '@/classes/saveData/saveData';
 
 export default Vue.extend({
   name: 'FleetManager',
@@ -332,11 +333,14 @@ export default Vue.extend({
     kantaiAnalyticsItemsCode: '',
     copiedShipCodeHint: '',
     copiedItemCodeHint: '',
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     kantaiSarashiURL: '',
     loading: false,
   }),
   mounted() {
+    const saveData = this.$store.state.saveData as SaveData;
+    saveData.disabledMain();
+
     // まず読み専か判定
     this.readOnlyMode = this.$store.getters.getExistsTempStock;
 
@@ -347,7 +351,7 @@ export default Vue.extend({
 
     this.generateKCAnalyticsCode();
     this.generateKantaiSarashiURL();
-    this.unsbscribe = this.$store.subscribe((mutation) => {
+    this.unsubscribe = this.$store.subscribe((mutation) => {
       if (mutation.type === 'setShipStock' || mutation.type === 'setItemStock') {
         this.expandBtnClicked = false;
         this.generateKCAnalyticsCode();
@@ -385,8 +389,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {
@@ -494,7 +498,7 @@ export default Vue.extend({
       }
     },
     async generateShortURL(longURL: string): Promise<boolean> {
-      let resutlStatus = false;
+      let resultStatus = false;
       const url = await FirebaseManager.getShortURL(longURL);
       if (!url) {
         this.createdURL = 'URLの発行に失敗しました';
@@ -502,9 +506,9 @@ export default Vue.extend({
       } else {
         this.createdURL = url;
         this.loadingURL = false;
-        resutlStatus = true;
+        resultStatus = true;
       }
-      return resutlStatus;
+      return resultStatus;
     },
     createHistory(key: string) {
       // URL発行履歴追加

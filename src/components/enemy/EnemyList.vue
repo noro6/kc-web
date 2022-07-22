@@ -14,7 +14,7 @@
           <v-text-field label="id 名称検索" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
         </div>
         <div class="ml-5 align-self-center">
-          <v-checkbox v-model="isLandbase" @change="filter()" label="地上施設"></v-checkbox>
+          <v-checkbox v-model="isLandBase" @change="filter()" label="地上施設"></v-checkbox>
         </div>
         <v-spacer></v-spacer>
       </div>
@@ -24,7 +24,7 @@
           :key="index"
           v-ripple="{ class: 'info--text' }"
           class="type-selector"
-          :class="{ active: index === type, disabled: keyword || isLandbase }"
+          :class="{ active: index === type, disabled: keyword || isLandBase }"
           @click="changeType(index)"
         >
           {{ i.text }}
@@ -166,7 +166,7 @@ export default Vue.extend({
     enemies: [] as EnemyMaster[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
-    isLandbase: false,
+    isLandBase: false,
     keyword: '',
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
@@ -205,12 +205,12 @@ export default Vue.extend({
       // 検索語句あればこれ以外の検索はしない
       if (word) {
         result = result.filter((v) => v.id === +word || v.name.indexOf(word) >= 0);
-      } else if (this.isLandbase) {
+      } else if (this.isLandBase) {
         // 地上施設ONLY
-        result = result.filter((v) => v.isLandbase);
+        result = result.filter((v) => v.isLandBase);
       } else if (t) {
         // カテゴリ検索
-        result = result.filter((v) => !v.isLandbase && t.types.includes(v.type));
+        result = result.filter((v) => !v.isLandBase && t.types.includes(v.type));
       }
 
       this.enemies = result;

@@ -33,7 +33,7 @@ interface DeckBuilderItem {
 /** デッキビルダー 艦娘 */
 interface DeckBuilderShip {
   /** 艦娘id */
-  id: string,
+  id: number,
   /** 艦娘Level */
   lv: number,
   /** 艦娘運 -1で通常 */
@@ -508,7 +508,7 @@ export default class Convert {
       }
 
       const data: DeckBuilderShip = {
-        id: `${ship.data.id}`,
+        id: ship.data.id,
         lv: ship.level,
         hp: ship.hp,
         luck: ship.luck,
@@ -659,10 +659,10 @@ export default class Convert {
     importedRoot.highlight = true;
 
     // フォルダ情報チェック
-    const oldfolders: { id: number, name: string }[] = setting && setting.presetFolders ? setting.presetFolders : [];
+    const oldFolders: { id: number, name: string }[] = setting && setting.presetFolders ? setting.presetFolders : [];
     const folders: { id: number, name: string, data: SaveData[] }[] = [];
-    for (let i = 0; i < oldfolders.length; i += 1) {
-      folders.push({ id: oldfolders[i].id, name: oldfolders[i].name, data: [] });
+    for (let i = 0; i < oldFolders.length; i += 1) {
+      folders.push({ id: oldFolders[i].id, name: oldFolders[i].name, data: [] });
     }
 
     for (let i = 0; i < raw.length; i += 1) {
@@ -939,7 +939,7 @@ export default class Convert {
    * @return {*}  {string}
    * @memberof Convert
    */
-  public static convertAttibuteString(value: string): string {
+  public static convertAttributeString(value: string): string {
     switch (value) {
       case 'fire':
         return '火力';

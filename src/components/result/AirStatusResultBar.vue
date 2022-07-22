@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex" :class="{ dense: dense }">
-    <div class="mr-1 status-reuslt" v-if="!noLabel">
-      <div class="status-reuslt-label">{{ result.airState.text }}</div>
-      <div class="status-reuslt-rate">{{ rate }}%</div>
+    <div class="mr-1 status-result" v-if="!noLabel">
+      <div class="status-result-label">{{ result.airState.text }}</div>
+      <div class="status-result-rate">{{ rate }}%</div>
     </div>
     <div class="align-self-center flex-grow-1">
       <div v-if="!noLabel" class="d-flex">
@@ -34,36 +34,36 @@
 </template>
 
 <style scoped>
-.status-reuslt {
+.status-result {
   width: 28px;
   position: relative;
   opacity: 0.8;
   font-size: 12px;
 }
-.dense .status-reuslt {
+.dense .status-result {
   width: 26px;
 }
 
-.status-reuslt-label {
+.status-result-label {
   text-align: center;
   position: relative;
   white-space: nowrap;
   width: 100%;
   bottom: 6px;
 }
-.dense .status-reuslt-label {
+.dense .status-result-label {
   font-size: 11px;
   bottom: 4px;
 }
 
-.status-reuslt-rate {
+.status-result-rate {
   position: absolute;
   white-space: nowrap;
   text-align: right;
   width: 100%;
   top: 10px;
 }
-.dense .status-reuslt-rate {
+.dense .status-result-rate {
   font-size: 10px;
   top: 7px;
 }

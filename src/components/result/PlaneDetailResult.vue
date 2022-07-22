@@ -1,19 +1,19 @@
 <template>
   <div>
     <div class="display-toggle mt-2 mx-2">
-      <v-btn-toggle dense v-model="dispSlotRate" borderless mandatory>
-        <v-btn :value="true" :class="{ 'blue darken-2 white--text': dispSlotRate }" @click.stop="dispSlotRate = true">
+      <v-btn-toggle dense v-model="visibleSlotRate" borderless mandatory>
+        <v-btn :value="true" :class="{ 'blue darken-2 white--text': visibleSlotRate }" @click.stop="visibleSlotRate = true">
           <v-icon>mdi-chart-line</v-icon>
           <span>残機数詳細</span>
         </v-btn>
-        <v-btn :value="false" :class="{ 'red darken-2 white--text': !dispSlotRate }" @click.stop="dispSlotRate = false">
+        <v-btn :value="false" :class="{ 'red darken-2 white--text': !visibleSlotRate }" @click.stop="visibleSlotRate = false">
           <v-icon>mdi-fire</v-icon>
           <span>火力計算</span>
         </v-btn>
       </v-btn-toggle>
     </div>
     <div class="detail-container pb-2">
-      <div class="slot-rate-container mt-2" :class="{ show: dispSlotRate }">
+      <div class="slot-rate-container mt-2" :class="{ show: visibleSlotRate }">
         <div class="border-window pa-2">
           <div class="header-content">
             <div v-if="parent.data" class="d-flex px-2">
@@ -75,7 +75,7 @@
           </v-btn>
         </div>
       </div>
-      <div class="fire-calc-container border-window mt-4" :class="{ show: !dispSlotRate }">
+      <div class="fire-calc-container border-window mt-4" :class="{ show: !visibleSlotRate }">
         <div class="header-content">
           <div class="align-self-center pl-2 body-2">航空戦火力計算機</div>
           <div class="target-item" @mouseenter="bootTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
@@ -161,7 +161,7 @@
                   hide-details
                   outlined
                   dense
-                  step="0.1"
+                  step="0.01"
                   @input="calculateFire"
                 ></v-text-field>
               </template>
@@ -513,7 +513,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    dispSlotRate: true,
+    visibleSlotRate: true,
     calcManager: undefined as undefined | CalcManager,
     selectedIndex: -1,
     selectedItem: new Item(),
@@ -583,7 +583,7 @@ export default Vue.extend({
       unionBonus: 1,
       rikuteiBonus: 1,
       specialBonus: 1,
-      beforCapBonus: 1,
+      beforeCapBonus: 1,
       afterCapBonus: 1,
       torpedoBonus: 1,
     } as FirePowerCalcArgs,
@@ -862,7 +862,7 @@ export default Vue.extend({
         // 潜水かどうか？
         const isSubmarine = ship.data.type === SHIP_TYPE.SS || ship.data.type === SHIP_TYPE.SSV;
         // 対潜攻撃可能かどうか？
-        let enbaleAsw = false;
+        let enableAsw = false;
 
         // 火力分布
         let powers: PowerDist[] = [];
@@ -871,7 +871,7 @@ export default Vue.extend({
           // 熟練度クリティカルボーナス算出
           this.calcArgs.criticalBonus = item.getProfCriticalBonus();
           powers = Calculator.getAirbaseFirePowers(item, slotDist, ship, this.calcArgs);
-          enbaleAsw = item.data.asw >= 7;
+          enableAsw = item.data.asw >= 7;
         } else if (this.parent instanceof Ship || this.parent instanceof Enemy) {
           // 通常航空戦火力計算
           powers = Calculator.getAerialFirePowers(item, slotDist, ship, this.calcArgs);
@@ -908,7 +908,7 @@ export default Vue.extend({
         // ダメージ表示調整
         if (!item.data.isAttacker) {
           // 非攻撃機は基本表示なし ただし対潜攻撃可の場合はその限りでない => 水偵とか
-          if (!isSubmarine || !enbaleAsw) {
+          if (!isSubmarine || !enableAsw) {
             row.damage = '';
             row.death = 0;
             row.taiha = 0;
@@ -916,7 +916,7 @@ export default Vue.extend({
             continue;
           }
         }
-        if (isSubmarine && !enbaleAsw) {
+        if (isSubmarine && !enableAsw) {
           // 対潜攻撃不可
           row.damage = '';
           row.death = 0;

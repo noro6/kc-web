@@ -21,19 +21,29 @@
         </div>
       </div>
       <div class="map-img-area">
-        <img usemap="#click_map" class="mx-auto d-block" :src="`https://res.cloudinary.com/aircalc/kc-web/map/${area}.png`" />
-        <map name="click_map">
-          <area
-            class="node"
-            v-for="(item, i) in imgMapItems"
-            :key="i"
-            :title="item.node"
-            :coords="item.coords"
-            shape="rect"
-            @click="cellClicked(i)"
-            @dblclick="commitFleet"
-          />
-        </map>
+        <div>
+          <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/image/upload/kc-web/map/${area}.png`" width="467" height="268" />
+        </div>
+        <div class="dummy-map">
+          <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" />
+          <map name="click_map">
+            <area
+              class="node"
+              v-for="(item, i) in imgMapItems"
+              :key="i"
+              :title="item.node"
+              :coords="item.coords"
+              shape="rect"
+              @click="cellClicked(i)"
+              @dblclick="commitFleet"
+            />
+          </map>
+        </div>
+        <div class="map-expand-button" v-if="hasBigMap">
+          <v-btn fab text color="grey lighten-2" @click.stop="expandMap()">
+            <v-icon large>mdi-magnify-plus-outline</v-icon>
+          </v-btn>
+        </div>
       </div>
       <div class="patterns-container px-2">
         <v-tabs v-model="tab" @change="fleetTabChanged" v-show="enabledCommitBtn">
@@ -87,8 +97,17 @@
               </div>
             </div>
             <div v-else-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary">制空値:</div>
-              <div class="mx-3">{{ fleet.fullAirPower }}</div>
+              <div class="text--secondary mr-2">制空値:</div>
+              <div>{{ fleet.fullAirPower }}</div>
+              <div v-if="fleet.existUnknownEnemy" class="mx-2">
+                <v-tooltip bottom color="black">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
+                  </template>
+                  <div>搭載数が未確定の敵艦が含まれています。</div>
+                  <div>表示制空値は目安のもので、正確な制空値ではありません。</div>
+                </v-tooltip>
+              </div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>確保:</span>
@@ -191,6 +210,11 @@
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
+    <v-dialog width="1200" v-model="expandMapDialog">
+      <v-card class="py-3 map-container">
+        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" />
+      </v-card>
+    </v-dialog>
     <v-tooltip
       v-model="enabledTooltip"
       color="black"
@@ -215,6 +239,17 @@
 .map-img-area {
   height: 268px;
   user-select: none;
+  position: relative;
+}
+.dummy-map {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 233px);
+}
+.map-expand-button {
+  position: absolute;
+  bottom: 10px;
+  left: calc(50% - 220px);
 }
 .node {
   cursor: pointer;
@@ -283,6 +318,10 @@
   bottom: -5px;
   left: 28px;
 }
+
+.map-container {
+  max-width: 1200px;
+}
 </style>
 
 <style>
@@ -326,9 +365,9 @@ export default Vue.extend({
     allCells: [] as CellMaster[],
     world: 1,
     areas: [] as MasterMap[],
-    area: 541,
+    area: 11,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 541,
+    selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
@@ -343,9 +382,11 @@ export default Vue.extend({
     enabledCommitBtn: false,
     continuousMode: false,
     snackbar: false,
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
     selectedNodeName: '',
     selectedNodeNames: [] as string[],
+    expandMapDialog: false,
+    hasBigMap: false,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipEnemy: new Enemy(),
@@ -387,7 +428,7 @@ export default Vue.extend({
 
     // マスタデータ読み込み開始
     this.$store.dispatch('loadCellData');
-    this.unsbscribe = this.$store.subscribe((mutation, state) => {
+    this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setCells') {
         this.initCells(state.cells);
       }
@@ -402,8 +443,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {
@@ -421,9 +462,11 @@ export default Vue.extend({
       const lv = this.rawLevel;
       const maps = this.$store.state.maps as MasterMap[];
       this.areas = maps.filter((v) => Math.floor(v.area / 10) === this.world);
+
       if (!this.areas.some((v) => v.area === this.area)) {
         this.area = this.areas[0] ? this.areas[0].area : 0;
       }
+      this.hasBigMap = maps.some((v) => v.area === this.area && v.has_detail);
 
       // 該当するセルを取得
       const cells = this.allCells.filter((v) => v.area === this.area && (this.isEvent ? v.level === lv : true));
@@ -565,6 +608,9 @@ export default Vue.extend({
       if (this.continuousMode) {
         this.snackbar = true;
       }
+    },
+    expandMap() {
+      this.expandMapDialog = true;
     },
     close() {
       this.handleClose();

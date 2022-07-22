@@ -16,8 +16,6 @@
       :class="{ selected: value.selected }"
       @click="itemClicked"
       v-click-outside="onClickOutside"
-      @mouseenter.stop="bootTooltip(value, $event)"
-      @mouseleave.stop="clearTooltip"
     >
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
@@ -97,7 +95,7 @@
             class="remarks-input"
           ></v-textarea>
           <div class="d-flex mt-2">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmptry">更新</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">更新</v-btn>
           </div>
         </div>
       </v-card>
@@ -216,7 +214,7 @@ export default Vue.extend({
     saveData(): SaveData {
       return this.value;
     },
-    isNameEmptry(): boolean {
+    isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
   },

@@ -73,7 +73,7 @@
           <div class="ml-5 align-self-center text--secondary body-2">対重爆制空値:</div>
           <div class="align-self-center ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
           <div class="ml-5 align-self-center text--secondary body-2">対重爆補正:</div>
-          <div class="align-self-center ml-1 body-2">&times;{{ airbaseInfo.highDeffenseCoefficient }}</div>
+          <div class="align-self-center ml-1 body-2">&times;{{ airbaseInfo.highDefenseCoefficient }}</div>
           <div class="ml-8 difficulty-select">
             <v-select
               dense
@@ -154,7 +154,7 @@
       <airbase-comp
         v-for="(lb, i) in airbaseInfo.airbases"
         :key="i"
-        :class="{ unmatch: unmatchModes[i] }"
+        :class="{ unMatch: unMatchModes[i] }"
         v-model="airbaseInfo.airbases[i]"
         :index="i"
         :is-defense="airbaseInfo.isDefense"
@@ -187,7 +187,7 @@
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">装備一括設定</div>
           <v-spacer></v-spacer>
-          <v-btn icon @click="bulkUpdateDialog = false">
+          <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
@@ -205,7 +205,7 @@
                 dense
                 hide-details
                 @click="toggleBulkTarget"
-                v-model="isbulkUpdateTargetAll"
+                v-model="isBulkUpdateTargetAll"
                 readonly
               ></v-checkbox>
               <v-checkbox
@@ -347,7 +347,7 @@
   width: 80px;
 }
 
-.unmatch {
+.unMatch {
   opacity: 0.6;
 }
 
@@ -527,10 +527,10 @@ export default Vue.extend({
     airbaseInfo(): AirbaseInfo {
       return this.value;
     },
-    unmatchModes(): boolean[] {
+    unMatchModes(): boolean[] {
       const modes = this.airbaseInfo.airbases.map((v) => v.mode);
       if (this.airbaseInfo.isDefense) {
-        return modes.map((v) => v !== AB_MODE.DEFFENSE);
+        return modes.map((v) => v !== AB_MODE.DEFENSE);
       }
 
       return modes.map((v) => v !== AB_MODE.BATTLE);
@@ -562,7 +562,7 @@ export default Vue.extend({
       }
       return errors.length ? `${errors.join(',')}基地航空隊の半径が不足しています。` : '';
     },
-    isbulkUpdateTargetAll(): boolean {
+    isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
     },
     isNormalAirRaidMode(): boolean {
@@ -631,7 +631,7 @@ export default Vue.extend({
       const builder: AirbaseBuilder = { airbase: base };
       if (base.mode === AB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
         // 待機札だった場合は出撃か防空札に変更
-        builder.mode = this.airbaseInfo.isDefense ? AB_MODE.DEFFENSE : AB_MODE.BATTLE;
+        builder.mode = this.airbaseInfo.isDefense ? AB_MODE.DEFENSE : AB_MODE.BATTLE;
         // 派遣先を最終戦闘にオート設定
         const lastBattle = this.battleInfo.battleCount - 1;
         builder.battleTarget = [lastBattle, lastBattle];
@@ -769,6 +769,10 @@ export default Vue.extend({
       const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
       newInfo.calculated = true;
       this.$emit('input', newInfo);
+    },
+    closeBulkUpdateDialog() {
+      this.bulkUpdateDialog = false;
+      this.onBulkUpdateDialogToggle();
     },
     onBulkUpdateDialogToggle() {
       if (!this.bulkUpdateDialog) {

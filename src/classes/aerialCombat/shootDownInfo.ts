@@ -370,7 +370,7 @@ export default class ShootDownInfo {
     let maxRate = 0;
     for (let i = 0; i < cutInIds.length; i += 1) {
       const cutinId = cutInIds[i];
-      const cutIn = Const.ANTIAIR_CUTIN.find((v) => v.id === cutinId);
+      const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === cutinId);
       if (!cutIn) continue;
 
       const rate = cutIn.rate / 101;

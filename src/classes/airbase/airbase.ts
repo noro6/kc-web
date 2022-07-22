@@ -40,7 +40,7 @@ export default class Airbase {
   public readonly defenseAirPower: number;
 
   /** 偵察機補正 -防空時 */
-  public readonly reconCorrDeff: number;
+  public readonly reconCorrDefense: number;
 
   /** ロケット戦闘機の数 */
   public readonly rocketCount: number;
@@ -112,7 +112,7 @@ export default class Airbase {
     this.rocketCount = 0;
     this.hasJet = false;
     this.reconCorr = 1;
-    this.reconCorrDeff = 1;
+    this.reconCorrDefense = 1;
     this.superHighAirRaidTypeAItemCount = 0;
     this.superHighAirRaidTypeBItemCount = 0;
     this.superHighAirRaidTypeCItemCount = 0;
@@ -140,9 +140,9 @@ export default class Airbase {
         // 最大の補正値にする
         this.reconCorr = item.reconCorr;
       }
-      if (this.reconCorrDeff < item.reconCorrDeff) {
+      if (this.reconCorrDefense < item.reconCorrDefense) {
         // 最大の補正値にする
-        this.reconCorrDeff = item.reconCorrDeff;
+        this.reconCorrDefense = item.reconCorrDefense;
       }
 
       // 超重爆A補正 => 屠龍(445) / 雷電(175) / 烈風改(333) / 飛燕244(177)
@@ -168,7 +168,7 @@ export default class Airbase {
 
     // 補正値で更新
     this.fullAirPower = Math.floor(this.fullAirPower * this.reconCorr);
-    this.defenseAirPower = Math.floor(this.defenseAirPower * this.reconCorrDeff);
+    this.defenseAirPower = Math.floor(this.defenseAirPower * this.reconCorrDefense);
     this.airPower = this.fullAirPower;
 
     // 装備なんもないなら自動で待機にする

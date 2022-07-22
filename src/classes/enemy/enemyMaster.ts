@@ -23,7 +23,7 @@ export default class EnemyMaster {
 
   public items: number[] = [];
 
-  public isLandbase = false;
+  public isLandBase = false;
 
   public isUnknown = false;
 
@@ -41,7 +41,7 @@ export default class EnemyMaster {
       this.antiAir = enemy.aa ? +enemy.aa : 0;
       this.armor = enemy.armor ? +enemy.armor : 0;
       this.slotCount = enemy.slot_count ? +enemy.slot_count : 0;
-      this.isLandbase = !!enemy.landbase;
+      this.isLandBase = !!enemy.landbase;
       this.isUnknown = !!enemy.unknown;
 
       this.slots = enemy.slots ? enemy.slots : [];

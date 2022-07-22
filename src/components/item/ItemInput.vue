@@ -2,7 +2,7 @@
   <div
     v-ripple="{ class: 'info--text' }"
     :class="itemClass"
-    :draggable="isDraggabe"
+    :draggable="isDraggable"
     @dragstart.stop="dragStart(item, $event)"
     @dragenter="dragEnter($event)"
     @dragleave="dragLeave($event)"
@@ -36,7 +36,7 @@
       </v-card>
     </v-menu>
     <!-- 装備種別 -->
-    <div class="mx-1 item-icon" :class="{ draggable: isDraggabe }">
+    <div class="mx-1 item-icon" :class="{ draggable: isDraggable }">
       <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
     </div>
     <!-- 装備名称 -->
@@ -94,7 +94,7 @@
       </v-menu>
       <!-- 解除 -->
       <div class="ml-1 item-remove align-self-center">
-        <v-btn v-show="isDraggabe" icon x-small @click="removeItem()">
+        <v-btn v-show="isDraggable" icon x-small @click="removeItem()">
           <v-icon small>mdi-close</v-icon>
         </v-btn>
       </div>
@@ -298,7 +298,7 @@ import Item, { ItemBuilder } from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
-import { MasterEquipmentExSlot, MasterEquipmentShip } from '@/classes/interfaces/master';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -357,7 +357,7 @@ export default Vue.extend({
     isNoItem() {
       return this.value.data.id === 0;
     },
-    isDraggabe() {
+    isDraggable() {
       return this.value.data.id > 0 && !this.readonly;
     },
     remodelIconColor() {
@@ -386,7 +386,7 @@ export default Vue.extend({
       if (!this.value.data.isPlane) {
         classes.push('not-plane');
       }
-      if (!this.isDraggabe) {
+      if (!this.isDraggable) {
         classes.push('disabled-draggable');
       }
       return classes.join(' ');
@@ -426,7 +426,7 @@ export default Vue.extend({
     dragStart(item: Item, e: DragEvent) {
       const target = e.target as HTMLDivElement;
       // ドラッグ開始条件 item-inputクラスがなかったりしたらドラッグ開始させない
-      if (!this.isDraggabe || !target || !target.classList || !target.classList.contains('item-input') || !target.draggable) {
+      if (!this.isDraggable || !target || !target.classList || !target.classList.contains('item-input') || !target.draggable) {
         return;
       }
       const transfer = e.dataTransfer as DataTransfer;
@@ -468,9 +468,7 @@ export default Vue.extend({
       const item = new ItemMaster();
       item.id = +draggingDiv.dataset.itemId;
       item.apiTypeId = +draggingDiv.dataset.apiType;
-      const link = this.$store.state.equipShips as MasterEquipmentShip[];
-      const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
-      if (this.itemParent instanceof Ship && !this.itemParent.data.isValidItem(item, link, exLink, this.index)) {
+      if (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index)) {
         // 搭載不可なので背景色を変な色にする
         target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
         // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
@@ -568,10 +566,8 @@ export default Vue.extend({
         // 交換
         builder.item = JSON.parse(itemData) as Item;
         // 交換前にチェック
-        const link = this.$store.state.equipShips as MasterEquipmentShip[];
-        const exLink = this.$store.state.exSlotEquipShips as MasterEquipmentExSlot[];
         if (this.itemParent instanceof Ship) {
-          if (!this.itemParent.data.isValidItem(builder.item.data, link, exLink, this.index)) {
+          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index)) {
             // 搭載不可なので外す
             builder.item = undefined;
             this.setItem(new Item(builder));

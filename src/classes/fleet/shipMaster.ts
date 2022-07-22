@@ -1,6 +1,4 @@
-import Const, { SHIP_TYPE } from '../const';
-import { MasterEquipmentExSlot, MasterEquipmentShip, MasterShip } from '../interfaces/master';
-import ItemMaster from '../item/itemMaster';
+import { MasterShip } from '../interfaces/master';
 
 /**
  * 艦娘マスタクラス
@@ -88,7 +86,7 @@ export default class ShipMaster {
   public readonly maxAvoid: number;
 
   /** 改装直前のid */
-  public readonly beforId: number;
+  public readonly beforeId: number;
 
   /** 次改装Lv */
   public readonly nextLv: number;
@@ -133,7 +131,7 @@ export default class ShipMaster {
       this.maxAsw = ship.asw ? ship.asw : 0;
       this.minAvoid = ship.min_avoid ? ship.min_avoid : 0;
       this.maxAvoid = ship.avoid ? ship.avoid : 0;
-      this.beforId = ship.befor ? ship.befor : 0;
+      this.beforeId = ship.befor ? ship.befor : 0;
       this.nextLv = ship.next_lv ? ship.next_lv : 0;
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
@@ -165,7 +163,7 @@ export default class ShipMaster {
       this.maxAsw = 0;
       this.minAvoid = 0;
       this.maxAvoid = 0;
-      this.beforId = 0;
+      this.beforeId = 0;
       this.nextLv = 0;
       this.sort = 0;
       this.slots = [];
@@ -173,103 +171,5 @@ export default class ShipMaster {
       this.fuel = 0;
       this.ammo = 0;
     }
-  }
-
-  /**
-   * 引数の装備を搭載できるかどうかを返却
-   * @param {ItemMaster} item
-   * @return {*}  {boolean}
-   * @memberof Ship
-   */
-  public isValidItem(item: ItemMaster, itemLink: MasterEquipmentShip[], exItemLink: MasterEquipmentExSlot[], slotIndex = -1): boolean {
-    // 未指定の場合はなんでもOK
-    if (this.id === 0) {
-      return true;
-    }
-    // 装備可能カテゴリ
-    let types: number[] = [];
-    // 補強増設かどうか
-    const isExpandSlot = slotIndex === Const.EXPAND_SLOT_INDEX;
-    // 艦種
-    const { type } = this;
-
-    if (!isExpandSlot) {
-      // 特定装備判定
-      // 試製景雲
-      if (item.id === 151) {
-        // 装甲空母ならOK
-        return type === SHIP_TYPE.CVB;
-      }
-      // 15m二重測距儀+21号電探改二
-      if (item.id === 142 || item.id === 460) {
-        // 戦艦系のみ
-        if (type !== SHIP_TYPE.FBB && type !== SHIP_TYPE.BB && type !== SHIP_TYPE.BBV) {
-          return false;
-        }
-        const special = itemLink.find((v) => v.api_ship_id === this.id);
-        if (special && !special.api_equip_type.includes(13)) {
-          // 特定艦で大型電探が省かれていたらアウト
-          return false;
-        }
-        return true;
-      }
-      // 51cm連装砲系
-      if (item.id === 128 || item.id === 281 || item.id === 465) {
-        // 長門型改以上か大和型のみ
-        return this.type2 === 37 || (this.type2 === 19 && this.version > 0);
-      }
-    }
-
-    // 特定艦娘判定
-    const special = itemLink.find((v) => v.api_ship_id === this.id);
-    if (special) {
-      // 特殊装備カテゴリ枠から取得
-      types = special.api_equip_type;
-    } else {
-      // 通常艦種装備可能から取得
-      const normal = Const.SHIP_TYPES_INFO.find((v) => v.id === type);
-      if (normal) {
-        types = normal.itemType;
-      }
-    }
-
-    // 補強増設枠
-    if (isExpandSlot) {
-      if (item.id === 34 || item.id === 87 || item.id === 534) {
-        // 缶を弾く => タービンはOKのため
-        return false;
-      }
-      // 艦娘特別装備枠マスタより解決できた場合は搭載可能
-      const sp = exItemLink.find((v) => v.api_slotitem_id === item.id);
-      if (sp && sp.api_ship_ids.includes(this.id)) {
-        return true;
-      }
-
-      // 潜水艦後部魚雷対応
-      if ((item.id === 442 || item.id === 443) && (this.type === SHIP_TYPE.SS || this.type === SHIP_TYPE.SSV)) {
-        return true;
-      }
-
-      // 補強増設可能装備で絞る
-      types = types.filter((v) => Const.EXPANDED_ITEM_TYPE.includes(v));
-    }
-
-    // スロット番号制限チェック
-    if (slotIndex >= 0) {
-      const forbiddens = Const.FORBIDDEN_LINK_SHIP_ITEM.find((v) => v.shipId === this.id && v.index.includes(slotIndex + 1));
-      if (forbiddens) {
-        // 禁止カテゴリに存在したら終わり
-        if (forbiddens.itemType.includes(item.apiTypeId)) {
-          return false;
-        }
-        // 禁止装備 キメ撃ち
-        if (forbiddens.itemIDs.includes(item.id)) {
-          return false;
-        }
-      }
-    }
-
-    // 最終チェック
-    return types.includes(item.apiTypeId);
   }
 }

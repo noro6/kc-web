@@ -250,7 +250,7 @@ export default class SaveData {
    * @type {boolean}
    * @memberof SaveData
    */
-  public get isEditted(): boolean {
+  public get isEdited(): boolean {
     return this.tempSavedIndex !== this.tempIndex;
   }
 
@@ -259,7 +259,7 @@ export default class SaveData {
    * @return {*}  {string}
    * @memberof SaveData
    */
-  public getNewSavedataName(): string {
+  public getNewSaveDataName(): string {
     if (!this.isDirectory) {
       return '';
     }
@@ -616,11 +616,11 @@ export default class SaveData {
    * @param {ItemMaster[]} itemMasters
    * @param {ShipMaster[]} shipMasters
    * @param {EnemyMaster[]} enemyMasters
-   * @param {number} [initialiAdmiralLevel=120] 新規データ時の初期司令部レベル
+   * @param {number} [initialAdmiralLevel=120] 新規データ時の初期司令部レベル
    * @return {*}  {CalcManager}
    * @memberof SaveData
    */
-  public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[], initialiAdmiralLevel = 120): CalcManager {
+  public loadManagerData(itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[], initialAdmiralLevel = 120): CalcManager {
     if (this.tempData.length) {
       // 一時保存領域にデータがあればそちら
       if (this.tempIndex >= this.tempData.length) {
@@ -632,7 +632,7 @@ export default class SaveData {
 
     if (!this.manager) {
       const newData = new CalcManager();
-      newData.fleetInfo = new FleetInfo({ admiralLevel: initialiAdmiralLevel });
+      newData.fleetInfo = new FleetInfo({ admiralLevel: initialAdmiralLevel });
       newData.resetAll = true;
       // 一時保存データにこの情報を突っ込む
       this.tempData = [cloneDeep(newData)];
@@ -642,7 +642,7 @@ export default class SaveData {
     }
 
     // セーブデータ内文字列データから編成を復元 重いので本当に初回だけ呼ぶようにする
-    const resultData = SaveData.loadSavedataManagerString(this.manager, itemMasters, shipMasters, enemyMasters);
+    const resultData = SaveData.loadSaveDataManagerString(this.manager, itemMasters, shipMasters, enemyMasters);
 
     // 一時保存データにこの情報を突っ込む
     this.tempData = [cloneDeep(resultData)];
@@ -662,7 +662,7 @@ export default class SaveData {
    * @return {*}  {CalcManager}
    * @memberof SaveData
    */
-  public static loadSavedataManagerString(managerString: string, itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
+  public static loadSaveDataManagerString(managerString: string, itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
     if (!managerString || !managerString.length) {
       return new CalcManager();
     }

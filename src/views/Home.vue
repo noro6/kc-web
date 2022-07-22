@@ -76,7 +76,7 @@
           <div class="mb-5 body-2">{{ $t("DataImport.confirm1.description2") }}</div>
           <v-text-field v-model="importFileName" dense outlined maxlength="100" counter label="フォルダー名"></v-text-field>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmptry || imported">{{ $t("Common.OK") }}</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmpty || imported">{{ $t("Common.OK") }}</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
           </div>
         </div>
@@ -149,7 +149,7 @@ export default Vue.extend({
     importedStock: false,
   }),
   computed: {
-    isNameEmptry(): boolean {
+    isNameEmpty(): boolean {
       return this.importFileName.length <= 0;
     },
   },
@@ -160,7 +160,7 @@ export default Vue.extend({
 
       // ルートに無題のデータを生成
       const data = new SaveData();
-      data.name = saveData.getNewSavedataName();
+      data.name = saveData.getNewSaveDataName();
       data.isActive = true;
       data.isMain = true;
       saveData.childItems.push(data);
@@ -170,14 +170,14 @@ export default Vue.extend({
     },
     checkOldData() {
       // 過去データが存在するかチェック
-      const strage = window.localStorage;
-      if (!strage) {
+      const storage = window.localStorage;
+      if (!storage) {
         this.$emit('inform', '旧編成データが見つかりませんでした。', true);
         this.imported = true;
         return;
       }
 
-      const presets = strage.getItem('presets');
+      const presets = storage.getItem('presets');
       const presetJSON = presets ? JSON.parse(presets) : undefined;
       if (!presetJSON || !presetJSON.length) {
         this.$emit('inform', '旧編成データが見つかりませんでした。', true);
@@ -192,14 +192,14 @@ export default Vue.extend({
       this.importedStock = true;
 
       // 過去データが存在するかチェック
-      const strage = window.localStorage;
-      if (!strage) {
+      const storage = window.localStorage;
+      if (!storage) {
         this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
         return;
       }
 
-      const shipStocks = strage.getItem('shipStock');
-      const itemStocks = strage.getItem('planeStock');
+      const shipStocks = storage.getItem('shipStock');
+      const itemStocks = storage.getItem('planeStock');
       const shipStocksJSON = shipStocks ? JSON.parse(shipStocks) : undefined;
       const itemStocksJSON = itemStocks ? JSON.parse(itemStocks) : undefined;
       if ((!shipStocksJSON || !shipStocksJSON.length) && (!itemStocksJSON || !itemStocksJSON.length)) {
@@ -220,14 +220,14 @@ export default Vue.extend({
       this.importedStock = true;
 
       // 過去データが存在するかチェック
-      const strage = window.localStorage;
-      if (!strage) {
+      const storage = window.localStorage;
+      if (!storage) {
         this.$emit('inform', '所持装備 / 艦娘データが見つかりませんでした。', true);
         return;
       }
 
-      const shipStocks = strage.getItem('shipStock');
-      const itemStocks = strage.getItem('planeStock');
+      const shipStocks = storage.getItem('shipStock');
+      const itemStocks = storage.getItem('planeStock');
       const shipStocksJSON = shipStocks ? JSON.parse(shipStocks) : undefined;
       const itemStocksJSON = itemStocks ? JSON.parse(itemStocks) : undefined;
       if ((!shipStocksJSON || !shipStocksJSON.length) && (!itemStocksJSON || !itemStocksJSON.length)) {
@@ -277,15 +277,15 @@ export default Vue.extend({
     importOldData() {
       this.imported = true;
       // 旧データ引継ぎ
-      const strage = window.localStorage;
+      const storage = window.localStorage;
       try {
-        const presets = strage.getItem('presets');
+        const presets = storage.getItem('presets');
         const presetJSON = presets ? JSON.parse(presets) : undefined;
         if (!presetJSON || !presetJSON.length) {
           return;
         }
 
-        const setting = strage.getItem('setting');
+        const setting = storage.getItem('setting');
         const settingJSON = setting ? JSON.parse(setting) : undefined;
         const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
         const oldData = converter.convertOldSimulatorToSaveData(presetJSON, settingJSON);

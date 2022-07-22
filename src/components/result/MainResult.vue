@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="reflesh" v-bind="attrs" v-on="on">
+          <v-btn icon @click="refresh" v-bind="attrs" v-on="on">
             <v-icon>mdi-refresh</v-icon>
           </v-btn>
         </template>
@@ -682,8 +682,8 @@ export default Vue.extend({
             const plane = planes[j];
             if (plane.data.isAttacker) {
               allDeathRate *= plane.deathRate / 100;
-              plane.deathRate = Math.round(plane.deathRate);
             }
+            plane.deathRate = Math.round(plane.deathRate);
           }
           enemies.push({
             enemy,
@@ -796,22 +796,22 @@ export default Vue.extend({
       let sumFuel = 0;
       let sumAmmo = 0;
       for (let j = 0; j < ships.length; j += 1) {
-        const isMarige = ships[j].level > 99;
+        const isMarriage = ships[j].level > 99;
         const { consumptionFuel, consumptionAmmo, data } = ships[j];
         // 消費記録
         if (consumptionFuel) {
           if (consumptionFuel < data.fuel) {
-            sumFuel += Math.max(Math.floor(consumptionFuel * (isMarige ? 0.85 : 1)), 1);
+            sumFuel += Math.max(Math.floor(consumptionFuel * (isMarriage ? 0.85 : 1)), 1);
           } else {
-            sumFuel += Math.max(Math.floor(data.fuel * (isMarige ? 0.85 : 1)), 1);
+            sumFuel += Math.max(Math.floor(data.fuel * (isMarriage ? 0.85 : 1)), 1);
           }
         }
 
         if (consumptionAmmo) {
           if (consumptionAmmo < data.ammo) {
-            sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarige ? 0.85 : 1)), 1);
+            sumAmmo += Math.max(Math.floor(consumptionAmmo * (isMarriage ? 0.85 : 1)), 1);
           } else {
-            sumAmmo += Math.max(Math.floor(data.ammo * (isMarige ? 0.85 : 1)), 1);
+            sumAmmo += Math.max(Math.floor(data.ammo * (isMarriage ? 0.85 : 1)), 1);
           }
         }
       }
@@ -822,7 +822,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    reflesh() {
+    refresh() {
       this.handleChangeMainBattle(this.displayBattle);
     },
     changedTab(index: number) {

@@ -29,7 +29,7 @@ export default class LZStringMod {
     let numBits = 3;
     let entry: any = '';
     const result = [];
-    let next; let i; let w; let bits; let resb; let maxpower; let power; let c;
+    let next; let i; let w; let bits; let resb; let maxPower; let power; let c;
     const data = { val: getNextValue(0), position: resetValue, index: 1 };
 
     for (i = 0; i < 3; i += 1) {
@@ -37,9 +37,9 @@ export default class LZStringMod {
     }
 
     bits = 0;
-    maxpower = Math.pow(2, 2);
+    maxPower = Math.pow(2, 2);
     power = 1;
-    while (power != maxpower) {
+    while (power != maxPower) {
       resb = data.val & data.position;
       data.position >>= 1;
       if (data.position == 0) {
@@ -53,9 +53,9 @@ export default class LZStringMod {
     switch (next = bits) {
       case 0:
         bits = 0;
-        maxpower = Math.pow(2, 8);
+        maxPower = Math.pow(2, 8);
         power = 1;
-        while (power != maxpower) {
+        while (power != maxPower) {
           resb = data.val & data.position;
           data.position >>= 1;
           if (data.position == 0) {
@@ -69,9 +69,9 @@ export default class LZStringMod {
         break;
       case 1:
         bits = 0;
-        maxpower = Math.pow(2, 16);
+        maxPower = Math.pow(2, 16);
         power = 1;
-        while (power != maxpower) {
+        while (power != maxPower) {
           resb = data.val & data.position;
           data.position >>= 1;
           if (data.position == 0) {
@@ -97,9 +97,9 @@ export default class LZStringMod {
       }
 
       bits = 0;
-      maxpower = Math.pow(2, numBits);
+      maxPower = Math.pow(2, numBits);
       power = 1;
-      while (power != maxpower) {
+      while (power != maxPower) {
         resb = data.val & data.position;
         data.position >>= 1;
         if (data.position == 0) {
@@ -113,9 +113,9 @@ export default class LZStringMod {
       switch (c = bits) {
         case 0:
           bits = 0;
-          maxpower = Math.pow(2, 8);
+          maxPower = Math.pow(2, 8);
           power = 1;
-          while (power != maxpower) {
+          while (power != maxPower) {
             resb = data.val & data.position;
             data.position >>= 1;
             if (data.position == 0) {
@@ -132,9 +132,9 @@ export default class LZStringMod {
           break;
         case 1:
           bits = 0;
-          maxpower = Math.pow(2, 16);
+          maxPower = Math.pow(2, 16);
           power = 1;
-          while (power != maxpower) {
+          while (power != maxPower) {
             resb = data.val & data.position;
             data.position >>= 1;
             if (data.position == 0) {

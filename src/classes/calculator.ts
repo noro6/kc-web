@@ -10,6 +10,7 @@ import AirCalcResult from './airCalcResult';
 
 type JetPhaseResult = {
   sumAirPower: number;
+  escortAirPower: number;
   usedSteel: number;
 };
 
@@ -118,7 +119,7 @@ export default class Calculator {
    * @param {EnemyFleet} enemyFleet
    * @memberof Calculator
    */
-  public static calculateAerialConbatCellPhase(fleet: Fleet, enemyFleet: EnemyFleet): void {
+  public static calculateAerialCombatCellPhase(fleet: Fleet, enemyFleet: EnemyFleet): void {
     const state = CommonCalc.getAirState(fleet.airPower, enemyFleet.airPower, fleet.hasPlane);
     // 味方撃墜処理
     Calculator.shootDownFleet(state, fleet, enemyFleet);
@@ -159,6 +160,9 @@ export default class Calculator {
       const jetPhaseResult = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.noCutInStage2);
       // 噴式強襲フェーズ経過による制空値更新
       fleet.airPower = Math.floor(jetPhaseResult.sumAirPower);
+      if (fleet.isUnion) {
+        fleet.escortAirPower = Math.floor(jetPhaseResult.escortAirPower);
+      }
 
       return jetPhaseResult.usedSteel;
     }
@@ -242,13 +246,15 @@ export default class Calculator {
    */
   private static shootDownJetPhase(items: Item[], stage2List: ShootDownStatus[]): JetPhaseResult {
     let sumAirPower = 0;
+    let escortAirPower = 0;
     let usedSteel = 0;
     const randomRange = stage2List[0].fixDownList.length;
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       if (!item.data.isJet || item.isEscortItem) {
         if (!item.data.isRecon) {
-          sumAirPower += item.airPower;
+          if (!item.isEscortItem) sumAirPower += item.airPower;
+          else escortAirPower += item.airPower;
         }
         continue;
       }
@@ -277,7 +283,7 @@ export default class Calculator {
     }
 
     // 渡されたItem[]の制空値の合計 撃墜が発生している場合は下がっている
-    return { sumAirPower, usedSteel };
+    return { sumAirPower, escortAirPower, usedSteel };
   }
 
   /**
@@ -404,17 +410,17 @@ export default class Calculator {
         if (randomRange && item.data.isAttacker) {
           // 撃墜担当を選出
           const index = Math.floor(Math.random() * randomRange);
-          const shootDwonStatus = st2List[item.data.avoidId];
+          const shootDownStatus = st2List[item.data.avoidId];
           if (Math.random() >= 0.5) {
             // 割合撃墜 50%で成功
-            item.slot -= Math.floor(shootDwonStatus.rateDownList[index] * item.slot);
+            item.slot -= Math.floor(shootDownStatus.rateDownList[index] * item.slot);
           }
           if (Math.random() >= 0.5) {
             // 固定撃墜 50%で成功
-            item.slot -= shootDwonStatus.fixDownList[index];
+            item.slot -= shootDownStatus.fixDownList[index];
           }
           // 最低保証
-          item.slot -= shootDwonStatus.minimumDownList[index];
+          item.slot -= shootDownStatus.minimumDownList[index];
         }
       }
 
@@ -469,7 +475,7 @@ export default class Calculator {
     for (let i = 0; i < airbaseInfo.airbases.length; i += 1) {
       const airbase = airbaseInfo.airbases[i];
 
-      if (airbase.mode !== AB_MODE.DEFFENSE) {
+      if (airbase.mode !== AB_MODE.DEFENSE) {
         continue;
       }
 
@@ -487,7 +493,7 @@ export default class Calculator {
       }
 
       // 制空値加算
-      sumAirPower += Math.floor(sumAirbaseAirPower * airbase.reconCorrDeff);
+      sumAirPower += Math.floor(sumAirbaseAirPower * airbase.reconCorrDefense);
     }
 
     // 制空値更新

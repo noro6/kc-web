@@ -83,11 +83,11 @@ export default Vue.extend({
   name: 'Compare',
   data: () => ({
     summaryTable: [] as { name: string; data: unknown; isWin: boolean, isLose: boolean }[],
-    unsbscribe: undefined as unknown,
+    unsubscribe: undefined as unknown,
   }),
   mounted() {
     this.analyze();
-    this.unsbscribe = this.$store.subscribe((mutation) => {
+    this.unsubscribe = this.$store.subscribe((mutation) => {
       if (mutation.type === 'setShipStock') {
         this.analyze();
       }
@@ -106,8 +106,8 @@ export default Vue.extend({
     },
   },
   beforeDestroy() {
-    if (this.unsbscribe) {
-      (this.unsbscribe as () => void)();
+    if (this.unsubscribe) {
+      (this.unsubscribe as () => void)();
     }
   },
   methods: {

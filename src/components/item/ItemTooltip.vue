@@ -75,11 +75,14 @@
       <div v-if="value.data.radius">
         <span class="item-status-text">半径</span><span class="item-status-value">{{ value.data.radius }}</span>
       </div>
-      <div v-if="value.data.enabledAttackLandbase">
+      <div v-if="value.data.enabledAttackLandBase">
         <span class="item-status-text">対地</span><span class="item-status-value special caption">可</span>
       </div>
       <div v-if="value.data.avoidId">
         <span class="item-status-text">射撃回避</span><span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
+      </div>
+      <div v-if="value.data.cost">
+        <span class="item-status-text">コスト</span><span class="item-status-value caption">{{ value.data.cost }}</span>
       </div>
     </div>
     <div class="item-status-grid no-grid">

@@ -80,7 +80,7 @@ export default class ItemMaster {
   /** 航空機フラグ */
   public readonly isPlane: boolean;
 
-  /** 艦戦フラグ */
+  /** 戦闘機フラグ */
   public readonly isFighter: boolean;
 
   /** 攻撃機フラグ */
@@ -105,7 +105,7 @@ export default class ItemMaster {
   public readonly isShinzan: boolean;
 
   /** 対地可能フラグ */
-  public readonly enabledAttackLandbase: boolean;
+  public readonly enabledAttackLandBase: boolean;
 
   /**
    * Creates an instance of ItemMaster.
@@ -175,10 +175,10 @@ export default class ItemMaster {
     this.isRocket = Const.ROCKET.includes(this.id);
     this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
     this.isJet = this.apiTypeId === 57;
-    this.enabledAttackLandbase = Const.ENABLED_LANDBASE_ATTACK.includes(this.id);
+    this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
 
     if (!this.isSpecial) {
-      this.isSpecial = this.isRocket || this.enabledAttackLandbase;
+      this.isSpecial = this.isRocket || this.enabledAttackLandBase;
     }
   }
 }
