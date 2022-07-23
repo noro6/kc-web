@@ -438,7 +438,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword;
+      const word = this.keyword.toUpperCase();
       let result = this.all.concat();
       const t = this.types[this.type];
 
@@ -447,7 +447,7 @@ export default Vue.extend({
 
       // 検索語句あればこれ以外の検索はしない
       if (word) {
-        result = result.filter((v) => v.albumId === +word || v.name.indexOf(word) >= 0);
+        result = result.filter((v) => v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0);
       } else {
         // カテゴリ検索
         result = result.filter((v) => t.types.includes(v.type));

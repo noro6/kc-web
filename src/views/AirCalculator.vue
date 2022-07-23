@@ -157,7 +157,6 @@ export default Vue.extend({
         const items = this.$store.state.items as ItemMaster[];
         const ships = this.$store.state.ships as ShipMaster[];
         const enemies = this.$store.getters.getEnemies as EnemyMaster[];
-
         const manager = saveData.loadManagerData(items, ships, enemies, this.setting.admiralLevel);
 
         if (manager.resetAll) {

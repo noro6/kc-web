@@ -769,7 +769,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword;
+      const word = this.keyword.toUpperCase();
       let result = this.baseItems.concat();
 
       if (this.isEnemyMode) {
@@ -781,7 +781,7 @@ export default Vue.extend({
 
       // 検索語句あれば最優先 カテゴリ検索を飛ばす
       if (word) {
-        result = result.filter((v) => v.id === +word || v.name.indexOf(word) >= 0);
+        result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
       }
 
       // カテゴリ検索
