@@ -528,7 +528,7 @@ export default Vue.extend({
       const result = [];
       const minRemodel = this.remodelRange[0];
       const maxRemodel = this.remodelRange[1];
-      const keyWord = this.searchWord;
+      const keyWord = this.searchWord.toUpperCase();
 
       for (let i = 0; i < bases.length; i += 1) {
         const { items } = bases[i];
@@ -538,7 +538,7 @@ export default Vue.extend({
           const { master, details, allCount } = items[j];
 
           // 検索語句で絞り込み
-          if (keyWord && master.id !== +keyWord && master.name.indexOf(keyWord) === -1) {
+          if (keyWord && master.id !== +keyWord && master.name.toUpperCase().indexOf(keyWord) === -1) {
             continue;
           }
           // 改修値で絞り込み
