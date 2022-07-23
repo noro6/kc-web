@@ -1,29 +1,29 @@
 <template>
   <div class="d-flex" :class="{ dense: dense }">
     <div class="mr-1 status-result" v-if="!noLabel">
-      <div class="status-result-label">{{ result.airState.text }}</div>
+      <div class="status-result-label">{{ $t(`Common.${result.airState.text}`) }}</div>
       <div class="status-result-rate">{{ rate }}%</div>
     </div>
     <div class="align-self-center flex-grow-1">
       <div v-if="!noLabel" class="d-flex">
         <div class="status-bar-label" style="width: 10%">
-          <div>喪失</div>
+          <div>{{ $t('Common.喪失') }}</div>
         </div>
         <div class="status-bar-divide"></div>
         <div class="status-bar-label" style="width: 10%">
-          <div>劣勢</div>
+          <div>{{ $t('Common.劣勢') }}</div>
         </div>
         <div class="status-bar-divide"></div>
         <div class="status-bar-label" style="width: 25%">
-          <div>拮抗</div>
+          <div>{{ $t('Common.拮抗') }}</div>
         </div>
         <div class="status-bar-divide"></div>
         <div class="status-bar-label" style="width: 45%">
-          <div>優勢</div>
+          <div>{{ $t('Common.優勢') }}</div>
         </div>
         <div class="status-bar-divide"></div>
         <div class="status-bar-label" style="width: 10%">
-          <div>確保</div>
+          <div>{{ $t('Common.確保') }}</div>
         </div>
       </div>
       <div>

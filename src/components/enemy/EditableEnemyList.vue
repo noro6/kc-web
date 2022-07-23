@@ -37,7 +37,7 @@
               <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="enemy-status">
-              <div>制空</div>
+              <div>{{ $t('Common.制空') }}</div>
               <div class="text-right">{{ enemy.fullAirPower }}</div>
               <div class="ml-1">基地</div>
               <div class="text-right">{{ enemy.fullLBAirPower }}</div>

@@ -13,7 +13,7 @@
   >
     <template v-if="ship.isEmpty">
       <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
-        <div class="align-self-center">艦娘選択</div>
+        <div class="align-self-center">{{ shipName }}</div>
       </div>
     </template>
     <template v-else>
@@ -121,7 +121,7 @@
             </div>
           </div>
           <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
-            <div class="ship-name text-truncate">{{ ship.data.name ? ship.data.name : "艦娘選択" }}</div>
+            <div class="ship-name text-truncate">{{ shipName }}</div>
           </div>
         </div>
         <!-- 艦娘解除 -->
@@ -182,7 +182,7 @@
       </div>
       <div class="d-flex pr-1 pl-2 flex-wrap">
         <div class="align-self-center caption">
-          <span class="text--secondary">制空:</span>
+          <span class="text--secondary">{{ $t('Common.制空') }}:</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
           <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
         </div>
@@ -515,6 +515,25 @@ export default Vue.extend({
   computed: {
     ship(): Ship {
       return this.value;
+    },
+    shipName() {
+      if (this.$i18n.locale === 'en') {
+        const shipName = this.value.data.name;
+        const remodelA = shipName.split('甲');
+        if (remodelA.length > 1) {
+          return `${this.$t(`${remodelA[0]}`)} A`;
+        }
+        const remodelB = shipName.split('乙改');
+        if (remodelB.length > 1) {
+          return `${this.$t(`${remodelB[0]}`)} B Kai`;
+        }
+        const remodel = shipName.split('改');
+        if (remodel.length > 1) {
+          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
+        }
+        return this.value.data.name ? this.$t(`${this.value.data.name}`) : 'Ship';
+      }
+      return this.value.data.name ? this.value.data.name : '艦娘選択';
     },
     airPowerDetail(): string {
       const airPowers = this.ship.items.map((v) => (v.fullAirPower && !v.data.isRecon ? v.fullAirPower : 0));

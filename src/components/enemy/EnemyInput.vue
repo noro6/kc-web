@@ -21,7 +21,7 @@
     </div>
     <div class="d-flex caption px-1 flex-wrap">
       <div v-if="enemy.fullAirPower > 0 || !enemy.fullLBAirPower">
-        <span class="text--secondary">制空:</span>
+        <span class="text--secondary">{{ $t('Common.制空') }}:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullAirPower }}</span>
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>

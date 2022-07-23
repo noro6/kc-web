@@ -15,15 +15,13 @@
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
-        <v-icon small>mdi-content-save</v-icon>
-        <span class="d-none d-md-inline">編成</span>保存
-      </v-btn>
+        <v-icon small>mdi-content-save</v-icon>{{ $t("Common.Save") }}</v-btn
+      >
       <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData">
-        <v-icon small>mdi-content-duplicate</v-icon>別名保存
+        <v-icon small>mdi-content-duplicate</v-icon>{{ $t("Common.SaveAs") }}
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare">
-        <v-icon small>mdi-share-variant</v-icon>
-        <span class="d-none d-md-inline">編成</span>共有
+        <v-icon small>mdi-share-variant</v-icon>{{ $t("Common.Share") }}
       </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -31,7 +29,7 @@
             <v-icon small>mdi-undo-variant</v-icon></v-btn
           >
         </template>
-        <span>元に戻す</span>
+        <span>{{ $t("Common.Undo") }}</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -39,7 +37,7 @@
             <v-icon small>mdi-redo-variant</v-icon>
           </v-btn>
         </template>
-        <span>やり直す</span>
+        <span>{{ $t("Common.Redo") }}</span>
       </v-tooltip>
       <div id="multipurpose-textarea" class="no-scroll">
         <v-textarea
@@ -488,7 +486,7 @@
               ></v-textarea>
               <div class="d-flex mt-3">
                 <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">保存</v-btn>
-                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
               </div>
             </div>
           </v-tab-item>

@@ -57,7 +57,7 @@
               <div class="ml-2">{{ getFormationName(fleet.formation) }}</div>
               <div class="ml-3 text--secondary d-none d-sm-block">艦隊防空値:</div>
               <div class="ml-2 d-none d-sm-block">{{ fleet.fleetAntiAir }}</div>
-              <div class="ml-3 text--secondary" v-if="fleet.range">半径:</div>
+              <div class="ml-3 text--secondary" v-if="fleet.range">{{ $t('Common.半径') }}:</div>
               <div class="ml-2" v-if="fleet.range">{{ fleet.range }}</div>
               <v-spacer></v-spacer>
               <div class="text--secondary">詳細:</div>
@@ -66,9 +66,9 @@
               </v-btn>
             </div>
             <div v-if="isAirRaid" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary mr-2">制空値:</div>
-              <div>{{ fleet.fullAirbaseAirPower }}</div>
-              <div v-if="fleet.existUnknownEnemy" class="mx-2">
+              <div class="text--secondary mr-2">{{ $t('Common.制空値') }}:</div>
+              <div class="mr-2">{{ fleet.fullAirbaseAirPower }}</div>
+              <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
@@ -79,27 +79,27 @@
               </div>
               <div class="ml-2">
                 <v-chip class="mr-1" color="green" label outlined>
-                  <span>確保:</span>
+                  <span>{{ $t('Common.確保') }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>優勢:</span>
+                  <span>{{ $t('Common.優勢') }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
-                  <span>拮抗:</span>
+                  <span>{{ $t('Common.拮抗') }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>劣勢:</span>
+                  <span>{{ $t('Common.劣勢') }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
             <div v-else-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary mr-2">制空値:</div>
-              <div>{{ fleet.fullAirPower }}</div>
-              <div v-if="fleet.existUnknownEnemy" class="mx-2">
+              <div class="text--secondary mr-2">{{ $t('Common.制空') }}:</div>
+              <div  class="mr-2">{{ fleet.fullAirPower }}</div>
+              <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
@@ -110,19 +110,19 @@
               </div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
-                  <span>確保:</span>
+                  <span>{{ $t('Common.確保') }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>優勢:</span>
+                  <span>{{ $t('Common.優勢') }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
-                  <span>拮抗:</span>
+                  <span>{{ $t('Common.拮抗') }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>劣勢:</span>
+                  <span>{{ $t('Common.劣勢') }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
@@ -142,9 +142,9 @@
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">制空: {{ enemy.fullAirPower }}</div>
+                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t('Common.制空') }}: {{ enemy.fullAirPower }}</div>
                       <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">制空:({{ enemy.fullLBAirPower }})</div>
+                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t('Common.制空') }}:({{ enemy.fullLBAirPower }})</div>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
@@ -168,11 +168,11 @@
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">制空:{{ enemy.fullAirPower }}</div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">制空:({{ enemy.fullLBAirPower }})</div>
+                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t('Common.制空') }}:{{ enemy.fullAirPower }}</div>
+                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t('Common.制空') }}:({{ enemy.fullLBAirPower }})</div>
                       <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">耐久: {{ enemy.data.hp }}</div>
-                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">装甲: {{ enemy.actualArmor }}</div>
+                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t('Common.耐久') }}: {{ enemy.data.hp }}</div>
+                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t('Common.装甲') }}: {{ enemy.actualArmor }}</div>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">

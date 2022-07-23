@@ -1,7 +1,7 @@
 <template>
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-1">
-      <div class="pl-2 align-self-center">基地航空隊</div>
+      <div class="pl-2 align-self-center">{{ $t('Airbase.基地航空隊') }}</div>
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -58,9 +58,9 @@
     <v-divider></v-divider>
     <div>
       <div class="d-flex">
-        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="'防空計算モード'" @click="setInfo"></v-switch>
+        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo"></v-switch>
         <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1 && existsBattleAirbase">
-          <v-btn outlined color="success" @click.stop="targetDialog = true">基地派遣先設定</v-btn>
+          <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t('Airbase.基地派遣先設定') }}</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
           <v-alert dense outlined type="warning">{{ rangeError }}</v-alert>
@@ -128,7 +128,7 @@
     </div>
     <v-tabs class="small-airbases" v-model="tab" vertical>
       <v-tab v-for="i in 3" :key="i" :href="`#base${i}`">
-        <div class="airbase-tab-text d-none d-sm-block">第{{ i }}基地航空隊</div>
+        <div class="airbase-tab-text d-none d-sm-block">{{ $t("Airbase.第x基地航空隊", { number: i }) }}</div>
         <div class="airbase-tab-text d-sm-none">第{{ i }}航空隊</div>
       </v-tab>
       <v-tab-item v-for="(lb, i) in airbaseInfo.airbases" :key="i" :value="`base${i + 1}`" class="py-1">

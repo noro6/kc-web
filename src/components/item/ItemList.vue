@@ -3,7 +3,7 @@
     <div class="d-flex py-2 pr-2">
       <div class="align-self-center item-search-text ml-5">
         <v-text-field
-          placeholder="図鑑id 名称検索"
+          :placeholder="$t('ItemList.図鑑id 名称検索')"
           clearable
           v-model="keyword"
           @input="filter()"
@@ -36,17 +36,17 @@
           </v-card>
         </v-menu>
       </div>
-      <div class="align-self-end caption">以上</div>
+      <div class="align-self-end caption">{{ $t('ItemList.以上') }}</div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">一列</span>
+            <span class="white--text">{{ $t('ItemList.一列') }}</span>
           </v-btn>
           <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">複数列</span>
+            <span class="white--text">{{ $t('ItemList.複数列') }}</span>
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -57,10 +57,10 @@
     <v-divider></v-divider>
     <div class="d-flex flex-wrap px-3">
       <div class="align-self-center my-3">
-        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense label="敵装備"></v-checkbox>
+        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')"></v-checkbox>
       </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense label="所持装備反映"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
     </div>
@@ -95,7 +95,7 @@
           :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
           v-show="isShow(data.key, viewStatus)"
         >
-          <div><v-icon small>mdi-chevron-down</v-icon>{{ data.text }}</div>
+          <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.${data.text}`) }}</div>
         </div>
         <div
           class="item-status"
@@ -108,7 +108,7 @@
               <v-icon small>mdi-chevron-down</v-icon>
             </div>
             <div>
-              <div class="mr-1">制空</div>
+              <div class="mr-1">{{ $t('Common.制空') }}</div>
               <div>({{ slot }}機)</div>
             </div>
           </div>
@@ -132,7 +132,7 @@
       </div>
       <div v-for="(data, i) in itemListData" :key="i">
         <div class="type-divider" v-if="multiLine">
-          <div class="caption text--secondary">{{ data.typeName }}</div>
+          <div class="caption text--secondary">{{ needTrans ? $t(`EquipType.${data.typeName}`) : data.typeName }}</div>
           <div class="type-divider-border"></div>
         </div>
         <div class="type-item-container" :class="{ multi: multiLine }">
@@ -150,7 +150,7 @@
               <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30"></v-img>
             </div>
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
-              {{ v.item.data.name }}
+              {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
@@ -605,6 +605,9 @@ export default Vue.extend({
     },
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
+    },
+    needTrans() {
+      return this.$i18n.locale !== 'ja';
     },
   },
   methods: {

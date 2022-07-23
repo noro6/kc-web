@@ -27,6 +27,7 @@ Vue.use(VueGtag, { config: { id: 'UA-152888142-2' } }, router, VueI18n);
 
 const i18n = new VueI18n({
   locale: 'ja',
+  fallbackLocale: 'ja',
   messages: Lang,
 });
 

@@ -45,7 +45,7 @@
       :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }"
       @click.stop="showItemList()"
     >
-      {{ isNoItem ? "未装備" : item.data.name }}
+      {{ itemName }}
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
       <!-- 改修値 -->
@@ -356,6 +356,12 @@ export default Vue.extend({
     },
     isNoItem() {
       return this.value.data.id === 0;
+    },
+    itemName() {
+      if (this.$i18n.locale === 'en') {
+        return this.value.data.name ? this.$t(`${this.value.data.name}`) : 'No Item';
+      }
+      return this.value.data.name ? this.value.data.name : '未装備';
     },
     isDraggable() {
       return this.value.data.id > 0 && !this.readonly;

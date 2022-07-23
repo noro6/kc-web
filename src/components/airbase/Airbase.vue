@@ -1,7 +1,7 @@
 <template>
   <v-card class="mx-1 pt-1" @dragover.prevent @drop.stop>
     <div class="d-flex mb-1">
-      <div class="ml-2 align-self-end airbase-title">第{{ index + 1 }}基地航空隊</div>
+      <div class="ml-2 align-self-end airbase-title">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
       <v-spacer></v-spacer>
       <div class="mr-1 mode-select">
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem"></v-select>
@@ -26,7 +26,7 @@
     <div>
       <div class="d-flex caption pl-2 sub-status-area">
         <div>
-          制空:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
+          {{ $t("Common.制空") }}:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
         <template v-if="!visibleResource">
           <div class="ml-1 text--secondary font-weight-medium">{{ airPowerDetail }}</div>
@@ -34,7 +34,7 @@
           <div class="ml-1 text--secondary font-weight-medium" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
         </template>
         <div :class="{ 'ml-auto': !visibleResource, 'ml-2': visibleResource }">
-          半径:<span class="mx-1 font-weight-medium">{{ airbase.range }}</span>
+          {{ $t("Common.半径") }}:<span class="mx-1 font-weight-medium">{{ airbase.range }}</span>
         </div>
         <template v-if="visibleResource">
           <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img></div>
@@ -113,7 +113,7 @@
 }
 .mode-select {
   align-self: center;
-  width: 70px;
+  width: 80px;
 }
 .sub-status-area > div {
   align-self: center;
@@ -175,7 +175,6 @@ export default Vue.extend({
     tab: 'detail',
     wave1: 0,
     wave2: 0,
-    modes: Const.AB_MODE_ITEMS,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
@@ -186,6 +185,17 @@ export default Vue.extend({
     visibleResource: false,
   }),
   computed: {
+    modes(): { text: string; value: number }[] {
+      if (this.$i18n.locale !== 'ja') {
+        const items = [];
+        for (let i = 0; i < Const.AB_MODE_ITEMS.length; i += 1) {
+          const { text, value } = Const.AB_MODE_ITEMS[i];
+          items.push({ text: `${this.$t(`Airbase.${text}`)}`, value });
+        }
+        return items;
+      }
+      return Const.AB_MODE_ITEMS;
+    },
     airbase(): Airbase {
       return this.value;
     },

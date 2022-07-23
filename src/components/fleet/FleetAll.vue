@@ -217,7 +217,7 @@
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
                     <div class="caption blue--text">Lv: {{ tempShip.level }}</div>
-                    <div class="caption ml-2">制空: {{ tempShip.fullAirPower }}</div>
+                    <div class="caption ml-2">{{ $t('Common.制空') }}: {{ tempShip.fullAirPower }}</div>
                   </div>
                   <div class="d-flex flex-grow-1">
                     <div class="temp-ship-name">{{ tempShip.data.name }}</div>
@@ -272,7 +272,7 @@
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
                     <div class="caption blue--text">Lv: {{ temp.level }}</div>
-                    <div class="caption ml-2">制空: {{ temp.fullAirPower }}</div>
+                    <div class="caption ml-2">{{ $t('Common.制空') }}: {{ temp.fullAirPower }}</div>
                   </div>
                   <div class="d-flex flex-grow-1">
                     <div class="temp-ship-name">{{ temp.data.name }}</div>

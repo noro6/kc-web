@@ -176,7 +176,7 @@ export default class Const {
     { id: 41, name: '大型飛行艇', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 47, name: '陸上攻撃機', sortKey: ['torpedo', 'bomber', 'antiAir', 'asw', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
     { id: 53, name: '大型陸上機', sortKey: ['torpedo', 'bomber', 'antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
-    { id: 48, name: '局地戦闘機', sortKey: ['antiAir', 'antiBomber', 'interception', 'radius', 'cost'] },
+    { id: 48, name: '局地/陸軍戦闘機', sortKey: ['antiAir', 'antiBomber', 'interception', 'radius', 'cost'] },
     { id: 49, name: '陸上偵察機', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 1, name: '小口径主砲', sortKey: ['fire', 'accuracy', 'antiAir', 'armor', 'range'] },
     { id: 2, name: '中口径主砲', sortKey: ['fire', 'accuracy', 'antiAir', 'armor', 'range'] },
@@ -194,7 +194,7 @@ export default class Const {
     { id: 22, name: '特殊潜航艇', sortKey: ['torpedo', 'accuracy', 'avoid', 'scout'] },
     { id: 23, name: '応急修理要員' },
     { id: 24, name: '上陸用舟艇', sortKey: ['fire', 'antiAir', 'armor', 'avoid', 'scout', 'tp'] },
-    { id: 25, name: 'オートジャイロ' },
+    { id: 25, name: '回転翼機' },
     { id: 26, name: '対潜哨戒機' },
     { id: 27, name: '追加装甲(中型)' },
     { id: 28, name: '追加装甲(大型)' },
@@ -440,7 +440,7 @@ export default class Const {
    */
   public static readonly SHIP_TYPES_ALT = [
     { text: '空母', types: [11, 18] },
-    { text: '軽空', types: [7] },
+    { text: '軽母', types: [7] },
     { text: '戦艦', types: [8, 9] },
     { text: '航戦', types: [10] },
     { text: '重巡', types: [5] },

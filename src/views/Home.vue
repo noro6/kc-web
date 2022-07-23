@@ -76,8 +76,8 @@
           <div class="mb-5 body-2">{{ $t("DataImport.confirm1.description2") }}</div>
           <v-text-field v-model="importFileName" dense outlined maxlength="100" counter label="フォルダー名"></v-text-field>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmpty || imported">{{ $t("Common.OK") }}</v-btn>
-            <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmpty || imported">$t("Common.OK")</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">$t("Common.Cancel")</v-btn>
           </div>
         </div>
       </v-card>

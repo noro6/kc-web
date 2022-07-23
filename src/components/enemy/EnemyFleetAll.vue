@@ -56,19 +56,19 @@
       <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-1">
         <div>
           <v-chip class="mr-1" color="green" label outlined>
-            <span>確保:</span>
+            <span>{{ $t('Common.確保') }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[0] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="light-green" label outlined>
-            <span>優勢:</span>
+            <span>{{ $t('Common.優勢') }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[1] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="orange" label outlined>
-            <span>拮抗:</span>
+            <span>{{ $t('Common.拮抗') }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[2] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="deep-orange" label outlined>
-            <span>劣勢:</span>
+            <span>{{ $t('Common.劣勢') }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[3] }}</span>
           </v-chip>
         </div>

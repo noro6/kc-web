@@ -7,7 +7,7 @@
       <div class="ml-3 align-self-center">
         <div class="caption">Lv: {{ value.level }}</div>
         <div class="body-2">
-          <span>{{ value.data.name }}</span>
+          <span>{{ shipName }}</span>
         </div>
       </div>
     </div>
@@ -66,8 +66,8 @@
         <table>
           <tr>
             <td class="caption grey--text text--lighten-1 text-left">特殊攻撃</td>
-            <td class="caption grey--text text--lighten-1 px-8">確保</td>
-            <td class="caption grey--text text--lighten-1">優勢</td>
+            <td class="caption grey--text text--lighten-1 px-8">{{ $t('Common.確保') }}</td>
+            <td class="caption grey--text text--lighten-1">{{ $t('Common.優勢') }}</td>
           </tr>
           <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
             <td class="text-left">
@@ -184,6 +184,25 @@ export default Vue.extend({
         return array;
       }
       return [];
+    },
+    shipName(): string {
+      const shipName = this.value.data.name;
+      if (this.$i18n.locale === 'en') {
+        const remodelA = shipName.split('甲');
+        if (remodelA.length > 1) {
+          return `${this.$t(`${remodelA[0]}`)} A`;
+        }
+        const remodelB = shipName.split('乙改');
+        if (remodelB.length > 1) {
+          return `${this.$t(`${remodelB[0]}`)} B Kai`;
+        }
+        const remodel = shipName.split('改');
+        if (remodel.length > 1) {
+          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
+        }
+        return this.$t(`${shipName}`) as string;
+      }
+      return shipName || '';
     },
   },
 });

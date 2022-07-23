@@ -69,7 +69,7 @@
         :class="{ active: index === type, disabled: keyword }"
         @click="changeType(index)"
       >
-        {{ i.text }}
+        {{ needTrans ? $t(`SType.${i.text}`) : i.text }}
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
@@ -111,7 +111,7 @@
                 <div v-else class="primary--text">id:{{ data.ship.albumId }}</div>
               </div>
               <div class="d-flex">
-                <div class="ship-name text-truncate">{{ data.ship.name }}</div>
+                <div class="ship-name text-truncate">{{ shipName(data.ship.name) }}</div>
               </div>
             </div>
             <div class="ship-count red--text caption" v-if="isStockOnly">
@@ -391,6 +391,11 @@ export default Vue.extend({
       }
     }
   },
+  computed: {
+    needTrans() {
+      return this.$i18n.locale === 'ja';
+    },
+  },
   methods: {
     changeType(index = 0) {
       this.type = index;
@@ -626,6 +631,24 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    shipName(shipName: string) {
+      if (this.$i18n.locale === 'en') {
+        const remodelA = shipName.split('甲');
+        if (remodelA.length > 1) {
+          return `${this.$t(`${remodelA[0]}`)} A`;
+        }
+        const remodelB = shipName.split('乙改');
+        if (remodelB.length > 1) {
+          return `${this.$t(`${remodelB[0]}`)} B Kai`;
+        }
+        const remodel = shipName.split('改');
+        if (remodel.length > 1) {
+          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
+        }
+        return shipName ? this.$t(`${shipName}`) : 'Ship';
+      }
+      return shipName || '';
     },
   },
 });

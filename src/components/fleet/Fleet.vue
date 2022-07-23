@@ -1,7 +1,7 @@
 <template>
   <div class="mx-1 pb-2">
     <div class="d-flex ml-2 fleet-header flex-wrap">
-      <div class="mt-1 caption text--secondary">制空:</div>
+      <div class="mt-1 caption text--secondary">{{ $t('Common.制空') }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
       <div class="mt-1 caption text--secondary">触接:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>

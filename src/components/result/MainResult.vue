@@ -71,7 +71,7 @@
             </tr>
           </template>
           <tr>
-            <td class="text-center" rowspan="2">制空値(平均)</td>
+            <td class="text-center" rowspan="2">{{ $t('Common.制空値') }}(平均)</td>
             <td class="text-center py-1">自艦隊</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
             <td class="text-center header-td" colspan="2">消費予測</td>
@@ -98,7 +98,7 @@
             </td>
           </tr>
           <tr class="tr-status">
-            <td class="text-center" colspan="2">制空状態</td>
+            <td class="text-center" colspan="2">{{ $t('Common.制空') }}</td>
             <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">
               <span :class="`state-label state-${result.airState.value}`">{{ result.airState.text }}</span>
             </td>
@@ -147,23 +147,23 @@
         <div class="bar-label"></div>
         <div class="flex-grow-1 d-flex">
           <div class="status-bar-label" style="width: 10%">
-            <div>喪失</div>
+            <div>{{ $t('Common.喪失') }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 10%">
-            <div>劣勢</div>
+            <div>{{ $t('Common.劣勢') }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 25%">
-            <div>拮抗</div>
+            <div>{{ $t('Common.拮抗') }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 45%">
-            <div>優勢</div>
+            <div>{{ $t('Common.優勢') }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 10%">
-            <div>確保</div>
+            <div>{{ $t('Common.確保') }}</div>
           </div>
         </div>
       </div>
@@ -188,13 +188,13 @@
         <thead>
           <tr>
             <th></th>
-            <th>制空値</th>
-            <th>敵制空値( 確保 / 優勢 / 拮抗 / 劣勢)</th>
-            <th class="pr-sm-1">確保</th>
-            <th class="pr-sm-1">優勢</th>
-            <th class="pr-sm-1">拮抗</th>
-            <th class="pr-sm-1">劣勢</th>
-            <th class="pr-sm-1">喪失</th>
+            <th>{{ $t('Common.制空値') }}</th>
+            <th>敵制空値( {{ $t('Common.確保') }} / {{ $t('Common.優勢') }} / {{ $t('Common.拮抗') }} / {{ $t('Common.劣勢') }})</th>
+            <th class="pr-sm-1">{{ $t('Common.確保') }}</th>
+            <th class="pr-sm-1">{{ $t('Common.優勢') }}</th>
+            <th class="pr-sm-1">{{ $t('Common.拮抗') }}</th>
+            <th class="pr-sm-1">{{ $t('Common.劣勢') }}</th>
+            <th class="pr-sm-1">{{ $t('Common.喪失') }}</th>
             <th></th>
           </tr>
         </thead>
@@ -289,13 +289,13 @@
           <tr>
             <th class="text-left py-1 pl-3">艦隊</th>
             <th class="text-left">種別</th>
-            <th>制空値</th>
-            <th>敵制空値( 確保 / 優勢 / 拮抗 / 劣勢)</th>
-            <th class="pr-2">確保</th>
-            <th class="pr-2">優勢</th>
-            <th class="pr-2">拮抗</th>
-            <th class="pr-2">劣勢</th>
-            <th class="pr-2">喪失</th>
+            <th>{{ $t('Common.制空値') }}</th>
+            <th>敵制空値( {{ $t('Common.確保') }} / {{ $t('Common.優勢') }} / {{ $t('Common.拮抗') }} / {{ $t('Common.劣勢') }})</th>
+            <th class="pr-2">{{ $t('Common.確保') }}</th>
+            <th class="pr-2">{{ $t('Common.優勢') }}</th>
+            <th class="pr-2">{{ $t('Common.拮抗') }}</th>
+            <th class="pr-2">{{ $t('Common.劣勢') }}</th>
+            <th class="pr-2">{{ $t('Common.喪失') }}</th>
           </tr>
         </thead>
         <tbody>
