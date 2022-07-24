@@ -544,7 +544,7 @@ export default class SaveData {
           enemies: v.enemies,
           cellType: v.cellType,
           formation: v.formation,
-          range: v.radius,
+          radius: v.radius,
           area: v.area,
           nodeName: v.nodeName,
           mainFleetFormation: v.mainFleetFormation,
