@@ -18,7 +18,7 @@ export interface EnemyFleetBuilder {
   /** 戦闘形式 未指定ならfleetの戦闘形式で作成 */
   cellType?: number;
   /** 半径 未指定ならfleetの半径で作成 */
-  range?: number;
+  radius?: number[];
   /** 海域 もっぱら基地のエラーのため */
   area?: number;
   /** セル名称 */
@@ -56,7 +56,7 @@ export default class EnemyFleet {
   public readonly isUnion: boolean;
 
   /** 半径 */
-  public readonly range: number;
+  public readonly radius: number[];
 
   /** 海域 */
   public readonly area: number;
@@ -137,17 +137,33 @@ export default class EnemyFleet {
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
       this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : builder.fleet.mainFleetFormation;
       this.cellType = builder.cellType !== undefined ? builder.cellType : builder.fleet.cellType;
-      this.range = builder.range !== undefined ? builder.range : builder.fleet.range;
+      this.radius = builder.radius !== undefined ? builder.radius : builder.fleet.radius;
       this.area = builder.area !== undefined ? builder.area : builder.fleet.area;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : builder.fleet.nodeName;
+
+      if (!this.radius) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const oldRadius = (builder.fleet as unknown as any).range;
+        if (oldRadius) {
+          this.radius = [oldRadius];
+        }
+      }
     } else {
       this.enemies = builder.enemies ? builder.enemies.concat() : [];
       this.formation = builder.formation !== undefined ? builder.formation : 1;
       this.mainFleetFormation = builder.mainFleetFormation !== undefined ? builder.mainFleetFormation : 1;
       this.cellType = builder.cellType !== undefined ? builder.cellType : 1;
-      this.range = builder.range !== undefined ? builder.range : 0;
+      this.radius = builder.radius !== undefined ? builder.radius : [0];
       this.area = builder.area !== undefined ? builder.area : 0;
       this.nodeName = builder.nodeName !== undefined ? builder.nodeName : '';
+    }
+
+    if (!(this.radius instanceof Array)) {
+      if (+this.radius) {
+        this.radius = [+this.radius];
+      } else {
+        this.radius = [0];
+      }
     }
 
     const enemyCount = this.enemies.length;

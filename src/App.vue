@@ -915,7 +915,15 @@ export default Vue.extend({
       if (mainData) {
         // 敵情報はないので元の情報を使う
         manager.battleInfo = mainData.tempData[mainData.tempIndex].battleInfo;
-        // もともと開いている編成があるならそこに追加
+        if (!manager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
+          // 基地が空のデータなら元の情報を使う
+          manager.airbaseInfo = mainData.tempData[mainData.tempIndex].airbaseInfo;
+        }
+        if (!manager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
+          // 編成が空のデータなら元の情報を使う
+          manager.fleetInfo = mainData.tempData[mainData.tempIndex].fleetInfo;
+        }
+
         mainData.tempData.push(manager);
         mainData.tempIndex += 1;
       } else {
@@ -1034,6 +1042,8 @@ export default Vue.extend({
             folder.sortChild();
 
             newData.isActive = true;
+            this.saveData.disabledMain();
+            newData.isMain = true;
 
             // DB更新を促す
             this.$store.dispatch('updateSaveData', this.saveData);

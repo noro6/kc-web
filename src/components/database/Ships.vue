@@ -1129,7 +1129,7 @@ export default Vue.extend({
       const maxAsw = this.aswRange[1];
       const minAsw = this.aswRange[0];
       const buffHP = this.addHP;
-      const keyword = this.searchWord ? this.searchWord.trim() : '';
+      const keyword = this.searchWord ? this.searchWord.trim().toUpperCase() : '';
 
       const typeIndexes = this.selectedTypes;
       const types = Const.SHIP_TYPES_ALT.filter((v, i) => typeIndexes.includes(i))
@@ -1148,7 +1148,7 @@ export default Vue.extend({
         const versions = masters.filter((v) => v.originalId === base.albumId);
 
         // キーワード検索で全状態で引っかからなかったらさようなら
-        if (keyword && !versions.some((v) => v.name.indexOf(keyword) >= 0)) {
+        if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {
           continue;
         }
 

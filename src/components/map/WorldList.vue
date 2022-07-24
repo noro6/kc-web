@@ -57,8 +57,8 @@
               <div class="ml-2">{{ getFormationName(fleet.formation) }}</div>
               <div class="ml-3 text--secondary d-none d-sm-block">艦隊防空値:</div>
               <div class="ml-2 d-none d-sm-block">{{ fleet.fleetAntiAir }}</div>
-              <div class="ml-3 text--secondary" v-if="fleet.range">{{ $t('Common.半径') }}:</div>
-              <div class="ml-2" v-if="fleet.range">{{ fleet.range }}</div>
+              <div class="ml-3 text--secondary" v-if="fleet.radius[0]">{{ $t('Common.半径') }}:</div>
+              <div class="ml-2" v-if="fleet.radius[0]">{{ fleet.radius.join(' or ') }}</div>
               <v-spacer></v-spacer>
               <div class="text--secondary">詳細:</div>
               <v-btn v-show="selectedFleet" color="info" icon @click.stop@="showEnemyFleetDetail">
@@ -546,7 +546,7 @@ export default Vue.extend({
             enemies,
             formation: cell.formation,
             cellType: cell.cellType,
-            range: cell.radius,
+            radius: cell.radius,
             area: cell.area,
             nodeName: clickedCell.node,
             mainFleetFormation,
