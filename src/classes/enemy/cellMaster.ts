@@ -5,7 +5,7 @@ export interface RawCell {
   l: number;
   t: number;
   f: number;
-  r: number;
+  r: number[];
   e: number[];
   c: string;
 }
@@ -27,7 +27,8 @@ export default class CellMaster {
 
   public formation: number;
 
-  public radius: number;
+  /** 半径 */
+  public radius: number[];
 
   public enemies: number[];
 

@@ -888,7 +888,7 @@ export default class Convert {
 
       if (enemies.length) {
         fleets.push(new EnemyFleet({
-          enemies, formation, cellType, range, nodeName,
+          enemies, formation, cellType, radius: [range], nodeName,
         }));
       }
     }

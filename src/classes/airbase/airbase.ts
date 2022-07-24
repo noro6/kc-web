@@ -28,7 +28,7 @@ export default class Airbase {
   public readonly isSeparate: boolean;
 
   /** 基地半径 */
-  public readonly range: number;
+  public readonly radius: number;
 
   /** 出撃制空値 */
   public readonly fullAirPower: number;
@@ -104,7 +104,7 @@ export default class Airbase {
     }
 
     // 半径取得
-    this.range = this.getRange();
+    this.radius = this.getRadius();
 
     // 制空値とか
     this.fullAirPower = 0;
@@ -193,7 +193,7 @@ export default class Airbase {
    * @type {number}
    * @memberof Airbase
    */
-  private getRange(): number {
+  private getRadius(): number {
     let minRange = 999;
     let maxLos = 1;
     for (let i = 0; i < this.items.length; i += 1) {

@@ -34,7 +34,7 @@
           <div class="ml-1 text--secondary font-weight-medium" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
         </template>
         <div :class="{ 'ml-auto': !visibleResource, 'ml-2': visibleResource }">
-          半径:<span class="mx-1 font-weight-medium">{{ airbase.range }}</span>
+          半径:<span class="mx-1 font-weight-medium">{{ airbase.radius }}</span>
         </div>
         <template v-if="visibleResource">
           <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img></div>

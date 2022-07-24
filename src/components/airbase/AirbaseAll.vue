@@ -541,6 +541,7 @@ export default Vue.extend({
     rangeError(): string {
       const errors: string[] = [];
       const { airbases } = this.value;
+      let hasVariableRadius = false;
       for (let i = 0; i < airbases.length; i += 1) {
         const airbase = airbases[i];
         if (airbase.mode !== AB_MODE.BATTLE || !airbase.items.some((v) => v.data.id > 0)) {
@@ -548,19 +549,24 @@ export default Vue.extend({
         }
 
         const [cell1, cell2] = airbase.battleTarget.map((v) => this.battleInfo.fleets[v]);
-        if (cell1 && airbase.range < cell1.range) {
+        if (cell1 && cell1.radius.some((v) => airbase.radius < v)) {
+          hasVariableRadius = !!hasVariableRadius || cell1.radius.length > 1;
           // 6-4基地半径緩和チェック
           if (cell1.area !== 64 || cell1.nodeName !== 'N' || !airbase.hasJet) {
             errors.push(`第${i + 1}`);
           }
-        } else if (cell2 && airbase.range < cell2.range) {
+        } else if (cell2 && cell2.radius.some((v) => airbase.radius < v)) {
+          hasVariableRadius = !!hasVariableRadius || cell2.radius.length > 1;
           // 6-4基地半径緩和チェック
           if (cell2.area !== 64 || cell2.nodeName !== 'N' || !airbase.hasJet) {
             errors.push(`第${i + 1}`);
           }
         }
       }
-      return errors.length ? `${errors.join(',')}基地航空隊の半径が不足しています。` : '';
+      if (hasVariableRadius) {
+        return errors.length ? `${errors.join(', ')}基地航空隊の半径が不足している可能性があります。` : '';
+      }
+      return errors.length ? `${errors.join(', ')}基地航空隊の半径が不足しています。` : '';
     },
     isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
