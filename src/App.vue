@@ -830,7 +830,7 @@ export default Vue.extend({
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
           const fleet = manager.fleetInfo.fleets[i];
           if (fleet.ships.some((v) => v.data.id > 0)) {
-            this.selectableFleets.push({ selected: true, fleet, supportTypeName: fleet.getSupportTypeName() });
+            this.selectableFleets.push({ selected: i === 0, fleet, supportTypeName: fleet.getSupportTypeName() });
           }
         }
         if (this.selectableFleets.length > 1) {
