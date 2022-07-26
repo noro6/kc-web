@@ -264,7 +264,7 @@ export default class SaveData {
       return '';
     }
 
-    const childs = this.childItems.filter((v) => v.name.startsWith('新規データ'));
+    const childs = this.childItems.filter((v) => v.name.startsWith('新規データ') || v.name.startsWith('New File'));
     const maxNumber = max(childs.map((v) => +v.name.replace(/[^0-9]/g, '')));
 
     if (maxNumber !== undefined && maxNumber >= 0) {

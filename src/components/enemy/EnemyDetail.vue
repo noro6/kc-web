@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2 detail-card">
     <div class="d-flex pb-1">
-      <div class="align-self-center ml-3">敵艦隊詳細</div>
+      <div class="align-self-center ml-3">{{ $t("Fleet.艦隊詳細") }}</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
@@ -9,52 +9,52 @@
     </div>
     <v-divider class="mb-1"></v-divider>
     <v-tabs v-model="tab">
-      <v-tab href="#fleet">艦隊情報</v-tab>
-      <v-tab href="#stage2">対空砲火</v-tab>
-      <v-tab href="#contact">触接</v-tab>
+      <v-tab href="#fleet">{{ $t("Fleet.艦隊情報") }}</v-tab>
+      <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
+      <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
       <v-tab-item value="fleet" class="detail-fleet">
         <v-divider></v-divider>
         <div class="body-1 ma-1">
           <div class="d-flex air-power-info flex-wrap">
-            <div class="text--secondary label-text">{{ $t('Common.制空値') }}:</div>
+            <div class="text--secondary label-text">{{ $t("Common.制空") }}:</div>
             <div class="value-text mr-3">{{ fleet.fullAirPower }}</div>
             <div>
               <v-chip class="mr-1" color="green" label outlined>
-                <span>{{ $t('Common.確保') }}:</span>
+                <span>{{ $t("Common.確保") }}:</span>
                 <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="light-green" label outlined>
-                <span>{{ $t('Common.優勢') }}:</span>
+                <span>{{ $t("Common.優勢") }}:</span>
                 <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="orange" label outlined>
-                <span>{{ $t('Common.拮抗') }}:</span>
+                <span>{{ $t("Common.拮抗") }}:</span>
                 <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="deep-orange" label outlined>
-                <span>{{ $t('Common.劣勢') }}:</span>
+                <span>{{ $t("Common.劣勢") }}:</span>
                 <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
               </v-chip>
             </div>
           </div>
           <div class="mt-1 d-flex air-power-info flex-wrap" v-if="fleet.fullAirPower !== fleet.fullAirbaseAirPower">
-            <div class="text--secondary label-text">基地制空値:</div>
+            <div class="text--secondary label-text">{{ $t("Common.基地制空") }}:</div>
             <div class="value-text mr-3">{{ fleet.fullAirbaseAirPower }}</div>
             <div>
               <v-chip class="mr-1" color="green" label outlined>
-                <span>{{ $t('Common.確保') }}:</span>
+                <span>{{ $t("Common.確保") }}:</span>
                 <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="light-green" label outlined>
-                <span>{{ $t('Common.優勢') }}:</span>
+                <span>{{ $t("Common.優勢") }}:</span>
                 <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="orange" label outlined>
-                <span>{{ $t('Common.拮抗') }}:</span>
+                <span>{{ $t("Common.拮抗") }}:</span>
                 <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
               </v-chip>
               <v-chip class="mr-1" color="deep-orange" label outlined>
-                <span>{{ $t('Common.劣勢') }}:</span>
+                <span>{{ $t("Common.劣勢") }}:</span>
                 <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
               </v-chip>
             </div>
@@ -64,10 +64,10 @@
         <div>
           <div class="mt-3 mb-5">
             <div v-if="fleet.isUnion" class="d-flex">
-              <div class="align-self-center px-2 primary--text">第1艦隊</div>
-              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t('Common.制空値') }}:</div>
+              <div class="align-self-center px-2 primary--text">{{ $t("Fleet.第x艦隊", { number: 1 }) }}</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t("Common.制空値") }}:</div>
               <div class="align-self-center body-2 ml-1">{{ fleet.mainAirPower }}</div>
-              <div class="align-self-center body-2 ml-4 text--secondary">基地制空:</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t("Common.基地制空") }}:</div>
               <div class="align-self-center body-2 ml-1">{{ fleet.mainAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
@@ -82,10 +82,10 @@
           <v-divider v-if="fleet.isUnion"></v-divider>
           <div v-if="fleet.isUnion" class="my-3">
             <div class="d-flex">
-              <div class="align-self-center px-2 success--text">第2艦隊</div>
-              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t('Common.制空値') }}:</div>
+              <div class="align-self-center px-2 success--text">{{ $t("Fleet.第x艦隊", { number: 2 }) }}</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t("Common.制空値") }}:</div>
               <div class="align-self-center body-2 ml-1">{{ fleet.escortAirPower }}</div>
-              <div class="align-self-center body-2 ml-4 text--secondary">基地制空値:</div>
+              <div class="align-self-center body-2 ml-4 text--secondary">{{ $t("Common.基地制空") }}:</div>
               <div class="align-self-center body-2 ml-1">{{ fleet.escortAirbaseAirPower }}</div>
             </div>
             <div class="enemy-inputs-container">
@@ -147,6 +147,9 @@
 
 .chip-value {
   font-weight: 500;
+}
+.v-tab {
+  text-transform: none;
 }
 </style>
 

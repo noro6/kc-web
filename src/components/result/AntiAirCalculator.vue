@@ -2,10 +2,10 @@
   <div class="mt-2">
     <div class="d-flex flex-wrap">
       <div class="form-control">
-        <v-select label="陣形" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable"></v-select>
       </div>
       <div class="form-control">
-        <v-select label="対空CI" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable"></v-select>
       </div>
       <div class="form-control">
         <v-text-field
@@ -13,7 +13,7 @@
           v-model.number="attackerSlot"
           min="0"
           max="999"
-          label="攻撃機搭載数"
+          :label="$t('Fleet.攻撃機搭載数')"
           hide-details
           outlined
           dense
@@ -21,7 +21,7 @@
         ></v-text-field>
       </div>
       <div class="form-control">
-        <v-select label="対空射撃回避" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable"></v-select>
       </div>
       <div class="form-control">
         <v-text-field
@@ -30,7 +30,7 @@
           max="2"
           step="0.1"
           v-model.number="adj1"
-          label="加重対空補正"
+          :label="$t('Fleet.加重対空補正')"
           hide-details
           outlined
           dense
@@ -45,7 +45,7 @@
           max="2"
           step="0.1"
           v-model.number="adj2"
-          label="艦隊防空補正"
+          :label="$t('Fleet.艦隊防空補正')"
           hide-details
           outlined
           dense
@@ -56,27 +56,22 @@
     </div>
     <div class="mb-1 d-flex px-1">
       <div class="align-self-end">
-        <span class="text--secondary mr-2">艦隊防空値:</span>
+        <span class="body-2 text--secondary mr-2">{{ $t("Common.艦隊防空値") }}:</span>
         <span>{{ fleetAntiAir }}</span>
       </div>
       <div class="ml-auto d-flex">
-        <v-checkbox class="mr-3" label="空襲マス" v-model="isAirRaid" dense hide-details @change="updateTable"></v-checkbox>
-        <v-checkbox label="敵側式" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
+        <v-checkbox class="mr-3" :label="$t('Fleet.空襲マス')" v-model="isAirRaid" dense hide-details @change="updateTable"></v-checkbox>
+        <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
       </div>
     </div>
     <div class="stage2-row header px-1 px-md-2">
-      <div class="flex-grow-1">艦船</div>
-      <div class="stage2-col">割合撃墜</div>
-      <div class="stage2-col">固定撃墜</div>
-      <div class="stage2-col">最低保証</div>
-      <div class="stage2-col">両成功</div>
+      <div class="flex-grow-1">{{ $t("Fleet.艦娘") }}</div>
+      <div class="stage2-col">{{ $t("Fleet.割合撃墜") }}</div>
+      <div class="stage2-col">{{ $t("Fleet.固定撃墜") }}</div>
+      <div class="stage2-col">{{ $t("Fleet.最低保証") }}</div>
+      <div class="stage2-col">{{ $t("Fleet.両成功") }}</div>
     </div>
-    <div
-      v-for="(item, i) in stage2Data"
-      :key="i"
-      class="stage2-row pr-1"
-      :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
-    >
+    <div v-for="(item, i) in stage2Data" :key="i" class="stage2-row pr-1" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
       <div class="d-flex flex-grow-1">
         <div class="align-self-center mr-2">
           <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
@@ -84,11 +79,11 @@
         <div class="align-self-center d-none d-sm-block flex-grow-1">
           <div class="stage2-id primary--text" v-if="item.isEnemy">id:{{ item.id }}</div>
           <div class="d-flex">
-            <div class="stage2-name text-truncate">{{ item.name }}</div>
+            <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
           </div>
         </div>
       </div>
-      <div class="stage2-col">{{ item.rate }}({{ item.rateDown }}機)</div>
+      <div class="stage2-col">{{ item.rate }}( {{ $t("Common.x機", { number: item.rateDown }) }} )</div>
       <div class="stage2-col">{{ item.fix }}</div>
       <div class="stage2-col">{{ item.min }}</div>
       <div class="stage2-col">{{ item.sum }}</div>
@@ -163,9 +158,12 @@ import AntiAirCutIn from '@/classes/aerialCombat/antiAirCutIn';
 import Enemy from '@/classes/enemy/enemy';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
 
 interface Stage2Row {
   id: number;
+  data: ShipMaster | EnemyMaster;
   name: string;
   rate: string;
   rateDown: number;
@@ -184,9 +182,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    formations: Const.FORMATIONS,
     formation: 1,
-    avoids: Const.AVOID_TYPE,
     avoid: 0,
     attackerSlot: 18,
     adj1: 1,
@@ -199,11 +195,45 @@ export default Vue.extend({
     colorTable: ['255, 64, 64', '64, 255, 64', '64, 64, 255', '255, 255, 64', '255, 64, 255'],
   }),
   computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
     ships(): Ship[] | Enemy[] {
       if (this.fleet instanceof EnemyFleet) {
         return this.fleet.enemies.filter((v) => v.data.id > 0);
       }
       return this.fleet.ships.filter((v) => v.isActive && !v.isEmpty);
+    },
+    formations(): Formation[] {
+      if (this.needTrans) {
+        const items = [];
+        for (let i = 0; i < Const.FORMATIONS.length; i += 1) {
+          const { text, value, correction } = Const.FORMATIONS[i];
+          items.push({ text: `${this.$t(`Common.${text}`)}`, value, correction });
+        }
+        return items;
+      }
+      return Const.FORMATIONS;
+    },
+    avoids(): AvoidType[] {
+      if (this.needTrans) {
+        const items = [];
+        for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
+          const {
+            text, value, c1, c2, c3, c4,
+          } = Const.AVOID_TYPE[i];
+          items.push({
+            text: `${this.$t(`Common.回避性能.${text}`)}`,
+            value,
+            c1,
+            c2,
+            c3,
+            c4,
+          });
+        }
+        return items;
+      }
+      return Const.AVOID_TYPE;
     },
     isManual(): boolean {
       return this.avoid === Const.MANUAL_AVOID;
@@ -308,6 +338,7 @@ export default Vue.extend({
         const isEnemy = ship instanceof Enemy;
         this.stage2Data.push({
           id: ship.data.id,
+          data: ship.data,
           name: ship.data.name,
           rate: `${(100 * rate).toFixed(2)}%`,
           rateDown,
@@ -319,6 +350,17 @@ export default Vue.extend({
       }
       // 現在選択されている条件での艦隊防空値
       this.fleetAntiAir = this.fleet.getFleetAntiAir(formation, manualAvoid).toFixed(2);
+    },
+    getShipName(ship: ShipMaster | EnemyMaster) {
+      if (this.needTrans && ship instanceof ShipMaster) {
+        const shipName = ShipMaster.getSuffix(ship);
+        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+      } if (this.needTrans && ship.name) {
+        const shipName = EnemyMaster.getSuffix(ship.name);
+        const trans = (v: string) => (v ? this.$t(v) : '');
+        return `${shipName.map((v) => trans(v)).join('')}`;
+      }
+      return ship.name || '';
     },
   },
 });

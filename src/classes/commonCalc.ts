@@ -169,23 +169,23 @@ export default class CommonCalc {
     // 求ム計算式
     switch (item.grow) {
       case 2:
-        return '100 戦';
+        return '100';
       case 3:
-        return '57 ~ 75 戦';
+        return '57 ~ 75';
       case 4:
-        return '39 ~ 47 戦';
+        return '39 ~ 47';
       case 5:
-        return '31 ~ 40 戦';
+        return '31 ~ 40';
       case 6:
-        return '25 ~ 31 戦';
+        return '25 ~ 31';
       case 7:
-        return '20 ~ 28 戦';
+        return '20 ~ 28';
       case 8:
-        return '18 ~ 23 戦';
+        return '18 ~ 23';
       case 9:
-        return '16 ~ 20 戦';
+        return '16 ~ 20';
       default:
-        return '不明';
+        return '?';
     }
   }
 }

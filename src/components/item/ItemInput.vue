@@ -30,7 +30,7 @@
       <v-card class="px-2">
         <div class="d-flex px-2">
           <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
-          <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">初期値</v-btn>
+          <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">{{ $t('Common.初期値') }}</v-btn>
         </div>
         <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
       </v-card>

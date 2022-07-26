@@ -8,14 +8,14 @@
         <div class="d-flex caption flex-wrap">
           <div class="enemy-id ml-2 primary--text">id:{{ enemy.data.id }}</div>
           <div class="ml-2">
-            <span class="text--secondary">耐久:</span>
+            <span class="text--secondary">{{ $t('Common.耐久') }}:</span>
             <span class="ml-1 font-weight-medium">{{ enemy.data.hp }}</span>
-            <span class="ml-2 text--secondary">装甲:</span>
+            <span class="ml-2 text--secondary">{{ $t('Common.装甲') }}:</span>
             <span class="ml-1 font-weight-medium">{{ enemy.actualArmor }}</span>
           </div>
         </div>
         <div class="d-flex">
-          <div class="enemy-name ml-2 text-truncate">{{ enemy.data.name }}</div>
+          <div class="enemy-name ml-2 text-truncate">{{ getEnemyName(enemy.data.name) }}</div>
         </div>
       </div>
     </div>
@@ -26,15 +26,15 @@
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>
       <div v-if="enemy.fullLBAirPower && enemy.fullLBAirPower !== enemy.fullAirPower">
-        <span class="text--secondary">基地制空:</span>
+        <span class="text--secondary">{{ $t('Common.基地制空') }}:</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullLBAirPower }}</span>
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetailAB }}</span>
       </div>
     </div>
     <div class="caption px-1">
-      <span class="text--secondary">装備命中:</span>
+      <span class="text--secondary">{{ $t('Common.装備命中') }}:</span>
       <span class="ml-1 font-weight-medium">{{ enemy.sumItemAccuracy }}</span>
-      <span class="ml-3 text--secondary">総搭載数:</span>
+      <span class="ml-3 text--secondary">{{ $t('Common.総搭載数') }}:</span>
       <span class="ml-1 font-weight-medium">{{ sumSlot }}</span>
     </div>
     <v-divider class="item-input-divider"></v-divider>
@@ -87,6 +87,7 @@ import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import Enemy from '@/classes/enemy/enemy';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip },
@@ -125,6 +126,14 @@ export default Vue.extend({
     },
   },
   methods: {
+    getEnemyName(name: string): string {
+      if (name && this.$i18n.locale !== 'ja') {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? this.$t(v) : '');
+        return `${shipName.map((v) => trans(v)).join('')}`;
+      }
+      return name || '';
+    },
     showItemList(index: number): void {
       if (!this.readonly) {
         this.handleShowItemList(index);

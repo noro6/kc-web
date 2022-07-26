@@ -9,15 +9,15 @@
             hide-details
             :items="areaItems"
             @change="worldChanged"
-            label="海域"
+            :label="$t('Enemies.海域')"
             :menu-props="{ maxHeight: '600px' }"
           ></v-select>
         </div>
         <div v-show="isEvent">
-          <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" label="難易度"></v-select>
+          <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" :label="$t('Difficulty.難易度')"></v-select>
         </div>
         <div>
-          <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" label="セル"></v-select>
+          <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" :label="$t('Enemies.セル')"></v-select>
         </div>
       </div>
       <div class="map-img-area">
@@ -47,82 +47,85 @@
       </div>
       <div class="patterns-container px-2">
         <v-tabs v-model="tab" @change="fleetTabChanged" v-show="enabledCommitBtn">
-          <v-tab v-for="(name, i) in tabNames" :key="i" :href="`#pattern${i}`" @dblclick="commitFleet">{{ name }}</v-tab>
+          <v-tab v-for="(name, i) in tabNames" :key="i" :href="`#pattern${i}`" @dblclick="commitFleet">
+            {{ name ? $t(`Enemies.${name}`) : `#${i + 1}` }}
+          </v-tab>
           <v-tab-item v-for="(fleet, i) in fleetPatterns" :key="i" :value="`pattern${i}`">
             <v-divider></v-divider>
             <div class="d-flex flex-wrap cell-info-row mt-1">
-              <div class="ml-2 text--secondary">戦闘形式:</div>
-              <div class="ml-2">{{ getCellName(fleet.cellType) }}</div>
-              <div class="ml-3 text--secondary">陣形:</div>
-              <div class="ml-2">{{ getFormationName(fleet.formation) }}</div>
-              <div class="ml-3 text--secondary d-none d-sm-block">艦隊防空値:</div>
-              <div class="ml-2 d-none d-sm-block">{{ fleet.fleetAntiAir }}</div>
-              <div class="ml-3 text--secondary" v-if="fleet.radius[0]">{{ $t('Common.半径') }}:</div>
-              <div class="ml-2" v-if="fleet.radius[0]">{{ fleet.radius.join(' or ') }}</div>
-              <v-spacer></v-spacer>
-              <div class="text--secondary">詳細:</div>
-              <v-btn v-show="selectedFleet" color="info" icon @click.stop@="showEnemyFleetDetail">
-                <v-icon>mdi-information-outline</v-icon>
-              </v-btn>
+              <div class="ml-2 text--secondary">{{ $t("Enemies.戦闘形式") }}:</div>
+              <div class="ml-1">{{ getCellName(fleet.cellType) }}</div>
+              <div class="ml-2 text--secondary">{{ $t("Enemies.陣形") }}:</div>
+              <div class="ml-1">{{ getFormationName(fleet.formation) }}</div>
+              <div class="ml-2 text--secondary d-none d-sm-block">{{ $t("Common.艦隊防空値") }}:</div>
+              <div class="ml-1 d-none d-sm-block">{{ fleet.fleetAntiAir }}</div>
+              <div class="ml-2 text--secondary" v-if="fleet.radius[0]">{{ $t("Common.半径") }}:</div>
+              <div class="ml-1" v-if="fleet.radius[0]">{{ fleet.radius.join(" or ") }}</div>
+              <div class="ml-auto d-flex">
+                <div class="text--secondary align-self-center">{{ $t("Enemies.詳細") }}:</div>
+                <v-btn v-show="selectedFleet" color="info" icon @click.stop@="showEnemyFleetDetail">
+                  <v-icon>mdi-information-outline</v-icon>
+                </v-btn>
+              </div>
             </div>
             <div v-if="isAirRaid" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary mr-2">{{ $t('Common.制空値') }}:</div>
+              <div class="text--secondary mr-2">{{ $t("Common.制空値") }}:</div>
               <div class="mr-2">{{ fleet.fullAirbaseAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
                   </template>
-                  <div>搭載数が未確定の敵艦が含まれています。</div>
-                  <div>表示制空値は目安のもので、正確な制空値ではありません。</div>
+                  <div>{{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}</div>
+                  <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
                 </v-tooltip>
               </div>
               <div class="ml-2">
                 <v-chip class="mr-1" color="green" label outlined>
-                  <span>{{ $t('Common.確保') }}:</span>
+                  <span>{{ $t("Common.確保") }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>{{ $t('Common.優勢') }}:</span>
+                  <span>{{ $t("Common.優勢") }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
-                  <span>{{ $t('Common.拮抗') }}:</span>
+                  <span>{{ $t("Common.拮抗") }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>{{ $t('Common.劣勢') }}:</span>
+                  <span>{{ $t("Common.劣勢") }}:</span>
                   <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
                 </v-chip>
               </div>
             </div>
             <div v-else-if="fleet.fullAirPower" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary mr-2">{{ $t('Common.制空') }}:</div>
-              <div  class="mr-2">{{ fleet.fullAirPower }}</div>
+              <div class="text--secondary mr-2">{{ $t("Common.制空") }}:</div>
+              <div class="mr-2">{{ fleet.fullAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
                   </template>
-                  <div>搭載数が未確定の敵艦が含まれています。</div>
-                  <div>表示制空値は目安のもので、正確な制空値ではありません。</div>
+                  <div>{{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}</div>
+                  <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
                 </v-tooltip>
               </div>
               <div>
                 <v-chip class="mr-1" color="green" label outlined>
-                  <span>{{ $t('Common.確保') }}:</span>
+                  <span>{{ $t("Common.確保") }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>{{ $t('Common.優勢') }}:</span>
+                  <span>{{ $t("Common.優勢") }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="orange" label outlined>
-                  <span>{{ $t('Common.拮抗') }}:</span>
+                  <span>{{ $t("Common.拮抗") }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
                 </v-chip>
                 <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>{{ $t('Common.劣勢') }}:</span>
+                  <span>{{ $t("Common.劣勢") }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
@@ -142,13 +145,13 @@
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t('Common.制空') }}: {{ enemy.fullAirPower }}</div>
+                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }}: {{ enemy.fullAirPower }}</div>
                       <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t('Common.制空') }}:({{ enemy.fullLBAirPower }})</div>
+                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t("Common.制空") }}: ({{ enemy.fullLBAirPower }})</div>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
-                        {{ enemy.data.name }}
+                        {{ getEnemyName(enemy.data.name) }}
                       </div>
                     </div>
                   </div>
@@ -168,15 +171,15 @@
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
                       <div class="primary--text">id:{{ enemy.data.id }}</div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t('Common.制空') }}:{{ enemy.fullAirPower }}</div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t('Common.制空') }}:({{ enemy.fullLBAirPower }})</div>
+                      <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }}: {{ enemy.fullAirPower }}</div>
+                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t("Common.制空") }}: ({{ enemy.fullLBAirPower }})</div>
                       <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t('Common.耐久') }}: {{ enemy.data.hp }}</div>
-                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t('Common.装甲') }}: {{ enemy.actualArmor }}</div>
+                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t("Common.耐久") }}: {{ enemy.data.hp }}</div>
+                      <div class="ml-2 text--secondary" v-if="!fleet.isUnion">{{ $t("Common.装甲") }}: {{ enemy.actualArmor }}</div>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
-                        {{ enemy.data.name }}
+                        {{ getEnemyName(enemy.data.name) }}
                       </div>
                     </div>
                   </div>
@@ -191,18 +194,18 @@
             </div>
           </v-tab-item>
         </v-tabs>
-        <div v-show="!enabledCommitBtn" class="pt-10 text-center">展開したい海域、セル、敵編成を選択してください。</div>
+        <div v-show="!enabledCommitBtn" class="pt-10 text-center">{{ $t("Enemies.展開したい海域、セル、敵編成を選択してください。") }}</div>
       </div>
       <v-divider></v-divider>
       <v-card-actions>
-        <div v-if="selectedNodeNames.length" class="body-2">選択したセル: {{ selectedNodeNames.join(" → ") }}</div>
+        <div v-if="selectedNodeNames.length" class="body-2">{{ $t("Enemies.選択したセル") }}: {{ selectedNodeNames.join(" → ") }}</div>
         <v-spacer></v-spacer>
-        <v-btn color="primary" @click="commitFleet" :disabled="!enabledCommitBtn">展開</v-btn>
-        <v-btn color="secondary" @click="close">閉じる</v-btn>
+        <v-btn color="primary" @click="commitFleet" :disabled="!enabledCommitBtn">{{ $t("Common.展開") }}</v-btn>
+        <v-btn color="secondary" @click="close">{{ $t("Common.閉じる") }}</v-btn>
       </v-card-actions>
     </v-card>
     <v-snackbar v-model="snackbar" color="primary" outlined>
-      敵編成を展開しました。続けて次の敵編成を選択できます。
+      {{ $t("Enemies.敵編成を展開しました。続けて次の敵編成を選択できます。") }}
       <template v-slot:action="{ attrs }">
         <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>
       </template>
@@ -215,21 +218,16 @@
         <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" />
       </v-card>
     </v-dialog>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <enemy-tooltip v-model="tooltipEnemy" />
     </v-tooltip>
   </div>
 </template>
 
 <style scoped>
+.v-tab {
+  text-transform: none;
+}
 .world-select {
   max-width: 35%;
 }
@@ -260,7 +258,7 @@
 }
 
 .patterns-container {
-  height: 340px;
+  min-height: 340px;
 }
 
 .v-tabs-bar .v-tab {
@@ -321,6 +319,9 @@
 
 .map-container {
   max-width: 1200px;
+}
+.chip-value {
+  margin-left: 4px;
 }
 </style>
 
@@ -448,6 +449,14 @@ export default Vue.extend({
     }
   },
   methods: {
+    getEnemyName(name: string): string {
+      if (name && this.$i18n.locale !== 'ja') {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? this.$t(v) : '');
+        return `${shipName.map((v) => trans(v)).join('')}`;
+      }
+      return name || '';
+    },
     initCells(cells: CellMaster[]) {
       for (let i = 0; i < cells.length; i += 1) {
         this.allCells.push(cells[i]);
@@ -535,9 +544,7 @@ export default Vue.extend({
         }
 
         // 味方陣形 => 空襲のとき輪形
-        const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID
-          || cell.cellType === CELL_TYPE.HIGH_AIR_RAID
-          || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
+        const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID || cell.cellType === CELL_TYPE.HIGH_AIR_RAID || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
         this.isAirRaid = isAirRaid;
         const mainFleetFormation = isAirRaid ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
 
@@ -552,7 +559,7 @@ export default Vue.extend({
             mainFleetFormation,
           }),
         );
-        patternNames.push(cell.detail ? cell.detail : `編成${j + 1}`);
+        patternNames.push(cell.detail);
       }
 
       this.fleetPatterns = enemyFleets;
@@ -568,11 +575,11 @@ export default Vue.extend({
     },
     getFormationName(i: number) {
       const formation = Const.FORMATIONS.find((v) => v.value === i);
-      return formation ? formation.text : '';
+      return formation ? this.$t(`Common.${formation.text}`) : '';
     },
     getCellName(i: number) {
       const cell = Const.CELL_TYPES.find((v) => v.value === i);
-      return cell ? cell.text : '';
+      return cell ? this.$t(`Common.${cell.text}`) : '';
     },
     showEnemyFleetDetail() {
       this.detailDialog = true;

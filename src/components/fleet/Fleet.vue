@@ -3,9 +3,9 @@
     <div class="d-flex ml-2 fleet-header flex-wrap">
       <div class="mt-1 caption text--secondary">{{ $t('Common.制空') }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
-      <div class="mt-1 caption text--secondary">触接:</div>
+      <div class="mt-1 caption text--secondary">{{ $t('Fleet.触接') }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>
-      <div class="mt-1 caption text--secondary">夜偵:</div>
+      <div class="mt-1 caption text--secondary">{{ $t('Fleet.夜偵') }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ nightContactRate }}%</div>
       <!-- 索敵値 -->
       <div class="mt-1 mr-3 d-flex">
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="d-flex ml-6">
-        <div class="mt-1 align-self-center caption d-capture-none">艦隊詳細:</div>
+        <div class="mt-1 align-self-center caption d-capture-none">{{ $t('Fleet.艦隊詳細') }}:</div>
         <div class="operation-button">
           <v-btn color="info" icon @click="clickedInfo">
             <v-icon>mdi-information-outline</v-icon>
@@ -55,16 +55,16 @@
                 <v-icon>mdi-trash-can-outline</v-icon>
               </v-btn>
             </template>
-            <span>艦隊リセット</span>
+            <span>{{ $t('Fleet.艦隊リセット') }}</span>
           </v-tooltip>
         </div>
         <div class="operation-button ship-line-setting">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
             <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
-              <span class="white--text">2列</span>
+              <span class="white--text">{{ $t('Fleet.x列', {number : 2 }) }}</span>
             </v-btn>
             <v-btn :value="false" small :class="{ blue: !isShipView2Line, secondary: isShipView2Line }" @click="toggleViewLine(false)">
-              <span class="white--text">3列</span>
+              <span class="white--text">{{ $t('Fleet.x列', {number : 3 }) }}</span>
             </v-btn>
           </v-btn-toggle>
         </div>

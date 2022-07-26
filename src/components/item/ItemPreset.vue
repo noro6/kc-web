@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <div class="d-flex pt-2 pb-1 pr-2">
-      <div class="align-self-center ml-3">装備プリセット</div>
+      <div class="align-self-center ml-3">{{ $t("ItemList.装備プリセット") }}</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="handleClose">
         <v-icon>mdi-close</v-icon>
@@ -9,7 +9,9 @@
     </div>
     <v-divider></v-divider>
     <div class="px-3 pt-3">
-      <v-btn color="teal" :dark="!disabledRegist" :disabled="disabledRegist" @click="readyPreset()">現在の装備構成で新規登録</v-btn>
+      <v-btn color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()">
+        {{ $t("ItemList.現在の装備構成で新規登録") }}
+      </v-btn>
       <v-divider class="mt-3"></v-divider>
       <div class="preset-container py-1">
         <div class="preset-list">
@@ -30,12 +32,12 @@
         <div class="preset-view pl-2">
           <div class="mt-5 d-flex" v-if="!isPresetItemEmpty">
             <div>
-              <v-text-field label="名称" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100"></v-text-field>
+              <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100"></v-text-field>
             </div>
             <div>
-              <v-btn class="ml-1" color="success" :disabled="!selectedPreset.name" @click="savePreset()">{{
-                selectedIndex >= 0 ? "更新" : "保存"
-              }}</v-btn>
+              <v-btn class="ml-1" color="success" :disabled="!selectedPreset.name" @click="savePreset()">
+                {{ selectedIndex >= 0 ? $t("Common.更新") : $t("Common.保存") }}
+              </v-btn>
             </div>
           </div>
           <div class="items-container pa-2" v-if="!isPresetItemEmpty">
@@ -44,26 +46,21 @@
               <div class="ml-1">
                 <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
               </div>
-              <div class="ml-1 body-2 text-truncate preset-item-name">{{ item.data.name }}</div>
+              <div class="ml-1 body-2 text-truncate preset-item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
               <div class="ml-1 body-2" v-if="item.remodel">
                 <v-icon small color="teal accent-4">mdi-star</v-icon>
                 <span class="teal--text text--accent-4">{{ item.remodel }}</span>
               </div>
             </div>
             <div v-if="exItemView.data.id" class="mt-4 d-flex ml-1">
-              <div class="caption">補強増設</div>
+              <div class="caption">{{ $t("ItemList.補強増設") }}</div>
               <div class="divider-line"></div>
             </div>
             <div v-if="exItemView.data.id" class="view-item">
               <div class="ml-2">
-                <v-img
-                  v-if="exItemView.data.iconTypeId > 0"
-                  :src="`./img/type/icon${exItemView.data.iconTypeId}.png`"
-                  width="24"
-                  height="24"
-                />
+                <v-img v-if="exItemView.data.iconTypeId > 0" :src="`./img/type/icon${exItemView.data.iconTypeId}.png`" width="24" height="24" />
               </div>
-              <div class="ml-2 body-2 text-truncate preset-item-name">{{ exItemView.data.name }}</div>
+              <div class="ml-2 body-2 text-truncate preset-item-name">{{ needTrans ? $t(`${exItemView.data.name}`) : exItemView.data.name }}</div>
               <div class="ml-1 body-2" v-if="exItemView.remodel">
                 <v-icon small color="teal accent-4">mdi-star</v-icon>
                 <span class="teal--text text--accent-4">{{ exItemView.remodel }}</span>
@@ -71,14 +68,14 @@
             </div>
           </div>
           <div class="d-flex my-3 justify-end" v-if="!isPresetItemEmpty">
-            <v-btn v-if="selectedIndex >= 0" color="primary" @click="expandPreset()">展開</v-btn>
-            <v-btn class="ml-3" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">削除</v-btn>
+            <v-btn v-if="selectedIndex >= 0" color="primary" @click="expandPreset()">{{ $t("Common.展開") }}</v-btn>
+            <v-btn class="ml-3" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">{{ $t("Common.削除") }}</v-btn>
           </div>
         </div>
       </div>
     </div>
     <v-snackbar v-model="snackbar" color="success" :top="snackbar">
-      {{ infoText }}
+      {{ infoText ? $t(`ItemList.${infoText}`) : infoText }}
       <template v-slot:action="{ attrs }">
         <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>
       </template>
@@ -193,7 +190,10 @@ export default Vue.extend({
     this.items = this.$store.state.items as ItemMaster[];
   },
   computed: {
-    disabledRegist(): boolean {
+    needTrans() {
+      return this.$i18n.locale !== 'ja';
+    },
+    disabledCommit(): boolean {
       if (this.value instanceof Airbase) {
         return this.value.items.filter((v) => v.data.id > 0).length === 0;
       }
@@ -234,7 +234,11 @@ export default Vue.extend({
         newPreset.id = maxId;
       }
       newPreset.id += 1;
-      newPreset.name = `装備プリセット${newPreset.id}`;
+      if (this.needTrans) {
+        newPreset.name = `${this.$t('ItemList.プリセット')} ${newPreset.id}`;
+      } else {
+        newPreset.name = `装備プリセット${newPreset.id}`;
+      }
       // 装備id一覧
       for (let i = 0; i < this.value.items.length; i += 1) {
         const item = this.value.items[i];

@@ -6,14 +6,14 @@
           <div>
             <v-img :src="`./img/type/type${typeId}.png`" height="30" width="30"></v-img>
           </div>
-          <div class="ml-1 item-name text-truncate">{{ typeName }}</div>
+          <div class="ml-1 item-name text-truncate">{{ needTrans ? $t(`EquipType.${typeName}`) : typeName }}</div>
           <div class="item-level">
             <v-img :src="`./img/util/prof${levelValue}.png`" height="24" width="18"></v-img>
             <span class="level-value">{{ level }}</span>
           </div>
         </template>
         <template v-else>
-          <div class="mx-auto">一括変更</div>
+          <div class="mx-auto">{{ $t('Common.一括変更') }}</div>
         </template>
       </div>
     </template>
@@ -117,6 +117,9 @@ export default Vue.extend({
     allLevel: 0,
   }),
   computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
     typeName(): string {
       if (this.index >= 0) {
         const typeId = this.setting.planeInitialLevels[this.index].id;

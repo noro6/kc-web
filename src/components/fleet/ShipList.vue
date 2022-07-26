@@ -5,7 +5,7 @@
         <v-text-field
           dense
           hide-details
-          placeholder="図鑑id 名称検索"
+          :placeholder="$t('ItemList.図鑑id 名称検索')"
           v-model.trim="keyword"
           @input="filter()"
           clearable
@@ -17,11 +17,11 @@
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">一列</span>
+            <span class="white--text">{{ $t('ItemList.一列') }}</span>
           </v-btn>
           <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">複数列</span>
+            <span class="white--text">{{ $t('ItemList.複数列') }}</span>
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -32,22 +32,22 @@
     <v-divider></v-divider>
     <div class="d-flex pl-4 pt-1 pb-2 flex-wrap">
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details label="最終改造"></v-checkbox>
+        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="daihatsuOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'大発搭載可'"></v-checkbox>
+        <v-checkbox v-model="daihatsuOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.大発搭載可')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="naikateiOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'内火艇搭載可'"></v-checkbox>
+        <v-checkbox v-model="naikateiOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="'戦闘機搭載可'"></v-checkbox>
+        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">
-        <v-checkbox v-model="hasAreaOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="'札あり'"></v-checkbox>
+        <v-checkbox v-model="hasAreaOnly" @click="filter()" dense hide-details :label="$t('Fleet.札あり')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">
-        <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="'補強増設あり'"></v-checkbox>
+        <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="$t('Fleet.補強増設あり')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="shipStock.length">
         <v-checkbox
@@ -55,7 +55,7 @@
           @click="clickedStockOnly()"
           dense
           hide-details
-          :label="'在籍艦娘反映'"
+          :label="$t('Fleet.在籍艦娘反映')"
           :disabled="disabledStockOnlyChange"
         ></v-checkbox>
       </div>
@@ -75,7 +75,7 @@
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
     <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
-        <div class="ship-status" v-for="i in 5" :key="`slot${i}`">搭載{{ i }}</div>
+        <div class="ship-status" v-for="i in 5" :key="`slot${i}`">{{ $t('Fleet.搭載') }}{{ i }}</div>
       </div>
       <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
@@ -111,7 +111,7 @@
                 <div v-else class="primary--text">id:{{ data.ship.albumId }}</div>
               </div>
               <div class="d-flex">
-                <div class="ship-name text-truncate">{{ shipName(data.ship.name) }}</div>
+                <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
               </div>
             </div>
             <div class="ship-count red--text caption" v-if="isStockOnly">
@@ -126,7 +126,7 @@
           </div>
         </div>
       </div>
-      <div v-show="ships.length === 0" class="body-2 text-center mt-10">探したけど見つからなかったよ&#128546;</div>
+      <div v-show="ships.length === 0" class="body-2 text-center mt-10">{{ $t('Common.探したけど見つからなかったよ') }}&#128546;</div>
     </div>
     <v-tooltip
       v-model="enabledTooltip"
@@ -142,13 +142,13 @@
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3" v-if="confirmShip.ship">
         <div class="ma-4">
-          <div>{{ confirmShip.ship.name }}は既に配備されています。</div>
-          <div class="caption mt-2">※ 配備 を押せば無視して配備できます。</div>
+          <div>{{ $t("Common.既に配備されています。") }}</div>
+          <div class="caption mt-2">※ {{ $t("Common.配備を押せば無視して配備できます。") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="info" dark @click.stop="clickedShip(confirmShip)">配備</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+          <v-btn class="ml-auto" color="info" dark @click.stop="clickedShip(confirmShip)">{{ $t("Common.配備") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -393,7 +393,7 @@ export default Vue.extend({
   },
   computed: {
     needTrans() {
-      return this.$i18n.locale === 'ja';
+      return this.$i18n.locale !== 'ja';
     },
   },
   methods: {
@@ -632,23 +632,12 @@ export default Vue.extend({
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
     },
-    shipName(shipName: string) {
-      if (this.$i18n.locale === 'en') {
-        const remodelA = shipName.split('甲');
-        if (remodelA.length > 1) {
-          return `${this.$t(`${remodelA[0]}`)} A`;
-        }
-        const remodelB = shipName.split('乙改');
-        if (remodelB.length > 1) {
-          return `${this.$t(`${remodelB[0]}`)} B Kai`;
-        }
-        const remodel = shipName.split('改');
-        if (remodel.length > 1) {
-          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
-        }
-        return shipName ? this.$t(`${shipName}`) : 'Ship';
+    getShipName(ship: ShipMaster) {
+      if (this.needTrans) {
+        const shipName = ShipMaster.getSuffix(ship);
+        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
       }
-      return shipName || '';
+      return ship.name || '';
     },
   },
 });

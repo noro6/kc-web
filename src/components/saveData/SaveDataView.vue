@@ -11,7 +11,7 @@
           <template v-slot:activator="{ on, attrs }">
             <div class="home d-flex px-1 flex-grow-1" v-ripple @click="openGitHub()" v-bind="attrs" v-on="on">
               <v-icon>mdi-github</v-icon>
-              <div class="align-self-center mx-1">制空権シミュレータ</div>
+              <div class="align-self-center mx-1">{{ $t("Common.制空権シミュレータ") }}</div>
               <div class="align-self-center caption">v{{ $store.state.siteVersion }}</div>
             </div>
           </template>
@@ -25,7 +25,7 @@
               <v-icon color="blue lighten-3">mdi-note-plus</v-icon>
             </v-btn>
           </template>
-          <span>新しい編成を作成</span>
+          <span>{{ $t("SaveData.新しい編成を作成") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -33,7 +33,7 @@
               <v-icon color="yellow lighten-1">mdi-folder-plus</v-icon>
             </v-btn>
           </template>
-          <span>新しいフォルダーを作成</span>
+          <span>{{ $t("SaveData.新しいフォルダーを作成") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -41,7 +41,7 @@
               <v-icon color="orange lighten-3">mdi-expand-all</v-icon>
             </v-btn>
           </template>
-          <span>フォルダーを全て開く</span>
+          <span>{{ $t("SaveData.フォルダーを全て開く") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -49,7 +49,7 @@
               <v-icon color="grey">mdi-collapse-all</v-icon>
             </v-btn>
           </template>
-          <span>フォルダーを全て閉じる</span>
+          <span>{{ $t("SaveData.フォルダーを全て閉じる") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -58,8 +58,8 @@
               <v-icon v-else>mdi-pin-outline</v-icon>
             </v-btn>
           </template>
-          <span v-if="!fixedDrawer">サイドバー固定</span>
-          <span v-else>サイドバー固定解除</span>
+          <span v-if="!fixedDrawer">{{ $t("SaveData.サイドバー固定") }}</span>
+          <span v-else>{{ $t("SaveData.サイドバー固定解除") }}</span>
         </v-tooltip>
       </div>
     </div>
@@ -78,7 +78,7 @@
   flex-flow: column;
 }
 .header {
-  padding: 2px;
+  padding: 2px 2px 2px 0;
 }
 .btn-icons {
   align-self: center;
@@ -141,18 +141,18 @@ export default Vue.extend({
     addNewFile() {
       // 新規データ
       const data = new SaveData();
-      data.name = '新規データ';
+      data.name = `${this.$t('SaveData.新規データ')}`;
       data.isUnsaved = false;
       this.addNewSaveData(data);
     },
     addNewDirectory() {
       // 新規フォルダー
       const folder = new SaveData();
-      folder.name = '新しいフォルダー';
+      folder.name = `${this.$t('SaveData.新しいフォルダー')}`;
       folder.isDirectory = true;
       folder.isUnsaved = false;
       this.addNewSaveData(folder);
-      this.handleInform('新しいフォルダーを作成しました');
+      this.handleInform('新しいフォルダーを作成しました。');
     },
     addNewSaveData(saveData: SaveData) {
       const data = this.rootData.childItems;
@@ -170,6 +170,7 @@ export default Vue.extend({
       if (folder) {
         if (!saveData.isDirectory) {
           saveData.name = folder.getNewSaveDataName();
+          saveData.name = saveData.name.replace('新規データ', `${this.$t('SaveData.新規データ')} `);
         }
         folder.isOpen = true;
         folder.childItems.push(saveData);

@@ -1,28 +1,28 @@
 <template>
   <div class="ma-2">
     <div class="d-flex ml-5">
-      <div class="align-self-center pt-3">制空状態:</div>
+      <div class="align-self-center pt-3">{{ $t('Result.制空状態') }}:</div>
       <div class="ml-5">
         <v-radio-group v-model="airState" row @change="changeAirState" hide-details class="py-0">
-          <v-radio label="制空権確保" :value="0"></v-radio>
-          <v-radio label="航空優勢" :value="1"></v-radio>
-          <v-radio label="航空劣勢" :value="2"></v-radio>
+          <v-radio :label="$t('Common.制空権確保')" :value="0"></v-radio>
+          <v-radio :label="$t('Common.航空優勢')" :value="1"></v-radio>
+          <v-radio :label="$t('Common.航空劣勢')" :value="2"></v-radio>
         </v-radio-group>
       </div>
     </div>
     <div class="graph-area">
       <div class="contact-graph">
-        <doughnut-chart :data="graphData" :options="options" title-text="対敵通常艦隊" />
+        <doughnut-chart :data="graphData" :options="options" :title-text="$t('Result.対敵通常艦隊')" />
       </div>
       <div class="contact-graph">
-        <doughnut-chart :data="unionGraphData" :options="unionOptions" title-text="対敵連合艦隊" />
+        <doughnut-chart :data="unionGraphData" :options="unionOptions" :title-text="$t('Result.対敵連合艦隊')" />
       </div>
       <div class="total-contact">
-        <div>合計触接率</div>
+        <div>{{ $t('Result.合計触接率') }}</div>
         <div>{{ rates[airState].sumRate.toFixed(1) }} %</div>
       </div>
       <div class="total-contact-union">
-        <div>合計触接率</div>
+        <div>{{ $t('Result.合計触接率') }}</div>
         <div>{{ unionRates[airState].sumRate.toFixed(1) }} %</div>
       </div>
     </div>
@@ -32,34 +32,34 @@
         <div class="ml-2">{{ legend.text }}</div>
       </div>
     </div>
-    <div>対敵通常艦隊</div>
+    <div>{{ $t('Result.対敵通常艦隊') }}</div>
     <div class="contact-row header-row">
-      <div class="text-left">制空状態</div>
-      <div>触接開始率</div>
-      <div>&times;1.2触接率</div>
-      <div>&times;1.17触接率</div>
-      <div>&times;1.12触接率</div>
-      <div>合計触接率</div>
+      <div class="text-left">{{ $t('Result.制空状態') }}</div>
+      <div>{{ $t('Result.触接開始率') }}</div>
+      <div>&times;1.2{{ $t('Result.触接率') }}</div>
+      <div>&times;1.17{{ $t('Result.触接率') }}</div>
+      <div>&times;1.12{{ $t('Result.触接率') }}</div>
+      <div>{{ $t('Result.合計触接率') }}</div>
     </div>
     <div class="contact-row" v-for="(data, i) in rates" :key="i" :class="{ selected: i === airState }">
-      <div class="text-left">{{ airStatus[i] }}</div>
+      <div class="text-left">{{ $t(`Common.${airStatus[i]}`) }}</div>
       <div>{{ data.startRate.toFixed(1) }} %</div>
       <div>{{ data.contact120.toFixed(1) }} %</div>
       <div>{{ data.contact117.toFixed(1) }} %</div>
       <div>{{ data.contact112.toFixed(1) }} %</div>
       <div>{{ data.sumRate.toFixed(1) }} %</div>
     </div>
-    <div class="mt-2">対敵連合艦隊</div>
+    <div class="mt-2">{{ $t('Result.対敵連合艦隊') }}</div>
     <div class="contact-row header-row">
-      <div class="text-left">制空状態</div>
-      <div>触接開始率</div>
-      <div>&times;1.2触接率</div>
-      <div>&times;1.17触接率</div>
-      <div>&times;1.12触接率</div>
-      <div>合計触接率</div>
+      <div class="text-left">{{ $t('Result.制空状態') }}</div>
+      <div>{{ $t('Result.触接開始率') }}</div>
+      <div>&times;1.2{{ $t('Result.触接率') }}</div>
+      <div>&times;1.17{{ $t('Result.触接率') }}</div>
+      <div>&times;1.12{{ $t('Result.触接率') }}</div>
+      <div>{{ $t('Result.合計触接率') }}</div>
     </div>
     <div class="contact-row" v-for="(data, j) in unionRates" :key="'s' + j" :class="{ selected: j === airState }">
-      <div class="text-left">{{ airStatus[j] }}</div>
+      <div class="text-left">{{ $t(`Common.${airStatus[j]}`) }}</div>
       <div>{{ data.startRate.toFixed(1) }} %</div>
       <div>{{ data.contact120.toFixed(1) }} %</div>
       <div>{{ data.contact117.toFixed(1) }} %</div>

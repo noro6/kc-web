@@ -16,15 +16,7 @@
         <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()"></v-select>
       </div>
       <div class="align-self-center filter-value-select">
-        <v-menu
-          offset-y
-          :close-on-content-click="false"
-          transition="slide-y-transition"
-          bottom
-          right
-          v-model="filterStatusValueMenu"
-          @input="changedFilter()"
-        >
+        <v-menu offset-y :close-on-content-click="false" transition="slide-y-transition" bottom right v-model="filterStatusValueMenu" @input="changedFilter()">
           <template v-slot:activator="{ on, attrs }">
             <v-text-field v-bind="attrs" v-on="on" dense v-model="filterStatusValue" hide-details readonly></v-text-field>
           </template>
@@ -36,17 +28,17 @@
           </v-card>
         </v-menu>
       </div>
-      <div class="align-self-end caption">{{ $t('ItemList.以上') }}</div>
+      <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">{{ $t('ItemList.一列') }}</span>
+            <span class="white--text">{{ $t("ItemList.一列") }}</span>
           </v-btn>
           <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">{{ $t('ItemList.複数列') }}</span>
+            <span class="white--text">{{ $t("ItemList.複数列") }}</span>
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -65,12 +57,7 @@
       <v-spacer></v-spacer>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
-      <div
-        v-ripple="{ class: 'info--text' }"
-        class="type-selector d-flex"
-        :class="{ active: type === -1, disabled: keyword }"
-        @click="changeType(-1)"
-      >
+      <div v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: type === -1, disabled: keyword }" @click="changeType(-1)">
         <div class="type-all-text">ALL</div>
       </div>
       <div
@@ -108,8 +95,8 @@
               <v-icon small>mdi-chevron-down</v-icon>
             </div>
             <div>
-              <div class="mr-1">{{ $t('Common.制空') }}</div>
-              <div>({{ slot }}機)</div>
+              <div class="mr-1">{{ $t("Common.制空") }}</div>
+              <div>({{ $t("Common.x機", { number: slot }) }})</div>
             </div>
           </div>
         </div>
@@ -124,8 +111,8 @@
               <v-icon small>mdi-chevron-down</v-icon>
             </div>
             <div>
-              <div>防空制空</div>
-              <div>({{ slot }}機)</div>
+              <div>{{ $t("Common.防空制空") }}</div>
+              <div>({{ $t("Common.x機", { number: slot }) }})</div>
             </div>
           </div>
         </div>
@@ -179,7 +166,9 @@
               <div class="item-status" v-if="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
               <div class="item-status" v-if="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
               <div class="item-status" v-if="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
-              <div class="item-status" v-if="isShowAvoidText">{{ avoidTexts[v.item.data.avoidId] }}</div>
+              <div class="item-status" v-if="isShowAvoidText">
+                {{ avoidTexts[v.item.data.avoidId] ? $t(`Common.回避性能.${avoidTexts[v.item.data.avoidId]}`) : "" }}
+              </div>
               <div class="item-status" v-if="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
               <div class="item-status" v-if="isShowDefAirPower">
                 {{ v.item.defenseAirPower ? v.item.defenseAirPower : "" }}
@@ -188,29 +177,21 @@
           </div>
         </div>
       </div>
-      <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">探したけど見つからなかったよ&#128546;</div>
+      <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div>既に全て配備されています。</div>
-          <div class="caption mt-2">※ 配備 を押せば無視して配備できます。</div>
+          <div>{{ $t("Common.既に配備されています。") }}</div>
+          <div class="caption mt-2">※ {{ $t("Common.配備を押せば無視して配備できます。") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="info" dark @click.stop="clickedItem(confirmItem)">配備</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+          <v-btn class="ml-auto" color="info" dark @click.stop="clickedItem(confirmItem)">{{ $t("Common.配備") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -922,12 +903,7 @@ export default Vue.extend({
     sortItems() {
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
-      const isActualValue = key.indexOf('actual') >= 0
-        || key === 'tp'
-        || key === 'airPower'
-        || key === 'defenseAirPower'
-        || key === 'antiAirWeight'
-        || key === 'antiAirBonus';
+      const isActualValue = key.indexOf('actual') >= 0 || key === 'tp' || key === 'airPower' || key === 'defenseAirPower' || key === 'antiAirWeight' || key === 'antiAirBonus';
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {
           return desc * ((b.item[key] as number) - (a.item[key] as number));

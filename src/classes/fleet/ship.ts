@@ -1456,13 +1456,9 @@ export default class Ship implements ShipBase {
       // 水上機は必須
       const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
       const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
-      // 主主CI or 連撃 => 主砲 * 2
-      if (mainGunCount >= 2) {
-        if (items.some((v) => v.data.apiTypeId === 19)) {
-          // + 徹甲弾
-          specialAttacks.push({ text: '主主CI', value: 150 });
-        }
-        specialAttacks.push({ text: '連撃', value: 130 });
+      // 主主CI => 主砲 * 2 + 徹甲弾
+      if (mainGunCount >= 2 && items.some((v) => v.data.apiTypeId === 19)) {
+        specialAttacks.push({ text: '主主CI', value: 150 });
       }
       // 主徹CI => 主 + 副 + 徹
       if (mainGunCount && subGunCount && items.some((v) => v.data.apiTypeId === 19)) {
@@ -1475,6 +1471,10 @@ export default class Ship implements ShipBase {
       // 主副CI => 主 + 副
       if (mainGunCount && subGunCount) {
         specialAttacks.push({ text: '主副CI', value: 120 });
+      }
+      // 主主CI => 主砲 * 2
+      if (mainGunCount >= 2) {
+        specialAttacks.push({ text: '連撃', value: 130 });
       }
     }
 

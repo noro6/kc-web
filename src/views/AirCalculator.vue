@@ -1,17 +1,17 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
     <div class="minimize-group">
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">基地航空隊</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">自艦隊</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">敵艦隊</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedResult" @click="toggleMinimizeResult(false)">計算結果</v-btn>
-      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder" color="primary">順序入替</v-btn>
-      <v-btn class="ml-auto" small v-if="sortMode" @click="commitContentOrder" color="primary">入替完了</v-btn>
-      <v-btn class="ml-2" dark small v-if="sortMode" @click="cancelContentOrder" color="secondary">キャンセル</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">{{ $t("Airbase.基地航空隊") }}</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">{{ $t("Fleet.自艦隊") }}</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">{{ $t("Enemies.敵艦隊") }}</v-btn>
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedResult" @click="toggleMinimizeResult(false)">{{ $t("Result.計算結果") }}</v-btn>
+      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder" color="primary">{{ $t("Common.順序入替") }}</v-btn>
+      <v-btn class="ml-auto" small v-if="sortMode" @click="commitContentOrder" color="primary">{{ $t("Common.入替完了") }}</v-btn>
+      <v-btn class="ml-2" dark small v-if="sortMode" @click="cancelContentOrder" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
     </div>
     <draggable handle=".content-frame" animation="150" :disabled="!sortMode" id="content-container" :class="{ 'sort-mode': sortMode }">
       <div id="airbase-content" class="content-frame" v-show="sortMode || !setting.isMinimizedAirbase">
-        <v-card v-if="sortMode" class="sort-container">基地航空隊</v-card>
+        <v-card v-if="sortMode" class="sort-container">{{ $t("Airbase.基地航空隊") }}</v-card>
         <airbase-all
           v-else
           v-model="calcManager.airbaseInfo"
@@ -21,7 +21,7 @@
         />
       </div>
       <div id="fleet-content" class="content-frame" v-show="sortMode || (!calcManager.isDefense && !setting.isMinimizedFleet)">
-        <v-card v-if="sortMode" class="sort-container">自艦隊</v-card>
+        <v-card v-if="sortMode" class="sort-container">{{ $t("Fleet.自艦隊") }}</v-card>
         <fleet-all
           v-else
           v-model="calcManager.fleetInfo"
@@ -31,7 +31,7 @@
         />
       </div>
       <div id="enemy-content" class="content-frame" v-show="sortMode || !setting.isMinimizedEnemy">
-        <v-card v-if="sortMode" class="sort-container">敵艦隊</v-card>
+        <v-card v-if="sortMode" class="sort-container">{{ $t("Enemies.敵艦隊") }}</v-card>
         <enemy-fleet-all
           v-else
           v-model="calcManager.battleInfo"
@@ -42,7 +42,7 @@
         />
       </div>
       <div id="result-content" class="content-frame" v-show="sortMode || !setting.isMinimizedResult">
-        <v-card v-if="sortMode" class="sort-container">計算結果</v-card>
+        <v-card v-if="sortMode" class="sort-container">{{ $t("Result.計算結果") }}</v-card>
         <main-result
           v-else
           v-model="calcManager"
@@ -63,9 +63,11 @@
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
       <div class="caption">
-        著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
+        {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>
-      <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
+      <div class="caption">
+        {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
+      </div>
     </div>
   </div>
 </template>

@@ -10,18 +10,18 @@
                 v-model="selectedArea"
                 hide-details
                 :items="areaItems"
-                label="海域"
+                :label="$t('Enemies.海域')"
                 @change="changedWorld()"
                 :menu-props="{ maxHeight: '600px' }"
               ></v-select>
             </div>
             <div v-show="isEvent">
-              <v-select dense v-model="level" hide-details :items="levelItems" @change="changedWorld()" label="難易度"></v-select>
+              <v-select dense v-model="level" hide-details :items="levelItems" @change="changedWorld()" :label="$t('Difficulty.難易度')"></v-select>
             </div>
             <div class="ml-3">
-              <v-btn color="success" @click="searchPreset()" :disabled="isLoading || isSameSearchCondition">検索</v-btn>
+              <v-btn color="success" @click="searchPreset()" :disabled="isLoading || isSameSearchCondition">{{ $t("Common.検索") }}</v-btn>
             </div>
-            <div class="ml-auto align-self-end caption" v-if="saveData && saveData.length">{{ saveData.length }}件</div>
+            <div class="ml-auto align-self-end caption" v-if="saveData && saveData.length">{{ saveData.length }}{{ $t("Common.件") }}</div>
           </div>
         </div>
         <div class="pa-3">
@@ -53,7 +53,7 @@
           </v-card>
         </div>
         <div v-if="enabledMoreLoad && !isLoading" class="pa-2">
-          <v-btn color="info" block @click="searchPreset()">さらに読み込む</v-btn>
+          <v-btn color="info" block @click="searchPreset()">{{ $t("Common.さらに読み込む") }}</v-btn>
         </div>
         <div v-if="isLoading" class="py-5">
           <div class="d-flex justify-center">
@@ -65,9 +65,11 @@
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
       <div class="caption">
-        著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
+        {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>
-      <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
+      <div class="caption">
+        {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
+      </div>
     </div>
   </div>
 </template>
@@ -141,7 +143,6 @@ export default Vue.extend({
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
     selectedArea: 11,
     level: DIFFICULTY_LEVEL.HARD,
-    levelItems: Const.DIFFICULTY_LEVELS,
     saveData: [] as UploadedPreset[],
     isLoading: false,
     lastMap: 0,
@@ -156,6 +157,20 @@ export default Vue.extend({
     }
   },
   computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
+    levelItems(): { text: string; value: number }[] {
+      if (this.needTrans) {
+        const items = [];
+        for (let i = 0; i < Const.DIFFICULTY_LEVELS.length; i += 1) {
+          const { text, value } = Const.DIFFICULTY_LEVELS[i];
+          items.push({ text: `${this.$t(`Difficulty.${text}`)}`, value });
+        }
+        return items;
+      }
+      return Const.DIFFICULTY_LEVELS;
+    },
     getCompletedAll() {
       return this.$store.getters.getCompletedAll;
     },
@@ -245,13 +260,7 @@ export default Vue.extend({
             limit(STEP),
           );
         } else {
-          q = query(
-            collection(db, 'presets'),
-            where('map', '==', this.selectedArea),
-            where('level', '==', 0),
-            orderBy('createdAt', 'desc'),
-            limit(STEP),
-          );
+          q = query(collection(db, 'presets'), where('map', '==', this.selectedArea), where('level', '==', 0), orderBy('createdAt', 'desc'), limit(STEP));
         }
 
         // 今回の検索条件を保持

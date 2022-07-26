@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2 detail-card">
     <div class="d-flex pb-1">
-      <div class="align-self-center ml-3">艦隊詳細</div>
+      <div class="align-self-center ml-3">{{ $t("Fleet.艦隊詳細") }}</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
@@ -9,9 +9,9 @@
     </div>
     <v-divider class="mb-1"></v-divider>
     <v-tabs v-model="tab">
-      <v-tab href="#stage2">対空砲火</v-tab>
-      <v-tab href="#contact">触接</v-tab>
-      <v-tab href="#anti-submarine-calculator">対潜支援火力</v-tab>
+      <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
+      <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
+      <v-tab href="#anti-submarine-calculator">{{ $t("Fleet.対潜支援火力") }}</v-tab>
       <v-tab-item value="stage2" class="detail-fleet">
         <v-divider></v-divider>
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
@@ -35,6 +35,9 @@
 .detail-fleet {
   overflow-y: auto;
   height: 66vh;
+}
+.v-tab {
+  text-transform: none;
 }
 </style>
 

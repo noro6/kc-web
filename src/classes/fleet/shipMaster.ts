@@ -1,5 +1,4 @@
 import { MasterShip } from '../interfaces/master';
-
 /**
  * 艦娘マスタクラス
  * マスターデータより算出されるオブジェクト
@@ -171,5 +170,38 @@ export default class ShipMaster {
       this.fuel = 0;
       this.ammo = 0;
     }
+  }
+
+  /**
+   * 改造状態接尾辞を分離
+   * @static
+   * @return {*}  {string}
+   * @memberof ShipMaster
+   */
+  static getSuffix(ship: ShipMaster): string[] {
+    if (!ship.version) return [ship.name];
+    const kai = ship.name.split('改');
+    if (kai.length === 2) {
+      const prefix = kai[0];
+      const suffix = kai[1];
+      const otsu = prefix.split('乙');
+      if (otsu.length === 2) {
+        return [otsu[0], `乙${otsu[1]}改${suffix}`];
+      }
+      const tei = prefix.split('丁');
+      if (tei.length === 2) {
+        return [tei[0], `丁${tei[1]}改${suffix}`];
+      }
+      const kou = prefix.split('航');
+      if (kou.length === 2) {
+        return [kou[0], `航${kou[1]}改${suffix}`];
+      }
+      return [prefix, `改${suffix}`];
+    }
+    const kou = ship.name.split('甲');
+    if (kou.length === 2) {
+      return [kou[0], `甲${kou[1]}`];
+    }
+    return [ship.name];
   }
 }

@@ -71,7 +71,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                    <span class="text--secondary">運:</span>
+                    <span class="text--secondary">{{ $t("Common.運") }}:</span>
                     <span class="pl-1 font-weight-medium">{{ ship.luck }}</span>
                   </div>
                 </template>
@@ -100,7 +100,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                    <span class="text--secondary">対空:</span>
+                    <span class="text--secondary">{{ $t("Common.対空") }}:</span>
                     <span class="pl-1 font-weight-medium">{{ ship.antiAir }}</span>
                   </div>
                 </template>
@@ -132,48 +132,73 @@
         </div>
       </div>
       <div class="align-self-center caption pl-2">
-        <span class="text--secondary">撃墜:</span>
-        <span class="ml-1 font-weight-medium">{{ rateDownValue }}%,{{ fixDown }}機</span>
+        <span class="text--secondary">{{ $t("Fleet.撃墜") }}:</span>
+        <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ needTrans ? '' : '機' }}</span>
         <template v-if="ship.hunshinRate">
-          <span class="ml-2 text--secondary">噴進:</span>
-          <span class="ml-1 font-weight-medium">{{ ship.hunshinRate.toFixed(1) }}%</span>
+          <span class="text--secondary text-no-wrap">{{ $t("Fleet.噴進") }}:</span>
+          <span class="ml-1 font-weight-medium mr-2">{{ ship.hunshinRate.toFixed(1) }}%</span>
         </template>
-        <span class="ml-2 text--secondary">射程:</span>
-        <span class="ml-1 font-weight-medium">{{ rangeText[ship.actualRange] }}</span>
+        <span class="text--secondary">{{ $t("Common.射程") }}:</span>
+        <span class="ml-1 font-weight-medium">{{ $t(`Common.${rangeText[ship.actualRange]}`) }}</span>
         <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <span class="asw-view" v-bind="attrs" v-on="on">
-                <span class="ml-2 text--secondary mr-1">先制対潜:</span>
-                <span v-if="ship.enabledTSBK">可</span>
+                <span class="ml-2 text--secondary mr-1">{{ $t("Fleet.先制対潜") }}:</span>
+                <span v-if="ship.enabledTSBK">
+                  <template v-if="!needTrans">
+                    {{ $t("Fleet.可") }}
+                  </template>
+                  <template v-else>&#10004;</template>
+                </span>
                 <span v-else>&times;</span>
               </span>
             </template>
             <table class="asw-table">
               <tr>
-                <td class="body-2">対潜先制爆雷攻撃：</td>
+                <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }}:</td>
                 <td class="text-right pl-2">
-                  <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">可</span>
-                  <span v-else class="red--text text--lighten-1">不可</span>
+                  <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">
+                    <template v-if="!needTrans">
+                      {{ $t("Fleet.可") }}
+                    </template>
+                    <template v-else>&#10004;</template>
+                  </span>
+                  <span v-else-if="!needTrans" class="red--text text--lighten-1">
+                    {{ $t("Fleet.不可") }}
+                  </span>
+                  <span v-else class="red--text text--lighten-1">&times;</span>
                 </td>
               </tr>
               <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">艦娘</span>：</td>
+                <td class="body-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.艦娘") }}</span
+                  >：
+                </td>
                 <td class="text-right">{{ ship.asw }}</td>
               </tr>
               <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">装備</span>：</td>
+                <td class="body-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備") }}</span
+                  >：
+                </td>
                 <td class="text-right">{{ ship.itemAsw }}</td>
               </tr>
               <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">装備ボーナス</span>：</td>
+                <td class="body-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span
+                  >：
+                </td>
                 <td class="text-right">{{ ship.itemBonusAsw }}</td>
               </tr>
               <tr class="border">
                 <td colspan="3"></td>
               </tr>
               <tr>
-                <td class="body-2">対潜<span class="ml-2 caption">合計</span>：</td>
+                <td class="body-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span
+                  >：
+                </td>
                 <td class="text-right">{{ ship.actualAsw }}</td>
               </tr>
             </table>
@@ -182,7 +207,7 @@
       </div>
       <div class="d-flex pr-1 pl-2 flex-wrap">
         <div class="align-self-center caption">
-          <span class="text--secondary">{{ $t('Common.制空') }}:</span>
+          <span class="text--secondary">{{ $t("Common.制空") }}:</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
           <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
         </div>
@@ -193,7 +218,7 @@
                 <v-icon>mdi-sync</v-icon>
               </v-btn>
             </template>
-            <span>コンバート改造</span>
+            <span>{{ $t("Fleet.コンバート改造") }}</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -201,7 +226,7 @@
                 <v-icon>mdi-upload</v-icon>
               </v-btn>
             </template>
-            <span>一時保存艦娘リスト</span>
+            <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -209,7 +234,7 @@
                 <v-icon>mdi-briefcase-variant</v-icon>
               </v-btn>
             </template>
-            <span>装備プリセット展開</span>
+            <span>{{ $t("Fleet.装備プリセット展開") }}</span>
           </v-tooltip>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -217,7 +242,7 @@
                 <v-icon>mdi-eye</v-icon>
               </v-btn>
             </template>
-            <span>計算対象から省く</span>
+            <span>{{ $t("Fleet.計算対象から省く") }}</span>
           </v-tooltip>
           <v-btn icon small v-show="!ship.isActive" @click.stop="changeActive(true)">
             <v-icon>mdi-eye-off</v-icon>
@@ -516,22 +541,16 @@ export default Vue.extend({
     ship(): Ship {
       return this.value;
     },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
     shipName() {
-      if (this.$i18n.locale === 'en') {
-        const shipName = this.value.data.name;
-        const remodelA = shipName.split('甲');
-        if (remodelA.length > 1) {
-          return `${this.$t(`${remodelA[0]}`)} A`;
+      if (this.needTrans) {
+        if (!this.value.data.name) {
+          return this.$t('Fleet.艦娘選択');
         }
-        const remodelB = shipName.split('乙改');
-        if (remodelB.length > 1) {
-          return `${this.$t(`${remodelB[0]}`)} B Kai`;
-        }
-        const remodel = shipName.split('改');
-        if (remodel.length > 1) {
-          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
-        }
-        return this.value.data.name ? this.$t(`${this.value.data.name}`) : 'Ship';
+        const shipName = ShipMaster.getSuffix(this.value.data);
+        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
       }
       return this.value.data.name ? this.value.data.name : '艦娘選択';
     },

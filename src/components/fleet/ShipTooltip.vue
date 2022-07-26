@@ -14,7 +14,7 @@
     <div>
       <table>
         <tr>
-          <td class="text-left">耐久</td>
+          <td class="text-left">{{ $t("Common.耐久") }}</td>
           <td>{{ baseHP }}</td>
           <td class="text-right">
             <template v-if="buffHP">
@@ -27,7 +27,7 @@
           <td>{{ value.data.maxHp }}</td>
         </tr>
         <tr v-if="value.asw">
-          <td class="text-left">対潜</td>
+          <td class="text-left">{{ $t("Common.対潜") }}</td>
           <td>{{ baseAsw }}</td>
           <td class="text-right">
             <template v-if="buffAsw > 0">
@@ -40,7 +40,7 @@
           <td>{{ maxAsw }}</td>
         </tr>
         <tr>
-          <td class="text-left">運</td>
+          <td class="text-left">{{ $t("Common.運") }}</td>
           <td>{{ baseLuck }}</td>
           <td class="text-right">
             <template v-if="buffLuck">
@@ -53,11 +53,11 @@
           <td>{{ maxLuck }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">一撃大破</td>
+          <td class="text-left" colspan="3">{{ $t('Fleet.一撃大破') }}</td>
           <td colspan="2">{{ taihaRate }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">一撃中破</td>
+          <td class="text-left" colspan="3">{{ $t('Fleet.一撃中破') }}</td>
           <td colspan="2">{{ chuhaRate }}</td>
         </tr>
       </table>
@@ -65,13 +65,13 @@
         <v-divider class="my-3"></v-divider>
         <table>
           <tr>
-            <td class="caption grey--text text--lighten-1 text-left">特殊攻撃</td>
+            <td class="caption grey--text text--lighten-1 text-left">{{ $t('Fleet.特殊攻撃') }}</td>
             <td class="caption grey--text text--lighten-1 px-8">{{ $t('Common.確保') }}</td>
             <td class="caption grey--text text--lighten-1">{{ $t('Common.優勢') }}</td>
           </tr>
           <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
             <td class="text-left">
-              <span :class="{ 'orange--text text--lighten-2': row.text !== '合計' }" label outlined>{{ row.text }}</span>
+              <span :class="{ 'orange--text text--lighten-2': row.text !== '合計' }" label outlined>{{ $t(`Fleet.${row.text}`) }}</span>
             </td>
             <td class="px-8">{{ row.rate[0] }} %</td>
             <td>{{ row.rate[1] }} %</td>
@@ -97,6 +97,7 @@ table {
 import Vue from 'vue';
 import sum from 'lodash/sum';
 import Ship from '@/classes/fleet/ship';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
   name: 'ShipTooltip',
@@ -186,23 +187,11 @@ export default Vue.extend({
       return [];
     },
     shipName(): string {
-      const shipName = this.value.data.name;
       if (this.$i18n.locale === 'en') {
-        const remodelA = shipName.split('甲');
-        if (remodelA.length > 1) {
-          return `${this.$t(`${remodelA[0]}`)} A`;
-        }
-        const remodelB = shipName.split('乙改');
-        if (remodelB.length > 1) {
-          return `${this.$t(`${remodelB[0]}`)} B Kai`;
-        }
-        const remodel = shipName.split('改');
-        if (remodel.length > 1) {
-          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
-        }
-        return this.$t(`${shipName}`) as string;
+        const shipName = ShipMaster.getSuffix(this.value.data);
+        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
       }
-      return shipName || '';
+      return this.value.data.name || '';
     },
   },
 });

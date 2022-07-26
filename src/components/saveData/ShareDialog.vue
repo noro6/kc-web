@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2">
     <div class="d-flex pb-1 pr-2">
-      <div class="align-self-center ml-3">編成共有</div>
+      <div class="align-self-center ml-3">{{ $t('Common.編成共有') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
@@ -19,7 +19,7 @@
           :disabled="loadingURL"
           @click="createURL()"
         >
-          <v-icon>mdi-web</v-icon>共有URLを生成
+          <v-icon>mdi-web</v-icon>{{ $t('SaveData.共有URLを生成') }}
         </v-btn>
         <v-text-field
           id="createdURL"
@@ -29,14 +29,14 @@
           dense
           append-icon="mdi-content-copy"
           v-model="createdURL"
-          :hint="copiedURLHint"
+          :hint="$t(`Common.${copiedURLHint}`)"
           @click:append="copyURL"
           @blur="clearURLHint"
         ></v-text-field>
       </div>
       <div class="my-8">
         <v-btn block color="blue" class="white--text" @click="shareTwitter()" :loading="loadingTwitter" :disabled="loadingTwitter">
-          <v-icon>mdi-twitter</v-icon>Twitterで共有
+          <v-icon>mdi-twitter</v-icon>{{ $t('SaveData.Twitterで共有') }}
         </v-btn>
       </div>
       <div class="my-8">
@@ -48,7 +48,7 @@
           :href="`https://jervis.vercel.app/?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"
         >
-          <v-icon>mdi-anchor</v-icon>作戦室で開く
+          <v-icon>mdi-anchor</v-icon>{{ $t('SaveData.作戦室で開く') }}
         </v-btn>
       </div>
       <div class="my-8">
@@ -59,7 +59,7 @@
           :href="`http://kancolle-calc.net/deckbuilder.html?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"
         >
-          デッキビルダーで開く
+          {{ $t('SaveData.デッキビルダーで開く') }}
         </v-btn>
       </div>
       <div class="mt-10">
@@ -72,9 +72,9 @@
           rows="1"
           @click:append="copyDeckBuilder"
           @blur="clearDeckHint"
-          label="デッキビルダー形式"
+          :label="$t('Home.デッキビルダー形式データ')"
           id="deck-builder-text"
-          :hint="copiedDeckHint"
+          :hint="$t(`Common.${copiedDeckHint}`)"
         ></v-textarea>
       </div>
     </div>
@@ -164,7 +164,7 @@ export default Vue.extend({
       const textToCopy = document.getElementById('createdURL') as HTMLInputElement;
       textToCopy.select();
       document.execCommand('copy');
-      this.copiedURLHint = 'URLがコピーされました。';
+      this.copiedURLHint = 'コピーされました。';
     },
     copyDeckBuilder() {
       const textToCopy = document.getElementById('deck-builder-text') as HTMLInputElement;

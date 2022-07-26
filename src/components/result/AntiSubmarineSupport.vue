@@ -1,7 +1,7 @@
 <template>
   <div class="pa-2 container">
     <div class="d-flex">
-      <div class="caption">攻撃機選択</div>
+      <div class="caption">{{ $t("Result.攻撃機選択") }}</div>
       <div class="header-divider"></div>
     </div>
     <div class="select-item-container">
@@ -35,8 +35,8 @@
             <div class="mx-1">
               <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
             </div>
-            <div class="body-2 text-truncate item-name">{{ item.data.name }}</div>
-            <div class="ml-auto caption">対潜</div>
+            <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
+            <div class="ml-auto caption">{{ $t("Common.対潜") }}</div>
             <div class="item-asw caption">{{ item.data.asw }}</div>
           </div>
         </div>
@@ -47,7 +47,7 @@
           min="0"
           max="999"
           v-model.number="slot"
-          label="搭載数"
+          :label="$t('Result.搭載数')"
           outlined
           dense
           :rules="[rules.counter]"
@@ -58,26 +58,26 @@
           min="0"
           max="999"
           v-model.number="asw"
-          label="対潜"
+          :label="$t('Common.対潜')"
           outlined
           dense
           :rules="[rules.counter]"
           @input="calculate()"
         ></v-text-field>
         <div class="d-flex">
-          <v-checkbox class="mt-0 pt-0" label="クリティカル" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
+          <v-checkbox class="mt-0 pt-0" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
         </div>
       </div>
     </div>
     <div class="d-flex">
-      <div class="caption">計算結果</div>
+      <div class="caption">{{ $t("Result.計算結果") }}</div>
       <div class="header-divider"></div>
     </div>
     <div>
       <div class="d-flex flex-wrap">
-        <v-checkbox label="姫級表示" v-model="displayPrincess" dense hide-details @change="calculate()"></v-checkbox>
+        <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()"></v-checkbox>
         <div class="ml-auto d-flex">
-          <div class="align-self-end caption">対潜火力(確率):</div>
+          <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}:</div>
           <div class="d-flex align-self-end">
             <div v-for="(powerString, i) in powers" :key="`power${i}`" class="ml-3 caption">{{ powerString }}</div>
           </div>
@@ -88,12 +88,12 @@
           <thead>
             <tr>
               <td class="py-1 pl-1 text-left"></td>
-              <td class="td-value pr-1 py-1">耐久</td>
-              <td class="td-value pr-1">装甲</td>
-              <td class="no-wrap pr-1">ダメージ幅</td>
-              <td class="td-value pr-1">撃沈率</td>
-              <td class="td-value pr-1">大破率</td>
-              <td class="td-value pr-1">中破率</td>
+              <td class="td-value pr-1 py-1">{{ $t("Common.耐久") }}</td>
+              <td class="td-value pr-1">{{ $t("Common.装甲") }}</td>
+              <td class="no-wrap pr-1">{{ $t("Result.ダメージ幅") }}</td>
+              <td class="td-value pr-1">{{ $t("Result.撃沈率") }}</td>
+              <td class="td-value pr-1">{{ $t("Result.大破率") }}</td>
+              <td class="td-value pr-1">{{ $t("Result.中破率") }}</td>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +113,7 @@
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
                   <div class="text-left enemy-id primary--text">id:{{ row.enemy.data.id }}</div>
                   <div class="d-flex">
-                    <div class="enemy-name caption text-truncate">{{ row.enemy.data.name }}</div>
+                    <div class="enemy-name caption text-truncate">{{ getEnemyName(row.enemy.data.name) }}</div>
                   </div>
                 </div>
               </td>
@@ -127,7 +127,7 @@
               </template>
               <template v-else>
                 <td class="pr-1"></td>
-                <td class="pr-1 red--text">確殺</td>
+                <td class="pr-1 red--text">{{ $t("Result.確殺") }}</td>
                 <td class="pr-1"></td>
               </template>
             </tr>
@@ -333,6 +333,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
     enabledShips(): Ship[] {
       return this.fleet.ships.filter((v) => v.items.some((w) => w.fullSlot));
     },
@@ -471,6 +474,14 @@ export default Vue.extend({
           return b.enemy.data.hp - a.enemy.data.hp;
         });
       }
+    },
+    getEnemyName(name: string): string {
+      if (name && this.needTrans) {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? this.$t(v) : '');
+        return `${shipName.map((v) => trans(v)).join('')}`;
+      }
+      return name || '';
     },
   },
 });

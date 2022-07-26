@@ -7,7 +7,7 @@
       <div class="ml-1 align-self-center">
         <div class="tooltip-item-id">id:{{ value.data.id }}</div>
         <div class="body-2">
-          <span>{{ isLocaleEN ? $t(`${value.data.name}`) : value.data.name }}</span>
+          <span>{{ needTrans ? $t(`${value.data.name}`) : value.data.name }}</span>
           <span v-if="value.remodel" class="ml-1">
             <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
             <span class="teal--text text--accent-4">&plus;{{ value.remodel }}</span>
@@ -79,18 +79,22 @@
         <span class="item-status-text">対地</span><span class="item-status-value special caption">可</span>
       </div>
       <div v-if="value.data.avoidId">
-        <span class="item-status-text">{{ $t('Common.射撃回避') }}</span><span class="item-status-value caption">{{ avoidTexts[value.data.avoidId] }}</span>
+        <span class="item-status-text">{{ $t('Common.射撃回避') }}</span><span class="item-status-value caption">{{ $t(`Common.回避性能.${avoidTexts[value.data.avoidId]}`) }}</span>
       </div>
       <div v-if="value.data.cost">
         <span class="item-status-text">{{ $t('Common.コスト') }}</span><span class="item-status-value caption">{{ value.data.cost }}</span>
       </div>
     </div>
     <div class="item-status-grid no-grid">
-      <template v-if="value.data.isPlane">
+      <template v-if="value.data.isPlane && !needTrans">
         <div>熟練度</div>
         <div><img class="grow-img" :src="`./img/util/prof7.png`" /></div>
         <div>まで</div>
-        <div class="ml-5 grow-text">{{ growSpeedString(value.data) }}</div>
+        <div class="ml-5 grow-text">{{ growSpeedString(value.data) }} 戦</div>
+      </template>
+      <template v-else-if="value.data.isPlane">
+        <div>{{ $t('ItemList.熟練度成長') }}</div>
+        <div class="ml-5 grow-text">{{ growSpeedString(value.data) }}{{ $t('ItemList.戦') }}</div>
       </template>
     </div>
   </div>
@@ -123,7 +127,7 @@
 
 .item-status-text {
   display: inline-block;
-  width: 56px;
+  width: 64px;
 }
 .item-status-value {
   width: 36px;
@@ -186,8 +190,8 @@ export default Vue.extend({
     growSpeedString() {
       return (itemMaster: ItemMaster) => CommonCalc.getGrowSpeedString(itemMaster);
     },
-    isLocaleEN(): boolean {
-      return this.$i18n.locale === 'en';
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
     },
   },
 });

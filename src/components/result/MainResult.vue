@@ -1,7 +1,7 @@
 <template>
   <v-card class="my-2 px-1 py-2" id="result-container" :class="{ captured: capturing }">
     <div class="d-flex pb-1">
-      <div class="pl-2 align-self-center">計算結果</div>
+      <div class="pl-2 align-self-center">{{ $t("Result.計算結果") }}</div>
       <v-spacer></v-spacer>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -9,7 +9,7 @@
             <v-icon>mdi-refresh</v-icon>
           </v-btn>
         </template>
-        <span>再計算</span>
+        <span>{{ $t('Result.再計算') }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -17,7 +17,7 @@
             <v-icon>mdi-camera</v-icon>
           </v-btn>
         </template>
-        <span>スクリーンショットを保存</span>
+        <span>{{ $t('Common.スクリーンショットを保存') }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -25,45 +25,53 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </template>
-        <span>最小化</span>
+        <span>{{ $t('Common.最小化') }}</span>
       </v-tooltip>
     </div>
     <v-divider class="mb-3"></v-divider>
     <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested && !capturing">
       <div class="d-flex">
-        <div class="align-self-center">出撃{{ calculateCount.toLocaleString() }}回分の計算結果が表示されています。</div>
+        <div class="align-self-center">
+          {{ $t("Result.出撃x回分の計算結果が表示されています。", { number: calculateCount.toLocaleString() }) }}
+        </div>
         <div class="align-self-center ml-2">
-          <v-btn small color="info" @click="calculateMore()" :disabled="moreCalculateRequested">再計算して精度を上げる</v-btn>
+          <v-btn small color="info" @click="calculateMore()" :disabled="moreCalculateRequested">
+            {{ $t("Result.再計算して精度を上げる") }}
+          </v-btn>
         </div>
       </div>
     </v-alert>
     <v-alert border="left" dense outlined type="warning" class="ma-3 body-2" v-if="existUnknownEnemy">
-      <div>搭載数が未確定の敵艦が含まれています。計算結果が実際の制空状態と異なる可能性があります。</div>
+      <div>
+        {{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}{{ $t("Result.計算結果が実際の制空状態と異なる可能性があります。") }}
+      </div>
     </v-alert>
     <div class="px-3">
       <div class="d-flex">
-        <div class="body-2 px-2">戦闘開始時の搭載数推移</div>
-        <div class="caption ml-auto" v-show="!capturing">※ 行クリックで詳細計算画面展開</div>
+        <div class="body-2">{{ $t("Result.戦闘開始時の搭載数推移") }}</div>
+        <div class="caption ml-auto" v-show="!capturing">※ {{ $t("Result.行クリックで詳細計算画面展開") }}</div>
       </div>
       <table>
         <thead>
           <tr>
-            <th class="text-center">艦娘</th>
-            <th class="text-center">装備</th>
-            <th v-for="i in battleCount" :key="i" :class="`td-battle${i - 1}`">{{ i }}戦目</th>
-            <th>出撃後</th>
-            <th class="pr-1">全滅率</th>
+            <th class="text-center">{{ $t("Fleet.艦娘") }}</th>
+            <th class="text-center">{{ $t("Fleet.装備") }}</th>
+            <th v-for="i in battleCount" :key="i" :class="`td-battle${i - 1}`">{{ $t("Enemies.x戦目", { number: i }) }}</th>
+            <th>{{ $t("Result.出撃後") }}</th>
+            <th class="pr-1">{{ $t("Result.全滅率") }}</th>
           </tr>
         </thead>
         <tbody>
           <template v-for="(ship, i) in tableData">
             <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`" class="cursor-pointer" @click="clickedShipRow(ship.index)">
-              <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ ship.name }}</td>
+              <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ shipName(ship.name) }}</td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                 </div>
-                <div class="align-self-center item-name text-truncate">{{ item.data.name }}</div>
+                <div class="align-self-center item-name text-truncate">
+                  {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                </div>
               </td>
               <td v-for="k in battleCount" :key="k" class="pr-md-1" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
               <td class="pr-md-1">{{ item.slotResult }}</td>
@@ -71,13 +79,13 @@
             </tr>
           </template>
           <tr>
-            <td class="text-center" rowspan="2">{{ $t('Common.制空値') }}(平均)</td>
-            <td class="text-center py-1">自艦隊</td>
+            <td class="text-center" rowspan="2">{{ $t("Common.制空値") }}({{ $t("Common.平均") }})</td>
+            <td class="text-center py-1">{{ $t("Fleet.自艦隊") }}</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
-            <td class="text-center header-td" colspan="2">消費予測</td>
+            <td class="text-center header-td" colspan="2">{{ $t("Result.消費予測") }}</td>
           </tr>
           <tr>
-            <td class="text-center py-1">敵艦隊</td>
+            <td class="text-center py-1">{{ $t("Enemies.敵艦隊") }}</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">
               <span :class="{ 'orange--text text--darken-2': result.isUnknownEnemyAirPower }">
                 {{ result.avgEnemyAirPower }}
@@ -98,13 +106,13 @@
             </td>
           </tr>
           <tr class="tr-status">
-            <td class="text-center" colspan="2">{{ $t('Common.制空') }}</td>
+            <td class="text-center" colspan="2">{{ $t("Result.制空") }}</td>
             <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">
-              <span :class="`state-label state-${result.airState.value}`">{{ result.airState.text }}</span>
+              <span :class="`state-label state-${result.airState.value}`">{{ $t(`Common.${result.airState.text}`) }}</span>
             </td>
           </tr>
           <tr class="tr-status tr-fuel-ammo">
-            <td class="text-center" colspan="2">燃料 &amp; 弾薬</td>
+            <td class="text-center" colspan="2">{{ $t("Result.燃料") }} &amp; {{ $t("Result.弾薬") }}</td>
             <td v-for="(row, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
               <div
                 class="d-flex flex-wrap justify-end"
@@ -139,7 +147,9 @@
       <v-divider></v-divider>
     </div>
     <v-tabs v-model="tab" class="px-3">
-      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ i + 1 }}戦目</v-tab>
+      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{
+        $t("Enemies.x戦目", { number: i + 1 })
+      }}</v-tab>
     </v-tabs>
     <v-divider class="mx-3"></v-divider>
     <v-card class="ma-3 py-3 pr-4 pl-2">
@@ -147,23 +157,23 @@
         <div class="bar-label"></div>
         <div class="flex-grow-1 d-flex">
           <div class="status-bar-label" style="width: 10%">
-            <div>{{ $t('Common.喪失') }}</div>
+            <div>{{ $t("Common.喪失") }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 10%">
-            <div>{{ $t('Common.劣勢') }}</div>
+            <div>{{ $t("Common.劣勢") }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 25%">
-            <div>{{ $t('Common.拮抗') }}</div>
+            <div>{{ $t("Common.拮抗") }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 45%">
-            <div>{{ $t('Common.優勢') }}</div>
+            <div>{{ $t("Common.優勢") }}</div>
           </div>
           <div class="status-bar-divide"></div>
           <div class="status-bar-label" style="width: 10%">
-            <div>{{ $t('Common.確保') }}</div>
+            <div>{{ $t("Common.確保") }}</div>
           </div>
         </div>
       </div>
@@ -176,25 +186,28 @@
         </div>
       </div>
       <div class="d-flex mt-2">
-        <div class="bar-label">本隊</div>
+        <div class="bar-label">{{ $t("Result.本隊") }}</div>
         <div class="align-self-center flex-grow-1">
           <air-status-result-bar :result="fleet.mainResult" :no-label="true"></air-status-result-bar>
         </div>
       </div>
     </v-card>
     <v-card class="ma-3 py-3 px-2">
-      <div class="body-2 px-2 mb-1">各フェーズ制空状態の確率</div>
+      <div class="body-2 px-2 mb-1">{{ $t("Result.各フェーズ制空状態の確率") }}</div>
       <table>
         <thead>
           <tr>
             <th></th>
-            <th>{{ $t('Common.制空値') }}</th>
-            <th>敵制空値( {{ $t('Common.確保') }} / {{ $t('Common.優勢') }} / {{ $t('Common.拮抗') }} / {{ $t('Common.劣勢') }})</th>
-            <th class="pr-sm-1">{{ $t('Common.確保') }}</th>
-            <th class="pr-sm-1">{{ $t('Common.優勢') }}</th>
-            <th class="pr-sm-1">{{ $t('Common.拮抗') }}</th>
-            <th class="pr-sm-1">{{ $t('Common.劣勢') }}</th>
-            <th class="pr-sm-1">{{ $t('Common.喪失') }}</th>
+            <th>{{ $t("Common.制空値") }}</th>
+            <th>
+              {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} /
+              {{ $t("Common.劣勢") }})
+            </th>
+            <th class="pr-sm-1">{{ $t("Common.確保") }}</th>
+            <th class="pr-sm-1">{{ $t("Common.優勢") }}</th>
+            <th class="pr-sm-1">{{ $t("Common.拮抗") }}</th>
+            <th class="pr-sm-1">{{ $t("Common.劣勢") }}</th>
+            <th class="pr-sm-1">{{ $t("Common.喪失") }}</th>
             <th></th>
           </tr>
         </thead>
@@ -209,7 +222,7 @@
             </td>
           </tr>
           <tr>
-            <td>本隊</td>
+            <td>{{ $t("Result.本隊") }}</td>
             <td>{{ fleet.mainResult.avgAirPower }}</td>
             <td>{{ airPowerBorders(fleet.mainResult.avgEnemyAirPower) }}</td>
             <td v-for="(rate, i) in fleet.mainResult.rates" :key="i" class="pr-sm-1 py-1">
@@ -223,7 +236,7 @@
     </v-card>
     <v-card class="ma-3 pb-3 px-2">
       <div class="d-flex mb-1">
-        <div class="body-2 px-2 align-self-end">敵機残数</div>
+        <div class="body-2 px-2 align-self-end">{{ $t("Result.敵機残数") }}</div>
         <div class="ml-auto">
           <v-select
             class="form-input"
@@ -239,20 +252,20 @@
             <v-icon class="align-self-center pt-2 mr-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
           </template>
           <div class="caption">
-            <div>このマスで選択する味方艦隊の陣形</div>
+            <div>{{ $t("Result.このマスで選択する味方艦隊の陣形") }}</div>
           </div>
         </v-tooltip>
       </div>
       <table>
         <thead>
           <tr>
-            <th class="text-center">敵艦</th>
-            <th class="text-center">装備</th>
-            <th>初期搭載</th>
-            <th>残数平均</th>
-            <th>全滅率</th>
-            <th>棒立ち率</th>
-            <th class="pr-1" v-if="!capturing">詳細</th>
+            <th class="text-center">{{ $t("Result.敵艦") }}</th>
+            <th class="text-center">{{ $t("Fleet.装備") }}</th>
+            <th>{{ $t("Result.初期搭載") }}</th>
+            <th>{{ $t("Result.残数平均") }}</th>
+            <th>{{ $t("Result.全滅率") }}</th>
+            <th>{{ $t("Result.棒立ち率") }}</th>
+            <th class="pr-1" v-if="!capturing">{{ $t("Result.詳細") }}</th>
           </tr>
         </thead>
         <tbody>
@@ -263,7 +276,9 @@
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
                 </div>
-                <div class="align-self-center item-name py-1 text-truncate">{{ item.data.name }}</div>
+                <div class="align-self-center item-name py-1 text-truncate">
+                  {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                </div>
               </td>
               <td>{{ item.fullSlot }}</td>
               <td>{{ item.slotResult }}</td>
@@ -283,25 +298,28 @@
       <v-divider></v-divider>
     </v-card>
     <v-card class="ma-3 py-3 px-2">
-      <div class="body-2 px-2">支援艦隊</div>
+      <div class="body-2 px-2">{{ $t("Result.支援艦隊") }}</div>
       <table>
         <thead>
           <tr>
-            <th class="text-left py-1 pl-3">艦隊</th>
-            <th class="text-left">種別</th>
-            <th>{{ $t('Common.制空値') }}</th>
-            <th>敵制空値( {{ $t('Common.確保') }} / {{ $t('Common.優勢') }} / {{ $t('Common.拮抗') }} / {{ $t('Common.劣勢') }})</th>
-            <th class="pr-2">{{ $t('Common.確保') }}</th>
-            <th class="pr-2">{{ $t('Common.優勢') }}</th>
-            <th class="pr-2">{{ $t('Common.拮抗') }}</th>
-            <th class="pr-2">{{ $t('Common.劣勢') }}</th>
-            <th class="pr-2">{{ $t('Common.喪失') }}</th>
+            <th class="text-left py-1 pl-3">{{ $t("Result.艦隊") }}</th>
+            <th class="text-left">{{ $t("Result.種別") }}</th>
+            <th>{{ $t("Common.制空値") }}</th>
+            <th>
+              {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} /
+              {{ $t("Common.劣勢") }})
+            </th>
+            <th class="pr-2">{{ $t("Common.確保") }}</th>
+            <th class="pr-2">{{ $t("Common.優勢") }}</th>
+            <th class="pr-2">{{ $t("Common.拮抗") }}</th>
+            <th class="pr-2">{{ $t("Common.劣勢") }}</th>
+            <th class="pr-2">{{ $t("Common.喪失") }}</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(row, i) in supportsTableRow" :key="`support_${i}`">
-            <td class="text-left py-2 pl-3">{{ row.name }}</td>
-            <td class="text-left">{{ row.typeName }}</td>
+            <td class="text-left py-2 pl-3">{{ $t("Fleet.第x艦隊", { number: row.number }) }}</td>
+            <td class="text-left">{{ $t(`Result.${row.typeName}`) }}</td>
             <td>{{ row.airPower }}</td>
             <td>{{ row.enemyAirPower }}</td>
             <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
@@ -312,13 +330,13 @@
         </tbody>
       </table>
       <v-divider></v-divider>
-      <div class="pl-2 caption mt-1">※ 制空値は航空支援専用の制空値です。熟練度や改修値に影響されません。</div>
-      <div class="pl-2 caption">※ 敵制空値は本隊航空戦終了時点での制空値の平均です。</div>
+      <div class="pl-2 caption mt-1">※ {{ $t("Result.制空値は航空支援専用の制空値です。熟練度や改修値に影響されません。") }}</div>
+      <div class="pl-2 caption">※ {{ $t("Result.敵制空値は本隊航空戦終了時点での制空値の平均です。") }}</div>
     </v-card>
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
-          <div class="align-self-center ml-3">詳細計算</div>
+          <div class="align-self-center ml-3">{{ $t("Result.詳細計算") }}</div>
           <v-spacer></v-spacer>
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
@@ -618,6 +636,14 @@ export default Vue.extend({
   }),
   computed: {
     formations(): Formation[] {
+      if (this.$i18n.locale !== 'ja') {
+        const items = [];
+        for (let i = 0; i < Const.FORMATIONS.length; i += 1) {
+          const { text, value, correction } = Const.FORMATIONS[i];
+          items.push({ text: `${this.$t(`Common.${text}`)}`, value, correction });
+        }
+        return items;
+      }
       return Const.FORMATIONS;
     },
     airbaseWaveResults(): { text: string; result: AirCalcResult; baseIndex: number }[] {
@@ -629,11 +655,20 @@ export default Vue.extend({
           continue;
         }
 
-        if (airbase.battleTarget[0] === this.displayBattle) {
-          waveResults.push({ text: `基地${i + 1} 1波目`, result: airbase.resultWave1, baseIndex: i });
-        }
-        if (airbase.battleTarget[1] === this.displayBattle) {
-          waveResults.push({ text: `基地${i + 1} 2波目`, result: airbase.resultWave2, baseIndex: i });
+        if (this.$i18n.locale !== 'ja') {
+          if (airbase.battleTarget[0] === this.displayBattle) {
+            waveResults.push({ text: `${this.$t('Result.基地x y波目', { number: i + 1, wave: 1 })}`, result: airbase.resultWave1, baseIndex: i });
+          }
+          if (airbase.battleTarget[1] === this.displayBattle) {
+            waveResults.push({ text: `${this.$t('Result.基地x y波目', { number: i + 1, wave: 2 })}`, result: airbase.resultWave2, baseIndex: i });
+          }
+        } else {
+          if (airbase.battleTarget[0] === this.displayBattle) {
+            waveResults.push({ text: `基地${i + 1} 1波目`, result: airbase.resultWave1, baseIndex: i });
+          }
+          if (airbase.battleTarget[1] === this.displayBattle) {
+            waveResults.push({ text: `基地${i + 1} 2波目`, result: airbase.resultWave2, baseIndex: i });
+          }
         }
       }
 
@@ -695,7 +730,7 @@ export default Vue.extend({
       }
       return enemies;
     },
-    supportsTableRow(): { name: string }[] {
+    supportsTableRow(): { number: number }[] {
       const rows = [];
       const fleets = this.value.fleetInfo.fleets.filter((v, i) => i < 4);
       const mainIndex = this.value.fleetInfo.mainFleetIndex;
@@ -716,7 +751,7 @@ export default Vue.extend({
         const avg = needResult && result ? Math.round(result.loopSumEnemySupportAirPower) : 0;
         const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
         rows.push({
-          name: `第${i + 1}艦隊`,
+          number: i + 1,
           typeName: fleet.getSupportTypeName(),
           airPower: fleet.supportAirPower,
           enemyAirPower,
@@ -819,6 +854,9 @@ export default Vue.extend({
     },
     existUnknownEnemy(): boolean {
       return this.value.battleInfo.fleets.some((v) => v.existUnknownEnemy);
+    },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
     },
   },
   methods: {
@@ -944,6 +982,24 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    shipName(shipName: string) {
+      if (this.$i18n.locale === 'en') {
+        const remodelA = shipName.split('甲');
+        if (remodelA.length > 1) {
+          return `${this.$t(`${remodelA[0]}`)} A`;
+        }
+        const remodelB = shipName.split('乙改');
+        if (remodelB.length > 1) {
+          return `${this.$t(`${remodelB[0]}`)} B Kai`;
+        }
+        const remodel = shipName.split('改');
+        if (remodel.length > 1) {
+          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
+        }
+        return shipName ? this.$t(`${shipName}`) : 'Ship';
+      }
+      return shipName || '';
     },
   },
 });

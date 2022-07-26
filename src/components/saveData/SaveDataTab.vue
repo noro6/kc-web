@@ -31,41 +31,33 @@
         </v-btn>
       </div>
     </draggable>
-    <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="520">
+    <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="580">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <div class="body-2">未保存の変更内容がありますが、このまま編成タブを閉じますか？</div>
+          <div class="body-2">{{ $t("SaveData.未保存の変更内容がありますが、このまま編成タブを閉じますか？") }}</div>
           <div class="mt-3 caption">
-            戻って保存するには、画面上部の「<v-icon small>mdi-content-save</v-icon>編成保存」を押してください。
+            {{ $t("SaveData.戻って保存するには、サイト上部の保存ボタンを押してください。") }}
           </div>
-          <div class="caption">変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。</div>
+          <div class="caption">{{ $t("SaveData.変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。") }}</div>
         </div>
         <v-divider class="mt-4"></v-divider>
         <div class="d-flex mt-1">
           <div class="ml-4">
-            <v-checkbox v-model="disabledConfirm" label="次回以降表示しない" hide-details dense></v-checkbox>
-            <div class="caption ml-1">設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
+            <v-checkbox v-model="disabledConfirm" :label="$t('SaveData.次回以降表示しない')" hide-details dense></v-checkbox>
+            <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
-          <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">続行</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+          <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">{{ $t("Common.OK") }}</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <v-text-field v-model.trim="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
-          <v-textarea
-            v-model.trim="editedRemarks"
-            rows="10"
-            outlined
-            dense
-            hide-details
-            label="補足情報"
-            class="remarks-input"
-          ></v-textarea>
+          <v-text-field v-model.trim="editedName" dense outlined maxlength="100" counter :label="$t('SaveData.編成データ名')"></v-text-field>
+          <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input"></v-textarea>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">更新</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t('Common.更新') }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -204,7 +196,7 @@ export default Vue.extend({
       event.preventDefault();
 
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.confirmCloseTab && data.isEdited) {
+      if (setting.confirmCloseTab && (data.isEdited || data.isUnsaved)) {
         this.deleteConfirmDialog = true;
         this.deleteConfirmData = data;
         return;
@@ -289,6 +281,9 @@ export default Vue.extend({
       // 新規タブ追加
       const data = new SaveData();
       data.name = this.saveData.getNewSaveDataName();
+      if (this.$i18n.locale !== 'ja') {
+        data.name = data.name.replace('新規データ', `${this.$t('SaveData.新規データ')} `);
+      }
       data.isActive = true;
       // 追加先はルート直下
       this.saveData.childItems.push(data);

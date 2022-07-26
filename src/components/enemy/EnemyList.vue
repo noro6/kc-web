@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <div class="d-flex pt-2 pb-1 pr-2">
-        <div class="align-self-center ml-3">敵艦選択</div>
+        <div class="align-self-center ml-3">{{ $t('Enemies.敵艦選択') }}</div>
         <v-spacer></v-spacer>
         <v-btn icon @click="close">
           <v-icon>mdi-close</v-icon>
@@ -11,10 +11,10 @@
       <v-divider></v-divider>
       <div class="d-flex px-2 pt-2">
         <div class="align-self-center">
-          <v-text-field label="id 名称検索" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
+          <v-text-field :label="$t('ItemList.図鑑id 名称検索')" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
         </div>
         <div class="ml-5 align-self-center">
-          <v-checkbox v-model="isLandBase" @change="filter()" label="地上施設"></v-checkbox>
+          <v-checkbox v-model="isLandBase" @change="filter()" :label="$t('Enemies.地上施設')"></v-checkbox>
         </div>
         <v-spacer></v-spacer>
       </div>
@@ -27,7 +27,7 @@
           :class="{ active: index === type, disabled: keyword || isLandBase }"
           @click="changeType(index)"
         >
-          {{ i.text }}
+          {{ $t(`SType.${i.text}`) }}
         </div>
       </div>
       <v-divider class="mx-3"></v-divider>
@@ -45,25 +45,17 @@
             <div>
               <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
             </div>
-            <div class="flex-grow-1">
+            <div class="flex-grow-1 ml-1">
               <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
               <div class="d-flex">
-                <div class="enemy-name text-truncate">{{ enemy.name }}</div>
+                <div class="enemy-name text-truncate">{{ getEnemyName(enemy.name) }}</div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </v-card>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <enemy-tooltip v-model="tooltipEnemy" />
     </v-tooltip>
   </div>
@@ -192,7 +184,20 @@ export default Vue.extend({
     }
     this.filter();
   },
+  computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
+  },
   methods: {
+    getEnemyName(name: string): string {
+      if (name && this.needTrans) {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? this.$t(v) : '');
+        return `${shipName.map((v) => trans(v)).join('')}`;
+      }
+      return name || '';
+    },
     changeType(index = 0) {
       this.type = index;
       this.filter();

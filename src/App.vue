@@ -1,6 +1,6 @@
 <template>
   <v-app v-resize="onResize">
-    <v-navigation-drawer v-model="drawer" app dark width="390" :permanent="drawerFixed" :temporary="!drawerFixed">
+    <v-navigation-drawer v-model="drawer" app dark width="410" :permanent="drawerFixed" :temporary="!drawerFixed">
       <save-data-view
         :root-data="saveData"
         :handle-inform="inform"
@@ -15,13 +15,13 @@
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
-        <v-icon small>mdi-content-save</v-icon>{{ $t("Common.Save") }}</v-btn
+        <v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}</v-btn
       >
       <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData">
-        <v-icon small>mdi-content-duplicate</v-icon>{{ $t("Common.SaveAs") }}
+        <v-icon small>mdi-content-duplicate</v-icon>{{ $t("Common.別名保存") }}
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare">
-        <v-icon small>mdi-share-variant</v-icon>{{ $t("Common.Share") }}
+        <v-icon small>mdi-share-variant</v-icon>{{ $t("Common.共有") }}
       </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -29,7 +29,7 @@
             <v-icon small>mdi-undo-variant</v-icon></v-btn
           >
         </template>
-        <span>{{ $t("Common.Undo") }}</span>
+        <span>{{ $t("Common.元に戻す") }}</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -37,7 +37,7 @@
             <v-icon small>mdi-redo-variant</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t("Common.Redo") }}</span>
+        <span>{{ $t("Common.やり直す") }}</span>
       </v-tooltip>
       <div id="multipurpose-textarea" class="no-scroll">
         <v-textarea
@@ -46,7 +46,7 @@
           dense
           hide-details
           no-resize
-          placeholder="デッキビルダー形式データ:{version:4,hqlv:120,f1:{s1:..."
+          :placeholder="`${$t('Home.デッキビルダー形式データ')}:{version:4,hqlv:120,f1:{s1:...`"
           rows="1"
           :color="getTextareaColor"
           :append-icon="somethingText ? 'mdi-send' : ''"
@@ -62,13 +62,13 @@
             <v-icon>mdi-database-cog</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t("Manager.title") }}</span>
+        <span>{{ $t("Home.艦娘 / 装備管理") }}</span>
       </v-tooltip>
       <v-tooltip left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="configDialog = true" v-bind="attrs" v-on="on"><v-icon>mdi-cog</v-icon></v-btn>
         </template>
-        <span>{{ $t("Top.siteSetting") }}</span>
+        <span>{{ $t("Common.サイト設定") }}</span>
       </v-tooltip>
       <template v-slot:extension>
         <save-data-tab :save-data="saveData" ref="saveDataTab" />
@@ -87,11 +87,10 @@
       </template>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
         <v-alert border="left" outlined type="info" :class="{ 'info-container': !isManagerPage }">
-          <div class="body-2">URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。</div>
+          <div class="body-2">{{ $t("Home.URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。") }}</div>
           <div class="d-flex body-2">
-            <div class="align-self-center">自分の登録情報に戻す場合は</div>
-            <v-btn class="mx-1" color="info" small dark @click="resetTempData()">このボタン</v-btn>
-            <div class="align-self-center">を押下してください。</div>
+            <div class="align-self-center">{{ $t("Home.自分の登録情報に戻す場合は次のボタンを押下してください。") }}</div>
+            <v-btn class="mx-1" color="info" small dark @click="resetTempData()">{{ $t("Home.終了") }}</v-btn>
           </div>
         </v-alert>
       </div>
@@ -99,7 +98,7 @@
         <router-view @inform="inform" @openSidebar="drawer = true" />
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
-        {{ readInformText }}
+        {{ readInformText ? $t(`Home.${readInformText}`) : readInformText }}
         <template v-slot:action="{ attrs }">
           <v-btn icon v-bind="attrs" @click="readInform = false"><v-icon>mdi-close</v-icon></v-btn>
         </template>
@@ -131,7 +130,7 @@
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>トップ画面へ戻る</span>
+        <span>{{ $t("Home.トップ画面へ戻る") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -151,7 +150,7 @@
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>艦娘 / 装備管理ページ</span>
+        <span>{{ $t("Home.艦娘 / 装備管理") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -171,7 +170,7 @@
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>やり直す</span>
+        <span>{{ $t("Common.やり直す") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -191,67 +190,37 @@
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>元に戻す</span>
+        <span>{{ $t("Common.元に戻す") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              color="green"
-              class="footer-btn no-6"
-              v-show="showFooterBtn"
-              dark
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              @click="clickedShare()"
-            >
+            <v-btn color="green" class="footer-btn no-6" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="clickedShare()">
               <v-icon small>mdi-share-variant</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>編成共有</span>
+        <span>{{ $t("Common.共有") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              color="blue"
-              class="footer-btn no-7"
-              v-show="showFooterBtn"
-              dark
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              @click="clickCommentButton()"
-            >
+            <v-btn color="blue" class="footer-btn no-7" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="clickCommentButton()">
               <v-icon small>mdi-comment-processing</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>編成名 / 補足情報</span>
+        <span>{{ $t("Home.編成名 / 補足情報") }}</span>
       </v-tooltip>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              color="indigo lighten-1"
-              class="footer-btn no-8"
-              v-show="showFooterBtn"
-              dark
-              fab
-              small
-              v-bind="attrs"
-              v-on="on"
-              @click="saveCurrentData()"
-            >
+            <v-btn color="indigo lighten-1" class="footer-btn no-8" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="saveCurrentData()">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
-        <span>編成保存</span>
+        <span>{{ $t("Common.保存") }}</span>
       </v-tooltip>
       <span class="d-md-none text-caption">
         <span class="mr-2">要望・バグ報告:</span>
@@ -259,9 +228,7 @@
         <span class="ml-3 mr-2">連絡先:</span>
         <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
         <span class="ml-3 mr-2">カンパ:</span>
-        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank"
-          >こちら</a
-        >
+        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>
       </span>
       <span class="d-none d-md-inline text-caption">
         本サイトに関する質問・要望・バグ報告・感想などは
@@ -269,9 +236,7 @@
         へ。その他、作者へのご連絡は
         <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
         までお願いします。カンパ等ご支援は
-        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank"
-          >こちら</a
-        >から。
+        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>から。
       </span>
     </v-footer>
     <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
@@ -279,7 +244,7 @@
         <div class="site-setting-container px-5 pb-3">
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.language") }}</div>
+              <div class="body-2">{{ $t("Setting.言語") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
@@ -290,52 +255,42 @@
           <div></div>
           <div class="pt-5">
             <div class="d-flex">
-              <div class="body-2">{{ $t("Setting.colorTheme.title") }}</div>
+              <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
               <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }">
-                {{ $t("Setting.colorTheme.normal") }}
+                {{ $t("Setting.通常") }}
               </v-btn>
               <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }">
-                {{ $t("Setting.colorTheme.sky") }}
+                {{ $t("Setting.空色") }}
               </v-btn>
               <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }">
-                {{ $t("Setting.colorTheme.pink") }}
+                {{ $t("Setting.桜色") }}
               </v-btn>
               <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }">
-                {{ $t("Setting.colorTheme.green") }}
+                {{ $t("Setting.翠色") }}
               </v-btn>
               <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }">
-                {{ $t("Setting.colorTheme.dark") }}
+                {{ $t("Setting.暗色") }}
               </v-btn>
               <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }">
-                {{ $t("Setting.colorTheme.deepSea") }}
+                {{ $t("Setting.深海") }}
               </v-btn>
             </div>
             <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.equipmentUISetting.title") }}</div>
+              <div class="body-2">{{ $t("Setting.装備表示UI調整") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
               <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
-                {{ $t("Setting.equipmentUISetting.border") }}
+                {{ $t("Setting.枠線") }}
               </v-btn>
-              <v-btn
-                :disabled="!hasItemUIBorder"
-                @click="toggleItemUIIsBold()"
-                class="mr-2"
-                :class="{ primary: isItemUIBold, secondary: !isItemUIBold }"
-              >
-                {{ $t("Setting.equipmentUISetting.bold") }}
+              <v-btn :disabled="!hasItemUIBorder" @click="toggleItemUIIsBold()" class="mr-2" :class="{ primary: isItemUIBold, secondary: !isItemUIBold }">
+                {{ $t("Setting.太枠") }}
               </v-btn>
-              <v-btn
-                :disabled="!hasItemUIBorder"
-                @click="toggleItemUIIsRadius()"
-                class="mr-2"
-                :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }"
-              >
-                {{ $t("Setting.equipmentUISetting.radius") }}
+              <v-btn :disabled="!hasItemUIBorder" @click="toggleItemUIIsRadius()" class="mr-2" :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }">
+                {{ $t("Setting.角丸") }}
               </v-btn>
               <div class="align-self-center flex-grow-1">
                 <v-divider v-if="!hasItemUIBorder"></v-divider>
@@ -344,7 +299,7 @@
                   <div class="mx-1 item-icon">
                     <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
                   </div>
-                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ $t("Setting.equipmentUISetting.sample") }}</div>
+                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ $t("Setting.sample") }}</div>
                   <div class="ml-1 align-self-center">
                     <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
                   </div>
@@ -352,19 +307,19 @@
               </div>
             </div>
             <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.closeTabSetting") }}</div>
+              <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
               <div class="d-flex">
-                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.closeTabConfig')"></v-checkbox>
+                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')"></v-checkbox>
                 <v-spacer></v-spacer>
               </div>
             </div>
           </div>
           <div class="pt-5">
             <div class="d-flex">
-              <div class="body-2">{{ $t("Setting.defaultProficiency.title") }}</div>
+              <div class="body-2">{{ $t("Setting.装備選択時のデフォルト熟練度") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
@@ -376,31 +331,31 @@
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.equipmentDetailsVisible") }}</div>
+              <div class="body-2">{{ $t("Setting.装備マウスホバー時の詳細情報表示") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.invisibleDetails')"></v-checkbox>
+              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.詳細情報を表示しない')"></v-checkbox>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.deckBuilderReadingSetting") }}</div>
+              <div class="body-2">{{ $t("Setting.デッキビルダー形式データ読込設定") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.loadAllFleet')"></v-checkbox>
+              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.常に全艦隊データを読み込む')"></v-checkbox>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.simulationCount.title") }}</div>
+              <div class="body-2">{{ $t("Setting.制空計算時のシミュレーション回数") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3">
               <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
-                <div>{{ $t("Setting.simulationCount.description1") }}</div>
-                <div>{{ $t("Setting.simulationCount.description2") }}</div>
+                <div>{{ $t("Setting.数値が大きいほど計算の精度が上がりますが、") }}</div>
+                <div>{{ $t("Setting.計算時のパフォーマンスが低下します。") }}</div>
                 <div></div>
               </v-alert>
               <div class="d-flex">
@@ -412,31 +367,24 @@
                   v-model.number="setting.simulationCount"
                   :rules="[rules.simulationCountRange]"
                 ></v-text-field>
-                <div class="ml-3 align-self-center">{{ $t("Setting.simulationCount.unit") }}</div>
+                <div class="ml-3 align-self-center">{{ $t("Setting.回") }}</div>
               </div>
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.saveDataBackUp.title") }}</div>
+              <div class="body-2">{{ $t("Setting.編成データのバックアップ") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
               <div class="d-flex">
-                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.Create") }}</v-btn>
-                <div class="caption align-self-center ml-4">… {{ $t("Setting.saveDataBackUp.description1") }}</div>
+                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
+                <div class="caption align-self-center ml-4">… {{ $t("Setting.保存した編成データのバックアップファイルを作成します") }}</div>
               </div>
               <div class="d-flex mt-3">
-                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">{{
-                  $t("Setting.saveDataBackUp.restore")
-                }}</v-btn>
+                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">{{ $t("Setting.復元") }}</v-btn>
                 <div class="flex-grow-1 align-self-center mt-3">
-                  <v-file-input
-                    v-model="fileValue"
-                    :label="$t('Setting.saveDataBackUp.description2')"
-                    @change="handleFileSelect"
-                    dense
-                  ></v-file-input>
+                  <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" dense></v-file-input>
                 </div>
               </div>
             </div>
@@ -447,17 +395,17 @@
     <v-dialog v-model="loading" persistent width="300">
       <v-card dark>
         <v-card-text>
-          <div class="pt-2">マスターデータ読込中...</div>
+          <div class="pt-2">{{ $t("Common.マスターデータ読込中") }}...</div>
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
     </v-dialog>
     <v-dialog v-model="disabledIndexedDB" persistent width="520">
       <v-card class="pt-5 pb-3 px-5">
-        <v-alert border="left" dense outlined type="error">本ブラウザではデータ保存機能が利用できません。</v-alert>
-        <div class="mt-2 body-2">お使いのブラウザはIndexedDB非対応のようです。</div>
-        <div class="body-2">編成、設定、艦娘/装備を含む全データは本サイトを閉じた時点で削除されます。</div>
-        <div class="body-2">別のブラウザのご利用をお勧めします。</div>
+        <v-alert border="left" dense outlined type="error">{{ $t("Home.本ブラウザではデータ保存機能が利用できません。") }}</v-alert>
+        <div class="mt-2 body-2">{{ $t("Home.お使いのブラウザはIndexedDB非対応のようです。") }}</div>
+        <div class="body-2">{{ $t("Home.編成、設定、艦娘/装備を含む全データは本サイトを閉じた時点で削除されます。") }}</div>
+        <div class="body-2">{{ $t("Home.別のブラウザのご利用をお勧めします。") }}</div>
         <v-divider class="my-3"></v-divider>
         <div class="d-flex">
           <v-btn class="ml-auto" color="secondary" @click.stop="disabledIndexedDB = false">OK</v-btn>
@@ -467,26 +415,20 @@
     <v-dialog v-model="editDialog" width="800">
       <v-card class="pa-3">
         <v-tabs v-model="saveDialogTab" @change="changeUploadTabs">
-          <v-tab href="#save">編成保存</v-tab>
-          <v-tab href="#upload" :disabled="disabledUpload">編成アップロード</v-tab>
+          <v-tab href="#save">{{ $t("Common.保存") }}</v-tab>
+          <v-tab href="#upload" :disabled="disabledUpload">{{ $t("Common.編成アップロード") }}</v-tab>
         </v-tabs>
         <v-divider></v-divider>
         <v-tabs-items v-model="saveDialogTab" :touchless="true">
           <v-tab-item value="save">
             <div class="mx-4 mt-4">
-              <v-text-field v-model="editedName" dense outlined maxlength="100" counter label="編成データ名"></v-text-field>
-              <v-textarea
-                v-model.trim="editedRemarks"
-                rows="10"
-                dense
-                outlined
-                hide-details
-                label="補足情報"
-                class="remarks-input"
-              ></v-textarea>
+              <v-text-field v-model="editedName" dense outlined maxlength="100" counter :label="$t('Home.編成データ名')"></v-text-field>
+              <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input"></v-textarea>
               <div class="d-flex mt-3">
-                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">保存</v-btn>
-                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">戻る</v-btn>
+                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">
+                  {{ $t("Common.保存") }}
+                </v-btn>
+                <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
               </div>
             </div>
           </v-tab-item>
@@ -508,9 +450,9 @@
     </v-dialog>
     <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
       <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
-        <div>艦隊選択</div>
+        <div>{{ $t("Home.艦隊選択") }}</div>
         <v-divider class="my-3"></v-divider>
-        <div class="body-2">取り込む艦隊を選択し、取り込みボタンを押してください。</div>
+        <div class="body-2">{{ $t("Home.取り込む艦隊を選択し、取り込みボタンを押してください。") }}</div>
         <div
           v-for="(row, i) in selectableFleets"
           :key="`fleet_${i}`"
@@ -524,8 +466,8 @@
               <v-icon v-if="row.selected" color="info">mdi-checkbox-outline</v-icon>
               <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
             </div>
-            <div class="align-self-end body-2 ml-3">第{{ i + 1 }}艦隊</div>
-            <div class="align-self-end caption ml-auto">支援: {{ row.supportTypeName }}</div>
+            <div class="align-self-end body-2 ml-3">{{ $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
+            <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }}: {{ $t(`Result.${row.supportTypeName}`) }}</div>
           </div>
           <div class="d-flex flex-wrap">
             <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
@@ -535,12 +477,12 @@
         </div>
         <div class="d-flex mt-2">
           <div>
-            <v-checkbox v-model="setting.importAllDeck" label="常に全艦隊取り込む" hide-details dense></v-checkbox>
-            <div class="caption ml-1">チェックすると、次回以降、常に全ての艦隊を取り込むようになります。</div>
-            <div class="caption ml-1">この設定は、設定(サイト右上<v-icon small>mdi-cog</v-icon>)からいつでも変更できます。</div>
+            <v-checkbox v-model="setting.importAllDeck" :label="$t('Home.常に全艦隊取り込む')" hide-details dense></v-checkbox>
+            <div class="caption ml-1">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
+            <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
-          <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">取込</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+          <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{ $t("Common.取込") }}</v-btn>
+          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -1098,6 +1040,9 @@ export default Vue.extend({
     changeLocale(local: 'ja' | 'en') {
       this.setting.locale = local;
       this.$i18n.locale = local;
+      if (local === 'ja' || local === 'en') {
+        document.getElementsByTagName('html')[0].lang = local;
+      }
     },
     toggleItemUIHasBorder() {
       this.setting.itemUI.border = !this.setting.itemUI.border;
@@ -1208,7 +1153,7 @@ export default Vue.extend({
     async resetTempData() {
       this.$store.dispatch('updateTempShipStock', []);
       this.$store.dispatch('updateTempItemStock', []);
-      this.inform('閲覧モードを終了しました');
+      this.inform('閲覧モードを終了しました。');
     },
     changeUploadTabs(value: string) {
       if (value !== 'upload') return;
@@ -1258,7 +1203,7 @@ export default Vue.extend({
         }
       } catch (error) {
         console.error(error);
-        this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイルです', true);
+        this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイルです。', true);
       }
     },
     importBackupData() {

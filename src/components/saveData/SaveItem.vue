@@ -10,19 +10,13 @@
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
   >
-    <div
-      v-ripple
-      class="save-list-item pl-1"
-      :class="{ selected: value.selected }"
-      @click="itemClicked"
-      v-click-outside="onClickOutside"
-    >
+    <div v-ripple class="save-list-item pl-1" :class="{ selected: value.selected }" @click="itemClicked" v-click-outside="onClickOutside">
       <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
       <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
       <v-icon v-else-if="value.isActive" small color="green lighten-3">mdi-file-eye</v-icon>
       <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
-      <div class="item-name text-truncate">{{ value.name }}</div>
+      <div class="item-name text-truncate">{{ value.name === '保存されたデータ' ? $t(`SaveData.${value.name}`) : value.name }}</div>
       <div class="ml-auto file-action-buttons">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -30,7 +24,7 @@
               <v-icon small>mdi-content-duplicate</v-icon>
             </v-btn>
           </template>
-          <span>複製して開く</span>
+          <span>{{ $t("SaveData.複製して開く") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -38,7 +32,7 @@
               <v-icon small>mdi-file-document-edit-outline</v-icon>
             </v-btn>
           </template>
-          <span>情報を変更</span>
+          <span>{{ $t("SaveData.情報を変更") }}</span>
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -46,7 +40,7 @@
               <v-icon small>mdi-trash-can-outline</v-icon>
             </v-btn>
           </template>
-          <span>削除</span>
+          <span>{{ $t("Common.削除") }}</span>
         </v-tooltip>
       </div>
     </div>
@@ -63,13 +57,16 @@
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div>本当にこの<span v-if="value.isDirectory">フォルダー</span><span v-else>データ</span>を削除しますか？</div>
-          <div v-if="value.isDirectory" class="caption mt-2">※フォルダー内の全データ、フォルダーが削除されます。</div>
+          <div>
+            <span v-if="value.isDirectory">{{ $t("SaveData.本当にこのフォルダーを削除しますか？") }}</span>
+            <span v-else>{{ $t("SaveData.本当にこのデータを削除しますか？") }}</span>
+          </div>
+          <div v-if="value.isDirectory" class="caption mt-2">※ {{ $t("SaveData.フォルダー内の全データ、フォルダーが削除されます。") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="red" dark @click.stop="deleteData">削除</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.Cancel") }}</v-btn>
+          <v-btn class="ml-auto" color="red" dark @click.stop="deleteData">{{ $t("Common.削除") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -82,7 +79,7 @@
             outlined
             maxlength="100"
             counter
-            :label="`${value.isDirectory ? 'フォルダー名' : '編成データ名'}`"
+            :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
           ></v-text-field>
           <v-textarea
             v-if="!value.isDirectory"
@@ -91,11 +88,11 @@
             dense
             outlined
             hide-details
-            label="補足情報"
+            :label="$t('SaveData.補足情報')"
             class="remarks-input"
           ></v-textarea>
           <div class="d-flex mt-2">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">更新</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t('Common.更新') }}</v-btn>
           </div>
         </div>
       </v-card>

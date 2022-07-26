@@ -1,7 +1,7 @@
 <template>
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-1 flex-wrap">
-      <div class="pl-2 align-self-center">敵艦隊</div>
+      <div class="pl-2 align-self-center">{{ $t("Enemies.敵艦隊") }}</div>
       <v-spacer></v-spacer>
       <v-btn icon @click="resetFleetAll">
         <v-icon>mdi-trash-can-outline</v-icon>
@@ -12,7 +12,7 @@
             <v-icon>mdi-camera</v-icon>
           </v-btn>
         </template>
-        <span>スクリーンショットを保存</span>
+        <span>{{ $t('Common.スクリーンショットを保存') }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -20,14 +20,14 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </template>
-        <span>最小化</span>
+        <span>{{ $t('Common.最小化') }}</span>
       </v-tooltip>
     </div>
     <v-divider></v-divider>
     <div id="enemies-container" :class="{ captured: capturing }">
       <div class="d-flex mx-1 mt-3" v-if="!isDefense">
         <div class="align-self-center mr-3 pb-2" v-if="!capturing">
-          <v-btn color="primary" @click.stop="showWorldListContinuous">海域から一括入力</v-btn>
+          <v-btn color="primary" @click.stop="showWorldListContinuous">{{ $t("Enemies.海域から一括入力") }}</v-btn>
         </div>
         <div class="align-self-center mr-4 pb-2" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-tooltip bottom color="red" :disabled="!alertAirbaseTarget">
@@ -39,36 +39,43 @@
                 v-bind="attrs"
                 v-on="on"
               >
-                基地派遣先設定
+                {{ $t("Airbase.基地派遣先設定") }}
               </v-btn>
             </template>
-            <span>戦闘回数が変更されている可能性があります。派遣先を確認してください。</span>
+            <span>{{ $t("Enemies.戦闘回数が変更されている可能性があります。派遣先を確認してください。") }}</span>
           </v-tooltip>
         </div>
         <div class="align-self-center mr-4" id="battle-count-select">
-          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" label="戦闘回数" @change="setInfo()"></v-select>
+          <v-select
+            dense
+            hide-details
+            v-model="battleInfo.battleCount"
+            :items="items"
+            :label="$t('Enemies.戦闘回数')"
+            @change="setInfo()"
+          ></v-select>
         </div>
         <div class="align-self-center body-2" v-if="nodeString">
-          <span class="text--secondary mr-3">航路:</span>
+          <span class="text--secondary mr-3">{{ $t('Enemies.航路') }}:</span>
           <span>{{ nodeString }}</span>
         </div>
       </div>
       <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-1">
         <div>
           <v-chip class="mr-1" color="green" label outlined>
-            <span>{{ $t('Common.確保') }}:</span>
+            <span>{{ $t("Common.確保") }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[0] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="light-green" label outlined>
-            <span>{{ $t('Common.優勢') }}:</span>
+            <span>{{ $t("Common.優勢") }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[1] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="orange" label outlined>
-            <span>{{ $t('Common.拮抗') }}:</span>
+            <span>{{ $t("Common.拮抗") }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[2] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="deep-orange" label outlined>
-            <span>{{ $t('Common.劣勢') }}:</span>
+            <span>{{ $t("Common.劣勢") }}:</span>
             <span class="chip-value">{{ defenseAirPowerBorders[3] }}</span>
           </v-chip>
         </div>
