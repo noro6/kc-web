@@ -29,7 +29,7 @@
           dense
           append-icon="mdi-content-copy"
           v-model="createdURL"
-          :hint="$t(`Common.${copiedURLHint}`)"
+          :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : copiedURLHint"
           @click:append="copyURL"
           @blur="clearURLHint"
         ></v-text-field>
@@ -74,7 +74,7 @@
           @blur="clearDeckHint"
           :label="$t('Home.デッキビルダー形式データ')"
           id="deck-builder-text"
-          :hint="$t(`Common.${copiedDeckHint}`)"
+          :hint="copiedDeckHint ? $t(`Common.${copiedDeckHint}`) : ''"
         ></v-textarea>
       </div>
     </div>

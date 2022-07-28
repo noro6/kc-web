@@ -189,7 +189,8 @@ export default Vue.extend({
     shipName(): string {
       if (this.$i18n.locale === 'en') {
         const shipName = ShipMaster.getSuffix(this.value.data);
-        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return this.value.data.name || '';
     },

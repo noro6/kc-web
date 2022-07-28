@@ -2,10 +2,10 @@
   <div class="mt-3">
     <v-card class="my-2 pa-4">
       <div class="d-flex mt-3">
-        <div class="align-self-center mr-5">集計対象Lv</div>
+        <div class="align-self-center mr-5">{{ $t("Database.集計対象Lv") }}</div>
         <div class="range-input">
           <v-text-field
-            label="下限"
+            :label="$t('Database.Lv下限')"
             type="number"
             :max="levelRange[1]"
             min="1"
@@ -15,20 +15,11 @@
             @input="analyze()"
           ></v-text-field>
         </div>
-        <v-range-slider
-          v-model="levelRange"
-          dense
-          thumb-label
-          min="1"
-          max="175"
-          hide-details
-          class="pt-2 align-center mx-2"
-          @change="analyze()"
-        >
+        <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="analyze()">
         </v-range-slider>
         <div class="range-input">
           <v-text-field
-            label="上限"
+            :label="$t('Database.Lv上限')"
             type="number"
             max="175"
             :min="levelRange[0]"
@@ -43,15 +34,15 @@
         <table>
           <thead>
             <tr>
-              <td class="text-left">艦種</td>
-              <td>隻数</td>
-              <td>最大Lv</td>
-              <td>最小Lv</td>
-              <td>中央Lv</td>
-              <td>平均Lv</td>
-              <td>総経験値</td>
-              <td>1隻平均</td>
-              <td>経験値割合</td>
+              <td class="text-left">{{ $t("Database.艦種") }}</td>
+              <td>{{ $t("Database.隻数") }}</td>
+              <td>{{ $t("Database.最大Lv") }}</td>
+              <td>{{ $t("Database.最小Lv") }}</td>
+              <td>{{ $t("Database.中央Lv") }}</td>
+              <td>{{ $t("Database.平均Lv") }}</td>
+              <td>{{ $t("Database.総経験値") }}</td>
+              <td>{{ $t("Database.1隻平均") }}</td>
+              <td>{{ $t("Database.経験値割合") }}</td>
             </tr>
           </thead>
           <tbody>
@@ -72,27 +63,27 @@
       <div class="graph-area">
         <v-card class="py-4 exp-card">
           <div class="d-flex justify-center">
-            <div class="body-2">艦種別Lv帯分析</div>
+            <div class="body-2">{{ $t("Database.艦種別Lv帯分析") }}</div>
           </div>
           <radar-chart :data="radarGraphData" :options="radarOptions" />
         </v-card>
         <v-card class="py-4 exp-card">
           <div class="d-flex justify-center">
-            <div class="body-2">艦娘別経験値ランキング</div>
+            <div class="body-2">{{ $t("Database.艦娘別経験値ランキング") }}</div>
           </div>
           <table>
             <thead>
               <tr>
                 <td></td>
                 <td class="text-left"></td>
-                <td>総経験値</td>
-                <td>経験値割合</td>
+                <td>{{ $t("Database.総経験値") }}</td>
+                <td>{{ $t("Database.経験値割合") }}</td>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(row, i) in expRankTable" :key="`exp_rank_row${i}`">
                 <td>{{ row.rank }}</td>
-                <td class="text-left">{{ row.name }}</td>
+                <td class="text-left">{{ needTrans ? $t(`${row.name}`) : row.name }}</td>
                 <td>{{ row.exp }}</td>
                 <td>{{ row.rate }} %</td>
               </tr>
@@ -102,7 +93,7 @@
       </div>
       <v-card class="my-4 pa-4">
         <div class="d-flex justify-center">
-          <div class="body-2">Lv帯別艦娘数</div>
+          <div class="body-2">{{ $t("Database.Lv帯別艦娘数") }}</div>
         </div>
         <div>
           <stacked-bar :data="stackedBarData" :options="stackedBarOption" />
@@ -309,6 +300,9 @@ export default Vue.extend({
     },
   },
   computed: {
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
     },
@@ -339,9 +333,15 @@ export default Vue.extend({
 
       this.radarGraphData.labels = [];
       this.stackedBarData.datasets = [];
+      this.stackedBarOption.scales.x.title.text = `${this.$t('Database.艦娘数')}`;
       for (let i = 0; i < types.length; i += 1) {
         const type = types[i];
-        this.radarGraphData.labels.push(type.text);
+        const typeName = this.needTrans ? `${this.$t(`SType.${type.text}`)}` : type.text;
+        this.radarGraphData.labels.push(typeName);
+        this.radarGraphData.datasets[0].label = `${this.$t('Database.最大Lv')}`;
+        this.radarGraphData.datasets[1].label = `${this.$t('Database.最小Lv')}`;
+        this.radarGraphData.datasets[2].label = `${this.$t('Database.中央Lv')}`;
+        this.radarGraphData.datasets[3].label = `${this.$t('Database.平均Lv')}`;
 
         // この艦種に該当する艦娘id
         const shipMaster = all.filter((v) => type.types.includes(v.type));
@@ -349,7 +349,7 @@ export default Vue.extend({
 
         // 積み重ねグラフ用データ
         const newStackedData = {
-          label: type.text,
+          label: typeName,
           borderWidth: 0,
           data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           stack: 'stack-1',
@@ -396,7 +396,7 @@ export default Vue.extend({
             avgExp: mean(exps),
             expRate: 0,
           };
-          expTable.push({ name: type.text, data });
+          expTable.push({ name: typeName, data });
           this.radarGraphData.datasets[0].data[i] = data.maxLevel ? data.maxLevel : 0;
           this.radarGraphData.datasets[1].data[i] = data.minLevel ? data.minLevel : 0;
           this.radarGraphData.datasets[2].data[i] = data.midLevel ? data.midLevel : 0;
@@ -412,7 +412,7 @@ export default Vue.extend({
             avgExp: 0,
             expRate: 0,
           };
-          expTable.push({ name: type.text, data });
+          expTable.push({ name: typeName, data });
           this.radarGraphData.datasets[0].data[i] = 0;
           this.radarGraphData.datasets[1].data[i] = 0;
           this.radarGraphData.datasets[2].data[i] = 0;
@@ -444,7 +444,7 @@ export default Vue.extend({
       const allLevel = sum(allLevels);
       const allCount = allLevels.length;
       this.summaryTable.push({
-        name: '合計',
+        name: this.needTrans ? `${this.$t('SType.合計')}` : '合計',
         data: {
           count: allCount,
           maxLevel: max(expTable.map((v) => v.data.maxLevel)),

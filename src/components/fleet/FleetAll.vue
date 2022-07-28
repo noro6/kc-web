@@ -318,7 +318,7 @@
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">{{ $t("Common.x機", { number: 1 }) }}</v-btn>
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">{{ $t("ItemList.x機", { number: 1 }) }}</v-btn>
                 </template>
                 <div class="body-2">
                   <div><span class="red--text">制空権喪失</span>において、stage1被撃墜数が0となる最大機数</div>
@@ -328,7 +328,7 @@
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">{{ $t("Common.x機", { number: 2 }) }}</v-btn>
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">{{ $t("ItemList.x機", { number: 2 }) }}</v-btn>
                 </template>
                 <div class="body-2">
                   <div><span class="orange--text">航空劣勢</span>において、stage1被撃墜数が0となる最大機数</div>
@@ -338,7 +338,7 @@
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">{{ $t("Common.x機", { number: 3 }) }}</v-btn>
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">{{ $t("ItemList.x機", { number: 3 }) }}</v-btn>
                 </template>
                 <div class="body-2">
                   <div><span class="yellow--text">航空拮抗</span>において、stage1被撃墜数が0となる最大機数</div>
@@ -348,7 +348,7 @@
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">{{ $t("Common.x機", { number: 5 }) }}</v-btn>
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">{{ $t("ItemList.x機", { number: 5 }) }}</v-btn>
                 </template>
                 <div class="body-2">
                   <div><span class="light-green--text">航空優勢</span>において、stage1被撃墜数が0となる最大機数</div>
@@ -358,7 +358,7 @@
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">{{ $t("Common.x機", { number: 17 }) }}</v-btn>
+                  <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">{{ $t("ItemList.x機", { number: 17 }) }}</v-btn>
                 </template>
                 <div class="body-2">
                   <div><span class="success--text">制空権確保</span>において、stage1被撃墜数が0となる最大機数</div>
@@ -612,6 +612,11 @@ export default Vue.extend({
     generatingImage: false,
     generateError: '',
   }),
+  mounted() {
+    if (this.$i18n.locale === 'en') {
+      this.gkcoiLang = 'en';
+    }
+  },
   computed: {
     fleetInfo(): FleetInfo {
       return this.value;
@@ -1182,7 +1187,8 @@ export default Vue.extend({
     getShipName(ship: ShipMaster) {
       if (ship.name && this.needTrans) {
         const shipName = ShipMaster.getSuffix(ship);
-        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return ship.name ? ship.name : '';
     },

@@ -16,7 +16,7 @@
               <v-icon small>mdi-briefcase-variant</v-icon>
             </v-btn>
           </template>
-          <span>装備プリセット</span>
+          <span>{{ $t("ItemList.装備プリセット") }}</span>
         </v-tooltip>
         <v-btn icon small @click="resetItems">
           <v-icon small>mdi-trash-can-outline</v-icon>
@@ -83,7 +83,7 @@
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <v-card class="px-2 pb-2" v-if="!destroyDialog">
         <div class="d-flex pt-2 pb-1">
-          <div class="align-self-center ml-3">基地航空隊詳細</div>
+          <div class="align-self-center ml-3">{{ $t('Airbase.基地航空隊詳細') }}</div>
           <v-spacer></v-spacer>
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
@@ -91,8 +91,8 @@
         </div>
         <v-divider></v-divider>
         <v-tabs v-model="tab">
-          <v-tab href="#contact">触接</v-tab>
-          <v-tab href="#detail">被撃墜数詳細</v-tab>
+          <v-tab href="#contact">{{ $t('Fleet.触接') }}</v-tab>
+          <v-tab href="#detail">{{ $t('Result.残機数詳細') }}</v-tab>
           <v-tab-item value="contact">
             <v-divider></v-divider>
             <contact-rates :fleet="value" />

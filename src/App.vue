@@ -223,20 +223,33 @@
         <span>{{ $t("Common.保存") }}</span>
       </v-tooltip>
       <span class="d-md-none text-caption">
-        <span class="mr-2">要望・バグ報告:</span>
-        <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
-        <span class="ml-3 mr-2">連絡先:</span>
-        <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
-        <span class="ml-3 mr-2">カンパ:</span>
-        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>
+        <template v-if="isJapanese">
+          <span class="mr-2">要望・バグ報告:</span>
+          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
+          <span class="ml-3 mr-2">連絡先:</span>
+          <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
+          <span class="ml-3 mr-2">カンパ:</span>
+          <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>
+        </template>
+        <template v-else> a </template>
       </span>
       <span class="d-none d-md-inline text-caption">
-        本サイトに関する質問・要望・バグ報告・感想などは
-        <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
-        へ。その他、作者へのご連絡は
-        <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
-        までお願いします。カンパ等ご支援は
-        <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>から。
+        <template v-if="isJapanese">
+          本サイトに関する質問・要望・バグ報告・感想などは
+          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
+          へ。その他、作者へのご連絡は
+          <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
+          までお願いします。カンパ等ご支援は
+          <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>から。
+        </template>
+        <template v-else>
+          {{ $t("Home.翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。") }}
+          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">{{ $t('Home.お題箱') }}</a>
+          <a href="https://twitter.com/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">Twitter</a>
+          <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1 mx-1" target="_blank">
+            Amazon wish list
+          </a>
+        </template>
       </span>
     </v-footer>
     <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">

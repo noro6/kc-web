@@ -129,8 +129,8 @@ export default Vue.extend({
     getEnemyName(name: string): string {
       if (name && this.$i18n.locale !== 'ja') {
         const shipName = EnemyMaster.getSuffix(name);
-        const trans = (v: string) => (v ? this.$t(v) : '');
-        return `${shipName.map((v) => trans(v)).join('')}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return name || '';
     },

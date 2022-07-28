@@ -6,7 +6,7 @@
           <div>
             <v-img :src="`./img/type/type${typeId}.png`" height="30" width="30"></v-img>
           </div>
-          <div class="ml-1 item-name text-truncate">{{ needTrans ? $t(`EquipType.${typeName}`) : typeName }}</div>
+          <div class="ml-1 item-name text-truncate">{{ needTrans ? $t(`EType.${typeName}`) : typeName }}</div>
           <div class="item-level">
             <v-img :src="`./img/util/prof${levelValue}.png`" height="24" width="18"></v-img>
             <span class="level-value">{{ level }}</span>

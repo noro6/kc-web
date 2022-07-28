@@ -1,7 +1,7 @@
 <template>
   <div class="ma-2">
     <div class="d-flex ml-5">
-      <div class="align-self-center pt-3">{{ $t('Result.制空状態') }}:</div>
+      <div class="align-self-center pt-3">{{ $t("Result.制空状態") }}:</div>
       <div class="ml-5">
         <v-radio-group v-model="airState" row @change="changeAirState" hide-details class="py-0">
           <v-radio :label="$t('Common.制空権確保')" :value="0"></v-radio>
@@ -18,11 +18,11 @@
         <doughnut-chart :data="unionGraphData" :options="unionOptions" :title-text="$t('Result.対敵連合艦隊')" />
       </div>
       <div class="total-contact">
-        <div>{{ $t('Result.合計触接率') }}</div>
+        <div>{{ $t("Result.合計触接率") }}</div>
         <div>{{ rates[airState].sumRate.toFixed(1) }} %</div>
       </div>
       <div class="total-contact-union">
-        <div>{{ $t('Result.合計触接率') }}</div>
+        <div>{{ $t("Result.合計触接率") }}</div>
         <div>{{ unionRates[airState].sumRate.toFixed(1) }} %</div>
       </div>
     </div>
@@ -32,14 +32,14 @@
         <div class="ml-2">{{ legend.text }}</div>
       </div>
     </div>
-    <div>{{ $t('Result.対敵通常艦隊') }}</div>
+    <div>{{ $t("Result.対敵通常艦隊") }}</div>
     <div class="contact-row header-row">
-      <div class="text-left">{{ $t('Result.制空状態') }}</div>
-      <div>{{ $t('Result.触接開始率') }}</div>
-      <div>&times;1.2{{ $t('Result.触接率') }}</div>
-      <div>&times;1.17{{ $t('Result.触接率') }}</div>
-      <div>&times;1.12{{ $t('Result.触接率') }}</div>
-      <div>{{ $t('Result.合計触接率') }}</div>
+      <div class="text-left">{{ $t("Result.制空状態") }}</div>
+      <div>{{ $t("Result.触接開始率") }}</div>
+      <div>&times;1.2{{ $t("Result.触接率") }}</div>
+      <div>&times;1.17{{ $t("Result.触接率") }}</div>
+      <div>&times;1.12{{ $t("Result.触接率") }}</div>
+      <div>{{ $t("Result.合計触接率") }}</div>
     </div>
     <div class="contact-row" v-for="(data, i) in rates" :key="i" :class="{ selected: i === airState }">
       <div class="text-left">{{ $t(`Common.${airStatus[i]}`) }}</div>
@@ -49,14 +49,14 @@
       <div>{{ data.contact112.toFixed(1) }} %</div>
       <div>{{ data.sumRate.toFixed(1) }} %</div>
     </div>
-    <div class="mt-2">{{ $t('Result.対敵連合艦隊') }}</div>
+    <div class="mt-2">{{ $t("Result.対敵連合艦隊") }}</div>
     <div class="contact-row header-row">
-      <div class="text-left">{{ $t('Result.制空状態') }}</div>
-      <div>{{ $t('Result.触接開始率') }}</div>
-      <div>&times;1.2{{ $t('Result.触接率') }}</div>
-      <div>&times;1.17{{ $t('Result.触接率') }}</div>
-      <div>&times;1.12{{ $t('Result.触接率') }}</div>
-      <div>{{ $t('Result.合計触接率') }}</div>
+      <div class="text-left">{{ $t("Result.制空状態") }}</div>
+      <div>{{ $t("Result.触接開始率") }}</div>
+      <div>&times;1.2{{ $t("Result.触接率") }}</div>
+      <div>&times;1.17{{ $t("Result.触接率") }}</div>
+      <div>&times;1.12{{ $t("Result.触接率") }}</div>
+      <div>{{ $t("Result.合計触接率") }}</div>
     </div>
     <div class="contact-row" v-for="(data, j) in unionRates" :key="'s' + j" :class="{ selected: j === airState }">
       <div class="text-left">{{ $t(`Common.${airStatus[j]}`) }}</div>
@@ -108,7 +108,7 @@
 }
 .legend-color-label {
   display: inline-block;
-  width: 42px;
+  width: 18px;
   height: 18px;
   border-radius: 0.15rem;
 }
@@ -150,7 +150,7 @@ import DoughnutChart, { DoughnutGraphData, DoughnutGraphOption, LabelCallbackArg
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import Airbase from '@/classes/airbase/airbase';
 
-const contactGraphLabels = ['×1.2触接', '×1.17触接', '×1.12触接', '触接不発'];
+const contactGraphLabels = ['x12触接', 'x117触接', 'x112触接', '触接不発'];
 const contactGraphColors = ['rgba(100, 180, 255, 0.7)', 'rgba(80, 220, 120, 0.7)', 'rgba(255, 160, 100, 0.7)', 'rgba(128, 128, 128, 0.5)'];
 const labelCallback = (c: LabelCallbackArg) => `${c.dataset.labels[c.dataIndex]}: ${c.parsed.toFixed(1)} %`;
 
@@ -202,7 +202,7 @@ export default Vue.extend({
 
       this.graphLegends = [];
       for (let i = 0; i < 4; i += 1) {
-        this.graphLegends.push({ text: contactGraphLabels[i], color: contactGraphColors[i] });
+        this.graphLegends.push({ text: `${this.$t(`Result.${contactGraphLabels[i]}`)}`, color: contactGraphColors[i] });
       }
     },
     changeAirState(): void {

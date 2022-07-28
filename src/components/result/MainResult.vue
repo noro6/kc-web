@@ -9,7 +9,7 @@
             <v-icon>mdi-refresh</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t('Result.再計算') }}</span>
+        <span>{{ $t("Result.再計算") }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -17,7 +17,7 @@
             <v-icon>mdi-camera</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t('Common.スクリーンショットを保存') }}</span>
+        <span>{{ $t("Common.スクリーンショットを保存") }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -25,7 +25,7 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t('Common.最小化') }}</span>
+        <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
     <v-divider class="mb-3"></v-divider>
@@ -42,9 +42,7 @@
       </div>
     </v-alert>
     <v-alert border="left" dense outlined type="warning" class="ma-3 body-2" v-if="existUnknownEnemy">
-      <div>
-        {{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}{{ $t("Result.計算結果が実際の制空状態と異なる可能性があります。") }}
-      </div>
+      <div>{{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}{{ $t("Result.計算結果が実際の制空状態と異なる可能性があります。") }}</div>
     </v-alert>
     <div class="px-3">
       <div class="d-flex">
@@ -64,7 +62,9 @@
         <tbody>
           <template v-for="(ship, i) in tableData">
             <tr v-for="(item, j) in ship.items" :key="`${i}-${j}`" class="cursor-pointer" @click="clickedShipRow(ship.index)">
-              <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">{{ shipName(ship.name) }}</td>
+              <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">
+                {{ getShipName(ship.data) }}
+              </td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
@@ -114,11 +114,7 @@
           <tr class="tr-status tr-fuel-ammo">
             <td class="text-center" colspan="2">{{ $t("Result.燃料") }} &amp; {{ $t("Result.弾薬") }}</td>
             <td v-for="(row, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
-              <div
-                class="d-flex flex-wrap justify-end"
-                @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)"
-                @mouseleave="clearTooltip"
-              >
+              <div class="d-flex flex-wrap justify-end" @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)" @mouseleave="clearTooltip">
                 <div class="d-flex">
                   <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
                   <div class="align-self-center ml-0_5" :class="row.fuel.color">{{ row.fuel.value }}%</div>
@@ -147,9 +143,7 @@
       <v-divider></v-divider>
     </div>
     <v-tabs v-model="tab" class="px-3">
-      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{
-        $t("Enemies.x戦目", { number: i + 1 })
-      }}</v-tab>
+      <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ $t("Enemies.x戦目", { number: i + 1 }) }}</v-tab>
     </v-tabs>
     <v-divider class="mx-3"></v-divider>
     <v-card class="ma-3 py-3 pr-4 pl-2">
@@ -199,10 +193,7 @@
           <tr>
             <th></th>
             <th>{{ $t("Common.制空値") }}</th>
-            <th>
-              {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} /
-              {{ $t("Common.劣勢") }})
-            </th>
+            <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
             <th class="pr-sm-1">{{ $t("Common.確保") }}</th>
             <th class="pr-sm-1">{{ $t("Common.優勢") }}</th>
             <th class="pr-sm-1">{{ $t("Common.拮抗") }}</th>
@@ -238,14 +229,7 @@
       <div class="d-flex mb-1">
         <div class="body-2 px-2 align-self-end">{{ $t("Result.敵機残数") }}</div>
         <div class="ml-auto">
-          <v-select
-            class="form-input"
-            v-model="fleet.formation"
-            :items="formations"
-            hide-details
-            dense
-            @change="changedFormation(fleet.formation)"
-          ></v-select>
+          <v-select class="form-input" v-model="fleet.formation" :items="formations" hide-details dense @change="changedFormation(fleet.formation)"></v-select>
         </div>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -271,7 +255,9 @@
         <tbody>
           <template v-for="(row, i) in enemyTableData">
             <tr v-for="(item, j) in row.items" :key="`${i}-${j}`">
-              <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">{{ row.enemy.data.name }}</td>
+              <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">
+                {{ getEnemyName(row.enemy.data.name) }}
+              </td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
@@ -305,10 +291,7 @@
             <th class="text-left py-1 pl-3">{{ $t("Result.艦隊") }}</th>
             <th class="text-left">{{ $t("Result.種別") }}</th>
             <th>{{ $t("Common.制空値") }}</th>
-            <th>
-              {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} /
-              {{ $t("Common.劣勢") }})
-            </th>
+            <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
             <th class="pr-2">{{ $t("Common.確保") }}</th>
             <th class="pr-2">{{ $t("Common.優勢") }}</th>
             <th class="pr-2">{{ $t("Common.拮抗") }}</th>
@@ -343,36 +326,27 @@
           </v-btn>
         </div>
         <v-divider></v-divider>
-        <plane-detail-result
-          v-if="!destroyDialog && detailParent"
-          :parent="detailParent"
-          :index="detailIndex"
-          :fleetIndex="detailFleetIndex"
-        />
+        <plane-detail-result v-if="!destroyDialog && detailParent" :parent="detailParent" :index="detailIndex" :fleetIndex="detailFleetIndex" />
       </v-card>
     </v-dialog>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <div>
         <table class="border-top-none body-2">
           <tr>
             <td class="border-top-none py-1 d-flex">
-              <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
-              <div class="ml-1 align-self-center">燃料補正</div>
+              <div>
+                <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
+              </div>
+              <div class="ml-1 align-self-center">{{ $t("Result.燃料補正") }}</div>
             </td>
             <td class="border-top-none pl-5">{{ fuelCorr }}</td>
           </tr>
           <tr>
             <td class="border-top-none py-1 d-flex">
-              <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
-              <div class="ml-1 align-self-center">弾薬補正</div>
+              <div>
+                <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
+              </div>
+              <div class="ml-1 align-self-center">{{ $t("Result.残弾薬補正") }}</div>
             </td>
             <td class="border-top-none pl-5">{{ ammoCorr }}</td>
           </tr>
@@ -584,6 +558,8 @@ import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
 import Convert from '@/classes/convert';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -691,7 +667,7 @@ export default Vue.extend({
       }
       return airbases;
     },
-    tableData(): { name: string; items: Item[]; index: number }[] {
+    tableData(): { data: ShipMaster; items: Item[]; index: number }[] {
       const fleet = this.value.fleetInfo.mainFleet;
       const ships = [];
 
@@ -699,7 +675,7 @@ export default Vue.extend({
       for (let i = 0; i < activeShips.length; i += 1) {
         const planes = activeShips[i].items.filter((v) => v.data.isPlane);
         if (planes.length) {
-          ships.push({ name: activeShips[i].data.name, items: planes, index: i });
+          ships.push({ data: activeShips[i].data, items: planes, index: i });
         }
       }
       return ships;
@@ -975,31 +951,30 @@ export default Vue.extend({
         this.tooltipY = e.clientY;
         this.enabledTooltip = true;
 
-        this.fuelCorr = fuel < 75 ? `回避項 -${75 - fuel}` : 'なし';
-        this.ammoCorr = ammo < 50 ? `ダメージ ${(ammo * 2) / 100}倍` : 'なし';
+        this.fuelCorr = fuel < 75 ? `回避項 -${75 - fuel}` : '-';
+        this.ammoCorr = ammo < 50 ? `× ${(ammo * 2) / 100}` : '-';
       }, 400);
     },
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
     },
-    shipName(shipName: string) {
-      if (this.$i18n.locale === 'en') {
-        const remodelA = shipName.split('甲');
-        if (remodelA.length > 1) {
-          return `${this.$t(`${remodelA[0]}`)} A`;
-        }
-        const remodelB = shipName.split('乙改');
-        if (remodelB.length > 1) {
-          return `${this.$t(`${remodelB[0]}`)} B Kai`;
-        }
-        const remodel = shipName.split('改');
-        if (remodel.length > 1) {
-          return `${this.$t(`${remodel[0]}`)} ${this.$t(`改${remodel[1]}`)}`;
-        }
-        return shipName ? this.$t(`${shipName}`) : 'Ship';
+    getShipName(ship: ShipMaster) {
+      if (this.needTrans) {
+        const shipName = ShipMaster.getSuffix(ship);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
-      return shipName || '';
+      return ship.name || '';
+    },
+    getEnemyName(name: string) {
+      if (name && this.needTrans) {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+
+      return name;
     },
   },
 });

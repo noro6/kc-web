@@ -1,10 +1,10 @@
 <template>
   <div class="mt-3">
     <v-tabs v-model="tab">
-      <v-tab href="#list">一覧</v-tab>
-      <v-tab href="#group" v-if="shipStock.length">札管理</v-tab>
-      <v-tab href="#analytics">経験値</v-tab>
-      <v-tab href="#compare" v-if="readOnly">比較</v-tab>
+      <v-tab href="#list">{{ $t("Database.一覧") }}</v-tab>
+      <v-tab href="#group" v-if="shipStock.length">{{ $t("Database.札管理") }}</v-tab>
+      <v-tab href="#analytics">{{ $t("Database.経験値") }}</v-tab>
+      <v-tab href="#compare" v-if="readOnly">{{ $t("Database.比較") }}</v-tab>
     </v-tabs>
     <v-divider class="mb-2"></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
@@ -13,8 +13,8 @@
           <v-expansion-panel>
             <v-expansion-panel-header class="px-4">
               <div>
-                <v-icon>mdi-filter</v-icon>フィルタ
-                <span class="caption">({{ viewShips.length }}隻 / {{ allCount }}隻)</span>
+                <v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}
+                <span class="caption">({{ viewShips.length }}{{ needTrans ? "" : "隻" }} / {{ allCount }}{{ needTrans ? "" : "隻" }})</span>
               </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
@@ -22,7 +22,7 @@
               <div class="d-flex flex-wrap my-2">
                 <v-text-field
                   class="search-input"
-                  label="名称検索"
+                  :label="$t('Database.名称検索')"
                   dense
                   v-model.trim="searchWord"
                   @input="masterFilter"
@@ -30,18 +30,18 @@
                   hide-details
                   prepend-inner-icon="mdi-magnify"
                 ></v-text-field>
-                <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" label="未着任艦非表示"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" label="未着任艦のみ"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" label="耐久値4n"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="isDiahatsu" @change="filter" label="大発搭載可"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" label="内火艇搭載可"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" label="補強増設開放済"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="isDiahatsu" @change="filter" :label="$t('Fleet.大発搭載可')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" :label="$t('Database.補強増設開放済')"></v-checkbox>
               </div>
               <div class="my-5 range-inputs">
                 <div class="d-flex py-5">
                   <div class="range-input">
                     <v-text-field
-                      label="Lv下限"
+                      :label="$t('Database.Lv下限')"
                       type="number"
                       :max="levelRange[1]"
                       min="1"
@@ -51,20 +51,11 @@
                       @input="filter"
                     ></v-text-field>
                   </div>
-                  <v-range-slider
-                    v-model="levelRange"
-                    dense
-                    thumb-label
-                    min="1"
-                    max="175"
-                    hide-details
-                    class="pt-2 align-center mx-2"
-                    @change="filter"
-                  >
+                  <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
                   <div class="range-input">
                     <v-text-field
-                      label="Lv上限"
+                      :label="$t('Database.Lv上限')"
                       type="number"
                       max="200"
                       :min="levelRange[0]"
@@ -78,7 +69,7 @@
                 <div class="d-flex py-5">
                   <div class="range-input">
                     <v-text-field
-                      label="運下限"
+                      :label="$t('Database.運下限')"
                       type="number"
                       :max="luckRange[1]"
                       min="1"
@@ -88,20 +79,11 @@
                       @input="filter"
                     ></v-text-field>
                   </div>
-                  <v-range-slider
-                    v-model="luckRange"
-                    dense
-                    thumb-label
-                    min="1"
-                    max="200"
-                    hide-details
-                    class="pt-2 align-center mx-2"
-                    @change="filter"
-                  >
+                  <v-range-slider v-model="luckRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
                   <div class="range-input">
                     <v-text-field
-                      label="運上限"
+                      :label="$t('Database.運上限')"
                       type="number"
                       max="200"
                       :min="luckRange[0]"
@@ -123,14 +105,14 @@
                   chips
                   deletable-chips
                   hide-details
-                  label="耐久改修"
+                  :label="$t('Database.耐久改修')"
                   multiple
                   @change="filter"
                 />
                 <div class="d-flex py-5">
                   <div class="range-input align-self-end">
                     <v-text-field
-                      label="対潜改修下限"
+                      :label="$t('Database.対潜改修下限')"
                       type="number"
                       :max="aswRange[1]"
                       min="0"
@@ -140,20 +122,11 @@
                       @input="filter"
                     ></v-text-field>
                   </div>
-                  <v-range-slider
-                    v-model="aswRange"
-                    dense
-                    thumb-label
-                    min="0"
-                    max="9"
-                    hide-details
-                    class="pt-2 align-center mx-2"
-                    @change="filter"
-                  >
+                  <v-range-slider v-model="aswRange" dense thumb-label min="0" max="9" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
                   <div class="range-input align-self-end">
                     <v-text-field
-                      label="対潜改修上限"
+                      :label="$t('Database.対潜改修上限')"
                       type="number"
                       max="9"
                       :min="aswRange[0]"
@@ -174,7 +147,7 @@
                 attach
                 chips
                 deletable-chips
-                label="艦種"
+                :label="$t('Database.艦種')"
                 multiple
                 @change="masterFilter"
               >
@@ -186,7 +159,7 @@
                       </v-icon>
                     </v-list-item-action>
                     <v-list-item-content>
-                      <v-list-item-title>全選択</v-list-item-title>
+                      <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                   <v-divider class="mt-2"></v-divider>
@@ -203,7 +176,7 @@
                   <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${i}.png`" height="68" width="47"></v-img>
                 </div>
                 <div class="selected-area-btn no-area align-self-center" :class="{ selected: visibleNoArea }" @click="clickedArea(-1)">
-                  札なし
+                  {{ $t("Database.札なし") }}
                 </div>
               </div>
             </v-expansion-panel-content>
@@ -211,18 +184,18 @@
         </v-expansion-panels>
         <v-card class="ship-list-body my-3 pa-4">
           <div v-if="!viewShips.length" class="text-center my-10">
-            <div>みつからないよ</div>
+            <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
           </div>
           <div v-else class="d-flex">
             <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength"></v-pagination>
             <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
               <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
                 <v-icon>mdi-view-headline</v-icon>
-                <span>一覧表示</span>
+                <span>{{ $t("Database.一覧表示") }}</span>
               </v-btn>
               <v-btn :value="false" :class="{ 'blue darken-2 white--text': !modeTable }" @click.stop="changeViewMode(false)">
                 <v-icon>mdi-view-comfy</v-icon>
-                <span>艦隊分析表示</span>
+                <span>{{ $t("Database.艦隊分析表示") }}</span>
               </v-btn>
             </v-btn-toggle>
           </div>
@@ -235,31 +208,31 @@
               </div>
               <div class="status-td" @click.stop="toggleSortKey('hp')" :class="{ sorted: sortKey === 'hp' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                耐久
+                {{ $t("Common.耐久") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('luck')" :class="{ sorted: sortKey === 'luck' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                運
+                {{ $t("Common.運") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('asw')" :class="{ sorted: sortKey === 'asw' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                対潜
+                {{ $t("Common.対潜") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('scout')" :class="{ sorted: sortKey === 'scout' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                索敵
+                {{ $t("Common.索敵") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('accuracy')" :class="{ sorted: sortKey === 'accuracy' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                命中項
+                {{ $t("Common.命中項") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('avoid')" :class="{ sorted: sortKey === 'avoid' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                回避項
+                {{ $t("Common.回避項") }}
               </div>
               <div class="status-td" @click.stop="toggleSortKey('ci')" :class="{ sorted: sortKey === 'ci' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
-                CI項
+                {{ $t("Common.CI項") }}
               </div>
             </div>
             <div
@@ -280,17 +253,13 @@
               <div class="edit-stock-img">
                 <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
                 <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
-                  <v-img
-                    :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${rowData.stockData.area}.png`"
-                    height="60"
-                    width="42"
-                  ></v-img>
+                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${rowData.stockData.area}.png`" height="60" width="42"></v-img>
                 </div>
                 <div class="slot-ex-img" v-if="rowData.stockData.releaseExpand">
                   <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
                 </div>
               </div>
-              <div class="ml-1 td-name text-truncate">{{ rowData.ship.name }}</div>
+              <div class="ml-1 td-name text-truncate">{{ getShipName(rowData.ship) }}</div>
               <div class="status-td">{{ rowData.stockData.level }}</div>
               <div class="status-td td-relative" :class="{ bold: rowData.impHP }">
                 {{ rowData.hp }}
@@ -310,7 +279,7 @@
               <div class="status-td" v-if="rowData.count">{{ rowData.ci }}</div>
               <div v-else class="status-td no-status d-flex">
                 <div class="line"></div>
-                <div>未着任</div>
+                <div>{{ $t("Database.未着任") }}</div>
                 <div class="line"></div>
               </div>
             </div>
@@ -322,15 +291,15 @@
           <template v-else>
             <div class="d-flex flex-wrap">
               <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container">
-                <div class="ma-2">{{ typeData.typeName }}</div>
+                <div class="ma-2">{{ getShipTypeName(typeData.typeName) }}</div>
                 <div class="type-divider"></div>
                 <div class="d-flex flex-wrap">
                   <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-1 px-2 pt-2">
                     <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
                       <div class="d-flex">
-                        <div>{{ row.master.name }}</div>
+                        <div>{{ getShipName(row.master) }}</div>
                         <v-spacer></v-spacer>
-                        <div class="caption align-self-end">在籍: {{ row.count }}</div>
+                        <div class="caption align-self-end">{{ $t("Database.在籍") }}: {{ row.count }}</div>
                       </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0 }">
                         <img class="status-img" :src="`./img/ship/${row.master.id}.png`" />
@@ -374,17 +343,11 @@
                             />
                           </div>
                           <div class="status-ex-img">
-                            <img
-                              v-if="data.stockData.releaseExpand"
-                              class="status-ex-img"
-                              :src="`./img/util/slot_ex.png`"
-                              height="24"
-                              width="24"
-                            />
+                            <img v-if="data.stockData.releaseExpand" class="status-ex-img" :src="`./img/util/slot_ex.png`" height="24" width="24" />
                           </div>
                         </template>
                         <template v-else>
-                          <div class="mx-auto text-center no_ship">新規登録</div>
+                          <div class="mx-auto text-center no_ship">{{ $t("Database.新規登録") }}</div>
                         </template>
                       </div>
                     </div>
@@ -412,17 +375,13 @@
             <div class="align-self-center edit-stock-img">
               <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200"></v-img>
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
-                <v-img
-                  :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${editRow.stockData.area}.png`"
-                  height="68"
-                  width="47"
-                ></v-img>
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${editRow.stockData.area}.png`" height="68" width="47"></v-img>
               </div>
             </div>
             <div class="align-self-center ml-2">
               <v-btn-toggle dense v-model="version" borderless mandatory class="flex-wrap">
                 <v-btn v-for="(ship, i) in versionButtons" :key="`ver${i}`" :value="i" @click.stop="changeVersion(i)">
-                  <span class="hidden-sm-and-down">{{ ship.name }}</span>
+                  <span class="hidden-sm-and-down">{{ getShipName(ship) }}</span>
                 </v-btn>
               </v-btn-toggle>
             </div>
@@ -430,22 +389,15 @@
           <v-divider class="mt-3"></v-divider>
           <div class="d-flex mt-3">
             <div class="range-input">
-              <v-text-field label="練度(Lv)" type="number" max="175" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
+              <v-text-field :label="$t('Database.練度(Lv)')" type="number" max="175" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
             </div>
-            <v-slider
-              class="mx-5 align-self-center"
-              hide-details
-              max="175"
-              min="1"
-              v-model="editRow.stockData.level"
-              thumb-label
-            ></v-slider>
+            <v-slider class="mx-5 align-self-center" hide-details max="175" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
             <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">LV99</v-btn>
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
               <v-text-field
-                label="運"
+                :label="$t('Common.運')"
                 type="number"
                 :max="versionButtons[version].maxLuck"
                 :min="versionButtons[version].luck"
@@ -465,7 +417,7 @@
           <div class="d-flex mt-8">
             <div class="range-input">
               <v-text-field
-                label="耐久改修"
+                :label="$t('Database.耐久改修')"
                 type="number"
                 max="2"
                 min="0"
@@ -473,19 +425,12 @@
                 hide-details
               ></v-text-field>
             </div>
-            <v-slider
-              class="ml-5 align-self-center"
-              hide-details
-              max="2"
-              min="0"
-              v-model="editRow.stockData.improvement.hp"
-              thumb-label
-            ></v-slider>
+            <v-slider class="ml-5 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label></v-slider>
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
               <v-text-field
-                label="対潜改修"
+                :label="$t('Database.対潜改修')"
                 type="number"
                 max="9"
                 min="0"
@@ -493,18 +438,12 @@
                 hide-details
               ></v-text-field>
             </div>
-            <v-slider
-              class="ml-5 align-self-center"
-              hide-details
-              max="9"
-              min="0"
-              v-model="editRow.stockData.improvement.asw"
-              thumb-label
-            ></v-slider>
+            <v-slider class="ml-5 align-self-center" hide-details max="9" min="0" v-model="editRow.stockData.improvement.asw" thumb-label></v-slider>
           </div>
-          <div class="mt-4 d-flex">
-            <v-checkbox v-model="editRow.stockData.releaseExpand" label="補強増設開放済み"></v-checkbox>
-            <v-spacer></v-spacer>
+          <div class="mt-8">
+            <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')"></v-checkbox>
+          </div>
+          <div class="d-flex justify-space-around">
             <div
               v-for="i in maxAreas"
               :key="`area${i}`"
@@ -517,13 +456,15 @@
           </div>
           <v-divider class="my-2"></v-divider>
           <div class="d-flex">
-            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="info" @click.stop="registStock">着任</v-btn>
-            <v-btn class="ml-4" :disabled="btnPushed || !editRow.stockData.uniqueId || readOnly" color="success" @click.stop="updateStock">
-              更新
+            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="info" @click.stop="registStock">
+              {{ $t("Database.着任") }}
             </v-btn>
-            <v-btn class="ml-4" :disabled="!editRow.stockData.uniqueId || readOnly" color="error" @click.stop="confirmDialog = true"
-              >除籍</v-btn
-            >
+            <v-btn class="ml-4" :disabled="btnPushed || !editRow.stockData.uniqueId || readOnly" color="success" @click.stop="updateStock">
+              {{ $t("Common.更新") }}
+            </v-btn>
+            <v-btn class="ml-4" :disabled="!editRow.stockData.uniqueId || readOnly" color="error" @click.stop="confirmDialog = true">
+              {{ $t("Database.除籍") }}
+            </v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
           </div>
         </div>
@@ -532,24 +473,16 @@
     <v-dialog v-model="confirmDialog" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div>本当に除籍しますか？</div>
+          <div>{{ $t("Database.本当に除籍しますか？") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="error" :disabled="btnPushed" dark @click.stop="deleteStock">除籍</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">やっぱやめとく</v-btn>
+          <v-btn class="ml-auto" color="error" :disabled="btnPushed" dark @click.stop="deleteStock">{{ $t("Database.除籍") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip :value="tooltipShip" />
     </v-tooltip>
   </div>
@@ -854,6 +787,7 @@ import ShipStock from '@/classes/fleet/shipStock';
 import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
 import { MasterEquipmentShip } from '@/classes/interfaces/master';
+import Convert from '@/classes/convert';
 
 interface ShipRowData {
   count: number;
@@ -1047,6 +981,9 @@ export default Vue.extend({
 
       return resultShips;
     },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -1095,7 +1032,11 @@ export default Vue.extend({
       this.types = [];
       this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        this.types.push({ text: masters[i].text, value: i });
+        if (this.needTrans) {
+          this.types.push({ text: `${this.$t(`SType.${masters[i].text}`)}`, value: i });
+        } else {
+          this.types.push({ text: masters[i].text, value: i });
+        }
         this.selectedTypes.push(i);
       }
 
@@ -1406,6 +1347,24 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.viewTableMode = modeTable;
       this.$store.dispatch('updateSetting', setting);
+    },
+    translate(v: string): string {
+      return v ? `${this.$t(v)}` : '';
+    },
+    getShipName(ship: ShipMaster) {
+      if (this.needTrans) {
+        const array = ShipMaster.getSuffix(ship);
+        return `${array.map((v) => this.translate(v)).join('')}`;
+      }
+      return ship.name ? ship.name : '';
+    },
+    getShipTypeName(name: string) {
+      if (this.needTrans) {
+        const array = Convert.getShipTypeNameArray(name);
+        return `${array.map((v) => this.translate(v)).join('')}`;
+      }
+
+      return name;
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {

@@ -354,11 +354,12 @@ export default Vue.extend({
     getShipName(ship: ShipMaster | EnemyMaster) {
       if (this.needTrans && ship instanceof ShipMaster) {
         const shipName = ShipMaster.getSuffix(ship);
-        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       } if (this.needTrans && ship.name) {
         const shipName = EnemyMaster.getSuffix(ship.name);
-        const trans = (v: string) => (v ? this.$t(v) : '');
-        return `${shipName.map((v) => trans(v)).join('')}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return ship.name || '';
     },

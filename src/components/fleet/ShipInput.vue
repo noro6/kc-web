@@ -28,19 +28,9 @@
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">
-            <v-menu
-              offset-y
-              v-model="levelMenu"
-              :close-on-content-click="false"
-              transition="slide-y-transition"
-              bottom
-              right
-              @input="onLevelMenuToggle"
-            >
+            <v-menu offset-y v-model="levelMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLevelMenuToggle">
               <template v-slot:activator="{ on, attrs }">
-                <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                  Lv:{{ ship.level }}
-                </div>
+                <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">Lv:{{ ship.level }}</div>
               </template>
               <v-card class="pa-3">
                 <div class="d-flex mt-1">
@@ -60,15 +50,7 @@
               </v-card>
             </v-menu>
             <div class="d-flex mr-2">
-              <v-menu
-                offset-y
-                v-model="luckMenu"
-                :close-on-content-click="false"
-                transition="slide-y-transition"
-                bottom
-                right
-                @input="onLuckMenuToggle"
-              >
+              <v-menu offset-y v-model="luckMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLuckMenuToggle">
                 <template v-slot:activator="{ on, attrs }">
                   <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                     <span class="text--secondary">{{ $t("Common.運") }}:</span>
@@ -80,24 +62,10 @@
                     <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
                     <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
                   </div>
-                  <v-text-field
-                    v-model.number="luck"
-                    :max="isNoShip ? 100 : ship.data.maxLuck"
-                    :min="ship.data.luck"
-                    hide-details
-                    type="number"
-                  ></v-text-field>
+                  <v-text-field v-model.number="luck" :max="isNoShip ? 100 : ship.data.maxLuck" :min="ship.data.luck" hide-details type="number"></v-text-field>
                 </v-card>
               </v-menu>
-              <v-menu
-                offset-y
-                v-model="antiAirMenu"
-                :close-on-content-click="false"
-                transition="slide-y-transition"
-                bottom
-                right
-                @input="onAAMenuToggle"
-              >
+              <v-menu offset-y v-model="antiAirMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onAAMenuToggle">
                 <template v-slot:activator="{ on, attrs }">
                   <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                     <span class="text--secondary">{{ $t("Common.対空") }}:</span>
@@ -109,13 +77,7 @@
                     <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
                     <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
                   </div>
-                  <v-text-field
-                    v-model.number="antiAir"
-                    :max="isNoShip ? 200 : ship.data.antiAir"
-                    min="0"
-                    hide-details
-                    type="number"
-                  ></v-text-field>
+                  <v-text-field v-model.number="antiAir" :max="isNoShip ? 200 : ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
                 </v-card>
               </v-menu>
             </div>
@@ -133,7 +95,7 @@
       </div>
       <div class="align-self-center caption pl-2">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}:</span>
-        <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ needTrans ? '' : '機' }}</span>
+        <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ needTrans ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
           <span class="text--secondary text-no-wrap">{{ $t("Fleet.噴進") }}:</span>
           <span class="ml-1 font-weight-medium mr-2">{{ ship.hunshinRate.toFixed(1) }}%</span>
@@ -287,26 +249,10 @@
         </div>
       </div>
     </template>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
-    <v-tooltip
-      v-model="enabledShipTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledShipTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-flagship="index === 0" />
     </v-tooltip>
   </v-card>
@@ -550,7 +496,8 @@ export default Vue.extend({
           return this.$t('Fleet.艦娘選択');
         }
         const shipName = ShipMaster.getSuffix(this.value.data);
-        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return this.value.data.name ? this.value.data.name : '艦娘選択';
     },
@@ -641,9 +588,7 @@ export default Vue.extend({
       const ships = this.$store.state.ships as ShipMaster[];
       const master = this.value.data;
       // コンバート候補取得
-      const versions = ships
-        .filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1)
-        .sort((a, b) => a.version - b.version);
+      const versions = ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).sort((a, b) => a.version - b.version);
       // 現在のver
       const index = versions.findIndex((v) => v.id === master.id);
       let newVersion: ShipMaster;

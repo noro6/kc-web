@@ -119,7 +119,7 @@
       </div>
       <div v-for="(data, i) in itemListData" :key="i">
         <div class="type-divider" v-if="multiLine">
-          <div class="caption text--secondary">{{ needTrans ? $t(`EquipType.${data.typeName}`) : data.typeName }}</div>
+          <div class="caption text--secondary">{{ needTrans ? $t(`EType.${data.typeName}`) : data.typeName }}</div>
           <div class="type-divider-border"></div>
         </div>
         <div class="type-item-container" :class="{ multi: multiLine }">
@@ -483,7 +483,7 @@ export default Vue.extend({
       if (text === '対潜' && this.filterStatusItems.find((v) => v.text === '対潜')) {
         continue;
       }
-      this.filterStatusItems.push({ text, value: key });
+      this.filterStatusItems.push({ text: `${this.$t(`Common.${text}`)}`, value: key });
     }
   },
   computed: {

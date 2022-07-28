@@ -2,13 +2,13 @@
   <div class="ma-4">
     <div class="mb-3">
       <v-icon x-large>mdi-database-cog</v-icon>
-      <span class="ml-1">艦娘 / 装備管理</span>
+      <span class="ml-1">{{ $t("Home.艦娘 / 装備管理") }}</span>
     </div>
     <v-tabs v-model="tab">
-      <v-tab href="#ships">艦娘</v-tab>
-      <v-tab href="#items" :disabled="loading">装備</v-tab>
-      <v-tab href="#read" :disabled="readOnlyMode || loading">反映</v-tab>
-      <v-tab href="#share" :disabled="loading">共有</v-tab>
+      <v-tab href="#ships">{{ $t("Fleet.艦娘") }}</v-tab>
+      <v-tab href="#items" :disabled="loading">{{ $t("Fleet.装備") }}</v-tab>
+      <v-tab href="#read" :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
+      <v-tab href="#share" :disabled="loading">{{ $t("Common.共有") }}</v-tab>
     </v-tabs>
     <v-divider></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
@@ -21,46 +21,50 @@
       <v-tab-item value="read">
         <div class="general-container pa-4 my-2">
           <v-card class="tutorial_box">
-            <div>1. 艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択</div>
-            <div>※ 以降、反映手順については、PC版ブラウザ『Google Chrome』における説明となっています。</div>
+            <div>1. {{ $t("Database.艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。") }}</div>
+            <div>※ {{ $t("Database.以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial1.jpg`" />
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>2. ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下</div>
+            <div>2. {{ $t("Database.ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial2.jpg`" />
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>3. consoleに「this.KCS」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開</div>
+            <div>3. {{ $t("Database.コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial3.jpg`" />
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>4. 4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す</div>
+            <div>4. {{ $t("Database.4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial4.jpg`" />
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>5. 4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す</div>
+            <div>5. {{ $t("Database.手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial5.jpg`" />
             </div>
           </v-card>
           <v-card class="tutorial_box">
             <div>
-              6. 「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global
-              variable」）を選択
+              6.
+              {{
+                $t(
+                  "Database.「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。"
+                )
+              }}
             </div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial6.jpg`" />
             </div>
             <div>
-              選択すると、下記のように「temp1」と出てきます。もし、temp2など数字が違っている場合、次の手順7.の注意事項欄を見てください。
+              {{ $t("Database.選択すると、下記のように「temp1」と出てきます。もし、temp2など数字が違っている場合、次の手順7の注意事項欄を見てください。") }}
             </div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial6_2.jpg`" />
@@ -68,37 +72,39 @@
           </v-card>
           <v-card class="tutorial_box">
             <div>
-              7. 下記のJavaScriptコードをconsoleに貼り付け、Enterを押下。※
-              押下後、『undefined』と表示されれば、クリップボードに自動コピーされており、そのまま手順8の入力欄に貼り付けることができます。
+              7. {{ $t("Database.下記のJavaScriptコードをconsoleに貼り付け、Enterを押下する。") }} ※
+              {{
+                $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順8の入力欄に貼り付けることができます。")
+              }}
             </div>
             <div class="d-flex">
               <v-radio-group v-model="includeUnLocked" row hide-details class="py-0">
-                <v-radio label="未ロックも含める" :value="true"></v-radio>
-                <v-radio label="ロック済みのみ" :value="false"></v-radio>
+                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
+                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
               </v-radio-group>
             </div>
             <div>
               <v-tabs v-model="code_tab">
-                <v-tab href="#ship_code">艦娘</v-tab>
-                <v-tab href="#item_code">装備</v-tab>
+                <v-tab href="#ship_code">{{ $t("Fleet.艦娘") }}</v-tab>
+                <v-tab href="#item_code">{{ $t("Fleet.装備") }}</v-tab>
               </v-tabs>
             </div>
             <v-tabs-items v-model="code_tab" :touchless="true">
               <v-tab-item value="ship_code">
-                <v-card class="copy_code">
-                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id':
-                  v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st':
-                  v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span v-if="!includeUnLocked"
+                <v-divider></v-divider>
+                <v-card class="copy_code mt-2">
+                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
+                  v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
+                    v-if="!includeUnLocked"
                     >.filter(v=>v.locked)</span
                   >,['id','lv','st','exp','ex','area']))
                 </v-card>
               </v-tab-item>
               <v-tab-item value="item_code">
-                <v-card class="copy_code">
-                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return
-                  {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLocked"
-                    >.filter(v=>v.locked)</span
-                  >,['id','lv']))
+                <v-divider></v-divider>
+                <v-card class="copy_code mt-2">
+                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv':
+                  v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLocked">.filter(v=>v.locked)</span>,['id','lv']))
                 </v-card>
               </v-tab-item>
             </v-tabs-items>
@@ -106,13 +112,20 @@
               <v-img :src="`./img/tutorial/tutorial7.jpg`" />
             </div>
             <div class="warning_box mt-3">
-              <div>注意事項</div>
+              <div>{{ $t("Database.注意事項") }}</div>
               <div class="mt-1">
-                手順6.「Store function as global variable」を選択した際に出てくる「<span class="red--text">temp○○</span>」と、
-                上記JavaScript内の「<span class="red--text">temp○○</span>」は一致させる必要があります。
+                {{
+                  $t(
+                    "Database.手順6で「Store function as global variable」を選択した際に出てくる「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。"
+                  )
+                }}
               </div>
               <div>
-                手順通りやるとtemp1となりますが、手順6.で例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を「temp2」と自分で書き換えて実行してください。
+                {{
+                  $t(
+                    "Database.手順通りやると「temp1」となっているはずですが、手順6で例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を、自分で「temp2」と書き換えて実行してください。"
+                  )
+                }}
               </div>
               <div class="tutorial_img">
                 <v-img :src="`./img/tutorial/tutorial7_2.jpg`" />
@@ -120,41 +133,36 @@
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>8. 下記の反映エリアに、手順7.でコピーされた文字列を貼り付けて「反映」を押下</div>
-            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize label="反映エリア"></v-textarea>
-            <v-btn class="mt-4" color="primary" block @click="readJson()">反映</v-btn>
+            <div>8. {{ $t("Database.下記の反映エリアに、手順7でコピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
+            <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
         </div>
       </v-tab-item>
       <v-tab-item value="share">
         <v-card class="my-3 pa-2">
           <div class="d-flex pt-3 pb-4">
-            <div class="align-self-center ml-3">共有URL発行機能</div>
+            <div class="align-self-center ml-3">{{ $t("Database.共有URL発行機能") }}</div>
           </div>
           <v-divider></v-divider>
           <div class="pa-4">
-            <div class="mb-2">URL発行</div>
-            <div class="body-2">自分の艦隊、装備情報を他の人に見てもらうためのURLを発行します。</div>
+            <div class="mb-2">{{ $t("Database.URL発行") }}</div>
+            <div class="body-2">{{ $t("Database.自分の艦隊、装備情報を他の人に見てもらうためのURLを発行します。") }}</div>
             <div class="body-2">
-              発行された情報は閲覧専用です。発行されたURLを他人に公開しても、自分の艦娘や装備情報が書き換えられてしまうことはありません。
+              {{ $t("Database.発行された情報は閲覧専用です。発行されたURLを他人に公開しても、自分の艦娘や装備情報が書き換えられてしまうことはありません。") }}
             </div>
-            <div class="body-2 mb-3">閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。</div>
+            <div class="body-2 mb-3">{{ $t("Database.閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。") }}</div>
             <div class="shared-url-container">
-              <v-btn
-                color="primary"
-                v-show="!createdURL"
-                :loading="loadingURL"
-                :disabled="loadingURL || readOnlyMode"
-                @click="requestURLKey()"
-                >共有URL作成</v-btn
-              >
+              <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || readOnlyMode" @click="requestURLKey()">{{
+                $t("Database.共有URL作成")
+              }}</v-btn>
               <v-text-field
                 id="created-url"
                 v-show="createdURL"
                 readonly
                 append-icon="mdi-content-copy"
                 v-model="createdURL"
-                :hint="copiedURLHint"
+                :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : ''"
                 @click:append="copyURL"
                 @blur="clearURLHint"
               ></v-text-field>
@@ -162,21 +170,21 @@
           </div>
           <v-divider></v-divider>
           <div class="pa-4">
-            <div class="mb-2">発行履歴</div>
+            <div class="mb-2">{{ $t("Database.発行履歴") }}</div>
             <v-card v-for="(data, i) in outputHistories" :key="`history_${i}`" class="ma-2 pa-3">
               <div class="d-flex">
                 <div class="mr-2 align-self-center caption">
-                  <div>発行日:</div>
+                  <div>{{ $t("Database.発行日") }}:</div>
                   <div>{{ data.createdAt }}</div>
                 </div>
                 <div class="mr-2 align-self-center">
-                  <v-btn color="info" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">展開</v-btn>
+                  <v-btn color="info" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">{{ $t("Database.展開") }}</v-btn>
                 </div>
                 <div class="mr-2 align-self-center">
-                  <v-btn color="error" @click="clickedDeleteHistory(i)">削除</v-btn>
+                  <v-btn color="error" @click="clickedDeleteHistory(i)">{{ $t("Common.削除") }}</v-btn>
                 </div>
                 <div class="mr-2 align-self-center">
-                  <v-btn color="success" :disabled="!data.remarks || !data.remarks.length" @click="updateHistory(i)">更新</v-btn>
+                  <v-btn color="success" :disabled="!data.remarks || !data.remarks.length" @click="updateHistory(i)">{{ $t("Common.更新") }}</v-btn>
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <v-text-field v-model="data.remarks" dense outlined hide-details label="Memo"></v-text-field>
@@ -187,15 +195,21 @@
         </v-card>
         <v-card class="my-3 pa-2">
           <div class="d-flex pt-3 pb-4">
-            <div class="align-self-center ml-3">他サイト連携</div>
+            <div class="align-self-center ml-3">{{ $t("Database.他サイト連携") }}</div>
           </div>
           <v-divider></v-divider>
           <div class="pa-4">
-            <div class="mb-2">艦隊分析コード</div>
+            <div class="mb-2">{{ $t("Database.艦隊分析コード") }}</div>
             <div class="body-2">
-              <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank"
-                >艦隊分析スプレッドシート</a
-              >等で読み込めるコードです。現在閲覧中の情報が出力されています。
+              <template v-if="$i18n.locale === 'ja'">
+                <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank">艦隊分析スプレッドシート</a
+                >等で読み込めるコードです。現在閲覧中の情報が出力されています。
+              </template>
+              <template v-else>
+                <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank">{{
+                  $t("Database.x等で読み込めるコードです。現在閲覧中の情報が出力されています。", { site: "艦隊分析スプレッドシート" })
+                }}</a>
+              </template>
             </div>
             <div class="mt-4">
               <v-text-field
@@ -204,9 +218,9 @@
                 outlined
                 readonly
                 dense
-                label="艦隊コード"
+                :label="$t('Database.艦隊コード')"
                 append-icon="mdi-content-copy"
-                :hint="copiedShipCodeHint"
+                :hint="copiedShipCodeHint ? $t(`Common.${copiedShipCodeHint}`) : ''"
                 @click:append="copyShipCode"
                 @blur="clearShipCodeHint"
               ></v-text-field>
@@ -218,9 +232,9 @@
                 outlined
                 readonly
                 dense
-                label="装備コード"
+                :label="$t('Database.装備コード')"
                 append-icon="mdi-content-copy"
-                :hint="copiedItemCodeHint"
+                :hint="copiedItemCodeHint ? $t(`Common.${copiedItemCodeHint}`) : copiedItemCodeHint"
                 @click:append="copyItemCode"
                 @blur="clearItemCodeHint"
               ></v-text-field>
@@ -229,7 +243,9 @@
           <v-divider></v-divider>
           <div class="pa-4">
             <div class="mb-2">艦隊晒しページ(仮)</div>
-            <div class="body-2"><a :href="kantaiSarashiURL" target="_blank">艦隊晒しページ(仮)で展開する場合はこちらから</a></div>
+            <div class="body-2">
+              <a :href="kantaiSarashiURL" target="_blank">{{ $t("Database.艦隊晒しページ(仮)で展開する場合はこちらから") }}</a>
+            </div>
           </div>
         </v-card>
       </v-tab-item>
@@ -237,18 +253,20 @@
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
       <div class="caption">
-        著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。
+        {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>
-      <div class="caption">また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。</div>
+      <div class="caption">
+        {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
+      </div>
     </div>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div>本当に削除しますか？</div>
+          <div>{{ $t("Common.本当に削除しますか？") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="info" dark :disabled="!confirmDialog" @click.stop="deleteHistory()">削除</v-btn>
+          <v-btn class="ml-auto" color="info" dark :disabled="!confirmDialog" @click.stop="deleteHistory()">{{ $t("Common.削除") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -256,7 +274,7 @@
     <v-dialog v-model="loading" persistent width="300">
       <v-card dark>
         <v-card-text>
-          <div class="pt-2">在籍艦娘 / 所持装備データ読込中...</div>
+          <div class="pt-2">{{ $t("Database.在籍艦娘 / 所持装備データ読込中") }}...</div>
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
@@ -458,7 +476,7 @@ export default Vue.extend({
       const stockData = FirebaseManager.createFirebaseStockObject(shipStock, itemStock);
 
       if (!stockData.ships && !stockData.items) {
-        this.$emit('inform', '艦娘、装備情報が登録されていません', true);
+        this.$emit('inform', '艦娘、装備情報が登録されていません。', true);
         return;
       }
 
@@ -529,7 +547,7 @@ export default Vue.extend({
       const textToCopy = document.getElementById('created-url') as HTMLInputElement;
       textToCopy.select();
       document.execCommand('copy');
-      this.copiedURLHint = 'URLがコピーされました。';
+      this.copiedURLHint = 'コピーされました。';
     },
     clearURLHint() {
       this.copiedURLHint = '';

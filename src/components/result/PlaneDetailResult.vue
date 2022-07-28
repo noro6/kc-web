@@ -4,11 +4,11 @@
       <v-btn-toggle dense v-model="visibleSlotRate" borderless mandatory>
         <v-btn :value="true" :class="{ 'blue darken-2 white--text': visibleSlotRate }" @click.stop="visibleSlotRate = true">
           <v-icon>mdi-chart-line</v-icon>
-          <span>残機数詳細</span>
+          <span>{{ $t("Result.残機数詳細") }}</span>
         </v-btn>
         <v-btn :value="false" :class="{ 'red darken-2 white--text': !visibleSlotRate }" @click.stop="visibleSlotRate = false">
           <v-icon>mdi-fire</v-icon>
-          <span>火力計算</span>
+          <span>{{ $t("Result.火力計算") }}</span>
         </v-btn>
       </v-btn-toggle>
     </div>
@@ -22,10 +22,10 @@
               </div>
               <div class="px-2 align-self-center">
                 <div v-if="parent.data.id > 1500" class="parent-id">id: {{ parent.data.id }}</div>
-                <div class="align-self-center caption">{{ parent.data.name }}</div>
+                <div class="align-self-center caption">{{ getShipName(parent.data) }}</div>
               </div>
             </div>
-            <div v-else class="px-2 body-2">第{{ index + 1 }}基地航空隊</div>
+            <div v-else class="px-2 body-2">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
           </div>
           <div class="mt-2" :class="{ 'pt-2': parent.data }">
             <template v-for="(item, i) in parent.items">
@@ -40,7 +40,7 @@
                 <div>
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
                 </div>
-                <div class="item-name text-truncate">{{ item.data.name }}</div>
+                <div class="item-name text-truncate">{{ needTrans && item.data.name ? $t(`${item.data.name}`) : item.data.name }}</div>
                 <div v-if="item.remodel" class="item-remodel">
                   <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
                   <span class="teal--text text--accent-4 body-2">{{ item.remodel }}</span>
@@ -52,13 +52,13 @@
                 <div v-if="item.data.isPlane" class="item-simple-status d-flex ml-3">
                   <div>(</div>
                   <template v-if="item.data.isAttacker">
-                    <div class="mx-1" v-if="item.actualTorpedo">{{ $t('Common.雷装') }} {{ item.actualTorpedo.toFixed(1) }}</div>
-                    <div class="mx-1" v-if="item.actualBomber">{{ $t('Common.爆装') }} {{ item.actualBomber.toFixed(1) }}</div>
+                    <div class="mx-1" v-if="item.actualTorpedo">{{ $t("Common.雷装") }} {{ item.actualTorpedo.toFixed(1) }}</div>
+                    <div class="mx-1" v-if="item.actualBomber">{{ $t("Common.爆装") }} {{ item.actualBomber.toFixed(1) }}</div>
                   </template>
                   <template v-else-if="item.data.isPlane">
-                    <div class="mx-1" v-if="item.actualAntiAir">{{ $t('Common.対空') }} {{ item.actualAntiAir.toFixed(1) }}</div>
+                    <div class="mx-1" v-if="item.actualAntiAir">{{ $t("Common.対空") }} {{ item.actualAntiAir.toFixed(1) }}</div>
                   </template>
-                  <div class="mx-1" v-if="item.data.radius">{{ $t('Common.半径') }} {{ item.data.radius }}</div>
+                  <div class="mx-1" v-if="item.data.isRecon">{{ $t("Common.半径") }} {{ item.data.radius }}</div>
                   <div>)</div>
                 </div>
               </div>
@@ -66,24 +66,26 @@
           </div>
         </div>
         <div class="bar-area">
-          <bar-chart :data="graphData" :options="options" title-text="残機数分布" />
+          <bar-chart :data="graphData" :options="options" :title-text="$t('Result.残機数分布')" />
         </div>
         <div class="d-flex">
           <textarea class="d-none" id="slot-rate-table-string" v-model="slotRateTableText" />
           <v-btn class="ml-auto" color="teal" dark small @click="copySlotRate()">
-            <v-icon small>mdi-file-table-outline</v-icon>残機数分布をコピー
+            <v-icon small>mdi-file-table-outline</v-icon>{{ $t("Result.残機数分布をコピー") }}
           </v-btn>
         </div>
       </div>
       <div class="fire-calc-container border-window mt-4" :class="{ show: !visibleSlotRate }">
         <div class="header-content">
-          <div class="align-self-center pl-2 body-2">航空戦火力計算機</div>
+          <div class="align-self-center pl-2 body-2 text-no-wrap">{{ $t("Result.航空戦火力計算機") }}</div>
           <div class="target-item" @mouseenter="bootTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
             <div class="pl-5">
               <v-img :src="`./img/type/icon${selectedItem.data.iconTypeId}.png`" height="24" width="24"></v-img>
             </div>
-            <div class="pr-2 item-name">{{ selectedItem.data.name }}</div>
-            <div v-show="selectedItem.remodel" class="px-2">
+            <div class="pr-2 item-name text-truncate">
+              {{ needTrans && selectedItem.data.name ? $t(`${selectedItem.data.name}`) : selectedItem.data.name }}
+            </div>
+            <div v-show="selectedItem.remodel" class="px-2 text-no-wrap">
               <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4 body-2">{{ selectedItem.remodel }}</span>
             </div>
@@ -96,7 +98,7 @@
               v-model.number="selectedItem.remodel"
               min="0"
               max="10"
-              label="改修値"
+              :label="$t('Common.改修値')"
               hide-details
               outlined
               dense
@@ -105,7 +107,7 @@
           </div>
           <div class="form-control mx-1 my-2">
             <v-select
-              label="触接"
+              :label="$t('Fleet.触接')"
               v-model="calcArgs.contactBonus"
               :items="contacts"
               hide-details
@@ -121,7 +123,7 @@
                 v-model.number="attackerSlot"
                 min="0"
                 max="999"
-                label="搭載数"
+                :label="$t('Result.搭載数')"
                 hide-details
                 outlined
                 dense
@@ -130,14 +132,14 @@
               ></v-text-field>
             </div>
             <div class="align-self-center mx-1 mb-2 d-flex">
-              <v-checkbox label="残機数分布を利用" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
+              <v-checkbox :label="$t('Result.残機数分布を利用')" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
               <v-tooltip bottom color="black">
                 <template v-slot:activator="{ on, attrs }">
                   <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
                 </template>
                 <div class="caption">
-                  <div>対空砲火により撃墜される機数の確率分布を利用して計算します。</div>
-                  <div>搭載数を固定してダメージを確認したい場合はチェックを外してください</div>
+                  <div>{{ $t("Result.対空砲火により撃墜される機数の確率分布を利用して計算します。") }}</div>
+                  <div>{{ $t("Result.搭載数を固定してダメージを確認したい場合はチェックを外してください。") }}</div>
                 </div>
               </v-tooltip>
             </div>
@@ -145,7 +147,22 @@
         </div>
         <div class="d-flex flex-wrap">
           <div class="form-control mx-1 my-2" v-show="!isAirbase">
-            <v-select label="弾薬補正" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
+            <v-tooltip bottom color="black">
+              <template v-slot:activator="{ on, attrs }">
+                <v-select
+                  :label="$t('Result.弾薬補正')"
+                  v-bind="attrs"
+                  v-on="on"
+                  v-model="ammo"
+                  :items="ammos"
+                  hide-details
+                  outlined
+                  dense
+                  @change="calculateFire"
+                ></v-select>
+              </template>
+              <div class="caption">{{ $t("Result.弾薬補正") }}</div>
+            </v-tooltip>
           </div>
           <div class="form-control mx-1 my-2">
             <v-tooltip bottom color="black">
@@ -157,7 +174,7 @@
                   v-on="on"
                   min="0"
                   max="9999"
-                  label="特効"
+                  :label="$t('Result.特効')"
                   hide-details
                   outlined
                   dense
@@ -165,12 +182,12 @@
                   @input="calculateFire"
                 ></v-text-field>
               </template>
-              <div class="caption"><b>キャップ後火力</b>に適用される倍率です</div>
+              <div class="caption">{{ $t("Result.キャップ後火力に適用される倍率です。") }}</div>
             </v-tooltip>
           </div>
           <div class="form-control lg mx-1 my-2" v-show="isAirbase">
             <v-select
-              label="陸上偵察機"
+              :label="$t('EType.陸上偵察機')"
               v-model="calcArgs.rikuteiBonus"
               :items="rikuteis"
               hide-details
@@ -180,17 +197,17 @@
             ></v-select>
           </div>
           <div class="align-self-center mx-1 mb-2 d-flex">
-            <v-checkbox label="クリティカル" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
+            <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
             <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
                 <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
               </template>
               <div class="caption">
-                <div>クリティカル発生時のダメージを表示します。</div>
+                <div>{{ $t("Result.クリティカル発生時のダメージを表示します。") }}</div>
                 <div>
-                  クリティカル補正(
+                  {{ $t("Result.クリティカル補正") }}(
                   <span class="yellow--text">&times;1.50</span>
-                  ) &times; 熟練度クリティカル補正(
+                  ) &times; {{ $t("Result.熟練度クリティカル補正") }}(
                   <span class="yellow--text">&times;{{ calcArgs.criticalBonus.toFixed(2) }}</span>
                   )
                 </div>
@@ -198,34 +215,34 @@
             </v-tooltip>
           </div>
           <div class="align-self-center mx-1 mb-2 d-flex">
-            <v-checkbox label="連合" dense hide-details v-model="calcArgs.isUnion" @change="calculateFire"></v-checkbox>
+            <v-checkbox :label="$t('Result.連合')" dense hide-details v-model="calcArgs.isUnion" @change="calculateFire"></v-checkbox>
             <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
                 <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
               </template>
               <div class="caption">
-                <div>防御側が連合艦隊であるかどうかを設定します。</div>
+                <div>{{ $t("Result.防御側が連合艦隊であるかどうかを設定します。") }}</div>
               </div>
             </v-tooltip>
           </div>
         </div>
         <v-divider></v-divider>
         <div class="mb-2 mx-1 d-flex">
-          <div class="align-self-end body-2">ダメージ計算結果</div>
+          <div class="align-self-end body-2">{{ $t("Result.ダメージ計算結果") }}</div>
           <v-spacer></v-spacer>
-          <div class="align-self-end caption mr-3">防御艦隊:</div>
+          <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}:</div>
           <div>
             <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex"></v-select>
           </div>
         </div>
         <div class="d-flex damage-header">
           <div class="damage-td img"></div>
-          <div class="damage-td">耐久</div>
-          <div class="damage-td">装甲</div>
-          <div class="damage-td grow">ダメージ幅</div>
-          <div class="damage-td">撃沈率</div>
-          <div class="damage-td">大破率</div>
-          <div class="damage-td">中破率</div>
+          <div class="damage-td">{{ $t("Common.耐久") }}</div>
+          <div class="damage-td">{{ $t("Common.装甲") }}</div>
+          <div class="damage-td grow">{{ $t("Result.ダメージ幅") }}</div>
+          <div class="damage-td">{{ $t("Result.撃沈率") }}</div>
+          <div class="damage-td">{{ $t("Result.大破率") }}</div>
+          <div class="damage-td">{{ $t("Result.中破率") }}</div>
         </div>
         <div
           v-for="(row, i) in defenseShipRows"
@@ -243,25 +260,17 @@
           <div class="damage-td">{{ row.ship.hp }}</div>
           <div class="damage-td">{{ row.ship.actualArmor }}</div>
           <div class="damage-td grow">{{ row.damage }}</div>
-          <div v-if="row.disabledASW" class="damage-td colspan-3 caption">対潜攻撃不可</div>
+          <div v-if="row.disabledASW" class="damage-td colspan-3 caption">{{ $t("Result.対潜攻撃不可") }}</div>
           <template v-else-if="row.death < 100">
             <div class="damage-td">{{ row.damage ? row.death + "%" : "" }}</div>
             <div class="damage-td">{{ row.damage ? row.taiha + "%" : "" }}</div>
             <div class="damage-td">{{ row.damage ? row.chuha + "%" : "" }}</div>
           </template>
-          <div v-else class="damage-td colspan-3 red--text">確殺</div>
+          <div v-else class="damage-td colspan-3 red--text">{{ $t("Result.確殺") }}</div>
         </div>
       </div>
     </div>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
   </div>
@@ -348,12 +357,12 @@
   z-index: 1;
   opacity: 0;
   transition: 0.3s;
-  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
-    0px 1px 1px #fff, 0px -1px 1px #fff;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff, 0px 1px 1px #fff,
+    0px -1px 1px #fff;
 }
 .theme--dark .level-value {
-  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000,
-    0px 1px 1px #000, 0px -1px 1px #000;
+  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000, 0px 1px 1px #000,
+    0px -1px 1px #000;
 }
 .calc-item.selected .level-value,
 .calc-item:hover .level-value {
@@ -388,6 +397,7 @@
   background-color: rgb(26, 32, 44);
 }
 .target-item {
+  max-width: 360px;
   display: flex;
   align-self: center;
   cursor: help;
@@ -544,9 +554,9 @@ export default Vue.extend({
       maintainAspectRatio: false,
       scales: {
         x: {
-          scaleLabel: { display: true, labelString: '累積確率 [%]' },
+          scaleLabel: { display: true, labelString: '累積確率' },
           grid: { color: 'rgba(128, 128, 128, 0.4)' },
-          title: { display: true, text: '残機数 [機]' },
+          title: { display: true, text: '残機数' },
         },
         main: {
           type: 'linear',
@@ -555,7 +565,7 @@ export default Vue.extend({
           max: 100,
           min: 0,
           grid: { color: 'rgba(255, 128, 128, 0.4)' },
-          title: { display: true, text: '確率分布 [%]' },
+          title: { display: true, text: '確率分布' },
         },
         sub: {
           type: 'linear',
@@ -564,7 +574,7 @@ export default Vue.extend({
           max: 100,
           min: 0,
           grid: { color: 'rgba(128, 128, 255, 0.4)' },
-          title: { display: true, text: '累積確率 [%]' },
+          title: { display: true, text: '累積確率' },
         },
       },
       plugins: {
@@ -588,7 +598,7 @@ export default Vue.extend({
       torpedoBonus: 1,
     } as FirePowerCalcArgs,
     contacts: [
-      { text: 'なし', value: 1 },
+      { text: '-', value: 1 },
       { text: '120%', value: 1.2 },
       { text: '117%', value: 1.17 },
       { text: '112%', value: 1.12 },
@@ -605,11 +615,6 @@ export default Vue.extend({
       { text: '～15%', value: 0.3 },
       { text: '～10%', value: 0.2 },
       { text: '～5%', value: 0.1 },
-    ],
-    rikuteis: [
-      { text: 'なし', value: 1 },
-      { text: '二式陸偵', value: 1.125 },
-      { text: '二式陸偵(熟練)', value: 1.15 },
     ],
     isAirbase: false,
     defenseIndex: 0,
@@ -637,7 +642,7 @@ export default Vue.extend({
       if (this.calcManager.fleetInfo.unionFleet && this.calcManager.fleetInfo.unionFleet.ships.length) {
         const enabledShips = this.calcManager.fleetInfo.unionFleet.ships.filter((v) => !v.isEmpty);
         this.defenseFleets.push({
-          text: '連合艦隊',
+          text: `${this.$t('Fleet.連合艦隊')}`,
           value: 0,
           ships: enabledShips,
           isUnion: true,
@@ -646,7 +651,7 @@ export default Vue.extend({
       for (let i = 0; i < fleets.length - 1; i += 1) {
         const enabledShips = fleets[i].ships.filter((v) => !v.isEmpty);
         this.defenseFleets.push({
-          text: `第${i + 1}艦隊`,
+          text: `${this.$t('Fleet.第x艦隊', { number: i + 1 })}`,
           value: this.defenseFleets.length,
           ships: enabledShips,
           isUnion: false,
@@ -658,7 +663,7 @@ export default Vue.extend({
       for (let i = 0; i < fleets.length; i += 1) {
         const enabledShips = fleets[i].enemies.filter((v) => v.data.id);
         this.defenseFleets.push({
-          text: `${i + 1}戦目`,
+          text: `${this.$t('Result.x戦目', { number: i + 1 })}`,
           value: i,
           ships: enabledShips,
           isUnion: fleets[i].isUnion,
@@ -719,6 +724,26 @@ export default Vue.extend({
         });
       }
       return results;
+    },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
+    rikuteis(): { text: string; value: number }[] {
+      const array = [
+        { text: '-', value: 1 },
+        { text: '二式陸偵', value: 1.125 },
+        { text: '二式陸偵(熟練)', value: 1.15 },
+      ];
+
+      if (this.needTrans) {
+        const transArray = [];
+        for (let i = 0; i < array.length; i += 1) {
+          transArray.push({ text: `${this.$t(`Result.${array[i].text}`)}`, value: array[i].value });
+        }
+        return transArray;
+      }
+
+      return array;
     },
   },
   methods: {
@@ -793,6 +818,9 @@ export default Vue.extend({
         this.options.scales.main.max = Math.min(Math.floor(10 * Math.ceil(maxRate / 10)), 100);
 
         this.graphData.labels = labels;
+        this.options.scales.x.title.text = `${this.$t('Result.残機数')}`;
+        this.options.scales.main.title.text = `${this.$t('Result.確率分布')}`;
+        this.options.scales.sub.title.text = `${this.$t('Result.累積確率')}`;
         this.graphData.datasets[0].data = rates;
         this.graphData.datasets[1].data = sumRates;
 
@@ -927,14 +955,14 @@ export default Vue.extend({
         } else if (maxDamage === 0) {
           if (maxSlot > 0) {
             // 攻撃機かつ搭載数があるのにダメージ0
-            row.damage = '割合';
+            row.damage = `${this.$t('Result.割合ダメージ')}`;
           } else {
             row.damage = '';
           }
         } else if (minDamage === 0) {
           if (minSlot > 0) {
             // 全滅してないのに0なら割合
-            row.damage = `割合 ~ ${maxDamage}`;
+            row.damage = `${this.$t('Result.割合ダメージ')} ~ ${maxDamage}`;
           } else {
             row.damage = `0 ~ ${maxDamage}`;
           }
@@ -971,6 +999,19 @@ export default Vue.extend({
       textToCopy.select();
       document.execCommand('copy');
       textToCopy.classList.add('d-none');
+    },
+    getShipName(ship: ShipMaster | EnemyMaster) {
+      if (this.needTrans && ship instanceof ShipMaster) {
+        const shipName = ShipMaster.getSuffix(ship);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+      if (this.needTrans && ship.name) {
+        const shipName = EnemyMaster.getSuffix(ship.name);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+      return ship.name || '';
     },
   },
 });

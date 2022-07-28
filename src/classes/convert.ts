@@ -977,6 +977,45 @@ export default class Convert {
   }
 
   /**
+   * 艦種名 翻訳用に分割
+   * @static
+   * @param {string} name
+   * @return {*}  {string[]}
+   * @memberof Convert
+   */
+  public static getShipTypeNameArray(name: string): string[] {
+    if (name === '潜高型' || name === '特種船丙型' || name === 'UボートIXC型') {
+      return [name];
+    }
+
+    const array = [];
+    if (name.startsWith('巡潜')) {
+      array.push('巡潜');
+      name = name.slice(2);
+
+      const level = name.substring(0, 1);
+      if (['甲', '乙', '丙', '丁'].includes(level)) {
+        array.push('甲');
+        name = name.slice(1);
+      }
+
+      if (name.endsWith('改二')) {
+        array.push(name.slice(0, -2));
+        array.push(name.slice(-2));
+        name = '';
+      }
+    }
+    if (name.endsWith('型') || name.endsWith('級')) {
+      array.push(name.slice(0, -1));
+      array.push(name.slice(-1));
+    } else if (name) {
+      array.push(name);
+    }
+
+    return array;
+  }
+
+  /**
    * Created by romulus on 2014/9/10.
    * @static
    * @param {string} dataString

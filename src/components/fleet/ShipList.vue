@@ -17,11 +17,11 @@
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">{{ $t('ItemList.一列') }}</span>
+            <span class="white--text">{{ $t("ItemList.一列") }}</span>
           </v-btn>
           <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">{{ $t('ItemList.複数列') }}</span>
+            <span class="white--text">{{ $t("ItemList.複数列") }}</span>
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -75,11 +75,11 @@
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
     <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
-        <div class="ship-status" v-for="i in 5" :key="`slot${i}`">{{ $t('Fleet.搭載') }}{{ i }}</div>
+        <div class="ship-status" v-for="i in 5" :key="`slot${i}`">{{ $t("Fleet.搭載") }}{{ i }}</div>
       </div>
       <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
-          <div class="caption text--secondary">{{ typeData.typeName }}</div>
+          <div class="caption text--secondary">{{ getShipTypeName(typeData.typeName) }}</div>
           <div class="type-divider-border"></div>
         </div>
         <div :class="{ multi: multiLine }">
@@ -106,9 +106,9 @@
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
-                <div v-if="isStockOnly" class="primary--text ship-level">Lv:{{ data.level }}</div>
-                <div v-if="isStockOnly">運:{{ data.luck }}</div>
-                <div v-else class="primary--text">id:{{ data.ship.albumId }}</div>
+                <div v-if="isStockOnly" class="primary--text ship-level">Lv: {{ data.level }}</div>
+                <div v-if="isStockOnly">{{ $t("Common.運") }}: {{ data.luck }}</div>
+                <div v-else class="primary--text">id: {{ data.ship.albumId }}</div>
               </div>
               <div class="d-flex">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
@@ -126,17 +126,9 @@
           </div>
         </div>
       </div>
-      <div v-show="ships.length === 0" class="body-2 text-center mt-10">{{ $t('Common.探したけど見つからなかったよ') }}&#128546;</div>
+      <div v-show="ships.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip v-model="tooltipShip" />
     </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
@@ -253,7 +245,7 @@
   margin-left: 0.1rem;
 }
 .ship-level {
-  width: 38px;
+  width: 40px;
 }
 .ship-name {
   flex-grow: 1;
@@ -314,6 +306,7 @@ import SaveData from '@/classes/saveData/saveData';
 import Ship from '@/classes/fleet/ship';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
+import Convert from '@/classes/convert';
 
 export interface ViewShip {
   ship: ShipMaster;
@@ -632,12 +625,23 @@ export default Vue.extend({
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
     },
+    translate(v: string): string {
+      return v ? `${this.$t(v)}` : '';
+    },
     getShipName(ship: ShipMaster) {
       if (this.needTrans) {
         const shipName = ShipMaster.getSuffix(ship);
-        return `${this.$t(`${shipName[0]}`)}${shipName[1] ? this.$t(`${shipName[1]}`) : ''}`;
+        return `${shipName.map((v) => this.translate(v)).join('')}`;
       }
       return ship.name || '';
+    },
+    getShipTypeName(name: string): string {
+      if (this.needTrans) {
+        const array = Convert.getShipTypeNameArray(name);
+        return `${array.map((v) => this.translate(v)).join('')}`;
+      }
+
+      return name;
     },
   },
 });

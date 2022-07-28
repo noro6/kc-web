@@ -106,14 +106,14 @@
                 'tr-half-damaged': row.death + row.taiha + row.chuha >= 50,
               }"
             >
-              <td class="d-flex pl-1">
+              <td class="d-flex pl-1 enemy-name-td" >
                 <div class="align-self-center mr-1">
                   <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120"></v-img>
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
                   <div class="text-left enemy-id primary--text">id:{{ row.enemy.data.id }}</div>
                   <div class="d-flex">
-                    <div class="enemy-name caption text-truncate">{{ getEnemyName(row.enemy.data.name) }}</div>
+                    <div class="caption text-truncate">{{ getEnemyName(row.enemy.data.name) }}</div>
                   </div>
                 </div>
               </td>
@@ -266,6 +266,10 @@ table tbody tr.tr-death {
 }
 table tbody tr.tr-death:hover {
   background-color: rgba(0, 150, 255, 0.15);
+}
+
+.enemy-name-td > div {
+  max-width: 200px;
 }
 </style>
 
@@ -448,10 +452,10 @@ export default Vue.extend({
 
         // 割合ダメージチェック
         if (minDamage === 0) {
-          row.damage = `割合 ~ ${maxDamage}`;
+          row.damage = `${this.$t('Result.割合ダメージ')} ~ ${maxDamage}`;
         }
         if (maxDamage === 0) {
-          row.damage = '割合';
+          row.damage = `${this.$t('Result.割合ダメージ')}`;
         }
         if (this.slot <= 0) {
           row.damage = '';
@@ -478,8 +482,8 @@ export default Vue.extend({
     getEnemyName(name: string): string {
       if (name && this.needTrans) {
         const shipName = EnemyMaster.getSuffix(name);
-        const trans = (v: string) => (v ? this.$t(v) : '');
-        return `${shipName.map((v) => trans(v)).join('')}`;
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
       }
       return name || '';
     },

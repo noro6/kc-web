@@ -1,10 +1,10 @@
 <template>
   <div class="area-manager-container mt-3">
     <div class="align-self-center pl-2 d-flex">
-      <v-checkbox v-model="visibleShipName" dense label="艦娘名表示"></v-checkbox>
+      <v-checkbox v-model="visibleShipName" dense :label="$t('Database.艦娘名表示')"></v-checkbox>
       <v-text-field
         class="search-input ml-5"
-        label="名称検索"
+        :label="$t('Database.名称検索')"
         dense
         v-model.trim="searchWord"
         clearable
@@ -13,7 +13,7 @@
     </div>
     <div>
       <div class="d-flex my-2" v-if="!readonly">
-        <v-btn class="ml-auto" color="secondary" @click="resetAreaHuda()">お札一斉解除</v-btn>
+        <v-btn class="ml-auto" color="secondary" @click="resetAreaTag()">{{ $t('Database.お札一斉解除') }}</v-btn>
       </div>
     </div>
     <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
@@ -21,8 +21,12 @@
         <div class="area-banner">
           <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}.png`" height="55" width="38"></v-img>
         </div>
-        <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit"> 配備 </v-btn>
-        <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit"> 解散 </v-btn>
+        <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
+          {{ $t('Common.配備') }}
+        </v-btn>
+        <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit">
+          {{ $t('Database.解散') }}
+        </v-btn>
       </div>
       <div v-if="data.headers.length > 0" class="py-1"></div>
       <div v-for="header in data.headers" :key="`type_${header.text}`">
@@ -55,9 +59,9 @@
             <div class="caption" v-if="visibleShipName">
               <div class="ship-status">
                 <div class="align-self-center primary--text">Lv:{{ ship.level }}</div>
-                <div class="ml-1 align-self-center">運:{{ ship.luck }}</div>
+                <div class="ml-1 align-self-center">{{ $t('Common.運') }}:{{ ship.luck }}</div>
               </div>
-              <div class="ml-1 text-truncate ship-name">{{ ship.data.name }}</div>
+              <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
             </div>
           </div>
         </div>
@@ -76,18 +80,18 @@
             <div class="caption">
               <div class="ship-status">
                 <div class="align-self-center primary--text">Lv:{{ confirmShip.level }}</div>
-                <div class="ml-1 align-self-center">運:{{ confirmShip.luck }}</div>
+                <div class="ml-1 align-self-center">{{ $t('Common.運') }}:{{ confirmShip.luck }}</div>
               </div>
-              <div class="ml-1 text-truncate ship-name">{{ confirmShip.data.name }}</div>
+              <div class="ml-1 text-truncate">{{ getShipName(confirmShip.data) }}</div>
             </div>
           </div>
-          <div v-if="confirmShip">札を解除します。よろしいですか？</div>
-          <div v-else>解散します。よろしいですか？</div>
+          <div v-if="confirmShip">{{ $t('Database.札を解除します。よろしいですか？') }}</div>
+          <div v-else>{{ $t('Database.解散します。よろしいですか？') }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="red" dark @click.stop="removeShip()" v-if="confirmShip">解除</v-btn>
-          <v-btn class="ml-auto" color="red" dark @click.stop="resetShips()" v-else>解散</v-btn>
+          <v-btn class="ml-auto" color="red" dark @click.stop="removeShip()" v-if="confirmShip">{{ $t('Database.解除') }}</v-btn>
+          <v-btn class="ml-auto" color="red" dark @click.stop="resetShips()" v-else>{{ $t('Database.解散') }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -269,6 +273,9 @@ export default Vue.extend({
       }
       return false;
     },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -420,13 +427,21 @@ export default Vue.extend({
       this.$store.dispatch('updateShipStock', stocks);
       this.confirmDialog = false;
     },
-    resetAreaHuda() {
+    resetAreaTag() {
       // お札一斉解除
       const stocks = this.$store.state.shipStock as ShipStock[];
       for (let i = 0; i < stocks.length; i += 1) {
         stocks[i].area = 0;
       }
       this.$store.dispatch('updateShipStock', stocks);
+    },
+    getShipName(ship: ShipMaster) {
+      if (this.needTrans) {
+        const shipName = ShipMaster.getSuffix(ship);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+      return ship.name ? ship.name : '';
     },
     bootTooltip(ship: GroupShip, e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {

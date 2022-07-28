@@ -180,28 +180,36 @@ export default class ShipMaster {
    */
   static getSuffix(ship: ShipMaster): string[] {
     if (!ship.version) return [ship.name];
-    const kai = ship.name.split('改');
-    if (kai.length === 2) {
-      const prefix = kai[0];
-      const suffix = kai[1];
-      const otsu = prefix.split('乙');
-      if (otsu.length === 2) {
-        return [otsu[0], `乙${otsu[1]}改${suffix}`];
-      }
-      const tei = prefix.split('丁');
-      if (tei.length === 2) {
-        return [tei[0], `丁${tei[1]}改${suffix}`];
-      }
-      const kou = prefix.split('航');
-      if (kou.length === 2) {
-        return [kou[0], `航${kou[1]}改${suffix}`];
-      }
-      return [prefix, `改${suffix}`];
+
+    const lastSuffix = ['甲', '乙', '丙', '丁', '戊', '特', '護', '重', '改', '航', '母'];
+    let name = `${ship.name}`;
+    let array: string[] = [];
+    // 最後の1文字
+    let last = name.slice(-1);
+    if (lastSuffix.includes(last)) {
+      array.push(last);
+      name = name.slice(0, -1);
     }
-    const kou = ship.name.split('甲');
-    if (kou.length === 2) {
-      return [kou[0], `甲${kou[1]}`];
+
+    const suffixes = ['改二', ' zwei', ' drei', ' due', ' andra', ' nuovo', ' два', ' Mod.2', ' Mk.II'];
+    for (let i = 0; i < suffixes.length; i += 1) {
+      let suffix = suffixes[i];
+      if (name.endsWith(suffix)) {
+        suffix = suffix.replaceAll('.', ' ');
+        name = name.slice(0, -suffix.length);
+        array = [suffix].concat(array);
+      }
     }
-    return [ship.name];
+
+    // もう一回やっておく(航改二とか対策)
+    last = name.slice(-1);
+    if (lastSuffix.includes(last)) {
+      name = name.slice(0, -1);
+      array = [last].concat(array);
+    }
+
+    // 残り
+    array = [name].concat(array);
+    return array;
   }
 }

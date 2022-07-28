@@ -3,7 +3,7 @@
     <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header class="px-4">
-          <div><v-icon>mdi-filter</v-icon>フィルタ</div>
+          <div><v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}</div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-divider class="mb-3"></v-divider>
@@ -11,7 +11,7 @@
             <div class="d-flex my-4">
               <v-text-field
                 class="search-input"
-                label="id 名称検索"
+                :label="$t('ItemList.図鑑id 名称検索')"
                 dense
                 v-model.trim="searchWord"
                 @input="filter"
@@ -19,12 +19,12 @@
                 hide-details
                 prepend-inner-icon="mdi-magnify"
               ></v-text-field>
-              <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" label="未所持装備非表示"></v-checkbox>
+              <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未所持装備非表示')"></v-checkbox>
             </div>
             <div class="d-flex my-4">
               <div class="range-input">
                 <v-text-field
-                  label="改修下限"
+                  :label="$t('Database.改修下限')"
                   type="number"
                   :max="remodelRange[1]"
                   min="0"
@@ -34,20 +34,11 @@
                   @input="filter"
                 ></v-text-field>
               </div>
-              <v-range-slider
-                v-model="remodelRange"
-                dense
-                thumb-label
-                min="0"
-                max="10"
-                hide-details
-                class="pt-2 align-center mx-2"
-                @change="filter"
-              >
+              <v-range-slider v-model="remodelRange" dense thumb-label min="0" max="10" hide-details class="pt-2 align-center mx-2" @change="filter">
               </v-range-slider>
               <div class="range-input">
                 <v-text-field
-                  label="改修上限"
+                  :label="$t('Database.改修上限')"
                   type="number"
                   max="10"
                   :min="remodelRange[0]"
@@ -68,7 +59,7 @@
             attach
             chips
             deletable-chips
-            label="カテゴリ"
+            :label="$t('Database.カテゴリ')"
             multiple
             @change="masterFilter"
           >
@@ -80,21 +71,21 @@
                   </v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
-                  <v-list-item-title>全選択</v-list-item-title>
+                  <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider class="mt-2"></v-divider>
             </template>
           </v-select>
           <div>
-            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" label="総所持数表示"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')"></v-checkbox>
           </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
     <v-card class="my-3 pa-4" v-if="!viewItems.length">
       <div class="text-center my-10">
-        <div>みつからないよ</div>
+        <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
       </div>
     </v-card>
     <div v-else class="item-all-container mt-3">
@@ -103,7 +94,7 @@
           <div class="type-img">
             <img :src="`./img/type/type${header.type.id}.png`" />
           </div>
-          <div class="ml-1 align-self-center">{{ header.type.name }}</div>
+          <div class="ml-1 align-self-center">{{ needTrans ? $t(`EType.${header.type.name}`) : header.type.name }}</div>
           <v-spacer></v-spacer>
           <div v-if="header.type.sortKey">
             <v-menu offset-y left>
@@ -113,7 +104,7 @@
                 </v-btn>
               </template>
               <v-card>
-                <div class="sort-key" v-ripple="{ class: 'info--text' }" @click="sortItems(header.items, 'id')">図鑑ID</div>
+                <div class="sort-key" v-ripple="{ class: 'info--text' }" @click="sortItems(header.items, 'id')">{{ $t("Database.図鑑ID") }}</div>
                 <div
                   v-for="(sortKey, j) in header.type.sortKey"
                   :key="`type${i}Key${j}`"
@@ -141,7 +132,9 @@
               <div class="icon-img">
                 <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" />
               </div>
-              <div class="item-name flex-grow-1">{{ itemRow.master.name }}</div>
+              <div class="item-name flex-grow-1">
+                {{ needTrans ? $t(`${itemRow.master.name}`) : itemRow.master.name }}
+              </div>
             </div>
             <div class="detail-container">
               <div v-if="visibleAllCount && !remodelRange[0]" class="primary--text count-text">{{ itemRow.allCount }}</div>
@@ -163,13 +156,13 @@
             </div>
             <div class="align-self-center ml-1">
               <div class="caption info--text">ID: {{ editedItem.id }}</div>
-              <div class="body-2">{{ editedItem.name }}</div>
+              <div class="body-2">{{ needTrans ? $t(`${editedItem.name}`) : editedItem.name }}</div>
             </div>
           </div>
         </div>
         <v-divider></v-divider>
         <div class="ma-3">
-          <div class="caption">所持数</div>
+          <div class="caption">{{ $t("Database.所持数") }}</div>
           <div class="stock-inputs">
             <v-text-field
               v-for="(value, i) in editedStock"
@@ -183,26 +176,18 @@
               :readonly="readOnly"
               v-model.number="editedStock[i]"
             ></v-text-field>
-            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" label="合計"></v-text-field>
+            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" :label="$t('Fleet.合計')"></v-text-field>
           </div>
         </div>
         <v-divider class="mb-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="registStock">更新</v-btn>
-          <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">全破棄</v-btn>
+          <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="commitStock">{{ $t("Common.更新") }}</v-btn>
+          <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">{{ $t("Database.全破棄") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
   </div>
@@ -453,7 +438,13 @@ export default Vue.extend({
       return sum(this.editedStock);
     },
     convertStatusString() {
-      return (value: string) => Convert.convertAttributeString(value);
+      return (value: string) => {
+        const str = Convert.convertAttributeString(value);
+        return this.needTrans ? `${this.$t(`Common.${str}`)}` : str;
+      };
+    },
+    needTrans(): boolean {
+      return this.$i18n.locale !== 'ja';
     },
   },
   beforeDestroy() {
@@ -478,7 +469,11 @@ export default Vue.extend({
       this.types = [];
       this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        this.types.push({ text: masters[i].text, value: i });
+        if (this.needTrans) {
+          this.types.push({ text: `${this.$t(`EType.${masters[i].text}`)}`, value: i });
+        } else {
+          this.types.push({ text: masters[i].text, value: i });
+        }
         this.selectedTypes.push(i);
       }
 
@@ -593,7 +588,7 @@ export default Vue.extend({
     clearStock() {
       this.editedStock = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     },
-    registStock() {
+    commitStock() {
       if (this.editedItem) {
         const itemId = this.editedItem.id;
         const stock = this.itemStock.find((v) => v.id === itemId);

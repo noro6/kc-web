@@ -276,7 +276,7 @@ export default class Const {
     { id: 50, name: '大鯨型' },
     { id: 60, name: '改風早型' },
     { id: 49, name: '工作艦' },
-    { id: 111, name: 'PL10' },
+    { id: 111, name: '耐氷型雑用輸送艦' },
     { id: 7, name: '古鷹型' },
     { id: 13, name: '青葉型' },
     { id: 29, name: '妙高型' },
@@ -573,7 +573,7 @@ export default class Const {
       id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'avoid', 'armor'], types: [5, 22, 32],
     },
     {
-      id: 10, text: '水上機', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [10],
+      id: 10, text: '水偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [10],
     },
     {
       id: 1100, text: '水爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [11],
