@@ -160,6 +160,7 @@ import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
+import SiteSetting from '@/classes/siteSetting';
 
 interface Stage2Row {
   id: number;
@@ -195,8 +196,12 @@ export default Vue.extend({
     colorTable: ['255, 64, 64', '64, 255, 64', '64, 64, 255', '255, 255, 64', '255, 64, 255'],
   }),
   computed: {
-    needTrans(): boolean {
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     ships(): Ship[] | Enemy[] {
       if (this.fleet instanceof EnemyFleet) {
@@ -205,7 +210,7 @@ export default Vue.extend({
       return this.fleet.ships.filter((v) => v.isActive && !v.isEmpty);
     },
     formations(): Formation[] {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const items = [];
         for (let i = 0; i < Const.FORMATIONS.length; i += 1) {
           const { text, value, correction } = Const.FORMATIONS[i];
@@ -216,7 +221,7 @@ export default Vue.extend({
       return Const.FORMATIONS;
     },
     avoids(): AvoidType[] {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const items = [];
         for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
           const {

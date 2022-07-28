@@ -98,6 +98,7 @@ import Vue from 'vue';
 import sum from 'lodash/sum';
 import Ship from '@/classes/fleet/ship';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'ShipTooltip',
@@ -187,7 +188,8 @@ export default Vue.extend({
       return [];
     },
     shipName(): string {
-      if (this.$i18n.locale === 'en') {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (this.$i18n.locale === 'en' && !setting.nameIsNotTranslate) {
         const shipName = ShipMaster.getSuffix(this.value.data);
         const trans = (v: string) => (v ? `${this.$t(v)}` : '');
         return shipName.map((v) => trans(v)).join('');

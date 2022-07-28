@@ -161,6 +161,7 @@ import StackedBar from '@/components/graph/StackedBar.vue';
 import ShipStock from '@/classes/fleet/shipStock';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import SiteSetting from '@/classes/siteSetting';
 
 const radarDatasetLabels = ['最大Lv', '最小Lv', '中央Lv', '平均Lv'];
 
@@ -301,6 +302,10 @@ export default Vue.extend({
   },
   computed: {
     needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
     isTempStockMode(): boolean {
@@ -336,7 +341,7 @@ export default Vue.extend({
       this.stackedBarOption.scales.x.title.text = `${this.$t('Database.艦娘数')}`;
       for (let i = 0; i < types.length; i += 1) {
         const type = types[i];
-        const typeName = this.needTrans ? `${this.$t(`SType.${type.text}`)}` : type.text;
+        const typeName = this.isNotJapanese ? `${this.$t(`SType.${type.text}`)}` : type.text;
         this.radarGraphData.labels.push(typeName);
         this.radarGraphData.datasets[0].label = `${this.$t('Database.最大Lv')}`;
         this.radarGraphData.datasets[1].label = `${this.$t('Database.最小Lv')}`;
@@ -444,7 +449,7 @@ export default Vue.extend({
       const allLevel = sum(allLevels);
       const allCount = allLevels.length;
       this.summaryTable.push({
-        name: this.needTrans ? `${this.$t('SType.合計')}` : '合計',
+        name: this.isNotJapanese ? `${this.$t('SType.合計')}` : '合計',
         data: {
           count: allCount,
           maxLevel: max(expTable.map((v) => v.data.maxLevel)),

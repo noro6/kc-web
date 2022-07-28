@@ -560,6 +560,7 @@ import Ship from '@/classes/fleet/ship';
 import Convert from '@/classes/convert';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -832,7 +833,8 @@ export default Vue.extend({
       return this.value.battleInfo.fleets.some((v) => v.existUnknownEnemy);
     },
     needTrans(): boolean {
-      return this.$i18n.locale !== 'ja';
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   methods: {

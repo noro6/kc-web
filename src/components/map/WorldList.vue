@@ -342,6 +342,7 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Enemy from '@/classes/enemy/enemy';
 import ItemMaster from '@/classes/item/itemMaster';
 import { MasterMap, MasterWorld } from '@/classes/interfaces/master';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'WorldList',
@@ -442,6 +443,10 @@ export default Vue.extend({
     isEvent(): boolean {
       return Math.floor(this.area / 10) > 40;
     },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -450,7 +455,7 @@ export default Vue.extend({
   },
   methods: {
     getEnemyName(name: string): string {
-      if (name && this.$i18n.locale !== 'ja') {
+      if (name && this.needTrans) {
         const shipName = EnemyMaster.getSuffix(name);
         const trans = (v: string) => (v ? `${this.$t(v)}` : '');
         return shipName.map((v) => trans(v)).join('');

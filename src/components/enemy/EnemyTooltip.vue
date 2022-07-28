@@ -59,6 +59,7 @@
 import Vue from 'vue';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'EnemyTooltip',
@@ -78,7 +79,8 @@ export default Vue.extend({
       return this.value.data.armor + sum;
     },
     needTrans(): boolean {
-      return this.$i18n.locale !== 'ja';
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   methods: {

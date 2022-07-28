@@ -95,7 +95,7 @@
       </div>
       <div class="align-self-center caption pl-2">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}:</span>
-        <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ needTrans ? "" : "機" }}</span>
+        <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
           <span class="text--secondary text-no-wrap">{{ $t("Fleet.噴進") }}:</span>
           <span class="ml-1 font-weight-medium mr-2">{{ ship.hunshinRate.toFixed(1) }}%</span>
@@ -108,7 +108,7 @@
               <span class="asw-view" v-bind="attrs" v-on="on">
                 <span class="ml-2 text--secondary mr-1">{{ $t("Fleet.先制対潜") }}:</span>
                 <span v-if="ship.enabledTSBK">
-                  <template v-if="!needTrans">
+                  <template v-if="!isNotJapanese">
                     {{ $t("Fleet.可") }}
                   </template>
                   <template v-else>&#10004;</template>
@@ -121,12 +121,12 @@
                 <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }}:</td>
                 <td class="text-right pl-2">
                   <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">
-                    <template v-if="!needTrans">
+                    <template v-if="!isNotJapanese">
                       {{ $t("Fleet.可") }}
                     </template>
                     <template v-else>&#10004;</template>
                   </span>
-                  <span v-else-if="!needTrans" class="red--text text--lighten-1">
+                  <span v-else-if="!isNotJapanese" class="red--text text--lighten-1">
                     {{ $t("Fleet.不可") }}
                   </span>
                   <span v-else class="red--text text--lighten-1">&times;</span>
@@ -487,17 +487,23 @@ export default Vue.extend({
     ship(): Ship {
       return this.value;
     },
-    needTrans(): boolean {
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return !setting.nameIsNotTranslate;
+    },
     shipName() {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         if (!this.value.data.name) {
           return this.$t('Fleet.艦娘選択');
         }
-        const shipName = ShipMaster.getSuffix(this.value.data);
-        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
-        return shipName.map((v) => trans(v)).join('');
+        if (this.needTrans) {
+          const shipName = ShipMaster.getSuffix(this.value.data);
+          const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+          return shipName.map((v) => trans(v)).join('');
+        }
       }
       return this.value.data.name ? this.value.data.name : '艦娘選択';
     },

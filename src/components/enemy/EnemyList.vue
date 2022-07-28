@@ -27,7 +27,7 @@
           :class="{ active: index === type, disabled: keyword || isLandBase }"
           @click="changeType(index)"
         >
-          {{ $t(`SType.${i.text}`) }}
+          {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
         </div>
       </div>
       <v-divider class="mx-3"></v-divider>
@@ -137,6 +137,7 @@ import EnemyTooltip from '@/components/enemy/EnemyTooltip.vue';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Const from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'EnemyList',
@@ -185,8 +186,12 @@ export default Vue.extend({
     this.filter();
   },
   computed: {
-    needTrans(): boolean {
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   methods: {

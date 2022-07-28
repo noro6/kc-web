@@ -106,7 +106,7 @@
                 'tr-half-damaged': row.death + row.taiha + row.chuha >= 50,
               }"
             >
-              <td class="d-flex pl-1 enemy-name-td" >
+              <td class="d-flex pl-1 enemy-name-td">
                 <div class="align-self-center mr-1">
                   <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120"></v-img>
                 </div>
@@ -287,6 +287,7 @@ import Item from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import AerialFirePowerCalculator from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
+import SiteSetting from '@/classes/siteSetting';
 
 interface DamageRow {
   enemy: Enemy;
@@ -338,7 +339,8 @@ export default Vue.extend({
   },
   computed: {
     needTrans(): boolean {
-      return this.$i18n.locale !== 'ja';
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     enabledShips(): Ship[] {
       return this.fleet.ships.filter((v) => v.items.some((w) => w.fullSlot));

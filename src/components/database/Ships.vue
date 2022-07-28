@@ -14,7 +14,7 @@
             <v-expansion-panel-header class="px-4">
               <div>
                 <v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}
-                <span class="caption">({{ viewShips.length }}{{ needTrans ? "" : "隻" }} / {{ allCount }}{{ needTrans ? "" : "隻" }})</span>
+                <span class="caption">({{ viewShips.length }}{{ isNotJapanese ? "" : "隻" }} / {{ allCount }}{{ isNotJapanese ? "" : "隻" }})</span>
               </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
@@ -982,6 +982,10 @@ export default Vue.extend({
       return resultShips;
     },
     needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
   },
@@ -1032,7 +1036,7 @@ export default Vue.extend({
       this.types = [];
       this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        if (this.needTrans) {
+        if (this.isNotJapanese) {
           this.types.push({ text: `${this.$t(`SType.${masters[i].text}`)}`, value: i });
         } else {
           this.types.push({ text: masters[i].text, value: i });
@@ -1359,7 +1363,7 @@ export default Vue.extend({
       return ship.name ? ship.name : '';
     },
     getShipTypeName(name: string) {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const array = Convert.getShipTypeNameArray(name);
         return `${array.map((v) => this.translate(v)).join('')}`;
       }

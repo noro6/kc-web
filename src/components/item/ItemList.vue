@@ -119,7 +119,7 @@
       </div>
       <div v-for="(data, i) in itemListData" :key="i">
         <div class="type-divider" v-if="multiLine">
-          <div class="caption text--secondary">{{ needTrans ? $t(`EType.${data.typeName}`) : data.typeName }}</div>
+          <div class="caption text--secondary">{{ isNotJapanese ? $t(`EType.${data.typeName}`) : data.typeName }}</div>
           <div class="type-divider-border"></div>
         </div>
         <div class="type-item-container" :class="{ multi: multiLine }">
@@ -587,8 +587,12 @@ export default Vue.extend({
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
     },
-    needTrans() {
+    isNotJapanese() {
       return this.$i18n.locale !== 'ja';
+    },
+    needTrans() {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   methods: {

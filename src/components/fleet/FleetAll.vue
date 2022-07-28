@@ -316,7 +316,7 @@
           </div>
           <div class="d-flex">
             <div class="flex-grow-1 mx-2">
-              <v-tooltip bottom color="black" :disabled="needTrans">
+              <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">{{ $t("ItemList.x機", { number: 1 }) }}</v-btn>
                 </template>
@@ -326,7 +326,7 @@
               </v-tooltip>
             </div>
             <div class="flex-grow-1 mx-2">
-              <v-tooltip bottom color="black" :disabled="needTrans">
+              <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">{{ $t("ItemList.x機", { number: 2 }) }}</v-btn>
                 </template>
@@ -336,7 +336,7 @@
               </v-tooltip>
             </div>
             <div class="flex-grow-1 mx-2">
-              <v-tooltip bottom color="black" :disabled="needTrans">
+              <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">{{ $t("ItemList.x機", { number: 3 }) }}</v-btn>
                 </template>
@@ -346,7 +346,7 @@
               </v-tooltip>
             </div>
             <div class="flex-grow-1 mx-2">
-              <v-tooltip bottom color="black" :disabled="needTrans">
+              <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">{{ $t("ItemList.x機", { number: 5 }) }}</v-btn>
                 </template>
@@ -356,7 +356,7 @@
               </v-tooltip>
             </div>
             <div class="flex-grow-1 mx-2">
-              <v-tooltip bottom color="black" :disabled="needTrans">
+              <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">{{ $t("ItemList.x機", { number: 17 }) }}</v-btn>
                 </template>
@@ -622,10 +622,14 @@ export default Vue.extend({
       return this.value;
     },
     needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
     formations(): Formation[] {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const items = [];
         for (let i = 0; i < Const.FORMATIONS.length; i += 1) {
           const { text, value, correction } = Const.FORMATIONS[i];
@@ -1194,9 +1198,9 @@ export default Vue.extend({
     },
     getItemName(name: string) {
       if (this.needTrans) {
-        return name ? this.$t(`${name}`) : 'No Item';
+        return name ? this.$t(`${name}`) : this.$t('Fleet.未装備');
       }
-      return name || '未装備';
+      return name || `${this.$t('Fleet.未装備')}`;
     },
   },
 });

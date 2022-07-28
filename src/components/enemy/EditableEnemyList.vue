@@ -31,7 +31,7 @@
               <div class="caption-2">
                 <div class="primary--text mr-2">id:{{ enemy.data.id }}</div>
               </div>
-              <div class="enemy-name">{{ enemy.data.name }}</div>
+              <div class="enemy-name">{{ getShipName(enemy.data.name) }}</div>
             </div>
             <div>
               <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
@@ -158,6 +158,7 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import ItemMaster from '@/classes/item/itemMaster';
 import Item from '@/classes/item/item';
 import SaveData from '@/classes/saveData/saveData';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'EditableEnemyList',
@@ -187,7 +188,8 @@ export default Vue.extend({
   },
   computed: {
     needTrans(): boolean {
-      return this.$i18n.locale !== 'ja';
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     manualEnemyRows(): Enemy[] {
       const rows = [];
@@ -328,6 +330,14 @@ export default Vue.extend({
       } else {
         this.$router.push('/');
       }
+    },
+    getShipName(name: string) {
+      if (this.needTrans && name) {
+        const shipName = EnemyMaster.getSuffix(name);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+      return name || '';
     },
   },
 });

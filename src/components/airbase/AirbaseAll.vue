@@ -27,7 +27,7 @@
         </template>
         <div>
           <div>{{ $t("Airbase.基地空襲被害を発生させる") }}</div>
-          <div class="caption">※ {{ $t("Airbase.第1スロットから順に搭載数を4機減らします") }}</div>
+          <div class="caption">※ {{ $t("Airbase.第1スロットから順に搭載数を4機減らします。") }}</div>
         </div>
       </v-tooltip>
       <v-tooltip bottom color="black">

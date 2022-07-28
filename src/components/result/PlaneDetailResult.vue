@@ -726,6 +726,10 @@ export default Vue.extend({
       return results;
     },
     needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
     rikuteis(): { text: string; value: number }[] {
@@ -735,7 +739,7 @@ export default Vue.extend({
         { text: '二式陸偵(熟練)', value: 1.15 },
       ];
 
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const transArray = [];
         for (let i = 0; i < array.length; i += 1) {
           transArray.push({ text: `${this.$t(`Result.${array[i].text}`)}`, value: array[i].value });

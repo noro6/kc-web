@@ -157,6 +157,7 @@ import ItemPreset, { OldItemPreset } from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
 import Item from '@/classes/item/item';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'ItemPreset',
@@ -191,7 +192,8 @@ export default Vue.extend({
   },
   computed: {
     needTrans() {
-      return this.$i18n.locale !== 'ja';
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     disabledCommit(): boolean {
       if (this.value instanceof Airbase) {
@@ -234,7 +236,7 @@ export default Vue.extend({
         newPreset.id = maxId;
       }
       newPreset.id += 1;
-      if (this.needTrans) {
+      if (this.$i18n.locale !== 'ja') {
         newPreset.name = `${this.$t('ItemList.プリセット')} ${newPreset.id}`;
       } else {
         newPreset.name = `装備プリセット${newPreset.id}`;

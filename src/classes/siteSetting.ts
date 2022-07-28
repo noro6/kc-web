@@ -82,6 +82,9 @@ export default class SiteSetting {
   /** 言語 */
   public locale: 'ja' | 'en';
 
+  /** 艦娘 装備名を翻訳しないフラグ */
+  public nameIsNotTranslate: boolean;
+
   /** フィルタ保存値 */
   public savedItemListFilter: { parent: 'ship' | 'airbase', key: string, value: number }[];
 
@@ -113,6 +116,7 @@ export default class SiteSetting {
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.importAllDeck = !!setting.importAllDeck;
       this.locale = setting.locale ? setting.locale : 'ja';
+      this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
 
@@ -161,6 +165,7 @@ export default class SiteSetting {
       this.disabledItemTooltip = false;
       this.importAllDeck = false;
       this.locale = 'ja';
+      this.nameIsNotTranslate = false;
       this.savedItemListFilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = {
         isFinalOnly: true,

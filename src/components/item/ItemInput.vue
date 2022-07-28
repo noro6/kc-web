@@ -299,6 +299,7 @@ import ItemMaster from '@/classes/item/itemMaster';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
 import ShipValidation from '@/classes/fleet/shipValidation';
+import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -357,9 +358,13 @@ export default Vue.extend({
     isNoItem() {
       return this.value.data.id === 0;
     },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
     itemName() {
-      if (this.$i18n.locale === 'en') {
-        return this.value.data.name ? this.$t(`${this.value.data.name}`) : 'No Item';
+      if (this.needTrans) {
+        return this.value.data.name ? this.$t(`${this.value.data.name}`) : this.$t('Fleet.未装備');
       }
       return this.value.data.name ? this.value.data.name : '未装備';
     },

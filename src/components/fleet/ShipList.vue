@@ -69,7 +69,7 @@
         :class="{ active: index === type, disabled: keyword }"
         @click="changeType(index)"
       >
-        {{ needTrans ? $t(`SType.${i.text}`) : i.text }}
+        {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
@@ -385,8 +385,12 @@ export default Vue.extend({
     }
   },
   computed: {
-    needTrans() {
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   methods: {
@@ -636,7 +640,7 @@ export default Vue.extend({
       return ship.name || '';
     },
     getShipTypeName(name: string): string {
-      if (this.needTrans) {
+      if (this.isNotJapanese) {
         const array = Convert.getShipTypeNameArray(name);
         return `${array.map((v) => this.translate(v)).join('')}`;
       }

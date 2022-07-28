@@ -244,7 +244,7 @@
         </template>
         <template v-else>
           {{ $t("Home.翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。") }}
-          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">{{ $t('Home.お題箱') }}</a>
+          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">{{ $t("Home.お題箱") }}</a>
           <a href="https://twitter.com/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">Twitter</a>
           <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1 mx-1" target="_blank">
             Amazon wish list
@@ -263,6 +263,9 @@
             <div class="ml-3 mt-2">
               <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
               <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
+            </div>
+            <div class="ml-3" v-if="!isJapanese">
+              <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :label="$t('Setting.艦娘や装備名は翻訳しない')"></v-checkbox>
             </div>
           </div>
           <div></div>
@@ -312,7 +315,7 @@
                   <div class="mx-1 item-icon">
                     <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
                   </div>
-                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ $t("Setting.sample") }}</div>
+                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : 'さんぷる' }}</div>
                   <div class="ml-1 align-self-center">
                     <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
                   </div>
@@ -644,6 +647,9 @@ export default Vue.extend({
     },
     isEnglish(): boolean {
       return this.setting.locale === 'en';
+    },
+    needTrans(): boolean {
+      return !this.isJapanese && !this.setting.nameIsNotTranslate;
     },
   },
   watch: {

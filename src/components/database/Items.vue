@@ -94,7 +94,7 @@
           <div class="type-img">
             <img :src="`./img/type/type${header.type.id}.png`" />
           </div>
-          <div class="ml-1 align-self-center">{{ needTrans ? $t(`EType.${header.type.name}`) : header.type.name }}</div>
+          <div class="ml-1 align-self-center">{{ isNotJapanese ? $t(`EType.${header.type.name}`) : header.type.name }}</div>
           <v-spacer></v-spacer>
           <div v-if="header.type.sortKey">
             <v-menu offset-y left>
@@ -440,11 +440,15 @@ export default Vue.extend({
     convertStatusString() {
       return (value: string) => {
         const str = Convert.convertAttributeString(value);
-        return this.needTrans ? `${this.$t(`Common.${str}`)}` : str;
+        return this.isNotJapanese ? `${this.$t(`Common.${str}`)}` : str;
       };
     },
-    needTrans(): boolean {
+    isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    needTrans(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
   },
   beforeDestroy() {
@@ -469,7 +473,7 @@ export default Vue.extend({
       this.types = [];
       this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        if (this.needTrans) {
+        if (this.isNotJapanese) {
           this.types.push({ text: `${this.$t(`EType.${masters[i].text}`)}`, value: i });
         } else {
           this.types.push({ text: masters[i].text, value: i });
