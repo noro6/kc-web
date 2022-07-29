@@ -49,6 +49,9 @@ export default class SiteSetting {
   /** 計算結果最小化 */
   public isMinimizedResult: boolean;
 
+  /** 補足情報最小化 */
+  public isMinimizedDescription: boolean;
+
   /** コンテンツ順序 id準拠 */
   public contentOrder: string[];
 
@@ -105,6 +108,7 @@ export default class SiteSetting {
       this.isMinimizedFleet = !!setting.isMinimizedFleet;
       this.isMinimizedEnemy = !!setting.isMinimizedEnemy;
       this.isMinimizedResult = !!setting.isMinimizedResult;
+      this.isMinimizedDescription = !!setting.isMinimizedDescription;
       this.simulationCount = setting.simulationCount ? setting.simulationCount : 5000;
       this.admiralLevel = setting.admiralLevel ? setting.admiralLevel : 120;
       this.userName = setting.userName ? setting.userName : '';
@@ -154,6 +158,7 @@ export default class SiteSetting {
       this.isMinimizedFleet = false;
       this.isMinimizedEnemy = false;
       this.isMinimizedResult = false;
+      this.isMinimizedDescription = false;
       this.simulationCount = 5000;
       this.admiralLevel = 120;
       this.userName = '';

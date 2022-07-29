@@ -203,6 +203,7 @@ export default {
       'また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。': 'I am not responsible for any profits, damages or any other events resulting from the information or calculations on this site.',
       '編成データ名': 'Title',
       '補足情報': 'Description',
+      '更新しました。': 'Updated.',
       '艦隊選択': 'Select Fleets',
       '常に全艦隊取り込む': 'Always import all fleet data',
       '取り込む艦隊を選択し、取り込みボタンを押してください。': 'Select the Fleet to be imported, then press the Import button.',

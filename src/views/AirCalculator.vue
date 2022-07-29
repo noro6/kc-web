@@ -1,6 +1,7 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
     <div class="minimize-group">
+      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedDescription" @click="toggleMinimizeDescription(false)">{{ $t("Home.補足情報") }}</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">{{ $t("Airbase.基地航空隊") }}</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">{{ $t("Fleet.自艦隊") }}</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">{{ $t("Enemies.敵艦隊") }}</v-btn>
@@ -10,6 +11,34 @@
       <v-btn class="ml-2" dark small v-if="sortMode" @click="cancelContentOrder" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
     </div>
     <draggable handle=".content-frame" animation="150" :disabled="!sortMode" id="content-container" :class="{ 'sort-mode': sortMode }">
+      <div id="description-content" class="content-frame" v-show="sortMode || !setting.isMinimizedDescription">
+        <v-card v-if="sortMode" class="sort-container">{{ $t("Home.補足情報") }}</v-card>
+        <div v-else>
+          <v-card class="my-2 px-1 py-2">
+            <div class="d-flex pb-1">
+              <div class="pl-2 align-self-center">{{ $t("Home.補足情報") }}</div>
+              <v-spacer></v-spacer>
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn icon @click="toggleMinimizeDescription(true)" v-bind="attrs" v-on="on">
+                    <v-icon>mdi-minus</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t("Common.最小化") }}</span>
+              </v-tooltip>
+            </div>
+            <v-divider></v-divider>
+            <div class="px-1 pt-2 d-flex">
+              <div class="mr-2 mt-1">
+                <v-btn color="success" :disabled="!isEditedRemarks" @click="commitRemarks()">{{ $t("Common.更新") }}</v-btn>
+              </div>
+              <div class="flex-grow-1">
+                <v-textarea auto-grow rows="1" v-model="editedRemarks" outlined dense hide-details />
+              </div>
+            </div>
+          </v-card>
+        </div>
+      </div>
       <div id="airbase-content" class="content-frame" v-show="sortMode || !setting.isMinimizedAirbase">
         <v-card v-if="sortMode" class="sort-container">{{ $t("Airbase.基地航空隊") }}</v-card>
         <airbase-all
@@ -138,6 +167,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortMode: false,
     saveTriggerTimer: undefined as undefined | number,
+    editedRemarks: '',
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
@@ -154,6 +184,9 @@ export default Vue.extend({
           this.stockData = saveData;
           return;
         }
+
+        // 補足情報の置き換え
+        this.editedRemarks = saveData.remarks;
 
         // マスターの再読み込み
         const items = this.$store.state.items as ItemMaster[];
@@ -185,15 +218,19 @@ export default Vue.extend({
         this.calcManager.battleInfo.calculated = true;
 
         this.calculate();
-      }
-
-      if (mutation.type === 'updateSetting') {
+      } else if (mutation.type === 'updateSaveData') {
+        const saveData = state.mainSaveData as SaveData;
+        if (saveData) {
+        // 補足情報の置き換え
+          this.editedRemarks = saveData.remarks;
+        }
+      } else if (mutation.type === 'updateSetting') {
         // 設定情報の更新を購読 常に最新の状態を保つ
         this.setting = state.siteSetting as SiteSetting;
         this.sortContentFromSetting();
+      } else {
+        this.sortContentFromSetting();
       }
-
-      this.sortContentFromSetting();
     });
 
     // なんかデータがあるならそれを突っ込んで計算開始
@@ -216,6 +253,15 @@ export default Vue.extend({
   computed: {
     completed() {
       return this.$store.getters.getCompletedAll;
+    },
+    disabledDescription(): boolean {
+      return !this.$store.state.mainSaveData;
+    },
+    isEditedRemarks(): boolean {
+      if (this.$store.state.mainSaveData) {
+        return (this.$store.state.mainSaveData as SaveData).remarks !== this.editedRemarks;
+      }
+      return false;
     },
   },
   watch: {
@@ -366,6 +412,10 @@ export default Vue.extend({
       this.$emit('inform', '入力欄を入れ替えました。');
       this.$store.dispatch('updateSetting', this.setting);
     },
+    toggleMinimizeDescription(isMinimized: boolean) {
+      this.setting.isMinimizedDescription = isMinimized;
+      this.$store.dispatch('updateSetting', this.setting);
+    },
     toggleMinimizeAirbase(isMinimized: boolean) {
       this.setting.isMinimizedAirbase = isMinimized;
       this.$store.dispatch('updateSetting', this.setting);
@@ -384,6 +434,21 @@ export default Vue.extend({
     },
     sortContentFromSetting() {
       const ids = this.setting.contentOrder;
+
+      // 仲間外れチェック
+      let isAdded = false;
+      const contents = document.querySelectorAll('#content-container .content-frame');
+      for (let i = 0; i < contents.length; i += 1) {
+        const { id } = contents[i];
+        if (id && !ids.includes(id)) {
+          isAdded = true;
+          ids.splice(i, 0, id);
+        }
+      }
+      if (isAdded) {
+        this.$store.dispatch('updateSetting', this.setting);
+      }
+
       for (let i = 0; i < ids.length; i += 1) {
         const id = ids[i];
         const content = document.getElementById(id);
@@ -391,6 +456,15 @@ export default Vue.extend({
           content.className = 'content-frame';
           content.classList.add(`order-${i + 1}`);
         }
+      }
+    },
+    commitRemarks() {
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (saveData) {
+        saveData.remarks = this.editedRemarks;
+        const root = this.$store.state.saveData as SaveData;
+        this.$store.dispatch('updateSaveData', root);
+        this.$emit('inform', '更新しました。');
       }
     },
   },
