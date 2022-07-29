@@ -1008,6 +1008,7 @@ export default Vue.extend({
 
             // DB更新を促す
             this.$store.dispatch('updateSaveData', this.saveData);
+            this.$store.dispatch('setMainSaveData', newData);
 
             this.inform('保存しました。');
           } else {
