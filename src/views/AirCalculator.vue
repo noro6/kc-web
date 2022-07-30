@@ -218,6 +218,7 @@ export default Vue.extend({
         this.calcManager.battleInfo.calculated = true;
 
         this.calculate();
+        this.sortContentFromSetting();
       } else if (mutation.type === 'updateSaveData') {
         const saveData = state.mainSaveData as SaveData;
         if (saveData) {
