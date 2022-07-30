@@ -53,21 +53,21 @@
           <td>{{ maxLuck }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">{{ $t('Fleet.一撃大破') }}</td>
+          <td class="text-left" colspan="3">{{ $t("Fleet.一撃大破") }}</td>
           <td colspan="2">{{ taihaRate }}</td>
         </tr>
         <tr>
-          <td class="text-left" colspan="3">{{ $t('Fleet.一撃中破') }}</td>
+          <td class="text-left" colspan="3">{{ $t("Fleet.一撃中破") }}</td>
           <td colspan="2">{{ chuhaRate }}</td>
         </tr>
       </table>
       <template v-if="specialAttacks.length">
-        <v-divider class="my-3"></v-divider>
+        <v-divider class="my-2"></v-divider>
         <table>
           <tr>
-            <td class="caption grey--text text--lighten-1 text-left">{{ $t('Fleet.特殊攻撃') }}</td>
-            <td class="caption grey--text text--lighten-1 px-8">{{ $t('Common.確保') }}</td>
-            <td class="caption grey--text text--lighten-1">{{ $t('Common.優勢') }}</td>
+            <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.特殊攻撃") }}</td>
+            <td class="caption grey--text text--lighten-1 px-8">{{ $t("Common.確保") }}</td>
+            <td class="caption grey--text text--lighten-1">{{ $t("Common.優勢") }}</td>
           </tr>
           <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
             <td class="text-left">
@@ -75,6 +75,37 @@
             </td>
             <td class="px-8">{{ row.rate[0] }} %</td>
             <td>{{ row.rate[1] }} %</td>
+          </tr>
+        </table>
+      </template>
+      <template v-if="nightSpecialAttacks.length">
+        <v-divider class="my-2"></v-divider>
+        <table>
+          <tr>
+            <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.夜間特殊攻撃") }}</td>
+            <td class="caption grey--text text--lighten-1 px-2">{{ $t("Fleet.通常") }}</td>
+            <td class="caption pl-6 pr-1">
+              <v-img :src="`./img/type/icon24.png`" height="27" width="27"></v-img>
+            </td>
+            <td class="caption pl-6 pr-1">
+              <v-img :src="`./img/type/icon27.png`" height="27" width="27"></v-img>
+            </td>
+            <td>
+              <div class="d-flex caption">
+                <v-img :src="`./img/type/icon24.png`" height="27" width="27"></v-img>
+                <div class="align-self-center grey--text text--lighten-3">&</div>
+                <v-img :src="`./img/type/icon27.png`" height="27" width="27"></v-img>
+              </div>
+            </td>
+          </tr>
+          <tr v-for="(row, i) in nightSpecialAttacks" :key="`sp${i}`">
+            <td class="text-left">
+              <span :class="{ 'indigo--text text--lighten-3': row.text !== '合計' }" label outlined>{{ $t(`Fleet.${row.text}`) }}</span>
+            </td>
+            <td class="px-2">{{ row.rate[0] }} %</td>
+            <td class="px-2">{{ row.rate[1] }} %</td>
+            <td class="px-2">{{ row.rate[2] }} %</td>
+            <td class="px-2">{{ row.rate[3] }} %</td>
           </tr>
         </table>
       </template>
@@ -186,6 +217,19 @@ export default Vue.extend({
         return array;
       }
       return [];
+    },
+    nightSpecialAttacks(): { text: string; rate: number[] }[] {
+      const array = this.value.getNightBattleSpecialAttackRate(this.isFlagship);
+      if (array.length) {
+        array.push({
+          text: '合計',
+          rate: [sum(array.map((v) => v.rate[0])), sum(array.map((v) => v.rate[1])), sum(array.map((v) => v.rate[2])), sum(array.map((v) => v.rate[3]))],
+        });
+      }
+      array.forEach((v) => {
+        v.rate = v.rate.map((x) => Math.round(1000 * x) / 10);
+      });
+      return array;
     },
     shipName(): string {
       const setting = this.$store.state.siteSetting as SiteSetting;

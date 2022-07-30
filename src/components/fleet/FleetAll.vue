@@ -1197,8 +1197,8 @@ export default Vue.extend({
       return ship.name ? ship.name : '';
     },
     getItemName(name: string) {
-      if (this.needTrans) {
-        return name ? this.$t(`${name}`) : this.$t('Fleet.未装備');
+      if (this.needTrans && name) {
+        return this.$t(`${name}`);
       }
       return name || `${this.$t('Fleet.未装備')}`;
     },

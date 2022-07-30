@@ -1521,4 +1521,135 @@ export default class Ship implements ShipBase {
 
     return results;
   }
+
+  /**
+   * 夜間特殊攻撃発動率を返却
+   * @param {number} fleetRosCorr
+   * @param {boolean} isFlagship
+   * @return {*}  {{ text: string, rate: number[] }[]}
+   * @memberof Ship
+   */
+  public getNightBattleSpecialAttackRate(isFlagship: boolean): { text: string, rate: number[] }[] {
+    const items = this.items.concat(this.exItem);
+    const specialAttacks: { text: string, value: number }[] = [];
+
+    const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
+    const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
+    const torpCount = items.filter((v) => v.data.apiTypeId === 5 || v.data.apiTypeId === 32).length;
+    const hasSkilledPersonnel = items.some((v) => v.data.id === 412);
+    const hasPersonnel = items.some((v) => v.data.id === 129);
+
+    if (this.data.type === SHIP_TYPE.DD) {
+      // 駆逐カットイン判定
+      if (mainGunCount && torpCount && this.surfaceRadarCount) {
+        specialAttacks.push({ text: '主魚電CI', value: 115 });
+      } else if (torpCount && this.surfaceRadarCount && (hasSkilledPersonnel || hasPersonnel)) {
+        specialAttacks.push({ text: '魚見電CI', value: 140 });
+      } else if (torpCount >= 2 && hasSkilledPersonnel) {
+        specialAttacks.push({ text: '魚水魚CI', value: 125 });
+      } else if (torpCount && hasSkilledPersonnel && items.some((v) => v.data.id === 75)) {
+        specialAttacks.push({ text: '魚ド水CI', value: 122 });
+      }
+    }
+
+    // 汎用CI判定
+    if (mainGunCount >= 3) {
+      specialAttacks.push({ text: '主主主CI', value: 140 });
+    }
+    if (mainGunCount >= 2 && subGunCount) {
+      specialAttacks.push({ text: '主主副CI', value: 130 });
+    }
+    if (torpCount >= 2) {
+      specialAttacks.push({ text: '魚雷CI', value: 122 });
+    }
+    if (mainGunCount && torpCount) {
+      specialAttacks.push({ text: '砲雷CI', value: 115 });
+    }
+
+    if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV) {
+      // 潜水カットイン判定
+      const lateModelTorpCount = items.filter((v) => [213, 214, 383, 441, 443, 461].includes(v.data.id)).length;
+      if (lateModelTorpCount && items.some((v) => v.data.apiTypeId === 51)) {
+        specialAttacks.push({ text: '潜電魚CI', value: 105 });
+      } else if (lateModelTorpCount >= 2) {
+        specialAttacks.push({ text: '潜魚雷CI', value: 110 });
+      }
+    }
+
+    // 連撃
+    if (!specialAttacks.length && (mainGunCount + subGunCount) === 2) {
+      specialAttacks.push({ text: '連撃', value: 0 });
+    }
+
+    // 空母夜戦判定
+    if (this.data.type === SHIP_TYPE.CV || this.data.type === SHIP_TYPE.CVL || this.data.type === SHIP_TYPE.CVB) {
+      // 夜間航空攻撃発動判定
+      if ([545, 599, 610, 883].includes(this.data.id) || items.some((v) => v.data.id === 258 || v.data.id === 259)) {
+        const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45).length;
+        const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46).length;
+        const nightSuiseiCount = items.filter((v) => v.data.id === 320).length;
+        const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id)).length;
+        if (nightFighterCount >= 2 && nightAttackerCount) {
+          specialAttacks.push({ text: '夜襲CIA', value: 105 });
+        }
+        if (nightFighterCount && nightAttackerCount) {
+          specialAttacks.push({ text: '夜襲CIB', value: 120 });
+        }
+        if (nightFighterCount && nightSuiseiCount) {
+          specialAttacks.push({ text: '光電管彗星CI', value: 115 });
+        } else if (nightAttackerCount && nightSuiseiCount) {
+          specialAttacks.push({ text: '光電管彗星CI', value: 115 });
+        }
+        if (nightFighterCount && nightPlaneCount >= 2) {
+          specialAttacks.push({ text: '夜襲CIC', value: 130 });
+        }
+      }
+    }
+
+    // 旗艦補正 +15
+    const flagshipCorr = isFlagship ? 15 : 0;
+    // 損傷補正 +18
+    // const damageCorr = isDamaged ? 18 : 0;
+    // 味方探照灯補正 +7
+    const lightCorr = 7;
+    // 味方照明弾補正 +4
+    const starShellCorr = 4;
+    let personnelCorr = hasPersonnel || hasSkilledPersonnel ? 5 : 0;
+    if (this.data.type === SHIP_TYPE.DD || this.data.type === SHIP_TYPE.CL || this.data.type === SHIP_TYPE.CLT) {
+      personnelCorr = hasSkilledPersonnel ? 9 : personnelCorr;
+    }
+
+    const results = [];
+    const sumRates = [1, 1, 1, 1];
+    for (let i = 0; i < specialAttacks.length; i += 1) {
+      const attack = specialAttacks[i];
+
+      if (!attack.value) {
+        results.push({ text: attack.text, rate: [0.99, 0.99, 0.99, 0.99] });
+        continue;
+      }
+
+      let chip = 0;
+      if (this.luck >= 50) {
+        chip = Math.floor(65 + Math.sqrt(this.luck - 50) + 0.8 * Math.sqrt(this.level));
+      } else {
+        chip = Math.floor(15 + this.luck + 0.75 * Math.sqrt(this.level));
+      }
+      chip += (flagshipCorr + personnelCorr);
+      const rate = [
+        sumRates[0] * (chip / attack.value),
+        sumRates[1] * ((chip + lightCorr) / attack.value),
+        sumRates[2] * ((chip + starShellCorr) / attack.value),
+        sumRates[3] * ((chip + lightCorr + starShellCorr) / attack.value),
+      ];
+      sumRates[0] -= rate[0];
+      sumRates[1] -= rate[1];
+      sumRates[2] -= rate[2];
+      sumRates[3] -= rate[3];
+
+      results.push({ text: attack.text, rate });
+    }
+
+    return results;
+  }
 }

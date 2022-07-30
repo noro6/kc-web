@@ -315,7 +315,11 @@
                   <div class="mx-1 item-icon">
                     <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
                   </div>
-                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : 'さんぷる' }}</div>
+                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : "さんぷる" }}</div>
+                  <div class="align-self-center item-remodel">
+                    <v-icon small color="teal accent-4">mdi-star</v-icon>
+                    <span class="teal--text text--accent-4">10</span>
+                  </div>
                   <div class="ml-1 align-self-center">
                     <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
                   </div>
@@ -1385,6 +1389,23 @@ export default Vue.extend({
   opacity: 1;
   border-color: rgb(33, 150, 243);
   box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.5);
+}
+
+.item-remodel {
+  width: 38px;
+  transition: 0.3s ease-out;
+}
+.item-remodel:hover {
+  filter: drop-shadow(0 0 2px #21ffda);
+}
+.theme--dark .item-remodel:hover {
+  filter: drop-shadow(0 0 2px #68ffde);
+}
+.item-remodel i {
+  vertical-align: middle;
+}
+.item-remodel span {
+  font-size: 0.9em;
 }
 </style>
 

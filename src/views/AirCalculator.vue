@@ -32,7 +32,7 @@
               <div class="mr-2 mt-1">
                 <v-btn color="success" :disabled="!isEditedRemarks" @click="commitRemarks()">{{ $t("Common.更新") }}</v-btn>
               </div>
-              <div class="flex-grow-1">
+              <div class="flex-grow-1 remarks-input">
                 <v-textarea auto-grow rows="1" v-model="editedRemarks" outlined dense hide-details />
               </div>
             </div>

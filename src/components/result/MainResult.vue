@@ -339,7 +339,7 @@
               </div>
               <div class="ml-1 align-self-center">{{ $t("Result.燃料補正") }}</div>
             </td>
-            <td class="border-top-none pl-5">{{ fuelCorr }}</td>
+            <td class="border-top-none pl-5">{{ fuelCorr ? $t('Result.回避項x', {value: fuelCorr}) : '-' }}</td>
           </tr>
           <tr>
             <td class="border-top-none py-1 d-flex">
@@ -348,7 +348,7 @@
               </div>
               <div class="ml-1 align-self-center">{{ $t("Result.残弾薬補正") }}</div>
             </td>
-            <td class="border-top-none pl-5">{{ ammoCorr }}</td>
+            <td class="border-top-none pl-5">{{ ammoCorr ? ammoCorr : '-' }}</td>
           </tr>
         </table>
       </div>
@@ -953,8 +953,8 @@ export default Vue.extend({
         this.tooltipY = e.clientY;
         this.enabledTooltip = true;
 
-        this.fuelCorr = fuel < 75 ? `回避項 -${75 - fuel}` : '-';
-        this.ammoCorr = ammo < 50 ? `× ${(ammo * 2) / 100}` : '-';
+        this.fuelCorr = fuel < 75 ? `${75 - fuel}` : '';
+        this.ammoCorr = ammo < 50 ? `× ${(ammo * 2) / 100}` : '';
       }, 400);
     },
     clearTooltip() {

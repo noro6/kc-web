@@ -14,9 +14,9 @@
       <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
       <v-tab-item value="fleet" class="detail-fleet">
         <v-divider></v-divider>
-        <div class="body-1 ma-1">
+        <div class="ma-1">
           <div class="d-flex air-power-info flex-wrap">
-            <div class="text--secondary label-text">{{ $t("Common.制空") }}:</div>
+            <div class="text--secondary label-text body-2">{{ $t("Common.制空") }}:</div>
             <div class="value-text mr-3">{{ fleet.fullAirPower }}</div>
             <div>
               <v-chip class="mr-1" color="green" label outlined>
@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="mt-1 d-flex air-power-info flex-wrap" v-if="fleet.fullAirPower !== fleet.fullAirbaseAirPower">
-            <div class="text--secondary label-text">{{ $t("Common.基地制空") }}:</div>
+            <div class="text--secondary label-text body-2">{{ $t("Common.基地制空") }}:</div>
             <div class="value-text mr-3">{{ fleet.fullAirbaseAirPower }}</div>
             <div>
               <v-chip class="mr-1" color="green" label outlined>

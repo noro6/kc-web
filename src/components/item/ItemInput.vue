@@ -185,6 +185,9 @@
 .theme--dark .item-remodel:hover {
   filter: drop-shadow(0 0 2px #68ffde);
 }
+.item-remodel.value-0:hover {
+  filter: drop-shadow(0 0 2px #bbb);
+}
 .item-remodel.no-remodel:hover {
   filter: drop-shadow(0 0 2px #ff836d);
 }
@@ -363,23 +366,23 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     itemName() {
-      if (this.needTrans) {
-        return this.value.data.name ? this.$t(`${this.value.data.name}`) : this.$t('Fleet.未装備');
+      if (this.needTrans && this.value.data.name) {
+        return this.$t(`${this.value.data.name}`);
       }
-      return this.value.data.name ? this.value.data.name : '未装備';
+      return this.value.data.name || this.$t('Fleet.未装備');
     },
     isDraggable() {
       return this.value.data.id > 0 && !this.readonly;
     },
-    remodelIconColor() {
+    remodelIconColor(): string {
       if (this.item.data.canRemodel) {
-        return 'teal accent-4';
+        return this.item.remodel > 0 ? 'teal accent-4' : 'grey lighten-1';
       }
       return 'red lighten-2';
     },
-    remodelLabelColor() {
+    remodelLabelColor(): string {
       if (this.item.data.canRemodel) {
-        return 'teal--text text--accent-4';
+        return this.item.remodel > 0 ? 'teal--text text--accent-4' : 'grey--text text-lighten-1';
       }
       return 'red--text text--lighten-2';
     },
