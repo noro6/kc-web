@@ -1543,11 +1543,14 @@ export default class Ship implements ShipBase {
       // 駆逐カットイン判定
       if (mainGunCount && torpCount && this.surfaceRadarCount) {
         specialAttacks.push({ text: '主魚電CI', value: 115 });
-      } else if (torpCount && this.surfaceRadarCount && (hasSkilledPersonnel || hasPersonnel)) {
+      }
+      if (torpCount && this.surfaceRadarCount && (hasSkilledPersonnel || hasPersonnel)) {
         specialAttacks.push({ text: '魚見電CI', value: 140 });
-      } else if (torpCount >= 2 && hasSkilledPersonnel) {
+      }
+      if (torpCount >= 2 && hasSkilledPersonnel) {
         specialAttacks.push({ text: '魚水魚CI', value: 125 });
-      } else if (torpCount && hasSkilledPersonnel && items.some((v) => v.data.id === 75)) {
+      }
+      if (torpCount && hasSkilledPersonnel && items.some((v) => v.data.id === 75)) {
         specialAttacks.push({ text: '魚ド水CI', value: 122 });
       }
     }
@@ -1555,14 +1558,11 @@ export default class Ship implements ShipBase {
     // 汎用CI判定
     if (mainGunCount >= 3) {
       specialAttacks.push({ text: '主主主CI', value: 140 });
-    }
-    if (mainGunCount >= 2 && subGunCount) {
+    } else if (mainGunCount >= 2 && subGunCount) {
       specialAttacks.push({ text: '主主副CI', value: 130 });
-    }
-    if (torpCount >= 2) {
+    } else if (torpCount >= 2) {
       specialAttacks.push({ text: '魚雷CI', value: 122 });
-    }
-    if (mainGunCount && torpCount) {
+    } else if (mainGunCount && torpCount) {
       specialAttacks.push({ text: '砲雷CI', value: 115 });
     }
 

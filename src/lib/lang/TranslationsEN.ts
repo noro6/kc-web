@@ -16,6 +16,7 @@ export default {
       '展開': 'Expand',
       '閉じる': 'Close',
       '初期値': 'Reset',
+      '最大値': 'Max',
       '既定値': 'Default',
       '削除': 'Delete',
       '保存': 'Save',

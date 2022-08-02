@@ -59,8 +59,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">初期値</v-btn>
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">最大値</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">{{ $t('Common.初期値') }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">{{ $t('Common.最大値') }}</v-btn>
                   </div>
                   <v-text-field v-model.number="luck" :max="isNoShip ? 100 : ship.data.maxLuck" :min="ship.data.luck" hide-details type="number"></v-text-field>
                 </v-card>
@@ -74,8 +74,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">初期値</v-btn>
-                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">最大値</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">{{ $t('Common.初期値') }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">{{ $t('Common.最大値') }}</v-btn>
                   </div>
                   <v-text-field v-model.number="antiAir" :max="isNoShip ? 200 : ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
                 </v-card>
@@ -541,7 +541,8 @@ export default Vue.extend({
     onLevelMenuToggle() {
       if (!this.levelMenu) {
         const asw = Ship.getStatusFromLevel(this.level, this.ship.data.maxAsw, this.value.data.minAsw);
-        const builder: ShipBuilder = { ship: this.ship, level: this.level, asw };
+        const bonusAsw = this.ship.asw - Ship.getStatusFromLevel(this.ship.level, this.ship.data.maxAsw, this.value.data.minAsw);
+        const builder: ShipBuilder = { ship: this.ship, level: this.level, asw: asw + bonusAsw };
         this.setShip(new Ship(builder));
       } else {
         this.level = this.ship.level;
