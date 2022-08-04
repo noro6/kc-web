@@ -117,7 +117,7 @@
       <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" :handleClose="closeWorldList" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
-      <airbase-target v-model="airbaseInfo" :battleCount="battleInfo.battleCount" :handle-close="closeTargetDialog" />
+      <airbase-target v-model="airbaseInfo" :battleInfo="battleInfo" :handle-close="closeTargetDialog" />
     </v-dialog>
   </v-card>
 </template>

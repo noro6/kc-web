@@ -658,10 +658,10 @@ export default Vue.extend({
   },
   watch: {
     getCompletedAll(value) {
-      this.loading = !value;
       if (value) {
         this.loadURLInformation();
       }
+      this.loading = !value;
       this.disabledIndexedDB = this.$store.state.disabledDatabase;
     },
     isTempStockMode(value) {
