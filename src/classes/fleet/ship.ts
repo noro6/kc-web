@@ -157,6 +157,9 @@ export default class Ship implements ShipBase {
   /** 夜偵発動率 */
   public readonly nightContactRate: number;
 
+  /** 装備ボーナス対空値合計 */
+  public readonly totalBonusAntiAir: number;
+
   /** 固定撃墜 画面表示用 */
   public fixDown = 0;
 
@@ -246,6 +249,9 @@ export default class Ship implements ShipBase {
     this.bonusScout = this.getBonusScout();
     // 対潜ボーナス
     this.itemBonusAsw = this.getBonusAsw();
+    // 対空ボーナス
+    // this.totalBonusAntiAir = this.getBonusAntiAir();
+    this.totalBonusAntiAir = 0;
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
     // 射程(基本値)
@@ -701,7 +707,7 @@ export default class Ship implements ShipBase {
   }
 
   /**
-   * 装備対潜ボーナス + 装備素対潜の合計を取得
+   * 装備対潜ボーナス(フィット)の合計を取得
    * @private
    * @return {number}
    * @memberof Ship
@@ -1201,14 +1207,349 @@ export default class Ship implements ShipBase {
   }
 
   /**
+   * 装備対空ボーナス(フィット)の合計を取得
+   * @private
+   * @return {number}
+   * @memberof Ship
+   */
+  private getBonusAntiAir(): number {
+    let total = 0;
+    const { type, type2, id } = this.data;
+    const items = this.items.concat(this.exItem);
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+
+      // 累積ボーナス対空値算出
+      if (item.data.id === 122) {
+        // 10cm高角砲＋高射装置
+        if (item.remodel >= 4 && id === 656) {
+          // ★+4以上 + 雪風改二 => +3
+          total += 3;
+        } else if (type2 === 54) {
+          // 秋月型 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 63) {
+        // 12.7cm連装砲B型改二
+        if ([1, 5, 10].includes(type2) || id === 144 || id === 245) {
+          // 綾波型 暁型 初春型 夕立改 夕立改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 308) {
+        // 5inch単装砲 Mk.30改＋GFCS Mk.37
+        if (id === 651 || id === 656 || type === SHIP_TYPE.DE || (Const.USA.includes(type2) && (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL))) {
+          // 丹陽 雪風改二 海防艦 米(軽巡 駆逐) => +1
+          total += 1;
+        }
+      } else if (item.data.id === 313) {
+        // 5inch単装砲 Mk.30 改
+        if (type2 === 87 || type2 === 91 || id === 651 || id === 656) {
+          // Fletcher Johnston Samuel B.Roberts 丹陽 雪風改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 3) {
+        // 10cm連装高角砲
+        if (type2 === 54) {
+          // 秋月型 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 295) {
+        // 12.7cm連装砲A型改三(戦時改修)＋高射装置
+        if (id === 666) {
+          // 磯波改二 => +3
+          total += 3;
+        } else if ([1, 5, 12].includes(type2)) {
+          // 吹雪型 綾波型 暁型 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 455) {
+        // 試製 長12.7cm連装砲A型改四
+        if ([1, 5, 12].includes(type2)) {
+          // 吹雪型 綾波型 暁型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 296) {
+        // 12.7cm連装砲B型改四(戦時改修)＋高射装置
+        if (id === 145 || id === 498) {
+          // 時雨改二 村雨改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 293) {
+        // 12cm単装砲改二
+        if ([66, 28, 74, 77].includes(type2)) {
+          // 神風型 睦月型 占守型 択捉型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 229) {
+        // 12.7cm単装高角砲(後期型)
+        if (item.remodel >= 7) {
+          if ([66, 28, 74, 77].includes(type2) || type === SHIP_TYPE.DE || [23, 289, 224].includes(id)) {
+            // 神風型 睦月型 海防艦 由良 鬼怒改 那珂改 => +1
+            total += 1;
+          } else if (id === 220 || id === 487 || id === 160) {
+            // 由良改 鬼怒改二 那珂改二 => +2
+            total += 2;
+          } else if (id === 488) {
+            // 由良改二 => +3
+            total += 3;
+          }
+        } else if (id === 622 || id === 623 || id === 624) {
+          // 夕張改二シリーズ => +1
+          total += 1;
+        } else if (id === 656) {
+          // 雪風改二 => +1
+          total += 3;
+        }
+      } else if (item.data.id === 379) {
+        // 12.7cm単装高角砲改二
+        if (id === 488) {
+          // 由良改二 => +4
+          total += 4;
+        } else if ([651, 656, 220, 141, 487, 160].includes(id)) {
+          // 丹陽 雪風改二 由良改 五十鈴改二 鬼怒改二 那珂改二 => +3
+          total += 3;
+        } else if ([66, 28, 101].includes(type2) || type === SHIP_TYPE.DE || [477, 478, 652, 622, 624].includes(id) || [43, 109, 48, 45, 20, 19].includes(this.data.originalId)) {
+          // 神風型 睦月型 松型 海防艦 天龍改二 龍田改二 球磨改二 夕張改二 夕張改二丁 => +2
+          // 五十鈴 鬼怒 那珂 由良 北上 大井 => +2
+          total += 2;
+        } else if (type === SHIP_TYPE.CT || type === SHIP_TYPE.AV) {
+          // 練習巡洋艦 水上機母艦 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 380) {
+        // 12.7cm連装高角砲改二
+        if (id === 488) {
+          // 由良改二 => +4
+          total += 4;
+        } else if ([651, 656, 220, 141, 487, 160].includes(id)) {
+          // 丹陽 雪風改二 由良改 五十鈴改二 鬼怒改二 那珂改二 => +3
+          total += 3;
+        } else if (type2 === 101 || [477, 478, 622, 624, 665, 407].includes(id)) {
+          // 松型 天龍改二 龍田改二 夕張改二 夕張改二丁 曙改二 潮改二 => +2
+          // 五十鈴 鬼怒 那珂 由良 北上 大井 => +2
+          total += 2;
+        } else if (type === SHIP_TYPE.CT || type === SHIP_TYPE.AV || [43, 109, 48, 45, 20, 19].includes(this.data.originalId)) {
+          // 練習巡洋艦 水上機母艦 五十鈴 鬼怒 那珂 由良 北上 大井  => +2
+          total += 2;
+        }
+      } else if (item.data.id === 382) {
+        // 12cm単装高角砲E型
+        if (id === 656) {
+          // 雪風改二 => +3
+          total += 3;
+        } else if ([66, 28, 101].includes(type2) || type === SHIP_TYPE.DE) {
+          // 神風型 睦月型 松型 海防艦 => +2
+          total += 2;
+        } else if ([45, 48, 109].includes(this.data.originalId)) {
+          // 由良 那珂 鬼怒 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 397) {
+        // 現地改装12.7cm連装高角砲
+        if (id === 651) {
+          // 丹陽 => +2
+          total += 2;
+        } else if (id === 656) {
+          // 雪風改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 398) {
+        // 現地改装10cm連装高角砲
+        if (id === 651) {
+          // 丹陽 => +4
+          total += 4;
+        } else if (id === 656) {
+          // 雪風改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 393) {
+        // 120mm/50 連装砲 mod.1936
+        if (type2 === 61) {
+          // Maestrale級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 394) {
+        // 120mm/50 連装砲改 A.mod.1937
+        if (type2 === 61) {
+          // Maestrale級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 407) {
+        // 15.2cm連装砲改二
+        if (type2 === 41 || this.data.version >= 2) {
+          // 阿賀野型改二  => +2
+          total += 2;
+        }
+      } else if (item.data.id === 139) {
+        // 15.2cm連装砲改
+        if (type2 === 41 || this.data.version >= 2) {
+          // 阿賀野型改二  => +1
+          total += 1;
+        }
+      } else if (item.data.id === 310) {
+        // 14cm連装砲改
+        if (this.data.originalId === 111 || this.data.originalId === 381) {
+          // 夕張 日進 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 235) {
+        // 15.5cm三連装砲改
+        if (type2 === 9 || type2 === 52) {
+          // 大淀型 最上型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 90) {
+        // 20.3cm(2号)連装砲
+        if (id === 264) {
+          // 青葉改 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 340) {
+        // 152mm/55 三連装速射砲
+        if (type2 === 92) {
+          // L.d.S.D.d.Abruzzi級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 341) {
+        // 152mm/55 三連装速射砲改
+        if (type2 === 92 || type2 === 89) {
+          // L.d.S.D.d.Abruzzi級 Gotland級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 303) {
+        // Bofors15.2cm連装砲 Model1930
+        if (type2 === 89) {
+          // Gotland級 => +2
+          total += 2;
+        } else if (type2 === 4 || type2 === 16 || type2 === 20 || type2 === 41) {
+          // 球磨型 長良型 川内型 阿賀野型 => +1
+          total += 1;
+        }
+      }
+    }
+
+    // 累積無しボーナス
+    // 12.7cm単装高角砲改二
+    if (items.some((v) => v.data.id === 379) && type2 === 101) {
+      // 松型  => +2
+      total += 2;
+    }
+    // 12.7cm連装高角砲改二
+    if (items.some((v) => v.data.id === 380)) {
+      if (type2 === 101 || id === 652) {
+        // 松型 球磨改二 => +2
+        total += 2;
+      } else if ([665, 407].includes(id)) {
+        // 曙改二 潮改二 => +1
+        total += 1;
+      }
+    }
+
+    // シナジーボーナス
+    // 12.7cm連装砲A型改三(戦時改修)＋高射装置 + 対空電探
+    if (items.some((v) => v.data.id === 295) && this.antiAirRadarCount && [1, 5, 12].includes(type2)) {
+      // 吹雪型 綾波型 暁型  => +6
+      total += 6;
+    }
+    // 試製 長12.7cm連装砲A型改四 + 対空電探
+    if (items.some((v) => v.data.id === 455) && this.antiAirRadarCount && [1, 5, 12].includes(type2)) {
+      // 吹雪型 綾波型 暁型  => +4
+      total += 4;
+    }
+    // 12.7cm連装砲B型改四(戦時改修)＋高射装置 + 対空電探
+    if (items.some((v) => v.data.id === 296) && this.antiAirRadarCount) {
+      if ([1, 5, 10].includes(type2)) {
+        // 綾波型 暁型 初春型 => +5
+        total += 5;
+      } else if (type2 === 23) {
+        // 白露型 => 6
+        total += 6;
+      }
+    }
+    // 12.7cm連装砲D型改二or改三 + 見張員
+    if (items.some((v) => v.data.id === 267 || v.data.id === 366) && items.some((v) => v.data.id === 129 || 412) && id === 448) {
+      if ([1, 5, 10].includes(type2)) {
+        // 秋雲改二 => +2
+        total += 2;
+      }
+    }
+    // 12.7cm単装後期型 + 対空電探
+    if (items.some((v) => v.data.id === 229) && this.antiAirRadarCount) {
+      if (id === 622 || id === 623 || id === 624) {
+        // 夕張改二シリーズ => +2
+        total += 2;
+      } else if (id === 656) {
+        // 雪風改二 => +3
+        total += 3;
+      }
+    }
+    // 12.7cm単装高角砲改二 + 対空電探
+    if (items.some((v) => v.data.id === 379) && this.antiAirRadarCount && id === 656) {
+      // 雪風改二 => +3
+      total += 3;
+    }
+    // 12.7cm連装高角砲改二 + 機銃
+    if (items.some((v) => v.data.id === 380) && this.kijuCount && id === 656 && [665, 407].includes(id)) {
+      // 曙改二 潮改二 => +2
+      total += 2;
+    }
+    // 12cm単装高角砲E型 + 対空電探
+    if (items.some((v) => v.data.id === 382) && this.antiAirRadarCount) {
+      if (id === 656) {
+        // 雪風改二 => +3
+        total += 3;
+      } else if ([66, 28, 101].includes(type2) || type === SHIP_TYPE.DE || [488, 487, 160].includes(id)) {
+        // 神風型 睦月型 松型 海防艦 由良改二 鬼怒改二 那珂改二 => +2
+        total += 2;
+      }
+    }
+    // 10cm高角砲＋高射装置★4 + 対空電探
+    if (items.some((v) => v.data.id === 122 && v.remodel >= 4) && this.antiAirRadarCount && id === 656) {
+      // 雪風改二 => +4
+      total += 4;
+    }
+    // 現地改装10cm連装高角砲 + 対空電探
+    if (items.some((v) => v.data.id === 398) && this.antiAirRadarCount && (id === 651 || id === 656)) {
+      // 丹陽 雪風改二 => +3
+      total += 3;
+    }
+    // 15.2cm連装砲改二 + 対空電探
+    if (items.some((v) => v.data.id === 407) && this.antiAirRadarCount) {
+      if (type2 === 41 || this.data.version >= 2) {
+        // 阿賀野型改二  => +2
+        total += 2;
+      }
+    }
+    // 15.5cm三連装砲改 + 対空電探
+    if (items.some((v) => v.data.id === 235) && this.antiAirRadarCount && type2 === 52) {
+      // 大淀  => +3
+      total += 3;
+    }
+    // 20.3cm(2号)連装砲 + 対空電探
+    if (items.some((v) => v.data.id === 90) && this.antiAirRadarCount && id === 264) {
+      // 青葉改 => +5
+      total += 5;
+    }
+    // 20.3cm(3号)連装砲 + (21号対空電探 or 21号対空電探改二)
+    if (items.some((v) => v.data.id === 50) && items.some((v) => v.data.id === 30 || v.data.id === 410)) {
+      if (id === 501 || id === 506) {
+        // 最上改二 最上改二特 => +3
+        total += 3;
+      }
+    }
+
+    return total;
+  }
+
+  /**
    * 先制対潜の可否を判定
    * @private
    * @return {boolean} 可能ならtrue
    * @memberof Ship
    */
   private getEnabledTSBK(): boolean {
-    if ([141, 478, 624, 394, 893, 681].includes(this.data.id) || this.data.type2 === 91) {
-      // 無条件発動 順に五十鈴改二 龍田改二 夕張改二丁 J級改 Samuel B.Roberts改 Fletcher級
+    if ([141, 478, 624, 394, 893, 681, 920].includes(this.data.id) || this.data.type2 === 91) {
+      // 無条件発動 順に五十鈴改二 龍田改二 夕張改二丁 J級改 Samuel B.Roberts(改 or MK.II) Fletcher級
       return true;
     }
 
@@ -1651,5 +1992,26 @@ export default class Ship implements ShipBase {
     }
 
     return results;
+  }
+
+  /**
+   * 爆雷の装甲減少補正値を返却
+   * @returns
+   */
+  public getAswArmorDeBuff(): number {
+    const items = this.items.concat(this.exItem);
+    // 爆雷と一部装備
+    const targets = [226, 227, 377, 378, 439, 472];
+    let sumCorr = 0;
+
+    const isDE = this.data.type === SHIP_TYPE.DE;
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (item && targets.includes(item.data.id)) {
+        sumCorr -= (Math.sqrt(item.data.asw - 2) + (isDE ? 1 : 0));
+      }
+    }
+
+    return sumCorr;
   }
 }

@@ -45,4 +45,7 @@ export interface ShipBase {
 
   /** 実耐久値 */
   readonly hp: number;
+
+  /** 装備ボーナス対空値合計 */
+  readonly totalBonusAntiAir: number;
 }

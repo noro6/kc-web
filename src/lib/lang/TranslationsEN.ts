@@ -76,6 +76,7 @@ export default {
         'なし': 'None',
         '': '',
       },
+      '装甲減少': 'Armor Debuff',
       '命中項': 'Acc Term',
       '回避項': 'Eva Term',
       'CI項': 'CI Term',

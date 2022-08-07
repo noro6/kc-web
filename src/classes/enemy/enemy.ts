@@ -67,6 +67,9 @@ export default class Enemy implements ShipBase {
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
+  /** 装備ボーナス対空値合計 */
+  public readonly totalBonusAntiAir: number;
+
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
     this.items = items;
@@ -88,6 +91,7 @@ export default class Enemy implements ShipBase {
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
+    this.totalBonusAntiAir = 0;
 
     // 計算により算出するステータス
     const allItems = this.items.concat(this.exItem);

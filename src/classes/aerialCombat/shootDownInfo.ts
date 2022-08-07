@@ -130,12 +130,12 @@ export default class ShootDownInfo {
           // 艦船加重対空値(敵側式) => int((int(sqrt(素対空 + 装備対空)) + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
           antiAirWeight = Math.floor((Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1);
         } else {
-          // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
-          antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) * avoid1);
+          // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正 + 装備対空ボーナス * 0.75)
+          antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) * avoid1 + ship.totalBonusAntiAir * 0.75);
         }
 
-        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
-        const fleetAA = Math.floor(fleetAntiAir * avoid2);
+        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス) + 装備対空ボーナス * 0.75)
+        const fleetAA = Math.floor(fleetAntiAir * avoid2 + ship.totalBonusAntiAir * 0.75);
 
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);

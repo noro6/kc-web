@@ -42,26 +42,41 @@
         </div>
       </div>
       <div class="border-left pl-2">
+        <div class="d-flex">
+          <v-text-field
+            class="mr-1"
+            type="number"
+            min="0"
+            max="999"
+            v-model.number="slot"
+            :label="$t('Result.搭載数')"
+            outlined
+            dense
+            :rules="[rules.counter]"
+            @input="calculate()"
+          ></v-text-field>
+          <v-text-field
+            class="ml-1"
+            type="number"
+            min="0"
+            max="999"
+            v-model.number="asw"
+            :label="$t('Common.対潜')"
+            outlined
+            dense
+            :rules="[rules.counter]"
+            @input="calculate()"
+          ></v-text-field>
+        </div>
         <v-text-field
           type="number"
           min="0"
           max="999"
-          v-model.number="slot"
-          :label="$t('Result.搭載数')"
+          v-model.number="armorDeBuff"
+          :label="$t('Common.装甲減少')"
           outlined
           dense
-          :rules="[rules.counter]"
-          @input="calculate()"
-        ></v-text-field>
-        <v-text-field
-          type="number"
-          min="0"
-          max="999"
-          v-model.number="asw"
-          :label="$t('Common.対潜')"
-          outlined
-          dense
-          :rules="[rules.counter]"
+          :rules="[rules.counter2]"
           @input="calculate()"
         ></v-text-field>
         <div class="d-flex">
@@ -179,7 +194,7 @@
 .selectable-item-container {
   display: flex;
   flex-direction: column;
-  height: 160px;
+  height: 200px;
 }
 .selectable-item {
   display: flex;
@@ -278,7 +293,7 @@ import Vue from 'vue';
 import max from 'lodash/max';
 import min from 'lodash/min';
 import sum from 'lodash/sum';
-import { SHIP_TYPE } from '@/classes/const';
+import Const, { SHIP_TYPE } from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Fleet from '@/classes/fleet/fleet';
@@ -312,11 +327,13 @@ export default Vue.extend({
     selectedItemIndex: 0,
     slot: 18,
     asw: 10,
+    armorDeBuff: 0,
     isCritical: false,
     enemyRows: [] as DamageRow[],
     powers: [] as string[],
     rules: {
       counter: (value: number) => (value <= 999 && value >= 0) || '0 ~ 999までが有効です。',
+      counter2: (value: number) => (value >= -99 && value <= 0) || '0 ~ -99までが有効です。',
     },
   }),
   mounted() {
@@ -372,11 +389,15 @@ export default Vue.extend({
       const item = this.items[this.selectedItemIndex];
 
       // なんか違う装備だったら探してみる
-      if (!item || !item.fullSlot) {
-        const newItemIndex = this.items.findIndex((v) => v.fullSlot && v.data.asw);
+      if (!item || !item.fullSlot || !Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
+        const newItemIndex = this.items.findIndex((v) => Const.ENABLED_ASW_SUPPORT.includes(v.data.apiTypeId));
         if (newItemIndex >= 0) {
           this.selectedItemIndex = newItemIndex;
         }
+      }
+      const ship = this.enabledShips[this.selectedShipIndex];
+      if (ship) {
+        this.armorDeBuff = ship.getAswArmorDeBuff();
       }
 
       this.clickedItem(this.selectedItemIndex);
@@ -387,6 +408,10 @@ export default Vue.extend({
       if (item) {
         this.slot = item.fullSlot;
         this.asw = item.data.asw;
+
+        if (!Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
+          this.slot = 0;
+        }
       } else {
         this.slot = 0;
         this.asw = 0;
@@ -419,7 +444,8 @@ export default Vue.extend({
         const HP = enemy.data.hp;
 
         // 火力分布より、被ダメージ分布を取得
-        const damageDist = CommonCalc.getDamageDistribution(powers, enemy.actualArmor, 1, HP, true);
+        const armor = Math.max(enemy.actualArmor + this.armorDeBuff, 1);
+        const damageDist = CommonCalc.getDamageDistribution(powers, armor, 1, HP, true);
         const damages = damageDist.map((v) => v.damage);
 
         // 最低 最大ダメ
