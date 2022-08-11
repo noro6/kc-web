@@ -655,6 +655,7 @@ export default {
       '大型電探': 'Large Radar',
       'ソナー': 'Sonar',
       '爆雷': 'Depth Charge',
+      '爆雷投射機': 'Depth Charge Launcher',
       '追加装甲': 'Extra Armor',
       '機関部強化': 'Engine',
       '対空強化弾': 'AA Shell',

@@ -490,14 +490,24 @@ export default Vue.extend({
     itemListData(): { typeName: string; items: { item: Item; count: number }[] }[] {
       const targetItems = this.viewItems;
       if (this.multiLine) {
+        const depthChargeLauncher = { id: 1700, name: '爆雷投射機', sortKey: [] };
         // 種別に応じて分けたい
-        const types = Const.ITEM_API_TYPE;
+        const types = Const.ITEM_API_TYPE.concat(depthChargeLauncher);
         const resultItems = [];
         for (let i = 0; i < types.length; i += 1) {
           const type = types[i];
-          const items = targetItems.filter((v) => v.item.data.apiTypeId === type.id);
+          let items: { item: Item; count: number }[] = [];
+
+          // 爆雷関係でちょっと分ける
+          if (type.id === 15) {
+            items = targetItems.filter((v) => v.item.data.isStrictDepthCharge);
+          } else if (type.id === depthChargeLauncher.id) {
+            items = targetItems.filter((v) => v.item.data.apiTypeId === 15 && !v.item.data.isStrictDepthCharge);
+          } else {
+            items = targetItems.filter((v) => v.item.data.apiTypeId === type.id);
+          }
           if (items.length) {
-            // 存在する艦型を生成
+            // 存在する種別を生成
             resultItems.push({ typeName: type.name, items });
           }
         }

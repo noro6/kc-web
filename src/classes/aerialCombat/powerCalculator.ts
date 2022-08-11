@@ -140,10 +140,11 @@ export default class AerialFirePowerCalculator {
         } else if (item.data.id === 444) {
           // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
           fire = item.data.torpedo * 1.15 + item.bonusTorpedo;
-        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA)) {
-          // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 の場合 雷装1.16倍
+        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA || shipType === SHIP_TYPE.CVL)) {
+          // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 or 軽空母 の場合 雷装1.16倍
           fire = item.data.torpedo * 1.16 + item.bonusTorpedo;
         } else if (item.data.id === 459) {
+          // B-25
           fire = item.actualTorpedo;
 
           // B-25補正

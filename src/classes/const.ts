@@ -164,6 +164,8 @@ export default class Const {
 
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
+  public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439];
+
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
     { id: 7, name: '艦上爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },

@@ -107,6 +107,9 @@ export default class ItemMaster {
   /** 対地可能フラグ */
   public readonly enabledAttackLandBase: boolean;
 
+  /** 爆雷(教義)フラグ */
+  public readonly isStrictDepthCharge: boolean;
+
   /**
    * Creates an instance of ItemMaster.
    * API取得itemよりクラスにマッピング
@@ -176,9 +179,14 @@ export default class ItemMaster {
     this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
     this.isJet = this.apiTypeId === 57;
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
+    this.isStrictDepthCharge = Const.STRICT_DEPTH_CHARGE.includes(this.id);
 
     if (!this.isSpecial) {
       this.isSpecial = this.isRocket || this.enabledAttackLandBase;
+    }
+
+    if (this.isStrictDepthCharge) {
+      this.iconTypeId = 1700;
     }
   }
 }
