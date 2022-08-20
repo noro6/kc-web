@@ -1909,7 +1909,7 @@ export default class Ship implements ShipBase {
 
     if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV) {
       // 潜水カットイン判定
-      const lateModelTorpCount = items.filter((v) => [213, 214, 383, 441, 443, 461].includes(v.data.id)).length;
+      const lateModelTorpCount = items.filter((v) => [213, 214, 383, 441, 443, 457, 461].includes(v.data.id)).length;
       if (lateModelTorpCount && items.some((v) => v.data.apiTypeId === 51)) {
         specialAttacks.push({ text: '潜電魚CI', value: 105 });
       } else if (lateModelTorpCount >= 2) {
@@ -1918,7 +1918,7 @@ export default class Ship implements ShipBase {
     }
 
     // 連撃
-    if (!specialAttacks.length && (mainGunCount + subGunCount) === 2) {
+    if (!specialAttacks.length && (mainGunCount + subGunCount) >= 2) {
       specialAttacks.push({ text: '連撃', value: 0 });
     }
 
@@ -1966,7 +1966,7 @@ export default class Ship implements ShipBase {
       const attack = specialAttacks[i];
 
       if (!attack.value) {
-        results.push({ text: attack.text, rate: [0.99, 0.99, 0.99, 0.99] });
+        results.push({ text: attack.text, rate: [0.991, 0.991, 0.991, 0.991] });
         continue;
       }
 

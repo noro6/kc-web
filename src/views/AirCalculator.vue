@@ -381,7 +381,7 @@ export default Vue.extend({
       }
 
       if (count > 0) {
-        this.$emit('inform', `計算が完了しました。(+${count.toLocaleString()}回)`);
+        this.$emit('inform', '計算が完了しました。');
       }
     },
     startContentOrder() {

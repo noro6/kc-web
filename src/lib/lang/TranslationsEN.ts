@@ -243,7 +243,7 @@ export default {
       '共有URLを生成しました。': 'Generated.',
       '共有URLの生成に失敗しました。': 'Generate failed.',
       '出力履歴を削除しました。': 'Deleted.',
-      '計算が完了しました。(+100000回)': 'Calculation completed. (+100000 times)',
+      '計算が完了しました。': 'Calculation completed. (+100000 times)',
       'ドラッグ & ドロップで入力欄を好きな順に並べ替え、入替完了を押してください。': 'Drag and drop to rearrange the input fields in the desired order, and then press "Done".',
       'アップロードが完了しました。': 'Uploaded.',
       'アップロードに失敗しました。': 'Upload failed.',
