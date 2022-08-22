@@ -130,12 +130,12 @@ export default class ShootDownInfo {
           // 艦船加重対空値(敵側式) => int((int(sqrt(素対空 + 装備対空)) + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
           antiAirWeight = Math.floor((Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1);
         } else {
-          // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正 + 装備対空ボーナス * 0.75)
+          // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正 + 装備対空ボーナス * 0.75?)
           antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) * avoid1 + ship.totalBonusAntiAir * 0.75);
         }
 
-        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス) + 装備対空ボーナス * 0.75)
-        const fleetAA = Math.floor(fleetAntiAir * avoid2 + ship.totalBonusAntiAir * 0.75);
+        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス) + 装備対空ボーナス * 0.5?)
+        const fleetAA = Math.floor(fleetAntiAir * avoid2 + ship.totalBonusAntiAir * 0.5);
 
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
@@ -172,7 +172,7 @@ export default class ShootDownInfo {
     // 高角砲の数
     const allKokaku = kokakuCount + specialKokakuCount;
     // 高角砲の有無
-    const hasKoukaku = allKokaku > 0;
+    const hasKokaku = allKokaku > 0;
     // 三式弾の有無
     const hasSanshiki = items.some((v) => v.data.apiTypeId === 18);
 
@@ -183,7 +183,7 @@ export default class ShootDownInfo {
       // 1種 (高角砲2, 電探)
       if (allKokaku >= 2 && hasRadar) cutInIds.push(1);
       // 2種 (高角砲, 電探)
-      else if (hasKoukaku && hasRadar) cutInIds.push(2);
+      else if (hasKokaku && hasRadar) cutInIds.push(2);
       // 3種 (高角砲2) 共存なし
       else if (allKokaku >= 2) cutInIds.push(3);
     } else {
@@ -227,21 +227,21 @@ export default class ShootDownInfo {
       } else if (shipId === 428) {
         // 摩耶様改二
         // 10種 (高角砲, 特殊機銃, 対空電探)
-        if (hasKoukaku && specialKijuCount && antiAirRadarCount) cutInIds.push(10);
+        if (hasKokaku && specialKijuCount && antiAirRadarCount) cutInIds.push(10);
         // 11種 (高角砲, 特殊機銃)
-        if (hasKoukaku && specialKijuCount) cutInIds.push(11);
+        if (hasKokaku && specialKijuCount) cutInIds.push(11);
       } else if (shipId === 141) {
         // 五十鈴改二
         // 14種 (高角砲, 対空機銃, 対空電探)
-        if (hasKoukaku && kijuCount && antiAirRadarCount) cutInIds.push(14);
+        if (hasKokaku && kijuCount && antiAirRadarCount) cutInIds.push(14);
         // 15種 (高角砲, 対空機銃)
-        if (hasKoukaku && kijuCount) cutInIds.push(15);
+        if (hasKokaku && kijuCount) cutInIds.push(15);
       } else if (shipId === 470 || shipId === 622) {
         // 霞改二乙 夕張改二
         // 16種 (高角砲, 対空機銃, 対空電探)
-        if (hasKoukaku && kijuCount && antiAirRadarCount) cutInIds.push(16);
+        if (hasKokaku && kijuCount && antiAirRadarCount) cutInIds.push(16);
         // 17種 (高角砲, 対空機銃)
-        if (hasKoukaku && kijuCount) cutInIds.push(17);
+        if (hasKokaku && kijuCount) cutInIds.push(17);
       } else if (shipId === 487) {
         // 鬼怒改二
         // 19種 (よわ高角砲, 特殊機銃)
@@ -249,7 +249,7 @@ export default class ShootDownInfo {
       } else if (shipId === 488) {
         // 由良改二
         // 21種 (高角砲, 対空電探)
-        if (hasKoukaku && antiAirRadarCount) cutInIds.push(21);
+        if (hasKokaku && antiAirRadarCount) cutInIds.push(21);
       } else if ([82, 88, 553, 554].includes(shipId)) {
         // 伊勢型改 / 改二
         // 25種 (噴進砲改二, 対空電探, 三式弾)
@@ -291,7 +291,7 @@ export default class ShootDownInfo {
       // 8種 (特殊高角砲, 対空電探)
       if (specialKokakuCount && antiAirRadarCount) cutInIds.push(8);
       // 7種 (高角砲, 高射装置, 対空電探)
-      if (hasKoukaku && koshaCount && antiAirRadarCount) cutInIds.push(7);
+      if (hasKokaku && koshaCount && antiAirRadarCount) cutInIds.push(7);
 
       if (shipId === 148 || shipId === 546 || shipId === 911 || shipId === 916) {
         // 武蔵改 / 大和型改二
@@ -306,16 +306,16 @@ export default class ShootDownInfo {
       } else if (shipId === 557 || shipId === 558) {
         // 磯風乙改 / 浜風乙改
         // 29種 (高角砲, 対空電探)
-        if (hasKoukaku && antiAirRadarCount) cutInIds.push(29);
+        if (hasKokaku && antiAirRadarCount) cutInIds.push(29);
       }
 
       // 9種 (高角砲, 高射装置)
-      if (hasKoukaku && koshaCount) cutInIds.push(9);
+      if (hasKokaku && koshaCount) cutInIds.push(9);
 
       // Gotland改以降
       if (shipId === 579 || shipId === 630) {
         // 33種 (高角砲, 素対空値4以上の機銃)
-        if (hasKoukaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
+        if (hasKokaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
       }
 
       // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)

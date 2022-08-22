@@ -371,6 +371,7 @@ export default class Const {
     { id: 89, name: 'Gotland級' },
 
     { id: 98, name: 'De Ruyter級' },
+
     { id: 96, name: 'Perth級' },
 
     { id: 42, name: '(霧の艦隊?)' },

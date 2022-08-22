@@ -250,8 +250,7 @@ export default class Ship implements ShipBase {
     // 対潜ボーナス
     this.itemBonusAsw = this.getBonusAsw();
     // 対空ボーナス
-    // this.totalBonusAntiAir = this.getBonusAntiAir();
-    this.totalBonusAntiAir = 0;
+    this.totalBonusAntiAir = this.getBonusAntiAir();
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
     // 射程(基本値)
@@ -569,12 +568,12 @@ export default class Ship implements ShipBase {
     }
     // Swordfish Mk.III改(水上機型)
     if (id === 630 && items.some((v) => v.data.id === 368)) {
-      // Gotoland andra 1つめだけ
+      // Gotland andra 1つめだけ
       sumBonus += 1;
     }
     // Swordfish Mk.III改(水上機型/熟練)
     if (id === 630 && items.some((v) => v.data.id === 369)) {
-      // Gotoland andra 1つめだけ
+      // Gotland andra 1つめだけ
       sumBonus += 2;
     }
     // 二式艦上偵察機
@@ -658,14 +657,14 @@ export default class Ship implements ShipBase {
       }
       // Swordfish Mk.III改(水上機型)
       if (item.data.id === 368) {
-        // Gotoland
+        // Gotland
         if (type2 === 89) sumBonus += 3;
         // コマちゃん 瑞穂 神威
         else if ([62, 70, 72].includes(type2)) sumBonus += 2;
       }
       // Swordfish Mk.III改(水上機型/熟練)
       if (item.data.id === 369) {
-        // Gotoland コマちゃん
+        // Gotland コマちゃん
         if ([70, 89].includes(type2)) sumBonus += 3;
         // 瑞穂 神威
         else if ([62, 72].includes(type2)) sumBonus += 2;
@@ -804,6 +803,18 @@ export default class Ship implements ShipBase {
           sumBonusAsw += 2;
         } else if (id === 651 || id === 656 || Const.AUS.includes(type2)) {
           // 丹陽 or 雪風改二 or Perth => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 472) {
+        // Mk.32 対潜魚雷(Mk.2落射機)
+        if (id === 920) {
+          // Samuel B.Roberts Mk.II => +3
+          sumBonusAsw += 3;
+        } else if (Const.USA.includes(type2)) {
+          // アメリカ艦 => +2
+          sumBonusAsw += 2;
+        } else if (Const.GBR.includes(type2)) {
+          // イギリス艦 => +1
           sumBonusAsw += 1;
         }
       } else if (item.data.id === 382) {
@@ -1088,6 +1099,37 @@ export default class Ship implements ShipBase {
           // 浦波改二 => +1
           sumBonusAsw += 1;
         }
+      } else if (item.data.id === 70) {
+        // 三式指揮連絡機
+        if (type2 === 115) {
+          // 山汐丸 => +1
+          sumBonusAsw += 1;
+        }
+      } else if (item.data.id === 451) {
+        // 三式指揮連絡機改
+        if (item.remodel >= 8) {
+          if (type2 === 115) {
+            // 山汐丸 => +5
+            sumBonusAsw += 5;
+          } else if (type2 === 45) {
+            // あきつ丸 => +4
+            sumBonusAsw += 4;
+          }
+        } else if (item.remodel >= 3) {
+          if (type2 === 115) {
+            // 山汐丸 => +4
+            sumBonusAsw += 4;
+          } else if (type2 === 45) {
+            // あきつ丸 => +3
+            sumBonusAsw += 3;
+          }
+        } else if (type2 === 115) {
+          // 山汐丸 => +3
+          sumBonusAsw += 3;
+        } else if (type2 === 45) {
+          // あきつ丸 => +2
+          sumBonusAsw += 2;
+        }
       }
     }
 
@@ -1095,6 +1137,13 @@ export default class Ship implements ShipBase {
     // 水雷戦隊 熟練見張員 日本駆逐 => +2
     if (items.some((v) => v.data.id === 412) && type === SHIP_TYPE.DD && Const.isJPN(type2)) {
       sumBonusAsw += 2;
+    }
+    if (items.some((v) => v.data.id === 132 && v.remodel >= 10)) {
+      // 零式水中聴音機 ★10
+      sumBonusAsw += 3;
+    } else if (items.some((v) => v.data.id === 132 && v.remodel >= 5)) {
+      // 零式水中聴音機 ★5
+      sumBonusAsw += 1;
     }
 
     if (type2 === 56 && items.some((v) => [46, 47, 149, 438].includes(v.data.id))) {
@@ -1214,8 +1263,12 @@ export default class Ship implements ShipBase {
    */
   private getBonusAntiAir(): number {
     let total = 0;
-    const { type, type2, id } = this.data;
+    const {
+      type, type2, id, version, originalId,
+    } = this.data;
     const items = this.items.concat(this.exItem);
+    const isUSA = Const.USA.includes(type2);
+
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
 
@@ -1328,7 +1381,7 @@ export default class Ship implements ShipBase {
           // 松型 天龍改二 龍田改二 夕張改二 夕張改二丁 曙改二 潮改二 => +2
           // 五十鈴 鬼怒 那珂 由良 北上 大井 => +2
           total += 2;
-        } else if (type === SHIP_TYPE.CT || type === SHIP_TYPE.AV || [43, 109, 48, 45, 20, 19].includes(this.data.originalId)) {
+        } else if (type === SHIP_TYPE.CT || type === SHIP_TYPE.AV || [43, 109, 48, 45, 20, 19].includes(originalId)) {
           // 練習巡洋艦 水上機母艦 五十鈴 鬼怒 那珂 由良 北上 大井  => +2
           total += 2;
         }
@@ -1340,7 +1393,7 @@ export default class Ship implements ShipBase {
         } else if ([66, 28, 101].includes(type2) || type === SHIP_TYPE.DE) {
           // 神風型 睦月型 松型 海防艦 => +2
           total += 2;
-        } else if ([45, 48, 109].includes(this.data.originalId)) {
+        } else if ([45, 48, 109].includes(originalId)) {
           // 由良 那珂 鬼怒 => +1
           total += 1;
         }
@@ -1388,7 +1441,7 @@ export default class Ship implements ShipBase {
         }
       } else if (item.data.id === 310) {
         // 14cm連装砲改
-        if (this.data.originalId === 111 || this.data.originalId === 381) {
+        if (originalId === 111 || originalId === 381) {
           // 夕張 日進 => +1
           total += 1;
         }
@@ -1417,12 +1470,481 @@ export default class Ship implements ShipBase {
           total += 1;
         }
       } else if (item.data.id === 303) {
-        // Bofors15.2cm連装砲 Model1930
+        // Bofors 15.2cm連装砲 Model1930
         if (type2 === 89) {
           // Gotland級 => +2
           total += 2;
         } else if (type2 === 4 || type2 === 16 || type2 === 20 || type2 === 41) {
           // 球磨型 長良型 川内型 阿賀野型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 360 || item.data.id === 361) {
+        // Bofors 15cm連装速射砲 Mk.9 Model 1938
+        // Bofors 15cm連装速射砲 Mk.9改＋単装速射砲 Mk.10改 Model 1938
+        if (type2 === 98) {
+          // De Ruyter級 => +2
+          total += 2;
+        } else if (type2 === 41 || type2 === 89) {
+          // 阿賀野型 Gotland級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 362) {
+        // 5inch連装両用砲(集中配備)
+        if (type2 === 99) {
+          // Atlanta級 => +2
+          total += 2;
+        } else if (isUSA) {
+          // 米艦 => +1
+          total += 1;
+        } else if (type2 === 52 || type2 === 41 || type2 === 98 || type2 === 89 || type === SHIP_TYPE.CT) {
+          // 大淀型 阿賀野型 De Ruyter級 Gotland級 練習巡洋艦 => -1
+          total -= 1;
+        } else if (type2 === 4 || type2 === 20 || type2 === 16) {
+          // 球磨型 長良型 川内型 => -2
+          total -= 2;
+        } else if (type2 === 21 || type2 === 34) {
+          // 天龍型 夕張型 => -3
+          total -= 3;
+        }
+      } else if (item.data.id === 363) {
+        // GFCS Mk.37＋5inch連装両用砲(集中配備)
+        if (type2 === 99) {
+          // Atlanta級 => +3
+          total += 3;
+        } else if (isUSA) {
+          // 米艦 => +1
+          total += 1;
+        } else if (type2 === 52 || type2 === 41 || type2 === 98 || type2 === 89 || type === SHIP_TYPE.CT) {
+          // 大淀型 阿賀野型 De Ruyter級 Gotland級 練習巡洋艦 => -1
+          total -= 1;
+        } else if (type2 === 4 || type2 === 20 || type2 === 16) {
+          // 球磨型 長良型 川内型 => -2
+          total -= 2;
+        } else if (type2 === 21 || type2 === 34) {
+          // 天龍型 夕張型 => -3
+          total -= 3;
+        }
+      } else if (item.data.id === 359) {
+        // 6inch 連装速射砲 Mk.XXI
+        if (type2 === 96) {
+          // Perth級 => +2
+          total += 2;
+        } else if (id === 622 || id === 623 || id === 624) {
+          // 夕張改二シリーズ => +2
+          total += 2;
+        } else if (type2 === 34) {
+          // 夕張型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 289) {
+        // 35.6cm三連装砲改(ダズル迷彩仕様)
+        if (id === 151) {
+          // 榛名改二 => +2
+          total += 2;
+        } else if (id === 149) {
+          // 金剛改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 290) {
+        // 41cm三連装砲改二
+        if (id === 553 || id === 554 || id === 82 || id === 88) {
+          // 伊勢型改 改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 318) {
+        // 41cm連装砲改二
+        if (id === 553 || id === 554 || id === 82 || id === 88 || id === 541 || id === 573) {
+          // 伊勢型改 改二 長門改二 陸奥改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 104) {
+        // 35.6cm連装砲(ダズル迷彩)
+        if (id === 151) {
+          // 榛名改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 328) {
+        // 35.6cm連装砲改
+        if (id === 598) {
+          // 比叡改二丙 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 329) {
+        // 35.6cm連装砲改二
+        if (id === 591 || id === 598) {
+          // 比叡改二丙 金剛改二丙 => +2
+          total += 2;
+        } else if (id === 149 || id === 150 || id === 151 || id === 152) {
+          // 金剛型改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 332) {
+        // 16inch Mk.VIII連装砲改
+        if (type2 === 93 && version >= 1) {
+          // Colorado級改 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 234) {
+        // 15.5cm三連装副砲改
+        if (type2 === 37) {
+          // 大和型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 66) {
+        // 8cm高角砲
+        if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+          // 能代の改二 矢矧の改二 最上の改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 220) {
+        // 8cm高角砲改＋増設機銃
+        if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+          // 能代の改二 矢矧の改二 最上の改二 => +5
+          total += 5;
+        }
+      } else if (item.data.id === 464) {
+        // 10cm連装高角砲群 集中配備
+        if (id === 911 || id === 916 || id === 546) {
+          // 大和型改二 => +5
+          total += 5;
+        } else if (type2 === 37) {
+          // 大和型 => +3
+          total += 3;
+        } else if (type2 === 6 || type2 === 73 || type2 === 113) {
+          // 金剛型 Гангут級 Conte di Cavour級 => -2
+          total -= 2;
+        }
+      } else if (item.data.id === 467) {
+        // 5inch連装砲(副砲配置)集中配備
+        if (isUSA && (type === SHIP_TYPE.BB || type === SHIP_TYPE.BBB || type === SHIP_TYPE.BBV || type === SHIP_TYPE.FBB)) {
+          // 米戦艦 => +3
+          total += 3;
+        }
+      } else if (item.data.id === 358) {
+        // 5inch 単装高角砲群
+        if (type2 === 110 || type2 === 95) {
+          // Brooklyn級 Northampton級  => +3
+          total += 3;
+        } else if (isUSA || Const.GBR.includes(type2)) {
+          // その他 米艦 英艦 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 430) {
+        // 65mm／64 単装速射砲改
+        if (type2 === 113) {
+          // Conte di Cavour級  => +3
+          total += 3;
+        } else if (Const.ITA.includes(type2)) {
+          // その他 伊艦 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 322) {
+        // 瑞雲改二(六三四空)
+        if (id === 553 || id === 554) {
+          // 伊勢型改二 => +2
+          total += 2;
+        } else if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+          // 能代の改二 矢矧の改二 最上の改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 323) {
+        // 瑞雲改二(六三四空／熟練)
+        if (id === 553 || id === 554) {
+          // 伊勢型改二 => +3
+          total += 2;
+        } else if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+          // 能代の改二 矢矧の改二 最上の改二 => +1
+          total += 1;
+        }
+      } else if (item.data.apiTypeId === 11) {
+        // その他の水上爆撃機
+        if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+          // 能代の改二 矢矧の改二 最上の改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 217) {
+        // 強風改
+        if (id === 501 || id === 506) {
+          // 最上の改二 => +5
+          total += 5;
+        }
+      } else if (item.data.id === 19) {
+        // 九六式艦戦
+        if (type2 === 27) {
+          // 鳳翔型 => +3
+          total += 3;
+        } else if (type === SHIP_TYPE.CVL) {
+          // その他の軽空母 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 228) {
+        // 九六式艦戦改
+        if (type2 === 27) {
+          // 鳳翔型 => +4
+          total += 4;
+        } else if (type2 === 75 || type2 === 76) {
+          // 大鷹型 => +2
+          total += 2;
+        } else if (type === SHIP_TYPE.CVL) {
+          // その他の軽空母 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 271) {
+        // 紫電改四
+        if (item.remodel >= 6 && (type2 === 9 || id === 883 || id === 888)) {
+          // ★6以上 鈴谷改二 熊野改二 龍鳳改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 335 || item.data.id === 336) {
+        // 烈風改(試製艦載型) or 烈風改二
+        if ((type2 === 3 || type2 === 14) && version >= 2) {
+          // 赤城 加賀の改二 => +2
+          total += 2;
+        } else if ((type2 === 3 || type2 === 14) && version >= 1) {
+          // 赤城 加賀の改 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 338) {
+        // 烈風改二戊型
+        if (id === 599 || id === 610) {
+          // 赤城改二戊 加賀改二戊 => +3
+          total += 3;
+        } else if ((type2 === 3 || type2 === 14) && version >= 2) {
+          // 赤城 加賀の改二 => +2
+          total += 2;
+        } else if ((type2 === 3 || type2 === 14) && version >= 1) {
+          // 赤城 加賀の改 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 339) {
+        // 烈風改二戊型(一航戦／熟練)
+        if (id === 599 || id === 610) {
+          // 赤城改二戊 加賀改二戊 => +4
+          total += 4;
+        } else if ((type2 === 3 || type2 === 14) && version >= 2) {
+          // 赤城 加賀の改二 => +3
+          total += 3;
+        } else if ((type2 === 3 || type2 === 14) && version >= 1) {
+          // 赤城 加賀の改 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 184) {
+        // Re.2001 OR改
+        if (type2 === 68) {
+          // Aquila級 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 189) {
+        // Re.2005 改
+        if (type2 === 68 || type2 === 63) {
+          // Aquila級 Graf Zeppelin級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 375) {
+        // XF5U
+        if (isUSA) {
+          // 米艦 => +3
+          total += 3;
+        } else if (type2 === 3) {
+          // 加賀型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 422) {
+        // FR-1 Fireball
+        if (type2 === 83) {
+          // Casablanca級 => +2
+          total += 2;
+        } else if (type2 === 84) {
+          // Essex級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 434) {
+        // Corsair Mk.II
+        if (type2 === 112) {
+          // Illustrious級 => +3
+          total += 3;
+        } else if (type2 === 78) {
+          // Ark Royal級 => +2
+          total += 2;
+        } else if (isUSA) {
+          // 米艦 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 435) {
+        // Corsair Mk.II(Ace)
+        if (type2 === 112) {
+          // Illustrious級 => +3
+          total += 3;
+        } else if (type2 === 78) {
+          // Ark Royal級 => +2
+          total += 2;
+        } else if (isUSA) {
+          // 米艦 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 437) {
+        // 試製 陣風
+        if (type2 === 27 && version >= 1) {
+          // 鳳翔改 => +3
+          total += 3;
+        } else if ([196, 197, 508, 509, 646, 883, 888, 553, 554].includes(id)) {
+          // 蒼龍改二 飛龍改二 鈴谷航改二 熊野航改二 加賀改二護 龍鳳改二戊 龍鳳改二 伊勢改二 日向改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 292) {
+        // 彗星二二型(六三四空／熟練)
+        if (id === 553 || id === 554) {
+          // 伊勢改二 日向改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 319) {
+        // 彗星一二型(六三四空／三号爆弾搭載機)
+        if (id === 553 || id === 554) {
+          // 伊勢改二 日向改二 => +3
+          total += 3;
+        }
+      } else if (item.data.id === 60) {
+        // 零式艦戦62型(爆戦)
+        if ([11, 24, 51, 15].includes(type2)) {
+          // 祥鳳型 飛鷹型 龍鳳型 千歳型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 154) {
+        // 零戦62型(爆戦／岩井隊)
+        if ([11, 24, 51, 15].includes(type2)) {
+          // 祥鳳型 飛鷹型 龍鳳型 千歳型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 219) {
+        // 零式艦戦63型(爆戦)
+        if ([11, 24, 51, 15].includes(type2)) {
+          // 祥鳳型 飛鷹型 龍鳳型 千歳型 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 447) {
+        // 零式艦戦64型(複座KMX搭載機)
+        if (item.remodel >= 4) {
+          // ★4以上 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 316) {
+        // Re.2001 CB改
+        if (type2 === 68) {
+          // Aquila級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 277) {
+        // FM-2
+        if (type2 === 83) {
+          // Casablanca級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 342) {
+        // 流星改(一航戦)
+        if (id === 599 || id === 610) {
+          // 赤城改二戊 加賀改二戊 => +2
+          total += 2;
+        } else if ((type2 === 3 || type2 === 14) && version >= 2) {
+          // 赤城 加賀の改二 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 343) {
+        // 流星改(一航戦／熟練)
+        if (id === 599 || id === 610) {
+          // 赤城改二戊 加賀改二戊 => +3
+          total += 3;
+        } else if ((type2 === 3 || type2 === 14) && version >= 2) {
+          // 赤城 加賀の改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 188) {
+        // Re.2001 G改
+        if (type2 === 68) {
+          // Aquila級 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 307) {
+        // GFCS Mk.37
+        if (isUSA) {
+          // 米艦 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 106 || item.data.id === 450) {
+        // 13号対空電探改 or 13号対空電探改(後期型)
+        if ([407, 145, 419, 151, 541].includes(id)) {
+          // 潮改二 時雨改二 初霜改二 榛名改二 長門改二
+          total += 2;
+        } else if ([139, 90, 5, 167, 170, 225, 332].includes(originalId)) {
+          // 矢矧 霞 雪風 磯風 浜風 朝霜 涼月 => +2
+          total += 2;
+        } else if ([183, 72, 265].includes(originalId)) {
+          // 大淀 響 鹿島
+          total += 1;
+        }
+      } else if (item.data.id === 411) {
+        // 42号対空電探改二
+        if (item.remodel >= 10) {
+          // ★10
+          if (id === 151 || id === 411 || id === 412) {
+            // 榛名改二 扶桑改二 山城改二 => +6
+            total += 6;
+          } else if (id === 541 || id === 573 || id === 553 || id === 554) {
+            // 長門改二 陸奥改二 伊勢改二 日向改二 => +4
+            total += 4;
+          }
+        } else if (item.remodel >= 4) {
+          // ★4~
+          if (id === 151 || id === 411 || id === 412) {
+            // 榛名改二 扶桑改二 山城改二 => +5
+            total += 5;
+          } else if (id === 541 || id === 573 || id === 553 || id === 554) {
+            // 長門改二 陸奥改二 伊勢改二 日向改二 => +3
+            total += 3;
+          }
+        } else if (id === 151 || id === 411 || id === 412) {
+          // 榛名改二 扶桑改二 山城改二 => +4
+          total += 4;
+        } else if (id === 541 || id === 573 || id === 553 || id === 554) {
+          // 長門改二 陸奥改二 伊勢改二 日向改二 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 74) {
+        // 探照灯
+        if (originalId === 5) {
+          // 雪風 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 413) {
+        // 精鋭水雷戦隊 司令部
+        if (type2 === 21 || type2 === 34) {
+          // 天龍型 夕張型 => +2
+          total += 2;
+        } else if (id === 419 || originalId === 45 || originalId === 48 || originalId === 138 || originalId === 139) {
+          // 初霜改二 由良 那珂 能代 矢矧 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 49 || item.data.id === 39 || item.data.id === 40 || item.data.id === 131) {
+        // 25mm単装機銃 or 25mm連装機銃 or 25mm三連装機銃 or 25mm三連装機銃 集中配備
+        if (id === 663 || id === 668) {
+          // 矢矧の改二 => +3
+          total += 3;
+        } else if (id === 662 || type === SHIP_TYPE.CT) {
+          // 能代改二 練習巡洋艦=> +2
+          total += 2;
+        }
+      } else if (item.data.id === 301) {
+        // 20連装7inch UP Rocket Launchers
+        if (Const.GBR.includes(type2)) {
+          // 英艦 => +2
+          total += 2;
+        }
+      } else if (item.data.id === 409) {
+        // 武装大発
+        if (type2 === 97) {
+          // 神州丸 => +2
+          total += 2;
+        } else if (type2 === 45) {
+          // あきつ丸 => +1
           total += 1;
         }
       }
@@ -1441,6 +1963,108 @@ export default class Ship implements ShipBase {
         total += 2;
       } else if ([665, 407].includes(id)) {
         // 曙改二 潮改二 => +1
+        total += 1;
+      }
+    }
+    // 21号対空電探改二
+    if (items.some((v) => v.data.id === 410)) {
+      if (type2 === 54 || id === 73 || id === 501 || id === 506) {
+        // 秋月型 最上改 改二 => +5
+        total += 5;
+      }
+    } else if (items.some((v) => v.data.id === 30)) {
+      // 21号対空電探
+      if (type2 === 54 || id === 73 || id === 501 || id === 506) {
+        // 秋月型 最上改 改二 => +3
+        total += 3;
+      }
+    }
+    // 8cm高角砲
+    if (items.some((v) => v.data.id === 66) && this.antiAirRadarCount) {
+      if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+        // 能代の改二 矢矧の改二 最上の改二 => +1
+        total += 1;
+      }
+    }
+    // 8cm高角砲改＋増設機銃
+    if (items.some((v) => v.data.id === 220) && this.antiAirRadarCount) {
+      if (id === 662 || id === 663 || id === 668 || id === 501 || id === 506) {
+        // 能代の改二 矢矧の改二 最上の改二 => +4
+        total += 4;
+      }
+    }
+    // 零式水上観測機
+    if (items.some((v) => v.data.id === 59)) {
+      if (id === 501 || id === 506) {
+        // 最上改二 => +1
+        total += 1;
+      }
+    }
+    // 二式水戦改 or 二式水戦改(熟練)
+    if (items.some((v) => v.data.id === 165 || v.data.id === 216)) {
+      if (id === 501 || id === 506) {
+        // 最上改二 => +2
+        total += 2;
+      }
+    }
+    // SKレーダー
+    if (items.some((v) => v.data.id === 278)) {
+      if (isUSA || Const.GBR.includes(type2) || type2 === 96) {
+        // 米艦 英艦 Perth級 => +1
+        total += 1;
+      }
+    }
+    // SK＋SGレーダー
+    if (items.some((v) => v.data.id === 279)) {
+      if (isUSA) {
+        // 米艦 => +2
+        total += 2;
+      } else if (Const.GBR.includes(type2) || type2 === 96) {
+        // 米艦 英艦 Perth級 => +1
+        total += 1;
+      }
+    }
+    // 13号対空電探改 or 13号対空電探改(後期型)
+    if (items.some((v) => v.data.id === 106 || v.data.id === 450)) {
+      if (id === 668) {
+        // 矢矧改二乙 => +2
+        total += 2;
+      } else if (id === 663) {
+        // 矢矧改二 => +1
+        total += 1;
+      }
+    }
+    // 対空電探
+    if (this.antiAirRadarCount) {
+      if (id === 648 || id === 569) {
+        // 秋雲改二 沖波改二 => +2
+        total += 2;
+      }
+    }
+    // 94式高射装置
+    if (items.some((v) => v.data.id === 121)) {
+      if (type2 === 54) {
+        // 秋月型 => +4
+        total += 4;
+      }
+    }
+    // 三式弾
+    if (items.some((v) => v.data.id === 35)) {
+      if ([21, 22, 23].includes(originalId) && version >= 2) {
+        // 金剛改二 比叡改二 榛名改二 => +1
+        total += 1;
+      }
+    }
+    // 三式弾改
+    if (items.some((v) => v.data.id === 317)) {
+      if (id === 149 || id === 591 || id === 592) {
+        // 金剛改二 金剛改二丙 比叡改二丙 => +3
+        total += 3;
+      } else if ((type2 === 6 || type2 === 19) && version >= 2) {
+        // 金剛型改二 長門型改二 => +2
+        total += 2;
+      } else if (type2 === 6) {
+        // 金剛型 => +1
         total += 1;
       }
     }
@@ -1535,6 +2159,59 @@ export default class Ship implements ShipBase {
       if (id === 501 || id === 506) {
         // 最上改二 最上改二特 => +3
         total += 3;
+      }
+    }
+    if ((items.some((v) => v.data.id === 290) || items.some((v) => v.data.id === 318)) && this.antiAirRadarCount) {
+      // (41cm三連装砲改二 or 41cm連装砲改二) + 対空電探
+      if (type2 === 2) {
+        // 伊勢型 => +2
+        total += 2;
+      }
+    }
+    if (items.some((v) => v.data.id === 234) && items.some((v) => v.data.id === 142 || v.data.id === 460)) {
+      // 15.5cm三連装副砲改 + (15m二重測距儀改＋21号電探改二 or 15m二重測距儀改＋21号電探改二＋熟練射撃指揮所)
+      if (type2 === 37) {
+        // 大和型 => +1
+        total += 1;
+      }
+    }
+    if (items.some((v) => v.data.id === 464)) {
+      // 10cm連装高角砲群 集中配備
+      if (items.some((v) => v.data.id === 460)) {
+        // + 15m二重測距儀改＋21号電探改二＋熟練射撃指揮所
+        if (id === 911 || id === 916 || id === 546) {
+          // 大和型改二 => +4
+          total += 4;
+        } else if (type2 === 37) {
+          // 大和型 => +2
+          total += 2;
+        }
+      } else if (items.some((v) => v.data.id === 142)) {
+        // + 15m二重測距儀改＋21号電探改二
+        if (type2 === 37) {
+          // 大和型 => +2
+          total += 2;
+        }
+      }
+    }
+    if (items.some((v) => v.data.id === 467) && isUSA) {
+      // 5inch連装砲(副砲配置)集中配備 かつ 米艦
+      if (items.some((v) => v.data.id === 279)) {
+        // SK＋SGレーダー => +3
+        total += 3;
+      } else if (items.some((v) => v.data.id === 278)) {
+        // SKレーダー => +2
+        total += 2;
+      } else if (items.some((v) => v.data.id === 307 || v.data.id === 315 || v.data.id === 456)) {
+        // GFCS Mk.37 or SG レーダー(初期型) or SG レーダー(後期型) => +1
+        total += 1;
+      }
+    }
+    // 94式高射装置
+    if (items.some((v) => v.data.id === 121) && this.antiAirRadarCount) {
+      if (type2 === 54) {
+        // 秋月型 => +2
+        total += 2;
       }
     }
 
@@ -1678,19 +2355,19 @@ export default class Ship implements ShipBase {
     } else if (itemId === 425) {
       // Barracuda Mk.III
       if (Const.GBR.includes(ship.type2)) {
-        // Ark Vict
+        // Ark Victorious
         return 1;
       }
     } else if (itemId === 368) {
       // Swordfish Mk.III改(水上機型)
       if (ship.id === 630) {
-        // Got andra
+        // Gotland andra
         return 2;
       }
     } else if (itemId === 369) {
       // Swordfish Mk.III改(水上機型/熟練)
       if (ship.id === 630) {
-        // Got andra
+        // Gotland andra
         return 3;
       }
     }
@@ -1966,7 +2643,7 @@ export default class Ship implements ShipBase {
       const attack = specialAttacks[i];
 
       if (!attack.value) {
-        results.push({ text: attack.text, rate: [0.991, 0.991, 0.991, 0.991] });
+        results.push({ text: attack.text, rate: [0.99, 0.99, 0.99, 0.99] });
         continue;
       }
 
