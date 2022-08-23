@@ -62,7 +62,7 @@ export default class Item {
   /** 装備加重対空値 */
   public readonly antiAirWeight: number;
 
-  /** 装備防空ボーナス */
+  /** 装備防空ボーナス 誤差考慮のため100倍された値 */
   public readonly antiAirBonus: number;
 
   /** 改修効果込み実火力値 */
@@ -563,82 +563,82 @@ export default class Item {
    * @memberof Item
    */
   private getAntiAirWeight(): number {
-    let antiAirWeight = 0;
+    let total = 0;
     // 加重対空値部品 => 装備対空値 * 装備倍率
     if (this.data.iconTypeId === 16) {
       // 高角砲(緑)
-      antiAirWeight = this.data.antiAir * 2;
+      total = this.data.antiAir * 2;
     } else if (this.data.apiTypeId === 36) {
       // 高射装置
-      antiAirWeight = this.data.antiAir * 2;
+      total = this.data.antiAir * 2;
     } else if (this.data.apiTypeId === 21) {
       // 機銃
-      antiAirWeight = this.data.antiAir * 3;
+      total = this.data.antiAir * 3;
     } else if (this.data.iconTypeId === 11) {
       // 電探
-      antiAirWeight = this.data.antiAir * 1.5;
+      total = this.data.antiAir * 1.5;
     }
 
     // 艦船対空改修補正 = 装備倍率(ブラウザ版採用[2倍]) * √★
     if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir <= 7) {
       // 対空値7以下の高角砲 高射装置
-      antiAirWeight += 1 * Math.sqrt(this.remodel);
+      total += 1 * Math.sqrt(this.remodel);
     } else if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir > 7) {
       // 対空値8以上の高角砲 高射装置
-      antiAirWeight += 1.5 * Math.sqrt(this.remodel);
+      total += 1.5 * Math.sqrt(this.remodel);
     } else if (this.data.apiTypeId === 21 && this.data.antiAir <= 7) {
       // 対空値7以下の機銃
-      antiAirWeight += 2 * Math.sqrt(this.remodel);
+      total += 2 * Math.sqrt(this.remodel);
     } else if (this.data.apiTypeId === 21 && this.data.antiAir > 7) {
       // 対空値8以上の機銃
-      antiAirWeight += 3 * Math.sqrt(this.remodel);
+      total += 3 * Math.sqrt(this.remodel);
     }
 
-    return antiAirWeight;
+    return total;
   }
 
   /**
    * この装備の艦隊防空ボーナスを返却
+   * JavaScript誤差考慮のため100倍
    * @private
    * @returns {number}
    * @memberof Item
    */
   private getAntiAirBonus(): number {
-    let antiAirBonus = 0;
+    let total = 0;
     // 艦隊防空ボーナス
     if (this.data.iconTypeId === 16) {
       // 高角砲(緑)
-      antiAirBonus = this.data.antiAir * 0.35;
+      total = this.data.antiAir * 35;
     } else if (this.data.apiTypeId === 36) {
       // 高射装置
-      antiAirBonus = this.data.antiAir * 0.35;
+      total = this.data.antiAir * 35;
     } else if (this.data.apiTypeId === 18) {
       // 対空強化弾(三式)
-      antiAirBonus = this.data.antiAir * 0.6;
+      total = this.data.antiAir * 60;
     } else if (this.data.iconTypeId === 11) {
       // 電探
-      antiAirBonus = this.data.antiAir * 0.4;
+      total = this.data.antiAir * 40;
     } else if (this.data.id === 9) {
       // 46cm三連装砲
-      antiAirBonus = this.data.antiAir * 0.25;
+      total = this.data.antiAir * 25;
     } else {
       // その他
-      antiAirBonus = this.data.antiAir * 0.2;
+      total = this.data.antiAir * 20;
     }
 
     // 艦隊防空装備改修補正 = 装備倍率 * √★
     if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir <= 7) {
       // 対空値7以下の高角砲 高射装置
-      antiAirBonus += 2 * Math.sqrt(this.remodel);
+      total += 200 * Math.sqrt(this.remodel);
     } else if (this.data.iconTypeId === 16 || this.data.apiTypeId === 36) {
       // 対空値8以上の高角砲 高射装置
-      antiAirBonus += 3 * Math.sqrt(this.remodel);
+      total += 300 * Math.sqrt(this.remodel);
     } else if (this.data.iconTypeId === 11 && this.data.antiAir > 1) {
       // 対空値2以上の電探
-      antiAirBonus += 1.5 * Math.sqrt(this.remodel);
+      total += 150 * Math.sqrt(this.remodel);
     }
-
-    return antiAirBonus;
+    return total;
   }
 
   /**

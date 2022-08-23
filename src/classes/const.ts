@@ -775,6 +775,9 @@ export default class Const {
       id: 26, text: '26種', rateBonus: 1.4, c1: 6, c2: 1, rate: 60, remarks: '武蔵改二',
     },
     {
+      id: 27, text: '27種', rateBonus: 1.55, c1: 5, c2: 1, rate: 55, remarks: '大淀',
+    },
+    {
       id: 28, text: '28種', rateBonus: 1.4, c1: 4, c2: 1, rate: 56, remarks: '伊勢型 / 武蔵',
     },
     {

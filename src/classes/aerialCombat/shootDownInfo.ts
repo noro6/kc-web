@@ -3,6 +3,7 @@ import { ShipBase } from '../interfaces/shipBase';
 import AntiAirCutIn from './antiAirCutIn';
 
 export interface ShootDownStatus {
+  antiAirWeightList: number[];
   rateDownList: number[];
   fixDownList: number[];
   minimumDownList: number[];
@@ -51,12 +52,16 @@ export default class ShootDownInfo {
     if (shipCount === 0) {
       // 全てが0のデータ
       for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-        stage2.push({ fixDownList: [0], rateDownList: [0], minimumDownList: [0] });
+        stage2.push({
+          antiAirWeightList: [0], fixDownList: [0], rateDownList: [0], minimumDownList: [0],
+        });
       }
       return stage2;
     }
     for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
-      stage2.push({ fixDownList: [], rateDownList: [], minimumDownList: [] });
+      stage2.push({
+        antiAirWeightList: [], fixDownList: [], rateDownList: [], minimumDownList: [],
+      });
     }
     // 陣形補正
     const aj1 = formation.correction;
@@ -67,8 +72,8 @@ export default class ShootDownInfo {
       sumAntiAirBonus += ships[i].antiAirBonus;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
-    // 艦隊防空 => int((陣形補正 * 各艦の艦隊対空ボーナス合計) / ブラウザ版補正(味方:1.3 敵1.0))
-    const fleetAntiAir = Math.floor((sumAntiAirBonus * aj1) / (isEnemy ? 1 : 1.3));
+    // 艦隊防空 => 陣形補正 * 各艦の艦隊対空ボーナス合計
+    const fleetAntiAir = sumAntiAirBonus * aj1;
     // 対空CI変動ボーナス
     const cutInBonus1 = cutIn.rateCorr;
     // 対空CI固定ボーナスA 敵側かつ不発なら0
@@ -114,7 +119,7 @@ export default class ShootDownInfo {
         let avoid2 = avoidObj.c2;
         // 対空CI補正Aに掛かると思われる係数 加重対空補正と同等？
         let avoid3 = avoidObj.c1;
-        // 対空CI補正Aに掛かると思われる係数 1
+        // 対空CI補正Bに掛かると思われる係数 1
         const avoid4 = 1;
 
         if (j === Const.AVOID_TYPE.length - 1 && avoid) {
@@ -133,14 +138,18 @@ export default class ShootDownInfo {
           // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正 + 装備対空ボーナス * 0.75?)
           antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) * avoid1 + ship.totalBonusAntiAir * 0.75);
         }
+        // 加重対空格納
+        stage2[j].antiAirWeightList.push(antiAirWeight);
 
-        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス) + 装備対空ボーナス * 0.5?)
-        const fleetAA = Math.floor(fleetAntiAir * avoid2 + ship.totalBonusAntiAir * 0.5);
+        // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
+        const fleetAA = Math.floor(fleetAntiAir * avoid2);
+        // 最終艦隊防空 => int(int(艦隊防空 + 装備ボーナス補正 * 0.75?) / ブラウザ版補正(味方:1.3 敵1.0))
+        const fleetAABonus = Math.floor(fleetAA + ship.totalBonusAntiAir * 0.75) / (isEnemy ? 1 : 1.3);
 
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
-        // 固定撃墜 => int((加重対空値 + 艦隊防空補正) * 基本定数(0.25) * 敵味方航空戦補正 * 連合補正 * 対空CI変動ボーナス)
-        stage2[j].fixDownList.push(Math.floor((antiAirWeight + fleetAA) * 0.25 * aerialCorr * unionFactor * cutInBonus1));
+        // 固定撃墜 => int((加重対空値 + int(艦隊防空補正)) * 基本定数(0.25) * 敵味方航空戦補正 * 連合補正 * 対空CI変動ボーナス)
+        stage2[j].fixDownList.push(Math.floor((antiAirWeight + Math.floor(fleetAABonus)) * 0.25 * aerialCorr * unionFactor * cutInBonus1));
 
         // 最低保証 => int(対空CI固定ボーナスA * 対空射撃補正A + 対空CI固定ボーナスB * 対空射撃補正B) + 対空CI発動時かつ敵の場合+1機
         const minimum = Math.floor(cutInBonusA * avoid3 + cutInBonusB * avoid4) + (isEnemy && cutIn.id > 0 ? 1 : 0);
@@ -307,6 +316,9 @@ export default class ShootDownInfo {
         // 磯風乙改 / 浜風乙改
         // 29種 (高角砲, 対空電探)
         if (hasKokaku && antiAirRadarCount) cutInIds.push(29);
+      } else if (type2 === 52) {
+        // 27種 (10cm改+増設 対空電探)
+        if (antiAirRadarCount && items.some((v) => v.data.id === 274) && items.some((v) => v.data.id === 275)) cutInIds.push(27);
       }
 
       // 9種 (高角砲, 高射装置)

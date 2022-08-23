@@ -766,16 +766,16 @@ export default Vue.extend({
         values.push([Math.max(values[i][0] - array[i][0], 0), Math.max(values[i][1] - array[i][1], 0)]);
       }
 
-      const remainings = [];
+      const remaining = [];
       for (let i = 0; i < values.length; i += 1) {
         const fuel = values[i][0];
         const ammo = values[i][1];
-        remainings.push({
+        remaining.push({
           fuel: { value: fuel, color: this.getFuelTextColor(fuel) },
           ammo: { value: ammo, color: this.getAmmoTextColor(ammo) },
         });
       }
-      return remainings;
+      return remaining;
     },
     sumFuelAndAmmo(): number[] {
       const ships = this.fleet.ships

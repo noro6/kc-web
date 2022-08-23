@@ -137,10 +137,10 @@ export default class FirebaseManager {
         for (let i = 0; i < itemsJSON.length; i += 1) {
           const data = itemsJSON[i];
           const newStock = new ItemStock(+data[0]);
-          const nums = data[1];
-          if (nums) {
+          const n = data[1];
+          if (n) {
             for (let remodel = 0; remodel <= 10; remodel += 1) {
-              const count = nums[remodel];
+              const count = n[remodel];
               if (count) {
                 newStock.num[remodel] = +count;
               }

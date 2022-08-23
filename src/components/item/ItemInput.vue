@@ -30,7 +30,7 @@
       <v-card class="px-2">
         <div class="d-flex px-2">
           <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
-          <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">{{ $t('Common.初期値') }}</v-btn>
+          <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">{{ $t("Common.初期値") }}</v-btn>
         </div>
         <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
       </v-card>
@@ -40,23 +40,14 @@
       <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
     </div>
     <!-- 装備名称 -->
-    <div
-      class="item-name text-truncate"
-      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }"
-      @click.stop="showItemList()"
-    >
+    <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
       {{ itemName }}
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
       <!-- 改修値 -->
       <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
-          <div
-            class="item-remodel"
-            v-bind="attrs"
-            v-on="on"
-            :class="{ 'no-remodel': !item.data.canRemodel, 'value-0': item.remodel === 0 }"
-          >
+          <div class="item-remodel" v-bind="attrs" v-on="on" :class="{ 'no-remodel': !item.data.canRemodel, 'value-0': item.remodel === 0 }">
             <v-icon small :color="remodelIconColor">mdi-star</v-icon>
             <span :class="remodelLabelColor">{{ item.remodel }}</span>
           </div>
@@ -71,12 +62,7 @@
         </v-card>
       </v-menu>
       <!-- 熟練度 -->
-      <v-menu
-        offset-y
-        transition="slide-y-transition"
-        left
-        :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy"
-      >
+      <v-menu offset-y transition="slide-y-transition" left :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
             <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
@@ -255,13 +241,13 @@
   width: 30px;
   right: 1px;
   z-index: 1;
-  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
-    0px 1px 1px #fff, 0px -1px 1px #fff;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff, 0px 1px 1px #fff,
+    0px -1px 1px #fff;
 }
 .theme--dark .level-value,
 .theme--dark .level-list-value {
-  text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222,
-    0px 1px 1px #222, 0px -1px 1px #222;
+  text-shadow: 1px 1px 1px #222, -1px -1px 1px #222, -1px 1px 1px #222, 1px -1px 1px #222, 1px 0px 1px #222, -1px -0px 1px #222, 0px 1px 1px #222,
+    0px -1px 1px #222;
 }
 .level-value {
   text-align: right;
@@ -376,6 +362,9 @@ export default Vue.extend({
     },
     remodelIconColor(): string {
       if (this.item.data.canRemodel) {
+        if (this.$vuetify.theme.dark) {
+          return this.item.remodel > 0 ? 'teal accent-4' : 'grey';
+        }
         return this.item.remodel > 0 ? 'teal accent-4' : 'grey lighten-1';
       }
       return 'red lighten-2';

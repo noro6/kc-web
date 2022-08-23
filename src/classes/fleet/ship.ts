@@ -380,8 +380,8 @@ export default class Ship implements ShipBase {
     // 発動可能対空CI取得
     this.antiAirCutIn = ShootDownInfo.getAntiAirCutIn(this);
 
-    // 防空ボーナス 小数切捨て
-    this.antiAirBonus = Math.floor(this.antiAirBonus);
+    // 防空ボーナス 小数切捨て 100倍されていたため戻す
+    this.antiAirBonus = Math.floor(this.antiAirBonus / 100);
 
     if (this.kijuCount) {
       // 噴進率計算

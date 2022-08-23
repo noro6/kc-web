@@ -64,30 +64,41 @@
         <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
       </div>
     </div>
-    <div class="stage2-row header px-1 px-md-2">
-      <div class="flex-grow-1">{{ $t("Fleet.艦娘") }}</div>
-      <div class="stage2-col">{{ $t("Fleet.割合撃墜") }}</div>
-      <div class="stage2-col">{{ $t("Fleet.固定撃墜") }}</div>
-      <div class="stage2-col">{{ $t("Fleet.最低保証") }}</div>
-      <div class="stage2-col">{{ $t("Fleet.両成功") }}</div>
-    </div>
-    <div v-for="(item, i) in stage2Data" :key="i" class="stage2-row pr-1" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
-      <div class="d-flex flex-grow-1">
-        <div class="align-self-center mr-2">
-          <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
-        </div>
-        <div class="align-self-center d-none d-sm-block flex-grow-1">
-          <div class="stage2-id primary--text" v-if="item.isEnemy">id:{{ item.id }}</div>
-          <div class="d-flex">
-            <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="stage2-col">{{ item.rate }}( {{ $t("Common.x機", { number: item.rateDown }) }} )</div>
-      <div class="stage2-col">{{ item.fix }}</div>
-      <div class="stage2-col">{{ item.min }}</div>
-      <div class="stage2-col">{{ item.sum }}</div>
-    </div>
+    <v-divider></v-divider>
+    <v-simple-table fixed-header height="54vh">
+      <template v-slot:default>
+        <thead>
+          <tr>
+            <th>{{ $t("Fleet.艦娘") }}</th>
+            <th class="text-right">{{ $t("Common.加重対空") }}</th>
+            <th class="text-right">{{ $t("Fleet.割合撃墜") }}</th>
+            <th class="text-right">{{ $t("Fleet.固定撃墜") }}</th>
+            <th class="text-right">{{ $t("Fleet.最低保証") }}</th>
+            <th class="text-right">{{ $t("Fleet.両成功") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, i) in stage2Data" :key="i" class="stage2-row" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
+            <td class="d-flex">
+              <div class="align-self-center mr-2">
+                <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
+              </div>
+              <div class="align-self-center d-none d-sm-block flex-grow-1">
+                <div class="stage2-id primary--text" v-if="item.isEnemy">id:{{ item.id }}</div>
+                <div class="d-flex">
+                  <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="text-right">{{ item.antiAirWeight }}</td>
+            <td class="text-right">{{ item.rate }} ( {{ $t("Common.x機", { number: item.rateDown }) }} ) </td>
+            <td class="text-right">{{ item.fix }}</td>
+            <td class="text-right">{{ item.min }}</td>
+            <td class="text-right">{{ item.sum }}</td>
+          </tr>
+        </tbody>
+      </template>
+    </v-simple-table>
   </div>
 </template>
 
@@ -98,34 +109,6 @@
   margin-top: 0.5rem;
   margin-right: 0.25rem;
 }
-
-.stage2-row {
-  display: flex;
-  padding-top: 1px;
-  padding-bottom: 1px;
-  transition: 0.1s;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.4);
-}
-.header.stage2-row {
-  border-top: 1px solid rgba(128, 128, 128, 0.4);
-  background-color: rgba(128, 128, 128, 0.1);
-  font-size: 12px !important;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-.stage2-row:not(.header):hover {
-  background-color: rgba(128, 128, 128, 0.1);
-}
-.stage2-row > div {
-  align-self: center;
-}
-.stage2-col {
-  width: 18%;
-  text-align: right;
-}
-.stage2-row:not(.header) .stage2-col {
-  font-size: 0.9em;
-}
 .stage2-id {
   font-size: 11px;
   height: 13px;
@@ -135,17 +118,39 @@
   font-size: 12px;
   width: 10px;
 }
+.v-data-table {
+  background-color: unset !important;
+}
+.v-data-table thead th {
+  background-color: rgb(242, 242, 242) !important;
+}
+.theme--dark .v-data-table thead th {
+  background-color: rgb(49, 49, 53) !important;
+}
+.deep-sea .theme--dark .v-data-table thead th {
+  background-color: rgb(36, 42, 53) !important;
+}
+.v-data-table tbody td {
+  background-color: unset !important;
+}
+.v-data-table tbody td {
+  height: unset !important;
+}
+.v-data-table tbody td > * {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
 .stage2-row.warn {
-  background-color: rgba(255, 255, 10, 0.1);
+  background-color: rgba(255, 255, 10, 0.1) !important;
 }
 .stage2-row.warn:hover {
-  background-color: rgba(255, 255, 10, 0.2);
+  background-color: rgba(255, 255, 10, 0.2) !important;
 }
 .stage2-row.danger {
-  background-color: rgba(255, 0, 0, 0.1);
+  background-color: rgba(255, 0, 0, 0.1) !important;
 }
 .stage2-row.danger:hover {
-  background-color: rgba(255, 0, 0, 0.2);
+  background-color: rgba(255, 0, 0, 0.2) !important;
 }
 </style>
 
@@ -171,6 +176,7 @@ interface Stage2Row {
   fix: number;
   min: number;
   sum: number;
+  antiAirWeight: number;
   isEnemy: boolean;
 }
 
@@ -336,6 +342,7 @@ export default Vue.extend({
       this.stage2Data = [];
       for (let i = 0; i < this.ships.length; i += 1) {
         const ship = this.ships[i];
+        const antiAirWeight = d.antiAirWeightList[i];
         const rate = d.rateDownList[i];
         const rateDown = Math.floor(this.attackerSlot * rate);
         const fix = d.fixDownList[i];
@@ -350,6 +357,7 @@ export default Vue.extend({
           fix,
           min,
           sum: rateDown + fix + min,
+          antiAirWeight,
           isEnemy,
         });
       }
@@ -361,7 +369,8 @@ export default Vue.extend({
         const shipName = ShipMaster.getSuffix(ship);
         const trans = (v: string) => (v ? `${this.$t(v)}` : '');
         return shipName.map((v) => trans(v)).join('');
-      } if (this.needTrans && ship.name) {
+      }
+      if (this.needTrans && ship.name) {
         const shipName = EnemyMaster.getSuffix(ship.name);
         const trans = (v: string) => (v ? `${this.$t(v)}` : '');
         return shipName.map((v) => trans(v)).join('');

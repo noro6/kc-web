@@ -162,7 +162,7 @@
               <div class="item-status" v-if="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
               <div class="item-status" v-if="isShowAntiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
               <div class="item-status" v-if="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
-              <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus) }}</div>
+              <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus / 100) }}</div>
               <div class="item-status" v-if="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
               <div class="item-status" v-if="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
               <div class="item-status" v-if="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>

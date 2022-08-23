@@ -294,11 +294,11 @@ export default class EnemyFleet {
 
     if (avoid && avoid.c2 !== 1.0) {
       // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
-      return 2 * Math.floor(fleetAntiAir * avoid.c2);
+      return Math.floor(fleetAntiAir * avoid.c2);
     }
 
     // 艦隊防空補正 => 艦隊防空
-    return 2 * fleetAntiAir;
+    return fleetAntiAir;
   }
 
   /**

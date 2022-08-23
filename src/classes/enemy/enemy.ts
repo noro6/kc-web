@@ -143,7 +143,8 @@ export default class Enemy implements ShipBase {
       }
     }
     this.isSubmarine = this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV;
-    this.antiAirBonus = Math.floor(this.antiAirBonus);
+    // 100倍されていたため戻す
+    this.antiAirBonus = Math.floor(this.antiAirBonus / 100);
 
     // 発動可能対空CI取得
     this.antiAirCutIn = ShootDownInfo.getAntiAirCutIn(this);

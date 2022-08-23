@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.18.2',
+    siteVersion: '2.18.3',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -159,7 +159,6 @@ export default new Vuex.Store({
     updateSaveData(context, value: SaveData) {
       const minifyData = value.getMinifyData();
       // root直下の非保存データを除去 => 中止 そのまま残す
-      // minifyData.childItems = minifyData.childItems.filter((v) => v.isDirectory);
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.savedata.put(minifyData);
       }

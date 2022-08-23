@@ -19,7 +19,7 @@ export interface ShipBase {
   /** 計算で用いる実対空値 */
   readonly antiAir: number;
 
-  /** 計算で用いる実対空値 */
+  /** 計算で用いる対空ボーナス */
   readonly antiAirBonus: number;
 
   /** 発動可能対空CI */

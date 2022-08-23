@@ -480,7 +480,7 @@ export default Vue.extend({
         return;
       }
 
-      const registData = {
+      const submitData = {
         ships: stockData.ships,
         items: stockData.items,
         date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
@@ -498,7 +498,7 @@ export default Vue.extend({
         const { location } = document;
         const url = `${location.protocol}//${location.host}${location.pathname}?stockid=${key}`;
 
-        set(ref(db, `stocks/${key}`), registData)
+        set(ref(db, `stocks/${key}`), submitData)
           .then(() => {
             this.generateShortURL(url).then((res) => {
               if (res) {

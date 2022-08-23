@@ -33,7 +33,7 @@
                 <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="isDiahatsu" @change="filter" :label="$t('Fleet.大発搭載可')"></v-checkbox>
+                <v-checkbox class="mx-2" dense v-model="isDaihatsu" @change="filter" :label="$t('Fleet.大発搭載可')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" :label="$t('Database.補強増設開放済')"></v-checkbox>
               </div>
@@ -456,7 +456,7 @@
           </div>
           <v-divider class="my-2"></v-divider>
           <div class="d-flex">
-            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="info" @click.stop="registStock">
+            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="info" @click.stop="commitStock">
               {{ $t("Database.着任") }}
             </v-btn>
             <v-btn class="ml-4" :disabled="btnPushed || !editRow.stockData.uniqueId || readOnly" color="success" @click.stop="updateStock">
@@ -834,7 +834,7 @@ export default Vue.extend({
     onlyNoStock: false,
     onlyReleaseExSlot: false,
     is4n: false,
-    isDiahatsu: false,
+    isDaihatsu: false,
     isKamisha: false,
     luckRange: [1, 200],
     levelRange: [1, 175],
@@ -1113,7 +1113,7 @@ export default Vue.extend({
           // 耐久4nで絞る
           if (this.is4n && base.hp % 4 > 0) continue;
           // 大発OKで絞る
-          if (this.isDiahatsu && !this.okDaihatsu.includes(base.id)) continue;
+          if (this.isDaihatsu && !this.okDaihatsu.includes(base.id)) continue;
           // カミ車OKで絞る
           if (this.isKamisha && !this.okKamisha.includes(base.id)) continue;
           // 補強増設開放で絞る
@@ -1161,7 +1161,7 @@ export default Vue.extend({
             // 耐久4nで絞る
             if (this.is4n && hp % 4 > 0) continue;
             // 大発OKで絞る
-            if (this.isDiahatsu && !this.okDaihatsu.includes(master.id)) continue;
+            if (this.isDaihatsu && !this.okDaihatsu.includes(master.id)) continue;
             // カミ車OKで絞る
             if (this.isKamisha && !this.okKamisha.includes(master.id)) continue;
             // 補強増設開放で絞る
@@ -1274,7 +1274,7 @@ export default Vue.extend({
 
       return cloneDeep(stockData);
     },
-    registStock() {
+    commitStock() {
       this.btnPushed = true;
       // 最新の艦娘在籍データ取得
       const stockAll = this.$store.state.shipStock as ShipStock[];
