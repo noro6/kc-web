@@ -137,7 +137,12 @@ export default class Convert {
       if (json.f1) {
         const fleet = json.f1;
         const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
+        Object.keys(fleet).forEach((key) => {
+          const data = fleet[key];
+          if (data.id) {
+            ships.push(this.convertDeckToShip(fleet[key]));
+          }
+        });
         const sub = 6 - ships.length;
         for (let i = 0; i < sub; i += 1) {
           ships.push(new Ship());
@@ -150,7 +155,12 @@ export default class Convert {
       if (json.f2) {
         const fleet = json.f2;
         const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
+        Object.keys(fleet).forEach((key) => {
+          const data = fleet[key];
+          if (data.id) {
+            ships.push(this.convertDeckToShip(fleet[key]));
+          }
+        });
         fleets.push(new Fleet({ ships }));
       } else {
         fleets.push(new Fleet());
@@ -158,7 +168,12 @@ export default class Convert {
       if (json.f3) {
         const ships: Ship[] = [];
         const fleet = json.f3;
-        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
+        Object.keys(fleet).forEach((key) => {
+          const data = fleet[key];
+          if (data.id) {
+            ships.push(this.convertDeckToShip(fleet[key]));
+          }
+        });
         fleets.push(new Fleet({ ships }));
       } else {
         fleets.push(new Fleet());
@@ -166,7 +181,12 @@ export default class Convert {
       if (json.f4) {
         const fleet = json.f4;
         const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => ships.push(this.convertDeckToShip(fleet[key])));
+        Object.keys(fleet).forEach((key) => {
+          const data = fleet[key];
+          if (data.id) {
+            ships.push(this.convertDeckToShip(fleet[key]));
+          }
+        });
         fleets.push(new Fleet({ ships }));
       } else {
         fleets.push(new Fleet());
