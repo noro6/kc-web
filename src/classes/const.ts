@@ -311,6 +311,7 @@ export default class Const {
     { id: 94, name: '御蔵型' },
     { id: 85, name: '日振型' },
     { id: 104, name: '丁型海防艦' },
+    { id: 117, name: '鵜来型' },
     { id: 71, name: '巡潜甲型改二' },
     { id: 44, name: '潜特型(伊400型潜水艦)' },
     { id: 35, name: '海大VI型' },
@@ -354,6 +355,7 @@ export default class Const {
     { id: 91, name: 'Fletcher級' },
     { id: 87, name: 'John C.Butler級' },
     { id: 114, name: 'Gato級' },
+    { id: 116, name: 'Independence級' },
 
     { id: 67, name: 'Queen Elizabeth級' },
     { id: 88, name: 'Nelson級' },
@@ -472,7 +474,7 @@ export default class Const {
     { text: '補助艦艇', types: [15, 16, 17, 19, 20, 22] },
   ];
 
-  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114];
+  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116];
 
   public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
 
