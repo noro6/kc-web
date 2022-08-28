@@ -51,6 +51,9 @@
       <div class="align-self-center my-3">
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')"></v-checkbox>
       </div>
+      <div class="ml-3 align-self-center my-3" v-if="type === 7 && !isEnemyMode">
+        <v-checkbox v-model="isEnabledLandBaseAttack" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.対地攻撃可')"></v-checkbox>
+      </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')"></v-checkbox>
       </div>
@@ -426,6 +429,7 @@ export default Vue.extend({
     keyword: '',
     isEnemyMode: false,
     isStockOnly: false,
+    isEnabledLandBaseAttack: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
     viewStatus: Const.ITEM_TYPES_ALT[0].viewStatus,
@@ -775,6 +779,9 @@ export default Vue.extend({
         result = result.filter((v) => v.id > 500);
       } else {
         result = result.filter((v) => v.id < 500);
+      }
+      if (this.type === 7 && this.isEnabledLandBaseAttack) {
+        result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
       }
 
       // 検索語句あれば最優先 カテゴリ検索を飛ばす

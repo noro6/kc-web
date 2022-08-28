@@ -160,7 +160,7 @@ export default class Const {
 
   public static readonly BAKUSEN = [60, 154, 219, 447];
 
-  public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421];
+  public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421, 474];
 
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 

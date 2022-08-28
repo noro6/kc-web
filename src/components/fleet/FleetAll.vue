@@ -948,6 +948,10 @@ export default Vue.extend({
       this.shipDialogWidth = width;
     },
     captureFleet() {
+      if (this.tab === 'gkcoi') {
+        this.saveImage();
+        return;
+      }
       // 背景色とかを塗るフラグ立て
       this.capturing = true;
       const index = this.value.mainFleetIndex;
