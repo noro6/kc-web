@@ -95,6 +95,11 @@ export default class ShipValidation {
         return true;
       }
 
+      // 甲板 空母補強増設対応
+      if ((item.id === 477 || item.id === 478) && (ship.type === SHIP_TYPE.CV || ship.type === SHIP_TYPE.CVL || ship.type === SHIP_TYPE.CVB)) {
+        return true;
+      }
+
       // 補強増設可能装備で絞る
       types = types.filter((v) => Const.EXPANDED_ITEM_TYPE.includes(v));
     }
