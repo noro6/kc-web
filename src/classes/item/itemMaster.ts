@@ -110,6 +110,9 @@ export default class ItemMaster {
   /** 爆雷(教義)フラグ */
   public readonly isStrictDepthCharge: boolean;
 
+  /** 特効テキスト */
+  public readonly bonusGroupText: string;
+
   /**
    * Creates an instance of ItemMaster.
    * API取得itemよりクラスにマッピング
@@ -187,6 +190,14 @@ export default class ItemMaster {
 
     if (this.isStrictDepthCharge) {
       this.iconTypeId = 1700;
+    }
+
+    // 特効テキスト
+    const bonus = Const.SPECIAL_GROUP.find((v) => v.items.includes(this.id));
+    if (bonus) {
+      this.bonusGroupText = bonus.text;
+    } else {
+      this.bonusGroupText = '';
     }
   }
 }

@@ -526,6 +526,7 @@ export default {
       '図鑑id 名称検索': 'id',
       '敵装備': 'Abyssal Item',
       '対地攻撃可': 'Can Attack Land Base',
+      '特効装備': 'Special Bonus',
       '一列': 'Single',
       '複数列': 'Multi',
       '以上': 'or over',

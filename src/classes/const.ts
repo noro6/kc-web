@@ -166,6 +166,17 @@ export default class Const {
 
   public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439];
 
+  public static readonly SPECIAL_GROUP = [
+    { text: 'A2', items: [242, 256, 257, 277, 233, 197, 198, 205, 206, 254] },
+    { text: 'A3', items: [243, 188, 422] },
+    { text: 'A4', items: [424, 425, 244] },
+    { text: 'B1', items: [316, 248, 64, 305, 306] },
+    { text: 'B2', items: [158, 159, 353] },
+    { text: 'B3', items: [184, 249] },
+    { text: 'B4', items: [189] },
+    { text: 'C4', items: [252, 434, 435, 423] },
+  ];
+
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
     { id: 7, name: '艦上爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },

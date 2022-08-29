@@ -42,6 +42,9 @@
     <!-- 装備名称 -->
     <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
       {{ itemName }}
+      <div class="item-special-text" v-if="item.data.bonusGroupText">
+        <div class="align-self-center">{{ item.data.bonusGroupText }}</div>
+      </div>
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
       <!-- 改修値 -->
@@ -153,12 +156,28 @@
   width: 100px;
   font-size: 0.9em;
   line-height: 25px;
+  position: relative;
 }
 .is-special {
   color: #388e3c;
 }
 .theme--dark .is-special {
   color: #66bb6a;
+}
+.item-special-text {
+  background-color: rgba(233, 243, 255, 0.9);
+  border: 2px solid rgb(83, 158, 255);
+  position: absolute;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-radius: 0.15rem;
+  right: 0px;
+  height: 24px;
+  color: #000;
+  top: 0px;
 }
 
 .item-remodel {

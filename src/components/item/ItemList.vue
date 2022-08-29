@@ -54,6 +54,9 @@
       <div class="ml-3 align-self-center my-3" v-if="type === 7 && !isEnemyMode">
         <v-checkbox v-model="isEnabledLandBaseAttack" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.対地攻撃可')"></v-checkbox>
       </div>
+      <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode">
+        <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')"></v-checkbox>
+      </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')"></v-checkbox>
       </div>
@@ -142,6 +145,7 @@
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
+            <div class="item-special-text" v-if="v.item.data.bonusGroupText">{{ v.item.data.bonusGroupText }}</div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
@@ -282,6 +286,7 @@
 }
 
 .list-item {
+  position: relative;
   display: flex;
   cursor: pointer;
   padding-left: 0.25rem;
@@ -324,6 +329,37 @@
 .item-count {
   margin-left: 1px;
   width: 22px;
+}
+
+.item-special-text {
+  background-color: rgba(233, 243, 255, 0.9);
+  border: 2px solid rgb(83, 158, 255);
+  position: absolute;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0px 4px;
+  border-radius: 0.15rem;
+  left: 8px;
+  color: #000;
+  top: 0px;
+  animation: special-text infinite 3s;
+}
+.multi .item-special-text {
+  left: 4px;
+}
+@keyframes special-text {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .item-status-header {
@@ -430,6 +466,7 @@ export default Vue.extend({
     isEnemyMode: false,
     isStockOnly: false,
     isEnabledLandBaseAttack: false,
+    isSpecialOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
     viewStatus: Const.ITEM_TYPES_ALT[0].viewStatus,
@@ -782,6 +819,9 @@ export default Vue.extend({
       }
       if (this.type === 7 && this.isEnabledLandBaseAttack) {
         result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+      }
+      if (this.isSpecialOnly) {
+        result = result.filter((v) => v.bonusGroupText);
       }
 
       // 検索語句あれば最優先 カテゴリ検索を飛ばす
