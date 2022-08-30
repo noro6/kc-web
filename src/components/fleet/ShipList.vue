@@ -345,7 +345,7 @@ export default Vue.extend({
     types: [] as { text: string; types: number[] }[],
     type: 0,
     isFinalOnly: true,
-    keyword: '',
+    keyword: '' as string | undefined,
     multiLine: true,
     isStockOnly: false,
     shipStock: [] as ShipStock[],
@@ -440,7 +440,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword.toUpperCase();
+      const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.all.concat();
       const t = this.types[this.type];
 

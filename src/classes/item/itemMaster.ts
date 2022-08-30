@@ -113,6 +113,9 @@ export default class ItemMaster {
   /** 特効テキスト */
   public readonly bonusGroupText: string;
 
+  /** 特効テキストサブ */
+  public readonly bonusGroupSubText: string;
+
   /**
    * Creates an instance of ItemMaster.
    * API取得itemよりクラスにマッピング
@@ -196,8 +199,10 @@ export default class ItemMaster {
     const bonus = Const.SPECIAL_GROUP.find((v) => v.items.includes(this.id));
     if (bonus) {
       this.bonusGroupText = bonus.text;
+      this.bonusGroupSubText = bonus.subText;
     } else {
       this.bonusGroupText = '';
+      this.bonusGroupSubText = '';
     }
   }
 }

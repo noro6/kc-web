@@ -369,7 +369,7 @@ export default Vue.extend({
   data: () => ({
     all: [] as ItemMaster[],
     itemStock: [] as ItemStock[],
-    searchWord: '',
+    searchWord: '' as string | undefined,
     onlyStock: false,
     visibleAllCount: true,
     remodelRange: [0, 10],
@@ -527,7 +527,7 @@ export default Vue.extend({
       const result = [];
       const minRemodel = this.remodelRange[0];
       const maxRemodel = this.remodelRange[1];
-      const keyWord = this.searchWord.toUpperCase();
+      const keyWord = this.searchWord ? this.searchWord.toUpperCase() : '';
 
       for (let i = 0; i < bases.length; i += 1) {
         const { items } = bases[i];

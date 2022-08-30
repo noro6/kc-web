@@ -55,18 +55,14 @@
         v-for="(enemy, index) in fleet.enemies"
         :key="index"
         v-ripple="{ class: 'info--text' }"
-        @click="showEnemyList(index)"
+        @click="openMenu(index)"
         class="d-flex enemy-list-item pr-2"
+        :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
         @mouseenter="bootTooltip(enemy, $event)"
         @mouseleave="clearTooltip"
       >
         <template v-if="enemy.data.id || (!capturing && enemy.data.id === 0)">
           <div class="item-index-area">
-            <div class="close-btn">
-              <v-btn icon x-small @click.stop="removeEnemy(index)">
-                <v-icon small>mdi-close</v-icon>
-              </v-btn>
-            </div>
             <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ (index % 6) + 1 }}</div>
           </div>
           <div v-if="enemy.data.id > 0">
@@ -81,24 +77,30 @@
           >
             {{ enemy.fullAirPower }}
           </div>
-          <div class="body-2 enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>
-            ({{ enemy.fullLBAirPower }})
-          </div>
+          <div class="body-2 enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>({{ enemy.fullLBAirPower }})</div>
         </template>
       </div>
     </div>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" :handleClose="closeDetail" />
     </v-dialog>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-dialog width="400" v-model="menuDialog" transition="scroll-x-transition" @input="toggleMenuDialog">
+      <v-card class="pa-5">
+        <v-btn class="my-3" color="primary" block @click="showEnemyList(editEnemyIndex)">{{ $t("Enemies.変更する") }}</v-btn>
+        <v-btn class="my-3" color="secondary" block @click="removeEnemy(editEnemyIndex)">{{ $t("Enemies.はずす") }}</v-btn>
+        <div class="type-divider mt-10">
+          <div class="caption text--secondary">{{ $t("Enemies.詳細設定") }}</div>
+          <div class="type-divider-border"></div>
+        </div>
+        <v-btn class="mt-3" color="error" block :disabled="editEnemy.disabledMainAerialPhase" @click="toggleDisabledStage2(editEnemyIndex)">
+          {{ $t("Enemies.基地航空隊フェーズで撃沈する") }}
+        </v-btn>
+        <v-btn class="mt-3" color="success" block :disabled="!editEnemy.disabledMainAerialPhase" @click="toggleDisabledStage2(editEnemyIndex)">
+          {{ $t("Enemies.基地航空隊フェーズで撃沈しない") }}
+        </v-btn>
+      </v-card>
+    </v-dialog>
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <enemy-tooltip v-model="tooltipEnemy" />
     </v-tooltip>
   </v-card>
@@ -129,6 +131,10 @@
 .enemy-list-item:hover {
   background-color: rgba(128, 128, 128, 0.2);
 }
+.enemy-list-item.disabled-stage2 {
+  opacity: 0.4;
+}
+
 .anti-air-ci-icon {
   position: absolute;
   top: 0px;
@@ -150,15 +156,16 @@
   white-space: nowrap;
 }
 
-.enemy-list-item .close-btn,
-.enemy-list-item:hover .enemy-index {
-  display: none !important;
+.type-divider {
+  margin-top: 1rem;
+  display: flex;
+  width: 100%;
 }
-.enemy-list-item:hover .close-btn {
-  display: block !important;
-}
-.enemy-list-item .close-btn {
-  text-align: center;
+.type-divider-border {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 </style>
 
@@ -207,6 +214,9 @@ export default Vue.extend({
     detailDialog: false,
     destroyDialog: false,
     enabledTooltip: false,
+    editEnemyIndex: 0,
+    editEnemy: new Enemy(),
+    menuDialog: false,
     tooltipTimer: undefined as undefined | number,
     tooltipEnemy: new Enemy(),
     tooltipX: 0,
@@ -249,6 +259,7 @@ export default Vue.extend({
     showEnemyList(index: number) {
       this.clearTooltip();
       this.handleShowEnemyList(this.index, index);
+      this.menuDialog = false;
     },
     async clickedInfo() {
       this.detailDialog = true;
@@ -280,11 +291,37 @@ export default Vue.extend({
       const builder: EnemyFleetBuilder = { fleet: enemyFleet, enemies };
       this.setFleet(new EnemyFleet(builder));
     },
+    openMenu(index: number) {
+      const enemy = this.fleet.enemies.concat()[index];
+      if (enemy.data.id) {
+        this.editEnemy = enemy;
+        this.editEnemyIndex = index;
+        this.menuDialog = true;
+      } else {
+        this.showEnemyList(index);
+      }
+    },
+    toggleDisabledStage2(index: number) {
+      this.menuDialog = false;
+      const enemies = this.fleet.enemies.concat();
+      enemies[index].disabledMainAerialPhase = !enemies[index].disabledMainAerialPhase;
+      const builder: EnemyFleetBuilder = { fleet: this.fleet, enemies };
+      this.setFleet(new EnemyFleet(builder));
+    },
+    toggleMenuDialog() {
+      if (!this.menuDialog) {
+        setTimeout(() => {
+          this.editEnemyIndex = 0;
+          this.editEnemy = new Enemy();
+        }, 150);
+      }
+    },
     removeEnemy(index: number) {
       const enemies = this.fleet.enemies.concat();
       enemies[index] = new Enemy();
       const builder: EnemyFleetBuilder = { fleet: this.fleet, enemies };
       this.setFleet(new EnemyFleet(builder));
+      this.menuDialog = false;
     },
     toggleDetailDialog() {
       if (!this.detailDialog) {

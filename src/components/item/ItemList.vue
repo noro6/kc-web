@@ -145,7 +145,10 @@
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
-            <div class="item-special-text" v-if="v.item.data.bonusGroupText">{{ v.item.data.bonusGroupText }}</div>
+            <div class="item-special-text" v-if="v.item.data.bonusGroupText">
+              <div class="align-self-center">{{ v.item.data.bonusGroupText }}</div>
+              <div class="sub-text">{{ v.item.data.bonusGroupSubText }}</div>
+            </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
@@ -332,17 +335,24 @@
 }
 
 .item-special-text {
-  background-color: rgba(233, 243, 255, 0.9);
+  background-color: rgba(250, 250, 255, 0.9);
   border: 2px solid rgb(83, 158, 255);
-  position: absolute;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0px 4px;
-  border-radius: 0.15rem;
-  left: 8px;
   color: #000;
+  font-weight: bold;
+  position: absolute;
+  display: flex;
+  font-size: 12px;
+  padding: 0px 4px;
+  border-radius: 0.1rem;
+  left: 8px;
   top: 0px;
   animation: special-text infinite 3s;
+}
+.sub-text {
+  font-size: 11px;
+  position: relative;
+  right: 0;
+  bottom: -4px;
 }
 .multi .item-special-text {
   left: 4px;
@@ -462,7 +472,7 @@ export default Vue.extend({
     avoids: Const.AVOID_TYPE,
     type: 0,
     multiLine: true,
-    keyword: '',
+    keyword: '' as string | undefined,
     isEnemyMode: false,
     isStockOnly: false,
     isEnabledLandBaseAttack: false,
@@ -808,7 +818,7 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
-      const word = this.keyword.toUpperCase();
+      const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.baseItems.concat();
 
       if (this.isEnemyMode) {

@@ -302,7 +302,7 @@
         <tbody>
           <tr v-for="(row, i) in supportsTableRow" :key="`support_${i}`">
             <td class="text-left py-2 pl-3">{{ $t("Fleet.第x艦隊", { number: row.number }) }}</td>
-            <td class="text-left">{{ $t(`Result.${row.typeName}`) }}</td>
+            <td class="text-left">{{ row.typeName }}</td>
             <td>{{ row.airPower }}</td>
             <td>{{ row.enemyAirPower }}</td>
             <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
@@ -729,7 +729,7 @@ export default Vue.extend({
         const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
         rows.push({
           number: i + 1,
-          typeName: fleet.getSupportTypeName(),
+          typeName: fleet.getSupportTypeNames().map((v) => this.$t(`Result.${v}`)).join(' / '),
           airPower: fleet.supportAirPower,
           enemyAirPower,
           rates: rates.slice(0, 5),

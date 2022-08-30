@@ -141,7 +141,7 @@
               <v-select
                 class="my-10"
                 v-model="selectedTypes"
-                :items="types"
+                :items="translatedShipTypes"
                 hide-details
                 dense
                 attach
@@ -156,6 +156,35 @@
                     <v-list-item-action>
                       <v-icon :color="selectedTypes.length > 0 ? 'blue' : ''">
                         {{ icon }}
+                      </v-icon>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider class="mt-2"></v-divider>
+                </template>
+              </v-select>
+              <v-select
+                class="my-10"
+                v-model="selectedNationalities"
+                :items="translatedNationalities"
+                item-text="text"
+                item-value="value"
+                hide-details
+                dense
+                attach
+                chips
+                deletable-chips
+                :label="$t('Database.国籍')"
+                multiple
+                @change="masterFilter"
+              >
+                <template v-slot:prepend-item>
+                  <v-list-item ripple @mousedown.prevent @click="toggleAllNationality">
+                    <v-list-item-action>
+                      <v-icon :color="selectedNationalities.length > 0 ? 'blue' : ''">
+                        {{ icon2 }}
                       </v-icon>
                     </v-list-item-action>
                     <v-list-item-content>
@@ -829,7 +858,7 @@ export default Vue.extend({
     viewShips: [] as ShipRowData[],
     shipStock: [] as ShipStock[],
     page: 1,
-    searchWord: '',
+    searchWord: '' as string | undefined,
     onlyStock: false,
     onlyNoStock: false,
     onlyReleaseExSlot: false,
@@ -847,6 +876,17 @@ export default Vue.extend({
     addASW: [] as { text: string; value: number }[],
     types: [] as { text: string; value: number }[],
     selectedTypes: [] as number[],
+    nationalities: [
+      { text: '日本', value: 0, filter: [] },
+      { text: 'アメリカ', value: 1, filter: Const.USA },
+      { text: 'イタリア', value: 2, filter: Const.ITA },
+      { text: 'イギリス', value: 3, filter: Const.GBR },
+      { text: 'ドイツ', value: 4, filter: Const.DEU },
+      { text: 'フランス', value: 5, filter: Const.FRA },
+      { text: 'ソ連', value: 6, filter: Const.RUS },
+      { text: 'その他', value: 7, filter: Const.AUS.concat(Const.SWE).concat(Const.NLD) },
+    ],
+    selectedNationalities: [0, 1, 2, 3, 4, 5, 6, 7] as number[],
     editDialog: false,
     editRow: {} as ShipRowData,
     versionButtons: [] as ShipMaster[],
@@ -909,9 +949,20 @@ export default Vue.extend({
     selectedSomeType(): boolean {
       return this.selectedTypes.length > 0 && !this.selectedAllType;
     },
+    selectedAllNationality(): boolean {
+      return this.selectedNationalities.length === this.nationalities.length;
+    },
+    selectedSomeNationality(): boolean {
+      return this.selectedNationalities.length > 0 && !this.selectedAllNationality;
+    },
     icon(): string {
       if (this.selectedAllType) return 'mdi-close-box';
       if (this.selectedSomeType) return 'mdi-minus-box';
+      return 'mdi-checkbox-blank-outline';
+    },
+    icon2(): string {
+      if (this.selectedAllNationality) return 'mdi-close-box';
+      if (this.selectedSomeNationality) return 'mdi-minus-box';
       return 'mdi-checkbox-blank-outline';
     },
     shipList(): ShipRowData[] {
@@ -988,6 +1039,22 @@ export default Vue.extend({
     isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
+    translatedShipTypes(): { text: string }[] {
+      const array = [];
+      for (let i = 0; i < this.types.length; i += 1) {
+        const data = this.types[i];
+        array.push({ text: `${this.$t(`SType.${data.text}`)}`, value: data.value });
+      }
+      return array;
+    },
+    translatedNationalities(): { text: string; value: number; filter: number[] }[] {
+      const array = [];
+      for (let i = 0; i < this.nationalities.length; i += 1) {
+        const data = this.nationalities[i];
+        array.push({ text: `${this.$t(`Database.${data.text}`)}`, value: data.value, filter: data.filter });
+      }
+      return array;
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -1036,11 +1103,7 @@ export default Vue.extend({
       this.types = [];
       this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        if (this.isNotJapanese) {
-          this.types.push({ text: `${this.$t(`SType.${masters[i].text}`)}`, value: i });
-        } else {
-          this.types.push({ text: masters[i].text, value: i });
-        }
+        this.types.push({ text: masters[i].text, value: i });
         this.selectedTypes.push(i);
       }
 
@@ -1077,6 +1140,16 @@ export default Vue.extend({
       const keyword = this.searchWord ? this.searchWord.trim().toUpperCase() : '';
 
       const typeIndexes = this.selectedTypes;
+
+      // 国籍フィルタ ブラックリスト形式で
+      let forbiddenNationalities: number[] = [];
+      const notSelectedNationalFilters = this.nationalities.filter((v) => !this.selectedNationalities.includes(v.value)).map((v) => v.filter);
+      for (let index = 0; index < notSelectedNationalFilters.length; index += 1) {
+        forbiddenNationalities = forbiddenNationalities.concat(notSelectedNationalFilters[index]);
+      }
+      // 日本特別対応
+      const withoutJapan = !this.selectedNationalities.includes(0);
+
       const types = Const.SHIP_TYPES_ALT.filter((v, i) => typeIndexes.includes(i))
         .map((v) => v.types)
         .flat();
@@ -1096,6 +1169,9 @@ export default Vue.extend({
         if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {
           continue;
         }
+
+        // 国籍で絞る
+        if (forbiddenNationalities.includes(base.type2) || (withoutJapan && Const.isJPN(base.type2))) continue;
 
         // 在籍艦娘のなかから versions に含まれる艦娘を抽出
         const versionsIds = versions.map((v) => v.id);
@@ -1120,6 +1196,8 @@ export default Vue.extend({
           if (this.onlyReleaseExSlot) continue;
           // 出撃海域で絞る
           if (!this.visibleNoArea) continue;
+          // なんらかの下限フィルタがあってはダメ
+          if (minAsw || !buffHP.includes(0)) continue;
           // 未着任データ
           pushedData.push({
             count: 0,
@@ -1225,6 +1303,17 @@ export default Vue.extend({
           this.selectedTypes = [];
         } else {
           this.selectedTypes = this.types.map((v) => v.value).slice();
+        }
+
+        this.masterFilter();
+      });
+    },
+    toggleAllNationality() {
+      this.$nextTick(() => {
+        if (this.selectedAllNationality) {
+          this.selectedNationalities = [];
+        } else {
+          this.selectedNationalities = this.nationalities.map((v) => v.value).slice();
         }
 
         this.masterFilter();

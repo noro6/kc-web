@@ -157,7 +157,7 @@ export default class Calculator {
   public static shootDownFleetJet(fleet: Fleet, enemyFleet: EnemyFleet): number {
     if (fleet.hasJet && enemyFleet.isSurfaceCell && !enemyFleet.isAllSubmarine) {
       // 通常 / 連合マス 潜水マスでないなら噴式機フェーズ発生 対空CI無しテーブルで実行
-      const jetPhaseResult = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.noCutInStage2);
+      const jetPhaseResult = Calculator.shootDownJetPhase(fleet.allPlanes, enemyFleet.mainPhaseNoCutInStage2);
       // 噴式強襲フェーズ経過による制空値更新
       fleet.airPower = Math.floor(jetPhaseResult.sumAirPower);
       if (fleet.isUnion) {
@@ -294,21 +294,20 @@ export default class Calculator {
    * @static
    * @param {number} state
    * @param {Fleet} fleet
-   * @param {ShootDownStatus[]} shootDownList
-   * @param {boolean} [cellType] 戦闘形式 省略で通常マス
+   * @param {EnemyFleet} enemyFleet
    * @param {*} [battle=-1] 戦闘番号(？戦目) 専ら搭載数記録用の引数 省略で搭載数を記録しない
    * @memberof Calculator
    */
   private static shootDownFleet(state: number, fleet: Fleet, enemyFleet: EnemyFleet, battle = -1) {
     const items = fleet.allPlanes;
     const itemLength = items.length;
-    let st2List = enemyFleet.noCutInStage2;
+    let st2List = enemyFleet.mainPhaseNoCutInStage2;
     let randomRange = st2List[0].fixDownList.length;
 
-    if (enemyFleet.shootDownList.length > 1) {
+    if (enemyFleet.mainPhaseShootDownList.length > 1) {
       // 対空CIの発動判定
       const pickRate = Math.random();
-      const shootDown = enemyFleet.shootDownList.find((v) => v.border > pickRate);
+      const shootDown = enemyFleet.mainPhaseShootDownList.find((v) => v.border > pickRate);
       if (shootDown) {
         st2List = shootDown.shootDownStatusList;
         randomRange = shootDown.maxRange;
@@ -426,7 +425,7 @@ export default class Calculator {
 
       // 制空値を更新
       Item.updateAirPower(item);
-      if (!item.data.isRecon && !item.data.isABAttacker) {
+      if (!item.data.isRecon && !item.data.isABAttacker && !item.disabledItem) {
         sumAirPower += item.airPower;
       }
       sumAirbaseAirPower += item.airPower;

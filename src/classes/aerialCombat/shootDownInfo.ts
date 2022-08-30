@@ -21,7 +21,7 @@ export default class ShootDownInfo {
   public readonly border: number;
 
   /** 対空砲火可能艦数 */
-  public readonly maxRange: number;
+  public maxRange: number;
 
   constructor(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, antiAirCutIn: AntiAirCutIn, border: number, formation?: Formation, isAirRaid = false) {
     if (formation) {

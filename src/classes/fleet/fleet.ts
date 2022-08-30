@@ -377,4 +377,17 @@ export default class Fleet {
     });
     return typeNames.join(' / ');
   }
+
+  /**
+   * 支援種別名称を返却
+   * @return {*}  {string}
+   * @memberof Fleet
+   */
+  public getSupportTypeNames(): string[] {
+    const supports = Const.SUPPORTS;
+    return this.supportTypes.map((v) => {
+      const support = supports.find((w) => w.value === v);
+      return support ? support.text : '-';
+    });
+  }
 }

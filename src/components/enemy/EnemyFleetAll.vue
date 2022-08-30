@@ -12,7 +12,7 @@
             <v-icon>mdi-camera</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t('Common.スクリーンショットを保存') }}</span>
+        <span>{{ $t("Common.スクリーンショットを保存") }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -20,7 +20,7 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t('Common.最小化') }}</span>
+        <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
     <v-divider></v-divider>
@@ -32,13 +32,7 @@
         <div class="align-self-center mr-4 pb-2" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-tooltip bottom color="red" :disabled="!alertAirbaseTarget">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                :outlined="!alertAirbaseTarget"
-                :color="airbaseTargetButtonColor"
-                @click.stop="targetDialog = true"
-                v-bind="attrs"
-                v-on="on"
-              >
+              <v-btn :outlined="!alertAirbaseTarget" :color="airbaseTargetButtonColor" @click.stop="targetDialog = true" v-bind="attrs" v-on="on">
                 {{ $t("Airbase.基地派遣先設定") }}
               </v-btn>
             </template>
@@ -46,17 +40,10 @@
           </v-tooltip>
         </div>
         <div class="align-self-center mr-4" id="battle-count-select">
-          <v-select
-            dense
-            hide-details
-            v-model="battleInfo.battleCount"
-            :items="items"
-            :label="$t('Enemies.戦闘回数')"
-            @change="setInfo()"
-          ></v-select>
+          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()"></v-select>
         </div>
         <div class="align-self-center body-2" v-if="nodeString">
-          <span class="text--secondary mr-3">{{ $t('Enemies.航路') }}:</span>
+          <span class="text--secondary mr-3">{{ $t("Enemies.航路") }}:</span>
           <span>{{ nodeString }}</span>
         </div>
       </div>

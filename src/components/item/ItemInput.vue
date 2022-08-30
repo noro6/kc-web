@@ -44,6 +44,7 @@
       {{ itemName }}
       <div class="item-special-text" v-if="item.data.bonusGroupText">
         <div class="align-self-center">{{ item.data.bonusGroupText }}</div>
+        <div class="sub-text">{{ item.data.bonusGroupSubText }}</div>
       </div>
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
@@ -165,19 +166,26 @@
   color: #66bb6a;
 }
 .item-special-text {
-  background-color: rgba(233, 243, 255, 0.9);
+  background-color: rgba(250, 250, 255, 0.9);
   border: 2px solid rgb(83, 158, 255);
+  color: #000;
+  font-weight: bold;
   position: absolute;
   display: flex;
   font-size: 12px;
   font-weight: bold;
   padding-left: 4px;
   padding-right: 4px;
-  border-radius: 0.15rem;
+  border-radius: 0.1rem;
   right: 0px;
   height: 24px;
-  color: #000;
   top: 0px;
+}
+.sub-text {
+  font-size: 11px;
+  position: relative;
+  right: 0;
+  bottom: 0;
 }
 
 .item-remodel {

@@ -106,11 +106,17 @@ export default class EnemyFleet {
   /** 敵随伴艦隊一覧(空の敵艦が除かれている) */
   public readonly escortEnemies: Enemy[];
 
-  /** stage2 対空CI不発時撃墜テーブル */
+  /** stage2 対空CI不発時撃墜テーブル 基本スペック */
   public readonly noCutInStage2: ShootDownStatus[];
 
-  /** stage2 撃墜テーブル */
+  /** stage2 撃墜テーブル 表示用 基本スペック */
   public readonly shootDownList: ShootDownInfo[];
+
+  /** stage2 対空CI不発時撃墜テーブル 本隊航空戦前に沈むと仮定されている敵がいる場合 */
+  public readonly mainPhaseNoCutInStage2: ShootDownStatus[];
+
+  /** stage2 撃墜テーブル 本隊航空戦用 本隊航空戦前に沈むと仮定されている敵がいる場合 */
+  public readonly mainPhaseShootDownList: ShootDownInfo[];
 
   /** 発動可能対空CI全種 */
   public readonly allAntiAirCutIn: AntiAirCutIn[];
@@ -233,6 +239,7 @@ export default class EnemyFleet {
         const planes = enemy.items.filter((v) => v.data.isPlane);
         for (let j = 0; j < planes.length; j += 1) {
           planes[j].isEscortItem = this.isUnion && enemy.isEscort;
+          planes[j].disabledItem = enemy.disabledMainAerialPhase;
         }
         this.allPlanes = this.allPlanes.concat(planes);
         if (!this.hasPlane && planes.find((v) => !v.data.isRecon)) {
@@ -256,6 +263,16 @@ export default class EnemyFleet {
 
     // 対空砲火情報更新
     this.shootDownList = [];
+    this.mainPhaseShootDownList = [];
+
+    // 本隊航空戦で間引く敵indexを列挙
+    const disabledIndex: number[] = [];
+    for (let i = 0; i < enabledEnemies.length; i += 1) {
+      if (enabledEnemies[i].disabledMainAerialPhase) {
+        disabledIndex.push(i);
+      }
+    }
+
     let sum = 1;
     let border = 0;
     for (let i = 0; i < this.allAntiAirCutIn.length; i += 1) {
@@ -265,12 +282,41 @@ export default class EnemyFleet {
       border += rate;
 
       this.shootDownList.push(new ShootDownInfo(enabledEnemies, true, this.isUnion, cutIn, border, formation));
+
+      const mainPhase = new ShootDownInfo(enabledEnemies, true, this.isUnion, cutIn, border, formation);
+      if (disabledIndex.length) {
+        // 間引く対象indexが存在しているなら撃墜テーブルから間引く
+        mainPhase.maxRange -= disabledIndex.length;
+        for (let j = 0; j < Const.AVOID_TYPE.length; j += 1) {
+          const list = mainPhase.shootDownStatusList[j];
+          list.antiAirWeightList = list.antiAirWeightList.filter((v, idx) => !disabledIndex.includes(idx));
+          list.fixDownList = list.fixDownList.filter((v, idx) => !disabledIndex.includes(idx));
+          list.rateDownList = list.rateDownList.filter((v, idx) => !disabledIndex.includes(idx));
+          list.minimumDownList = list.minimumDownList.filter((v, idx) => !disabledIndex.includes(idx));
+        }
+      }
+      this.mainPhaseShootDownList.push(mainPhase);
     }
     // 対空CI不発データを挿入
     const noCutInStage2 = new ShootDownInfo(enabledEnemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
     this.shootDownList.push(noCutInStage2);
-
     this.noCutInStage2 = noCutInStage2.shootDownStatusList;
+
+    // 間引いた分も作る
+    const mainPhaseNoCutInStage2 = new ShootDownInfo(enabledEnemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
+    if (disabledIndex.length) {
+      // 間引く対象indexが存在しているなら撃墜テーブルから間引く
+      mainPhaseNoCutInStage2.maxRange -= disabledIndex.length;
+      for (let j = 0; j < Const.AVOID_TYPE.length; j += 1) {
+        const list = mainPhaseNoCutInStage2.shootDownStatusList[j];
+        list.antiAirWeightList = list.antiAirWeightList.filter((v, idx) => !disabledIndex.includes(idx));
+        list.fixDownList = list.fixDownList.filter((v, idx) => !disabledIndex.includes(idx));
+        list.rateDownList = list.rateDownList.filter((v, idx) => !disabledIndex.includes(idx));
+        list.minimumDownList = list.minimumDownList.filter((v, idx) => !disabledIndex.includes(idx));
+      }
+    }
+    this.mainPhaseShootDownList.push(mainPhaseNoCutInStage2);
+    this.mainPhaseNoCutInStage2 = mainPhaseNoCutInStage2.shootDownStatusList;
   }
 
   /**

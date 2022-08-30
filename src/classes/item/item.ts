@@ -152,6 +152,9 @@ export default class Item {
   /** 第2艦隊搭載機かどうかフラグ 計算用 */
   public isEscortItem = false;
 
+  /** 本隊航空戦に参加するかどうかフラグ 計算用 */
+  public disabledItem = false;
+
   /** スロット分布のための記録が必要 */
   public needRecord = false;
 

@@ -70,6 +70,9 @@ export default class Enemy implements ShipBase {
   /** 装備ボーナス対空値合計 */
   public readonly totalBonusAntiAir: number;
 
+  /** 本隊航空戦に参加しないフラグ */
+  public disabledMainAerialPhase = false;
+
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
     this.items = items;

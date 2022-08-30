@@ -137,7 +137,7 @@ export default class AerialFirePowerCalculator {
         } else if (item.data.id === 406 && (SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.BBB === shipType)) {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.1倍
           fire = item.data.torpedo * 1.1 + item.bonusTorpedo;
-        } else if (item.data.id === 444) {
+        } else if (item.data.id === 444 && !(shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2)) {
           // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
           fire = item.data.torpedo * 1.15 + item.bonusTorpedo;
         } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA || shipType === SHIP_TYPE.CVL)) {
@@ -162,6 +162,9 @@ export default class AerialFirePowerCalculator {
             args.beforeCapBonus = 1.3;
           } else if (shipType === SHIP_TYPE.FBB || shipType === SHIP_TYPE.BB || shipType === SHIP_TYPE.BBV || shipType === SHIP_TYPE.BBB) {
             // 戦艦級 1.3倍
+            args.beforeCapBonus = 1.3;
+          } else if (shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2) {
+            // 補給艦 1.3倍
             args.beforeCapBonus = 1.3;
           }
         } else {
