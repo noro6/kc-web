@@ -167,9 +167,15 @@ export default class Const {
   public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439];
 
   public static readonly SPECIAL_GROUP = [
-    { text: '1', subText: '', items: [242, 256, 257, 233, 277, 197, 198, 205, 206, 254, 255, 158, 159, 353] },
-    { text: '2', subText: '', items: [243, 188, 316, 248, 64, 305, 306, 422, 473, 249, 184] },
-    { text: '3', subText: '', items: [244, 424, 425, 189, 252, 434, 435, 423] },
+    { text: 'A', subText: '2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254, 255] },
+    { text: 'A', subText: '3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
+    { text: 'A', subText: '4', items: [405, 433, 244, 424, 425] },
+    { text: 'B', subText: '2', items: [158, 159, 353] },
+    { text: 'B', subText: '3', items: [249, 184] },
+    { text: 'B', subText: '4', items: [189] },
+    { text: 'C', subText: '1', items: [250, 251, 253] },
+    { text: 'C', subText: '3', items: [473] },
+    { text: 'C', subText: '4', items: [252, 434, 435, 423] },
   ];
 
   public static readonly ITEM_API_TYPE = [
