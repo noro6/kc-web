@@ -151,8 +151,8 @@ export default class ShootDownInfo {
         // 固定撃墜 => int((加重対空値 + int(艦隊防空補正)) * 基本定数(0.25) * 敵味方航空戦補正 * 連合補正 * 対空CI変動ボーナス)
         stage2[j].fixDownList.push(Math.floor((antiAirWeight + Math.floor(fleetAABonus)) * 0.25 * aerialCorr * unionFactor * cutInBonus1));
 
-        // 最低保証 => int(対空CI固定ボーナスA * 対空射撃補正A + 対空CI固定ボーナスB * 対空射撃補正B) + 対空CI発動時かつ敵の場合+1機
-        const minimum = Math.floor(cutInBonusA * avoid3 + cutInBonusB * avoid4) + (isEnemy && cutIn.id > 0 ? 1 : 0);
+        // 最低保証 => int(対空CI固定ボーナスA * 対空射撃補正A + 対空CI固定ボーナスB * 対空射撃補正B)
+        const minimum = Math.floor(cutInBonusA * avoid3 + cutInBonusB * avoid4);
         // 最低保証
         stage2[j].minimumDownList.push(minimum);
       }
