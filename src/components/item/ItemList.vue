@@ -15,18 +15,8 @@
       <div class="ml-5 align-self-center filter-select">
         <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()"></v-select>
       </div>
-      <div class="align-self-center filter-value-select">
-        <v-menu offset-y :close-on-content-click="false" transition="slide-y-transition" bottom right v-model="filterStatusValueMenu" @input="changedFilter()">
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field v-bind="attrs" v-on="on" dense v-model="filterStatusValue" hide-details readonly></v-text-field>
-          </template>
-          <v-card class="px-2">
-            <div class="d-flex px-2">
-              <v-text-field class="filter-value-input" type="number" max="30" min="0" v-model.number="filterStatusValue"></v-text-field>
-            </div>
-            <v-slider max="30" min="0" v-model="filterStatusValue"></v-slider>
-          </v-card>
-        </v-menu>
+      <div class="align-self-center filter-value-input">
+        <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()"></v-text-field>
       </div>
       <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
       <v-spacer></v-spacer>
@@ -227,7 +217,7 @@
   text-align: right !important;
 }
 .filter-value-input {
-  width: 160px;
+  width: 80px;
 }
 
 .type-selector {
@@ -517,7 +507,6 @@ export default Vue.extend({
     filterStatus: 'radius',
     filterStatusItems: [] as { text: string; value: string }[],
     filterStatusValue: 0,
-    filterStatusValueMenu: false,
   }),
   mounted() {
     const items = this.$store.state.items as ItemMaster[];
