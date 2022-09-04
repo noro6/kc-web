@@ -23,6 +23,8 @@ export default class EnemyMaster {
 
   public items: number[] = [];
 
+  public speed = 5;
+
   public isLandBase = false;
 
   public isUnknown = false;
@@ -41,11 +43,13 @@ export default class EnemyMaster {
       this.antiAir = enemy.aa ? +enemy.aa : 0;
       this.armor = enemy.armor ? +enemy.armor : 0;
       this.slotCount = enemy.slot_count ? +enemy.slot_count : 0;
-      this.isLandBase = !!enemy.landbase;
+      this.speed = enemy.speed ? +enemy.speed : 5;
       this.isUnknown = !!enemy.unknown;
 
       this.slots = enemy.slots ? enemy.slots : [];
       this.items = enemy.items ? enemy.items : [];
+
+      this.isLandBase = this.speed === 0;
     }
   }
 

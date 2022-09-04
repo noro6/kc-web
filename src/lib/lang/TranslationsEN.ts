@@ -377,6 +377,7 @@ export default {
       '大発搭載可': 'Can equip Landing Craft',
       '内火艇搭載可': 'Can equip Tanks',
       '戦闘機搭載可': 'Can equip Fighter',
+      '高速のみ': 'Only Fast speed',
       '札あり': 'Tag applied',
       '補強増設あり': 'Ex Slot open',
       '在籍艦娘反映': 'Reflect ships data',

@@ -84,6 +84,9 @@ export default class ShipMaster {
   /** 回避最大値 */
   public readonly maxAvoid: number;
 
+  /** 速力 */
+  public readonly speed: number;
+
   /** 改装直前のid */
   public readonly beforeId: number;
 
@@ -130,7 +133,8 @@ export default class ShipMaster {
       this.maxAsw = ship.asw ? ship.asw : 0;
       this.minAvoid = ship.min_avoid ? ship.min_avoid : 0;
       this.maxAvoid = ship.avoid ? ship.avoid : 0;
-      this.beforeId = ship.befor ? ship.befor : 0;
+      this.speed = ship.speed ? ship.speed : 5;
+      this.beforeId = ship.before ? ship.before : 0;
       this.nextLv = ship.next_lv ? ship.next_lv : 0;
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
@@ -162,6 +166,7 @@ export default class ShipMaster {
       this.maxAsw = 0;
       this.minAvoid = 0;
       this.maxAvoid = 0;
+      this.speed = 5;
       this.beforeId = 0;
       this.nextLv = 0;
       this.sort = 0;

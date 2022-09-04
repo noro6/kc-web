@@ -43,6 +43,9 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
       </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="fastOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速のみ')"></v-checkbox>
+      </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">
         <v-checkbox v-model="hasAreaOnly" @click="filter()" dense hide-details :label="$t('Fleet.札あり')"></v-checkbox>
       </div>
@@ -357,6 +360,7 @@ export default Vue.extend({
     naikateiOK: false,
     fighterOK: false,
     hasAreaOnly: false,
+    fastOnly: false,
     isReleaseExSlotOnly: false,
     maxAreas: 0,
     disabledStockOnlyChange: false,
@@ -457,6 +461,10 @@ export default Vue.extend({
         if (this.isFinalOnly) {
           // 最終改造状態ONLY
           result = result.filter((v) => v.isFinal);
+        }
+        if (this.fastOnly) {
+          // 速力高速
+          result = result.filter((v) => v.speed > 5);
         }
         if (this.daihatsuOK) {
           // 大発搭載可能
