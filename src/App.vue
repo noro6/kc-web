@@ -1801,11 +1801,14 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
   box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4) !important;
 }
 
+.captured .item-input {
+  box-shadow: unset !important;
+}
 .captured .item-input.type-1,
 .captured .item-input.type-2,
 .captured .item-input.type-3,
 .captured .item-input.type-7 {
-  background: rgba(255, 0, 0, 0.05) !important;
+  background: rgba(255, 0, 0, 0.075) !important;
 }
 .captured .item-input.type-4,
 .captured .item-input.type-9,
@@ -1813,12 +1816,12 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-27,
 .captured .item-input.type-39,
 .captured .item-input.type-40 {
-  background: rgba(255, 255, 70, 0.05) !important;
+  background: rgba(255, 255, 70, 0.075) !important;
 }
 .captured .item-input.type-5,
 .captured .item-input.type-8,
 .captured .item-input.type-46 {
-  background: rgba(0, 190, 255, 0.05) !important;
+  background: rgba(0, 190, 255, 0.075) !important;
 }
 .captured .item-input.type-6,
 .captured .item-input.type-12,
@@ -1827,18 +1830,19 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-21,
 .captured .item-input.type-44,
 .captured .item-input.type-45 {
-  background: rgba(0, 255, 100, 0.05) !important;
+  background: rgba(0, 255, 100, 0.075) !important;
 }
 .captured .item-input.type-10,
 .captured .item-input.type-33,
-.captured .item-input.type-43 {
-  background: rgba(86, 255, 122, 0.05) !important;
+.captured .item-input.type-43,
+.captured .item-input.type-50 {
+  background: rgba(86, 255, 122, 0.075) !important;
 }
 .captured .item-input.type-11 {
-  background: rgba(210, 120, 20, 0.05) !important;
+  background: rgba(210, 120, 20, 0.075) !important;
 }
 .captured .item-input.type-13 {
-  background: rgba(255, 125, 125, 0.05) !important;
+  background: rgba(255, 125, 125, 0.075) !important;
 }
 .captured .item-input.type-14,
 .captured .item-input.type-34 {
@@ -1847,51 +1851,51 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-17,
 .captured .item-input.type-18,
 .captured .item-input.type-22 {
-  background: rgba(27, 187, 255, 0.05) !important;
+  background: rgba(27, 187, 255, 0.075) !important;
 }
 .captured .item-input.type-20,
 .captured .item-input.type-36 {
-  background: rgba(155, 165, 95, 0.05) !important;
+  background: rgba(155, 165, 95, 0.075) !important;
 }
 .captured .item-input.type-23 {
   background: rgba(150, 125, 175, 0.1) !important;
 }
 .captured .item-input.type-24 {
-  background: rgba(240, 130, 60, 0.05) !important;
+  background: rgba(240, 130, 60, 0.075) !important;
 }
 .captured .item-input.type-25 {
   background: rgba(128, 128, 128, 0.1) !important;
 }
 .captured .item-input.type-26,
 .captured .item-input.type-29 {
-  background: rgba(205, 165, 100, 0.05) !important;
+  background: rgba(205, 165, 100, 0.075) !important;
 }
 .captured .item-input.type-28 {
-  background: rgba(140, 120, 170, 0.05) !important;
+  background: rgba(140, 120, 170, 0.075) !important;
 }
 .captured .item-input.type-30 {
   background: rgba(135, 150, 75, 0.1) !important;
 }
 .captured .item-input.type-31 {
-  background: rgba(255, 55, 55, 0.05) !important;
+  background: rgba(255, 55, 55, 0.075) !important;
 }
 .captured .item-input.type-32 {
   background: rgba(190, 240, 150, 0.2) !important;
 }
 .captured .item-input.type-35 {
-  background: rgba(95, 195, 155, 0.05) !important;
+  background: rgba(95, 195, 155, 0.075) !important;
 }
 .captured .item-input.type-37,
 .captured .item-input.type-38,
 .captured .item-input.type-41,
 .captured .item-input.type-48,
 .captured .item-input.type-49 {
-  background: rgba(53, 199, 17, 0.05) !important;
+  background: rgba(53, 199, 17, 0.075) !important;
 }
 .captured .item-input.type-44 {
-  background: rgba(36, 255, 91, 0.05) !important;
+  background: rgba(36, 255, 91, 0.075) !important;
 }
 .captured .item-input.type-47 {
-  background: rgba(0, 110, 255, 0.05) !important;
+  background: rgba(0, 110, 255, 0.075) !important;
 }
 </style>

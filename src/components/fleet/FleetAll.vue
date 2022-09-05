@@ -954,17 +954,18 @@ export default Vue.extend({
       }
       // 背景色とかを塗るフラグ立て
       this.capturing = true;
-      const index = this.value.mainFleetIndex;
-      const div = document.getElementsByClassName('fleet-container')[index] as HTMLDivElement;
-      setTimeout(() => {
-        html2canvas(div, { scale: 2, width: 1200 }).then((canvas) => {
-          const link = document.createElement('a');
-          link.href = canvas.toDataURL();
-          link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
-          link.click();
-          this.capturing = false;
-        });
-      }, 10);
+      const div = document.querySelector('.fleet-container.v-window-item--active') as HTMLDivElement;
+      if (div) {
+        setTimeout(() => {
+          html2canvas(div, { scale: 2, width: 1200 }).then((canvas) => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL();
+            link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
+            link.click();
+            this.capturing = false;
+          });
+        }, 10);
+      }
     },
     dragStart(e: DragEvent) {
       const target = e.target as HTMLDivElement;
