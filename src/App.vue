@@ -442,7 +442,15 @@
         <v-tabs-items v-model="saveDialogTab" :touchless="true">
           <v-tab-item value="save">
             <div class="mx-4 mt-4">
-              <v-text-field v-model="editedName" dense outlined maxlength="100" counter :label="$t('Home.編成データ名')"></v-text-field>
+              <v-text-field
+                v-model="editedName"
+                dense
+                outlined
+                maxlength="100"
+                counter
+                :label="$t('Home.編成データ名')"
+                @keydown.enter="saveAndRenameCurrentData"
+              ></v-text-field>
               <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input"></v-textarea>
               <div class="d-flex mt-3">
                 <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">
@@ -980,6 +988,9 @@ export default Vue.extend({
       }
     },
     saveAndRenameCurrentData() {
+      if (this.isNameEmpty) {
+        return;
+      }
       // 現在計算画面で開かれているデータを取得
       const data = this.saveData.getMainData();
       if (data) {

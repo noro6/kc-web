@@ -80,6 +80,7 @@
             maxlength="100"
             counter
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
+            @keydown.enter="commitName"
           ></v-text-field>
           <v-textarea
             v-if="!value.isDirectory"
@@ -309,6 +310,9 @@ export default Vue.extend({
       this.editDialog = true;
     },
     commitName() {
+      if (this.isNameEmpty) {
+        return;
+      }
       this.editDialog = false;
       this.value.name = this.editedName.trim();
       this.value.remarks = this.editedRemarks ? this.editedRemarks.trim() : '';

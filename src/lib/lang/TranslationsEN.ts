@@ -201,6 +201,7 @@ export default {
       '本当に引き継ぎを行いますか？': 'Are you sure you want to do the transfer?',
       'サイト連携': 'Site Linkage',
       'デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。': 'You can load the deck builder format by embedding it in the URL with ?predeck=... in the URL to load the fleets data.',
+      'URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。': 'If the URL is too long and an error occurs using the above method, it is possible to pass data using URL fragments.',
       '著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。': '',
       'また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。': 'I am not responsible for any profits, damages or any other events resulting from the information or calculations on this site.',
       '編成データ名': 'Title',

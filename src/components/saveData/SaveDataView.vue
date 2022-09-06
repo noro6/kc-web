@@ -29,7 +29,7 @@
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon small @click.stop="addNewDirectory" v-bind="attrs" v-on="on">
+            <v-btn icon small @click.stop="showDirectoryNameEditDialog" v-bind="attrs" v-on="on">
               <v-icon color="yellow lighten-1">mdi-folder-plus</v-icon>
             </v-btn>
           </template>
@@ -67,6 +67,24 @@
     <div class="item-container">
       <save-item v-for="(item, i) in rootData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" />
     </div>
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="500">
+      <v-card class="pa-3">
+        <div class="mx-4 mt-4">
+          <v-text-field
+            v-model.trim="editedName"
+            dense
+            outlined
+            maxlength="100"
+            counter
+            :label="$t('SaveData.フォルダー名')"
+            @keydown.enter="addNewDirectory"
+          ></v-text-field>
+          <div class="d-flex mt-3">
+            <v-btn class="ml-auto" color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-sheet>
 </template>
 
@@ -137,6 +155,15 @@ export default Vue.extend({
       required: true,
     },
   },
+  data: () => ({
+    editDialog: false,
+    editedName: '',
+  }),
+  computed: {
+    isNameEmpty(): boolean {
+      return this.editedName.length <= 0;
+    },
+  },
   methods: {
     addNewFile() {
       // 新規データ
@@ -145,14 +172,25 @@ export default Vue.extend({
       data.isUnsaved = false;
       this.addNewSaveData(data);
     },
+    showDirectoryNameEditDialog() {
+      this.editedName = `${this.$t('SaveData.新しいフォルダー')}`;
+      this.editDialog = true;
+    },
     addNewDirectory() {
+      if (this.isNameEmpty) {
+        return;
+      }
+
       // 新規フォルダー
       const folder = new SaveData();
-      folder.name = `${this.$t('SaveData.新しいフォルダー')}`;
+      folder.name = this.editedName;
       folder.isDirectory = true;
       folder.isUnsaved = false;
       this.addNewSaveData(folder);
       this.handleInform('新しいフォルダーを作成しました。');
+
+      this.editDialog = false;
+      this.editedName = '';
     },
     addNewSaveData(saveData: SaveData) {
       const data = this.rootData.childItems;

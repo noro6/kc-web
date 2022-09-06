@@ -54,7 +54,15 @@
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
-          <v-text-field v-model.trim="editedName" dense outlined maxlength="100" counter :label="$t('SaveData.編成データ名')"></v-text-field>
+          <v-text-field
+            v-model.trim="editedName"
+            dense
+            outlined
+            maxlength="100"
+            counter
+            :label="$t('SaveData.編成データ名')"
+            @keydown.enter="commitName"
+          ></v-text-field>
           <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input"></v-textarea>
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
@@ -252,6 +260,9 @@ export default Vue.extend({
       }
     },
     commitName() {
+      if (this.isNameEmpty) {
+        return;
+      }
       if (this.editedFile) {
         this.editedFile.name = this.editedName;
         this.editedFile.remarks = this.editedRemarks;
