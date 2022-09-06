@@ -187,7 +187,7 @@
           </div>
           <div class="form-control lg mx-1 my-2" v-show="isAirbase">
             <v-select
-              :label="$t('EType.陸上偵察機')"
+              :label="isNotJapanese ? $t('EType.陸上偵察機') : '陸上偵察機'"
               v-model="calcArgs.rikuteiBonus"
               :items="rikuteis"
               hide-details
@@ -828,7 +828,7 @@ export default Vue.extend({
         this.graphData.datasets[0].data = rates;
         this.graphData.datasets[1].data = sumRates;
 
-        this.attackerSlot = item.fullSlot;
+        this.attackerSlot = Math.min(item.fullSlot, this.attackerSlot);
       }
 
       this.calculateFire();
