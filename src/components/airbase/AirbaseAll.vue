@@ -667,6 +667,7 @@ export default Vue.extend({
       this.bulkUpdateTarget = targets;
     },
     doAirRaid() {
+      // 基地空襲を起こす => 補給してから起こす
       const { airbases } = this.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
         if (airbases[i].mode === AB_MODE.WAIT) {
@@ -677,15 +678,23 @@ export default Vue.extend({
         const { items } = airbases[i];
         for (let j = 0; j < items.length; j += 1) {
           const item = items[j];
-          if (item.fullSlot <= 1) {
+          if (!item.data.id) {
             continue;
           }
-          if (item.fullSlot > count) {
-            items[j] = new Item({ item, slot: item.fullSlot - count });
-            break;
+
+          if (item.data.isRecon) {
+            if (count) {
+              items[j] = new Item({ item, slot: 1 });
+              count = 1;
+            } else {
+              items[j] = new Item({ item, slot: 4 });
+            }
+          } else if (item.data.isShinzan) {
+            items[j] = new Item({ item, slot: 9 - count });
+            count = 0;
           } else {
-            items[j] = new Item({ item, slot: 1 });
-            count -= item.fullSlot - 1;
+            items[j] = new Item({ item, slot: 18 - count });
+            count = 0;
           }
         }
         airbases[i] = new Airbase({ airbase: airbases[i], items });
@@ -765,6 +774,7 @@ export default Vue.extend({
           const item = items[j];
           if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
             let { slot } = item;
+            let { level } = itemBuilder;
             if (item.data.isRecon && itemBuilder.slot !== undefined) {
               slot = Math.min(4, itemBuilder.slot);
             } else if (item.data.isShinzan && itemBuilder.slot !== undefined) {
@@ -772,11 +782,17 @@ export default Vue.extend({
             } else if (item.data.isPlane && itemBuilder.slot !== undefined) {
               slot = Math.min(18, itemBuilder.slot);
             }
+
+            if (item.data.id === 312 && itemBuilder.level) {
+              level = Math.min(25, itemBuilder.level);
+            } else if (item.data.id === 311) {
+              level = 0;
+            }
             items[j] = new Item({
               item,
               slot,
               remodel: item.data.canRemodel ? itemBuilder.remodel : undefined,
-              level: itemBuilder.level,
+              level,
             });
           }
         }
