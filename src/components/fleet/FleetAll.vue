@@ -965,6 +965,8 @@ export default Vue.extend({
             this.capturing = false;
           });
         }, 10);
+      } else {
+        this.capturing = false;
       }
     },
     dragStart(e: DragEvent) {
@@ -1166,7 +1168,7 @@ export default Vue.extend({
       const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
         lang: this.gkcoiLang,
         theme: this.gkcoiTheme,
-        cmt: '',
+        cmt: saveData.remarks,
       });
       generate(gkcoiBuilder)
         .then((canvas) => {
