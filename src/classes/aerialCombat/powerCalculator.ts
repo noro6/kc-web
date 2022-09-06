@@ -222,6 +222,7 @@ export default class AerialFirePowerCalculator {
   private static getAirbaseFirePowerLandBase(item: Item, slot: number, args: FirePowerCalcArgs, defense: Ship | Enemy, rate: number): PowerDist[] {
     // キャップ後補正まとめ (二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正)
     const allAfterCapBonus = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.afterCapBonus;
+    args.beforeCapBonus = 1;
 
     if (slot <= 0) return [{ power: 0, rate }];
 
