@@ -13,7 +13,7 @@
           </div>
         </template>
         <template v-else>
-          <div class="mx-auto">{{ $t('Common.一括変更') }}</div>
+          <div class="mx-auto caption">{{ $t('Common.一括変更') }}</div>
         </template>
       </div>
     </template>

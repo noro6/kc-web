@@ -275,22 +275,22 @@
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2">
-              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }">
+              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
                 {{ $t("Setting.通常") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }">
+              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }" :small="!isJapanese">
                 {{ $t("Setting.空色") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }">
+              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }" :small="!isJapanese">
                 {{ $t("Setting.桜色") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }">
+              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }" :small="!isJapanese">
                 {{ $t("Setting.翠色") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }">
+              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }" :small="!isJapanese">
                 {{ $t("Setting.暗色") }}
               </v-btn>
-              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }">
+              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }" :small="!isJapanese">
                 {{ $t("Setting.深海") }}
               </v-btn>
             </div>
@@ -529,7 +529,7 @@ import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
 import SaveData from '@/classes/saveData/saveData';
-import SiteSetting from '@/classes/siteSetting';
+import SiteSetting, { SiteTheme } from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
 import LZString from 'lz-string';
 import ShipStock from './classes/fleet/shipStock';
@@ -1054,7 +1054,7 @@ export default Vue.extend({
         this.$store.dispatch('setMainSaveData', data);
       }
     },
-    changeSiteTheme(theme: 'light' | 'dark' | 'deep-sea' | 'ice' | 'pink' | 'green') {
+    changeSiteTheme(theme: SiteTheme) {
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;

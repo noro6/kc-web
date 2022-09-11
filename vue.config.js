@@ -7,4 +7,7 @@ module.exports = {
       title: '制空権シミュレータ v2',
     },
   },
+  configureWebpack: {
+    devtool: 'source-map',
+  },
 };

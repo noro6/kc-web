@@ -532,7 +532,8 @@ export default Vue.extend({
       if (this.multiLine) {
         const depthChargeLauncher = { id: 1700, name: '爆雷投射機', sortKey: [] };
         // 種別に応じて分けたい
-        const types = Const.ITEM_API_TYPE.concat(depthChargeLauncher);
+        const types = Const.ITEM_API_TYPE.concat();
+        types.splice(22, 0, depthChargeLauncher);
         const resultItems = [];
         for (let i = 0; i < types.length; i += 1) {
           const type = types[i];

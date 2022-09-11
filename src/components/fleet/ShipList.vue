@@ -101,7 +101,7 @@
                 <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
               </div>
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
-                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/area/area${data.area}.png`" height="40" width="27" />
+                <v-img :src="`./img/tags/area${data.area}.png`" height="40" width="27" />
               </div>
               <div class="slot-ex-img" v-if="data.expanded">
                 <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>

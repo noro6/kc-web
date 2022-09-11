@@ -369,6 +369,7 @@ export default class Const {
     { id: 87, name: 'John C.Butler級' },
     { id: 114, name: 'Gato級' },
     { id: 116, name: 'Independence級' },
+    { id: 118, name: 'Ranger級' },
 
     { id: 67, name: 'Queen Elizabeth級' },
     { id: 88, name: 'Nelson級' },
