@@ -69,7 +69,7 @@
               </div>
             </div>
             <div v-if="isAirRaid" class="d-flex cell-info-row flex-wrap px-2">
-              <div class="text--secondary mr-2">{{ $t("Common.制空値") }}:</div>
+              <div class="text--secondary mr-2">{{ $t("Common.制空") }}:</div>
               <div class="mr-2">{{ fleet.fullAirbaseAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">

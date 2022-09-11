@@ -58,8 +58,8 @@ export default class ShipValidation {
       }
       // 5inch連装砲(副砲配置)集中配備
       if (item.id === 467) {
-        // 軽巡系、軽空母、水母搭載不可
-        if (type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.CVL || type === SHIP_TYPE.AV) {
+        // 航巡、軽巡系、軽空母、水母搭載不可
+        if (type === SHIP_TYPE.CAV || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.CVL || type === SHIP_TYPE.AV) {
           return false;
         }
       }
