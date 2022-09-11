@@ -175,7 +175,7 @@ export default class Const {
     { text: 'B', subText: '3', items: [249, 184] },
     { text: 'B', subText: '4', items: [189] },
     { text: 'C', subText: '1', items: [250, 251, 253] },
-    { text: 'C', subText: '3', items: [473] },
+    { text: 'C', subText: '3', items: [473, 474] },
     { text: 'C', subText: '4', items: [252, 434, 435, 423, 479] },
   ];
 
@@ -488,7 +488,7 @@ export default class Const {
     { text: '補助艦艇', types: [15, 16, 17, 19, 20, 22] },
   ];
 
-  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116];
+  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116, 118];
 
   public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
 
