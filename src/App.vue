@@ -1698,12 +1698,14 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
   box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4) !important;
 }
 .item-input.type-17,
+.item-input.type-1700,
 .item-input.type-18,
 .item-input.type-22 {
   box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15) !important;
   border-color: rgb(128, 216, 255) !important;
 }
 .item-input.type-17:hover,
+.item-input.type-1700:hover,
 .item-input.type-18:hover,
 .item-input.type-22:hover {
   box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.4) !important;
@@ -1860,6 +1862,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
   background: rgba(196, 196, 196, 0.1) !important;
 }
 .captured .item-input.type-17,
+.captured .item-input.type-1700,
 .captured .item-input.type-18,
 .captured .item-input.type-22 {
   background: rgba(27, 187, 255, 0.075) !important;
