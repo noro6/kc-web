@@ -77,12 +77,6 @@
                 $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順8の入力欄に貼り付けることができます。")
               }}
             </div>
-            <div class="d-flex">
-              <v-radio-group v-model="includeUnLocked" row hide-details class="py-0">
-                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
-              </v-radio-group>
-            </div>
             <div>
               <v-tabs v-model="code_tab">
                 <v-tab href="#ship_code">{{ $t("Fleet.艦娘") }}</v-tab>
@@ -92,19 +86,66 @@
             <v-tabs-items v-model="code_tab" :touchless="true">
               <v-tab-item value="ship_code">
                 <v-divider></v-divider>
-                <v-card class="copy_code mt-2">
-                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
-                  v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
-                    v-if="!includeUnLocked"
-                    >.filter(v=>v.locked)</span
-                  >,['id','lv','st','exp','ex','area']))
+                <div class="d-flex mt-2">
+                  <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
+                    {{ $t(`Common.コードをコピー`) }}
+                  </v-btn>
+                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3">
+                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
+                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+                  </v-radio-group>
+                  <input
+                    v-if="includeUnLocked"
+                    id="ships-read-code"
+                    type="text"
+                    value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}),['id','lv','st','exp','ex','area']))"
+                  />
+                  <input
+                    v-else
+                    id="ships-read-code"
+                    type="text"
+                    value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
+                  />
+                </div>
+                <v-card class="copy_code" elevation="4">
+                  <div>
+                    copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
+                    v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
+                      v-if="!includeUnLocked"
+                      >.filter(v=>v.locked)</span
+                    >,['id','lv','st','exp','ex','area']))
+                  </div>
                 </v-card>
               </v-tab-item>
               <v-tab-item value="item_code">
                 <v-divider></v-divider>
-                <v-card class="copy_code mt-2">
-                  copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv':
-                  v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLocked">.filter(v=>v.locked)</span>,['id','lv']))
+                <div class="d-flex mt-2">
+                  <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
+                    {{ $t(`Common.コードをコピー`) }}
+                  </v-btn>
+                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3">
+                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
+                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+                  </v-radio-group>
+                  <input
+                    v-if="includeUnLocked"
+                    id="item-read-code"
+                    type="text"
+                    value="copy(JSON.stringify(Object.entries(temp1.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}),['id','lv']))"
+                  />
+                  <input
+                    v-else
+                    id="item-read-code"
+                    type="text"
+                    value="copy(JSON.stringify(Object.entries(temp1.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}).filter(v=>v.locked),['id','lv']))"
+                  />
+                </div>
+                <v-card class="copy_code" elevation="4">
+                  <div>
+                    copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return
+                    {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLocked">.filter(v=>v.locked)</span
+                    >,['id','lv']))
+                  </div>
                 </v-card>
               </v-tab-item>
             </v-tabs-items>
@@ -296,11 +337,22 @@
   padding: 1.5rem;
 }
 .copy_code {
-  border: 1px solid rgba(128, 128, 128, 0.4);
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-top: 8px;
+  margin-bottom: 16px;
   padding: 1rem;
+  display: flex;
+  min-height: 80px;
 }
+.copy_code > div {
+  align-self: center;
+}
+#ships-read-code,
+#item-read-code {
+  margin-left: auto;
+  width: 1px;
+  opacity: 0;
+}
+
 .warning_box {
   border-radius: 0.25rem;
   border: 2px solid rgb(218, 183, 80);
@@ -336,7 +388,7 @@ export default Vue.extend({
   data: () => ({
     tab: 'ship',
     code_tab: 'ship_code',
-    includeUnLocked: false,
+    includeUnLocked: true,
     readResultColor: 'success',
     inputText: '',
     readOnlyMode: false,
@@ -354,6 +406,7 @@ export default Vue.extend({
     unsubscribe: undefined as unknown,
     kantaiSarashiURL: '',
     loading: false,
+    successCopy: false,
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -663,6 +716,19 @@ export default Vue.extend({
     },
     clearItemCodeHint() {
       this.copiedItemCodeHint = '';
+    },
+    copyCode(elementId: string) {
+      const textToCopy = document.getElementById(elementId) as HTMLInputElement;
+      if (textToCopy) {
+        textToCopy.select();
+        document.execCommand('copy');
+
+        this.$emit('inform', 'コピーされました。');
+        this.successCopy = true;
+        window.setTimeout(() => {
+          this.successCopy = false;
+        }, 3000);
+      }
     },
     generateKantaiSarashiURL() {
       this.kantaiSarashiURL = 'http://kancolle-calc.net/kanmusu_list.html';

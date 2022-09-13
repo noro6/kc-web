@@ -493,7 +493,12 @@ export default class Ship implements ShipBase {
   private getBonusScout() {
     let sumBonus = 0;
     const { id, type, type2 } = this.data;
-    const items = this.items.concat(this.exItem);
+    const items = this.items.concat(this.exItem).filter((v) => v.data.id);
+
+    if (!items.some((v) => v.data.id)) {
+      return 0;
+    }
+
     const isAmerica = Const.USA.includes(type2);
     const isJapanese = Const.isJPN(type2);
 
@@ -716,7 +721,12 @@ export default class Ship implements ShipBase {
     const {
       type, type2, originalId, id,
     } = this.data;
-    const items = this.items.concat(this.exItem);
+    const items = this.items.concat(this.exItem).filter((v) => v.data.id);
+
+    if (!items.some((v) => v.data.id)) {
+      return 0;
+    }
+
     let sanshikiKaiCount = 0;
     let sanshikiKaiRemodel = 0;
     for (let i = 0; i < items.length; i += 1) {
@@ -1266,7 +1276,11 @@ export default class Ship implements ShipBase {
     const {
       type, type2, id, version, originalId,
     } = this.data;
-    const items = this.items.concat(this.exItem);
+
+    const items = this.items.concat(this.exItem).filter((v) => v.data.id);
+    if (!items.some((v) => v.data.id)) {
+      return 0;
+    }
     const isUSA = Const.USA.includes(type2);
 
     for (let i = 0; i < items.length; i += 1) {

@@ -27,6 +27,7 @@ export default {
       'やり直す': 'Redo',
       '編成アップロード': 'Upload',
       'コピーされました。': 'Copied.',
+      'コードをコピー': 'Copy',
       '取込': 'Import',
       '検索': 'Search',
       '件': ' hits',
@@ -250,6 +251,7 @@ export default {
       'アップロードに失敗しました。': 'Upload failed.',
       '翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。': 'Translation is still incomplete. If you would like to help me, I would appreciate it.',
       'お題箱': 'Request Box',
+      'コピーされました。': 'Copied.',
     },
     SaveData: {
       '新しい編成を作成': 'New File',
