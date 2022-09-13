@@ -29,11 +29,8 @@
             </div>
             <v-divider></v-divider>
             <div class="px-1 pt-2 d-flex">
-              <div class="mr-2 mt-1">
-                <v-btn color="success" :disabled="!isEditedRemarks" @click="commitRemarks()">{{ $t("Common.更新") }}</v-btn>
-              </div>
               <div class="flex-grow-1 remarks-input">
-                <v-textarea auto-grow rows="1" v-model="editedRemarks" outlined dense hide-details />
+                <v-textarea auto-grow rows="2" v-model="editedRemarks" outlined dense hide-details @blur="commitRemarks()" />
               </div>
             </div>
           </v-card>
@@ -465,7 +462,6 @@ export default Vue.extend({
         saveData.remarks = this.editedRemarks;
         const root = this.$store.state.saveData as SaveData;
         this.$store.dispatch('updateSaveData', root);
-        this.$emit('inform', '更新しました。');
       }
     },
   },
