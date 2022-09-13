@@ -176,7 +176,7 @@
         </div>
         <v-divider></v-divider>
         <div class="pa-3">
-          <div class="temp-ship-view">
+          <div class="temp-ship-view" v-if="!tempShip.isEmpty">
             <v-card class="temp-ship">
               <div class="d-flex ml-1">
                 <div class="align-self-center">
@@ -213,7 +213,7 @@
               </v-btn>
             </div>
           </div>
-          <v-divider class="mt-3 mb-1"></v-divider>
+          <v-divider class="mt-3 mb-1" v-if="!tempShip.isEmpty"></v-divider>
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.一時保存済みリスト") }}</div>
@@ -672,7 +672,7 @@ export default Vue.extend({
       this.enabledPushTempShip = true;
     },
     pushTempShip() {
-      if (this.tempShip) {
+      if (this.tempShip && !this.tempShip.isEmpty) {
         // 一時保存リストに追加
         this.enabledPushTempShip = false;
         this.tempShipList.push(this.tempShip);

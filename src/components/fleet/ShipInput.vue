@@ -14,6 +14,16 @@
     <template v-if="ship.isEmpty">
       <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
         <div class="align-self-center">{{ shipName }}</div>
+        <div class="empty-temp-list">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon class="align-self-center" color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+                <v-icon>mdi-download</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
+          </v-tooltip>
+        </div>
       </div>
     </template>
     <template v-else>
@@ -59,8 +69,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">{{ $t('Common.初期値') }}</v-btn>
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">{{ $t('Common.最大値') }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">{{ $t("Common.初期値") }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">{{ $t("Common.最大値") }}</v-btn>
                   </div>
                   <v-text-field v-model.number="luck" :max="isNoShip ? 100 : ship.data.maxLuck" :min="ship.data.luck" hide-details type="number"></v-text-field>
                 </v-card>
@@ -74,8 +84,8 @@
                 </template>
                 <v-card class="pa-5">
                   <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">{{ $t('Common.初期値') }}</v-btn>
-                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">{{ $t('Common.最大値') }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">{{ $t("Common.初期値") }}</v-btn>
+                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">{{ $t("Common.最大値") }}</v-btn>
                   </div>
                   <v-text-field v-model.number="antiAir" :max="isNoShip ? 200 : ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
                 </v-card>
@@ -282,10 +292,16 @@
   opacity: 0.8;
   font-size: 12px;
   transition: 0.3s;
+  position: relative;
 }
 .empty-ship:hover {
   opacity: 1;
   box-shadow: inset 0 0 12px rgba(0, 168, 255, 0.4);
+}
+.empty-temp-list {
+  position: absolute;
+  top: 6px;
+  right: 6px;
 }
 
 .ship-header {
