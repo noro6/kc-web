@@ -11,12 +11,13 @@
     @dragend.stop="dragEnd($event)"
   >
     <div v-ripple class="save-list-item pl-1" :class="{ selected: value.selected }" @click="itemClicked" v-click-outside="onClickOutside">
-      <v-icon v-if="value.isDirectory && !value.isOpen" color="yellow lighten-1" small>mdi-folder</v-icon>
-      <v-icon v-else-if="value.isDirectory && value.isOpen" color="yellow lighten-1" small>mdi-folder-open</v-icon>
+      <v-icon v-if="value.isDirectory" :color="value.color" small> {{ value.isOpen ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
-      <v-icon v-else-if="value.isActive" small color="green lighten-3">mdi-file-eye</v-icon>
-      <v-icon v-else small color="blue lighten-3">mdi-file</v-icon>
-      <div class="item-name text-truncate">{{ value.name === '保存されたデータ' ? $t(`SaveData.${value.name}`) : value.name }}</div>
+      <v-icon v-else-if="value.isActive" small :color="value.color">mdi-file-eye</v-icon>
+      <v-icon v-else small :color="value.color">mdi-file</v-icon>
+      <div class="item-name text-truncate" :class="{ 'green--text text--lighten-2': !value.isUnsaved && value.isActive }">
+        {{ value.name === "保存されたデータ" ? $t(`SaveData.${value.name}`) : value.name }}
+      </div>
       <div class="ml-auto file-action-buttons">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -70,7 +71,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="editDialog" transition="scroll-x-transition" :width="value.isDirectory ? 600 : 800">
+    <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
         <div class="mx-1 mt-3">
           <v-text-field
@@ -92,8 +93,20 @@
             :label="$t('SaveData.補足情報')"
             class="remarks-input"
           ></v-textarea>
-          <div class="d-flex mt-2">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t('Common.更新') }}</v-btn>
+          <div class="mt-4 d-flex">
+            <div class="align-self-center">
+              <v-icon x-large :color="selectedColor">{{ value.isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
+            </div>
+            <div class="ml-1 flex-grow-1 d-flex justify-space-around">
+              <div v-for="color in colors" :key="`color${color}`" class="my-1">
+                <v-btn fab light x-small :color="color" @click="selectedColor = color">
+                  <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
+                </v-btn>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex mt-3">
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -177,6 +190,7 @@
 import Vue from 'vue';
 import SaveData from '@/classes/saveData/saveData';
 import SaveDataTooltip from '@/components/saveData/SaveDataTooltip.vue';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'SaveItem',
@@ -202,11 +216,13 @@ export default Vue.extend({
     deleteConfirmDialog: false,
     editedName: '',
     editedRemarks: '',
+    selectedColor: '',
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipData: new SaveData(),
     tooltipX: 0,
     tooltipY: 0,
+    colors: Const.FILE_COLORS,
   }),
   computed: {
     saveData(): SaveData {
@@ -307,6 +323,7 @@ export default Vue.extend({
     showEditDialog() {
       this.editedName = this.value.name;
       this.editedRemarks = this.value.remarks ? this.value.remarks : '';
+      this.selectedColor = this.value.color;
       this.editDialog = true;
     },
     commitName() {
@@ -317,6 +334,7 @@ export default Vue.extend({
       this.value.name = this.editedName.trim();
       this.value.remarks = this.editedRemarks ? this.editedRemarks.trim() : '';
       this.value.editedDate = Date.now();
+      this.value.color = this.selectedColor;
       this.handleUpdateSaveData();
     },
     dragStart(e: DragEvent) {

@@ -186,6 +186,7 @@ export default Vue.extend({
       folder.name = this.editedName;
       folder.isDirectory = true;
       folder.isUnsaved = false;
+      folder.color = 'yellow lighten-1';
       this.addNewSaveData(folder);
       this.handleInform('新しいフォルダーを作成しました。');
 

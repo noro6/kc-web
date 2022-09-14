@@ -75,14 +75,10 @@
       </template>
     </v-app-bar>
     <v-main>
-      <template v-if="false">
+      <template v-if="true">
         <div class="event-banner">
-          <v-img class="banner-normal" :src="`./img/util/banner.png`" />
-          <v-img class="banner-on" :src="`./img/util/banner_on.png`" />
-        </div>
-        <div class="event-banner">
-          <v-img class="banner-normal" :src="`./img/util/banner2.png`" />
-          <v-img class="banner-on" :src="`./img/util/banner2_on.png`" />
+          <v-img class="banner-normal" :src="`./img/util/bn_220826.png`" />
+          <v-img class="banner-on" :src="`./img/util/bn_220826_on.png`" />
         </div>
       </template>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
@@ -452,6 +448,18 @@
                 @keydown.enter="saveAndRenameCurrentData"
               ></v-text-field>
               <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input"></v-textarea>
+              <div class="mt-4 d-flex">
+                <div class="align-self-center">
+                  <v-icon x-large :color="selectedColor">{{ isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
+                </div>
+                <div class="ml-1 flex-grow-1 d-flex justify-space-around">
+                  <div v-for="color in fileColors" :key="`color${color}`" class="my-1">
+                    <v-btn fab light x-small :color="color" @click="selectedColor = color">
+                      <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
               <div class="d-flex mt-3">
                 <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">
                   {{ $t("Common.保存") }}
@@ -537,6 +545,7 @@ import ItemStock from './classes/item/itemStock';
 import Fleet from './classes/fleet/fleet';
 import CalcManager from './classes/calcManager';
 import FleetInfo from './classes/fleet/fleetInfo';
+import Const from './classes/const';
 
 export default Vue.extend({
   name: 'App',
@@ -563,6 +572,8 @@ export default Vue.extend({
     editDialog: false,
     editedName: '',
     editedRemarks: '',
+    isDirectory: false,
+    selectedColor: '',
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
     urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[] },
@@ -580,6 +591,7 @@ export default Vue.extend({
     fleetSelectDialog: false,
     selectableFleets: [] as { selected: boolean; fleet: Fleet; supportTypeName: string }[],
     tempManager: undefined as undefined | CalcManager,
+    fileColors: Const.FILE_COLORS,
   }),
   computed: {
     getCompletedAll() {
@@ -982,6 +994,8 @@ export default Vue.extend({
       if (data) {
         this.editedName = data.name;
         this.editedRemarks = data.remarks;
+        this.isDirectory = data.isDirectory;
+        this.selectedColor = data.color;
         this.saveDialogTab = 'save';
         this.disabledUpload = data.isDirectory;
         this.editDialog = true;
@@ -1008,6 +1022,7 @@ export default Vue.extend({
 
           newData.name = this.editedName;
           newData.remarks = this.editedRemarks;
+          newData.color = this.selectedColor;
           newData.editedDate = Date.now();
           newData.isUnsaved = false;
           newData.saveManagerData();

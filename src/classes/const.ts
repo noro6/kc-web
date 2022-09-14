@@ -1031,4 +1031,30 @@ export default class Const {
     { lv: 2, req: 100 },
     { lv: 1, req: 0 },
   ];
+
+  /**
+   * ファイル色
+   * @static
+   * @memberof Const
+   */
+  public static readonly FILE_COLORS = [
+    'red lighten-1',
+    'pink lighten-2',
+    'purple lighten-2',
+    'deep-purple lighten-1',
+    'indigo lighten-2',
+    'blue',
+    'blue lighten-3',
+    'cyan',
+    'teal lighten-1',
+    'light-green',
+    'lime',
+    'yellow lighten-1',
+    'amber',
+    'orange',
+    'deep-orange',
+    'brown lighten-1',
+    'blue-grey',
+    'grey',
+  ];
 }

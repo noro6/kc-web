@@ -61,9 +61,21 @@
             maxlength="100"
             counter
             :label="$t('SaveData.編成データ名')"
-            @keydown.enter="commitName"
+            @keyup.enter="commitName"
           ></v-text-field>
           <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input"></v-textarea>
+          <div class="mt-4 d-flex" v-if="!editedIsUnsaved">
+            <div class="align-self-center">
+              <v-icon x-large :color="selectedColor">{{ editedIsDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
+            </div>
+            <div class="ml-1 flex-grow-1 d-flex justify-space-around">
+              <div v-for="color in fileColors" :key="`color${color}`" class="my-1">
+                <v-btn fab light x-small :color="color" @click="selectedColor = color">
+                  <v-icon v-if="color === selectedColor" >mdi-check-bold</v-icon>
+                </v-btn>
+              </div>
+            </div>
+          </div>
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
           </div>
@@ -154,6 +166,7 @@ import Vue from 'vue';
 import draggable from 'vuedraggable';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'SaveDataView',
@@ -169,9 +182,13 @@ export default Vue.extend({
     editDialog: false,
     editedName: '',
     editedRemarks: '',
+    editedIsUnsaved: false,
+    editedIsDirectory: false,
+    selectedColor: '',
     editedFile: undefined as SaveData | undefined,
     deleteConfirmData: undefined as SaveData | undefined,
     disabledConfirm: false,
+    fileColors: Const.FILE_COLORS,
   }),
   computed: {
     viewData(): SaveData[] {
@@ -197,6 +214,9 @@ export default Vue.extend({
       this.editedFile = data;
       this.editedName = data.name;
       this.editedRemarks = data.remarks;
+      this.editedIsUnsaved = data.isUnsaved;
+      this.editedIsDirectory = data.isDirectory;
+      this.selectedColor = data.color;
       this.editDialog = true;
     },
     handleCloseTab(data: SaveData, event: MouseEvent) {
@@ -266,6 +286,7 @@ export default Vue.extend({
       if (this.editedFile) {
         this.editedFile.name = this.editedName;
         this.editedFile.remarks = this.editedRemarks;
+        this.editedFile.color = this.selectedColor;
         this.editedFile.editedDate = Date.now();
         this.editedFile = undefined;
       }

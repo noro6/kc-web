@@ -217,10 +217,15 @@ export default Vue.extend({
         this.calculate();
         this.sortContentFromSetting();
       } else if (mutation.type === 'updateSaveData') {
-        const saveData = state.mainSaveData as SaveData;
+        const root = this.$store.state.saveData as SaveData;
+        const saveData = root.getMainData();
         if (saveData) {
-        // 補足情報の置き換え
+          // 補足情報の置き換え
           this.editedRemarks = saveData.remarks;
+        } else {
+          // なぜかデータが消え去ったのでトップページに戻す
+          this.$store.dispatch('setMainSaveData', undefined);
+          this.$router.push('/');
         }
       } else if (mutation.type === 'updateSetting') {
         // 設定情報の更新を購読 常に最新の状態を保つ

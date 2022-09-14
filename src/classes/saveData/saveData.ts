@@ -99,6 +99,9 @@ export default class SaveData {
   /** 最終保存日時 */
   public editedDate: number;
 
+  /** 色 */
+  public color: string;
+
   /** ハイライト表示 専ら旧データインポート時に分かりやすくするため */
   public highlight = false;
 
@@ -128,6 +131,7 @@ export default class SaveData {
     this.tempSavedIndex = -1;
     this.isReadonly = false;
     this.editedDate = Date.now();
+    this.color = 'blue lighten-3';
   }
 
   /**
@@ -146,6 +150,12 @@ export default class SaveData {
     saveData.isOpen = data.isOpen;
     saveData.isUnsaved = false;
     saveData.editedDate = data.editedDate;
+
+    if (!data.color) {
+      saveData.color = data.isDirectory ? 'yellow lighten-1' : 'blue lighten-3';
+    } else {
+      saveData.color = data.color;
+    }
 
     // 子要素を再帰的に復帰
     for (let i = 0; i < data.childItems.length; i += 1) {
@@ -234,7 +244,7 @@ export default class SaveData {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof SaveData) {
         return {
-          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate,
+          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate, color: v.color,
         };
       }
       return v;
