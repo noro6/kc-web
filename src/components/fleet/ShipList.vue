@@ -47,9 +47,6 @@
         <v-checkbox v-model="fastOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速のみ')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="isStockOnly">
-        <v-checkbox v-model="hasAreaOnly" @click="filter()" dense hide-details :label="$t('Fleet.札あり')"></v-checkbox>
-      </div>
-      <div class="mr-3 align-self-center" v-if="isStockOnly">
         <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="$t('Fleet.補強増設あり')"></v-checkbox>
       </div>
       <div class="mr-3 align-self-center" v-if="shipStock.length">
@@ -73,6 +70,11 @@
         @click="changeType(index)"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
+      </div>
+      <div class="ml-auto mr-3" v-if="isStockOnly">
+        <v-img v-show="hasAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered1.png`" />
+        <v-img v-show="hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered2.png`" />
+        <v-img v-show="!hasAreaOnly && !hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered0.png`" />
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
@@ -296,6 +298,10 @@
 .ship-status-header .ship-status {
   font-size: 11px;
 }
+
+.filter_img {
+  cursor: pointer;
+}
 </style>
 
 <script lang="ts">
@@ -360,6 +366,7 @@ export default Vue.extend({
     naikateiOK: false,
     fighterOK: false,
     hasAreaOnly: false,
+    hasNotAreaOnly: false,
     fastOnly: false,
     isReleaseExSlotOnly: false,
     maxAreas: 0,
@@ -405,6 +412,17 @@ export default Vue.extend({
     clickedStockOnly() {
       this.setting.isStockOnlyForShipList = this.isStockOnly;
       this.$store.dispatch('updateSetting', this.setting);
+      this.filter();
+    },
+    toggleAreaFilter() {
+      if (this.hasAreaOnly) {
+        this.hasAreaOnly = false;
+        this.hasNotAreaOnly = true;
+      } else if (this.hasNotAreaOnly) {
+        this.hasNotAreaOnly = false;
+      } else {
+        this.hasAreaOnly = true;
+      }
       this.filter();
     },
     initialize(enabledUserShip = true) {
@@ -521,8 +539,10 @@ export default Vue.extend({
             if (this.isReleaseExSlotOnly && !viewShip.expanded) {
               continue;
             }
-            // 札あり限定検索
+            // 札付き検索
             if (this.hasAreaOnly && viewShip.area <= 0) {
+              continue;
+            } else if (this.hasNotAreaOnly && viewShip.area > 0) {
               continue;
             }
 
