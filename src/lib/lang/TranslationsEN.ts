@@ -38,6 +38,7 @@ export default {
       '敵制空値': 'Enemy Fighter Power',
       '防空制空': 'Def FP',
       'x機': '{number} slots',
+      '装備名称': 'Name',
       '耐久': 'HP',
       '火力': 'FP',
       '雷装': 'Torp',
