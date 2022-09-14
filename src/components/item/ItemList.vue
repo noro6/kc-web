@@ -71,6 +71,13 @@
     <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div
+          class="item-status text-left flex-grow-1 pl-1"
+          @click="toggleSortKey('name')"
+          :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }"
+        >
+          <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.装備名称`) }}</div>
+        </div>
+        <div
           class="item-status"
           v-for="(data, i) in headerItems"
           :key="`item${i}`"
@@ -964,10 +971,17 @@ export default Vue.extend({
     sortItems() {
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
+      const isNameSort = key === 'name';
       const isActualValue = key.indexOf('actual') >= 0 || key === 'tp' || key === 'airPower' || key === 'defenseAirPower' || key === 'antiAirWeight' || key === 'antiAirBonus';
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {
           return desc * ((b.item[key] as number) - (a.item[key] as number));
+        }
+        if (isNameSort) {
+          const sa = String((a.item.data as { name: number }).name).replace(/(\d+)/g, (m) => m.padStart(10, '0'));
+          const sb = String((b.item.data as { name: number }).name).replace(/(\d+)/g, (m) => m.padStart(10, '0'));
+          // eslint-disable-next-line no-nested-ternary
+          return -desc * (sa < sb ? -1 : sa > sb ? 1 : 0);
         }
         return desc * ((b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key]);
       });
