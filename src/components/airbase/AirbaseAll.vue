@@ -56,6 +56,12 @@
       </v-tooltip>
     </div>
     <v-divider></v-divider>
+    <div class="my-3" v-if="needAirRaid">
+      <v-alert outlined type="error"
+        >{{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
+        <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
+      </v-alert>
+    </div>
     <div>
       <div class="d-flex">
         <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo"></v-switch>
@@ -474,6 +480,7 @@ import SiteSetting from '@/classes/siteSetting';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Convert from '@/classes/convert';
+import { MasterMap } from '@/classes/interfaces/master';
 
 export default Vue.extend({
   name: 'AirbaseAll',
@@ -512,6 +519,7 @@ export default Vue.extend({
     bulkUpdateTarget: [1, 1, 1],
     itemPresetDialog: false,
     tempAirbase: undefined as undefined | Airbase,
+    airRaidAreas: [] as number[],
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -579,12 +587,27 @@ export default Vue.extend({
       }
       return errors.length ? `第${errors.join(', 第')}基地航空隊の半径が不足しています。` : '';
     },
+    needAirRaid(): boolean {
+      const hasAirRaid = this.battleInfo.fleets.some((v) => this.airRaidAreas.includes(v.area));
+      const hasDefense = this.airbaseInfo.airbases.some((v) => v.mode === AB_MODE.DEFENSE);
+
+      // 出撃になっている航空隊の第1スロットのみを取得
+      const firstSlots = this.airbaseInfo.airbases.filter((v) => v.mode === AB_MODE.BATTLE).map((v) => v.items.find((w) => w.data.id));
+      // 上記のスロットが偵察機なら4未満に、攻撃機なら18未満になっているかチェック
+      const doneAirRaid = firstSlots.every((v) => v && ((v.data.isRecon && v.fullSlot < 4) || (!v.data.isRecon && v.fullSlot < 18)));
+
+      return hasAirRaid && !hasDefense && !doneAirRaid;
+    },
     isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
     },
     isNormalAirRaidMode(): boolean {
       return this.airbaseInfo.isDefense && this.battleInfo.airRaidFleet.cellType !== CELL_TYPE.SUPER_HIGH_AIR_RAID;
     },
+  },
+  mounted() {
+    const maps = this.$store.state.maps as MasterMap[];
+    this.airRaidAreas = maps.filter((v) => v.has_air_raid).map((v) => v.area);
   },
   methods: {
     setInfo() {

@@ -318,6 +318,7 @@ export default {
       '全基地航空隊リセット': 'Reset All LBAS',
       '基地航空隊派遣先設定': 'Select targeted node',
       '基地航空隊詳細': 'Details',
+      '基地空襲が発生します。基地空襲による被害を考慮してください。': 'The enemy will raid the bases during the sortie. Shooting down due to this should be taken into account.',
     },
     Fleet: {
       '自艦隊': 'Fleet',
