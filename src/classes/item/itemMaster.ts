@@ -110,11 +110,8 @@ export default class ItemMaster {
   /** 爆雷(教義)フラグ */
   public readonly isStrictDepthCharge: boolean;
 
-  /** 特効テキスト */
-  public readonly bonusGroupText: string;
-
-  /** 特効テキストサブ */
-  public readonly bonusGroupSubText: string;
+  /** 特効情報 */
+  public readonly bonuses: {type:number, text: string, subText: string}[];
 
   /**
    * Creates an instance of ItemMaster.
@@ -195,14 +192,12 @@ export default class ItemMaster {
       this.iconTypeId = 1700;
     }
 
-    // 特効テキスト
-    const bonus = Const.SPECIAL_GROUP.find((v) => v.items.includes(this.id));
-    if (bonus) {
-      this.bonusGroupText = bonus.text;
-      this.bonusGroupSubText = bonus.subText;
-    } else {
-      this.bonusGroupText = '';
-      this.bonusGroupSubText = '';
+    // 特効テキストを用意
+    this.bonuses = [{ type: -1, text: '', subText: '' }];
+    const bonuses = Const.SPECIAL_GROUP.filter((v) => v.items.includes(this.id));
+    for (let i = 0; i < bonuses.length; i += 1) {
+      const bonus = bonuses[i];
+      this.bonuses.push({ type: bonus.type, text: bonus.text, subText: '' });
     }
   }
 }

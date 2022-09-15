@@ -42,9 +42,9 @@
     <!-- 装備名称 -->
     <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
       {{ itemName }}
-      <div class="item-special-text" v-if="item.data.bonusGroupText">
-        <div class="align-self-center">{{ item.data.bonusGroupText }}</div>
-        <div class="sub-text">{{ item.data.bonusGroupSubText }}</div>
+      <div class="item-special-text" v-if="bonusText">
+        <div class="align-self-center">{{ bonusText }}</div>
+        <div class="sub-text">{{ '' }}</div>
       </div>
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
@@ -420,6 +420,14 @@ export default Vue.extend({
         classes.push('disabled-draggable');
       }
       return classes.join(' ');
+    },
+    bonusText(): string {
+      const type = (this.$store.state.siteSetting as SiteSetting).displayBonusType;
+      const bonus = this.value.data.bonuses.find((v) => v.type === type);
+      if (bonus) {
+        return bonus.text;
+      }
+      return '';
     },
   },
   methods: {

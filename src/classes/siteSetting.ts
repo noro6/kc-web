@@ -94,6 +94,9 @@ export default class SiteSetting {
   /** 艦娘一覧 検索条件保存値 */
   public savedShipListFilter: { isFinalOnly: boolean }
 
+  /** 特効表示タイプ */
+  public displayBonusType: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -123,6 +126,7 @@ export default class SiteSetting {
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
+      this.displayBonusType = setting.displayBonusType ? setting.displayBonusType : 0;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -192,6 +196,7 @@ export default class SiteSetting {
         { id: 49, level: 25 },
       ];
       this.contentOrder = [];
+      this.displayBonusType = 0;
     }
   }
 }

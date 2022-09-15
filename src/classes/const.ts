@@ -167,16 +167,28 @@ export default class Const {
   public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439];
 
   public static readonly SPECIAL_GROUP = [
-    { text: 'A', subText: '2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254] },
-    { text: 'A', subText: '3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
-    { text: 'A', subText: '4', items: [405, 433, 244, 424, 425] },
-    { text: 'B', subText: '1', items: [178, 354] },
-    { text: 'B', subText: '2', items: [158, 159, 353] },
-    { text: 'B', subText: '3', items: [249, 184] },
-    { text: 'B', subText: '4', items: [189] },
-    { text: 'C', subText: '1', items: [250, 251, 253] },
-    { text: 'C', subText: '3', items: [473, 474] },
-    { text: 'C', subText: '4', items: [252, 434, 435, 423, 479] },
+    { type: 1, text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254] },
+    { type: 1, text: 'A3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
+    { type: 1, text: 'A4', items: [405, 433, 244, 424, 425] },
+    { type: 1, text: 'B1', items: [178, 354] },
+    { type: 1, text: 'B2', items: [158, 159, 353] },
+    { type: 1, text: 'B3', items: [249, 184] },
+    { type: 1, text: 'B4', items: [189] },
+    { type: 1, text: 'C1', items: [250, 251, 253] },
+    { type: 1, text: 'C3', items: [473, 474] },
+    { type: 1, text: 'C4', items: [252, 434, 435, 423, 479] },
+
+    { type: 2, text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254, 255, 375, 389, 195, 419, 420] },
+    { type: 2, text: 'A3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
+    { type: 2, text: 'A4', items: [405, 433, 244, 424, 425] },
+    { type: 2, text: 'B1', items: [178] },
+    { type: 2, text: 'B2', items: [158, 159, 353, 354] },
+    { type: 2, text: 'B3', items: [249, 184] },
+    { type: 2, text: 'B4', items: [189] },
+    { type: 2, text: 'C1', items: [250, 251, 253] },
+    { type: 2, text: 'C2', items: [406] },
+    { type: 2, text: 'C3', items: [473, 474] },
+    { type: 2, text: 'C4', items: [252, 434, 435, 423, 479, 480] },
   ];
 
   public static readonly ITEM_API_TYPE = [

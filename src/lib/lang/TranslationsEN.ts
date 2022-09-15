@@ -138,6 +138,8 @@ export default {
       '戦闘機のみ最大': 'Maximize fighters only',
       '艦載機搭載数': 'Slot',
       '本当に削除しますか？': 'Are you sure you want to delete it?',
+      '装備特効表示': 'Equipment Bonuses',
+      'なし': 'None',
     },
     Difficulty: {
       '難易度': 'Difficulty',

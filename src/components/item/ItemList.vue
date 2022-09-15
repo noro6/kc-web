@@ -44,7 +44,7 @@
       <div class="ml-3 align-self-center my-3" v-if="type === 7 && !isEnemyMode">
         <v-checkbox v-model="isEnabledLandBaseAttack" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.対地攻撃可')"></v-checkbox>
       </div>
-      <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode">
+      <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusType">
         <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')"></v-checkbox>
       </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
@@ -142,9 +142,9 @@
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
-            <div class="item-special-text" v-if="v.item.data.bonusGroupText">
-              <div class="align-self-center">{{ v.item.data.bonusGroupText }}</div>
-              <div class="sub-text">{{ v.item.data.bonusGroupSubText }}</div>
+            <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find(v=> v.type === setting.displayBonusType)">
+              <div class="align-self-center">{{ v.item.data.bonuses.find(v=> v.type === setting.displayBonusType).text }}</div>
+              <!-- <div class="sub-text">{{ v.item.data.bonuses[setting.displayBonusType].subText }}</div> -->
             </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
@@ -817,6 +817,7 @@ export default Vue.extend({
     filter() {
       const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.baseItems.concat();
+      const bonusType = this.setting.displayBonusType;
 
       if (this.isEnemyMode) {
         // 敵装備
@@ -827,8 +828,8 @@ export default Vue.extend({
       if (this.type === 7 && this.isEnabledLandBaseAttack) {
         result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
       }
-      if (this.isSpecialOnly) {
-        result = result.filter((v) => v.bonusGroupText);
+      if (this.isSpecialOnly && bonusType) {
+        result = result.filter((v) => v.bonuses.find((x) => x.type === bonusType));
       }
 
       // 検索語句あれば最優先 カテゴリ検索を飛ばす
