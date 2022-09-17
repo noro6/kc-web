@@ -255,6 +255,7 @@ export default {
       '翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。': 'Translation is still incomplete. If you would like to help me, I would appreciate it.',
       'お題箱': 'Request Box',
       'コピーされました。': 'Copied.',
+      '更新が完了しました。': 'Update completed.',
     },
     SaveData: {
       '新しい編成を作成': 'New File',
