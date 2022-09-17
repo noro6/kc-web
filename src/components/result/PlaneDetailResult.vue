@@ -677,7 +677,7 @@ export default Vue.extend({
         // 陸上偵察機初期値設定
         if (this.parent.items.some((v) => v.data.id === 312)) {
           this.calcArgs.rikuteiBonus = 1.15;
-        } else if (this.parent.items.some((v) => v.data.id === 311)) {
+        } else if (this.parent.items.some((v) => v.data.id === 311 || v.data.id === 480)) {
           this.calcArgs.rikuteiBonus = 1.125;
         }
       } else {

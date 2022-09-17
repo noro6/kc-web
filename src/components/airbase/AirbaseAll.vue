@@ -649,12 +649,13 @@ export default Vue.extend({
             initialLevel = initData.level;
           }
 
-          if (item.id === 312 && initialLevel > 25) {
-            // 陸上偵察機(熟練)の制御
-            initialLevel = 25;
-          } else if (item.id === 311) {
-            // 陸上偵察機無印の制御
-            initialLevel = 0;
+          if (item.apiTypeId === 49) {
+            if (item.id === 312) {
+              // 陸上偵察機(熟練)の制御
+              initialLevel = Math.max(25, initialLevel);
+            } else {
+              initialLevel = 0;
+            }
           }
         }
 
@@ -806,10 +807,12 @@ export default Vue.extend({
               slot = Math.min(18, itemBuilder.slot);
             }
 
-            if (item.data.id === 312 && itemBuilder.level) {
-              level = Math.min(25, itemBuilder.level);
-            } else if (item.data.id === 311) {
-              level = 0;
+            if (item.data.apiTypeId === 49) {
+              if (item.data.id === 312 && itemBuilder.level) {
+                level = Math.min(25, itemBuilder.level);
+              } else {
+                level = 0;
+              }
             }
             items[j] = new Item({
               item,
@@ -884,12 +887,13 @@ export default Vue.extend({
                 level = initData.level;
               }
 
-              if (newItem.data.id === 312 && level > 25) {
-                // 陸上偵察機(熟練)の制御
-                level = 25;
-              } else if (newItem.data.id === 311) {
-                // 陸上偵察機無印の制御
-                level = 0;
+              if (newItem.data.apiTypeId === 49) {
+                if (newItem.data.id === 312) {
+                  // 陸上偵察機(熟練)の制御
+                  level = Math.max(25, level);
+                } else {
+                  level = 0;
+                }
               }
             }
             newItems[slotIndex] = new Item({
