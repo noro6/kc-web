@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.20.2',
+    siteVersion: '2.20.3',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -333,6 +333,8 @@ export default new Vuex.Store({
           if (!unsavedData.isDirectory) {
             unsavedData.isUnsaved = true;
             unsavedData.isActive = true;
+          } else {
+            unsavedData.color = 'yellow lighten-1';
           }
         }
 

@@ -207,6 +207,8 @@ export default class SaveData {
     folder.isDirectory = true;
     folder.isReadonly = true;
     folder.isOpen = true;
+    folder.color = 'yellow lighten-1';
+
     root.childItems.push(folder);
 
     // 初期フォルダー作成 第1～7海域まで作ってやる
@@ -226,6 +228,7 @@ export default class SaveData {
         newFolder.name = world.text;
         newFolder.isDirectory = true;
         newFolder.isUnsaved = false;
+        newFolder.color = 'yellow lighten-1';
         folder.childItems.push(newFolder);
       }
     }
