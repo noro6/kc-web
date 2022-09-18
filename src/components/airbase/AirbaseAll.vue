@@ -55,15 +55,15 @@
         <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
-    <v-divider></v-divider>
-    <div class="my-3" v-if="needAirRaid">
-      <v-alert outlined type="error"
-        >{{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
-        <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
-      </v-alert>
-    </div>
-    <div>
-      <div class="d-flex">
+    <v-divider class="mb-3"></v-divider>
+    <div :class="{ 'has-error-space': !airbaseInfo.isDefense && needErrorSpace }">
+      <div v-if="!airbaseInfo.isDefense && needAirRaid" class="w-100">
+        <v-alert outlined type="error"
+          >{{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
+          <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
+        </v-alert>
+      </div>
+      <div class="d-flex w-100">
         <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo"></v-switch>
         <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t("Airbase.基地派遣先設定") }}</v-btn>
@@ -460,6 +460,19 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
+
+.has-error-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 90px;
+}
+.w-100 {
+  width: 100%;
+}
+.opacity0 {
+  opacity: 0;
+}
 </style>
 
 <script lang="ts">
@@ -586,6 +599,9 @@ export default Vue.extend({
         return errors.length ? `第${errors.join(', 第')}基地航空隊の半径が不足している可能性があります。` : '';
       }
       return errors.length ? `第${errors.join(', 第')}基地航空隊の半径が不足しています。` : '';
+    },
+    needErrorSpace(): boolean {
+      return this.battleInfo.fleets.some((v) => this.airRaidAreas.includes(v.area));
     },
     needAirRaid(): boolean {
       const hasAirRaid = this.battleInfo.fleets.some((v) => this.airRaidAreas.includes(v.area));
