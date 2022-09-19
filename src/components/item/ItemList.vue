@@ -19,6 +19,9 @@
         <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()"></v-text-field>
       </div>
       <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
+      <div class="ml-3 align-self-center">
+        <v-btn color="secondary" small @click="resetFilter()">{{ $t("ItemList.リセット") }}</v-btn>
+      </div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
@@ -662,6 +665,11 @@ export default Vue.extend({
       this.setting.isStockOnlyForItemList = this.isStockOnly;
       this.$store.dispatch('updateSetting', this.setting);
       this.filter();
+    },
+    resetFilter() {
+      this.keyword = '';
+      this.filterStatusValue = 0;
+      this.changedFilter();
     },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
       this.itemParent = parent;
