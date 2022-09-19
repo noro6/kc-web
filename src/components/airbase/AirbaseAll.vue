@@ -668,7 +668,7 @@ export default Vue.extend({
           if (item.apiTypeId === 49) {
             if (item.id === 312) {
               // 陸上偵察機(熟練)の制御
-              initialLevel = Math.max(25, initialLevel);
+              initialLevel = Math.min(25, initialLevel);
             } else {
               initialLevel = 0;
             }
@@ -824,8 +824,10 @@ export default Vue.extend({
             }
 
             if (item.data.apiTypeId === 49) {
-              if (item.data.id === 312 && itemBuilder.level) {
-                level = Math.min(25, itemBuilder.level);
+              if (item.data.id === 312) {
+                if (itemBuilder.level) {
+                  level = Math.min(25, itemBuilder.level);
+                }
               } else {
                 level = 0;
               }
