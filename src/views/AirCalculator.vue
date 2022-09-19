@@ -1,7 +1,7 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
     <v-card class="bonuses-group d-flex my-2 px-4 py-0">
-      <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }} : </div>
+      <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }} :</div>
       <v-radio-group v-model="setting.displayBonusType" row @change="changeDisplayBonus">
         <v-radio :label="$t('Common.なし')" :value="0"></v-radio>
         <v-radio label="E-3" :value="1"></v-radio>
@@ -185,7 +185,7 @@ export default Vue.extend({
       this.setting = this.$store.state.siteSetting as SiteSetting;
       if (mutation.type === 'setMainSaveData') {
         const saveData = state.mainSaveData as SaveData;
-        if (!saveData) {
+        if (!saveData && this.$route.path !== '/') {
           // 計算対象データがないならトップページに戻す。開いてる途中で削除されたりしたらこうなる
           this.$router.push('/');
           return;
@@ -239,7 +239,9 @@ export default Vue.extend({
         } else {
           // なぜかデータが消え去ったのでトップページに戻す
           this.$store.dispatch('setMainSaveData', undefined);
-          this.$router.push('/');
+          if (this.$route.path !== '/') {
+            this.$router.push('/');
+          }
         }
       } else if (mutation.type === 'updateSetting') {
         // 設定情報の更新を購読 常に最新の状態を保つ
@@ -258,7 +260,7 @@ export default Vue.extend({
       saveData.isActive = true;
       // 計算開始
       this.$store.dispatch('setMainSaveData', saveData);
-    } else {
+    } else if (this.$route.path !== '/') {
       this.$router.push('/');
     }
   },

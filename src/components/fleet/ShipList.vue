@@ -34,11 +34,21 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')"></v-checkbox>
       </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="daihatsuOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.大発搭載可')"></v-checkbox>
+      <div class="mr-3 d-flex manual-checkbox">
+        <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="blue lighten-1" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <img @click="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
       </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="naikateiOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
+      <div class="mr-3 d-flex manual-checkbox">
+        <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="blue lighten-1" v-if="tankOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-24" />
       </div>
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
@@ -72,9 +82,9 @@
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
       <div class="ml-auto mr-3" v-if="isStockOnly">
-        <v-img v-show="hasAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered1.png`" />
-        <v-img v-show="hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered2.png`" />
-        <v-img v-show="!hasAreaOnly && !hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered0.png`" />
+        <img v-show="hasAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered1.png`" alt="area-img-1" />
+        <img v-show="hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered2.png`" alt="area-img-2" />
+        <img v-show="!hasAreaOnly && !hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered0.png`" alt="area-img-0" />
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
@@ -302,6 +312,25 @@
 .filter_img {
   cursor: pointer;
 }
+
+.manual-checkbox {
+  position: relative;
+  height: 32px;
+  width: 74px;
+  cursor: pointer;
+}
+.manual-checkbox-button {
+  position: absolute;
+  bottom: -6px;
+}
+.manual-icon {
+  font-size: 20px !important;
+}
+.manual-checkbox img {
+  position: absolute;
+  left: 32px;
+  top: -1px;
+}
 </style>
 
 <script lang="ts">
@@ -363,7 +392,9 @@ export default Vue.extend({
     confirmShip: {} as ViewShip,
     setting: new SiteSetting(),
     daihatsuOK: false,
-    naikateiOK: false,
+    daihatsuNG: false,
+    tankOK: false,
+    tankNG: false,
     fighterOK: false,
     hasAreaOnly: false,
     hasNotAreaOnly: false,
@@ -422,6 +453,28 @@ export default Vue.extend({
         this.hasNotAreaOnly = false;
       } else {
         this.hasAreaOnly = true;
+      }
+      this.filter();
+    },
+    toggleDaihatsuFilter() {
+      if (this.daihatsuOK) {
+        this.daihatsuOK = false;
+        this.daihatsuNG = true;
+      } else if (this.daihatsuNG) {
+        this.daihatsuNG = false;
+      } else {
+        this.daihatsuOK = true;
+      }
+      this.filter();
+    },
+    toggleTankFilter() {
+      if (this.tankOK) {
+        this.tankOK = false;
+        this.tankNG = true;
+      } else if (this.tankNG) {
+        this.tankNG = false;
+      } else {
+        this.tankOK = true;
       }
       this.filter();
     },
@@ -490,12 +543,24 @@ export default Vue.extend({
           if (daihatsu) {
             result = result.filter((v) => isValid(v, daihatsu));
           }
+        } else if (this.daihatsuNG) {
+          // 大発搭載不可
+          const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
+          if (daihatsu) {
+            result = result.filter((v) => !isValid(v, daihatsu));
+          }
         }
-        if (this.naikateiOK) {
+        if (this.tankOK) {
           // 内火艇搭載可能
-          const naikatei = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
-          if (naikatei) {
-            result = result.filter((v) => isValid(v, naikatei));
+          const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
+          if (tank) {
+            result = result.filter((v) => isValid(v, tank));
+          }
+        } else if (this.tankNG) {
+          // 内火艇搭載不可
+          const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
+          if (tank) {
+            result = result.filter((v) => !isValid(v, tank));
           }
         }
         if (this.fighterOK) {

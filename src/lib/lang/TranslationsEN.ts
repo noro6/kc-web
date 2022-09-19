@@ -555,6 +555,7 @@ export default {
       '保存しました。': 'Completed.',
       '削除しました。': 'Completed.',
       'x機': '{number}',
+      'リセット': 'Reset',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',
