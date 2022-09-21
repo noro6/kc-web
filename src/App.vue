@@ -54,6 +54,7 @@
           clearable
           :loading="readState"
           @click:append="readSomethingText"
+          @keypress.enter="readSomethingText"
         ></v-textarea>
       </div>
       <v-tooltip left>
@@ -813,6 +814,9 @@ export default Vue.extend({
       }
     },
     readSomethingText() {
+      if (!this.somethingText) {
+        return;
+      }
       this.readState = 'primary';
       // デッキビルダー形式データ読み込み試行
       if (this.loadAndConfirmDeckBuilder(this.somethingText)) {
