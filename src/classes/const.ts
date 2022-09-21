@@ -187,10 +187,8 @@ export default class Const {
     { type: 2, text: 'B4', items: [189] },
     { type: 2, text: 'C1', items: [250, 251, 253] },
     { type: 2, text: 'C2', items: [406] },
-    { type: 2, text: 'C3', items: [473, 474] },
-    { type: 2, text: 'C4', items: [252, 434, 435, 423, 479, 480] },
-    { type: 2, text: '3', items: [475] },
-    { type: 2, text: '4', items: [476, 481] },
+    { type: 2, text: 'C3', items: [473, 474, 475] },
+    { type: 2, text: 'C4', items: [252, 434, 435, 423, 476, 479, 480, 481] },
   ];
 
   public static readonly ITEM_API_TYPE = [
