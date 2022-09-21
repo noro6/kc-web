@@ -95,7 +95,7 @@
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
-      <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`" class="fleet-container" :class="{ captured: capturing }">
+      <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`" class="fleet-container" :class="{ captured: capturing, 'is-2line': is2Line }">
         <fleet-component
           v-model="fleetInfo.fleets[i]"
           :index="i"
@@ -396,6 +396,9 @@
   border-radius: 0.25rem;
   padding: 0.75rem;
 }
+.fleet-container.captured.is-2line {
+  width: 860px !important;
+}
 .theme--dark .fleet-container.captured {
   background: rgb(40, 40, 45);
   border: 1px solid #444;
@@ -620,6 +623,10 @@ export default Vue.extend({
   computed: {
     fleetInfo(): FleetInfo {
       return this.value;
+    },
+    is2Line(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return setting.isShipView2Line;
     },
     needTrans(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;

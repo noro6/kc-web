@@ -161,6 +161,9 @@
 .captured .ship-inputs-container {
   grid-template-columns: 1fr 1fr 1fr;
 }
+.captured .ship-inputs-container:not(.line3) {
+  grid-template-columns: 1fr 1fr;
+}
 .captured .operation-button {
   display: none;
 }
