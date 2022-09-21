@@ -111,7 +111,7 @@
                   <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
                 </v-tooltip>
               </div>
-              <div>
+              <div class="ml-2">
                 <v-chip class="mr-1" color="green" label outlined>
                   <span>{{ $t("Common.確保") }}:</span>
                   <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
@@ -185,8 +185,14 @@
                   </div>
                   <div v-if="!fleet.isUnion" class="item-preview">
                     <div v-for="(item, k) in enemy.items" :key="k" class="mr-4 item-image-area">
-                      <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
-                      <div class="slot" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
+                      <template v-if="enemy.items.length < 5">
+                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+                        <div class="slot" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
+                      </template>
+                      <template v-else>
+                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+                        <div class="slot tiny" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -315,6 +321,9 @@
   font-weight: 600;
   bottom: -5px;
   left: 28px;
+}
+.item-image-area .slot.tiny {
+  left: 24px;
 }
 
 .map-container {

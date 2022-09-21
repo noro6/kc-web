@@ -135,7 +135,7 @@
               <v-checkbox :label="$t('Result.残機数分布を利用')" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
               <v-tooltip bottom color="black">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                  <v-icon class="align-self-center mt-2 ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
                 </template>
                 <div class="caption">
                   <div>{{ $t("Result.対空砲火により撃墜される機数の確率分布を利用して計算します。") }}</div>
@@ -200,7 +200,7 @@
             <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
             <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
-                <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                <v-icon class="align-self-center mt-2 ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
               </template>
               <div class="caption">
                 <div>{{ $t("Result.クリティカル発生時のダメージを表示します。") }}</div>
@@ -218,7 +218,7 @@
             <v-checkbox :label="$t('Result.連合')" dense hide-details v-model="calcArgs.isUnion" @change="calculateFire"></v-checkbox>
             <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
-                <v-icon class="align-self-center mt-2" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                <v-icon class="align-self-center mt-2 ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
               </template>
               <div class="caption">
                 <div>{{ $t("Result.防御側が連合艦隊であるかどうかを設定します。") }}</div>

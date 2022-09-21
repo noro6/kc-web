@@ -132,8 +132,6 @@
 }
 .v-data-table tbody td {
   background-color: unset !important;
-}
-.v-data-table tbody td {
   height: unset !important;
 }
 .v-data-table tbody td > * {
