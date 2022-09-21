@@ -47,6 +47,23 @@
       <div class="ml-3 align-self-center my-3" v-if="type === 7 && !isEnemyMode">
         <v-checkbox v-model="isEnabledLandBaseAttack" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.対地攻撃可')"></v-checkbox>
       </div>
+      <template v-if="type === 14">
+        <div class="ml-3 align-self-center my-3">
+          <v-checkbox v-model="includeSonar" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.ソナー') : 'ソナー'"></v-checkbox>
+        </div>
+        <div class="ml-3 align-self-center my-3">
+          <v-checkbox v-model="includeDepthCharge" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.爆雷') : '爆雷'"></v-checkbox>
+        </div>
+        <div class="ml-3 align-self-center my-3">
+          <v-checkbox
+            v-model="includeDepthChargeLauncher"
+            @click="clickedStockOnly"
+            hide-details
+            dense
+            :label="isNotJapanese ? $t('EType.爆雷投射機') : '爆雷投射機'"
+          ></v-checkbox>
+        </div>
+      </template>
       <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusType">
         <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')"></v-checkbox>
       </div>
@@ -145,8 +162,8 @@
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
-            <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find(v=> v.type === setting.displayBonusType)">
-              <div class="align-self-center">{{ v.item.data.bonuses.find(v=> v.type === setting.displayBonusType).text }}</div>
+            <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find((v) => v.type === setting.displayBonusType)">
+              <div class="align-self-center">{{ v.item.data.bonuses.find((v) => v.type === setting.displayBonusType).text }}</div>
               <!-- <div class="sub-text">{{ v.item.data.bonuses[setting.displayBonusType].subText }}</div> -->
             </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
@@ -476,6 +493,9 @@ export default Vue.extend({
     isEnemyMode: false,
     isStockOnly: false,
     isEnabledLandBaseAttack: false,
+    includeSonar: true,
+    includeDepthCharge: true,
+    includeDepthChargeLauncher: true,
     isSpecialOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
@@ -835,6 +855,15 @@ export default Vue.extend({
       }
       if (this.type === 7 && this.isEnabledLandBaseAttack) {
         result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+      }
+      if (this.type === 14 && !this.includeSonar) {
+        result = result.filter((v) => v.apiTypeId !== 14);
+      }
+      if (this.type === 14 && !this.includeDepthCharge) {
+        result = result.filter((v) => v.iconTypeId !== 1700);
+      }
+      if (this.type === 14 && !this.includeDepthChargeLauncher) {
+        result = result.filter((v) => v.iconTypeId !== 17);
       }
       if (this.isSpecialOnly && bonusType) {
         result = result.filter((v) => v.bonuses.find((x) => x.type === bonusType));
