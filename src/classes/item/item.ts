@@ -131,6 +131,9 @@ export default class Item {
   /** 航空戦雷装ボーナス 艦娘インスタンス化時限定変更 */
   public attackerTorpedoBonus = 0;
 
+  /** 航空戦雷装ボーナス(熟練甲板要員＋航空整備員による) 艦娘インスタンス化時限定変更 */
+  public crewTorpedoBonus = 0;
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 

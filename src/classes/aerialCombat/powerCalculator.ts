@@ -419,6 +419,7 @@ export default class AerialFirePowerCalculator {
     // 雷装ボーナス適用
     fire *= args.torpedoBonus;
     fire += item.attackerTorpedoBonus;
+    fire += item.crewTorpedoBonus;
 
     const loop = type === 8 ? 2 : 1;
     const retPowers = [];

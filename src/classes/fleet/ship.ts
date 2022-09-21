@@ -263,9 +263,13 @@ export default class Ship implements ShipBase {
     // 対潜支援参加可能艦種
     const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
 
+    // 夜偵"失敗率"
     let nightContactFailureRate = 1;
     // 装備一覧より取得
     const items = this.items.concat(this.exItem);
+    // 熟練甲板要員＋航空整備員 整備員ボーナスがあるかどうかをチェック
+    const crewTorpedoBonus = items.some((v) => v.data.id === 478 && v.remodel >= 5) ? 1 : 0;
+
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
 
@@ -303,10 +307,12 @@ export default class Ship implements ShipBase {
       if (item.data.isAttacker) {
         this.torpedoBonuses.push(this.getAttackerTorpedoBonus(item));
         item.attackerTorpedoBonus = 0;
+        item.crewTorpedoBonus = crewTorpedoBonus;
 
         const temp = Math.max(maximumAttacker.data.torpedo, maximumAttacker.data.bomber);
         const value = Math.max(item.data.torpedo, item.data.bomber);
         if (temp < value) {
+          // 最も雷装 or 爆装の高い機体を更新
           maximumAttacker = item;
         }
       }
@@ -356,8 +362,8 @@ export default class Ship implements ShipBase {
 
     // 雷装ボーナス適用装備抽出 & セット
     if (this.torpedoBonuses.length) {
-      // 適用装備の雷装ボーナスプロパティを更新
-      maximumAttacker.attackerTorpedoBonus = +this.torpedoBonuses.sort((a, b) => b - a)[0];
+      // 適用装備の雷装ボーナスを加算
+      maximumAttacker.attackerTorpedoBonus += this.torpedoBonuses.sort((a, b) => b - a)[0];
     }
 
     // 伊勢 / 日向 / 飛龍 / 蒼龍の改二 二式艦上偵察機で射程バフ +1
@@ -1959,6 +1965,12 @@ export default class Ship implements ShipBase {
           total += 2;
         } else if (type2 === 45) {
           // あきつ丸 => +1
+          total += 1;
+        }
+      } else if (item.data.id === 478) {
+        // 熟練甲板要員＋航空整備員
+        if (type === SHIP_TYPE.CV || type === SHIP_TYPE.CVL || type === SHIP_TYPE.CVB) {
+          // 空母
           total += 1;
         }
       }
