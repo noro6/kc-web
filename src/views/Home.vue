@@ -68,9 +68,13 @@
           <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
           <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
         </div>
-        <div class="ml-4 mt-2 body-2">
+        <div class="ml-4 mt-6 body-2">
           <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
           <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
+        </div>
+        <div class="ml-4 mt-6 body-2">
+          <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
+          <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}</div>
         </div>
       </div>
     </v-card>
