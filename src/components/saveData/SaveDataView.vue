@@ -78,9 +78,10 @@
             counter
             :label="$t('SaveData.フォルダー名')"
             @keydown.enter="addNewDirectory"
+            :disabled="!editDialog"
           ></v-text-field>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -180,6 +181,7 @@ export default Vue.extend({
       if (this.isNameEmpty) {
         return;
       }
+      this.editDialog = false;
 
       // 新規フォルダー
       const folder = new SaveData();
@@ -190,7 +192,6 @@ export default Vue.extend({
       this.addNewSaveData(folder);
       this.handleInform('新しいフォルダーを作成しました。');
 
-      this.editDialog = false;
       this.editedName = '';
     },
     addNewSaveData(saveData: SaveData) {

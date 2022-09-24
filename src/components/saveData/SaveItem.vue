@@ -82,6 +82,7 @@
             counter
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
             @keydown.enter="commitName"
+            :disabled="!editDialog"
           ></v-text-field>
           <v-textarea
             v-if="!value.isDirectory"
@@ -106,7 +107,7 @@
             </div>
           </div>
           <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty">{{ $t("Common.更新") }}</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>

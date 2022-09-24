@@ -447,6 +447,7 @@
                 counter
                 :label="$t('Home.編成データ名')"
                 @keydown.enter="saveAndRenameCurrentData"
+                :disabled="!editDialog"
               ></v-text-field>
               <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input"></v-textarea>
               <div class="mt-4 d-flex">
@@ -462,7 +463,7 @@
                 </div>
               </div>
               <div class="d-flex mt-3">
-                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty">
+                <v-btn class="ml-auto" color="success" @click.stop="saveAndRenameCurrentData" :disabled="isNameEmpty || !editDialog">
                   {{ $t("Common.保存") }}
                 </v-btn>
                 <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -1009,6 +1010,8 @@ export default Vue.extend({
       if (this.isNameEmpty) {
         return;
       }
+      this.editDialog = false;
+
       // 現在計算画面で開かれているデータを取得
       const data = this.saveData.getMainData();
       if (data) {
@@ -1052,7 +1055,6 @@ export default Vue.extend({
           this.inform('保存に失敗しました。', true);
         }
       }
-      this.editDialog = false;
     },
     closeEditDialog() {
       this.editDialog = false;
