@@ -44,8 +44,13 @@
       <div class="align-self-center my-3">
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')"></v-checkbox>
       </div>
-      <div class="ml-3 align-self-center my-3" v-if="type === 7 && !isEnemyMode">
-        <v-checkbox v-model="isEnabledLandBaseAttack" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.対地攻撃可')"></v-checkbox>
+      <div class="ml-3 d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
+        <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="blue lighten-1" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <span @click="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
       </div>
       <template v-if="type === 14">
         <div class="ml-3 align-self-center my-3">
@@ -446,6 +451,28 @@
 .item-status-header .item-status.asc .v-icon {
   transform: rotate(180deg);
 }
+
+.manual-checkbox {
+  position: relative;
+  cursor: pointer;
+  height: 32px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.manual-checkbox-button {
+  position: relative;
+  bottom: -2px;
+}
+.manual-icon {
+  font-size: 20px !important;
+}
+.manual-checkbox span {
+  position: relative;
+  bottom: -10px;
+  font-size: 0.85em;
+  opacity: 0.7;
+  user-select: none;
+}
 </style>
 
 <script lang="ts">
@@ -485,7 +512,7 @@ export default Vue.extend({
     itemParent: undefined as undefined | Ship | Airbase | Enemy,
     all: [] as ItemMaster[],
     baseItems: [] as ItemMaster[],
-    types: Const.ITEM_TYPES_ALT,
+    types: [] as { id: number; text: string; viewStatus: string[]; types: number[]; sortKey: string; isDesc: boolean }[],
     avoids: Const.AVOID_TYPE,
     type: 0,
     multiLine: true,
@@ -496,6 +523,8 @@ export default Vue.extend({
     includeSonar: true,
     includeDepthCharge: true,
     includeDepthChargeLauncher: true,
+    onlyEnabledLandBaseAttack: false,
+    onlyDisabledLandBaseAttack: false,
     isSpecialOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
@@ -539,6 +568,19 @@ export default Vue.extend({
     filterStatusValue: 0,
   }),
   mounted() {
+    this.types = [];
+    for (let i = 0; i < Const.ITEM_TYPES_ALT.length; i += 1) {
+      const type = Const.ITEM_TYPES_ALT[i];
+      this.types.push({
+        id: type.id,
+        text: type.text,
+        viewStatus: type.viewStatus,
+        types: type.types,
+        sortKey: '',
+        isDesc: false,
+      });
+    }
+
     const items = this.$store.state.items as ItemMaster[];
     for (let i = 0; i < items.length; i += 1) {
       this.all.push(items[i]);
@@ -598,6 +640,13 @@ export default Vue.extend({
         }
       }
       return enabledItems;
+    },
+    selectedType(): { id: number; text: string; viewStatus: string[]; types: number[]; sortKey: string; isDesc: boolean } | undefined {
+      const selected = this.types.find((v) => v.id === this.type);
+      if (selected) {
+        return selected;
+      }
+      return undefined;
     },
     isShow() {
       return (key: string, items: string[]) => items.includes(key);
@@ -679,6 +728,15 @@ export default Vue.extend({
   methods: {
     changeType(type = 0): void {
       this.type = type;
+
+      if (this.selectedType && this.selectedType.sortKey) {
+        // 選択したカテゴリにソート値が保存されていたら呼び出し
+        this.isDesc = this.selectedType.isDesc;
+        this.sortKey = this.selectedType.sortKey;
+      } else {
+        this.sortKey = '';
+        this.isDesc = false;
+      }
       this.filter();
     },
     clickedStockOnly() {
@@ -842,6 +900,17 @@ export default Vue.extend({
       }
       this.filter();
     },
+    toggleLandBaseAttackFilter() {
+      if (this.onlyEnabledLandBaseAttack) {
+        this.onlyEnabledLandBaseAttack = false;
+        this.onlyDisabledLandBaseAttack = true;
+      } else if (this.onlyDisabledLandBaseAttack) {
+        this.onlyDisabledLandBaseAttack = false;
+      } else {
+        this.onlyEnabledLandBaseAttack = true;
+      }
+      this.filter();
+    },
     filter() {
       const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.baseItems.concat();
@@ -853,8 +922,10 @@ export default Vue.extend({
       } else {
         result = result.filter((v) => v.id < 500);
       }
-      if (this.type === 7 && this.isEnabledLandBaseAttack) {
+      if (this.type === 7 && this.onlyEnabledLandBaseAttack) {
         result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+      } else if (this.type === 7 && this.onlyDisabledLandBaseAttack) {
+        result = result.filter((v) => !Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
       }
       if (this.type === 14 && !this.includeSonar) {
         result = result.filter((v) => v.apiTypeId !== 14);
@@ -994,17 +1065,22 @@ export default Vue.extend({
         // 初回 降順
         this.isDesc = true;
         this.sortKey = value;
+        this.sortItems();
       } else if (this.sortKey === value && this.isDesc) {
         // 2回目 昇順
         this.isDesc = false;
+        this.sortItems();
       } else if (this.sortKey === value && !this.isDesc) {
         // 3回目 ソート解除
         this.sortKey = '';
         this.filter();
-        return;
       }
 
-      this.sortItems();
+      // 選択中のカテゴリにソートを記憶
+      if (this.selectedType) {
+        this.selectedType.isDesc = this.isDesc;
+        this.selectedType.sortKey = this.sortKey;
+      }
     },
     sortItems() {
       const key = this.sortKey;
