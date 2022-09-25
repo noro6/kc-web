@@ -647,7 +647,7 @@ export default {
       '展開': 'View',
       '他サイト連携': 'Cooperation with Other Sites',
       '艦隊分析コード': 'Fleet Analysis Code',
-      'x等で読み込めるコードです。現在閲覧中の情報が出力されています。': 'It can be read on the {site}, for example.',
+      '艦隊分析コードが出力されています。この文字列を別の端末で反映することで、艦隊情報を復元することができます。': 'The kancolle-analysis code is output. By reflecting this string on another device, fleet information can be restored.',
       '艦隊コード': 'Ship',
       '装備コード': 'Equipment',
       '艦隊晒しページ(仮)で展開する場合はこちらから': 'Click here to expand on the 艦隊晒しページ(仮).',

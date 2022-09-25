@@ -242,15 +242,7 @@
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.艦隊分析コード") }}</div>
             <div class="body-2">
-              <template v-if="$i18n.locale === 'ja'">
-                <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank">艦隊分析スプレッドシート</a
-                >等で読み込めるコードです。現在閲覧中の情報が出力されています。
-              </template>
-              <template v-else>
-                <a href="https://docs.google.com/spreadsheets/d/1NuLlff6EXM0XQ_qNHP9lEOosbwHXamaVNJb72M7ZLoY" target="_blank">{{
-                  $t("Database.x等で読み込めるコードです。現在閲覧中の情報が出力されています。", { site: "艦隊分析スプレッドシート" })
-                }}</a>
-              </template>
+              {{ $t("Database.艦隊分析コードが出力されています。この文字列を別の端末で反映することで、艦隊情報を復元することができます。") }}
             </div>
             <div class="mt-4">
               <v-text-field
