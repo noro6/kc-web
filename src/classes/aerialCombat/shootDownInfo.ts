@@ -242,15 +242,15 @@ export default class ShootDownInfo {
       } else if (shipId === 141) {
         // 五十鈴改二
         // 14種 (高角砲, 対空機銃, 対空電探)
-        if (hasKokaku && kijuCount && antiAirRadarCount) cutInIds.push(14);
+        if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(14);
         // 15種 (高角砲, 対空機銃)
-        if (hasKokaku && kijuCount) cutInIds.push(15);
+        if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(15);
       } else if (shipId === 470 || shipId === 622) {
         // 霞改二乙 夕張改二
         // 16種 (高角砲, 対空機銃, 対空電探)
-        if (hasKokaku && kijuCount && antiAirRadarCount) cutInIds.push(16);
+        if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(16);
         // 17種 (高角砲, 対空機銃)
-        if (hasKokaku && kijuCount) cutInIds.push(17);
+        if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
       } else if (shipId === 487) {
         // 鬼怒改二
         // 19種 (よわ高角砲, 特殊機銃)
