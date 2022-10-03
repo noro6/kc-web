@@ -462,6 +462,10 @@ export default class Const {
     {
       shipId: 392, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369],
     },
+    // Jean Bart改 全スロットに 瑞雲系
+    {
+      shipId: 724, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369],
+    },
   ];
 
   /**
