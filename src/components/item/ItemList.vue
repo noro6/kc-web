@@ -76,6 +76,9 @@
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')"></v-checkbox>
       </div>
       <v-spacer></v-spacer>
+      <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
+        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ setting.blacklistItems.length }})
+      </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: type === -1, disabled: keyword }" @click="changeType(-1)">
@@ -226,6 +229,9 @@
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
+    </v-dialog>
+    <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog">
+      <blacklist-item-edit :handle-close="closeBlacklist"></blacklist-item-edit>
     </v-dialog>
   </v-card>
 </template>
@@ -478,6 +484,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
+import BlacklistItemEdit from '@/components/item/BlacklistItemEdit.vue';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
@@ -493,7 +500,7 @@ type sortItem = { [key: string]: number | { [key: string]: number } };
 
 export default Vue.extend({
   name: 'ItemList',
-  components: { ItemTooltip },
+  components: { ItemTooltip, BlacklistItemEdit },
   props: {
     handleEquipItem: {
       type: Function,
@@ -566,6 +573,8 @@ export default Vue.extend({
     filterStatus: 'radius',
     filterStatusItems: [] as { text: string; value: string }[],
     filterStatusValue: 0,
+    blacklistDialog: false,
+    blacklistItems: [] as number[],
   }),
   mounted() {
     this.types = [];
@@ -940,6 +949,12 @@ export default Vue.extend({
         result = result.filter((v) => v.bonuses.find((x) => x.type === bonusType));
       }
 
+      // ブラックリスト
+      if (this.setting.blacklistItems.length) {
+        const list = this.setting.blacklistItems;
+        result = result.filter((v) => !list.includes(v.id));
+      }
+
       // 検索語句あれば最優先 カテゴリ検索を飛ばす
       if (word) {
         result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
@@ -1117,6 +1132,18 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    showBlacklist() {
+      this.blacklistDialog = true;
+    },
+    closeBlacklist() {
+      this.blacklistDialog = false;
+      this.toggleBlacklistDialog();
+    },
+    toggleBlacklistDialog() {
+      if (!this.blacklistDialog) {
+        this.filter();
+      }
     },
   },
 });

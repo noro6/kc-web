@@ -558,6 +558,9 @@ export default {
       '削除しました。': 'Completed.',
       'x機': '{number}',
       'リセット': 'Reset',
+      'ブラックリスト登録済み装備': 'Blacklisted equipment only',
+      'ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。': 'Equipment on the blacklist will no longer be viewable from the equipment list.',
+      '全解除': 'Remove all blacklisted equipment',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',
