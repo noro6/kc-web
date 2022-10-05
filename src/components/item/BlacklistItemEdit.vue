@@ -215,7 +215,7 @@ export default Vue.extend({
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
-    this.blacklists = setting.blacklistItems.concat();
+    this.blacklists = setting.blacklistItemIds.concat();
 
     const items = this.$store.state.items as ItemMaster[];
     for (let i = 0; i < items.length; i += 1) {
@@ -237,7 +237,7 @@ export default Vue.extend({
     },
     existsBlacklist(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      return !!setting.blacklistItems.length;
+      return !!setting.blacklistItemIds.length;
     },
   },
   methods: {
@@ -282,11 +282,11 @@ export default Vue.extend({
       item.isBlacklisted = !item.isBlacklisted;
 
       if (item.isBlacklisted) {
-        setting.blacklistItems.push(item.data.id);
+        setting.blacklistItemIds.push(item.data.id);
       } else {
-        setting.blacklistItems = setting.blacklistItems.filter((v) => v !== item.data.id);
+        setting.blacklistItemIds = setting.blacklistItemIds.filter((v) => v !== item.data.id);
       }
-      this.blacklists = setting.blacklistItems.concat();
+      this.blacklists = setting.blacklistItemIds.concat();
       this.$store.dispatch('updateSetting', setting);
     },
     close() {
@@ -295,7 +295,7 @@ export default Vue.extend({
     removeAll() {
       // ブラックリスト全解除
       const setting = this.$store.state.siteSetting as SiteSetting;
-      setting.blacklistItems = [];
+      setting.blacklistItemIds = [];
       this.blacklists = [];
       this.blacklistOnly = false;
       this.$store.dispatch('updateSetting', setting);

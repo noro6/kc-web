@@ -95,7 +95,7 @@ export default class SiteSetting {
   public savedShipListFilter: { isFinalOnly: boolean }
 
   /** ブラックリスト装備 */
-  public blacklistItems: number[];
+  public blacklistItemIds: number[];
 
   /** 特効表示タイプ */
   public displayBonusType: number;
@@ -130,7 +130,7 @@ export default class SiteSetting {
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
       this.displayBonusType = setting.displayBonusType ? setting.displayBonusType : 0;
-      this.blacklistItems = setting.blacklistItems ? setting.blacklistItems : [339];
+      this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -201,7 +201,7 @@ export default class SiteSetting {
       ];
       this.contentOrder = [];
       this.displayBonusType = 0;
-      this.blacklistItems = [339];
+      this.blacklistItemIds = [337];
     }
   }
 }

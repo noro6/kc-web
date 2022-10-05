@@ -77,7 +77,7 @@
       </div>
       <v-spacer></v-spacer>
       <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
-        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ setting.blacklistItems.length }})
+        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
       </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
@@ -950,8 +950,8 @@ export default Vue.extend({
       }
 
       // ブラックリスト
-      if (this.setting.blacklistItems.length) {
-        const list = this.setting.blacklistItems;
+      if (this.setting.blacklistItemIds.length) {
+        const list = this.setting.blacklistItemIds;
         result = result.filter((v) => !list.includes(v.id));
       }
 
