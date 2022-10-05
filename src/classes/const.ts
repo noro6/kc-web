@@ -184,9 +184,8 @@ export default class Const {
     { type: 2, text: 'B1', items: [178] },
     { type: 2, text: 'B2', items: [158, 159, 353, 354] },
     { type: 2, text: 'B3', items: [249, 184] },
-    { type: 2, text: 'B4', items: [189] },
+    { type: 2, text: 'B4', items: [189, 406] },
     { type: 2, text: 'C1', items: [250, 251, 253] },
-    { type: 2, text: 'C2', items: [406] },
     { type: 2, text: 'C3', items: [473, 474, 475] },
     { type: 2, text: 'C4', items: [252, 434, 435, 423, 476, 479, 480, 481] },
   ];
