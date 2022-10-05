@@ -83,6 +83,11 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
+    <div class="d-flex mt-3">
+      <v-btn class="ml-auto" color="secondary" @click="showBlacklist()">
+        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ $store.state.siteSetting.blacklistItemIds.length }})
+      </v-btn>
+    </div>
     <v-card class="my-3 pa-4" v-if="!viewItems.length">
       <div class="text-center my-10">
         <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
@@ -186,6 +191,9 @@
           <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
+    </v-dialog>
+    <v-dialog v-model="blacklistDialog" width="660">
+      <blacklist-item-edit :handle-close="closeBlacklist"></blacklist-item-edit>
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
@@ -345,6 +353,7 @@
 import Vue from 'vue';
 import sum from 'lodash/sum';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
+import BlacklistItemEdit from '@/components/item/BlacklistItemEdit.vue';
 import Const from '@/classes/const';
 import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -365,7 +374,7 @@ interface ItemRow {
 
 export default Vue.extend({
   name: 'Items',
-  components: { ItemTooltip },
+  components: { ItemTooltip, BlacklistItemEdit },
   data: () => ({
     all: [] as ItemMaster[],
     itemStock: [] as ItemStock[],
@@ -387,6 +396,7 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     readOnly: false,
+    blacklistDialog: false,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -636,6 +646,12 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.visibleItemStockAllCount = this.visibleAllCount;
       this.$store.dispatch('updateSetting', setting);
+    },
+    showBlacklist() {
+      this.blacklistDialog = true;
+    },
+    closeBlacklist() {
+      this.blacklistDialog = false;
     },
   },
 });
