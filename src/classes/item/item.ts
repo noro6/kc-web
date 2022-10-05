@@ -184,7 +184,7 @@ export default class Item {
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();
     this.antiAirWeight = this.getAntiAirWeight();
-    this.bonusFire = this.getBonusFire();
+    this.bonusFire = this.getBonusFirePower();
     this.bonusTorpedo = this.getBonusTorpedo();
     this.bonusBomber = this.getBonusBomber();
     this.bonusAntiAir = this.getBonusAntiAir();
@@ -385,13 +385,13 @@ export default class Item {
    * @return {*}  {number}
    * @memberof Item
    */
-  private getBonusFire(): number {
+  private getBonusFirePower(): number {
     // 大口径主砲
     if (this.data.apiTypeId === 3) {
       return 1.5 * Math.sqrt(this.remodel);
     }
-    // その他主砲 / 副砲 / 徹甲弾 / 機銃 / 探照灯 / 高射装置 / 大発
-    if ([1, 2, 4, 19, 21, 24, 29, 36, 42].includes(this.data.apiTypeId)) {
+    // その他主砲 / 副砲 / 三式弾 / 徹甲弾 / 機銃 / 探照灯 / 高射装置 / 大発
+    if ([1, 2, 4, 18, 19, 21, 24, 29, 36, 42].includes(this.data.apiTypeId)) {
       // 一部副砲
       if ([10, 66, 220, 275].includes(this.data.id)) {
         return 0.2 * this.remodel;

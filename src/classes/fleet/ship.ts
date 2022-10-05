@@ -505,19 +505,19 @@ export default class Ship implements ShipBase {
       return 0;
     }
 
-    const isAmerica = Const.USA.includes(type2);
+    const isUSA = Const.USA.includes(type2);
     const isJapanese = Const.isJPN(type2);
 
     // 累積不可
     // SK レーダー
     if (items.some((v) => v.data.id === 278)) {
       // 米艦
-      if (isAmerica) sumBonus += 1;
+      if (isUSA) sumBonus += 1;
     }
     // SK＋SG レーダー
     if (items.some((v) => v.data.id === 279)) {
       // 米艦
-      if (isAmerica) sumBonus += 2;
+      if (isUSA) sumBonus += 2;
       // 英艦
       if (Const.GBR.includes(type2)) sumBonus += 1;
     }
@@ -534,7 +534,7 @@ export default class Ship implements ShipBase {
     // OS2U
     if (items.some((v) => v.data.id === 171)) {
       // 米戦艦
-      if ([8, 9, 10].includes(type) && isAmerica) {
+      if ([8, 9, 10].includes(type) && isUSA) {
         // 最大改修値
         const remodel = Math.max.apply(null, items.filter((v) => v.data.id === 171).map((v) => v.remodel));
         if (remodel >= 8) sumBonus += 3;
@@ -545,7 +545,7 @@ export default class Ship implements ShipBase {
     // SOC Seagull
     if (items.some((v) => v.data.id === 414)) {
       // 米艦
-      if (isAmerica) {
+      if (isUSA) {
         // 戦艦
         if ([8, 9, 10].includes(type)) sumBonus += 1;
         else {
@@ -697,13 +697,13 @@ export default class Ship implements ShipBase {
       // SGレーダー(初期型)
       if (item.data.id === 315) {
         // アメリカ人
-        if (isAmerica) {
+        if (isUSA) {
           sumBonus += 4;
         }
       }
       // SGレーダー(後期型)
       if (item.data.id === 456) {
-        if (isAmerica) {
+        if (isUSA) {
           // アメリカ人
           sumBonus += 4;
         } else if (Const.GBR.includes(this.data.type2)) {
@@ -1811,6 +1811,12 @@ export default class Ship implements ShipBase {
           // 蒼龍改二 飛龍改二 鈴谷航改二 熊野航改二 加賀改二護 龍鳳改二戊 龍鳳改二 伊勢改二 日向改二 => +2
           total += 2;
         }
+      } else if (item.data.id === 473) {
+        // F4U-2 Night Corsair
+        if (isUSA) {
+          // アメリカ人 => +1
+          total += 1;
+        }
       } else if (item.data.id === 292) {
         // 彗星二二型(六三四空／熟練)
         if (id === 553 || id === 554) {
@@ -2088,6 +2094,22 @@ export default class Ship implements ShipBase {
         total += 3;
       } else if ((type2 === 6 || type2 === 19) && version >= 2) {
         // 金剛型改二 長門型改二 => +2
+        total += 2;
+      } else if (type2 === 6) {
+        // 金剛型 => +1
+        total += 1;
+      }
+    }
+    // 三式弾改二
+    if (items.some((v) => v.data.id === 483)) {
+      if (id === 591) {
+        // 金剛改二丙 => +4
+        total += 4;
+      } else if (id === 149 || id === 151 || id === 152 || id === 592) {
+        // 金剛改二 榛名改二 霧島改二 比叡改二丙 => +3
+        total += 3;
+      } else if ((type2 === 2 || type2 === 6 || type2 === 19 || type2 === 26 || type2 === 37) && version >= 2) {
+        // その他日本戦艦改二=> +2
         total += 2;
       } else if (type2 === 6) {
         // 金剛型 => +1
