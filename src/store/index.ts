@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.22.2',
+    siteVersion: '2.23.0',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -282,7 +282,7 @@ export default new Vuex.Store({
         });
 
       getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
-        getMasterJson('./master_bk/master.json').then(() => {
+        getMasterJson(url).then(() => {
           context.commit('completed', true);
         }).catch((error) => {
           console.error(error);
