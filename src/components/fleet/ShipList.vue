@@ -126,7 +126,7 @@
               <div class="d-flex ship-caption">
                 <div v-if="isStockOnly" class="primary--text ship-level">Lv: {{ data.level }}</div>
                 <div v-if="isStockOnly">{{ $t("Common.運") }}: {{ data.luck }}</div>
-                <div v-else class="primary--text">id: {{ data.ship.albumId }}</div>
+                <div v-else class="primary--text">No: {{ data.ship.id }}</div>
               </div>
               <div class="d-flex">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
@@ -528,7 +528,7 @@ export default Vue.extend({
 
       // 検索語句あればこれ以外の検索はしない
       if (word) {
-        result = result.filter((v) => v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0);
+        result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
       } else {
         // カテゴリ検索
         result = result.filter((v) => t.types.includes(v.type));

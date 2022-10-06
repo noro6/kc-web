@@ -53,19 +53,6 @@
           <td>{{ maxLuck }}</td>
         </tr>
         <tr>
-          <td class="text-left">{{ $t("Common.対空") }}</td>
-          <td>{{ actualAntiAir }}</td>
-          <td class="text-right">
-            <template v-if="value.totalBonusAntiAir">
-              <span>(</span>
-              <span class="mx-1 bonus">+{{ value.totalBonusAntiAir }}</span>
-              <span>)</span>
-            </template>
-          </td>
-          <td class="text-center">/</td>
-          <td>{{ maxAntiAir }}</td>
-        </tr>
-        <tr>
           <td class="text-left" colspan="3">{{ $t("Fleet.一撃大破") }}</td>
           <td colspan="2">{{ taihaRate }}</td>
         </tr>
@@ -190,9 +177,6 @@ export default Vue.extend({
     },
     maxAntiAir(): number {
       return this.value.data.antiAir;
-    },
-    actualAntiAir(): number {
-      return this.value.antiAir + this.value.totalBonusAntiAir;
     },
     taihaRate(): string {
       // ワンパン大破率

@@ -50,16 +50,15 @@
                   <span class="level-value">{{ item.level }}</span>
                 </div>
                 <div v-if="item.data.isPlane" class="item-simple-status d-flex ml-3">
-                  <div>(</div>
                   <template v-if="item.data.isAttacker">
                     <div class="mx-1" v-if="item.actualTorpedo">{{ $t("Common.雷装") }} {{ item.actualTorpedo.toFixed(1) }}</div>
                     <div class="mx-1" v-if="item.actualBomber">{{ $t("Common.爆装") }} {{ item.actualBomber.toFixed(1) }}</div>
+                    <template v-if="item.crewTorpedoBonus || item.attackerTorpedoBonus">
+                      <div class="ml-auto">(</div>
+                      <div class="mx-1 primary--text">&plus; {{ item.crewTorpedoBonus + item.attackerTorpedoBonus }}</div>
+                      <div>)</div>
+                    </template>
                   </template>
-                  <template v-else-if="item.data.isPlane">
-                    <div class="mx-1" v-if="item.actualAntiAir">{{ $t("Common.対空") }} {{ item.actualAntiAir.toFixed(1) }}</div>
-                  </template>
-                  <div class="mx-1" v-if="item.data.isRecon">{{ $t("Common.半径") }} {{ item.data.radius }}</div>
-                  <div>)</div>
                 </div>
               </div>
             </template>
@@ -855,11 +854,13 @@ export default Vue.extend({
     },
     calculateFire() {
       const tempDist = this.selectedItem.dist;
-      const { attackerTorpedoBonus } = this.selectedItem;
+      const { attackerTorpedoBonus, crewTorpedoBonus } = this.selectedItem;
       // 改修値 搭載数変更を適用して再インスタンス化
       this.selectedItem = new Item({ item: this.selectedItem, slot: this.attackerSlot });
       // 雷装ボーナスあれば
       this.selectedItem.attackerTorpedoBonus = attackerTorpedoBonus;
+      this.selectedItem.crewTorpedoBonus = crewTorpedoBonus;
+
       // 計算結果の分布を引継ぎ
       this.selectedItem.dist = tempDist;
 

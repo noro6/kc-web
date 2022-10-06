@@ -110,9 +110,6 @@
         ></fleet-component>
       </v-tab-item>
       <v-tab-item value="gkcoi" class="pa-2">
-        <v-alert border="left" outlined dense type="warning" class="body-2">
-          {{ $t("Fleet.本サイトでは対潜、索敵以外の装備ボーナスによる上昇値については未実装のため、出力画像に反映されません。ご注意ください。") }}
-        </v-alert>
         <div class="d-flex flex-wrap">
           <div class="gkcoi-select mr-3 my-1">
             <v-select :items="gkcoiThemes" dense hide-details v-model="gkcoiTheme" outlined label="Theme" @input="enabledOutput = true"></v-select>

@@ -19,6 +19,7 @@ import BattleInfo from './enemy/battleInfo';
 import EnemyMaster from './enemy/enemyMaster';
 import Enemy from './enemy/enemy';
 import EnemyFleet from './enemy/enemyFleet';
+import ItemBonus from './item/ItemBonus';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -537,15 +538,16 @@ export default class Convert {
 
       // ステータスを含める場合
       if (includeStatus) {
+        const totalBonus = ItemBonus.getTotalBonus(ship.itemBonuses);
         const los = Ship.getStatusFromLevel(ship.level, ship.data.maxScout, ship.data.minScout);
         const ev = Ship.getStatusFromLevel(ship.level, ship.data.maxAvoid, ship.data.minAvoid);
-        data.fp = ship.data.fire + sumFP;
-        data.tp = ship.data.torpedo + sumTP;
-        data.aa = ship.antiAir + sumAA;
-        data.ar = ship.data.armor + sumAR;
+        data.fp = ship.data.fire + sumFP + (totalBonus.firePower ? totalBonus.firePower : 0);
+        data.tp = ship.data.torpedo + sumTP + (totalBonus.torpedo ? totalBonus.torpedo : 0);
+        data.aa = ship.antiAir + sumAA + (totalBonus.antiAir ? totalBonus.antiAir : 0);
+        data.ar = ship.data.armor + sumAR + (totalBonus.armor ? totalBonus.armor : 0);
         data.asw = ship.actualAsw;
-        data.los = los + ship.bonusScout + sumLos;
-        data.ev = ev + sumEV;
+        data.los = los + sumLos + (totalBonus.scout ? totalBonus.scout : 0);
+        data.ev = ev + sumEV + (totalBonus.avoid ? totalBonus.avoid : 0);
       }
 
       fleet[`s${i + 1}`] = data;

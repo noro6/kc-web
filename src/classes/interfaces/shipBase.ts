@@ -47,5 +47,5 @@ export interface ShipBase {
   readonly hp: number;
 
   /** 装備ボーナス対空値合計 */
-  readonly totalBonusAntiAir: number;
+  readonly itemBonusAntiAir: number;
 }

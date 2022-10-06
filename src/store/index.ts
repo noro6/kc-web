@@ -282,7 +282,7 @@ export default new Vuex.Store({
         });
 
       getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
-        getMasterJson(url).then(() => {
+        getMasterJson('./master_bk/master.json').then(() => {
           context.commit('completed', true);
         }).catch((error) => {
           console.error(error);

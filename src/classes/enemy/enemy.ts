@@ -68,7 +68,7 @@ export default class Enemy implements ShipBase {
   public readonly koshaCount: number
 
   /** 装備ボーナス対空値合計 */
-  public readonly totalBonusAntiAir: number;
+  public readonly itemBonusAntiAir: number;
 
   /** 本隊航空戦に参加しないフラグ */
   public disabledMainAerialPhase = false;
@@ -94,7 +94,7 @@ export default class Enemy implements ShipBase {
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
-    this.totalBonusAntiAir = 0;
+    this.itemBonusAntiAir = 0;
 
     // 計算により算出するステータス
     const allItems = this.items.concat(this.exItem);

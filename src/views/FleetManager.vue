@@ -738,7 +738,7 @@ export default Vue.extend({
         const text = [];
         for (let i = 0; i < firsts.length; i += 1) {
           const first = firsts[i];
-          const versions = all.filter((v) => v.originalId === first.albumId);
+          const versions = all.filter((v) => v.originalId === first.id);
           const versionIds = versions.map((v) => v.id);
           const stocks = shipStock.filter((v) => versionIds.includes(v.id));
           if (stocks.length) {

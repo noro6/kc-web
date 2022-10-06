@@ -33,7 +33,7 @@ export default class ShipMaster {
   /** 最終改造状態か否か */
   public readonly isFinal: boolean;
 
-  /** 図鑑IDで紐づけているので注意！ */
+  /** 未改造時ID */
   public readonly originalId: number;
 
   /** デフォルト射程 */

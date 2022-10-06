@@ -1163,7 +1163,7 @@ export default Vue.extend({
       for (let i = 0; i < baseShips.length; i += 1) {
         const base = baseShips[i];
         // 改造先を含めて全て取得
-        const versions = masters.filter((v) => v.originalId === base.albumId);
+        const versions = masters.filter((v) => v.originalId === base.id);
 
         // キーワード検索で全状態で引っかからなかったらさようなら
         if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {

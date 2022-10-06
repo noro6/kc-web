@@ -411,7 +411,6 @@ export default {
       'クリックで展開': 'Click to expand',
       'リストへ追加': 'Add to list',
       'リセット': 'Reset',
-      '本サイトでは対潜、索敵以外の装備ボーナスによる上昇値については未実装のため、出力画像に反映されません。ご注意ください。': 'The increased values by equipment bonuses other than ASW and LoS are not yet implemented on this site and are not reflected in the output image. Please be aware of this.',
     },
     Enemies: {
       '海域': 'World',

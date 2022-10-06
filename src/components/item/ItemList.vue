@@ -159,9 +159,9 @@
             :key="i"
             v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
             class="list-item"
-            :class="{ 'px-3': !multiLine, 'no-stock': !v.count }"
+            :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.hasBonus }"
             @click="clickedItem(v)"
-            @mouseenter="bootTooltip(v.item, $event)"
+            @mouseenter="bootTooltip(v.item, v.bonus, $event)"
             @mouseleave="clearTooltip"
           >
             <div>
@@ -215,7 +215,7 @@
       <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" />
+      <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
@@ -320,6 +320,8 @@
   position: relative;
   display: flex;
   cursor: pointer;
+  margin-left: 1px;
+  margin-bottom: 1px;
   padding-left: 0.25rem;
   padding-right: 0.1rem;
   padding-top: 0.2rem;
@@ -330,8 +332,20 @@
 .list-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
 }
+.list-item.single {
+  margin: 1px;
+  padding-right: 12px;
+  padding-left: 12px;
+}
 .list-item.no-stock:hover {
   background-color: rgba(255, 128, 128, 0.1);
+}
+.list-item.has-bonus {
+  border: 1px solid rgb(66, 145, 245);
+}
+.list-item.single.has-bonus {
+  padding-left: 6px;
+  border-left: 6px solid rgb(66, 145, 245);
 }
 .list-item > div {
   align-self: center;
@@ -495,6 +509,8 @@ import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import SaveData from '@/classes/saveData/saveData';
 import ShipValidation from '@/classes/fleet/shipValidation';
+import { cloneDeep } from 'lodash';
+import ItemBonus, { ItemBonusStatus } from '@/classes/item/ItemBonus';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 
@@ -517,6 +533,7 @@ export default Vue.extend({
   },
   data: () => ({
     itemParent: undefined as undefined | Ship | Airbase | Enemy,
+    slotIndex: -1,
     all: [] as ItemMaster[],
     baseItems: [] as ItemMaster[],
     types: [] as { id: number; text: string; viewStatus: string[]; types: number[]; sortKey: string; isDesc: boolean }[],
@@ -539,7 +556,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortKey: '',
     isDesc: false,
-    viewItems: [] as { item: Item; count: number }[],
+    viewItems: [] as { item: Item; count: number; hasBonus: boolean; bonus: ItemBonusStatus }[],
     itemStock: [] as ItemStock[],
     usedItems: [] as Item[],
     confirmDialog: false,
@@ -568,6 +585,7 @@ export default Vue.extend({
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
+    tooltipBonus: '',
     tooltipX: 0,
     tooltipY: 0,
     filterStatus: 'radius',
@@ -760,6 +778,7 @@ export default Vue.extend({
     },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
       this.itemParent = parent;
+      this.slotIndex = slotIndex;
       this.isEnemyMode = false;
 
       this.filterStatus = 'radius';
@@ -1013,7 +1032,12 @@ export default Vue.extend({
             // 減らす
             count -= usedCount;
             usedItem = usedItem.filter((v) => v.data.id !== master.id || v.remodel !== remodel);
-            viewItems.push({ item, count: Math.max(count, 0) });
+            viewItems.push({
+              item,
+              count: Math.max(count, 0),
+              hasBonus: false,
+              bonus: {},
+            });
           }
         }
       } else {
@@ -1027,11 +1051,58 @@ export default Vue.extend({
             slot,
             level,
           });
-          viewItems.push({ item, count: 1 });
+          viewItems.push({
+            item,
+            count: 1,
+            hasBonus: false,
+            bonus: {},
+          });
         }
       }
 
       this.viewItems = viewItems;
+
+      // 装備フィットの可視化
+      if (this.itemParent instanceof Ship) {
+        const baseItems = this.itemParent.items.concat();
+        baseItems.push(this.itemParent.exItem);
+
+        if (this.slotIndex === Const.EXPAND_SLOT_INDEX) {
+          this.slotIndex = baseItems.length - 1;
+        }
+
+        // 装備を入れ替えようとしているスロットが未装備だった状態のbonusを取得...(1)
+        const tempItems = cloneDeep(baseItems);
+        tempItems[this.slotIndex] = new Item();
+        const emptyBonus = Ship.getItemBonus(this.itemParent.data, tempItems);
+        const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
+
+        for (let i = 0; i < viewItems.length; i += 1) {
+          const item = viewItems[i];
+          const items = cloneDeep(baseItems);
+          items[this.slotIndex] = item.item;
+          const bonuses = Ship.getItemBonus(this.itemParent.data, items);
+          // (1) とのボーナスの個数を比較し、多ければボーナスありとする
+          if (bonuses.length > emptyBonus.length) {
+            item.hasBonus = true;
+            const totalBonus = ItemBonus.getTotalBonus(bonuses);
+
+            if (totalBonus.firePower) totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+            if (totalBonus.torpedo) totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+            if (totalBonus.antiAir) totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+            if (totalBonus.armor) totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+            if (totalBonus.asw) totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+            if (totalBonus.avoid) totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+            if (totalBonus.accuracy) totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+            if (totalBonus.range) totalBonus.range -= totalEmptyBonus.range ?? 0;
+            if (totalBonus.bomber) totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+            if (totalBonus.scout) totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+
+            // ボーナスの差分を取る
+            item.bonus = totalBonus;
+          }
+        }
+      }
 
       if (this.filterStatus && this.filterStatusValue) {
         const filterKey = this.filterStatus;
@@ -1115,7 +1186,7 @@ export default Vue.extend({
         return desc * ((b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key]);
       });
     },
-    bootTooltip(item: Item, e: MouseEvent) {
+    bootTooltip(item: Item, bonus: ItemBonusStatus, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (setting.disabledItemTooltip) {
         return;
@@ -1126,6 +1197,7 @@ export default Vue.extend({
         this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : e.clientX;
         this.tooltipY = rect.y + rect.height;
         this.tooltipItem = item;
+        this.tooltipBonus = bonus ? JSON.stringify(bonus) : '';
         this.enabledTooltip = true;
       }, 400);
     },

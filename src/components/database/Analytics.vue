@@ -471,7 +471,7 @@ export default Vue.extend({
       this.expRankTable = [];
       for (let i = 0; i < expRanks.length; i += 1) {
         const rankData = expRanks[i];
-        const name = all.find((v) => v.albumId === rankData.id)?.name;
+        const name = all.find((v) => v.id === rankData.id)?.name;
         if (name) {
           rankData.name = name;
         }
