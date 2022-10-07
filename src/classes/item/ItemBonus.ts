@@ -5743,7 +5743,7 @@ export default class ItemBonus {
           num: 1,
         },
         {
-          bonus: { firePower: 1 },
+          bonus: { accuracy: 1 },
           shipId: [911, 916, 546, 591, 592, 149, 150, 151, 152],
           remodel: 8,
           num: 1,
