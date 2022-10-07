@@ -98,7 +98,7 @@
       </div>
       <div v-if="value.data.range || itemBonus.range">
         <span class="item-status-text">{{ $t("Common.射程") }}</span>
-        <span class="item-status-value">{{ rangeText[value.data.range] }}</span>
+        <span class="item-status-value">{{ value.data.range ? $t(`Common.${rangeText[value.data.range]}`) : '' }}</span>
         <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.range < 0 }">
           <template v-if="itemBonus.range">{{ formatBonus(itemBonus.range) }}</template>
         </span>
@@ -107,7 +107,9 @@
         <span class="item-status-text">{{ $t("Common.半径") }}</span
         ><span class="item-status-value">{{ value.data.radius }}</span>
       </div>
-      <div v-if="value.data.enabledAttackLandBase"><span class="item-status-text">対地</span><span class="item-status-value caption">可</span></div>
+      <div v-if="!isNotJapanese && value.data.enabledAttackLandBase">
+        <span class="item-status-text">対地</span><span class="item-status-value caption">可</span>
+      </div>
       <div v-if="value.data.avoidId">
         <span class="item-status-text">{{ $t("Common.射撃回避") }}</span
         ><span class="item-status-value caption">{{ $t(`Common.回避性能.${avoidTexts[value.data.avoidId]}`) }}</span>
@@ -119,13 +121,13 @@
     </div>
     <div class="item-status-grid no-grid">
       <template v-if="value.data.isPlane && !isNotJapanese">
-        <div>熟練度</div>
+        <div class="grey--text text--lighten-1">熟練度</div>
         <div><img class="grow-img" :src="`./img/util/prof7.png`" /></div>
-        <div>まで</div>
+        <div class="grey--text text--lighten-1">まで</div>
         <div class="ml-5 grow-text">{{ growSpeedString(value.data) }} 戦</div>
       </template>
       <template v-else-if="value.data.isPlane">
-        <div>{{ $t("ItemList.熟練度成長") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("ItemList.熟練度成長") }}</div>
         <div class="ml-5 grow-text">{{ growSpeedString(value.data) }}{{ $t("ItemList.戦") }}</div>
       </template>
     </div>
@@ -160,6 +162,7 @@
 .item-status-text {
   display: inline-block;
   width: 64px;
+  color: #bdbdbd;
 }
 .item-status-value {
   width: 52px;
@@ -179,9 +182,9 @@
 }
 
 .fit-bonus {
-  text-align: right;
+  text-align: left;
   display: inline-block;
-  width: 42px;
+  width: 32px;
   margin-left: 1.5rem;
   color: #60c5ff;
 }
@@ -244,7 +247,7 @@ export default Vue.extend({
     existsBonus(): boolean {
       if (!this.bonus) return false;
       const bonus = JSON.parse(this.bonus);
-      return !!bonus;
+      return !!bonus && Object.keys(bonus).length > 0;
     },
     itemBonus(): ItemBonusStatus {
       const bonus = {

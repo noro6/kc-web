@@ -111,7 +111,7 @@
           <span class="ml-1 font-weight-medium mr-2">{{ ship.hunshinRate.toFixed(1) }}%</span>
         </template>
         <span class="text--secondary">{{ $t("Common.射程") }}:</span>
-        <span class="ml-1 font-weight-medium">{{ $t(`Common.${rangeText[ship.actualRange]}`) }}</span>
+        <span class="ml-1 font-weight-medium">{{ $t(`Common.${rangeText[ship.displayStatus.range]}`) }}</span>
         <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
@@ -161,7 +161,7 @@
                   {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span
                   >：
                 </td>
-                <td class="text-right">{{ ship.itemBonusAsw }}</td>
+                <td class="text-right">{{ ship.itemBonusStatus.asw }}</td>
               </tr>
               <tr class="border">
                 <td colspan="3"></td>
@@ -171,7 +171,7 @@
                   {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span
                   >：
                 </td>
-                <td class="text-right">{{ ship.actualAsw }}</td>
+                <td class="text-right">{{ ship.displayStatus.asw }}</td>
               </tr>
             </table>
           </v-tooltip>

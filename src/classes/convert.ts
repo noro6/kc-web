@@ -19,7 +19,6 @@ import BattleInfo from './enemy/battleInfo';
 import EnemyMaster from './enemy/enemyMaster';
 import Enemy from './enemy/enemy';
 import EnemyFleet from './enemy/enemyFleet';
-import ItemBonus from './item/ItemBonus';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -509,25 +508,6 @@ export default class Convert {
         const level = CommonCalc.getProfLevel(ship.exItem.level);
         items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
       }
-
-      // 装備上昇ステータス
-      let sumFP = 0;
-      let sumTP = 0;
-      let sumAA = 0;
-      let sumAR = 0;
-      let sumEV = 0;
-      let sumLos = 0;
-      const allItems = ship.items.concat(ship.exItem);
-      for (let j = 0; j < allItems.length; j += 1) {
-        const item = allItems[j];
-        sumFP += item.data.fire;
-        sumTP += item.data.torpedo;
-        sumAA += item.data.antiAir;
-        sumAR += item.data.armor;
-        sumEV += item.data.avoid;
-        sumLos += item.data.scout;
-      }
-
       const data: DeckBuilderShip = {
         id: ship.data.id,
         lv: ship.level,
@@ -538,18 +518,14 @@ export default class Convert {
 
       // ステータスを含める場合
       if (includeStatus) {
-        const totalBonus = ItemBonus.getTotalBonus(ship.itemBonuses);
-        const los = Ship.getStatusFromLevel(ship.level, ship.data.maxScout, ship.data.minScout);
-        const ev = Ship.getStatusFromLevel(ship.level, ship.data.maxAvoid, ship.data.minAvoid);
-        data.fp = ship.data.fire + sumFP + (totalBonus.firePower ? totalBonus.firePower : 0);
-        data.tp = ship.data.torpedo + sumTP + (totalBonus.torpedo ? totalBonus.torpedo : 0);
-        data.aa = ship.antiAir + sumAA + (totalBonus.antiAir ? totalBonus.antiAir : 0);
-        data.ar = ship.data.armor + sumAR + (totalBonus.armor ? totalBonus.armor : 0);
-        data.asw = ship.actualAsw;
-        data.los = los + sumLos + (totalBonus.scout ? totalBonus.scout : 0);
-        data.ev = ev + sumEV + (totalBonus.avoid ? totalBonus.avoid : 0);
+        data.fp = ship.displayStatus.firePower;
+        data.tp = ship.displayStatus.torpedo;
+        data.aa = ship.displayStatus.antiAir;
+        data.ar = ship.displayStatus.armor;
+        data.asw = ship.displayStatus.asw;
+        data.los = ship.displayStatus.LoS;
+        data.ev = ship.displayStatus.avoid;
       }
-
       fleet[`s${i + 1}`] = data;
     }
   }

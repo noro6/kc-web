@@ -270,8 +270,8 @@ export default class Fleet {
       let block2 = 0;
       for (let j = 0; j < ships.length; j += 1) {
         const ship = ships[j];
-        // Σ(√艦娘の素の索敵値)
-        block1 += Math.sqrt(ship.scout + ship.itemBonusScout);
+        // Σ(√艦娘の素の索敵値 + 装備ボーナス)
+        block1 += Math.sqrt(ship.scout + (ship.itemBonusStatus.scout ?? 0));
         // Σ{(装備の素の索敵値 + 改修係数×√★)×装備係数}×分岐点係数
         block2 += ship.itemsScout * i;
       }

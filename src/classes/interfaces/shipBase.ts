@@ -2,6 +2,7 @@ import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import EnemyMaster from '../enemy/enemyMaster';
 import ShipMaster from '../fleet/shipMaster';
 import Item from '../item/item';
+import { ItemBonusStatus } from '../item/ItemBonus';
 
 export interface ShipBase {
   /** 艦船マスタ情報 */
@@ -46,6 +47,6 @@ export interface ShipBase {
   /** 実耐久値 */
   readonly hp: number;
 
-  /** 装備ボーナス対空値合計 */
-  readonly itemBonusAntiAir: number;
+  /** 装備ボーナス合計 まとめ */
+  readonly itemBonusStatus: ItemBonusStatus;
 }

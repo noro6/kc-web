@@ -5,6 +5,7 @@ import { SHIP_TYPE } from '../const';
 import { ShipBase } from '../interfaces/shipBase';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
+import { ItemBonusStatus } from '../item/ItemBonus';
 
 export default class Enemy implements ShipBase {
   /** 敵マスタ情報 */
@@ -67,8 +68,8 @@ export default class Enemy implements ShipBase {
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
-  /** 装備ボーナス対空値合計 */
-  public readonly itemBonusAntiAir: number;
+    /** 装備ボーナス合計 まとめ */
+    readonly itemBonusStatus: ItemBonusStatus = {};
 
   /** 本隊航空戦に参加しないフラグ */
   public disabledMainAerialPhase = false;
@@ -94,7 +95,6 @@ export default class Enemy implements ShipBase {
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
     this.koshaCount = 0;
-    this.itemBonusAntiAir = 0;
 
     // 計算により算出するステータス
     const allItems = this.items.concat(this.exItem);

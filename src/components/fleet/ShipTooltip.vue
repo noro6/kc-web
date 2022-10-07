@@ -12,55 +12,86 @@
       </div>
     </div>
     <div>
-      <table>
-        <tr>
-          <td class="text-left">{{ $t("Common.耐久") }}</td>
-          <td>{{ baseHP }}</td>
-          <td class="text-right">
-            <template v-if="buffHP">
-              <span>(</span>
-              <span class="mx-1 bonus">+{{ buffHP }}</span>
-              <span>)</span>
-            </template>
-          </td>
-          <td class="text-center">/</td>
-          <td>{{ value.data.maxHp }}</td>
-        </tr>
-        <tr v-if="value.asw">
-          <td class="text-left">{{ $t("Common.対潜") }}</td>
-          <td>{{ baseAsw }}</td>
-          <td class="text-right">
-            <template v-if="buffAsw > 0">
-              <span>(</span>
-              <span class="mx-1 bonus">+{{ buffAsw }}</span>
-              <span>)</span>
-            </template>
-          </td>
-          <td class="text-center">/</td>
-          <td>{{ maxAsw }}</td>
-        </tr>
-        <tr>
-          <td class="text-left">{{ $t("Common.運") }}</td>
-          <td>{{ baseLuck }}</td>
-          <td class="text-right">
-            <template v-if="buffLuck">
-              <span>(</span>
-              <span class="mx-1 bonus">+{{ buffLuck }}</span>
-              <span>)</span>
-            </template>
-          </td>
-          <td class="text-center">/</td>
-          <td>{{ maxLuck }}</td>
-        </tr>
-        <tr>
-          <td class="text-left" colspan="3">{{ $t("Fleet.一撃大破") }}</td>
-          <td colspan="2">{{ taihaRate }}</td>
-        </tr>
-        <tr>
-          <td class="text-left" colspan="3">{{ $t("Fleet.一撃中破") }}</td>
-          <td colspan="2">{{ chuhaRate }}</td>
-        </tr>
-      </table>
+      <div class="status-container">
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.耐久") }}</div>
+        <div>{{ value.hp }}</div>
+        <div></div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
+        <div>{{ value.displayStatus.firePower }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.firePower" :class="{ 'bad-bonus': value.itemBonusStatus.firePower < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.firePower) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
+        <div>{{ value.displayStatus.armor }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.armor" :class="{ 'bad-bonus': value.itemBonusStatus.armor < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.armor) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.雷装") }}</div>
+        <div>{{ value.displayStatus.torpedo }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.torpedo" :class="{ 'bad-bonus': value.itemBonusStatus.torpedo < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.torpedo) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.回避") }}</div>
+        <div>{{ value.displayStatus.avoid }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.avoid" :class="{ 'bad-bonus': value.itemBonusStatus.avoid < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.avoid) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.対空") }}</div>
+        <div>{{ value.displayStatus.antiAir }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.antiAir" :class="{ 'bad-bonus': value.itemBonusStatus.antiAir < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.antiAir) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.命中") }}</div>
+        <div>{{ value.displayStatus.accuracy }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.accuracy" :class="{ 'bad-bonus': value.itemBonusStatus.accuracy < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.accuracy) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.対潜") }}</div>
+        <div>{{ value.displayStatus.asw }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.asw" :class="{ 'bad-bonus': value.itemBonusStatus.asw < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.asw) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.射程") }}</div>
+        <div>{{ $t(`Common.${rangeText[value.displayStatus.range]}`) }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.range" :class="{ 'bad-bonus': value.itemBonusStatus.range < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.range) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.索敵") }}</div>
+        <div>{{ value.displayStatus.LoS }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.scout" :class="{ 'bad-bonus': value.itemBonusStatus.scout < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.scout) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.運") }}</div>
+        <div>{{ value.luck }}</div>
+        <div></div>
+      </div>
       <template v-if="specialAttacks.length">
         <v-divider class="my-2"></v-divider>
         <table>
@@ -109,6 +140,17 @@
           </tr>
         </table>
       </template>
+      <v-divider class="my-2"></v-divider>
+      <table>
+        <tr>
+          <td class="text-left caption grey--text text--lighten-1">{{ $t("Fleet.一撃大破") }}</td>
+          <td>{{ taihaRate }}</td>
+        </tr>
+        <tr>
+          <td class="text-left caption grey--text text--lighten-1">{{ $t("Fleet.一撃中破") }}</td>
+          <td>{{ chuhaRate }}</td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -119,8 +161,26 @@ table {
   text-align: right;
 }
 
+.status-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  column-gap: 0.5rem;
+}
+.status-container > div:nth-child(3n - 1) {
+  text-align: right;
+}
+.status-container > div:nth-child(3n) {
+  text-align: left;
+  font-size: 0.9em;
+}
+
 .bonus {
-  color: #00bfa5;
+  margin-left: 4px;
+  margin-right: 4px;
+  color: #60c5ff;
+}
+.bad-bonus .bonus {
+  color: #ff6767;
 }
 </style>
 
@@ -147,7 +207,13 @@ export default Vue.extend({
       default: false,
     },
   },
+  data: () => ({
+    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
+  }),
   computed: {
+    formatBonus() {
+      return (value: number) => (value >= 0 ? `+ ${value}` : `- ${Math.abs(value)}`);
+    },
     baseHP(): number {
       const ship = this.value;
       return ship.level > 99 ? ship.data.hp2 : ship.data.hp;

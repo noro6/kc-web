@@ -159,7 +159,7 @@
             :key="i"
             v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
             class="list-item"
-            :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.hasBonus }"
+            :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.sumBonus, 'has-bad-bonus': v.sumBonus < 0 }"
             @click="clickedItem(v)"
             @mouseenter="bootTooltip(v.item, v.bonus, $event)"
             @mouseleave="clearTooltip"
@@ -173,6 +173,12 @@
             <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find((v) => v.type === setting.displayBonusType)">
               <div class="align-self-center">{{ v.item.data.bonuses.find((v) => v.type === setting.displayBonusType).text }}</div>
               <!-- <div class="sub-text">{{ v.item.data.bonuses[setting.displayBonusType].subText }}</div> -->
+            </div>
+            <div v-if="v.sumBonus" class="bonus-icon">
+              <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
+              <v-icon v-else-if="v.sumBonus <= 2" color="light-blue" class="pt-1">mdi-chevron-up</v-icon>
+              <v-icon v-else-if="v.sumBonus <= 5" color="light-blue">mdi-chevron-double-up</v-icon>
+              <v-icon v-else color="light-blue">mdi-chevron-triple-up</v-icon>
             </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
@@ -328,6 +334,7 @@
   padding-bottom: 0.2rem;
   transition: 0.1s;
   border-radius: 0.2rem;
+  border: 1px solid transparent;
 }
 .list-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
@@ -341,11 +348,24 @@
   background-color: rgba(255, 128, 128, 0.1);
 }
 .list-item.has-bonus {
-  border: 1px solid rgb(66, 145, 245);
+  border-color:rgba(3, 169, 244, 0.8);
 }
 .list-item.single.has-bonus {
   padding-left: 6px;
-  border-left: 6px solid rgb(66, 145, 245);
+  border-left: 6px solid rgba(3, 169, 244, 0.8);
+}
+.list-item.has-bonus.has-bad-bonus {
+  border-color: rgba(239, 83, 80, 0.8);
+}
+.bonus-icon {
+  position: absolute;
+  left: -4px;
+  bottom: -4px;
+  font-size: 0.8em;
+  filter: drop-shadow(0 0 2px #fff);
+}
+.theme--dark .bonus-icon {
+  filter: drop-shadow(0 0 2px #000);
 }
 .list-item > div {
   align-self: center;
@@ -378,15 +398,16 @@
 
 .item-special-text {
   background-color: rgba(250, 250, 255, 0.9);
-  border: 2px solid rgb(83, 158, 255);
+  border: 1px solid rgb(83, 158, 255);
+  box-shadow: inset 0 0 3px rgb(83, 158, 255);
   color: #000;
   font-weight: bold;
   position: absolute;
   display: flex;
   font-size: 12px;
-  padding: 0px 4px;
+  padding: 0px 3px;
   border-radius: 0.1rem;
-  left: 8px;
+  left: 5px;
   top: 0px;
   animation: special-text infinite 3s;
 }
@@ -396,8 +417,11 @@
   right: 0;
   bottom: -4px;
 }
+.list-item.single.has-bonus .item-special-text {
+  left: -1px;
+}
 .multi .item-special-text {
-  left: 4px;
+  left: 0px;
 }
 @keyframes special-text {
   0% {
@@ -556,7 +580,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortKey: '',
     isDesc: false,
-    viewItems: [] as { item: Item; count: number; hasBonus: boolean; bonus: ItemBonusStatus }[],
+    viewItems: [] as { item: Item; count: number; sumBonus: number; bonus: ItemBonusStatus }[],
     itemStock: [] as ItemStock[],
     usedItems: [] as Item[],
     confirmDialog: false,
@@ -1035,7 +1059,7 @@ export default Vue.extend({
             viewItems.push({
               item,
               count: Math.max(count, 0),
-              hasBonus: false,
+              sumBonus: 0,
               bonus: {},
             });
           }
@@ -1054,7 +1078,7 @@ export default Vue.extend({
           viewItems.push({
             item,
             count: 1,
-            hasBonus: false,
+            sumBonus: 0,
             bonus: {},
           });
         }
@@ -1084,21 +1108,51 @@ export default Vue.extend({
           const bonuses = Ship.getItemBonus(this.itemParent.data, items);
           // (1) とのボーナスの個数を比較し、多ければボーナスありとする
           if (bonuses.length > emptyBonus.length) {
-            item.hasBonus = true;
             const totalBonus = ItemBonus.getTotalBonus(bonuses);
-
-            if (totalBonus.firePower) totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
-            if (totalBonus.torpedo) totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
-            if (totalBonus.antiAir) totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
-            if (totalBonus.armor) totalBonus.armor -= totalEmptyBonus.armor ?? 0;
-            if (totalBonus.asw) totalBonus.asw -= totalEmptyBonus.asw ?? 0;
-            if (totalBonus.avoid) totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
-            if (totalBonus.accuracy) totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
-            if (totalBonus.range) totalBonus.range -= totalEmptyBonus.range ?? 0;
-            if (totalBonus.bomber) totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
-            if (totalBonus.scout) totalBonus.scout -= totalEmptyBonus.scout ?? 0;
-
             // ボーナスの差分を取る
+            let sumBonus = 0;
+            if (totalBonus.firePower) {
+              totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+              sumBonus += totalBonus.firePower;
+            }
+            if (totalBonus.torpedo) {
+              totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+              sumBonus += totalBonus.torpedo;
+            }
+            if (totalBonus.antiAir) {
+              totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+              sumBonus += totalBonus.antiAir;
+            }
+            if (totalBonus.armor) {
+              totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+              sumBonus += totalBonus.armor;
+            }
+            if (totalBonus.asw) {
+              totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+              sumBonus += totalBonus.asw;
+            }
+            if (totalBonus.avoid) {
+              totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+              sumBonus += totalBonus.avoid;
+            }
+            if (totalBonus.accuracy) {
+              totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+              sumBonus += totalBonus.accuracy;
+            }
+            if (totalBonus.range) {
+              totalBonus.range -= totalEmptyBonus.range ?? 0;
+              sumBonus += totalBonus.range;
+            }
+            if (totalBonus.bomber) {
+              totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+              sumBonus += totalBonus.bomber;
+            }
+            if (totalBonus.scout) {
+              totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+              sumBonus += totalBonus.scout;
+            }
+
+            item.sumBonus = sumBonus;
             item.bonus = totalBonus;
           }
         }

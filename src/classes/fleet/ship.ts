@@ -34,6 +34,21 @@ export interface ShipBuilder {
   area?: number;
 }
 
+/** 表示ステータス */
+export type ShipDisplayStatus = {
+  HP: number;
+  firePower: number;
+  armor: number;
+  torpedo: number;
+  avoid: number;
+  antiAir: number;
+  asw: number;
+  LoS: number;
+  luck: number;
+  range: number;
+  accuracy: number;
+}
+
 export default class Ship implements ShipBase {
   /** 艦娘マスタ情報 */
   public readonly data: ShipMaster;
@@ -46,6 +61,15 @@ export default class Ship implements ShipBase {
 
   /** 練度 */
   public readonly level: number;
+
+  /** 表示ステータス (装備 + 装備ボーナス込み) */
+  public readonly displayStatus: ShipDisplayStatus;
+
+  /** 装備ボーナス合計 まとめ */
+  public readonly itemBonusStatus: ItemBonusStatus;
+
+  /** 装備フィットボーナスすべて */
+  public readonly itemBonuses: ItemBonusStatus[];
 
   /** 耐久 */
   public readonly hp: number;
@@ -77,17 +101,8 @@ export default class Ship implements ShipBase {
   /** 装備による対潜上昇値 */
   public readonly itemAsw: number;
 
-  /** 装備ボーナスによる対潜上昇値 */
-  public readonly itemBonusAsw: number;
-
-  /** 対潜合計(表示値) */
-  public readonly actualAsw: number;
-
   /** 先制対潜可 */
   public readonly enabledTSBK: boolean;
-
-  /** 最終的な射程 */
-  public readonly actualRange: number;
 
   /** 輸送量 */
   public readonly tp: number;
@@ -124,15 +139,6 @@ export default class Ship implements ShipBase {
 
   /** 対潜支援参加可能 */
   public readonly enabledASWSupport: boolean;
-
-  /** 装備フィットボーナスすべて */
-  public readonly itemBonuses: ItemBonusStatus[];
-
-  /** 装備フィットによる対空ボーナス */
-  public readonly itemBonusAntiAir: number;
-
-  /** 装備フィットによる索敵ボーナス */
-  public readonly itemBonusScout: number;
 
   /** 発動可能対空CI */
   public readonly antiAirCutIn: AntiAirCutIn[];
@@ -242,9 +248,6 @@ export default class Ship implements ShipBase {
     this.enabledTSBK = false;
     this.enabledASWSupport = false;
     this.sumSPRos = 0;
-    this.itemBonusAntiAir = 0;
-    this.itemBonusAsw = 0;
-    this.itemBonusScout = 0;
 
     // 以下、計算により算出するステータス
     // レベルより算出
@@ -252,10 +255,35 @@ export default class Ship implements ShipBase {
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
     this.improveAsw = Math.max(this.asw - Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw), 0);
 
+    // ステータス表示値 特に計算には使わないはず
+    this.displayStatus = {
+      HP: this.hp,
+      firePower: this.data.fire,
+      armor: this.data.armor,
+      torpedo: this.data.torpedo,
+      avoid: this.avoid,
+      antiAir: this.data.antiAir,
+      asw: this.asw,
+      LoS: this.scout,
+      luck: this.luck,
+      range: Math.max(this.data.range, 1),
+      accuracy: 0,
+    };
+    this.itemBonusStatus = {
+      firePower: 0,
+      torpedo: 0,
+      antiAir: 0,
+      armor: 0,
+      asw: 0,
+      scout: 0,
+      avoid: 0,
+      accuracy: 0,
+      bomber: 0,
+      range: 0,
+    };
+
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
-    // 射程(基本値)
-    this.actualRange = Math.max(this.data.range, 1);
     // 雷装ボーナス一覧
     this.torpedoBonuses = [];
     // 雷装ボーナス適用装備(最も雷装 or 爆装が高い)
@@ -276,6 +304,16 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
 
+      // 装備ステータス 単純加算
+      this.displayStatus.firePower += item.data.fire;
+      this.displayStatus.armor += item.data.armor;
+      this.displayStatus.torpedo += item.data.torpedo;
+      this.displayStatus.avoid += item.data.avoid;
+      this.displayStatus.antiAir += item.data.antiAir;
+      this.displayStatus.asw += item.data.asw;
+      this.displayStatus.LoS += item.data.scout;
+      this.displayStatus.accuracy += item.data.accuracy;
+
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
       // 装備索敵関係
@@ -287,8 +325,8 @@ export default class Ship implements ShipBase {
       // 装甲値
       this.actualArmor += item.data.armor;
       // 射程(大きくなるなら)
-      if (item.data.range > this.actualRange) {
-        this.actualRange = item.data.range;
+      if (item.data.range > this.displayStatus.range) {
+        this.displayStatus.range = item.data.range;
       }
 
       if (item.fullSlot > 0 && item.data.isPlane && !item.data.isRecon && !item.data.isABAttacker) {
@@ -362,27 +400,32 @@ export default class Ship implements ShipBase {
 
     this.nightContactRate = 1 - nightContactFailureRate;
 
-    // 装備ボーナスを更新
-    for (let i = 0; i < this.itemBonuses.length; i += 1) {
-      const bonus = this.itemBonuses[i];
-      this.itemBonusAntiAir += bonus.antiAir ? bonus.antiAir : 0;
-      this.itemBonusScout += bonus.scout ? bonus.scout : 0;
-      this.itemBonusAsw += bonus.asw ? bonus.asw : 0;
-      this.actualRange += bonus.range ? bonus.range : 0;
-
-      if (bonus.torpedo) {
-        this.torpedoBonuses.push(bonus.torpedo);
-      }
-    }
-
     if (this.itemBonuses.length) {
-      console.log(this.data.name, ItemBonus.getTotalBonus(this.itemBonuses));
+      // 装備ボーナスを表示値に加算
+      this.itemBonusStatus = ItemBonus.getTotalBonus(this.itemBonuses);
+      this.displayStatus.firePower += this.itemBonusStatus.firePower ?? 0;
+      this.displayStatus.armor += this.itemBonusStatus.armor ?? 0;
+      this.displayStatus.torpedo += this.itemBonusStatus.torpedo ?? 0;
+      this.displayStatus.avoid += this.itemBonusStatus.avoid ?? 0;
+      this.displayStatus.antiAir += this.itemBonusStatus.antiAir ?? 0;
+      this.displayStatus.asw += this.itemBonusStatus.asw ?? 0;
+      this.displayStatus.LoS += this.itemBonusStatus.scout ?? 0;
+      this.displayStatus.range += this.itemBonusStatus.range ?? 0;
+      this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
     }
 
     // 雷装ボーナス適用装備抽出 & セット
-    if (this.torpedoBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
-      // 適用装備の最も低い雷装ボーナスを加算
-      maximumAttacker.attackerTorpedoBonus += this.torpedoBonuses.sort((a, b) => a - b)[0];
+    if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
+      for (let i = 0; i < this.itemBonuses.length; i += 1) {
+        const bonus = this.itemBonuses[i];
+        if (bonus.torpedo) {
+          this.torpedoBonuses.push(bonus.torpedo);
+        }
+      }
+      if (this.torpedoBonuses.length) {
+        // 適用装備の最も低い雷装ボーナスを加算
+        maximumAttacker.attackerTorpedoBonus += this.torpedoBonuses.sort((a, b) => a - b)[0];
+      }
     }
 
     // 発動可能対空CI取得
@@ -395,8 +438,6 @@ export default class Ship implements ShipBase {
       // 噴進率計算
       this.hunshinRate = this.getHunshinRate();
     }
-    // 最終対潜値
-    this.actualAsw = this.asw + this.itemAsw + this.itemBonusAsw;
     // 先制対潜の可否を判定
     this.enabledTSBK = this.getEnabledTSBK();
 
@@ -596,7 +637,6 @@ export default class Ship implements ShipBase {
             if (!remodelFits.length) {
               continue;
             }
-
             // 合致した装備からさらに個数で判定
             if (bonus.num && remodelFits.length < bonus.num) {
               continue;
@@ -640,12 +680,12 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.DE) {
       // 海防艦
-      if (this.actualAsw >= 60 && hasSonar) {
-        // => 対潜値60 + ソナー有
+      if (this.displayStatus.asw >= 60 && hasSonar) {
+        // => 表示対潜値60 + ソナー有
         return true;
       }
-      if (this.actualAsw >= 75) {
-        // => 対潜値75 + 装備対潜値合計が4以上
+      if (this.displayStatus.asw >= 75) {
+        // => 表示対潜値75 + 装備対潜値合計が4以上
         let sumAsw = 0;
         for (let i = 0; i < items.length; i += 1) {
           sumAsw += items[i].data.asw;
@@ -656,8 +696,8 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.AO || type === SHIP_TYPE.AO_2) {
       // 駆逐 軽巡 練巡 雷巡 補給
-      // => 対潜値100 + ソナー
-      return this.actualAsw >= 100 && hasSonar;
+      // => 表示対潜値100 + ソナー
+      return this.displayStatus.asw >= 100 && hasSonar;
     }
 
     if ((this.data.type2 === 76 && this.data.name.indexOf('改') >= 0) || this.data.id === 646) {
@@ -669,16 +709,16 @@ export default class Ship implements ShipBase {
     if (type === SHIP_TYPE.CVL) {
       // 軽空母/護衛空母
       const hasASWPlane = items.some((v) => v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
-      if (hasSonar && this.actualAsw >= 50 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
-        // => 対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+      if (hasSonar && this.displayStatus.asw >= 50 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+        // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
         return true;
       }
-      if (this.actualAsw >= 65 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
-        // => 対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+      if (this.displayStatus.asw >= 65 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
         return true;
       }
-      if (hasSonar && this.actualAsw >= 100) {
-        // => 対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
+      if (hasSonar && this.displayStatus.asw >= 100) {
+        // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
         return hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1);
       }
     }
@@ -695,8 +735,8 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
       // 陸軍と航空戦艦
-      // => 対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
-      return this.actualAsw >= 100 && hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      // => 表示対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
+      return this.displayStatus.asw >= 100 && hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
     }
 
     return false;
