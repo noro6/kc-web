@@ -35,6 +35,10 @@ interface SavedShip {
   aa?: number,
   /** レベル */
   lv?: number,
+  /** HP */
+  hp?: number,
+  /** 対潜(素+対潜改修値) */
+  as?: number,
   /** 運 */
   lu?: number,
   /** 補強増設装備 */
@@ -545,6 +549,8 @@ export default class SaveData {
         const data = {
           i: v.data.id, is: v.items, ac: v.isActive, es: v.isEscort,
         } as SavedShip;
+        if (v.hp) data.hp = v.hp;
+        if (v.asw) data.as = v.asw;
         if (v.luck) data.lu = v.luck;
         if (v.level) data.lv = v.level;
         if (v.area > 0) data.ar = v.area;
@@ -743,7 +749,7 @@ export default class SaveData {
         const area = ship.ar && ship.ar > 0 ? ship.ar : undefined;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…

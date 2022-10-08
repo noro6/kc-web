@@ -27,6 +27,13 @@ type Bonuses = {
 }
 
 export default class ItemBonus {
+  /**
+   * 装備ボーナス配列から合計のボーナスを算出する
+   * @static
+   * @param {ItemBonusStatus[]} bonuses
+   * @return {*}  {ItemBonusStatus}
+   * @memberof ItemBonus
+   */
   public static getTotalBonus(bonuses: ItemBonusStatus[]): ItemBonusStatus {
     const bonus = {
       firePower: 0,

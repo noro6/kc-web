@@ -12,10 +12,15 @@
       </div>
     </div>
     <div>
-      <div class="status-container">
+      <div class="mt-2 status-container">
         <div class="caption grey--text text--lighten-1">{{ $t("Common.耐久") }}</div>
         <div>{{ value.hp }}</div>
-        <div></div>
+        <div>
+          <span v-if="buffHP" :class="{ 'bad-bonus': buffHP < 0 }">
+            (<span class="manual-bonus">{{ formatBonus(buffHP) }}</span
+            >)
+          </span>
+        </div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
         <div>{{ value.displayStatus.firePower }}</div>
         <div>
@@ -67,8 +72,9 @@
         <div class="caption grey--text text--lighten-1">{{ $t("Common.対潜") }}</div>
         <div>{{ value.displayStatus.asw }}</div>
         <div>
-          <span v-if="value.itemBonusStatus.asw" :class="{ 'bad-bonus': value.itemBonusStatus.asw < 0 }">
-            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.asw) }}</span
+          <span v-if="value.itemBonusStatus.asw || value.improveAsw" :class="{ 'bad-bonus': value.itemBonusStatus.asw < 0 }"
+            >(<span class="bonus" v-if="value.itemBonusStatus.asw">{{ formatBonus(value.itemBonusStatus.asw) }}</span
+            ><span class="manual-bonus" v-if="value.improveAsw">{{ formatBonus(value.improveAsw) }}</span
             >)
           </span>
         </div>
@@ -90,7 +96,12 @@
         </div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.運") }}</div>
         <div>{{ value.luck }}</div>
-        <div></div>
+        <div>
+          <span v-if="buffLuck" :class="{ 'bad-bonus': buffLuck < 0 }">
+            (<span class="manual-bonus">{{ formatBonus(buffLuck) }}</span
+            >)
+          </span>
+        </div>
       </div>
       <template v-if="specialAttacks.length">
         <v-divider class="my-2"></v-divider>
@@ -124,7 +135,7 @@
             <td>
               <div class="d-flex caption">
                 <v-img :src="`./img/type/icon24.png`" height="27" width="27"></v-img>
-                <div class="align-self-center grey--text text--lighten-3">&</div>
+                <div class="align-self-center grey--text text--lighten-3">&plus;</div>
                 <v-img :src="`./img/type/icon27.png`" height="27" width="27"></v-img>
               </div>
             </td>
@@ -163,7 +174,7 @@ table {
 
 .status-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto 1fr 1fr auto;
   column-gap: 0.5rem;
 }
 .status-container > div:nth-child(3n - 1) {
@@ -181,6 +192,11 @@ table {
 }
 .bad-bonus .bonus {
   color: #ff6767;
+}
+.manual-bonus {
+  margin-left: 4px;
+  margin-right: 4px;
+  color: #fff460;
 }
 </style>
 
@@ -214,23 +230,10 @@ export default Vue.extend({
     formatBonus() {
       return (value: number) => (value >= 0 ? `+ ${value}` : `- ${Math.abs(value)}`);
     },
-    baseHP(): number {
-      const ship = this.value;
-      return ship.level > 99 ? ship.data.hp2 : ship.data.hp;
-    },
     buffHP(): number {
-      return this.value.hp - this.baseHP;
-    },
-    baseAsw(): number {
       const ship = this.value;
-      return ship.level === 99 ? ship.data.maxAsw : Ship.getStatusFromLevel(ship.level, ship.data.maxAsw, ship.data.minAsw);
-    },
-    buffAsw(): number {
-      return this.value.asw - this.baseAsw;
-    },
-    maxAsw(): number {
-      const ship = this.value;
-      return Ship.getStatusFromLevel(ship.level, ship.data.maxAsw, ship.data.minAsw) + 9;
+      const baseHP = ship.level > 99 ? ship.data.hp2 : ship.data.hp;
+      return ship.hp - baseHP;
     },
     baseLuck(): number {
       return this.value.data.luck;
@@ -238,16 +241,10 @@ export default Vue.extend({
     buffLuck(): number {
       return this.value.luck - this.baseLuck;
     },
-    maxLuck(): number {
-      return this.value.data.maxLuck;
-    },
-    maxAntiAir(): number {
-      return this.value.data.antiAir;
-    },
     taihaRate(): string {
       // ワンパン大破率
       let count = 0;
-      const curHP = this.baseHP + this.buffHP;
+      const curHP = this.value.hp;
       const border = Math.floor(curHP / 4);
       for (let i = 0; i < curHP; i += 1) {
         const damage = Math.floor(curHP * 0.5 + i * 0.3);
@@ -261,7 +258,7 @@ export default Vue.extend({
     chuhaRate(): string {
       // ワンパン中破率
       let count = 0;
-      const curHP = this.baseHP + this.buffHP;
+      const curHP = this.value.hp;
       const border = Math.floor(curHP / 4);
       const border2 = Math.floor(curHP / 2);
       for (let i = 0; i < curHP; i += 1) {

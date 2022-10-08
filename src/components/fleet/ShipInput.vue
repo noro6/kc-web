@@ -37,60 +37,61 @@
           </div>
         </div>
         <div class="flex-grow-1">
-          <div class="d-flex caption flex-wrap">
-            <v-menu offset-y v-model="levelMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLevelMenuToggle">
+          <div class="caption">
+            <v-menu
+              offset-y
+              v-model="editStatusMenu"
+              :close-on-content-click="false"
+              transition="slide-y-transition"
+              bottom
+              right
+              @input="onEditStatusMenuToggle"
+            >
               <template v-slot:activator="{ on, attrs }">
-                <div class="px-1 clickable-status primary--text" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">Lv:{{ ship.level }}</div>
+                <div class="pr-2 clickable-status d-flex flex-wrap" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+                  <div class="pl-1 pr-1 primary--text">Lv:{{ ship.level }}</div>
+                  <div class="pl-1 text--secondary">{{ $t("Common.運") }}:</div>
+                  <div class="pl-1 pr-1 font-weight-medium">{{ ship.luck }}</div>
+                  <div class="pl-1 text--secondary">{{ $t("Common.対空") }}:</div>
+                  <div class="pl-1 font-weight-medium">{{ ship.antiAir }}</div>
+                </div>
               </template>
-              <v-card class="pa-3">
-                <div class="d-flex mt-1">
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 1">Lv1</v-btn>
+              <v-card class="px-5 pt-5 pb-3">
+                <div class="d-flex">
+                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 1" color="grey">Lv1</v-btn>
                   <v-btn class="mr-1 px-0" small outlined @click.stop="level = 50" color="primary">Lv50</v-btn>
                   <v-btn class="mr-1 px-0" small outlined @click.stop="level = 80" color="teal">Lv80</v-btn>
                   <v-btn class="mr-1 px-0" small outlined @click.stop="level = 99" color="teal">Lv99</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 145" color="red lighten-2">Lv145</v-btn>
                   <v-btn class="mr-1 px-0" small outlined @click.stop="level = 175" color="red lighten-2">Lv175</v-btn>
                 </div>
-                <div class="d-flex mt-4 pl-2">
-                  <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
-                  <div class="menu-slider-text">
-                    <v-text-field v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
+                <div class="d-flex mt-4">
+                  <div class="edit-status-menu-text">
+                    <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
                   </div>
+                  <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
+                </div>
+                <v-divider class="my-3"></v-divider>
+                <div class="edit-status-container">
+                  <v-text-field :label="$t('Common.耐久')" v-model.number="hp" :max="value.data.maxHp" :min="minHP" hide-details type="number"></v-text-field>
+                  <v-text-field :label="$t('Common.対潜')" v-model.number="asw" :max="maxAsw" :min="minAsw" hide-details type="number"></v-text-field>
+                  <v-text-field
+                    :label="$t('Common.運')"
+                    v-model.number="luck"
+                    :max="ship.data.maxLuck"
+                    :min="ship.data.luck"
+                    hide-details
+                    type="number"
+                  ></v-text-field>
+                  <v-text-field :label="$t('Common.対空')" v-model.number="antiAir" :max="ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
+                </div>
+                <v-divider class="my-3"></v-divider>
+                <div class="d-flex">
+                  <v-spacer></v-spacer>
+                  <v-btn @click="applyEdit()" color="primary" class="mr-2">{{ $t("Common.適用") }}</v-btn>
+                  <v-btn @click="editStatusMenu = false" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
                 </div>
               </v-card>
             </v-menu>
-            <div class="d-flex mr-2">
-              <v-menu offset-y v-model="luckMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onLuckMenuToggle">
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                    <span class="text--secondary">{{ $t("Common.運") }}:</span>
-                    <span class="pl-1 font-weight-medium">{{ ship.luck }}</span>
-                  </div>
-                </template>
-                <v-card class="pa-5">
-                  <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.luck" :disabled="isNoShip">{{ $t("Common.初期値") }}</v-btn>
-                    <v-btn class="mx-2" @click.stop="luck = ship.data.maxLuck" color="primary" :disabled="isNoShip">{{ $t("Common.最大値") }}</v-btn>
-                  </div>
-                  <v-text-field v-model.number="luck" :max="isNoShip ? 100 : ship.data.maxLuck" :min="ship.data.luck" hide-details type="number"></v-text-field>
-                </v-card>
-              </v-menu>
-              <v-menu offset-y v-model="antiAirMenu" :close-on-content-click="false" transition="slide-y-transition" bottom right @input="onAAMenuToggle">
-                <template v-slot:activator="{ on, attrs }">
-                  <div class="px-1 clickable-status" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                    <span class="text--secondary">{{ $t("Common.対空") }}:</span>
-                    <span class="pl-1 font-weight-medium">{{ ship.antiAir }}</span>
-                  </div>
-                </template>
-                <v-card class="pa-5">
-                  <div class="d-flex mt-1">
-                    <v-btn class="mx-2" @click.stop="antiAir = 0" :disabled="isNoShip">{{ $t("Common.初期値") }}</v-btn>
-                    <v-btn class="mx-2" @click.stop="antiAir = ship.data.antiAir" color="primary" :disabled="isNoShip">{{ $t("Common.最大値") }}</v-btn>
-                  </div>
-                  <v-text-field v-model.number="antiAir" :max="isNoShip ? 200 : ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
-                </v-card>
-              </v-menu>
-            </div>
           </div>
           <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
             <div class="ship-name text-truncate">{{ shipName }}</div>
@@ -230,7 +231,7 @@
       <v-divider class="mx-1 item-input-divider"></v-divider>
       <!-- 装備一覧 -->
       <div class="px-1" v-if="!ship.isEmpty">
-        <div @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
+        <div @mouseenter="bootTooltip(item, j, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
           <item-input
             v-model="ship.items[j]"
             :index="j"
@@ -244,7 +245,7 @@
           />
         </div>
         <!-- 補強増設枠 -->
-        <div @mouseenter="bootTooltip(ship.exItem, $event)" @mouseleave="clearTooltip">
+        <div @mouseenter="bootTooltip(ship.exItem, -1, $event)" @mouseleave="clearTooltip">
           <item-input
             v-model="ship.exItem"
             :index="99"
@@ -260,7 +261,7 @@
       </div>
     </template>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" />
+      <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
     <v-tooltip v-model="enabledShipTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip v-model="value" :fleet-ros-corr="fleetRosCorr" :is-flagship="index === 0" />
@@ -324,10 +325,14 @@
   background-color: rgba(128, 128, 128, 0.1);
 }
 
-.menu-slider-text {
-  width: 60px;
-  align-self: center;
-  margin-left: 1rem;
+.edit-status-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1rem;
+  row-gap: 1rem;
+}
+.edit-status-menu-text {
+  width: 80px;
 }
 
 .ship-img {
@@ -438,6 +443,8 @@ import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
 import ShipValidation from '@/classes/fleet/shipValidation';
+import { cloneDeep } from 'lodash';
+import ItemBonus from '@/classes/item/ItemBonus';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip, ShipTooltip },
@@ -488,13 +495,14 @@ export default Vue.extend({
     level: 99,
     luck: 0,
     antiAir: 0,
-    levelMenu: false,
-    luckMenu: false,
-    antiAirMenu: false,
+    asw: 0,
+    hp: 1,
+    editStatusMenu: false,
     enabledTooltip: false,
     enabledShipTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
+    tooltipBonus: '',
     tooltipX: 0,
     tooltipY: 0,
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
@@ -541,6 +549,31 @@ export default Vue.extend({
     maxAreas(): number {
       return this.$store.state.areaCount as number;
     },
+    minHP(): number {
+      return this.level > 99 ? this.value.data.hp2 : this.value.data.hp;
+    },
+    minAsw(): number {
+      // 未設定(まだわかってない)なら0
+      if (!this.value.data.minAsw || !this.value.data.maxAsw) return 0;
+      const asw = Ship.getStatusFromLevel(this.level, this.value.data.maxAsw, this.value.data.minAsw);
+      return asw;
+    },
+    maxAsw(): number {
+      // 未設定(まだわかってない)なら青天井
+      if (!this.value.data.minAsw || !this.value.data.maxAsw) return 200;
+      return this.minAsw + 9;
+    },
+  },
+  watch: {
+    level(v: number) {
+      // 未改修時の対潜値
+      const asw = Ship.getStatusFromLevel(v, this.ship.data.maxAsw, this.value.data.minAsw);
+      // セットされている対潜改修値を加算
+      this.asw = asw + this.value.improveAsw;
+      // HP最小値を変更
+      this.hp = Math.max(this.hp, v > 99 ? this.value.data.hp2 : this.value.data.hp);
+      this.hp = Math.min(this.hp, v <= 99 ? this.value.data.hp : 999);
+    },
   },
   methods: {
     updateItem() {
@@ -554,31 +587,28 @@ export default Vue.extend({
         this.$emit('input', value);
       }
     },
-    onLevelMenuToggle() {
-      if (!this.levelMenu) {
-        const asw = Ship.getStatusFromLevel(this.level, this.ship.data.maxAsw, this.value.data.minAsw);
-        const bonusAsw = this.ship.asw - Ship.getStatusFromLevel(this.ship.level, this.ship.data.maxAsw, this.value.data.minAsw);
-        const builder: ShipBuilder = { ship: this.ship, level: this.level, asw: asw + bonusAsw };
-        this.setShip(new Ship(builder));
-      } else {
+    onEditStatusMenuToggle() {
+      if (this.editStatusMenu) {
+        this.hp = this.ship.hp;
         this.level = this.ship.level;
-      }
-    },
-    onLuckMenuToggle() {
-      if (!this.luckMenu) {
-        const builder: ShipBuilder = { ship: this.ship, luck: this.luck };
-        this.setShip(new Ship(builder));
-      } else {
         this.luck = this.ship.luck;
-      }
-    },
-    onAAMenuToggle() {
-      if (!this.antiAirMenu) {
-        const builder: ShipBuilder = { ship: this.ship, antiAir: this.antiAir };
-        this.setShip(new Ship(builder));
-      } else {
+        this.asw = this.ship.asw;
         this.antiAir = this.ship.antiAir;
       }
+    },
+    applyEdit(): void {
+      const builder: ShipBuilder = {
+        ship: this.ship,
+        level: this.level,
+        hp: this.hp,
+        luck: this.luck,
+        antiAir: this.antiAir,
+        asw: this.asw,
+      };
+
+      this.setShip(new Ship(builder));
+      this.editStatusMenu = false;
+      this.onEditStatusMenuToggle();
     },
     changeActive(value: boolean) {
       this.setShip(new Ship({ ship: this.ship, isActive: value }));
@@ -641,11 +671,18 @@ export default Vue.extend({
         newExItem = new Item();
       }
 
+      // コンバート時に対潜/耐久改修分を引き継ぐ
+      const bonusHP = this.value.hp - (this.value.level > 99 ? this.value.data.hp2 : this.value.data.hp);
+      const newHP = (this.value.level > 99 ? newVersion.hp2 : newVersion.hp) + bonusHP;
+      const newAsw = Ship.getStatusFromLevel(this.value.level, newVersion.maxAsw, newVersion.minAsw) + this.value.improveAsw;
+
       this.setShip(
         new Ship({
           master: newVersion,
           level: this.value.level,
+          hp: newHP,
           luck: this.value.luck,
+          asw: newAsw,
           items: newItems,
           exItem: newExItem,
         }),
@@ -750,7 +787,7 @@ export default Vue.extend({
         this.setShip(moveData);
       }
     },
-    bootTooltip(item: Item, e: MouseEvent) {
+    bootTooltip(item: Item, index: number, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (!item.data.id || setting.disabledItemTooltip) {
         return;
@@ -762,6 +799,51 @@ export default Vue.extend({
         this.tooltipY = rect.y + rect.height;
         this.tooltipItem = item;
         this.enabledTooltip = true;
+
+        // この装備がなかった場合のボーナスと比較した分をこの装備のボーナスとする
+        const baseItems = this.value.items.concat();
+        baseItems.push(this.value.exItem);
+        const tempItems = cloneDeep(baseItems);
+        tempItems[index < 0 ? tempItems.length - 1 : index] = new Item();
+
+        const emptyBonus = Ship.getItemBonus(this.value.data, tempItems);
+        // 未装備時のボーナス合計
+        const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
+        // 現在のボーナス
+        const totalBonus = ItemBonus.getTotalBonus(this.value.itemBonuses);
+        // ボーナスの差分を取る
+        if (totalBonus.firePower) {
+          totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+        }
+        if (totalBonus.torpedo) {
+          totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+        }
+        if (totalBonus.antiAir) {
+          totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+        }
+        if (totalBonus.armor) {
+          totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+        }
+        if (totalBonus.asw) {
+          totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+        }
+        if (totalBonus.avoid) {
+          totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+        }
+        if (totalBonus.accuracy) {
+          totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+        }
+        if (totalBonus.range) {
+          totalBonus.range -= totalEmptyBonus.range ?? 0;
+        }
+        if (totalBonus.bomber) {
+          totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+        }
+        if (totalBonus.scout) {
+          totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+        }
+
+        this.tooltipBonus = JSON.stringify(totalBonus);
       }, 400);
     },
     bootShipTooltip(e: MouseEvent) {
