@@ -20,7 +20,7 @@ export interface ShipBuilder {
   level?: number;
   /** 運 */
   luck?: number;
-  /** 対潜 */
+  /** 装備「なし」対潜 */
   asw?: number;
   /** 対空 */
   antiAir?: number;
@@ -92,7 +92,7 @@ export default class Ship implements ShipBase {
   /** 回避値 */
   public readonly avoid: number;
 
-  /** 対潜値 */
+  /** 装備「なし」対潜値 */
   public readonly asw: number;
 
   /** 改修分対潜値 */
@@ -255,14 +255,14 @@ export default class Ship implements ShipBase {
     this.avoid = Ship.getStatusFromLevel(this.level, this.data.maxAvoid, this.data.minAvoid);
     this.improveAsw = Math.max(this.asw - Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw), 0);
 
-    // ステータス表示値 特に計算には使わないはず
+    // ステータス表示値
     this.displayStatus = {
       HP: this.hp,
       firePower: this.data.fire,
       armor: this.data.armor,
       torpedo: this.data.torpedo,
       avoid: this.avoid,
-      antiAir: this.data.antiAir,
+      antiAir: this.antiAir,
       asw: this.asw,
       LoS: this.scout,
       luck: this.luck,
@@ -640,13 +640,19 @@ export default class Ship implements ShipBase {
             // 合致した装備からさらに個数で判定
             if (bonus.num && remodelFits.length < bonus.num) {
               continue;
+            } else if (!bonus.num) {
+              // 個数制限がない場合はその数だけ回す
+              for (let b = 0; b < remodelFits.length; b += 1) {
+                sumBonuses.push(bonus.bonus);
+              }
+            } else {
+              // ようやくBonusを適用
+              sumBonuses.push(bonus.bonus);
             }
           } else if (bonus.num && fitItems.length < bonus.num) {
             // 合致した装備からさらに個数で判定
             continue;
-          }
-
-          if (!bonus.num) {
+          } else if (!bonus.num) {
             // 個数制限がない場合はその数だけ回す
             for (let b = 0; b < fitItems.length; b += 1) {
               sumBonuses.push(bonus.bonus);
@@ -981,12 +987,14 @@ export default class Ship implements ShipBase {
           specialAttacks.push({ text: '夜襲CIB', value: 120 });
         }
         if (nightFighterCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 115 });
+          specialAttacks.push({ text: '光電管彗星CI', value: 120 });
         } else if (nightAttackerCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 115 });
+          specialAttacks.push({ text: '光電管彗星CI', value: 120 });
         }
-        if (nightFighterCount && nightPlaneCount >= 2) {
-          specialAttacks.push({ text: '夜襲CIC', value: 130 });
+        if (nightFighterCount && nightPlaneCount >= 3) {
+          if (nightFighterCount !== 2 || nightAttackerCount !== 1) {
+            specialAttacks.push({ text: '夜襲CIC', value: 130 });
+          }
         }
       }
     }
