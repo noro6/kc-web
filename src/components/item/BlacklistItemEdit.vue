@@ -46,9 +46,7 @@
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="text-center">
-                <v-icon color="grey">mdi-skull-crossbones</v-icon>
-              </th>
+              <th class="text-center"></th>
               <th class="text-right item-id">id</th>
               <th class="text-left">{{ $t("Common.装備名称") }}</th>
             </tr>
@@ -64,7 +62,7 @@
               @mouseleave="clearTooltip"
             >
               <td class="icon-td text-center">
-                <v-icon v-if="item.isBlacklisted" color="grey">mdi-skull-crossbones</v-icon>
+                <v-icon v-if="item.isBlacklisted" color="grey">mdi-eye-off</v-icon>
               </td>
               <td class="item-id">
                 <div class="info--text caption">{{ item.data.id }}</div>

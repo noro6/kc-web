@@ -77,7 +77,7 @@
       </div>
       <v-spacer></v-spacer>
       <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
-        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
+        <v-icon>mdi-eye-off</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
       </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
