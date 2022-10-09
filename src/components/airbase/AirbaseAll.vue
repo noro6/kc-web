@@ -330,6 +330,42 @@
   </v-card>
 </template>
 
+<style>
+/** スクショ用調整  */
+.normal-airbases.captured {
+  width: 1200px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.2rem;
+  padding: 0.75rem 0.5rem;
+}
+.normal-airbases.captured * {
+  box-shadow: none !important;
+}
+.normal-airbases.captured > div {
+  border: 1px solid #bbb;
+}
+.theme--dark .normal-airbases.captured {
+  background: rgb(40, 40, 45);
+  border: 1px solid #444;
+}
+.deep-sea .theme--dark .normal-airbases.captured {
+  background: rgb(8, 18, 42);
+}
+.theme--dark .normal-airbases.captured > div {
+  border: 1px solid #444;
+}
+
+.has-error-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 90px;
+}
+</style>
+
 <style scoped>
 .v-input--selection-controls {
   margin: 0.6rem 0.5rem;
@@ -384,33 +420,6 @@
   }
 }
 
-/** スクショ用調整  */
-.normal-airbases.captured {
-  width: 1200px !important;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.2rem;
-  padding: 0.75rem 0.5rem;
-}
-.normal-airbases.captured * {
-  box-shadow: none !important;
-}
-.normal-airbases.captured > div {
-  border: 1px solid #bbb;
-}
-.theme--dark .normal-airbases.captured {
-  background: rgb(40, 40, 45);
-  border: 1px solid #444;
-}
-.deep-sea .theme--dark .normal-airbases.captured {
-  background: rgb(8, 18, 42);
-}
-.theme--dark .normal-airbases.captured > div {
-  border: 1px solid #444;
-}
-
 .remodel-list-item i,
 .remodel-list-item span {
   vertical-align: middle;
@@ -461,12 +470,6 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
-.has-error-space {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 90px;
-}
 .w-100 {
   width: 100%;
 }
@@ -746,12 +749,16 @@ export default Vue.extend({
     },
     toggleTargetDialog() {
       if (!this.targetDialog) {
+        // 再インスタンス化
+        for (let i = 0; i < this.airbaseInfo.airbases.length; i += 1) {
+          this.airbaseInfo.airbases[i] = new Airbase({ airbase: this.airbaseInfo.airbases[i] });
+        }
         this.setInfo();
       }
     },
     closeTargetDialog() {
       this.targetDialog = false;
-      this.setInfo();
+      this.toggleTargetDialog();
     },
     closeItemList() {
       this.itemListDialog = false;

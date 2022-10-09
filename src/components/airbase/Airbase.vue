@@ -64,26 +64,18 @@
           @input="updateItem"
         />
       </div>
-      <div v-if="!isDefense" class="mx-1 pb-2">
-        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave1" :dense="true" class="mt-3" />
-        <air-status-result-bar v-if="!isDefense" :result="airbase.resultWave2" :dense="true" class="mt-3" />
+      <div v-if="showAirStatusBar" class="mx-1 pb-2">
+        <air-status-result-bar :result="airbase.resultWave1" :dense="true" class="mt-3" />
+        <air-status-result-bar :result="airbase.resultWave2" :dense="true" class="mt-3" />
       </div>
     </div>
-    <v-tooltip
-      v-model="enabledTooltip"
-      color="black"
-      bottom
-      right
-      transition="slide-y-transition"
-      :position-x="tooltipX"
-      :position-y="tooltipY"
-    >
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <v-card class="px-2 pb-2" v-if="!destroyDialog">
         <div class="d-flex pt-2 pb-1">
-          <div class="align-self-center ml-3">{{ $t('Airbase.基地航空隊詳細') }}</div>
+          <div class="align-self-center ml-3">{{ $t("Airbase.基地航空隊詳細") }}</div>
           <v-spacer></v-spacer>
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
@@ -91,8 +83,8 @@
         </div>
         <v-divider></v-divider>
         <v-tabs v-model="tab">
-          <v-tab href="#contact">{{ $t('Fleet.触接') }}</v-tab>
-          <v-tab href="#detail">{{ $t('Result.残機数詳細') }}</v-tab>
+          <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
+          <v-tab href="#detail">{{ $t("Result.残機数詳細") }}</v-tab>
           <v-tab-item value="contact">
             <v-divider></v-divider>
             <contact-rates :fleet="value" />
@@ -237,6 +229,9 @@ export default Vue.extend({
     },
     enabledDetail() {
       return this.value.mode === AB_MODE.BATTLE && this.value.items.some((v) => v.data.id > 0);
+    },
+    showAirStatusBar(): boolean {
+      return !this.isDefense && this.value.mode !== AB_MODE.DEFENSE;
     },
   },
   methods: {

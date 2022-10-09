@@ -1,15 +1,15 @@
 <template>
   <div class="mx-1 pb-2">
     <div class="d-flex ml-2 fleet-header flex-wrap">
-      <div class="mt-1 caption text--secondary">{{ $t('Common.制空') }}:</div>
+      <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
-      <div class="mt-1 caption text--secondary">{{ $t('Fleet.触接') }}:</div>
+      <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>
-      <div class="mt-1 caption text--secondary">{{ $t('Fleet.夜偵') }}:</div>
+      <div class="mt-1 caption text--secondary">{{ $t("Fleet.夜偵") }}:</div>
       <div class="mt-1 ml-1 mr-3 body-2">{{ nightContactRate }}%</div>
       <!-- 索敵値 -->
       <div class="mt-1 mr-3 d-flex">
-        <div class="option-status mr-1" v-for="(scout, i) in fleetScouts" :key="i">
+        <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
           <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
           <div class="option-status-label">{{ i + 1 }}</div>
           <div class="ml-2 body-2">: {{ scout }}</div>
@@ -17,22 +17,22 @@
       </div>
       <!-- TP -->
       <div class="mt-1 d-flex">
-        <div class="option-status">
+        <div class="option-status d-flex">
           <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
           <div class="option-status-label label-tp">TP</div>
-          <div class="ml-2 body-2 align-self-center tp">
+          <div class="ml-2 body-2 align-self-center tp d-flex">
             <div>: {{ actualFleet.tp }}</div>
             <div class="status-label">S</div>
           </div>
           <div class="ml-2 mr-1">/</div>
-          <div class="body-2 align-self-center tp">
+          <div class="body-2 align-self-center tp d-flex">
             <div>{{ tpA }}</div>
             <div class="status-label">A</div>
           </div>
         </div>
       </div>
       <div class="d-flex ml-6">
-        <div class="mt-1 align-self-center caption d-capture-none">{{ $t('Fleet.艦隊詳細') }}:</div>
+        <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}:</div>
         <div class="operation-button">
           <v-btn color="info" icon @click="clickedInfo">
             <v-icon>mdi-information-outline</v-icon>
@@ -55,16 +55,16 @@
                 <v-icon>mdi-trash-can-outline</v-icon>
               </v-btn>
             </template>
-            <span>{{ $t('Fleet.艦隊リセット') }}</span>
+            <span>{{ $t("Fleet.艦隊リセット") }}</span>
           </v-tooltip>
         </div>
         <div class="operation-button ship-line-setting">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
             <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
-              <span class="white--text">{{ $t('Fleet.x列', {number : 2 }) }}</span>
+              <span class="white--text">{{ $t("Fleet.x列", { number: 2 }) }}</span>
             </v-btn>
             <v-btn :value="false" small :class="{ blue: !isShipView2Line, secondary: isShipView2Line }" @click="toggleViewLine(false)">
-              <span class="white--text">{{ $t('Fleet.x列', {number : 3 }) }}</span>
+              <span class="white--text">{{ $t("Fleet.x列", { number: 3 }) }}</span>
             </v-btn>
           </v-btn-toggle>
         </div>
@@ -89,14 +89,7 @@
     </div>
     <air-status-result-bar :result="actualFleet.mainResult" class="mt-3" />
     <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
-      <fleet-detail
-        v-if="!destroyDialog"
-        :fleet="actualFleet"
-        :index="index"
-        :is-union="isUnion"
-        ref="fleetDetail"
-        :handle-close="closeDetail"
-      />
+      <fleet-detail v-if="!destroyDialog" :fleet="actualFleet" :index="index" :is-union="isUnion" ref="fleetDetail" :handle-close="closeDetail" />
     </v-dialog>
   </div>
 </template>
@@ -107,7 +100,6 @@
 }
 .option-status {
   position: relative;
-  display: flex;
 }
 .option-status .option-status-label {
   align-self: flex-end;
@@ -118,7 +110,6 @@
   left: 20px;
 }
 .tp {
-  display: flex;
   position: relative;
 }
 .option-status .option-status-label.label-tp {

@@ -42,7 +42,7 @@
     <!-- 装備名称 -->
     <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
       {{ itemName }}
-      <div class="item-special-text" v-if="bonusText">
+      <div class="item-special-text d-flex" v-if="bonusText">
         <div class="align-self-center">{{ bonusText }}</div>
         <div class="sub-text">{{ '' }}</div>
       </div>
@@ -94,7 +94,6 @@
 
 <style scoped>
 .item-input {
-  display: flex;
   transition: 0.2s;
 }
 .item-input:hover {
@@ -171,7 +170,6 @@
   color: #000;
   font-weight: bold;
   position: absolute;
-  display: flex;
   font-size: 12px;
   font-weight: bold;
   padding-left: 4px;
@@ -403,7 +401,7 @@ export default Vue.extend({
       return 'red--text text--lighten-2';
     },
     itemClass() {
-      const classes = ['item-input', `type-${this.value.data.iconTypeId}`];
+      const classes = ['d-flex', 'item-input', `type-${this.value.data.iconTypeId}`];
       if (this.readonly) {
         classes.push('readonly');
       }

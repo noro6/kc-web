@@ -12,7 +12,7 @@
     @dragover.prevent
   >
     <template v-if="ship.isEmpty">
-      <div class="empty-ship" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
+      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
         <div class="align-self-center">{{ shipName }}</div>
         <div class="empty-temp-list">
           <v-tooltip bottom color="black">
@@ -287,7 +287,6 @@
 .empty-ship {
   height: 100%;
   min-height: 80px;
-  display: flex;
   justify-content: center;
   cursor: pointer;
   opacity: 0.8;
