@@ -768,6 +768,15 @@ export default Vue.extend({
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       if (!draggingDiv || !draggingDiv.draggable || !draggingDiv.classList.contains('ship-input')) {
         // ドラッグ不可だったり、そもそもship-inputじゃなかったら以降受け入れない
+
+        // FireFox なんかおかしくなるので再チェック
+        const target = e.target as HTMLDivElement;
+        if (target) {
+          target.style.opacity = '1';
+          target.id = '';
+          target.draggable = false;
+        }
+
         return;
       }
       const target = e.target as HTMLDivElement;
