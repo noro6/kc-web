@@ -66,14 +66,7 @@
       </div>
       <div id="enemy-content" class="content-frame" v-show="sortMode || !setting.isMinimizedEnemy">
         <v-card v-if="sortMode" class="sort-container">{{ $t("Enemies.敵艦隊") }}</v-card>
-        <enemy-fleet-all
-          v-else
-          v-model="calcManager.battleInfo"
-          :airbase-info="calcManager.airbaseInfo"
-          :is-defense="calcManager.isDefense"
-          :handle-minimize="toggleMinimizeEnemy"
-          :sort-mode="sortMode"
-        />
+        <enemy-fleet-all v-else v-model="calcManager" :handle-minimize="toggleMinimizeEnemy" :sort-mode="sortMode" />
       </div>
       <div id="result-content" class="content-frame" v-show="sortMode || !setting.isMinimizedResult">
         <v-card v-if="sortMode" class="sort-container">{{ $t("Result.計算結果") }}</v-card>

@@ -165,6 +165,8 @@ import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import CommonCalc from '@/classes/commonCalc';
 import { AB_MODE } from '@/classes/const';
 import Convert from '@/classes/convert';
+import Airbase from '@/classes/airbase/airbase';
+import CalcManager from '@/classes/calcManager';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -180,15 +182,7 @@ export default Vue.extend({
   },
   props: {
     value: {
-      type: BattleInfo,
-      required: true,
-    },
-    airbaseInfo: {
-      type: AirbaseInfo,
-      required: true,
-    },
-    isDefense: {
-      type: Boolean,
+      type: CalcManager,
       required: true,
     },
     handleMinimize: {
@@ -211,13 +205,16 @@ export default Vue.extend({
   }),
   computed: {
     battleInfo(): BattleInfo {
-      return this.value;
+      return this.value.battleInfo;
+    },
+    airbaseInfo(): AirbaseInfo {
+      return this.value.airbaseInfo;
     },
     nodeString(): string {
-      const nodeList = this.value.fleets.map((v) => v.nodeName);
+      const nodeList = this.value.battleInfo.fleets.map((v) => v.nodeName);
       if (nodeList.some((v) => v !== '')) {
         let map = '';
-        const lastBattle = this.value.fleets[this.value.fleets.length - 1];
+        const lastBattle = this.value.battleInfo.fleets[this.value.battleInfo.fleets.length - 1];
         if (lastBattle && lastBattle.area) {
           const world = Math.floor(lastBattle.area / 10);
           map = `${world > 40 ? 'E' : world}-${lastBattle.area % 10}`;
@@ -225,6 +222,9 @@ export default Vue.extend({
         return `${map} : ${nodeList.map((v) => (v === '' ? '?' : v)).join(' → ')}`;
       }
       return '';
+    },
+    isDefense(): boolean {
+      return this.value.isDefense;
     },
     defenseAirPowerBorders(): number[] {
       if (this.isDefense) {
@@ -257,8 +257,15 @@ export default Vue.extend({
             targets[j] = newBattleInfo.battleCount - 1;
           }
         }
+        // 再度インスタンス化する
+        airbases[i] = new Airbase({ airbase: airbases[i], battleTarget: targets });
       }
-      this.$emit('input', newBattleInfo);
+
+      const newAirbaseInfo = new AirbaseInfo({ airbases });
+      newAirbaseInfo.calculated = true;
+      this.value.airbaseInfo = newAirbaseInfo;
+      this.value.battleInfo = newBattleInfo;
+      this.$emit('input', this.value);
     },
     async showItemList(fleetIndex: number, enemyIndex: number, slotIndex: number) {
       this.itemDialogTarget = [fleetIndex, enemyIndex, slotIndex];
@@ -388,7 +395,7 @@ export default Vue.extend({
     },
     closeTargetDialog() {
       this.targetDialog = false;
-      this.setInfo();
+      this.toggleTargetDialog();
     },
     closeItemList() {
       this.itemListDialog = false;
