@@ -250,7 +250,7 @@ export default Vue.extend({
         newBattleInfo = new BattleInfo({ info: this.battleInfo });
       }
       // 基地派遣先の整合性チェック
-      const { airbases } = this.airbaseInfo;
+      const { airbases, isDefense } = this.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
         const targets = airbases[i].battleTarget;
         for (let j = 0; j < targets.length; j += 1) {
@@ -263,7 +263,7 @@ export default Vue.extend({
         airbases[i] = new Airbase({ airbase: airbases[i], battleTarget: targets });
       }
 
-      const newAirbaseInfo = new AirbaseInfo({ airbases });
+      const newAirbaseInfo = new AirbaseInfo({ airbases, isDefense });
       newAirbaseInfo.calculated = true;
       this.value.airbaseInfo = newAirbaseInfo;
       this.value.battleInfo = newBattleInfo;
