@@ -130,7 +130,7 @@
         </template>
       </div>
     </div>
-    <v-tabs class="small-airbases" v-model="tab" vertical>
+    <v-tabs class="small-airbases" v-model="tab" vertical :class="{ captured: capturing }">
       <v-tab v-for="i in 3" :key="i" :href="`#base${i}`">
         <div class="airbase-tab-text d-none d-sm-block">{{ $t("Airbase.第x基地航空隊", { number: i }) }}</div>
         <div class="airbase-tab-text d-sm-none">{{ $t("Airbase.第x航空隊", { number: i }) }}</div>
@@ -330,42 +330,6 @@
   </v-card>
 </template>
 
-<style>
-/** スクショ用調整  */
-.normal-airbases.captured {
-  width: 1200px !important;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.2rem;
-  padding: 0.75rem 0.5rem;
-}
-.normal-airbases.captured * {
-  box-shadow: none !important;
-}
-.normal-airbases.captured > div {
-  border: 1px solid #bbb;
-}
-.theme--dark .normal-airbases.captured {
-  background: rgb(40, 40, 45);
-  border: 1px solid #444;
-}
-.deep-sea .theme--dark .normal-airbases.captured {
-  background: rgb(8, 18, 42);
-}
-.theme--dark .normal-airbases.captured > div {
-  border: 1px solid #444;
-}
-
-.has-error-space {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 90px;
-}
-</style>
-
 <style scoped>
 .v-input--selection-controls {
   margin: 0.6rem 0.5rem;
@@ -475,6 +439,46 @@
 }
 .opacity0 {
   opacity: 0;
+}
+</style>
+
+<style>
+/** スクショ用調整  */
+.normal-airbases.captured {
+  width: 1200px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.2rem;
+  padding: 0.75rem 0.5rem;
+}
+.normal-airbases.captured * {
+  box-shadow: none !important;
+}
+.normal-airbases.captured > div {
+  border: 1px solid #bbb;
+}
+.theme--dark .normal-airbases.captured {
+  background: rgb(40, 40, 45);
+  border: 1px solid #444;
+}
+.deep-sea .theme--dark .normal-airbases.captured {
+  background: rgb(8, 18, 42);
+}
+.theme--dark .normal-airbases.captured > div {
+  border: 1px solid #444;
+}
+
+.small-airbases.captured {
+  display: none;
+}
+
+.has-error-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 90px;
 }
 </style>
 

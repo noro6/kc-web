@@ -114,6 +114,16 @@
   width: 100px;
 }
 
+.air-power-info > * {
+  align-self: center;
+}
+.air-power-info .value-text {
+  width: 40px;
+  text-align: right;
+}
+</style>
+
+<style>
 #enemies-container.captured {
   width: 1160px !important;
   background: #fff;
@@ -136,14 +146,6 @@
 }
 .theme--dark #enemies-container.captured .v-card {
   border: 1px solid rgb(28, 28, 34);
-}
-
-.air-power-info > * {
-  align-self: center;
-}
-.air-power-info .value-text {
-  width: 40px;
-  text-align: right;
 }
 </style>
 

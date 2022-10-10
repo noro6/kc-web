@@ -56,7 +56,7 @@
         :key="index"
         v-ripple="{ class: 'info--text' }"
         @click="openMenu(index)"
-        class="d-flex enemy-list-item pr-2"
+        class="d-flex enemy-list-item pr-2 align-center"
         :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
         @mouseenter="bootTooltip(enemy, $event)"
         @mouseleave="clearTooltip"
@@ -114,14 +114,7 @@
 .v-btn--outlined {
   padding: 0 0.25rem !important;
 }
-.formation-select,
-.cell-type-select {
-  width: 94px;
-}
 
-.enemy-list .d-flex > div {
-  align-self: center;
-}
 .enemy-list-item {
   transition: 0.1s;
   cursor: pointer;
@@ -166,6 +159,13 @@
   align-self: center;
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+</style>
+
+<style>
+.formation-select,
+.cell-type-select {
+  width: 94px;
 }
 </style>
 

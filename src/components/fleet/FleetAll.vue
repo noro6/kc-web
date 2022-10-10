@@ -95,7 +95,13 @@
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
-      <v-tab-item v-for="(fleet, i) in fleetInfo.fleets" :key="i" :value="`fleet${i}`" class="fleet-container" :class="{ captured: capturing, 'is-2line': is2Line }">
+      <v-tab-item
+        v-for="(fleet, i) in fleetInfo.fleets"
+        :key="i"
+        :value="`fleet${i}`"
+        class="fleet-container"
+        :class="{ captured: capturing, 'is-2line': is2Line }"
+      >
         <fleet-component
           v-model="fleetInfo.fleets[i]"
           :index="i"
@@ -385,25 +391,6 @@
   width: 120px;
 }
 
-/** スクショ用調整  */
-.fleet-container.captured {
-  width: 1200px !important;
-  background: #fff;
-  border: 1px solid #bbb;
-  border-radius: 0.25rem;
-  padding: 0.75rem;
-}
-.fleet-container.captured.is-2line {
-  width: 860px !important;
-}
-.theme--dark .fleet-container.captured {
-  background: rgb(40, 40, 45);
-  border: 1px solid #444;
-}
-.deep-sea .theme--dark .fleet-container.captured {
-  background: rgb(8, 18, 42);
-}
-
 .remodel-list-item i,
 .remodel-list-item span {
   vertical-align: middle;
@@ -525,6 +512,27 @@
 
 .v-tab {
   text-transform: none;
+}
+</style>
+
+<style>
+/** スクショ用調整  */
+.fleet-container.captured {
+  width: 1200px !important;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
+.fleet-container.captured.is-2line {
+  width: 860px !important;
+}
+.theme--dark .fleet-container.captured {
+  background: rgb(40, 40, 45);
+  border: 1px solid #444;
+}
+.deep-sea .theme--dark .fleet-container.captured {
+  background: rgb(8, 18, 42);
 }
 </style>
 
@@ -961,7 +969,7 @@ export default Vue.extend({
       const div = document.querySelector('.fleet-container.v-window-item--active') as HTMLDivElement;
       if (div) {
         setTimeout(() => {
-          html2canvas(div, { scale: 2, width: 1200 }).then((canvas) => {
+          html2canvas(div, { scale: 2, width: (this.is2Line ? 860 : 1200) }).then((canvas) => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL();
             link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
