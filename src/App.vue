@@ -740,6 +740,7 @@ export default Vue.extend({
     w.loadDeckBuilder = this.loadAndOpenFromDeckBuilder;
 
     document.addEventListener('keyup', this.keyupHandler);
+    document.addEventListener('keydown', this.keydownHandler);
   },
   methods: {
     closeSideBar() {
@@ -1299,6 +1300,12 @@ export default Vue.extend({
         }
       }
     },
+    keydownHandler(event: KeyboardEvent) {
+      if (this.isAirCalcPage && event.ctrlKey && event.code === 'KeyS') {
+        this.saveCurrentData();
+        event.preventDefault();
+      }
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -1307,6 +1314,7 @@ export default Vue.extend({
   },
   destroyed() {
     document.removeEventListener('keyup', this.keyupHandler);
+    document.removeEventListener('keydown', this.keydownHandler);
   },
 });
 </script>
