@@ -770,7 +770,7 @@ export default Vue.extend({
 
         // FireFox なんかおかしくなるので再チェック
         const target = e.target as HTMLDivElement;
-        if (target) {
+        if (target && target.classList.contains('ship-input')) {
           target.style.opacity = '1';
           target.id = '';
           target.draggable = false;
