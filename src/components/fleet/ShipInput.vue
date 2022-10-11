@@ -27,13 +27,13 @@
       </div>
     </template>
     <template v-else>
-      <div class="d-flex ship-header px-2">
-        <div class="align-self-center cur-pointer" v-if="!isNoShip" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
+      <div class="d-flex px-2">
+        <div class="align-self-center ship-img-container" v-if="!isNoShip" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
-            <v-img :src="`./img/tags/area${ship.area}.png`" height="40" width="28" />
+            <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${ship.area}.webp`" height="40" width="28" />
           </div>
         </div>
         <div class="flex-grow-1">
@@ -280,8 +280,9 @@
 .ship-input {
   cursor: move;
 }
-.cur-pointer {
+.ship-img-container {
   cursor: pointer;
+  position: relative;
 }
 
 .empty-ship {
@@ -304,9 +305,6 @@
   right: 6px;
 }
 
-.ship-header {
-  position: relative !important;
-}
 .ship-remove {
   opacity: 0.6;
   position: absolute;
@@ -339,8 +337,8 @@
 }
 .area-banner {
   position: absolute;
-  top: 0px;
-  left: 28px;
+  top: -6px;
+  left: 22px;
 }
 
 .ship-name {

@@ -202,7 +202,7 @@
                   :class="{ selected: selectedArea.includes(i) }"
                   @click="clickedArea(i)"
                 >
-                  <v-img :src="`./img/tags/area${i}.png`" height="68" width="47"></v-img>
+                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
                 </div>
                 <div class="selected-area-btn no-area align-self-center" :class="{ selected: visibleNoArea }" @click="clickedArea(-1)">
                   {{ $t("Database.札なし") }}
@@ -282,7 +282,7 @@
               <div class="edit-stock-img">
                 <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
                 <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
-                  <v-img :src="`./img/tags/area${rowData.stockData.area}.png`" height="60" width="42"></v-img>
+                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${rowData.stockData.area}.webp`" height="60" width="42"></v-img>
                 </div>
                 <div class="slot-ex-img" v-if="rowData.stockData.releaseExpand">
                   <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
@@ -368,7 +368,7 @@
                             <img
                               v-if="data.stockData.area > 0"
                               class="status-area-img"
-                              :src="`./img/tags/area${data.stockData.area}_min.png`"
+                              :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.stockData.area}_min.webp`"
                             />
                           </div>
                           <div class="status-ex-img">
@@ -404,7 +404,7 @@
             <div class="align-self-center edit-stock-img">
               <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200"></v-img>
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
-                <v-img :src="`./img/tags/area${editRow.stockData.area}.png`" height="68" width="47"></v-img>
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${editRow.stockData.area}.webp`" height="68" width="47"></v-img>
               </div>
             </div>
             <div class="align-self-center ml-2">
@@ -480,7 +480,7 @@
               :class="{ selected: editRow.stockData.area === i }"
               @click.stop="toggleArea(i)"
             >
-              <v-img :src="`./img/tags/area${i}.png`" height="68" width="47"></v-img>
+              <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
             </div>
           </div>
           <v-divider class="my-2"></v-divider>

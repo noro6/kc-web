@@ -22,7 +22,7 @@
       </div>
       <div class="map-img-area">
         <div>
-          <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/image/upload/kc-web/map/${area}.png`" width="467" height="268" />
+          <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`" width="467" height="268" />
         </div>
         <div class="dummy-map">
           <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" />
@@ -221,7 +221,7 @@
     </v-dialog>
     <v-dialog width="1200" v-model="expandMapDialog">
       <v-card class="py-3 map-container">
-        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/map/details/${area}.png`" />
+        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/details/${area}.webp`" />
       </v-card>
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">

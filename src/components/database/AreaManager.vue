@@ -19,7 +19,7 @@
     <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
       <div class="d-flex">
         <div class="area-banner">
-          <v-img :src="`./img/tags/area${data.area}.png`" height="55" width="38"></v-img>
+          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="38"></v-img>
         </div>
         <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
           {{ $t("Common.配備") }}
@@ -50,7 +50,7 @@
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
               </div>
               <div class="ship-area-banner">
-                <v-img :src="`./img/tags/area${data.area}_min.png`" height="33" width="30" />
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}_min.webp`" height="33" width="30" />
               </div>
               <div class="slot-ex-img" v-if="ship.expand">
                 <v-img :src="`./img/util/slot_ex.png`" height="27" width="27"></v-img>
