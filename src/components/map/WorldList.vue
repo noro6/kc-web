@@ -376,9 +376,9 @@ export default Vue.extend({
     allCells: [] as CellMaster[],
     world: 1,
     areas: [] as MasterMap[],
-    area: 551,
+    area: 1,
     areaItems: [] as ({ divider: boolean } | { header: string } | { value: number; text: string; group: string })[],
-    selectedArea: 551,
+    selectedArea: 1,
     level: DIFFICULTY_LEVEL.HARD,
     levelItems: Const.DIFFICULTY_LEVELS,
     cellIndex: 0,
@@ -411,6 +411,11 @@ export default Vue.extend({
     // 海域セレクトボックス初期化
     const items = [];
     const worlds = this.$store.state.worlds as MasterWorld[];
+
+    // 初期map
+    this.selectedArea = worlds[0].world * 10 + 1;
+    this.area = worlds[0].world * 10 + 1;
+
     const masterMaps = this.$store.state.maps as MasterMap[];
     for (let i = 0; i < worlds.length; i += 1) {
       const world = worlds[i];
