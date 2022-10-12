@@ -487,6 +487,10 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
+    isLine2: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     level: 99,
@@ -687,6 +691,10 @@ export default Vue.extend({
     },
     setDraggable(e: MouseEvent) {
       const target = e.target as HTMLDivElement;
+      if (target.closest('.item-input')) {
+        // 装備上である場合はキャンセル
+        return;
+      }
       const parent = target.closest('.ship-input') as HTMLDivElement;
       parent.setAttribute('draggable', 'true');
     },

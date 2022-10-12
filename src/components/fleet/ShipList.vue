@@ -126,7 +126,7 @@
               <div class="d-flex ship-caption">
                 <div v-if="isStockOnly" class="primary--text ship-level">Lv: {{ data.level }}</div>
                 <div v-if="isStockOnly">{{ $t("Common.運") }}: {{ data.luck }}</div>
-                <div v-else class="primary--text">No: {{ data.ship.id }}</div>
+                <div v-else class="primary--text">id: {{ data.ship.id }}</div>
               </div>
               <div class="d-flex">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
