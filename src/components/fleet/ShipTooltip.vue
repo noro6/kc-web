@@ -78,11 +78,11 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.射程") }}</div>
-        <div>{{ $t(`Common.${rangeText[value.displayStatus.range]}`) }}</div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.速力") }}</div>
+        <div>{{ speedText }}</div>
         <div>
-          <span v-if="value.itemBonusStatus.range" :class="{ 'bad-bonus': value.itemBonusStatus.range < 0 }">
-            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.range) }}</span
+          <span v-if="buffSpeed" :class="{ 'bad-bonus': buffSpeed < 0 }">
+            (<span class="bonus">{{ formatBonus(buffSpeed) }}</span
             >)
           </span>
         </div>
@@ -91,6 +91,14 @@
         <div>
           <span v-if="value.itemBonusStatus.scout" :class="{ 'bad-bonus': value.itemBonusStatus.scout < 0 }">
             (<span class="bonus">{{ formatBonus(value.itemBonusStatus.scout) }}</span
+            >)
+          </span>
+        </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.射程") }}</div>
+        <div>{{ $t(`Common.${rangeText[value.displayStatus.range]}`) }}</div>
+        <div>
+          <span v-if="value.itemBonusStatus.range" :class="{ 'bad-bonus': value.itemBonusStatus.range < 0 }">
+            (<span class="bonus">{{ formatBonus(value.itemBonusStatus.range) }}</span
             >)
           </span>
         </div>
@@ -305,6 +313,21 @@ export default Vue.extend({
         return shipName.map((v) => trans(v)).join('');
       }
       return this.value.data.name || '';
+    },
+    speedText(): string {
+      if (this.value.speed <= 5) {
+        return `${this.$t('Fleet.低速')}`;
+      }
+      if (this.value.speed <= 10) {
+        return `${this.$t('Fleet.高速')}`;
+      }
+      if (this.value.speed <= 15) {
+        return `${this.$t('Fleet.高速+')}`;
+      }
+      return `${this.$t('Fleet.最速')}`;
+    },
+    buffSpeed(): number {
+      return (this.value.speed - this.value.data.speed) / 5;
     },
   },
 });

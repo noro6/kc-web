@@ -107,6 +107,9 @@ export default class Ship implements ShipBase {
   /** 輸送量 */
   public readonly tp: number;
 
+  /** 速力 */
+  public readonly speed: number;
+
   /** 出撃海域 */
   public readonly area: number;
 
@@ -400,6 +403,9 @@ export default class Ship implements ShipBase {
 
     this.nightContactRate = 1 - nightContactFailureRate;
 
+    // 速力計算
+    this.speed = this.getShipSpeed();
+
     if (this.itemBonuses.length) {
       // 装備ボーナスを表示値に加算
       this.itemBonusStatus = ItemBonus.getTotalBonus(this.itemBonuses);
@@ -510,6 +516,115 @@ export default class Ship implements ShipBase {
       return Math.floor(65 + Math.sqrt(luck - 50) + 0.8 * Math.sqrt(level));
     }
     return Math.floor(15 + luck + 0.75 * Math.sqrt(level));
+  }
+
+  /**
+   * 速力を決定
+   * @memberof Ship
+   */
+  public getShipSpeed(): number {
+    const items = this.items.concat(this.exItem);
+    const hasTurbine = items.some((v) => v.data.id === 33);
+    const boilerCount = items.filter((v) => v.data.id === 34).length;
+    const newModelBoilerCount = items.filter((v) => v.data.id === 87).length;
+    const totalBoilerCount = boilerCount + newModelBoilerCount;
+
+    if (this.data.speed === 10 && hasTurbine) {
+      // 高速 + タービン
+      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2)) {
+        // 島風型, Ташкент級, 大鳳型, 翔鶴型, 利根型, 最上型
+        if (hasTurbine && newModelBoilerCount) {
+          // 新型缶 => 最速
+          return 20;
+        }
+        if (hasTurbine && totalBoilerCount) {
+          // いずれかの缶
+          return 15;
+        }
+      } else if ([41, 17, 25, 6, 65, 37].includes(this.data.type2) || [181, 404, 331].includes(this.data.originalId)) {
+        // 阿賀野型, 蒼龍型, 飛龍型, 金剛型, Iowa級, 大和型
+        // 天津風, 雲龍, 天城
+        if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 2) {
+          // 新型缶 + いずれかの缶 => 最速
+          return 20;
+        }
+        if (hasTurbine && totalBoilerCount) {
+          // いずれかの缶 => 高速+
+          return 15;
+        }
+      } else if ([3, 34].includes(this.data.type2) || this.data.type === SHIP_TYPE.AV) {
+        // 加賀型, 夕張型, 水母
+        if (totalBoilerCount) {
+          // いずれかの缶 => 高速+
+          return 15;
+        }
+      } else {
+        // それ以外の高速
+        if (newModelBoilerCount >= 2 || totalBoilerCount >= 3) {
+          // 新型缶x2 || いずれかの缶x3 => 最速
+          return 20;
+        }
+        if (totalBoilerCount) {
+          // いずれかの缶 => 高速+
+          return 15;
+        }
+      }
+    } else if (this.data.speed === 5) {
+      // 低速
+      if ([37].includes(this.data.type2) || this.data.id === 541 || this.data.id === 573) {
+        // 大和型, 長門改二, 陸奥改二
+        if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 3) {
+          // タービン + 新型缶含むいずれかの缶x3 => 最速
+          return 20;
+        }
+        if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 2) {
+          // タービン + 新型缶含むいずれかの缶x2 => 高速+
+          return 15;
+        }
+        if (hasTurbine && totalBoilerCount) {
+          // タービン + いずれかの缶 => 高速
+          return 10;
+        }
+      } else if (this.data.originalId === 561 || this.data.id === 623) {
+        // Samuel B.Roberts, 夕張改二特
+        if (hasTurbine && (newModelBoilerCount >= 2 || totalBoilerCount >= 3)) {
+          // タービン + (新型缶x2 || いずれかの缶x3) => 高速+
+          return 15;
+        }
+        if (hasTurbine) {
+          // タービン => 高速
+          return 10;
+        }
+      } else if (this.data.type2 === 109) {
+        // 潜高型
+        if (hasTurbine && newModelBoilerCount) {
+          // タービン + 新型缶 => 高速+
+          return 15;
+        }
+        if (newModelBoilerCount || (hasTurbine && totalBoilerCount)) {
+          // タービン + いずれかの缶 || 新型缶 => 高速
+          return 10;
+        }
+      } else if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV || [45, 49, 60].includes(this.data.type2)) {
+        // 潜水艦, 潜水空母, 特種船丙型, 工作艦, 改風早型
+        if (newModelBoilerCount || (hasTurbine && totalBoilerCount)) {
+          // タービン + いずれかの缶 => 高速
+          return 10;
+        }
+      } else {
+        // その他の低速艦
+        if (hasTurbine && (newModelBoilerCount >= 2 || totalBoilerCount >= 3)) {
+          // タービン + (新型缶x2 || いずれかの缶x3) => 高速+
+          return 15;
+        }
+        if (hasTurbine && totalBoilerCount) {
+          // タービン + いずれかの缶 => 高速
+          return 10;
+        }
+      }
+    }
+
+    return this.data.speed;
   }
 
   /**

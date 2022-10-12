@@ -68,6 +68,9 @@ export default class Fleet {
   /** 夜偵発動率 */
   public readonly nightContactRate: number;
 
+  /** 艦隊区分(速力) */
+  public readonly fleetSpeed: string;
+
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 
@@ -110,7 +113,6 @@ export default class Fleet {
     this.fleetRosCorr = 0;
     this.hasJet = false;
     this.hasPlane = false;
-
     this.allPlanes = [];
 
     const generalCutin: AntiAirCutIn[] = [];
@@ -173,6 +175,21 @@ export default class Fleet {
     this.fleetRosCorr = Math.floor(Math.sqrt(rosA) + 0.1 * rosA);
 
     this.airPower = this.fullAirPower;
+
+    const speeds = enabledShips.map((v) => v.speed);
+    if (!speeds.length) {
+      this.fleetSpeed = '';
+    } else if (speeds.every((v) => v >= 20)) {
+      this.fleetSpeed = '最速';
+    } else if (speeds.every((v) => v >= 15)) {
+      this.fleetSpeed = '高速+';
+    } else if (speeds.every((v) => v >= 10)) {
+      this.fleetSpeed = '高速';
+    } else if (speeds.every((v) => v === 5)) {
+      this.fleetSpeed = '低速統一';
+    } else {
+      this.fleetSpeed = '低速';
+    }
 
     // 対空砲火情報を更新
     // 特殊CIソート

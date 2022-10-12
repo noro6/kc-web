@@ -2,13 +2,17 @@
   <div class="mx-1 pb-2">
     <div class="d-flex ml-2 fleet-header flex-wrap">
       <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
-      <div class="mt-1 ml-1 mr-3 body-2">{{ fleet.fullAirPower }}</div>
+      <div class="mt-1 ml-1 mr-2 body-2">{{ fleet.fullAirPower }}</div>
       <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
-      <div class="mt-1 ml-1 mr-3 body-2">{{ contactRate }}%</div>
+      <div class="mt-1 ml-1 mr-2 body-2">{{ contactRate }}%</div>
       <div class="mt-1 caption text--secondary">{{ $t("Fleet.夜偵") }}:</div>
-      <div class="mt-1 ml-1 mr-3 body-2">{{ nightContactRate }}%</div>
+      <div class="mt-1 ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
+      <template v-if="actualFleet.fleetSpeed">
+        <div class="mt-1 caption text--secondary">{{ $t("Common.速力") }}:</div>
+        <div class="mt-1 ml-1 mr-2 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
+      </template>
       <!-- 索敵値 -->
-      <div class="mt-1 mr-3 d-flex">
+      <div class="mt-1 d-flex">
         <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
           <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
           <div class="option-status-label">{{ i + 1 }}</div>
@@ -31,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div class="d-flex ml-6">
+      <div class="d-flex ml-3">
         <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}:</div>
         <div class="operation-button">
           <v-btn color="info" icon @click="clickedInfo">
@@ -84,6 +88,7 @@
         :fix-down="ship.fixDown"
         :rate-down="ship.rateDown"
         :fleet-ros-corr="fleet.fleetRosCorr"
+        :is-line2="isShipView2Line"
         @input="updateShip"
       ></ship-input>
     </div>
