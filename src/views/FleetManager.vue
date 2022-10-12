@@ -90,7 +90,7 @@
                   <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
                   </v-btn>
-                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3">
+                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
                     <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
                     <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
                   </v-radio-group>
@@ -123,7 +123,7 @@
                   <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
                   </v-btn>
-                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3">
+                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
                     <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
                     <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
                   </v-radio-group>
@@ -423,6 +423,9 @@ export default Vue.extend({
     });
 
     this.loading = !this.$store.getters.getCompletedAll;
+
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.includeUnLocked = setting.isIncludeUnLockCode;
   },
   computed: {
     completed() {
@@ -758,6 +761,12 @@ export default Vue.extend({
         }
         this.kantaiSarashiURL = `http://kancolle-calc.net/kanmusu_list.html?data=${Convert.encode64(`.2|${text.join('|')}`)}`;
       }
+    },
+    toggleUnLocked(): void {
+      // 未ロック艦を含むかどうかのアレ変更時
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.isIncludeUnLockCode = this.includeUnLocked;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });
