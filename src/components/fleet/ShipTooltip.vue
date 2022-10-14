@@ -345,8 +345,6 @@ export default Vue.extend({
         if (manager) {
           const lastBattle = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1];
           if (lastBattle) {
-            console.log(manager.fleetInfo.fleetType);
-
             return Ship.getDayBattleFirePower(this.value, manager.fleetInfo.fleetType, lastBattle.isUnion);
           }
         }

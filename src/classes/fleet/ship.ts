@@ -512,9 +512,6 @@ export default class Ship implements ShipBase {
     } else {
       dayBattleFirePower = ship.displayStatus.firePower + sumRemodelBonusFirePower + correct + 5;
     }
-
-    console.log('補正', correct);
-
     return Math.floor(CommonCalc.softCap(dayBattleFirePower, CAP.BATTLE));
   }
 
