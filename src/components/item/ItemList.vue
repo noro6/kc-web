@@ -172,7 +172,6 @@
             </div>
             <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find((v) => v.type === setting.displayBonusType)">
               <div class="align-self-center">{{ v.item.data.bonuses.find((v) => v.type === setting.displayBonusType).text }}</div>
-              <!-- <div class="sub-text">{{ v.item.data.bonuses[setting.displayBonusType].subText }}</div> -->
             </div>
             <div v-if="v.sumBonus" class="bonus-icon">
               <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
@@ -410,12 +409,6 @@
   left: 5px;
   top: 0px;
   animation: special-text infinite 3s;
-}
-.sub-text {
-  font-size: 11px;
-  position: relative;
-  right: 0;
-  bottom: -4px;
 }
 .list-item.single.has-bonus .item-special-text {
   left: -1px;

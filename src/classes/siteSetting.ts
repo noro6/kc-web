@@ -132,7 +132,8 @@ export default class SiteSetting {
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
-      this.displayBonusType = setting.displayBonusType ? setting.displayBonusType : 0;
+      // 特効表示一時停止
+      this.displayBonusType = 0;
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockCode = !!setting.isIncludeUnLockCode;
 

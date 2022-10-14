@@ -76,7 +76,7 @@
       </template>
     </v-app-bar>
     <v-main>
-      <template v-if="true">
+      <template v-if="false">
         <div class="event-banner mb-3">
           <v-img class="banner-normal" :src="`./img/util/bn_220826.png`" />
           <v-img class="banner-on" :src="`./img/util/bn_220826_on.png`" />
