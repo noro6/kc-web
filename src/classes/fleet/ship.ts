@@ -1,11 +1,12 @@
 import sum from 'lodash/sum';
 import ShipMaster from './shipMaster';
 import Item from '../item/item';
-import Const, { SHIP_TYPE } from '../const';
+import Const, { CAP, FLEET_TYPE, SHIP_TYPE } from '../const';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import { ShipBase } from '../interfaces/shipBase';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
 import ItemBonus, { ItemBonusStatus } from '../item/ItemBonus';
+import CommonCalc from '../commonCalc';
 
 export interface ShipBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -47,6 +48,7 @@ export type ShipDisplayStatus = {
   luck: number;
   range: number;
   accuracy: number;
+  bomber: number;
 }
 
 export default class Ship implements ShipBase {
@@ -271,6 +273,7 @@ export default class Ship implements ShipBase {
       luck: this.luck,
       range: Math.max(this.data.range, 1),
       accuracy: 0,
+      bomber: 0,
     };
     this.itemBonusStatus = {
       firePower: 0,
@@ -316,6 +319,7 @@ export default class Ship implements ShipBase {
       this.displayStatus.asw += item.data.asw;
       this.displayStatus.LoS += item.data.scout;
       this.displayStatus.accuracy += item.data.accuracy;
+      this.displayStatus.bomber += item.data.bomber;
 
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
@@ -418,6 +422,7 @@ export default class Ship implements ShipBase {
       this.displayStatus.LoS += this.itemBonusStatus.scout ?? 0;
       this.displayStatus.range += this.itemBonusStatus.range ?? 0;
       this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
+      this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
     }
 
     // 雷装ボーナス適用装備抽出 & セット
@@ -449,6 +454,87 @@ export default class Ship implements ShipBase {
 
     // 装備もマスタもない場合空として計算対象から省く
     this.isEmpty = this.data.id === 0 && !this.items.some((v) => v.data.id > 0);
+  }
+
+  /**
+   * 昼戦砲撃火力を返却
+   * @static
+   * @param {Ship} ship
+   * @param {number} fleetType
+   * @param {boolean} enemyIsUnion
+   * @returns {number}
+   * @memberof Ship
+   */
+  public static getDayBattleFirePower(ship: Ship, fleetType: number, enemyIsUnion: boolean): number {
+    let dayBattleFirePower = 0;
+
+    let correct = 0;
+
+    if (fleetType === FLEET_TYPE.CTF) {
+      // 空母機動
+      if (ship.isEscort) {
+        // 随伴 => 敵連合-5 敵通常+10
+        correct = enemyIsUnion ? -5 : 10;
+      } else {
+        // 本隊 => +2
+        correct = 2;
+      }
+    } else if (fleetType === FLEET_TYPE.STF) {
+      // 水上打撃
+      if (ship.isEscort) {
+        // 随伴 => -5
+        correct = -5;
+      } else {
+        // 本隊 => 敵連合+2 敵通常+10
+        correct = enemyIsUnion ? 2 : 10;
+      }
+    } else if (fleetType === FLEET_TYPE.TCF) {
+      // 輸送護衛
+      if (ship.isEscort) {
+        // 随伴 => 敵連合-5 敵通常+10
+        correct = enemyIsUnion ? -5 : 10;
+      } else {
+        // 本隊 => -5
+        correct = -5;
+      }
+    }
+
+    const items = ship.items.concat(ship.exItem);
+    let sumRemodelBonusFirePower = 0;
+    for (let i = 0; i < items.length; i += 1) {
+      sumRemodelBonusFirePower += items[i].bonusFire;
+    }
+
+    const isCV = ship.data.type === SHIP_TYPE.CV || ship.data.type === SHIP_TYPE.CVL || ship.data.type === SHIP_TYPE.CVB;
+    if (isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker))) {
+      // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆)
+      dayBattleFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) + sumRemodelBonusFirePower + correct)) + 55;
+    } else {
+      dayBattleFirePower = ship.displayStatus.firePower + sumRemodelBonusFirePower + correct + 5;
+    }
+
+    console.log('補正', correct);
+
+    return Math.floor(CommonCalc.softCap(dayBattleFirePower, CAP.BATTLE));
+  }
+
+  /**
+   * 支援火力を返却
+   * @static
+   * @param {Ship} ship
+   * @returns {number}
+   * @memberof Ship
+   */
+  public static getSupportFirePower(ship: Ship): number {
+    let supportFirePower = 0;
+    const isCV = ship.data.type === SHIP_TYPE.CV || ship.data.type === SHIP_TYPE.CVL || ship.data.type === SHIP_TYPE.CVB;
+    if (isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker))) {
+      // 空母系 山汐丸
+      supportFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) - 1)) + 55;
+    } else {
+      supportFirePower = ship.displayStatus.firePower + 4;
+    }
+    return Math.floor(CommonCalc.softCap(supportFirePower, CAP.SUPPORT));
   }
 
   /**

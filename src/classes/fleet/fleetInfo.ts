@@ -1,3 +1,4 @@
+import { FLEET_TYPE } from '../const';
 import Fleet, { FleetBuilder } from './fleet';
 import Ship from './ship';
 
@@ -12,6 +13,8 @@ export interface FleetInfoBuilder {
   admiralLevel?: number;
   /** 計算を行う艦隊インデックス */
   mainFleetIndex?: number;
+  /** 艦隊形式 */
+  fleetType?: number;
 }
 
 export default class FleetInfo {
@@ -20,6 +23,9 @@ export default class FleetInfo {
 
   /** 連合艦隊？ */
   public readonly isUnion: boolean;
+
+  /** 艦隊タイプ */
+  public readonly fleetType: number;
 
   /** 司令部レベル */
   public readonly admiralLevel: number;
@@ -42,11 +48,13 @@ export default class FleetInfo {
       this.admiralLevel = builder.admiralLevel !== undefined ? builder.admiralLevel : builder.info.admiralLevel;
       this.mainFleetIndex = builder.mainFleetIndex !== undefined ? builder.mainFleetIndex : builder.info.mainFleetIndex;
       this.fleets = builder.fleets !== undefined ? builder.fleets : builder.info.fleets.concat();
+      this.fleetType = builder.fleetType ?? builder.info.fleetType;
     } else {
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
       this.admiralLevel = builder.admiralLevel !== undefined ? builder.admiralLevel : 120;
       this.mainFleetIndex = builder.mainFleetIndex !== undefined ? builder.mainFleetIndex : 0;
       this.fleets = builder.fleets !== undefined ? builder.fleets : [];
+      this.fleetType = builder.fleetType ?? FLEET_TYPE.SINGLE;
     }
 
     const fleetCount = this.fleets.length;
@@ -55,6 +63,13 @@ export default class FleetInfo {
       for (let i = 0; i < 5 - fleetCount; i += 1) {
         this.fleets.push(new Fleet());
       }
+    }
+
+    // 艦隊形式がおかしそうなら矯正
+    if (this.isUnion && !(this.fleetType === FLEET_TYPE.CTF || this.fleetType === FLEET_TYPE.STF || this.fleetType === FLEET_TYPE.TCF)) {
+      this.fleetType = FLEET_TYPE.STF;
+    } else if (!this.isUnion && this.fleetType !== FLEET_TYPE.SINGLE) {
+      this.fleetType = FLEET_TYPE.SINGLE;
     }
 
     if (this.isUnion && (this.mainFleetIndex === 0 || this.mainFleetIndex === 1)) {

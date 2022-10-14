@@ -583,7 +583,7 @@ export default class SaveData {
       }
       if (v instanceof FleetInfo) {
         return {
-          fleets: v.fleets, admiralLevel: v.admiralLevel, isUnion: v.isUnion,
+          fleets: v.fleets, admiralLevel: v.admiralLevel, isUnion: v.isUnion, fleetType: v.fleetType,
         };
       }
       return v;

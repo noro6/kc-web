@@ -24,7 +24,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.24.0',
+    siteVersion: '2.25.0',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],

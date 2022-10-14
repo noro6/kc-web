@@ -29,6 +29,12 @@
             >)
           </span>
         </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
+        <div>{{ dayBattleFirePower }}</div>
+        <div></div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
+        <div>{{ supportFirePower }}</div>
+        <div></div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
         <div>{{ value.displayStatus.armor }}</div>
         <div>
@@ -214,6 +220,8 @@ import sum from 'lodash/sum';
 import Ship from '@/classes/fleet/ship';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
+import { FLEET_TYPE } from '@/classes/const';
+import SaveData from '@/classes/saveData/saveData';
 
 export default Vue.extend({
   name: 'ShipTooltip',
@@ -328,6 +336,27 @@ export default Vue.extend({
     },
     buffSpeed(): number {
       return (this.value.speed - this.value.data.speed) / 5;
+    },
+    dayBattleFirePower(): number {
+      const mainData = this.$store.state.mainSaveData as SaveData;
+      // 現在計算中の最終敵艦隊
+      if (mainData) {
+        const manager = mainData.tempData[mainData.tempIndex];
+        if (manager) {
+          const lastBattle = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1];
+          if (lastBattle) {
+            console.log(manager.fleetInfo.fleetType);
+
+            return Ship.getDayBattleFirePower(this.value, manager.fleetInfo.fleetType, lastBattle.isUnion);
+          }
+        }
+      }
+
+      // なければデフォルトで。
+      return Ship.getDayBattleFirePower(this.value, FLEET_TYPE.SINGLE, false);
+    },
+    supportFirePower(): number {
+      return Ship.getSupportFirePower(this.value);
     },
   },
 });

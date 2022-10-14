@@ -22,6 +22,14 @@ export const AIR_STATE = {
 } as const;
 type AIR_STATE = typeof AIR_STATE[keyof typeof AIR_STATE];
 
+export const FLEET_TYPE = {
+  SINGLE: 0,
+  CTF: 1,
+  STF: 2,
+  TCF: 3,
+} as const;
+type FLEET_TYPE = typeof FLEET_TYPE[keyof typeof FLEET_TYPE];
+
 /** 艦種 */
 export const SHIP_TYPE = {
   DE: 1,
@@ -96,7 +104,8 @@ type DIFFICULTY_LEVEL = typeof DIFFICULTY_LEVEL[keyof typeof DIFFICULTY_LEVEL];
 /** 火力キャップ */
 export const CAP = {
   AS: 170,
-  BATTLE: 170,
+  BATTLE: 220,
+  SUPPORT: 170,
   NIGHT: 350,
 } as const;
 type CAP = typeof CAP[keyof typeof CAP];

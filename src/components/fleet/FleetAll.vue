@@ -45,7 +45,7 @@
       </v-tooltip>
     </div>
     <v-divider></v-divider>
-    <v-row align="center" class="mt-1 mx-4" dense>
+    <v-row align="center" class="mt-6 mb-2 mx-4" dense>
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }" v-ripple="{ class: 'info--text' }">
           <div class="form-input" v-bind="attrs" v-on="on">
@@ -56,10 +56,18 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')"></v-text-field>
         </v-card>
       </v-menu>
-      <div class="ml-4">
-        <v-checkbox :label="$t('Fleet.連合艦隊')" v-model="fleetInfo.isUnion" @change="changedInfo"></v-checkbox>
+      <div class="mx-3">
+        <v-select
+          class="fleet-type-input"
+          :label="$t('Fleet.艦隊形式')"
+          v-model="fleetInfo.fleetType"
+          :items="fleetTypes"
+          hide-details
+          dense
+          @change="changedInfo"
+        ></v-select>
       </div>
-      <div class="ml-5">
+      <div>
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -390,6 +398,9 @@
 .form-input {
   width: 120px;
 }
+.fleet-type-input {
+  width: 200px;
+}
 
 .remodel-list-item i,
 .remodel-list-item span {
@@ -552,7 +563,7 @@ import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Item, { ItemBuilder } from '@/classes/item/item';
-import Const, { Formation } from '@/classes/const';
+import Const, { FLEET_TYPE, Formation } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -639,6 +650,24 @@ export default Vue.extend({
     },
     isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    fleetTypes(): { text: string; value: number }[] {
+      const items = [
+        { value: FLEET_TYPE.SINGLE, text: '通常艦隊' },
+        { value: FLEET_TYPE.CTF, text: '空母機動部隊' },
+        { value: FLEET_TYPE.STF, text: '水上打撃部隊' },
+        { value: FLEET_TYPE.TCF, text: '輸送護衛部隊' },
+      ];
+
+      if (this.isNotJapanese) {
+        const data = [];
+        for (let i = 0; i < items.length; i += 1) {
+          const { text, value } = items[i];
+          data.push({ text: `${this.$t(`Fleet.${text}`)}`, value });
+        }
+        return data;
+      }
+      return items;
     },
     formations(): Formation[] {
       if (this.isNotJapanese) {
@@ -934,7 +963,8 @@ export default Vue.extend({
       this.handleChangeFormation(formation);
     },
     changedInfo() {
-      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+      const isUnion = this.fleetInfo.fleetType !== FLEET_TYPE.SINGLE;
+      this.setInfo(new FleetInfo({ info: this.fleetInfo, fleetType: this.fleetInfo.fleetType, isUnion }));
     },
     changedTab(index: number) {
       if (this.fleetInfo.mainFleetIndex === index) {
@@ -969,7 +999,7 @@ export default Vue.extend({
       const div = document.querySelector('.fleet-container.v-window-item--active') as HTMLDivElement;
       if (div) {
         setTimeout(() => {
-          html2canvas(div, { scale: 2, width: (this.is2Line ? 860 : 1200) }).then((canvas) => {
+          html2canvas(div, { scale: 2, width: this.is2Line ? 860 : 1200 }).then((canvas) => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL();
             link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
