@@ -1035,8 +1035,17 @@ export default Vue.extend({
           newData.isUnsaved = false;
           newData.saveManagerData();
 
-          const folder = this.saveData.childItems.find((v) => v.isDirectory);
+          let folder = this.saveData.childItems.find((v) => v.isDirectory);
           if (folder) {
+            // 保存先フォルダを解決 => 複製時 保存元と同じフォルダーにしたい
+            const mainData = this.saveData.getMainData();
+            if (mainData) {
+              const targetFolder = SaveData.getParentFolder(folder, mainData);
+              if (targetFolder) {
+                folder = targetFolder;
+              }
+            }
+
             folder.childItems.push(newData);
             folder.sortChild();
 

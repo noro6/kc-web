@@ -612,6 +612,36 @@ export default class SaveData {
   }
 
   /**
+   * 引数のデータの親ディレクトリを探索
+   * @static
+   * @param {SaveData} folder 探索元ディレクトリ
+   * @param {SaveData} target 探索対象データ
+   * @returns {(SaveData | undefined)}
+   * @memberof SaveData
+   */
+  public static getParentFolder(folder: SaveData, target: SaveData): SaveData | undefined {
+    if (!folder.isDirectory) {
+      return undefined;
+    }
+
+    for (let i = 0; i < folder.childItems.length; i += 1) {
+      const child = folder.childItems[i];
+      if (child === target) {
+        // 見つかったらその親を返却
+        return folder;
+      }
+      if (child.isDirectory) {
+        // 再帰呼び出ししていく
+        const result = SaveData.getParentFolder(child, target);
+        if (result) {
+          return result;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
    * URLパラメータからセーブデータを初期化
    * @static
    * @param {string} param
