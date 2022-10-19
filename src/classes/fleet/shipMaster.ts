@@ -114,7 +114,7 @@ export default class ShipMaster {
       this.name = ship.name ? ship.name : '';
       this.type = ship.type ? ship.type : 0;
       this.type2 = ship.type2 ? ship.type2 : 0;
-      this.slotCount = ship.s_count ? ship.s_count : 4;
+      this.slotCount = ship.s_count ? ship.s_count : 0;
       this.version = ship.ver ? ship.ver : 0;
       this.isFinal = !!ship.final;
       this.range = ship.range ? ship.range : 0;
