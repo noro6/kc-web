@@ -35,7 +35,7 @@
           {{ $t("Result.出撃x回分の計算結果が表示されています。", { number: calculateCount.toLocaleString() }) }}
         </div>
         <div class="align-self-center ml-2">
-          <v-btn small color="info" @click="calculateMore()" :disabled="moreCalculateRequested">
+          <v-btn small color="primary" @click="calculateMore()" :disabled="moreCalculateRequested">
             {{ $t("Result.再計算して精度を上げる") }}
           </v-btn>
         </div>
@@ -273,7 +273,7 @@
                 {{ row.allDeathRate > 0 ? `${row.allDeathRate} %` : "-" }}
               </td>
               <td v-if="j === 0 && !capturing" :rowspan="row.items.length">
-                <v-btn color="info" icon small @click="viewDetail(row.enemy, row.index)">
+                <v-btn color="primary" icon small @click="viewDetail(row.enemy, row.index)">
                   <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
               </td>

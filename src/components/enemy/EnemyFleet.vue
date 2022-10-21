@@ -17,7 +17,7 @@
         <v-btn outlined small color="primary" @click.stop="showWorldList">{{ $t("Enemies.海域選択") }}</v-btn>
       </div>
       <div class="align-self-center pr-1" v-if="existEnemy && !capturing">
-        <v-btn color="info" icon small @click="clickedInfo()">
+        <v-btn color="primary" icon small @click="clickedInfo()">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
         <v-btn icon small @click="resetFleet()">

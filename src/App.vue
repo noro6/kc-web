@@ -87,7 +87,7 @@
           <div class="body-2">{{ $t("Home.URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。") }}</div>
           <div class="d-flex body-2">
             <div class="align-self-center">{{ $t("Home.自分の登録情報に戻す場合は次のボタンを押下してください。") }}</div>
-            <v-btn class="mx-1" color="info" small dark @click="resetTempData()">{{ $t("Home.終了") }}</v-btn>
+            <v-btn class="mx-1" color="primary" small dark @click="resetTempData()">{{ $t("Home.終了") }}</v-btn>
           </div>
         </v-alert>
       </div>
@@ -501,7 +501,7 @@
         >
           <div class="d-flex mb-1">
             <div>
-              <v-icon v-if="row.selected" color="info">mdi-checkbox-outline</v-icon>
+              <v-icon v-if="row.selected" color="primary">mdi-checkbox-outline</v-icon>
               <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
             </div>
             <div class="align-self-end body-2 ml-3">{{ $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
@@ -519,7 +519,7 @@
             <div class="caption ml-1">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
             <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
-          <v-btn class="ml-auto align-self-end" color="info" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{ $t("Common.取込") }}</v-btn>
+          <v-btn class="ml-auto align-self-end" color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{ $t("Common.取込") }}</v-btn>
           <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -1089,11 +1089,9 @@ export default Vue.extend({
       const isDarkTheme = theme === 'dark' || theme === 'deep-sea';
       this.$vuetify.theme.dark = isDarkTheme;
       this.$vuetify.theme.themes.light.secondary = colors.grey.darken2;
-      this.$vuetify.theme.themes.dark.primary = colors.blue.base;
 
       document.body.classList.remove('deep-sea', 'ice', 'pink', 'green');
       if (theme === 'deep-sea') {
-        this.$vuetify.theme.themes.dark.primary = colors.blue.lighten1;
         document.body.classList.add(theme);
       }
       if (theme === 'ice' || theme === 'pink' || theme === 'green') {

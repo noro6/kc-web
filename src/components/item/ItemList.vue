@@ -230,7 +230,7 @@
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="info" dark @click.stop="clickedItem(confirmItem)">{{ $t("Common.配備") }}</v-btn>
+          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem)">{{ $t("Common.配備") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>

@@ -53,7 +53,7 @@
           </v-card>
         </div>
         <div v-if="enabledMoreLoad && !isLoading" class="pa-2">
-          <v-btn color="info" block @click="searchPreset()">{{ $t("Common.さらに読み込む") }}</v-btn>
+          <v-btn color="primary" block @click="searchPreset()">{{ $t("Common.さらに読み込む") }}</v-btn>
         </div>
         <div v-if="isLoading" class="py-5">
           <div class="d-flex justify-center">

@@ -485,7 +485,7 @@
           </div>
           <v-divider class="my-2"></v-divider>
           <div class="d-flex">
-            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="info" @click.stop="commitStock">
+            <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="primary" @click.stop="commitStock">
               {{ $t("Database.着任") }}
             </v-btn>
             <v-btn class="ml-4" :disabled="btnPushed || !editRow.stockData.uniqueId || readOnly" color="success" @click.stop="updateStock">

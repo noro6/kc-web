@@ -219,7 +219,7 @@
                   <div>{{ data.createdAt }}</div>
                 </div>
                 <div class="mr-2 align-self-center">
-                  <v-btn color="info" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">{{ $t("Database.展開") }}</v-btn>
+                  <v-btn color="primary" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">{{ $t("Database.展開") }}</v-btn>
                 </div>
                 <div class="mr-2 align-self-center">
                   <v-btn color="error" @click="clickedDeleteHistory(i)">{{ $t("Common.削除") }}</v-btn>
@@ -299,7 +299,7 @@
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="info" dark :disabled="!confirmDialog" @click.stop="deleteHistory()">{{ $t("Common.削除") }}</v-btn>
+          <v-btn class="ml-auto" color="primary" dark :disabled="!confirmDialog" @click.stop="deleteHistory()">{{ $t("Common.削除") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>

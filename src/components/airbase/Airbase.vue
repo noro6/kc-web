@@ -7,7 +7,7 @@
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem"></v-select>
       </div>
       <div class="mr-1 align-self-end operation-buttons">
-        <v-btn color="info" icon small @click="viewDetail" :disabled="!enabledDetail">
+        <v-btn color="primary" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon small>mdi-information-outline</v-icon>
         </v-btn>
         <v-tooltip bottom color="black">

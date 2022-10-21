@@ -63,7 +63,7 @@
               <div class="ml-1" v-if="fleet.radius[0]">{{ fleet.radius.join(" or ") }}</div>
               <div class="ml-auto d-flex">
                 <div class="text--secondary align-self-center">{{ $t("Enemies.詳細") }}:</div>
-                <v-btn v-show="selectedFleet" color="info" icon @click.stop@="showEnemyFleetDetail">
+                <v-btn v-show="selectedFleet" color="primary" icon @click.stop@="showEnemyFleetDetail">
                   <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
               </div>

@@ -38,7 +38,7 @@
       <div class="d-flex ml-3">
         <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}:</div>
         <div class="operation-button">
-          <v-btn color="info" icon @click="clickedInfo">
+          <v-btn color="primary" icon @click="clickedInfo">
             <v-icon>mdi-information-outline</v-icon>
           </v-btn>
         </div>
