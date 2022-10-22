@@ -5705,18 +5705,25 @@ export default class ItemBonus {
           num: 1,
         },
         {
-          bonus: { firePower: 3, antiAir: 3, avoid: 1 },
-          shipId: [591],
+          bonus: { accuracy: 1 },
+          shipClass: [6],
+          remodel: 6,
           num: 1,
         },
         {
-          bonus: { firePower: 2, antiAir: 2, avoid: 2 },
-          shipId: [592],
+          bonus: { accuracy: 1 },
+          shipClass: [6],
+          remodel: 10,
           num: 1,
         },
         {
           bonus: { firePower: 2, antiAir: 2 },
-          shipId: [149, 152],
+          shipId: [149],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 3, antiAir: 3, avoid: 1 },
+          shipId: [591],
           num: 1,
         },
         {
@@ -5725,23 +5732,29 @@ export default class ItemBonus {
           num: 1,
         },
         {
+          bonus: { firePower: 2, antiAir: 2, avoid: 2 },
+          shipId: [592],
+          num: 1,
+        },
+        {
           bonus: { firePower: 1, antiAir: 2, avoid: 2 },
           shipId: [151],
           num: 1,
         },
         {
-          bonus: { firePower: 1, antiAir: 2 },
-          shipId: [411, 412, 541],
+          bonus: { firePower: 2, antiAir: 2 },
+          shipId: [152],
           num: 1,
         },
         {
           bonus: { firePower: 2, antiAir: 2, avoid: 2 },
-          shipId: [911, 916, 546],
+          shipId: [546, 911, 916],
           num: 1,
         },
         {
-          bonus: { firePower: 2, antiAir: 2, avoid: 1 },
-          shipId: [573],
+          bonus: { accuracy: 1 },
+          shipId: [546, 911, 916],
+          remodel: 8,
           num: 1,
         },
         {
@@ -5750,9 +5763,13 @@ export default class ItemBonus {
           num: 1,
         },
         {
-          bonus: { accuracy: 1 },
-          shipId: [911, 916, 546, 591, 592, 149, 150, 151, 152],
-          remodel: 8,
+          bonus: { firePower: 1, antiAir: 2 },
+          shipId: [541, 411, 412],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2, antiAir: 2, avoid: 1 },
+          shipId: [573],
           num: 1,
         },
       ],
