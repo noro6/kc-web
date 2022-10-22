@@ -368,6 +368,7 @@ import ShipStock from '@/classes/fleet/shipStock';
 import {
   child, getDatabase, push, ref, set,
 } from 'firebase/database';
+import { getAuth, signInAnonymously, UserCredential } from 'firebase/auth';
 import Const from '@/classes/const';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
@@ -532,7 +533,8 @@ export default Vue.extend({
         ships: stockData.ships,
         items: stockData.items,
         date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
-        ver: 2,
+        uid: '',
+        ver: 3,
       };
 
       try {
@@ -546,17 +548,34 @@ export default Vue.extend({
         const { location } = document;
         const url = `${location.protocol}//${location.host}${location.pathname}?stockid=${key}`;
 
-        set(ref(db, `stocks/${key}`), submitData)
-          .then(() => {
-            this.generateShortURL(url).then((res) => {
-              if (res) {
-                // 正常にURLが発行できたので履歴を作成
-                this.createHistory(key);
-              }
-            });
+        // 匿名ログイン
+        const auth = getAuth();
+        signInAnonymously(auth)
+          .then((d: UserCredential) => {
+            if (d && d.user && d.user.uid) {
+              // uidを設定する
+              submitData.uid = d.user.uid;
+            }
+
+            set(ref(db, `stocks/${key}`), submitData)
+              .then(() => {
+                this.generateShortURL(url).then((res) => {
+                  if (res) {
+                    // 正常にURLが発行できたので履歴を作成
+                    this.createHistory(key);
+                  } else {
+                    this.$emit('inform', '共有URLの生成に失敗しました。', true);
+                  }
+                });
+              })
+              .catch((error) => {
+                console.error(error);
+                this.$emit('inform', '共有URLの生成に失敗しました。', true);
+              });
           })
           .catch((error) => {
-            console.error(error);
+            console.log(error);
+            this.$emit('inform', '共有URLの生成に失敗しました。', true);
           });
       } catch (error) {
         console.error(error);

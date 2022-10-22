@@ -1,6 +1,7 @@
 import {
   child, get, getDatabase, ref,
 } from 'firebase/database';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import sum from 'lodash/sum';
 import LZString from 'lz-string';
 import ShipStock from './fleet/shipStock';
@@ -71,6 +72,10 @@ export default class FirebaseManager {
    */
   public static async getAndRestoreStockData(stockid: string): Promise<{ shipStocks: ShipStock[], itemStocks: ItemStock[] }> {
     let result = { shipStocks: [] as ShipStock[], itemStocks: [] as ItemStock[] };
+    // 匿名ログイン
+    const auth = getAuth();
+    await signInAnonymously(auth);
+
     const dbRef = ref(getDatabase());
     await get(child(dbRef, `stocks/${stockid}`))
       .then((snapshot) => {

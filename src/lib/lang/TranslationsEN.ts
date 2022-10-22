@@ -260,6 +260,7 @@ export default {
       'お題箱': 'Request Box',
       'コピーされました。': 'Copied.',
       '更新が完了しました。': 'Update completed.',
+      '編成を展開しました。': 'Deployed.',
     },
     SaveData: {
       '新しい編成を作成': 'New File',
