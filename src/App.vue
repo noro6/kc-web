@@ -484,7 +484,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="shareDialog" width="500">
-      <share-dialog :handle-close="closeShareDialog" ref="shareDialog" />
+      <share-dialog :handle-close="closeShareDialog" ref="shareDialog" @inform="inform" />
     </v-dialog>
     <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
       <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
