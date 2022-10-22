@@ -50,6 +50,14 @@
         </span>
         <span v-if="value.bonusAntiAir" class="remodel-bonus">&plus; {{ formatStatus(value.bonusAntiAir) }}</span>
       </div>
+      <div v-if="value.actualAntiAir !== (value.data.antiAir + value.bonusAntiAir)">
+        <span class="item-status-text">{{ $t("Common.出撃対空") }}</span>
+        <span class="item-status-value" :class="{ 'bad-status': value.actualAntiAir < 0 }">{{ formatStatus2(value.actualAntiAir) }}</span>
+      </div>
+      <div v-if="value.actualDefenseAntiAir !== (value.data.antiAir + value.bonusAntiAir)">
+        <span class="item-status-text">{{ $t("Common.防空対空") }}</span>
+        <span class="item-status-value" :class="{ 'bad-status': value.actualDefenseAntiAir < 0 }">{{ formatStatus2(value.actualDefenseAntiAir) }}</span>
+      </div>
       <div v-if="value.data.armor || itemBonus.armor">
         <span class="item-status-text">{{ $t("Common.装甲") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.armor < 0 }">{{ value.data.armor }}</span>
@@ -98,7 +106,7 @@
       </div>
       <div v-if="value.data.range || itemBonus.range">
         <span class="item-status-text">{{ $t("Common.射程") }}</span>
-        <span class="item-status-value">{{ value.data.range ? $t(`Common.${rangeText[value.data.range]}`) : '' }}</span>
+        <span class="item-status-value">{{ value.data.range ? $t(`Common.${rangeText[value.data.range]}`) : "" }}</span>
         <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.range < 0 }">
           <template v-if="itemBonus.range">{{ formatBonus(itemBonus.range) }}</template>
         </span>
@@ -230,6 +238,9 @@ export default Vue.extend({
   computed: {
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(100 * value) / 100}` : '');
+    },
+    formatStatus2() {
+      return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
     },
     formatBonus() {
       return (value: number) => (value >= 0 ? `+ ${value}` : `- ${Math.abs(value)}`);
