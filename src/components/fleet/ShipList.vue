@@ -504,10 +504,6 @@ export default Vue.extend({
       if (enabledUserShip && manager) {
         let allShips: Ship[] = [];
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
-          if (i === 4) {
-            // 友軍は除外
-            continue;
-          }
           const fleet = manager.fleetInfo.fleets[i];
           allShips = allShips.concat(fleet.ships.filter((v) => v.data.id > 0));
         }

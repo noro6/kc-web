@@ -1,6 +1,12 @@
 <template>
   <div class="mx-1 pb-2">
-    <div class="d-flex ml-2 fleet-header flex-wrap">
+    <div class="d-flex align-center d-capture-none px-1" v-if="index >= 4">
+      <v-alert v-if="index >= 4" type="warning" dense class="my-3 body-2 flex-grow-1" outlined>
+        {{ $t("Fleet.第x艦隊以降のデータは本サイト内でのみ有効で、外部サイトへの出力の対象になりません。", { number: index + 1 }) }}
+      </v-alert>
+      <v-btn @click="removeFleet" color="secondary" class="ml-3">{{ $t("Fleet.艦隊削除") }}</v-btn>
+    </div>
+    <div class="d-flex px-1 fleet-header flex-wrap align-center">
       <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ fleet.fullAirPower }}</div>
       <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
@@ -62,7 +68,7 @@
             <span>{{ $t("Fleet.艦隊リセット") }}</span>
           </v-tooltip>
         </div>
-        <div class="operation-button ship-line-setting">
+        <div class="d-capture-none ship-line-setting">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
             <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
               <span class="white--text">{{ $t("Fleet.x列", { number: 2 }) }}</span>
@@ -100,9 +106,6 @@
 </template>
 
 <style scoped>
-.fleet-header > div {
-  align-self: center;
-}
 .option-status {
   position: relative;
 }
@@ -166,7 +169,7 @@
   display: none;
 }
 .captured .d-capture-none {
-  display: none;
+  display: none !important;
 }
 </style>
 
@@ -222,6 +225,10 @@ export default Vue.extend({
     admiralLv: {
       type: Number,
       default: 120,
+    },
+    handleRemoveFleet: {
+      type: Function,
+      required: true,
     },
   },
   data: () => ({
@@ -357,6 +364,9 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.isShipView2Line = value;
       this.$store.dispatch('updateSetting', setting);
+    },
+    removeFleet() {
+      this.handleRemoveFleet(this.index);
     },
   },
 });

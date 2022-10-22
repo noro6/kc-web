@@ -339,7 +339,7 @@
               </div>
               <div class="ml-1 align-self-center">{{ $t("Result.燃料補正") }}</div>
             </td>
-            <td class="border-top-none pl-5">{{ fuelCorr ? $t('Result.回避項x', {value: fuelCorr}) : '-' }}</td>
+            <td class="border-top-none pl-5">{{ fuelCorr ? $t("Result.回避項x", { value: fuelCorr }) : "-" }}</td>
           </tr>
           <tr>
             <td class="border-top-none py-1 d-flex">
@@ -348,7 +348,7 @@
               </div>
               <div class="ml-1 align-self-center">{{ $t("Result.残弾薬補正") }}</div>
             </td>
-            <td class="border-top-none pl-5">{{ ammoCorr ? ammoCorr : '-' }}</td>
+            <td class="border-top-none pl-5">{{ ammoCorr ? ammoCorr : "-" }}</td>
           </tr>
         </table>
       </div>
@@ -709,7 +709,7 @@ export default Vue.extend({
     },
     supportsTableRow(): { number: number }[] {
       const rows = [];
-      const fleets = this.value.fleetInfo.fleets.filter((v, i) => i < 4);
+      const fleets = this.value.fleetInfo.fleets.concat();
       const mainIndex = this.value.fleetInfo.mainFleetIndex;
       for (let i = 0; i < fleets.length; i += 1) {
         // 出撃中のやつは出撃中フラグを建てる
@@ -729,7 +729,10 @@ export default Vue.extend({
         const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
         rows.push({
           number: i + 1,
-          typeName: fleet.getSupportTypeNames().map((v) => this.$t(`Result.${v}`)).join(' / '),
+          typeName: fleet
+            .getSupportTypeNames()
+            .map((v) => this.$t(`Result.${v}`))
+            .join(' / '),
           airPower: fleet.supportAirPower,
           enemyAirPower,
           rates: rates.slice(0, 5),

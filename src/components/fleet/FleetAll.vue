@@ -45,10 +45,10 @@
       </v-tooltip>
     </div>
     <v-divider></v-divider>
-    <v-row align="center" class="mt-6 mb-2 mx-4" dense>
+    <div class="d-flex align-center flex-wrap mt-6 mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }" v-ripple="{ class: 'info--text' }">
-          <div class="form-input" v-bind="attrs" v-on="on">
+          <div class="form-input mb-3" v-bind="attrs" v-on="on">
             <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly></v-text-field>
           </div>
         </template>
@@ -56,7 +56,7 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')"></v-text-field>
         </v-card>
       </v-menu>
-      <div class="mx-3">
+      <div class="mx-3 mb-3">
         <v-select
           class="fleet-type-input"
           :label="$t('Fleet.艦隊形式')"
@@ -67,7 +67,7 @@
           @change="changedInfo"
         ></v-select>
       </div>
-      <div>
+      <div class="mb-3">
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -78,13 +78,12 @@
           @change="changedFormation(fleetInfo.mainFleet.formation)"
         ></v-select>
       </div>
-    </v-row>
-    <v-tabs v-model="tab" class="px-2">
+    </div>
+    <v-tabs class="px-2" v-model="tab" center-active show-arrows @change="changedTab">
       <v-tab
-        v-for="i in 4"
+        v-for="i in fleetCount"
         :key="i"
         :href="`#fleet${i - 1}`"
-        @click="changedTab(i - 1)"
         class="fleet-tab"
         :draggable="tab === `fleet${i - 1}`"
         @dragover.prevent
@@ -98,8 +97,8 @@
         <template v-else-if="fleetInfo.isUnion && i === 2">{{ $t("Fleet.随伴艦隊") }}</template>
         <template v-else>{{ $t("Fleet.第x艦隊", { number: i }) }}</template>
       </v-tab>
+      <v-btn v-if="fleetCount < 8" large text tile @click="createNewFleet" class="btn-create-feet">{{ $t("Fleet.艦隊追加") }}</v-btn>
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
-      <v-tab href="#fleet4" disabled></v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
@@ -120,16 +119,17 @@
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
+          :handle-remove-fleet="removeFleet"
           @input="changedInfo"
         ></fleet-component>
       </v-tab-item>
       <v-tab-item value="gkcoi" class="pa-2">
         <div class="d-flex flex-wrap">
           <div class="gkcoi-select mr-3 my-1">
-            <v-select :items="gkcoiThemes" dense hide-details v-model="gkcoiTheme" outlined label="Theme" @input="enabledOutput = true"></v-select>
+            <v-select :items="gkcoiThemes" dense hide-details v-model="gkcoiTheme" outlined label="Theme"></v-select>
           </div>
           <div class="gkcoi-select mr-3 my-1">
-            <v-select :items="gkcoiLangs" dense hide-details v-model="gkcoiLang" outlined label="Languages" @input="enabledOutput = true"></v-select>
+            <v-select :items="gkcoiLangs" dense hide-details v-model="gkcoiLang" outlined label="Languages"></v-select>
           </div>
           <div class="d-flex mr-3 my-1">
             <v-checkbox
@@ -140,13 +140,15 @@
               hide-details
               v-model="gkcoiOutputTarget[i]"
               class="mr-3"
-              @click="enabledOutput = true"
+              :error="invalidExportTargets"
             ></v-checkbox>
           </div>
         </div>
         <div class="d-flex">
           <div class="my-1 mr-3">
-            <v-btn @click="generateImage()" color="teal" :dark="enabledOutput" :disabled="!enabledOutput">{{ $t("Common.出力") }}</v-btn>
+            <v-btn @click="generateImage()" color="teal" :dark="enabledOutput && !invalidExportTargets" :disabled="!enabledOutput || invalidExportTargets">
+              {{ $t("Common.出力") }}
+            </v-btn>
           </div>
           <div class="my-1" v-if="generatedCanvas">
             <v-btn @click="saveImage()" color="success"><v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}</v-btn>
@@ -288,8 +290,16 @@
               <div class="header-divider"></div>
             </div>
             <div class="caption">{{ $t("Common.選択されている艦隊の全艦娘に対し、下記の設定を適用します。") }}</div>
-            <div class="d-flex justify-space-between">
-              <v-checkbox :label="$t('Fleet.全艦隊')" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly></v-checkbox>
+            <div class="d-flex flex-wrap">
+              <v-checkbox
+                :label="$t('Fleet.全艦隊')"
+                class="mx-2"
+                dense
+                hide-details
+                @click="toggleBulkTarget"
+                v-model="isBulkUpdateTargetAll"
+                readonly
+              ></v-checkbox>
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -297,10 +307,11 @@
                 dense
                 hide-details
                 v-model="bulkUpdateTarget[i]"
+                class="mx-2"
               ></v-checkbox>
             </div>
           </div>
-          <div class="d-flex mt-8">
+          <div class="d-flex mt-6">
             <div class="caption">{{ $t("Common.熟練度") }}</div>
             <div class="header-divider"></div>
           </div>
@@ -325,7 +336,7 @@
             <div class="caption">{{ $t("Common.艦載機搭載数") }}</div>
             <div class="header-divider"></div>
           </div>
-          <div class="d-flex">
+          <div class="d-flex mt-3">
             <div class="flex-grow-1 mx-2">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
@@ -524,6 +535,18 @@
 .v-tab {
   text-transform: none;
 }
+
+.btn-create-feet {
+  min-width: unset;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  align-self: center;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+}
+.theme--dark .btn-create-feet {
+  color: rgba(255, 255, 255, 0.6);
+}
 </style>
 
 <style>
@@ -570,6 +593,8 @@ import ItemMaster from '@/classes/item/itemMaster';
 import Convert from '@/classes/convert';
 import SaveData from '@/classes/saveData/saveData';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import CalcManager from '@/classes/calcManager';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -625,9 +650,9 @@ export default Vue.extend({
     gkcoiTheme: 'dark' as Theme,
     gkcoiLangs: ['jp', 'en', 'kr', 'scn', 'tcn'],
     gkcoiLang: 'jp' as Lang,
-    gkcoiOutputTarget: [1, 0, 0, 0],
+    gkcoiOutputTarget: [0, 0, 0, 0],
     generatedCanvas: undefined as undefined | HTMLCanvasElement,
-    enabledOutput: false,
+    enabledOutput: true,
     generatingImage: false,
     generateError: '',
   }),
@@ -635,6 +660,21 @@ export default Vue.extend({
     if (this.$i18n.locale === 'en') {
       this.gkcoiLang = 'en';
     }
+  },
+  watch: {
+    bulkUpdateDialog(value: boolean) {
+      if (value) {
+        // 一括更新対象艦隊を拡張
+        const needCount = this.fleetCount - this.bulkUpdateTarget.length;
+        if (needCount > 0) {
+          for (let i = 0; i < needCount; i += 1) {
+            this.bulkUpdateTarget.push(1);
+          }
+        } else {
+          this.bulkUpdateTarget = this.bulkUpdateTarget.filter((v, i) => i < this.fleetCount);
+        }
+      }
+    },
   },
   computed: {
     fleetInfo(): FleetInfo {
@@ -650,6 +690,9 @@ export default Vue.extend({
     },
     isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
+    },
+    fleetCount(): number {
+      return this.fleetInfo.fleets.length;
     },
     fleetTypes(): { text: string; value: number }[] {
       const items = [
@@ -682,6 +725,10 @@ export default Vue.extend({
     },
     isBulkUpdateTargetAll(): boolean {
       return !this.bulkUpdateTarget.some((v) => !v);
+    },
+    invalidExportTargets(): boolean {
+      // 画像出力対象が一つもないか、4艦隊を超える場合true
+      return this.gkcoiOutputTarget.every((v) => !v) || this.gkcoiOutputTarget.filter((v) => !!v).length > 4;
     },
   },
   methods: {
@@ -966,16 +1013,36 @@ export default Vue.extend({
       const isUnion = this.fleetInfo.fleetType !== FLEET_TYPE.SINGLE;
       this.setInfo(new FleetInfo({ info: this.fleetInfo, fleetType: this.fleetInfo.fleetType, isUnion }));
     },
-    changedTab(index: number) {
-      if (this.fleetInfo.mainFleetIndex === index) {
-        return;
-      }
-      const info = new FleetInfo({ info: this.fleetInfo, mainFleetIndex: index });
-      // 編成が変更されたわけではないので履歴への追加を起こさない
-      info.ignoreHistory = true;
+    createNewFleet() {
+      // 艦隊追加タブによる艦隊追加
+      this.fleetInfo.fleets.push(new Fleet());
+      const info = new FleetInfo({ info: this.fleetInfo });
       this.setInfo(info);
     },
+    removeFleet(index: number) {
+      // 艦隊追加タブによる艦隊追加
+      this.tab = `fleet${index - 1}`;
+      const newFleets = this.fleetInfo.fleets.filter((v, i) => i !== index);
+      const info = new FleetInfo({ info: this.fleetInfo, fleets: newFleets, mainFleetIndex: index - 1 });
+      this.setInfo(info);
+    },
+    changedTab() {
+      if (this.tab && this.tab.includes('fleet')) {
+        const index = +this.tab.replaceAll('fleet', '');
+        const info = new FleetInfo({ info: this.fleetInfo, mainFleetIndex: index });
+        // 編成が変更されたわけではないので履歴への追加を起こさない
+        info.ignoreHistory = true;
+        this.setInfo(info);
+      } else if (!this.tab) {
+        this.tab = 'fleet0';
+        const info = new FleetInfo({ info: this.fleetInfo, mainFleetIndex: 0 });
+        // 編成が変更されたわけではないので履歴への追加を起こさない
+        info.ignoreHistory = true;
+        this.setInfo(info);
+      }
+    },
     resetFleetAll() {
+      this.tab = 'fleet0';
       this.setInfo(new FleetInfo());
     },
     closeDialog() {
@@ -1087,11 +1154,18 @@ export default Vue.extend({
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     toggleBulkTarget() {
+      const newArray = [];
       if (this.bulkUpdateTarget.some((v) => !v)) {
-        this.bulkUpdateTarget = [1, 1, 1, 1];
+        for (let i = 0; i < this.bulkUpdateTarget.length; i += 1) {
+          newArray.push(1);
+        }
       } else {
-        this.bulkUpdateTarget = [0, 0, 0, 0];
+        for (let i = 0; i < this.bulkUpdateTarget.length; i += 1) {
+          newArray.push(0);
+        }
       }
+
+      this.bulkUpdateTarget = newArray;
     },
     getLevelValue(value: number) {
       return Const.PROF_LEVEL_BORDER[value];
@@ -1176,13 +1250,25 @@ export default Vue.extend({
         return;
       }
 
-      // 連合か？
-      if (manager.fleetInfo.isUnion) {
-        this.gkcoiOutputTarget = [1, 1, 0, 0];
+      // 出力更新対象艦隊を拡張
+      const needCount = this.fleetCount - this.gkcoiOutputTarget.length;
+      if (needCount > 0) {
+        for (let i = 0; i < needCount; i += 1) {
+          this.gkcoiOutputTarget.push(0);
+        }
       } else {
-        this.gkcoiOutputTarget = [1, 0, 0, 0];
+        this.gkcoiOutputTarget = this.gkcoiOutputTarget.filter((v, i) => i < this.fleetCount);
       }
-      this.enabledOutput = true;
+
+      if (this.gkcoiOutputTarget.every((v) => !v)) {
+        // 初期選択艦隊を自動解決
+        const newArray = this.gkcoiOutputTarget.concat();
+        newArray[0] = 1;
+        if (manager.fleetInfo.isUnion) {
+          newArray[1] = 1;
+        }
+        this.gkcoiOutputTarget = newArray;
+      }
     },
     generateImage() {
       // 連打禁止
@@ -1201,11 +1287,18 @@ export default Vue.extend({
       if (!manager) {
         return;
       }
-      const deck = Convert.createDeckBuilder(manager, true);
-      if (!this.gkcoiOutputTarget[0]) delete deck.f1;
-      if (!this.gkcoiOutputTarget[1]) delete deck.f2;
-      if (!this.gkcoiOutputTarget[2]) delete deck.f3;
-      if (!this.gkcoiOutputTarget[3]) delete deck.f4;
+
+      // ターゲットの艦隊に絞る
+      const targetFleets = manager.fleetInfo.fleets.filter((v, i) => !!this.gkcoiOutputTarget[i]);
+      const newManager = new CalcManager();
+      newManager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets: targetFleets });
+      newManager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo });
+
+      const deck = Convert.createDeckBuilder(newManager, true);
+      if (deck.f1 && !Object.keys(deck.f1).length) delete deck.f1;
+      if (deck.f2 && !Object.keys(deck.f2).length) delete deck.f2;
+      if (deck.f3 && !Object.keys(deck.f3).length) delete deck.f3;
+      if (deck.f4 && !Object.keys(deck.f4).length) delete deck.f4;
 
       const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
         lang: this.gkcoiLang,
@@ -1222,6 +1315,9 @@ export default Vue.extend({
         .catch((e) => {
           this.generatingImage = false;
           this.generateError = e;
+        })
+        .finally(() => {
+          this.enabledOutput = true;
         });
     },
     saveImage() {

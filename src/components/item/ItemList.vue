@@ -828,11 +828,6 @@ export default Vue.extend({
         let allItems: Item[] = [];
         // 艦隊データから装備全取得
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
-          if (i === 4) {
-            // 友軍は除外
-            continue;
-          }
-
           const { ships } = manager.fleetInfo.fleets[i];
           for (let j = 0; j < ships.length; j += 1) {
             allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));

@@ -505,7 +505,7 @@
               <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
             </div>
             <div class="align-self-end body-2 ml-3">{{ $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
-            <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }}: {{ $t(`Result.${row.supportTypeName}`) }}</div>
+            <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }}: {{ row.supportTypeName }}</div>
           </div>
           <div class="d-flex flex-wrap">
             <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
@@ -519,7 +519,9 @@
             <div class="caption ml-1">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
             <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
-          <v-btn class="ml-auto align-self-end" color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{ $t("Common.取込") }}</v-btn>
+          <v-btn class="ml-auto align-self-end" color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{
+            $t("Common.取込")
+          }}</v-btn>
           <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -578,7 +580,7 @@ export default Vue.extend({
     selectedColor: '',
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
-    urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[] },
+    urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[]; saveData?: string },
     unsubscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
@@ -808,6 +810,18 @@ export default Vue.extend({
         if (this.urlFragments.predeck && this.loadAndOpenFromDeckBuilder(this.urlFragments.predeck)) {
           informText.push('編成の読み込み');
         }
+        if (this.urlFragments.saveData) {
+          const urlData = SaveData.decodeURLSaveData(this.urlFragments.saveData);
+          urlData.isMain = true;
+          urlData.isActive = true;
+          this.saveData.childItems.push(urlData);
+          this.$store.dispatch('setMainSaveData', urlData);
+          if (!this.isAirCalcPage) {
+            // ページ遷移
+            this.$router.push('aircalc');
+          }
+          informText.push('編成の読み込み');
+        }
         if (informText.length) {
           this.inform(`URL fragmentより、${informText.join(', ')}が実行されました。`);
         }
@@ -855,7 +869,12 @@ export default Vue.extend({
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
           const fleet = manager.fleetInfo.fleets[i];
           if (fleet.ships.some((v) => v.data.id > 0)) {
-            this.selectableFleets.push({ selected: i === 0, fleet, supportTypeName: fleet.getSupportTypeName() });
+            this.selectableFleets.push({
+              selected: i === 0,
+              fleet,
+              supportTypeName: fleet.getSupportTypeNames().map((v) => this.$t(`Result.${v}`))
+                .join(' / '),
+            });
           }
         }
         if (this.selectableFleets.length > 1) {
@@ -913,9 +932,26 @@ export default Vue.extend({
         if (!manager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
           // 編成が空のデータなら元の情報を使う
           manager.fleetInfo = mainData.tempData[mainData.tempIndex].fleetInfo;
+        } else {
+          // 元の艦隊をなるべく消したくないのでいろいろやる
+          /** 今現在開いているデータの艦隊 */
+          const baseFleets = mainData.tempData[mainData.tempIndex].fleetInfo.fleets;
+          /** デッキビルダーから復元された艦隊データ */
+          const newFleets = manager.fleetInfo.fleets;
+          for (let i = 0; i < baseFleets.length; i += 1) {
+            if (newFleets.length < i + 1) {
+              // デッキビルダーは第5艦隊以降はないためおおむねそれを復元するための処理
+              newFleets.push(baseFleets[i]);
+            }
+          }
         }
 
-        mainData.tempData.push(manager);
+        // 現在位置+1の位置にブッ込む
+        if (mainData.tempData[mainData.tempIndex + 1]) {
+          mainData.tempData[mainData.tempIndex + 1] = manager;
+        } else {
+          mainData.tempData.push(manager);
+        }
         mainData.tempIndex += 1;
       } else {
         mainData = new SaveData();
@@ -1187,11 +1223,16 @@ export default Vue.extend({
       const dataString = decodeURIComponent(sp[1]);
       let json;
       try {
-        json = JSON.parse(dataString) as { ships?: unknown; items?: unknown; predeck?: unknown };
+        json = JSON.parse(dataString) as { ships?: unknown; items?: unknown; predeck?: unknown; saveData: unknown };
       } catch (error) {
         // 読み込んだデータが何かおかしい
         console.error(error);
         return;
+      }
+      try {
+        this.urlFragments.saveData = `${json.saveData}`;
+      } catch (e) {
+        console.error(e);
       }
       try {
         this.urlFragments.predeck = JSON.stringify(json.predeck);

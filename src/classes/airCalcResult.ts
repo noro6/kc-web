@@ -13,7 +13,7 @@ export default class AirCalcResult {
   /** 各制空状態の割合 */
   public rates = [0, 0, 0, 0, 0, 0];
 
-  /** 各制空状態の割合 */
+  /** 各制空状態の割合(支援) */
   public supportRates = [0, 0, 0, 0, 0, 0];
 
   /** 計算処理ループ中の表示戦闘での制空値記録用 */

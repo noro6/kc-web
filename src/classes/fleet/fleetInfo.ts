@@ -57,10 +57,11 @@ export default class FleetInfo {
       this.fleetType = builder.fleetType ?? FLEET_TYPE.SINGLE;
     }
 
+    const minFleetCount = 4;
     const fleetCount = this.fleets.length;
-    if (fleetCount < 5) {
-      // 第5艦隊まで作成 第5艦隊は友軍として扱う
-      for (let i = 0; i < 5 - fleetCount; i += 1) {
+    if (fleetCount < minFleetCount) {
+      // 第4艦隊までは最低でも作成
+      for (let i = 0; i < minFleetCount - fleetCount; i += 1) {
         this.fleets.push(new Fleet());
       }
     }
@@ -74,7 +75,6 @@ export default class FleetInfo {
 
     if (this.isUnion && (this.mainFleetIndex === 0 || this.mainFleetIndex === 1)) {
       // 連合艦隊にチェックが入っている場合連合艦隊オブジェクトを生成
-
       const mains = this.fleets[0].ships;
       // 第1艦隊全艦をnot随伴としてインスタンス化
       for (let i = 0; i < mains.length; i += 1) {
