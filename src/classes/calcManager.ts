@@ -261,7 +261,7 @@ export default class CalcManager {
         }
       }
       this.fleetInfo.fleets[i].results[mainBattle].supportRates = f.results[mainBattle].supportRates.map((v) => (100 * v) / maxCount);
-      this.fleetInfo.fleets[i].results[mainBattle].loopSumEnemySupportAirPower = f.results[mainBattle].loopSumEnemySupportAirPower / maxCount;
+      this.fleetInfo.fleets[i].results[mainBattle].avgEnemySupportAirPower = f.results[mainBattle].loopSumEnemySupportAirPower / maxCount;
     }
   }
 

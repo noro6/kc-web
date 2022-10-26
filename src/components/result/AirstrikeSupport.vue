@@ -28,7 +28,7 @@
             :key="`item_${i}`"
             v-ripple="{ class: 'info--text' }"
             class="selectable-item"
-            :class="{ selected: i === selectedItemIndex, edited: i === selectedItemIndex && isManualItem }"
+            :class="{ selected: i === selectedItemIndex }"
             @click="clickedItem(i)"
           >
             <div class="caption item-slot">{{ item.fullSlot }}</div>
@@ -36,8 +36,10 @@
               <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
             </div>
             <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-            <div class="ml-auto caption">{{ $t("Common.対潜") }}:</div>
-            <div class="item-asw caption">{{ item.data.asw }}</div>
+            <div class="ml-auto caption" v-if="item.data.isTorpedoAttacker">{{ $t("Common.雷装") }}:</div>
+            <div class="ml-auto caption" v-else-if="item.data.isAttacker">{{ $t("Common.爆装") }}:</div>
+            <div class="item-torpedo caption" v-if="item.data.isTorpedoAttacker">{{ item.data.torpedo }}</div>
+            <div class="item-torpedo caption" v-else-if="item.data.isAttacker">{{ item.data.bomber }}</div>
           </div>
         </div>
       </div>
@@ -55,56 +57,55 @@
             :rules="[rules.counter]"
             @input="calculate()"
           ></v-text-field>
-          <v-text-field
-            class="ml-1"
-            type="number"
-            min="0"
-            max="999"
-            v-model.number="asw"
-            :label="$t('Common.対潜')"
-            outlined
-            dense
-            :rules="[rules.counter]"
-            @input="calculate()"
-          ></v-text-field>
         </div>
-        <v-text-field
-          type="number"
-          min="0"
-          max="999"
-          v-model.number="armorDeBuff"
-          :label="$t('Common.装甲減少')"
-          outlined
-          dense
-          :rules="[rules.counter2]"
-          @input="calculate()"
-        ></v-text-field>
         <v-checkbox class="mt-0 pt-0" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
+        <div class="d-flex" v-if="selectedItem && selectedItem.data.isTorpedoAttacker">
+          <v-checkbox
+            :label="$t('Result.倍率x', { number: 0.8 })"
+            dense
+            hide-details
+            v-model="torpedoMultiplier1"
+            :error="!multipliers.length"
+            @change="calculate()"
+          ></v-checkbox>
+          <v-checkbox
+            class="ml-3"
+            :label="$t('Result.倍率x', { number: 1.5 })"
+            dense
+            hide-details
+            v-model="torpedoMultiplier2"
+            :error="!multipliers.length"
+            @change="calculate()"
+          ></v-checkbox>
+        </div>
       </div>
     </div>
-    <div class="d-flex">
+    <div class="d-flex pt-1">
       <div class="caption">{{ $t("Result.計算結果") }}</div>
       <div class="header-divider"></div>
     </div>
     <div>
       <div class="d-flex flex-wrap">
-        <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()"></v-checkbox>
+        <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}:</div>
+        <div>
+          <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="calculate"></v-select>
+        </div>
         <div class="ml-auto d-flex">
-          <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}:</div>
+          <div class="align-self-end caption">{{ $t("Result.航空支援火力") }}:</div>
           <div class="d-flex align-self-end">
             <div v-for="(powerString, i) in powers" :key="`power${i}`" class="ml-3 caption">{{ powerString }}</div>
           </div>
         </div>
       </div>
       <v-divider class="mt-2"></v-divider>
-      <v-simple-table fixed-header height="34vh">
+      <v-simple-table fixed-header height="38vh">
         <template v-slot:default>
           <thead>
             <tr>
               <th class="py-1 pl-1 text-left"></th>
               <th class="pr-1 py-1">{{ $t("Common.耐久") }}</th>
               <th class="pr-1">{{ $t("Common.装甲") }}</th>
-              <th class="pr-1 text-no-wrap">{{ $t("Result.ダメージ幅") }}</th>
+              <th class="text-no-wrap pr-1">{{ $t("Result.ダメージ幅") }}</th>
               <th class="pr-1">{{ $t("Result.撃沈率") }}</th>
               <th class="pr-1">{{ $t("Result.大破率") }}</th>
               <th class="pr-1">{{ $t("Result.中破率") }}</th>
@@ -131,18 +132,21 @@
                   </div>
                 </div>
               </td>
-              <td class="pr-1">{{ row.enemy.data.hp }}</td>
-              <td class="pr-1">{{ row.enemy.actualArmor }}</td>
-              <td class="pr-1 text-no-wrap">{{ row.damage }}</td>
-              <template v-if="row.death < 100">
-                <td class="pr-1">{{ row.damage ? row.death + "%" : "" }}</td>
-                <td class="pr-1">{{ row.damage ? row.taiha + "%" : "" }}</td>
-                <td class="pr-1">{{ row.damage ? row.chuha + "%" : "" }}</td>
-              </template>
+              <td v-if="row.disabledASW" colspan="6" class="text-center caption">{{ $t("Result.対潜支援火力計算機で確認してください") }}</td>
               <template v-else>
-                <td class="pr-1"></td>
-                <td class="pr-1 red--text">{{ $t("Result.確殺") }}</td>
-                <td class="pr-1"></td>
+                <td class="pr-1">{{ row.enemy.data.hp }}</td>
+                <td class="pr-1">{{ row.enemy.actualArmor }}</td>
+                <td class="pr-1 text-no-wrap">{{ row.damage }}</td>
+                <template v-if="row.death < 100">
+                  <td class="pr-1">{{ row.damage ? row.death + "%" : "" }}</td>
+                  <td class="pr-1">{{ row.damage ? row.taiha + "%" : "" }}</td>
+                  <td class="pr-1">{{ row.damage ? row.chuha + "%" : "" }}</td>
+                </template>
+                <template v-else>
+                  <td class="pr-1"></td>
+                  <td class="pr-1 red--text">{{ $t("Result.確殺") }}</td>
+                  <td class="pr-1"></td>
+                </template>
               </template>
             </tr>
           </tbody>
@@ -157,12 +161,12 @@
   display: grid;
   grid-template-columns: 140px 1fr 0.5fr;
   column-gap: 0.5rem;
+  height: 160px;
   overflow: hidden;
-  height: 180px;
 }
 
 .selectable-ship-container {
-  height: 180px;
+  height: 160px;
   overflow-y: auto;
 }
 
@@ -185,11 +189,6 @@
   border-color: rgba(0, 164, 255, 0.6);
 }
 
-.selectable-item.edited {
-  background-color: rgba(255, 164, 0, 0.1);
-  border-color: rgba(255, 164, 0, 0.6);
-}
-
 .selectable-item-container {
   display: flex;
   flex-direction: column;
@@ -207,7 +206,7 @@
   align-self: center;
 }
 .item-slot,
-.item-asw {
+.item-torpedo {
   width: 24px;
   text-align: right;
 }
@@ -274,16 +273,18 @@ import Vue from 'vue';
 import max from 'lodash/max';
 import min from 'lodash/min';
 import sum from 'lodash/sum';
-import Const, { SHIP_TYPE } from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
-import AerialFirePowerCalculator from '@/classes/aerialCombat/powerCalculator';
+import AerialFirePowerCalculator, { FirePowerCalcArgs } from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
 import SiteSetting from '@/classes/siteSetting';
+import CalcManager from '@/classes/calcManager';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import SaveData from '@/classes/saveData/saveData';
 
 interface DamageRow {
   enemy: Enemy;
@@ -291,10 +292,11 @@ interface DamageRow {
   death: number;
   taiha: number;
   chuha: number;
+  disabledASW: boolean;
 }
 
 export default Vue.extend({
-  name: 'AntiSubmarineSupport',
+  name: 'AirstrikeSupport',
   props: {
     fleet: {
       type: Fleet,
@@ -303,13 +305,15 @@ export default Vue.extend({
   },
   data: () => ({
     enemies: [] as Enemy[],
-    displayPrincess: false,
+    calcManager: new CalcManager(),
     selectedShipIndex: 0,
     selectedItemIndex: 0,
     slot: 18,
-    asw: 10,
-    armorDeBuff: 0,
+    torpedoMultiplier1: true,
+    torpedoMultiplier2: true,
     isCritical: false,
+    defenseIndex: 0,
+    defenseFleets: [] as { text: string; value: number; ships: Enemy[]; isUnion: boolean }[],
     enemyRows: [] as DamageRow[],
     powers: [] as string[],
     rules: {
@@ -318,15 +322,23 @@ export default Vue.extend({
     },
   }),
   mounted() {
-    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
+    const saveData = this.$store.state.mainSaveData as SaveData;
     const items = this.$store.state.items as ItemMaster[];
+    const ships = this.$store.state.ships as ShipMaster[];
+    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
 
-    for (let i = 0; i < enemies.length; i += 1) {
-      const enemy = enemies[i];
+    this.calcManager = saveData.loadManagerData(items, ships, enemies);
 
-      if (enemy.type === SHIP_TYPE.SS || enemy.type === SHIP_TYPE.SSV) {
-        this.enemies.push(Enemy.createEnemyFromMaster(enemy, false, items));
-      }
+    const { fleets } = this.calcManager.battleInfo;
+    // 防御側セレクトに敵艦隊をセット
+    for (let i = 0; i < fleets.length; i += 1) {
+      const enabledShips = fleets[i].enemies.filter((v) => v.data.id);
+      this.defenseFleets.push({
+        text: `${this.$t('Result.x戦目', { number: i + 1 })}`,
+        value: i,
+        ships: enabledShips,
+        isUnion: fleets[i].isUnion,
+      });
     }
 
     if (this.enabledShips.length) {
@@ -350,18 +362,41 @@ export default Vue.extend({
       }
       return [];
     },
-    displayEnemies(): Enemy[] {
-      if (this.displayPrincess) {
-        return this.enemies;
-      }
-      return this.enemies.filter((v) => v.data.id <= 1600);
+    selectedItem(): Item {
+      return this.items[this.selectedItemIndex];
     },
-    isManualItem(): boolean {
-      const item = this.items[this.selectedItemIndex];
-      if (item) {
-        return item.fullSlot !== this.slot || item.data.asw !== this.asw;
+    defenseFleet() {
+      return this.defenseFleets[this.defenseIndex];
+    },
+    defenseShipRows(): DamageRow[] {
+      if (!this.defenseFleet) {
+        return [];
       }
-      return true;
+      const results = [];
+      for (let i = 0; i < this.defenseFleet.ships.length; i += 1) {
+        results.push({
+          enemy: this.defenseFleet.ships[i],
+          damage: '',
+          death: 0,
+          taiha: 0,
+          chuha: 0,
+          disabledASW: false,
+        });
+      }
+      return results;
+    },
+    multipliers(): number[] {
+      if (this.selectedItem && this.selectedItem.data.isTorpedoAttacker) {
+        const multipliers = [];
+        if (this.torpedoMultiplier1) {
+          multipliers.push(0.8);
+        }
+        if (this.torpedoMultiplier2) {
+          multipliers.push(1.5);
+        }
+        return multipliers;
+      }
+      return [1];
     },
   },
   methods: {
@@ -370,63 +405,63 @@ export default Vue.extend({
       const item = this.items[this.selectedItemIndex];
 
       // なんか違う装備だったら探してみる
-      if (!item || !item.fullSlot || !Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
-        const newItemIndex = this.items.findIndex((v) => Const.ENABLED_ASW_SUPPORT.includes(v.data.apiTypeId));
+      if (!item || !item.fullSlot || !item.data.isAttacker) {
+        const newItemIndex = this.items.findIndex((v) => v.data.isAttacker);
         if (newItemIndex >= 0) {
           this.selectedItemIndex = newItemIndex;
         }
       }
-      const ship = this.enabledShips[this.selectedShipIndex];
-      if (ship) {
-        this.armorDeBuff = ship.getAswArmorDeBuff();
-      }
-
       this.clickedItem(this.selectedItemIndex);
     },
     clickedItem(index: number) {
       this.selectedItemIndex = index;
       const item = this.items[index];
-      if (item) {
-        this.slot = item.fullSlot;
-        this.asw = item.data.asw;
-
-        if (!Const.ENABLED_ASW_SUPPORT.includes(item.data.apiTypeId)) {
-          this.slot = 0;
-        }
+      if (item.slot) {
+        this.slot = item.slot;
       } else {
         this.slot = 0;
-        this.asw = 0;
       }
-
       this.calculate();
     },
     calculate() {
       // 検証
-      if (!this.asw || this.asw < 0) {
-        this.asw = 0;
-      }
-      if (!this.slot || this.slot < 0) {
-        this.slot = 0;
-      }
-      if (this.asw > 999) {
-        this.asw = 999;
-      }
       if (this.slot > 999) {
         this.slot = 999;
       }
 
-      const powers = AerialFirePowerCalculator.getAswSupportForePowers(this.asw, this.slot, this.isCritical);
-      this.powers = powers.map((v) => `${Math.floor(100 * v.power) / 100}(${100 * v.rate}%)`);
+      if (!this.selectedItem) {
+        return;
+      }
 
-      const enemies = this.displayEnemies;
+      const args: FirePowerCalcArgs = {
+        item: this.selectedItem,
+        slot: this.slot,
+        defense: new Enemy(),
+        isAirbaseMode: false,
+        isCritical: this.isCritical,
+        isUnion: false,
+        criticalBonus: 1,
+        contactBonus: 1,
+        unionBonus: 1,
+        rikuteiBonus: 1,
+        manualAfterCapBonus: 1,
+        multipliers: this.multipliers,
+      };
+
+      const powers = AerialFirePowerCalculator.getAirstrikeSupportPower(this.selectedItem, this.slot, args, false, 1);
+      this.powers = powers.map((v, i) => `${Math.floor(100 * v.power) / 100} (x${args.multipliers[i]})`);
+
+      const rows = this.defenseShipRows;
       this.enemyRows = [];
-      for (let i = 0; i < enemies.length; i += 1) {
-        const enemy = enemies[i];
-        const HP = enemy.data.hp;
+      if (!this.multipliers.length) {
+        return;
+      }
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i];
+        const HP = row.enemy.data.hp;
 
         // 火力分布より、被ダメージ分布を取得
-        const armor = Math.max(enemy.actualArmor + this.armorDeBuff, 1);
-        const damageDist = CommonCalc.getDamageDistribution(powers, armor, 1, HP, true);
+        const damageDist = CommonCalc.getDamageDistribution(powers, row.enemy.actualArmor, 1, HP, true);
         const damages = damageDist.map((v) => v.damage);
 
         // 最低 最大ダメ
@@ -451,13 +486,11 @@ export default Vue.extend({
         }
 
         // ダメージ表示調整
-        const row: DamageRow = {
-          enemy,
-          damage: `${minDamage} ~ ${maxDamage}`,
-          death: Math.floor(damageBorders[0].rate * 1000) / 10,
-          taiha: Math.floor(damageBorders[1].rate * 1000) / 10,
-          chuha: Math.floor(damageBorders[2].rate * 1000) / 10,
-        };
+        row.damage = `${minDamage} ~ ${maxDamage}`;
+        row.death = Math.floor(damageBorders[0].rate * 1000) / 10;
+        row.taiha = Math.floor(damageBorders[1].rate * 1000) / 10;
+        row.chuha = Math.floor(damageBorders[2].rate * 1000) / 10;
+        row.disabledASW = row.enemy.isSubmarine;
 
         // 割合ダメージチェック
         if (minDamage === 0) {
@@ -470,22 +503,11 @@ export default Vue.extend({
           row.damage = '';
           this.slot = 0;
         }
-        if (this.asw <= 0) {
+        if (this.selectedItem.data.torpedo <= 0 && this.selectedItem.data.bomber <= 0) {
           row.damage = '';
-          this.asw = 0;
         }
 
         this.enemyRows.push(row);
-      }
-
-      if (!this.displayPrincess) {
-        // 装甲順
-        this.enemyRows.sort((a, b) => {
-          if (a.enemy.data.armor !== b.enemy.data.armor) {
-            return a.enemy.data.armor - b.enemy.data.armor;
-          }
-          return b.enemy.data.hp - a.enemy.data.hp;
-        });
       }
     },
     getEnemyName(name: string): string {

@@ -69,17 +69,22 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th>{{ $t("Fleet.艦娘") }}</th>
-            <th class="text-right">{{ $t("Common.加重対空") }}</th>
-            <th class="text-right">{{ $t("Fleet.割合撃墜") }}</th>
-            <th class="text-right">{{ $t("Fleet.固定撃墜") }}</th>
-            <th class="text-right">{{ $t("Fleet.最低保証") }}</th>
-            <th class="text-right">{{ $t("Fleet.両成功") }}</th>
+            <th class="pl-2">{{ $t("Fleet.艦娘") }}</th>
+            <th class="pr-1 text-right">{{ $t("Common.加重対空") }}</th>
+            <th class="pr-1 text-right">{{ $t("Fleet.割合撃墜") }}</th>
+            <th class="pr-1 text-right">{{ $t("Fleet.固定撃墜") }}</th>
+            <th class="pr-1 text-right">{{ $t("Fleet.最低保証") }}</th>
+            <th class="pr-1 text-right">{{ $t("Fleet.両成功") }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, i) in stage2Data" :key="i" class="stage2-row" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
-            <td class="d-flex">
+          <tr
+            v-for="(item, i) in stage2Data"
+            :key="i"
+            class="stage2-row pl-1"
+            :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
+          >
+            <td class="d-flex pl-1">
               <div class="align-self-center mr-2">
                 <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
               </div>
@@ -90,11 +95,11 @@
                 </div>
               </div>
             </td>
-            <td class="text-right">{{ item.antiAirWeight }}</td>
-            <td class="text-right">{{ item.rate }} ( {{ $t("Common.x機", { number: item.rateDown }) }} ) </td>
-            <td class="text-right">{{ item.fix }}</td>
-            <td class="text-right">{{ item.min }}</td>
-            <td class="text-right">{{ item.sum }}</td>
+            <td class="pr-1 text-right">{{ item.antiAirWeight }}</td>
+            <td class="pr-1 text-right">{{ item.rate }} ( {{ $t("Common.x機", { number: item.rateDown }) }} )</td>
+            <td class="pr-1 text-right">{{ item.fix }}</td>
+            <td class="pr-1 text-right">{{ item.min }}</td>
+            <td class="pr-1 text-right">{{ item.sum }}</td>
           </tr>
         </tbody>
       </template>
@@ -123,6 +128,7 @@
 }
 .v-data-table thead th {
   background-color: rgb(242, 242, 242) !important;
+  height: 36px !important;
 }
 .theme--dark .v-data-table thead th {
   background-color: rgb(49, 49, 53) !important;

@@ -356,6 +356,7 @@ export default {
       '艦隊情報': 'Information',
       '対空砲火': 'Fleet Anti-Air Defense',
       '対潜支援火力': 'ASW Support Damage',
+      '航空支援火力': 'Airstrike Support Damage',
       '撃墜': 'Prop,Fixed',
       '噴進': 'AARB',
       '先制対潜': 'OASW',

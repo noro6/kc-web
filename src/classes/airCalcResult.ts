@@ -25,11 +25,14 @@ export default class AirCalcResult {
   /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
   public loopSumEnemySupportAirPower = 0;
 
-  /** 計算処理ループ中の表示戦闘での制空値記録用 */
+  /** 表示戦闘での平均制空値 */
   public avgAirPower = 0;
 
-  /** 計算処理ループ中の表示戦闘での敵制空値記録用 */
+  /** 表示戦闘での敵制空値平均 */
   public avgEnemyAirPower = 0;
+
+  /** 表示戦闘での敵制空値平均 */
+  public avgEnemySupportAirPower = 0;
 
   /** 撃ち落とされた艦載機合計 ボーキ算出に必要 */
   public avgDownSlot = 0;

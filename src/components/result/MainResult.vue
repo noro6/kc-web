@@ -725,7 +725,7 @@ export default Vue.extend({
         const result = fleet.results.find((v) => v.supportRates.some((w) => w > 0));
 
         const rates = needResult && result ? result.supportRates.map((v) => Math.round(10 * v) / 10) : [0, 0, 0, 0, 0];
-        const avg = needResult && result ? Math.round(result.loopSumEnemySupportAirPower) : 0;
+        const avg = needResult && result ? Math.round(result.avgEnemySupportAirPower) : 0;
         const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
         rows.push({
           number: i + 1,
