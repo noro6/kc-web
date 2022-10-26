@@ -661,7 +661,8 @@ export default class SaveData {
 
   /**
    * この編成データに保存されているデータからcalcManagerインスタンスを生成
-   * なければ初期データ いずれもcloneDeep適用済み
+   * なければ初期データ
+   * いずれもcloneDeep適用済みのため、ぐちゃぐちゃにしてもかまわない
    * @param {ItemMaster[]} itemMasters
    * @param {ShipMaster[]} shipMasters
    * @param {EnemyMaster[]} enemyMasters

@@ -101,7 +101,7 @@ export default class CommonCalc {
    * @returns {number} キャップ後火力
    */
   public static softCap(power: number, cap: number): number {
-    return power > cap ? cap + Math.sqrt(power - cap) : power;
+    return Math.floor(power > cap ? cap + Math.sqrt(power - cap) : power);
   }
 
   /**

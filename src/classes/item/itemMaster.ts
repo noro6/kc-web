@@ -107,8 +107,11 @@ export default class ItemMaster {
   /** 対地可能フラグ */
   public readonly enabledAttackLandBase: boolean;
 
-  /** 爆雷(教義)フラグ */
+  /** 爆雷(狭義)フラグ */
   public readonly isStrictDepthCharge: boolean;
+
+  /** 雷装による攻撃を行うかどうか => 現行では火力計算で0.8倍1.5倍が発生するのに使う */
+  public readonly isTorpedoAttacker: boolean;
 
   /** 特効情報 */
   public readonly bonuses: {type:number, text: string, subText: string}[];
@@ -183,6 +186,7 @@ export default class ItemMaster {
     this.isJet = this.apiTypeId === 57;
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
     this.isStrictDepthCharge = Const.STRICT_DEPTH_CHARGE.includes(this.id);
+    this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
 
     if (!this.isSpecial) {
       this.isSpecial = this.isRocket || this.enabledAttackLandBase;

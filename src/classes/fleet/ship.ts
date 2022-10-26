@@ -306,6 +306,7 @@ export default class Ship implements ShipBase {
     this.itemBonuses = Ship.getItemBonus(this.data, items);
     // 熟練甲板要員＋航空整備員 整備員ボーナスがあるかどうかをチェック
     const crewTorpedoBonus = items.some((v) => v.data.id === 478 && v.remodel >= 5) ? 1 : 0;
+    const crewBomberBonus = items.some((v) => v.data.id === 478 && v.remodel >= 4) ? 1 : 0;
 
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
@@ -355,6 +356,7 @@ export default class Ship implements ShipBase {
       if (item.data.isAttacker) {
         item.attackerTorpedoBonus = 0;
         item.crewTorpedoBonus = crewTorpedoBonus;
+        item.crewBomberBonus = crewBomberBonus;
 
         const temp = Math.max(maximumAttacker.data.torpedo, maximumAttacker.data.bomber);
         const value = Math.max(item.data.torpedo, item.data.bomber);
@@ -427,9 +429,13 @@ export default class Ship implements ShipBase {
 
     // 雷装ボーナス適用装備抽出 & セット
     if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
+      let crewTorpedoBonusRemain = crewTorpedoBonus;
       for (let i = 0; i < this.itemBonuses.length; i += 1) {
         const bonus = this.itemBonuses[i];
-        if (bonus.torpedo) {
+        if (bonus.torpedo === crewTorpedoBonus && crewTorpedoBonusRemain) {
+          // 雷装ボーナスのうち1つ分は熟練甲板要員ボーナスによるものなので除外する
+          crewTorpedoBonusRemain -= 1;
+        } else if (bonus.torpedo) {
           this.torpedoBonuses.push(bonus.torpedo);
         }
       }
@@ -512,7 +518,7 @@ export default class Ship implements ShipBase {
     } else {
       dayBattleFirePower = ship.displayStatus.firePower + sumRemodelBonusFirePower + correct + 5;
     }
-    return Math.floor(CommonCalc.softCap(dayBattleFirePower, CAP.BATTLE));
+    return CommonCalc.softCap(dayBattleFirePower, CAP.BATTLE);
   }
 
   /**
@@ -531,7 +537,7 @@ export default class Ship implements ShipBase {
     } else {
       supportFirePower = ship.displayStatus.firePower + 4;
     }
-    return Math.floor(CommonCalc.softCap(supportFirePower, CAP.SUPPORT));
+    return CommonCalc.softCap(supportFirePower, CAP.SUPPORT);
   }
 
   /**

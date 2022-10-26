@@ -45,17 +45,26 @@
                   <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
                   <span class="teal--text text--accent-4 body-2">{{ item.remodel }}</span>
                 </div>
-                <div v-if="item.level" class="item-level">
-                  <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
-                  <span class="level-value">{{ item.level }}</span>
+                <div class="item-level">
+                  <template v-if="item.data.isPlane">
+                    <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
+                    <span class="level-value">{{ item.level }}</span>
+                  </template>
                 </div>
-                <div v-if="item.data.isPlane" class="item-simple-status d-flex ml-3">
-                  <template v-if="item.data.isAttacker">
+                <div class="item-simple-status d-flex ml-3">
+                  <template v-if="item.data.isTorpedoAttacker">
                     <div class="mx-1" v-if="item.actualTorpedo">{{ $t("Common.雷装") }} {{ item.actualTorpedo.toFixed(1) }}</div>
-                    <div class="mx-1" v-if="item.actualBomber">{{ $t("Common.爆装") }} {{ item.actualBomber.toFixed(1) }}</div>
                     <template v-if="item.crewTorpedoBonus || item.attackerTorpedoBonus">
                       <div class="ml-auto">(</div>
-                      <div class="mx-1 primary--text">&plus; {{ item.crewTorpedoBonus + item.attackerTorpedoBonus }}</div>
+                      <div class="mx-1 info--text">&plus; {{ item.crewTorpedoBonus + item.attackerTorpedoBonus }}</div>
+                      <div>)</div>
+                    </template>
+                  </template>
+                  <template v-else-if="item.data.isAttacker">
+                    <div class="mx-1" v-if="item.actualBomber">{{ $t("Common.爆装") }} {{ item.actualBomber.toFixed(1) }}</div>
+                    <template v-if="item.crewBomberBonus || item.attackerTorpedoBonus">
+                      <div class="ml-auto">(</div>
+                      <div class="mx-1 info--text">&plus; {{ item.crewBomberBonus + item.attackerTorpedoBonus }}</div>
                       <div>)</div>
                     </template>
                   </template>
@@ -77,7 +86,7 @@
       <div class="fire-calc-container border-window mt-4" :class="{ show: !visibleSlotRate }">
         <div class="header-content">
           <div class="align-self-center pl-2 body-2 text-no-wrap">{{ $t("Result.航空戦火力計算機") }}</div>
-          <div class="target-item" @mouseenter="bootTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
+          <div class="target-item" @mouseenter="bootItemTooltip(selectedItem, $event)" @mouseleave="clearTooltip">
             <div class="pl-5">
               <v-img :src="`./img/type/icon${selectedItem.data.iconTypeId}.png`" height="24" width="24"></v-img>
             </div>
@@ -146,29 +155,14 @@
         </div>
         <div class="d-flex flex-wrap">
           <div class="form-control mx-1 my-2" v-show="!isAirbase">
-            <v-tooltip bottom color="black">
-              <template v-slot:activator="{ on, attrs }">
-                <v-select
-                  :label="$t('Result.弾薬補正')"
-                  v-bind="attrs"
-                  v-on="on"
-                  v-model="ammo"
-                  :items="ammos"
-                  hide-details
-                  outlined
-                  dense
-                  @change="calculateFire"
-                ></v-select>
-              </template>
-              <div class="caption">{{ $t("Result.弾薬補正") }}</div>
-            </v-tooltip>
+            <v-select :label="$t('Result.弾薬補正')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
           </div>
           <div class="form-control mx-1 my-2">
             <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
                   type="number"
-                  v-model.number="calcArgs.afterCapBonus"
+                  v-model.number="calcArgs.manualAfterCapBonus"
                   v-bind="attrs"
                   v-on="on"
                   min="0"
@@ -226,7 +220,7 @@
           </div>
         </div>
         <v-divider></v-divider>
-        <div class="mb-2 mx-1 d-flex">
+        <div class="mb-2 ml-1 d-flex">
           <div class="align-self-end body-2">{{ $t("Result.ダメージ計算結果") }}</div>
           <v-spacer></v-spacer>
           <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}:</div>
@@ -241,7 +235,7 @@
           <div class="damage-td grow">{{ $t("Result.ダメージ幅") }}</div>
           <div class="damage-td">{{ $t("Result.撃沈率") }}</div>
           <div class="damage-td">{{ $t("Result.大破率") }}</div>
-          <div class="damage-td">{{ $t("Result.中破率") }}</div>
+          <div class="damage-td pr-1">{{ $t("Result.中破率") }}</div>
         </div>
         <div
           v-for="(row, i) in defenseShipRows"
@@ -252,25 +246,152 @@
             'tr-damaged': row.death + row.taiha >= 70,
             'tr-half-damaged': row.death + row.taiha + row.chuha >= 50,
           }"
+          @mouseenter="bootDamageDetailTooltip(row, $event)"
+          @mouseleave="clearTooltip"
         >
           <div>
             <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120"></v-img>
           </div>
           <div class="damage-td">{{ row.ship.hp }}</div>
           <div class="damage-td">{{ row.ship.actualArmor }}</div>
-          <div class="damage-td grow">{{ row.damage }}</div>
+          <div class="damage-td grow tooltip-anchor">{{ row.damage }}</div>
           <div v-if="row.disabledASW" class="damage-td colspan-3 caption">{{ $t("Result.対潜攻撃不可") }}</div>
           <template v-else-if="row.death < 100">
             <div class="damage-td">{{ row.damage ? row.death + "%" : "" }}</div>
             <div class="damage-td">{{ row.damage ? row.taiha + "%" : "" }}</div>
-            <div class="damage-td">{{ row.damage ? row.chuha + "%" : "" }}</div>
+            <div class="damage-td pr-1">{{ row.damage ? row.chuha + "%" : "" }}</div>
           </template>
-          <div v-else class="damage-td colspan-3 red--text">{{ $t("Result.確殺") }}</div>
+          <div v-else class="damage-td colspan-3 red--text pr-1">{{ $t("Result.確殺") }}</div>
         </div>
       </div>
     </div>
-    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
+    <v-tooltip v-model="enabledItemTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
+    </v-tooltip>
+    <v-tooltip v-model="enabledDamageDetailTooltip" color="black" top :position-x="tooltipX" :position-y="tooltipY">
+      <div v-if="selectedItem" class="d-flex py-2" :class="{ 'multi-container': preCapTerms.length >= 2 }">
+        <div class="damage-detail-container caption" v-for="(preCapTerm, i) in preCapTerms" :key="`term${i}`">
+          <template v-if="postCapTerms[i].isSubmarine">
+            <div>{{ $t("Common.対潜") }}:</div>
+          </template>
+          <template v-else-if="selectedItem.data.isTorpedoAttacker && !preCapTerm.isLandBase">
+            <div>{{ $t("Common.雷装") }}:</div>
+            <div>{{ selectedItem.data.torpedo }}</div>
+            <template v-if="preCapTerm.torpedoMultiplier && preCapTerm.torpedoMultiplier !== 1">
+              <div>{{ $t("Result.雷装補正") }}:</div>
+              <div>&times; {{ preCapTerm.torpedoMultiplier }}</div>
+            </template>
+            <template v-if="selectedItem.bonusTorpedo">
+              <div>{{ $t("Result.改修強化値") }}:</div>
+              <div>&plus; {{ Math.floor(100 * selectedItem.bonusTorpedo) / 100 }}</div>
+            </template>
+            <template v-if="selectedItem.attackerTorpedoBonus">
+              <div>{{ $t("Result.装備シナジーボーナス") }}:</div>
+              <div>&plus; {{ selectedItem.attackerTorpedoBonus }}</div>
+            </template>
+            <template v-if="selectedItem.crewTorpedoBonus">
+              <div>{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+              <div>&plus; {{ selectedItem.crewTorpedoBonus }}</div>
+            </template>
+            <div>{{ $t("Result.実雷装値") }}:</div>
+          </template>
+          <template v-else>
+            <div>{{ $t("Common.爆装") }}:</div>
+            <div>{{ selectedItem.data.bomber }}</div>
+            <template v-if="selectedItem.bonusBomber">
+              <div>{{ $t("Result.改修強化値") }}:</div>
+              <div>&plus; {{ Math.floor(100 * selectedItem.bonusBomber) / 100 }}</div>
+            </template>
+            <template v-if="selectedItem.attackerTorpedoBonus">
+              <div>{{ $t("Result.装備シナジーボーナス") }}:</div>
+              <div>&plus; {{ selectedItem.attackerTorpedoBonus }}</div>
+            </template>
+            <template v-if="selectedItem.crewBomberBonus">
+              <div>{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+              <div>&plus; {{ selectedItem.crewBomberBonus }}</div>
+            </template>
+            <div>{{ $t("Result.実爆装値") }}:</div>
+          </template>
+          <div>{{ preCapTerm.actualTorpedo ? Math.floor(100 * preCapTerm.actualTorpedo) / 100 : 0 }}</div>
+          <div>
+            {{ $t("Result.搭載数") }} <template v-if="useResult">( {{ minSlot }} ~ {{ maxSlot }} ):</template>
+          </div>
+          <div v-if="useResult">{{ Math.floor((maxSlot + minSlot) / 2) }}</div>
+          <div v-else>{{ attackerSlot }}</div>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div>{{ $t("Result.種別倍率") }}:</div>
+          <div>&times; {{ preCapTerm.typeMultiplier ? preCapTerm.typeMultiplier.toFixed(2) : 1 }}</div>
+          <div>{{ $t("Result.航空戦定数") }}:</div>
+          <div>&plus; {{ preCapTerm.airstrikeModifiers }}</div>
+          <div>{{ $t("Result.基本攻撃力") }}:</div>
+          <div>{{ preCapTerm.baseFirePower ? Math.floor(100 * preCapTerm.baseFirePower) / 100 : 0 }}</div>
+          <template v-if="preCapTerm.B25Modifiers && preCapTerm.B25Modifiers !== 1">
+            <div>{{ $t("Result.B-25補正") }}:</div>
+            <div>&times; {{ preCapTerm.B25Modifiers.toFixed(2) }}</div>
+          </template>
+          <template v-if="preCapTerm.LBASModifiers && preCapTerm.LBASModifiers !== 1">
+            <div>{{ $t("Result.基地航空隊補正") }}:</div>
+            <div>&times; {{ preCapTerm.LBASModifiers.toFixed(2) }}</div>
+          </template>
+          <div>{{ $t("Result.キャップ前攻撃力") }}:</div>
+          <div>{{ preCapTerm.preCapFirePower ? Math.floor(100 * preCapTerm.preCapFirePower) / 100 : 0 }}</div>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div>{{ $t("Result.キャップ後攻撃力") }}:</div>
+          <div>{{ postCapTerms[i].postCapFirePower ? postCapTerms[i].postCapFirePower : 0 }}</div>
+          <template v-if="postCapTerms[i].LBASModifiers && postCapTerms[i].LBASModifiers !== 1">
+            <div>{{ $t("Result.基地航空隊補正") }}:</div>
+            <div>&plus; {{ postCapTerms[i].LBASModifiers }}</div>
+          </template>
+          <template v-if="postCapTerms[i].bomberMultiplier && postCapTerms[i].bomberMultiplier !== 1">
+            <div>{{ $t("Result.爆撃機補正") }}:</div>
+            <div>&times; {{ postCapTerms[i].bomberMultiplier.toFixed(2) }}</div>
+          </template>
+          <template v-if="calcArgs.isCritical">
+            <div>{{ $t("Result.クリティカル補正") }}:</div>
+            <div>&times; 1.50</div>
+            <div>{{ $t("Result.熟練度クリティカル補正") }}:</div>
+            <div>&times; {{ calcArgs.criticalBonus.toFixed(2) }}</div>
+          </template>
+          <template v-if="calcArgs.contactBonus !== 1">
+            <div>{{ $t("Result.触接補正") }}:</div>
+            <div>&times; {{ calcArgs.contactBonus.toFixed(2) }}</div>
+          </template>
+          <template v-if="postCapTerms[i].airbaseAttackerMultiplier && postCapTerms[i].airbaseAttackerMultiplier !== 1">
+            <div>{{ $t("Result.陸攻補正") }}:</div>
+            <div>&times; {{ postCapTerms[i].airbaseAttackerMultiplier.toFixed(2) }}</div>
+          </template>
+          <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
+            <div>{{ $t("Result.陸偵補正") }}:</div>
+            <div>&times; {{ calcArgs.rikuteiBonus.toFixed(3) }}</div>
+          </template>
+          <template v-if="calcArgs.isAirbaseMode && calcArgs.unionBonus !== 1">
+            <div>{{ $t("Result.敵連合補正") }}:</div>
+            <div>&times; {{ calcArgs.unionBonus.toFixed(2) }}</div>
+          </template>
+          <template v-if="postCapTerms[i].aircraftCarrierPrincessMultiplier && postCapTerms[i].aircraftCarrierPrincessMultiplier !== 1">
+            <div>{{ $t("Result.空母棲姫補正") }}:</div>
+            <div>&times; {{ postCapTerms[i].aircraftCarrierPrincessMultiplier.toFixed(2) }}</div>
+          </template>
+          <template v-if="calcArgs.manualAfterCapBonus !== 1">
+            <div>{{ $t("Result.特効") }}:</div>
+            <div>&times; {{ calcArgs.manualAfterCapBonus }}</div>
+          </template>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider></v-divider></div>
+          <div>{{ $t("Result.最終攻撃力") }}:</div>
+          <div>{{ postCapTerms[i].finalFirePower ? Math.floor(100 * postCapTerms[i].finalFirePower) / 100 : 0 }}</div>
+          <div>{{ $t("Common.装甲") }}:</div>
+          <div>{{ minArmor }} ~ {{ maxArmor }}</div>
+          <template v-if="ammo !== 1">
+            <div>{{ $t("Result.弾薬補正値") }}:</div>
+            <div>&times; {{ ammo }}</div>
+          </template>
+          <div>{{ $t("Result.ダメージ幅") }}:</div>
+          <div>{{ getDamageRangeString(postCapTerms[i].finalFirePower) }}</div>
+        </div>
+      </div>
     </v-tooltip>
   </div>
 </template>
@@ -466,6 +587,24 @@
 .damage-tr.tr-death:hover {
   background-color: rgba(0, 150, 255, 0.15);
 }
+
+.damage-detail-container {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+.multi-container .damage-detail-container {
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+.multi-container .damage-detail-container:nth-child(2n) {
+  margin-left: 12px;
+}
+
+.damage-detail-container > div:nth-child(2n):not(.divider) {
+  margin-left: 1rem;
+  text-align: right;
+}
 </style>
 
 <script lang="ts">
@@ -486,7 +625,9 @@ import Airbase from '@/classes/airbase/airbase';
 import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
-import Calculator, { FirePowerCalcArgs, PowerDist, SlotDist } from '@/classes/aerialCombat/powerCalculator';
+import Calculator, {
+  FirePowerCalcArgs, PostCapTerm, PowerDist, PreCapTerm, SlotDist,
+} from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
 import { SHIP_TYPE } from '@/classes/const';
 import FleetInfo from '@/classes/fleet/fleetInfo';
@@ -584,17 +725,21 @@ export default Vue.extend({
     },
     attackerSlot: 18,
     useResult: true,
+    maxSlot: 0,
+    minSlot: 0,
     calcArgs: {
+      item: new Item(),
+      slot: 0,
+      defense: new Enemy(),
+      isAirbaseMode: false,
       isCritical: false,
       isUnion: false,
       criticalBonus: 1,
       contactBonus: 1,
       unionBonus: 1,
       rikuteiBonus: 1,
-      specialBonus: 1,
-      beforeCapBonus: 1,
-      afterCapBonus: 1,
-      torpedoBonus: 1,
+      manualAfterCapBonus: 1,
+      multipliers: [1],
     } as FirePowerCalcArgs,
     contacts: [
       { text: '-', value: 1 },
@@ -618,10 +763,15 @@ export default Vue.extend({
     isAirbase: false,
     defenseIndex: 0,
     defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean }[],
-    enabledTooltip: false,
+    enabledDamageDetailTooltip: false,
+    enabledItemTooltip: false,
     slotRateTableText: '',
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
+    preCapTerms: [] as PreCapTerm[],
+    postCapTerms: {} as PostCapTerm[],
+    maxArmor: 0,
+    minArmor: 0,
     tooltipX: 0,
     tooltipY: 0,
   }),
@@ -854,12 +1004,13 @@ export default Vue.extend({
     },
     calculateFire() {
       const tempDist = this.selectedItem.dist;
-      const { attackerTorpedoBonus, crewTorpedoBonus } = this.selectedItem;
+      const { attackerTorpedoBonus, crewTorpedoBonus, crewBomberBonus } = this.selectedItem;
       // 改修値 搭載数変更を適用して再インスタンス化
       this.selectedItem = new Item({ item: this.selectedItem, slot: this.attackerSlot });
-      // 雷装ボーナスあれば
+      // 雷装ボーナス、爆装ボーナスあれば引き継ぎ
       this.selectedItem.attackerTorpedoBonus = attackerTorpedoBonus;
       this.selectedItem.crewTorpedoBonus = crewTorpedoBonus;
+      this.selectedItem.crewBomberBonus = crewBomberBonus;
 
       // 計算結果の分布を引継ぎ
       this.selectedItem.dist = tempDist;
@@ -880,10 +1031,12 @@ export default Vue.extend({
         // 搭載数キメ打ち
         slotDist.push({ slot: item.fullSlot, rate: 1 });
       }
-      const maxSlot = +(this.useResult ? max(Object.keys(data)) || 0 : item.fullSlot);
-      const minSlot = +(this.useResult ? min(Object.keys(data)) || 0 : item.fullSlot);
+
+      this.maxSlot = +(this.useResult ? max(Object.keys(data).map((v) => +v)) || 0 : item.fullSlot);
+      this.minSlot = +(this.useResult ? min(Object.keys(data).map((v) => +v)) || 0 : item.fullSlot);
 
       // 引数調整
+      this.calcArgs.item = this.selectedItem;
       this.calcArgs.unionBonus = this.calcArgs.isUnion ? 1.1 : 1;
 
       const rows = this.defenseShipRows;
@@ -896,18 +1049,21 @@ export default Vue.extend({
         const isSubmarine = ship.data.type === SHIP_TYPE.SS || ship.data.type === SHIP_TYPE.SSV;
         // 対潜攻撃可能かどうか？
         let enableAsw = false;
-
+        // 防御艦船設定
+        this.calcArgs.defense = ship;
         // 火力分布
         let powers: PowerDist[] = [];
         if (this.parent instanceof Airbase) {
           // 基地航空隊火力計算
+          this.calcArgs.isAirbaseMode = true;
           // 熟練度クリティカルボーナス算出
           this.calcArgs.criticalBonus = item.getProfCriticalBonus();
-          powers = Calculator.getAirbaseFirePowers(item, slotDist, ship, this.calcArgs);
+          powers = Calculator.getAirbaseFirePowers(this.calcArgs, slotDist);
           enableAsw = item.data.asw >= 7;
         } else if (this.parent instanceof Ship || this.parent instanceof Enemy) {
           // 通常航空戦火力計算
-          powers = Calculator.getAerialFirePowers(item, slotDist, ship, this.calcArgs);
+          this.calcArgs.isAirbaseMode = false;
+          powers = Calculator.getAerialFirePowers(this.calcArgs, slotDist);
         }
 
         const isEnemy = ship instanceof Enemy;
@@ -958,14 +1114,14 @@ export default Vue.extend({
           row.disabledASW = true;
           continue;
         } else if (maxDamage === 0) {
-          if (maxSlot > 0) {
+          if (this.maxSlot > 0) {
             // 攻撃機かつ搭載数があるのにダメージ0
             row.damage = `${this.$t('Result.割合ダメージ')}`;
           } else {
             row.damage = '';
           }
         } else if (minDamage === 0) {
-          if (minSlot > 0) {
+          if (this.minSlot > 0) {
             // 全滅してないのに0なら割合
             row.damage = `${this.$t('Result.割合ダメージ')} ~ ${maxDamage}`;
           } else {
@@ -980,7 +1136,7 @@ export default Vue.extend({
         row.chuha = Math.floor(damageBorders[2].rate * 1000) / 10;
       }
     },
-    bootTooltip(item: Item, e: MouseEvent) {
+    bootItemTooltip(item: Item, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (!item.data.id || setting.disabledItemTooltip) {
         return;
@@ -989,14 +1145,75 @@ export default Vue.extend({
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = e.clientX;
-        this.tooltipY = rect.y + rect.height;
+        this.tooltipY = rect.y - rect.height;
         this.tooltipItem = item;
-        this.enabledTooltip = true;
+        this.enabledItemTooltip = true;
       }, 400);
     },
     clearTooltip() {
-      this.enabledTooltip = false;
+      this.enabledItemTooltip = false;
+      this.enabledDamageDetailTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    bootDamageDetailTooltip(row: DamageRowData, e: MouseEvent) {
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('tooltip-anchor')[0] as HTMLDivElement;
+      this.tooltipTimer = window.setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = e.clientX;
+        this.tooltipY = rect.y;
+        this.enabledDamageDetailTooltip = true;
+        this.preCapTerms = [];
+        this.postCapTerms = [];
+
+        const isSubmarine = row.ship.data.type === SHIP_TYPE.SS || row.ship.data.type === SHIP_TYPE.SSV;
+        const args = this.calcArgs;
+        args.item = this.selectedItem;
+        args.slot = this.useResult ? Math.floor((this.maxSlot + this.minSlot) / 2) : this.attackerSlot;
+        args.defense = row.ship;
+
+        if (this.parent instanceof Airbase) {
+          // 基地の場合
+          args.isAirbaseMode = true;
+          if (isSubmarine) {
+            // 対潜の場合
+            this.preCapTerms = Calculator.getAirbasePreCapAswAttackPowers(args);
+            for (let i = 0; i < this.preCapTerms.length; i += 1) {
+              const preCapTerm = this.preCapTerms[i];
+              this.postCapTerms.push(Calculator.getAirbasePostCapAswAttackPower(args, preCapTerm.baseFirePower, preCapTerm.typeMultiplier));
+            }
+          } else {
+            this.preCapTerms = Calculator.getPreCapTerms(args);
+            for (let i = 0; i < this.preCapTerms.length; i += 1) {
+              const preCapTerm = this.preCapTerms[i];
+              this.postCapTerms.push(Calculator.getPostCapAttackPower(args, preCapTerm.preCapFirePower));
+            }
+          }
+        } else {
+          args.isAirbaseMode = false;
+          this.preCapTerms = Calculator.getPreCapTerms(args);
+          for (let i = 0; i < this.preCapTerms.length; i += 1) {
+            const preCapTerm = this.preCapTerms[i];
+            this.postCapTerms.push(Calculator.getPostCapAttackPower(args, preCapTerm.preCapFirePower));
+          }
+        }
+
+        this.maxArmor = Math.floor(100 * (row.ship.actualArmor * 1.3 - 0.6)) / 100;
+        this.minArmor = Math.floor(100 * row.ship.actualArmor * 0.7) / 100;
+      }, 400);
+    },
+    getDamageRangeString(power: number): string {
+      if (!power) return '-';
+
+      const maxDamage = Math.floor((power - this.minArmor) * this.ammo);
+      const minDamage = Math.floor((power - this.maxArmor) * this.ammo);
+
+      if (maxDamage <= 0) {
+        return `${this.$t('Result.割合ダメージ')}`;
+      }
+      if (minDamage <= 0) {
+        return `${this.$t('Result.割合ダメージ')} ~ ${maxDamage}`;
+      }
+      return `${minDamage} ~ ${maxDamage}`;
     },
     copySlotRate() {
       const textToCopy = document.getElementById('slot-rate-table-string') as HTMLInputElement;
