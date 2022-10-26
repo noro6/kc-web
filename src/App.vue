@@ -809,8 +809,7 @@ export default Vue.extend({
         }
         if (this.urlFragments.predeck && this.loadAndOpenFromDeckBuilder(this.urlFragments.predeck)) {
           informText.push('編成の読み込み');
-        }
-        if (this.urlFragments.saveData) {
+        } else if (this.urlFragments.saveData) {
           const urlData = SaveData.decodeURLSaveData(this.urlFragments.saveData);
           urlData.isMain = true;
           urlData.isActive = true;
@@ -1230,7 +1229,7 @@ export default Vue.extend({
         return;
       }
       try {
-        this.urlFragments.saveData = `${json.saveData}`;
+        this.urlFragments.saveData = json.saveData ? `${json.saveData}` : '';
       } catch (e) {
         console.error(e);
       }
