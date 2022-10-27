@@ -85,15 +85,16 @@
         <v-tabs v-model="tab">
           <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
           <v-tab href="#detail">{{ $t("Result.残機数詳細") }}</v-tab>
+        </v-tabs>
+        <v-divider></v-divider>
+        <v-tabs-items v-model="tab">
           <v-tab-item value="contact">
-            <v-divider></v-divider>
             <contact-rates :fleet="value" />
           </v-tab-item>
           <v-tab-item value="detail">
-            <v-divider></v-divider>
             <plane-detail-result :parent="value" :index="index" />
           </v-tab-item>
-        </v-tabs>
+        </v-tabs-items>
       </v-card>
     </v-dialog>
   </v-card>

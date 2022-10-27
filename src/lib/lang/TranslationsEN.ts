@@ -355,6 +355,7 @@ export default {
       '艦隊詳細': 'Details',
       '艦隊情報': 'Information',
       '対空砲火': 'Fleet Anti-Air Defense',
+      '航空戦火力': 'Airstrike Damage',
       '対潜支援火力': 'ASW Support Damage',
       '航空支援火力': 'Airstrike Support Damage',
       '撃墜': 'Prop,Fixed',

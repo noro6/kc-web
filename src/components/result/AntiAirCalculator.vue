@@ -144,6 +144,9 @@
   padding-top: 2px;
   padding-bottom: 2px;
 }
+.v-data-table tbody tr:hover {
+  background-color: rgba(128, 128, 128, 0.1) !important;
+}
 .stage2-row.warn {
   background-color: rgba(255, 255, 10, 0.1) !important;
 }

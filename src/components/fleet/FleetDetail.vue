@@ -8,28 +8,31 @@
       </v-btn>
     </div>
     <v-divider class="mb-1"></v-divider>
-    <v-tabs v-model="tab">
+    <v-tabs v-model="tab" show-arrows>
       <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
       <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
+      <v-tab href="#airstrike">{{ $t("Fleet.航空戦火力") }}</v-tab>
+      <v-tab href="#airstrike-support">{{ $t("Fleet.航空支援火力") }}</v-tab>
       <v-tab href="#anti-submarine">{{ $t("Fleet.対潜支援火力") }}</v-tab>
-      <v-tab href="#airstrike">{{ $t("Fleet.航空支援火力") }}</v-tab>
-      <v-tab-item value="stage2" class="detail-fleet">
-        <v-divider></v-divider>
+    </v-tabs>
+    <v-divider></v-divider>
+    <v-tabs-items class="detail-fleet" v-model="tab">
+      <v-tab-item value="stage2">
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
       </v-tab-item>
-      <v-tab-item value="contact" class="detail-fleet">
-        <v-divider></v-divider>
+      <v-tab-item value="contact">
         <contact-rates :fleet="fleet" ref="contactRates" />
       </v-tab-item>
-      <v-tab-item value="anti-submarine" class="detail-fleet">
-        <v-divider></v-divider>
-        <anti-submarine-support :fleet="fleet" />
+      <v-tab-item value="airstrike">
+        <airstrike-calculator-wrapper :fleet="fleet" />
       </v-tab-item>
-      <v-tab-item value="airstrike" class="detail-fleet">
-        <v-divider></v-divider>
+      <v-tab-item value="airstrike-support">
         <airstrike-support :fleet="fleet" />
       </v-tab-item>
-    </v-tabs>
+      <v-tab-item value="anti-submarine">
+        <anti-submarine-support :fleet="fleet" />
+      </v-tab-item>
+    </v-tabs-items>
   </v-card>
 </template>
 
@@ -53,6 +56,7 @@ import ContactRates from '@/components/result/ContactRates.vue';
 import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import AirstrikeSupport from '@/components/result/AirstrikeSupport.vue';
 import AntiSubmarineSupport from '@/components/result/AntiSubmarineSupport.vue';
+import AirstrikeCalculatorWrapper from '@/components/result/AirstrikeCalculatorWrapper.vue';
 
 export default Vue.extend({
   name: 'FleetDetail',
@@ -61,6 +65,7 @@ export default Vue.extend({
     AntiSubmarineSupport,
     AntiAirCalculator,
     ContactRates,
+    AirstrikeCalculatorWrapper,
   },
   props: {
     fleet: {

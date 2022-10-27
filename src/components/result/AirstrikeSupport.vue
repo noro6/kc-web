@@ -332,11 +332,11 @@ export default Vue.extend({
     const { fleets } = this.calcManager.battleInfo;
     // 防御側セレクトに敵艦隊をセット
     for (let i = 0; i < fleets.length; i += 1) {
-      const enabledShips = fleets[i].enemies.filter((v) => v.data.id);
+      const enabledEnemies = fleets[i].enemies.filter((v) => v.data.id);
       this.defenseFleets.push({
         text: `${this.$t('Result.x戦目', { number: i + 1 })}`,
         value: i,
-        ships: enabledShips,
+        ships: enabledEnemies,
         isUnion: fleets[i].isUnion,
       });
     }
@@ -353,7 +353,7 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     enabledShips(): Ship[] {
-      return this.fleet.ships.filter((v) => v.items.some((w) => w.fullSlot));
+      return this.fleet.ships.filter((v) => v.items.some((w) => w.data.isAttacker));
     },
     items(): Item[] {
       const ship = this.enabledShips[this.selectedShipIndex];
@@ -363,7 +363,7 @@ export default Vue.extend({
       return [];
     },
     selectedItem(): Item {
-      return this.items[this.selectedItemIndex];
+      return this.items[this.selectedItemIndex] ?? new Item();
     },
     defenseFleet() {
       return this.defenseFleets[this.defenseIndex];
