@@ -51,7 +51,8 @@
       <div class="my-8">
         <v-btn
           block
-          color="purple darken-1"
+          :dark="!!deckBuilder"
+          color="deep-purple darken-3"
           :disabled="!deckBuilder"
           :href="`http://kancolle-calc.net/deckbuilder.html?predeck=${encodeURIComponent(deckBuilder)}`"
           target="_blank"
