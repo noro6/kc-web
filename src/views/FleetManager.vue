@@ -19,39 +19,45 @@
         <items />
       </v-tab-item>
       <v-tab-item value="read">
-        <div class="general-container pa-4 my-2">
-          <v-card class="tutorial_box">
+        <div class="general-container px-4 my-2">
+          <div class="tutorial_box pa-0">
+            <v-btn :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
+              <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>
+              <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
+            </v-btn>
+          </div>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>1. {{ $t("Database.艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。") }}</div>
             <div>※ {{ $t("Database.以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial1.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>2. {{ $t("Database.ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial2.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>3. {{ $t("Database.コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial3.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>4. {{ $t("Database.4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial4.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>5. {{ $t("Database.手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。") }}</div>
             <div class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial5.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>
               6.
               {{
@@ -71,7 +77,7 @@
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>
+            <div v-if="showHowToDoIt">
               7. {{ $t("Database.下記のJavaScriptコードをconsoleに貼り付け、Enterを押下する。") }} ※
               {{
                 $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順8の入力欄に貼り付けることができます。")
@@ -83,9 +89,9 @@
                 <v-tab href="#item_code">{{ $t("Fleet.装備") }}</v-tab>
               </v-tabs>
             </div>
+            <v-divider class="mb-3"></v-divider>
             <v-tabs-items v-model="code_tab" :touchless="true">
               <v-tab-item value="ship_code">
-                <v-divider></v-divider>
                 <div class="d-flex mt-2">
                   <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
@@ -107,7 +113,7 @@
                     value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
                   />
                 </div>
-                <v-card class="copy_code" elevation="4">
+                <v-card class="mt-6 copy_code" elevation="4">
                   <div>
                     copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
                     v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
@@ -118,7 +124,6 @@
                 </v-card>
               </v-tab-item>
               <v-tab-item value="item_code">
-                <v-divider></v-divider>
                 <div class="d-flex mt-2">
                   <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
@@ -149,10 +154,10 @@
                 </v-card>
               </v-tab-item>
             </v-tabs-items>
-            <div class="tutorial_img">
+            <div v-if="showHowToDoIt" class="tutorial_img">
               <v-img :src="`./img/tutorial/tutorial7.jpg`" />
             </div>
-            <div class="warning_box mt-3">
+            <div v-if="showHowToDoIt" class="warning_box mt-3">
               <div>{{ $t("Database.注意事項") }}</div>
               <div class="mt-1">
                 {{
@@ -174,7 +179,7 @@
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div>8. {{ $t("Database.下記の反映エリアに、手順7でコピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+            <div v-if="showHowToDoIt">8. {{ $t("Database.下記の反映エリアに、手順7でコピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
@@ -400,6 +405,7 @@ export default Vue.extend({
     kantaiSarashiURL: '',
     loading: false,
     successCopy: false,
+    showHowToDoIt: false,
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
