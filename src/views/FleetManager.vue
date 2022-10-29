@@ -96,12 +96,12 @@
                   <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
                   </v-btn>
-                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
+                  <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
                     <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
                     <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
                   </v-radio-group>
                   <input
-                    v-if="includeUnLocked"
+                    v-if="includeUnLockedShip"
                     id="ships-read-code"
                     type="text"
                     value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}),['id','lv','st','exp','ex','area']))"
@@ -117,7 +117,7 @@
                   <div>
                     copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
                     v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
-                      v-if="!includeUnLocked"
+                      v-if="!includeUnLockedShip"
                       >.filter(v=>v.locked)</span
                     >,['id','lv','st','exp','ex','area']))
                   </div>
@@ -128,12 +128,12 @@
                   <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
                     {{ $t(`Common.コードをコピー`) }}
                   </v-btn>
-                  <v-radio-group v-model="includeUnLocked" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
+                  <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
                     <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
                     <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
                   </v-radio-group>
                   <input
-                    v-if="includeUnLocked"
+                    v-if="includeUnLockedItem"
                     id="item-read-code"
                     type="text"
                     value="copy(JSON.stringify(Object.entries(temp1.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}),['id','lv']))"
@@ -148,7 +148,7 @@
                 <v-card class="copy_code" elevation="4">
                   <div>
                     copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return
-                    {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLocked">.filter(v=>v.locked)</span
+                    {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLockedItem">.filter(v=>v.locked)</span
                     >,['id','lv']))
                   </div>
                 </v-card>
@@ -386,7 +386,8 @@ export default Vue.extend({
   data: () => ({
     tab: 'ship',
     code_tab: 'ship_code',
-    includeUnLocked: true,
+    includeUnLockedShip: true,
+    includeUnLockedItem: false,
     readResultColor: 'success',
     inputText: '',
     readOnlyMode: false,
@@ -432,7 +433,8 @@ export default Vue.extend({
     this.loading = !this.$store.getters.getCompletedAll;
 
     const setting = this.$store.state.siteSetting as SiteSetting;
-    this.includeUnLocked = setting.isIncludeUnLockCode;
+    this.includeUnLockedShip = setting.isIncludeUnLockShip;
+    this.includeUnLockedItem = setting.isIncludeUnLockItem;
   },
   computed: {
     completed() {
@@ -790,7 +792,8 @@ export default Vue.extend({
     toggleUnLocked(): void {
       // 未ロック艦を含むかどうかのアレ変更時
       const setting = this.$store.state.siteSetting as SiteSetting;
-      setting.isIncludeUnLockCode = this.includeUnLocked;
+      setting.isIncludeUnLockShip = this.includeUnLockedShip;
+      setting.isIncludeUnLockItem = this.includeUnLockedItem;
       this.$store.dispatch('updateSetting', setting);
     },
   },

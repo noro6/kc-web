@@ -94,8 +94,11 @@ export default class SiteSetting {
   /** 艦娘一覧 検索条件保存値 */
   public savedShipListFilter: { isFinalOnly: boolean }
 
-  /** 艦隊分析コード ロック済みを含むかどうかの記憶 */
-  public isIncludeUnLockCode: boolean;
+  /** 艦隊分析コード ロック済み(艦娘)を含むかどうかの記憶 */
+  public isIncludeUnLockShip: boolean;
+
+  /** 艦隊分析コード ロック済み(艦娘)を含むかどうかの記憶 */
+  public isIncludeUnLockItem: boolean;
 
   /** ブラックリスト装備 */
   public blacklistItemIds: number[];
@@ -135,7 +138,8 @@ export default class SiteSetting {
       // 特効表示一時停止
       this.displayBonusType = 0;
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
-      this.isIncludeUnLockCode = !!setting.isIncludeUnLockCode;
+      this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
+      this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -207,7 +211,8 @@ export default class SiteSetting {
       this.contentOrder = [];
       this.displayBonusType = 0;
       this.blacklistItemIds = [337];
-      this.isIncludeUnLockCode = true;
+      this.isIncludeUnLockShip = true;
+      this.isIncludeUnLockItem = false;
     }
   }
 }
