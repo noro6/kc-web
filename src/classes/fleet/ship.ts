@@ -511,8 +511,7 @@ export default class Ship implements ShipBase {
       sumRemodelBonusFirePower += items[i].bonusFire;
     }
 
-    const isCV = ship.data.type === SHIP_TYPE.CV || ship.data.type === SHIP_TYPE.CVL || ship.data.type === SHIP_TYPE.CVB;
-    if (isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker))) {
+    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker))) {
       // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆)
       dayBattleFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) + sumRemodelBonusFirePower + correct)) + 55;
     } else {
@@ -530,8 +529,7 @@ export default class Ship implements ShipBase {
    */
   public static getSupportFirePower(ship: Ship): number {
     let supportFirePower = 0;
-    const isCV = ship.data.type === SHIP_TYPE.CV || ship.data.type === SHIP_TYPE.CVL || ship.data.type === SHIP_TYPE.CVB;
-    if (isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker))) {
+    if (ship.data.isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker))) {
       // 空母系 山汐丸
       supportFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) - 1)) + 55;
     } else {
@@ -1177,7 +1175,7 @@ export default class Ship implements ShipBase {
     }
 
     // 空母夜戦判定
-    if (this.data.type === SHIP_TYPE.CV || this.data.type === SHIP_TYPE.CVL || this.data.type === SHIP_TYPE.CVB) {
+    if (this.data.isCV) {
       // 夜間航空攻撃発動判定
       if ([545, 599, 610, 883].includes(this.data.id) || items.some((v) => v.data.id === 258 || v.data.id === 259)) {
         const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45).length;

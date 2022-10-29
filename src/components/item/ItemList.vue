@@ -189,6 +189,8 @@
             </div>
             <template v-if="!multiLine">
               <div class="item-status" v-if="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
+              <div class="item-status" v-if="isShowDayBattleFire && isAircraftMode">{{ formatStatus(v.item.aircraftDayBattleFirePower) }}</div>
+              <div class="item-status" v-else-if="isShowDayBattleFire">{{ formatStatus(v.item.dayBattleFirePower) }}</div>
               <div class="item-status" v-if="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
               <div class="item-status" v-if="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
               <div class="item-status" v-if="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
@@ -203,7 +205,7 @@
               <div class="item-status" v-if="isShowAntiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
               <div class="item-status" v-if="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
               <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus / 100) }}</div>
-              <div class="item-status" v-if="isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
+              <div class="item-status" v-if="isAirbaseMode && isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
               <div class="item-status" v-if="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
               <div class="item-status" v-if="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
               <div class="item-status" v-if="isShowAvoidText">

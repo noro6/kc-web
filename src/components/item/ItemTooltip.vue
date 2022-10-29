@@ -24,6 +24,12 @@
         </span>
         <span v-if="value.bonusFire" class="remodel-bonus">&plus; {{ formatStatus(value.bonusFire) }}</span>
       </div>
+      <div v-if="value.dayBattleFirePower !== value.aircraftDayBattleFirePower">
+        <span class="item-status-text">{{ $t("Common.砲戦火力") }}</span>
+        <span class="item-status-value" :class="{ 'bad-status': value.aircraftDayBattleFirePower < 0 }">
+          {{ formatStatus2(value.aircraftDayBattleFirePower) }}
+        </span>
+      </div>
       <div v-if="value.data.torpedo || value.bonusTorpedo || itemBonus.torpedo">
         <span class="item-status-text">{{ $t("Common.雷装") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.torpedo < 0 }">{{ value.data.torpedo }}</span>
@@ -50,11 +56,11 @@
         </span>
         <span v-if="value.bonusAntiAir" class="remodel-bonus">&plus; {{ formatStatus(value.bonusAntiAir) }}</span>
       </div>
-      <div v-if="value.data.isPlane && value.actualAntiAir !== (value.data.antiAir + value.bonusAntiAir)">
+      <div v-if="value.data.isPlane && value.actualAntiAir !== value.data.antiAir + value.bonusAntiAir">
         <span class="item-status-text">{{ $t("Common.出撃対空") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.actualAntiAir < 0 }">{{ formatStatus2(value.actualAntiAir) }}</span>
       </div>
-      <div v-if="value.data.isPlane && value.actualDefenseAntiAir !== (value.data.antiAir + value.bonusAntiAir)">
+      <div v-if="value.data.isPlane && value.actualDefenseAntiAir !== value.data.antiAir + value.bonusAntiAir">
         <span class="item-status-text">{{ $t("Common.防空対空") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.actualDefenseAntiAir < 0 }">{{ formatStatus2(value.actualDefenseAntiAir) }}</span>
       </div>

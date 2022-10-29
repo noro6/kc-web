@@ -1,3 +1,4 @@
+import { SHIP_TYPE } from '../const';
 import { MasterShip } from '../interfaces/master';
 /**
  * 艦娘マスタクラス
@@ -102,6 +103,9 @@ export default class ShipMaster {
   /** 搭載弾薬 */
   public readonly ammo: number;
 
+  /** 空母か */
+  public readonly isCV: boolean
+
   /**
    * Creates an instance of ShipMaster.
    * @param {MasterShip} ship
@@ -175,6 +179,8 @@ export default class ShipMaster {
       this.fuel = 0;
       this.ammo = 0;
     }
+
+    this.isCV = this.type === SHIP_TYPE.CV || this.type === SHIP_TYPE.CVL || this.type === SHIP_TYPE.CVB;
   }
 
   /**

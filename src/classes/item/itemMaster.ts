@@ -113,6 +113,9 @@ export default class ItemMaster {
   /** 雷装による攻撃を行うかどうか => 現行では火力計算で0.8倍1.5倍が発生するのに使う */
   public readonly isTorpedoAttacker: boolean;
 
+  /** 水上機かどうか */
+  public readonly isSPPlane: boolean;
+
   /** 特効情報 */
   public readonly bonuses: {type:number, text: string, subText: string}[];
 
@@ -187,6 +190,7 @@ export default class ItemMaster {
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
     this.isStrictDepthCharge = Const.STRICT_DEPTH_CHARGE.includes(this.id);
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
+    this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
 
     if (!this.isSpecial) {
       this.isSpecial = this.isRocket || this.enabledAttackLandBase;

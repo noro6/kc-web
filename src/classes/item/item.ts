@@ -68,6 +68,12 @@ export default class Item {
   /** 改修効果込み実火力値 */
   public readonly actualFire: number;
 
+  /** 昼砲撃戦火力(通常) */
+  public readonly dayBattleFirePower: number;
+
+  /** 昼砲撃戦火力(空母) */
+  public readonly aircraftDayBattleFirePower: number;
+
   /** 制空値計算時に適用される実対空値 */
   public readonly actualAntiAir: number;
 
@@ -208,6 +214,8 @@ export default class Item {
     this.actualAsw = this.data.asw + this.bonusAsw;
     this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
     this.actualScout = this.data.scout + this.bonusScout;
+    this.dayBattleFirePower = this.data.fire + this.bonusFire;
+    this.aircraftDayBattleFirePower = this.data.fire + this.bonusFire;
 
     this.calculatedAirPower = [];
     this.calculatedDefenseAirPower = [];
@@ -217,6 +225,10 @@ export default class Item {
       this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
       // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
       this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomber + this.bonusAntiAir;
+      // 砲撃戦火力
+      if (!this.data.isSPPlane) {
+        this.aircraftDayBattleFirePower = (this.dayBattleFirePower + this.data.torpedo + Math.floor(1.3 * this.data.bomber)) * 1.5;
+      }
 
       // 出撃コスト算出
       this.fuel = this.fullSlot;

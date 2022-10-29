@@ -96,7 +96,7 @@ export default class ShipValidation {
       }
 
       // 甲板 空母補強増設対応
-      if ((item.id === 477 || item.id === 478) && (ship.type === SHIP_TYPE.CV || ship.type === SHIP_TYPE.CVL || ship.type === SHIP_TYPE.CVB)) {
+      if ((item.id === 477 || item.id === 478) && ship.isCV) {
         return true;
       }
 
