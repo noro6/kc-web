@@ -218,7 +218,7 @@ export default Vue.extend({
     async showUploadDialog() {
       if (this.saveData) {
         this.dataName = this.saveData.name.trim();
-        this.dataRemarks = this.saveData.remarks.trim();
+        this.dataRemarks = this.saveData.remarks ? this.saveData.remarks.trim() : '';
         await (this.uploadDialog = true);
         const form = this.$refs.uploadSaveDataComp as InstanceType<typeof UploadSaveData>;
         if (form) {

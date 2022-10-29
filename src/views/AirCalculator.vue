@@ -190,7 +190,7 @@ export default Vue.extend({
         }
 
         // 補足情報の置き換え
-        this.editedRemarks = saveData.remarks;
+        this.editedRemarks = saveData.remarks ?? '';
 
         // マスターの再読み込み
         const items = this.$store.state.items as ItemMaster[];
@@ -228,7 +228,7 @@ export default Vue.extend({
         const saveData = root.getMainData();
         if (saveData) {
           // 補足情報の置き換え
-          this.editedRemarks = saveData.remarks;
+          this.editedRemarks = saveData.remarks ?? '';
         } else {
           // なぜかデータが消え去ったのでトップページに戻す
           this.$store.dispatch('setMainSaveData', undefined);
