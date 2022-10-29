@@ -39,6 +39,7 @@ export default {
       '防空制空': 'Def FP',
       'x機': '{number} slots',
       '装備名称': 'Name',
+      '図鑑ID': 'No.',
       '耐久': 'HP',
       '火力': 'FP',
       '砲戦火力': 'Day Battle FP',
@@ -143,6 +144,9 @@ export default {
       '本当に削除しますか？': 'Are you sure you want to delete it?',
       '装備特効表示': 'Equipment Bonuses',
       'なし': 'None',
+      'ソート': 'Order',
+      '昇順': 'Ascending',
+      '降順': 'Descending',
     },
     Difficulty: {
       '難易度': 'Difficulty',

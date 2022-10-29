@@ -25,11 +25,11 @@
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
-          <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
+          <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
             <span class="white--text">{{ $t("ItemList.一列") }}</span>
           </v-btn>
-          <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
+          <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
             <span class="white--text">{{ $t("ItemList.複数列") }}</span>
           </v-btn>
@@ -98,8 +98,13 @@
     <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
     <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
+        <div class="pl-1">
+          <v-btn icon small @click="sortDialog = true">
+            <v-icon small>mdi-sort</v-icon>
+          </v-btn>
+        </div>
         <div
-          class="item-status text-left flex-grow-1 pl-1"
+          class="item-status text-left flex-grow-1"
           @click="toggleSortKey('name')"
           :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }"
         >
@@ -240,6 +245,34 @@
     <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog">
       <blacklist-item-edit :handle-close="closeBlacklist"></blacklist-item-edit>
     </v-dialog>
+    <v-dialog v-model="sortDialog" width="600">
+      <v-card class="px-3 py-3">
+        <div class="d-flex px-2 align-center">
+          <div>{{ $t("Common.ソート") }}</div>
+          <v-btn class="ml-auto" icon @click="sortDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider class="mt-2 mb-3"></v-divider>
+        <div class="sort-selector px-2">
+          <div class="sort-key" v-for="(item, j) in sortKeyItems" :key="`key${j}`">
+            <v-btn block text :class="{ primary: item.value === sortKey }" @click="selectSortKey(item.value)">
+              {{ $t(`Common.${item.text}`) }}
+            </v-btn>
+          </div>
+        </div>
+        <div class="d-flex justify-center">
+          <v-radio-group v-model="isDesc" row hide-detail @change="handleSortItem">
+            <v-radio  class="mx-10" :label="$t('Common.昇順')" :value="false"></v-radio>
+            <v-radio  class="mx-10" :label="$t('Common.降順')" :value="true"></v-radio>
+          </v-radio-group>
+        </div>
+        <v-divider></v-divider>
+        <div class="d-flex mt-3 justify-end">
+          <v-btn color="secondary" @click="resetOrdering">{{ $t("ItemList.リセット") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -263,6 +296,16 @@
 }
 .filter-value-input {
   width: 80px;
+}
+
+.sort-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.sort-key {
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .type-selector {
@@ -349,7 +392,7 @@
   background-color: rgba(255, 128, 128, 0.1);
 }
 .list-item.has-bonus {
-  border-color:rgba(3, 169, 244, 0.8);
+  border-color: rgba(3, 169, 244, 0.8);
 }
 .list-item.single.has-bonus {
   padding-left: 6px;
@@ -582,6 +625,7 @@ export default Vue.extend({
     confirmItem: { item: new Item(), count: 0 },
     headerItems: [
       { text: '火力', key: 'actualFire' },
+      { text: '砲戦火力', key: 'dayBattleFirePower' },
       { text: '雷装', key: 'actualTorpedo' },
       { text: '爆装', key: 'actualBomber' },
       { text: '対空', key: 'antiAir' },
@@ -610,8 +654,10 @@ export default Vue.extend({
     filterStatus: 'radius',
     filterStatusItems: [] as { text: string; value: string }[],
     filterStatusValue: 0,
+    sortKeyItems: [] as { text: string; value: string }[],
     blacklistDialog: false,
     blacklistItems: [] as number[],
+    sortDialog: false,
   }),
   mounted() {
     this.types = [];
@@ -636,15 +682,23 @@ export default Vue.extend({
     this.setting = this.$store.state.siteSetting as SiteSetting;
     this.changeMultiLine(this.setting.isMultiLineForItemList);
 
+    this.sortKeyItems.push({ text: '図鑑ID', value: 'id' });
     for (let i = 0; i < this.headerItems.length; i += 1) {
       const { text, key } = this.headerItems[i];
-      if (text === '対潜' && this.filterStatusItems.find((v) => v.text === '対潜')) {
+      if (text === '対潜' && this.filterStatusItems.find((v) => v.text === this.$t('Common.対潜'))) {
         continue;
       }
       this.filterStatusItems.push({ text: `${this.$t(`Common.${text}`)}`, value: key });
+      this.sortKeyItems.push({ text, value: key });
     }
   },
   computed: {
+    isAirbaseMode(): boolean {
+      return this.itemParent instanceof Airbase;
+    },
+    isAircraftMode(): boolean {
+      return this.itemParent instanceof Ship && (this.itemParent.data.isCV || ([352, 717].includes(this.itemParent.data.id)));
+    },
     itemListData(): { typeName: string; items: { item: Item; count: number }[] }[] {
       const targetItems = this.viewItems;
       if (this.multiLine) {
@@ -699,6 +753,9 @@ export default Vue.extend({
     },
     isShowFire(): boolean {
       return this.viewStatus.includes('actualFire');
+    },
+    isShowDayBattleFire(): boolean {
+      return this.viewStatus.includes('dayBattleFirePower');
     },
     isShowTorpedo(): boolean {
       return this.viewStatus.includes('actualTorpedo');
@@ -923,7 +980,7 @@ export default Vue.extend({
       const filterData = { parent: 'ship' as 'ship' | 'airbase', key: this.filterStatus, value: this.filterStatusValue };
       if (this.itemParent instanceof Ship) {
         filterData.parent = 'ship';
-      } else if (this.itemParent instanceof Airbase) {
+      } else if (this.isAirbaseMode) {
         filterData.parent = 'airbase';
       } else {
         this.filter();
@@ -996,14 +1053,19 @@ export default Vue.extend({
       // カテゴリ検索
       const t = this.types.find((v) => v.id === this.type);
       if (!word && this.type && t) {
-        this.viewStatus = t.viewStatus;
+        this.viewStatus = t.viewStatus.concat();
+
+        if (!this.isAirbaseMode && this.viewStatus.includes('radius')) {
+          // 基地じゃない場合に半径が含まれていたら、砲撃戦火力に置換
+          this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
+        }
         result = result.filter((v) => t.types.includes(v.apiTypeId));
       } else if (!word && this.type === -1) {
         // カテゴリ全て検索
         if (this.itemParent instanceof Ship) {
           // 艦娘 -全て
-          this.viewStatus = ['actualFire', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'asw'];
-        } else if (this.itemParent instanceof Airbase) {
+          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'asw'];
+        } else if (this.isAirbaseMode) {
           // 基地 -全て
           this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
         } else {
@@ -1212,11 +1274,55 @@ export default Vue.extend({
         this.selectedType.sortKey = this.sortKey;
       }
     },
+    selectSortKey(value: string) {
+      if (this.sortKey === value) {
+        // もうソートされてるので何もせず
+        return;
+      }
+      // 初回は基本的に降順
+      this.isDesc = value !== 'id';
+
+      // ソート任意設定
+      this.sortKey = value;
+      this.handleSortItem();
+    },
+    handleSortItem() {
+      // 昇順降順変更
+      this.sortItems();
+      // 選択中のカテゴリにソートを記憶
+      if (this.selectedType) {
+        this.selectedType.isDesc = this.isDesc;
+        this.selectedType.sortKey = this.sortKey;
+      }
+    },
+    resetOrdering() {
+      this.sortKey = '';
+      this.filter();
+
+      // 選択中のカテゴリにソートを記憶
+      if (this.selectedType) {
+        this.selectedType.isDesc = this.isDesc;
+        this.selectedType.sortKey = this.sortKey;
+      }
+    },
     sortItems() {
-      const key = this.sortKey;
+      let key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
       const isNameSort = key === 'name';
-      const isActualValue = key.indexOf('actual') >= 0 || key === 'tp' || key === 'airPower' || key === 'defenseAirPower' || key === 'antiAirWeight' || key === 'antiAirBonus';
+
+      // 装備マスタの値でソートできないものたち
+      const isActualValue = key.indexOf('actual') >= 0
+        || key === 'tp'
+        || key === 'airPower'
+        || key === 'defenseAirPower'
+        || key === 'antiAirWeight'
+        || key === 'antiAirBonus'
+        || key === 'dayBattleFirePower';
+
+      if (key === 'dayBattleFirePower' && this.isAircraftMode) {
+        // 空母モードなら砲撃戦火力を空母式にする
+        key = 'aircraftDayBattleFirePower';
+      }
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {
           return desc * ((b.item[key] as number) - (a.item[key] as number));
