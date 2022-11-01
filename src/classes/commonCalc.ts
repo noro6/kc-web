@@ -96,12 +96,16 @@ export default class CommonCalc {
 
   /**
    * キャップ適用値を返却
+   * @static
    * @param {number} power キャップ前火力
    * @param {number} cap キャップ値
+   * @param {number} [a5=1]
+   * @param {number} [b5=0]
    * @returns {number} キャップ後火力
+   * @memberof CommonCalc
    */
-  public static softCap(power: number, cap: number): number {
-    return Math.floor(power > cap ? cap + Math.sqrt(power - cap) : power);
+  public static softCap(power: number, cap: number, a5 = 1, b5 = 0): number {
+    return Math.floor((power > cap ? cap + Math.sqrt(power - cap) : power) * a5 + b5);
   }
 
   /**

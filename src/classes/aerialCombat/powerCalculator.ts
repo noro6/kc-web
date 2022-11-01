@@ -208,7 +208,7 @@ export default class AerialFirePowerCalculator {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.1倍
           torpedoMultiplier = 1.1;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
-        } else if (item.data.id === 444 && !(shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2)) {
+        } else if ((item.data.id === 444 || item.data.id === 484) && !(shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2)) {
           // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
           torpedoMultiplier = 1.15;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
@@ -328,16 +328,20 @@ export default class AerialFirePowerCalculator {
       if (isBomber && [1665, 1666, 1667].includes(defense.data.id)) {
         // 砲台小鬼 爆撃特効1.55
         bomberMultiplier = 1.55;
+        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
       } else if (isBomber && [1668, 1669, 1671, 1672].includes(defense.data.id)) {
         // 離島棲姫 爆撃特効1.7
         bomberMultiplier = 1.7;
+        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
       } else if (defense.data.name.indexOf('集積地') >= 0) {
         // 集積地姫 爆撃特効2.1 基地航空特効 +100
         bomberMultiplier = isBomber ? 2.1 : 1;
         LBASModifiers = 100;
+        // a5 b5補正のため計算しなおし
+        finalFirePower = CommonCalc.softCap(power, CAP.AS, bomberMultiplier, LBASModifiers);
+      } else {
+        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
       }
-
-      finalFirePower = Math.floor(finalFirePower * bomberMultiplier) + LBASModifiers;
     }
 
     if (args.isCritical) {
