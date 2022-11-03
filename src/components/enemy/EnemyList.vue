@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <div class="d-flex pt-2 pb-1 pr-2">
-        <div class="align-self-center ml-3">{{ $t('Enemies.敵艦選択') }}</div>
+        <div class="align-self-center ml-3">{{ $t("Enemies.敵艦選択") }}</div>
         <v-spacer></v-spacer>
         <v-btn icon @click="close">
           <v-icon>mdi-close</v-icon>
@@ -32,23 +32,29 @@
       </div>
       <v-divider class="mx-3"></v-divider>
       <div class="enemy-table-container pa-3">
-        <div class="enemy-table-body">
-          <div
-            v-ripple="{ class: 'info--text' }"
-            v-for="(enemy, i) in enemies"
-            :key="i"
-            class="enemy-list"
-            @click="clickedEnemy(enemy)"
-            @mouseenter="bootTooltip(enemy, $event)"
-            @mouseleave="clearTooltip"
-          >
-            <div>
-              <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
-            </div>
-            <div class="flex-grow-1 ml-1">
-              <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
-              <div class="d-flex">
-                <div class="enemy-name text-truncate">{{ getEnemyName(enemy.name) }}</div>
+        <div v-for="(row, i) in enemies" :key="`type${i}`">
+          <div class="type-divider">
+            <div class="caption text--secondary">{{ needTrans ? $t(row.name) : row.name }}</div>
+            <div class="type-divider-border"></div>
+          </div>
+          <div class="enemy-table-body">
+            <div
+              v-ripple="{ class: 'info--text' }"
+              v-for="(enemy, j) in row.enemies"
+              :key="j"
+              class="enemy-list"
+              @click="clickedEnemy(enemy)"
+              @mouseenter="bootTooltip(enemy, $event)"
+              @mouseleave="clearTooltip"
+            >
+              <div>
+                <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
+              </div>
+              <div class="flex-grow-1 ml-1">
+                <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
+                <div class="d-flex">
+                  <div class="enemy-name text-truncate">{{ getEnemyName(enemy.name) }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -105,6 +111,18 @@
   pointer-events: none;
 }
 
+.type-divider {
+  margin-top: 1rem;
+  display: flex;
+  width: 100%;
+}
+.type-divider-border {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+
 .enemy-list {
   display: flex;
   cursor: pointer;
@@ -156,7 +174,7 @@ export default Vue.extend({
   },
   data: () => ({
     all: [] as EnemyMaster[],
-    enemies: [] as EnemyMaster[],
+    enemies: [] as { name: string; enemies: EnemyMaster[] }[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
     isLandBase: false,
@@ -223,7 +241,27 @@ export default Vue.extend({
         result = result.filter((v) => !v.isLandBase && t.types.includes(v.type));
       }
 
-      this.enemies = result;
+      const nameDividers: string[] = [];
+      for (let i = 0; i < result.length; i += 1) {
+        // てっぺん4文字でだいたい判定できるのでてっぺん4文字を取得
+        const divName = result[i].name.substring(0, 4);
+        if (!nameDividers.includes(divName)) {
+          nameDividers.push(divName);
+        }
+      }
+
+      console.log(nameDividers);
+
+      this.enemies = [];
+      for (let i = 0; i < nameDividers.length; i += 1) {
+        const nameDiv = nameDividers[i];
+        const enemies = result.filter((v) => v.name.startsWith(nameDiv));
+
+        if (enemies.length) {
+          const name = EnemyMaster.getSuffix(enemies[0].name)[0];
+          this.enemies.push({ name, enemies });
+        }
+      }
     },
     clickedEnemy(enemy: EnemyMaster) {
       this.clearTooltip();

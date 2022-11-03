@@ -122,6 +122,7 @@ export default class EnemyMaster {
 
     const flagship = targetString.split('flagship');
     if (flagship.length >= 2) {
+      resultNames.push(flagship[0]);
       resultNames.push('flagship');
       targetString = `${flagship[1]}`;
     }
