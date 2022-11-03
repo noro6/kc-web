@@ -106,6 +106,9 @@ export default class SiteSetting {
   /** 特効表示タイプ */
   public displayBonusType: number;
 
+  /** 装備マウスホバー時詳細情報カウント */
+  public popUpCount: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -140,6 +143,7 @@ export default class SiteSetting {
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
+      this.popUpCount = setting.popUpCount ?? 400;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -213,6 +217,7 @@ export default class SiteSetting {
       this.blacklistItemIds = [337];
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;
+      this.popUpCount = 400;
     }
   }
 }

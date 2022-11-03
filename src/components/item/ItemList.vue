@@ -1349,7 +1349,7 @@ export default Vue.extend({
         this.tooltipItem = item;
         this.tooltipBonus = bonus ? JSON.stringify(bonus) : '';
         this.enabledTooltip = true;
-      }, 400);
+      }, Math.max(setting.popUpCount, 100));
     },
     clearTooltip() {
       this.enabledTooltip = false;

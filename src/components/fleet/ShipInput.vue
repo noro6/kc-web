@@ -858,7 +858,7 @@ export default Vue.extend({
         }
 
         this.tooltipBonus = JSON.stringify(totalBonus);
-      }, 400);
+      }, Math.max(setting.popUpCount, 100));
     },
     bootShipTooltip(e: MouseEvent) {
       this.tooltipTimer = window.setTimeout(() => {

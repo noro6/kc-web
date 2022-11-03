@@ -174,6 +174,7 @@ export default {
       '確認ダイアログを表示する': 'Display confirmation dialog',
       '装備マウスホバー時の詳細情報表示': 'Display of detailed equipment information',
       '詳細情報を表示しない': 'Do not show detailed information',
+      '表示までのディレイ': 'Delay to display',
       '制空計算時のシミュレーション回数': 'Number of simulations',
       '数値が大きいほど計算の精度が上がりますが、': 'Larger values increase the accuracy of the calculation, but decrease performance during the calculation.',
       '計算時のパフォーマンスが低下します。': '',

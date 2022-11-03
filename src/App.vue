@@ -351,8 +351,19 @@
               <div class="body-2">{{ $t("Setting.装備マウスホバー時の詳細情報表示") }}</div>
               <div class="header-divider"></div>
             </div>
-            <div class="ml-3 mt-2 d-flex">
+            <div class="ml-3 mt-2 d-flex align-center">
               <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.詳細情報を表示しない')"></v-checkbox>
+              <v-text-field
+                class="ml-6"
+                type="number"
+                :label="$t('Setting.表示までのディレイ')"
+                max="10000"
+                min="100"
+                suffix="ms"
+                v-model.number="setting.popUpCount"
+                :rules="[rules.popUpRange]"
+                :disabled="setting.disabledItemTooltip"
+              ></v-text-field>
             </div>
           </div>
           <div>
@@ -584,6 +595,7 @@ export default Vue.extend({
     unsubscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
+      popUpRange: (value: number) => !(value < 100 || value > 10000) || '100 ～ 10000で指定してください。',
     },
     readOnlyMode: false,
     disabledUpload: true,
@@ -871,7 +883,9 @@ export default Vue.extend({
             this.selectableFleets.push({
               selected: i === 0,
               fleet,
-              supportTypeName: fleet.getSupportTypeNames().map((v) => this.$t(`Result.${v}`))
+              supportTypeName: fleet
+                .getSupportTypeNames()
+                .map((v) => this.$t(`Result.${v}`))
                 .join(' / '),
             });
           }
