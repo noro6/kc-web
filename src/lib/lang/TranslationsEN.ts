@@ -91,6 +91,7 @@ export default {
       '加重対空': 'Ship AA',
       '艦隊防空': 'Fleet AA',
       '艦隊防空値': 'Fleet AA',
+      'Lv': 'Lv',
       '運': 'Luck',
       '速力': 'Speed',
       '総搭載数': 'Slot',

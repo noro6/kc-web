@@ -1,7 +1,7 @@
 <template>
   <v-card>
-    <div class="d-flex py-2 pr-2">
-      <div class="align-self-center ship-search-text ml-5">
+    <div class="d-flex py-2 pr-2 align-center">
+      <div class="ship-search-text ml-5">
         <v-text-field
           dense
           hide-details
@@ -13,6 +13,20 @@
         ></v-text-field>
       </div>
       <v-spacer></v-spacer>
+      <div class="mr-3 ship-sort-select">
+        <v-select
+          dense
+          :placeholder="$t('Common.ソート')"
+          hide-details
+          v-model="sortKey"
+          :items="sortKeys"
+          item-value="value"
+          :item-text="(item) => $t('Common.' + item.text)"
+          @input="filter()"
+          clearable
+          prepend-inner-icon="mdi-sort-descending"
+        />
+      </div>
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
@@ -97,8 +111,13 @@
       </div>
       <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
-          <div class="caption text--secondary">{{ getShipTypeName(typeData.typeName) }}</div>
+          <div class="caption text--secondary" v-if="sortKey">
+            {{ selectedSortText }} {{ typeData.typeName }}
+            <span class="caption2">{{ $t("ItemList.以上") }}</span>
+          </div>
+          <div class="caption text--secondary" v-else>{{ getShipTypeName(typeData.typeName) }}</div>
           <div class="type-divider-border"></div>
+          <div class="mx-2 text--secondary caption">({{ typeData.ships.length }})</div>
         </div>
         <div :class="{ multi: multiLine }">
           <div
@@ -124,9 +143,14 @@
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
-                <div v-if="isStockOnly" class="primary--text ship-level">Lv: {{ data.level }}</div>
-                <div v-if="isStockOnly">{{ $t("Common.運") }}: {{ data.luck }}</div>
-                <div v-else class="primary--text">id: {{ data.ship.id }}</div>
+                <div class="primary--text ship-level mr-1">
+                  <template v-if="isStockOnly">Lv: {{ data.level }}</template>
+                  <template v-else>id: {{ data.ship.id }}</template>
+                </div>
+                <div v-if="displayLuck">{{ $t("Common.運") }}: {{ data.luck }}</div>
+                <div v-else class="sort-status">
+                  <div>{{ selectedSortText }}: {{ data.sortValue }}</div>
+                </div>
               </div>
               <div class="d-flex">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
@@ -172,6 +196,9 @@
 }
 .ship-search-text {
   width: 200px;
+}
+.ship-sort-select {
+  width: 150px;
 }
 
 .type-selector {
@@ -263,8 +290,19 @@
   margin-left: 0.1rem;
 }
 .ship-level {
-  width: 40px;
+  min-width: 36px;
 }
+.sort-status {
+  position: relative;
+}
+.sort-status > div {
+  position: absolute;
+  white-space: nowrap;
+}
+.caption2 {
+  font-size: 11px;
+}
+
 .ship-name {
   flex-grow: 1;
   font-size: 0.8em;
@@ -361,6 +399,8 @@ export interface ViewShip {
   /** 対潜 改修値!! */
   asw: number;
   expanded: boolean;
+  /** ソート用ステータス */
+  sortValue: number;
 }
 
 export default Vue.extend({
@@ -387,6 +427,19 @@ export default Vue.extend({
     type: 0,
     isFinalOnly: true,
     keyword: '' as string | undefined,
+    sortKey: '',
+    sortKeys: [
+      { text: 'Lv', value: 'level' },
+      { text: '運', value: 'luck' },
+      { text: '火力', value: 'fire' },
+      { text: '雷装', value: 'torpedo' },
+      { text: '夜戦火力', value: 'nightBattleFirePower' },
+      { text: '対空', value: 'antiAir' },
+      { text: '対潜', value: 'asw' },
+      { text: '索敵', value: 'scout' },
+      { text: '装甲', value: 'armor' },
+      { text: '回避', value: 'avoid' },
+    ],
     multiLine: true,
     isStockOnly: false,
     shipStock: [] as ShipStock[],
@@ -437,6 +490,17 @@ export default Vue.extend({
     needTrans(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    displayLuck(): boolean {
+      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck';
+    },
+    selectedSortText(): string {
+      if (this.sortKey) {
+        const key = this.sortKeys.find((v) => v.value === this.sortKey);
+        return key ? `${this.$t(`Common.${key.text}`)}` : '';
+      }
+
+      return '';
     },
   },
   methods: {
@@ -602,6 +666,7 @@ export default Vue.extend({
               asw: shipData.improvement.asw,
               area: shipData.area <= this.maxAreas ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
+              sortValue: 0,
             };
 
             // 補強増設開放済み検索
@@ -666,6 +731,7 @@ export default Vue.extend({
             area: -1,
             asw: 0,
             expanded: false,
+            sortValue: 0,
           });
         }
       }
@@ -673,14 +739,62 @@ export default Vue.extend({
       // 艦型に応じて分けたい
       const altTypes = Const.SHIP_TYPES_ALT_INFO;
       const resultShips = [];
-      for (let i = 0; i < altTypes.length; i += 1) {
-        const type = altTypes[i];
-        const ships = viewShips.filter((v) => v.ship.type2 === type.id);
-        if (ships.length) {
-          // 母港ソート
-          ships.sort((a, b) => a.ship.sort - b.ship.sort);
-          // 存在する艦型を生成
-          resultShips.push({ typeName: type.name, ships });
+      if (!this.sortKey) {
+        for (let i = 0; i < altTypes.length; i += 1) {
+          const type = altTypes[i];
+          const ships = viewShips.filter((v) => v.ship.type2 === type.id);
+          if (ships.length) {
+            // 母港ソート
+            ships.sort((a, b) => a.ship.sort - b.ship.sort);
+            // 存在する艦型を生成
+            resultShips.push({ typeName: type.name, ships });
+          }
+        }
+      } else {
+        // 何らかのソート値がある場合
+        const key = this.sortKey;
+
+        let maxValue = 0;
+        for (let i = 0; i < viewShips.length; i += 1) {
+          const v = viewShips[i];
+          // ソート用のステータスに値を設定
+          if (key === 'level') {
+            v.sortValue = v.level;
+          } else if (key === 'luck') {
+            v.sortValue = v.luck;
+          } else if (key === 'scout') {
+            v.sortValue = Ship.getStatusFromLevel(v.level, v.ship.maxScout, v.ship.minScout);
+          } else if (key === 'avoid') {
+            v.sortValue = Ship.getStatusFromLevel(v.level, v.ship.maxAvoid, v.ship.minAvoid);
+          } else if (key === 'asw') {
+            v.sortValue = v.asw + Ship.getStatusFromLevel(v.level, v.ship.maxAsw, v.ship.minAsw);
+          } else if (key === 'nightBattleFirePower') {
+            v.sortValue = v.ship.fire + v.ship.torpedo;
+          } else {
+            v.sortValue = (v.ship as unknown as { [key: string]: number })[key];
+          }
+
+          if (maxValue < v.sortValue) {
+            maxValue = v.sortValue;
+          }
+        }
+
+        // 並び替えてしまう
+        (viewShips as []).sort((a: ViewShip, b: ViewShip) => {
+          if (a.sortValue !== b.sortValue) {
+            return b.sortValue - a.sortValue;
+          }
+          return a.ship.sort - b.ship.sort;
+        });
+
+        // 最大値を10の倍数に均す
+        maxValue = Math.floor(maxValue / 10) * 10;
+        // 値毎にタイプ分け
+        for (let i = maxValue; i >= 0; i -= 10) {
+          const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10);
+          if (ships.length) {
+            resultShips.push({ typeName: `${i}`, ships });
+          }
         }
       }
 
@@ -706,6 +820,7 @@ export default Vue.extend({
       this.$store.dispatch('updateSetting', this.setting);
     },
     bootTooltip(viewShip: ViewShip, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
@@ -720,7 +835,7 @@ export default Vue.extend({
         });
         this.tooltipShip = ship;
         this.enabledTooltip = true;
-      }, 400);
+      }, Math.max(setting.popUpCount, 100));
     },
     clearTooltip() {
       this.enabledTooltip = false;
