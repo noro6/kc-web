@@ -835,7 +835,7 @@ export default Vue.extend({
         });
         this.tooltipShip = ship;
         this.enabledTooltip = true;
-      }, Math.max(setting.popUpCount, 100));
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;

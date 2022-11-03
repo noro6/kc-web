@@ -157,7 +157,7 @@ export default Vue.extend({
         this.tooltipY = rect.y + rect.height;
         this.tooltipItem = item;
         this.enabledTooltip = true;
-      }, Math.max(setting.popUpCount, 100));
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;

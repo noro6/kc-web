@@ -648,6 +648,7 @@ export default Vue.extend({
       if (!enemy.data.id) {
         return;
       }
+      const setting = this.$store.state.siteSetting as SiteSetting;
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('text-id')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
@@ -655,7 +656,7 @@ export default Vue.extend({
         this.tooltipY = rect.y + rect.height;
         this.tooltipEnemy = enemy;
         this.enabledTooltip = true;
-      }, 400);
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;

@@ -739,6 +739,7 @@ export default Vue.extend({
       window.clearTimeout(this.tooltipTimer);
     },
     bootDamageDetailTooltip(row: DamageRowData, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('tooltip-anchor')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
@@ -782,7 +783,7 @@ export default Vue.extend({
 
         this.maxArmor = Math.floor(100 * (row.ship.actualArmor * 1.3 - 0.6)) / 100;
         this.minArmor = Math.floor(100 * row.ship.actualArmor * 0.7) / 100;
-      }, 400);
+      }, Math.max(setting.popUpCount, 10));
     },
     getDamageRangeString(power: number): string {
       if (!power) return '-';

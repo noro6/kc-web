@@ -595,7 +595,7 @@ export default Vue.extend({
     unsubscribe: undefined as unknown,
     rules: {
       simulationCountRange: (value: number) => !(value < 100 || value > 100000) || '100 ～ 100000で指定してください。',
-      popUpRange: (value: number) => !(value < 100 || value > 10000) || '100 ～ 10000で指定してください。',
+      popUpRange: (value: number) => !(value < 10 || value > 10000) || '10 ～ 10000で指定してください。',
     },
     readOnlyMode: false,
     disabledUpload: true,
@@ -1197,8 +1197,8 @@ export default Vue.extend({
 
         if (this.setting.popUpCount > 10000) {
           this.setting.popUpCount = 10000;
-        } else if (this.setting.popUpCount < 100) {
-          this.setting.popUpCount = 100;
+        } else if (this.setting.popUpCount < 10) {
+          this.setting.popUpCount = 10;
         }
 
         this.$store.dispatch('updateSetting', this.setting);

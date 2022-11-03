@@ -951,6 +951,7 @@ export default Vue.extend({
       return 'fuel-normal';
     },
     bootTooltip(fuel: number, ammo: number, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
@@ -958,7 +959,7 @@ export default Vue.extend({
 
         this.fuelCorr = fuel < 75 ? `${75 - fuel}` : '';
         this.ammoCorr = ammo < 50 ? `× ${(ammo * 2) / 100}` : '';
-      }, 400);
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;

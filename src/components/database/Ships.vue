@@ -1460,6 +1460,7 @@ export default Vue.extend({
       return name;
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
@@ -1472,7 +1473,7 @@ export default Vue.extend({
         });
         this.tooltipShip = toolTipShip;
         this.enabledTooltip = true;
-      }, 400);
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;
