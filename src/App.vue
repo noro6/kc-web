@@ -1195,6 +1195,12 @@ export default Vue.extend({
           this.setting.simulationCount = 100;
         }
 
+        if (this.setting.popUpCount > 10000) {
+          this.setting.popUpCount = 10000;
+        } else if (this.setting.popUpCount < 100) {
+          this.setting.popUpCount = 100;
+        }
+
         this.$store.dispatch('updateSetting', this.setting);
       }
     },
