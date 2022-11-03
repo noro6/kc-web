@@ -250,8 +250,6 @@ export default Vue.extend({
         }
       }
 
-      console.log(nameDividers);
-
       this.enemies = [];
       for (let i = 0; i < nameDividers.length; i += 1) {
         const nameDiv = nameDividers[i];
