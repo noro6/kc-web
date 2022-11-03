@@ -21,6 +21,9 @@
             >)
           </span>
         </div>
+        <div></div>
+        <div></div>
+        <div></div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
         <div>{{ value.displayStatus.firePower }}</div>
         <div>
@@ -29,11 +32,14 @@
             >)
           </span>
         </div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
+        <div>{{ supportFirePower }}</div>
+        <div></div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
         <div>{{ dayBattleFirePower }}</div>
         <div></div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
-        <div>{{ supportFirePower }}</div>
+        <div class="caption grey--text text--lighten-1">{{ $t("Common.夜戦火力") }}</div>
+        <div>{{ Math.floor(value.nightBattleFirePower) }}</div>
         <div></div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
         <div>{{ value.displayStatus.armor }}</div>
@@ -188,7 +194,7 @@ table {
 
 .status-container {
   display: grid;
-  grid-template-columns: 1fr 1fr auto 1fr 1fr auto;
+  grid-template-columns: repeat(6, auto);
   column-gap: 0.5rem;
 }
 .status-container > div:nth-child(3n - 1) {

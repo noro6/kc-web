@@ -43,6 +43,7 @@ export default {
       '耐久': 'HP',
       '火力': 'FP',
       '砲戦火力': 'Day Battle FP',
+      '夜戦火力': 'Night Battle FP',
       '支援火力': 'Support FP',
       '雷装': 'Torp',
       '爆装': 'Bombing',

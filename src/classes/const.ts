@@ -106,7 +106,7 @@ export const CAP = {
   AS: 170,
   BATTLE: 220,
   SUPPORT: 170,
-  NIGHT: 350,
+  NIGHT: 360,
 } as const;
 type CAP = typeof CAP[keyof typeof CAP];
 

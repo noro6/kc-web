@@ -32,8 +32,11 @@ export default class Item {
   /** 搭載数 */
   public readonly fullSlot: number;
 
-  /** 改修値による火力値増分 */
+  /** 改修値による火力値増分(昼) */
   public readonly bonusFire: number;
+
+  /** 改修値による火力値増分(夜) */
+  public readonly bonusNightFire: number;
 
   /** 改修値による雷装値増分 */
   public readonly bonusTorpedo: number;
@@ -194,6 +197,7 @@ export default class Item {
     this.bonusAirPower = this.getBonusAirPower();
     this.antiAirWeight = this.getAntiAirWeight();
     this.bonusFire = this.getBonusFirePower();
+    this.bonusNightFire = this.getBonusNightFirePower();
     this.bonusTorpedo = this.getBonusTorpedo();
     this.bonusBomber = this.getBonusBomber();
     this.bonusAntiAir = this.getBonusAntiAir();
@@ -410,9 +414,12 @@ export default class Item {
       // 一部副砲
       if ([10, 66, 220, 275].includes(this.data.id)) {
         return 0.2 * this.remodel;
-      } if ([12, 234, 247].includes(this.data.id)) {
+      }
+
+      if ([12, 234, 247].includes(this.data.id)) {
         return 0.3 * this.remodel;
       }
+
       return Math.sqrt(this.remodel);
     }
     // ソナー 爆雷
@@ -423,6 +430,36 @@ export default class Item {
     if ([8, 7].includes(this.data.apiTypeId) && !this.data.isBakusen) {
       return 0.2 * this.remodel;
     }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス火力を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusNightFirePower(): number {
+    // 主砲 / 副砲 / 魚雷 / 三式弾 / 徹甲弾 / 探照灯 / 高射装置 / 大発 / 水上艦要員 / 航空要員 / 特型内火艇 / 対地装備 / 司令部施設
+    if ([1, 2, 4, 5, 18, 19, 24, 29, 34, 35, 36, 37, 39, 42, 46].includes(this.data.apiTypeId)) {
+      if ([10, 66, 220, 275].includes(this.data.id)) {
+        // 一部副砲
+        return 0.2 * this.remodel;
+      }
+
+      if ([12, 234, 247].includes(this.data.id)) {
+        // 一部副砲その2
+        return 0.3 * this.remodel;
+      }
+
+      return Math.sqrt(this.remodel);
+    }
+
+    // 潜水艦魚雷
+    if (this.data.apiTypeId === 32) {
+      return 0.2 * this.remodel;
+    }
+
     return 0;
   }
 
@@ -503,14 +540,35 @@ export default class Item {
     if ([14, 15].includes(type)) {
       return Math.sqrt(this.remodel);
     }
+
     // 艦攻
     if (type === 8) {
       return 0.2 * this.remodel;
     }
+
     // 艦爆 (爆戦ってついてないやつ)
     if (type === 7 && !this.data.isBakusen) {
       return 0.2 * this.remodel;
     }
+
+    // 対潜哨戒機
+    if (type === 26) {
+      if (this.data.asw > 8) {
+        return 0.3 * this.remodel;
+      }
+
+      return 0.2 * this.remodel;
+    }
+
+    // オートジャイロ
+    if (type === 25) {
+      if (this.data.asw > 10) {
+        return 0.3 * this.remodel;
+      }
+
+      return 0.2 * this.remodel;
+    }
+
     return 0;
   }
 

@@ -79,6 +79,9 @@ export default class Ship implements ShipBase {
   /** 計算で適用する運 */
   public readonly luck: number;
 
+  /** 夜戦火力 */
+  public readonly nightBattleFirePower: number;
+
   /** 計算で適用する対空 */
   public readonly antiAir: number;
 
@@ -253,6 +256,7 @@ export default class Ship implements ShipBase {
     this.enabledTSBK = false;
     this.enabledASWSupport = false;
     this.sumSPRos = 0;
+    this.nightBattleFirePower = 0;
 
     // 以下、計算により算出するステータス
     // レベルより算出
@@ -405,6 +409,9 @@ export default class Ship implements ShipBase {
         // 夜偵発動率 = (int(sqrt(偵察機索敵值)*sqrt(Lv))) / 25
         nightContactFailureRate -= nightContactFailureRate * (Math.floor(Math.sqrt(item.data.scout) * Math.sqrt(this.level)) / 25);
       }
+
+      // 夜戦火力
+      this.nightBattleFirePower += item.bonusNightFire;
     }
 
     this.nightContactRate = 1 - nightContactFailureRate;
@@ -426,6 +433,9 @@ export default class Ship implements ShipBase {
       this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
       this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
     }
+
+    // 夜戦火力加算
+    this.nightBattleFirePower += (this.displayStatus.firePower + this.displayStatus.torpedo);
 
     // 雷装ボーナス適用装備抽出 & セット
     if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
