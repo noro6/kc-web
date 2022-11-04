@@ -170,7 +170,6 @@ export default Vue.extend({
     stockData: undefined as undefined | SaveData,
     setting: new SiteSetting(),
     sortMode: false,
-    saveTriggerTimer: undefined as undefined | number,
     editedRemarks: '',
   }),
   mounted() {
@@ -374,21 +373,16 @@ export default Vue.extend({
         resultForm.moreCalculateRequested = count > 0;
       }
 
-      if (this.saveTriggerTimer) {
-        window.clearTimeout(this.saveTriggerTimer);
-      }
-      if (mainData.isUnsaved) {
-        // 未保存の編成だった場合、適当なタイミングでmanagerを更新しておく
-        this.saveTriggerTimer = window.setTimeout(() => {
-          try {
-            mainData.saveManagerData();
-            const saveData = this.$store.state.saveData as SaveData;
-            this.$store.dispatch('updateSaveData', saveData);
-          } catch (error) {
-            // 対処済み(どうせ編成はもう閉じてるのでしなくていい)
-            console.error(error);
-          }
-        }, 100);
+      if (mainData.isUnsaved || this.setting.enabledAutoSave) {
+        // データの保存
+        try {
+          mainData.saveManagerData();
+          const saveData = this.$store.state.saveData as SaveData;
+          this.$store.dispatch('updateSaveData', saveData);
+        } catch (error) {
+          // 対処済み(どうせ編成はもう閉じてるのでしなくていい)
+          console.error(error);
+        }
       }
 
       if (count > 0) {

@@ -94,6 +94,9 @@ export default class SiteSetting {
   /** 艦娘一覧 検索条件保存値 */
   public savedShipListFilter: { isFinalOnly: boolean }
 
+  /** 艦娘一覧 検索条件保存値 */
+  public savedShipListSortKey: string;
+
   /** 艦隊分析コード ロック済み(艦娘)を含むかどうかの記憶 */
   public isIncludeUnLockShip: boolean;
 
@@ -108,6 +111,9 @@ export default class SiteSetting {
 
   /** 装備マウスホバー時詳細情報カウント */
   public popUpCount: number;
+
+  /** 編成データのオートセーブ */
+  public enabledAutoSave: boolean;
 
   constructor(setting?: SiteSetting) {
     if (setting) {
@@ -138,12 +144,14 @@ export default class SiteSetting {
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
+      this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
       // 特効表示一時停止
       this.displayBonusType = 0;
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
       this.popUpCount = setting.popUpCount ?? 400;
+      this.enabledAutoSave = !!setting.enabledAutoSave;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -193,9 +201,8 @@ export default class SiteSetting {
       this.locale = 'ja';
       this.nameIsNotTranslate = false;
       this.savedItemListFilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
-      this.savedShipListFilter = {
-        isFinalOnly: true,
-      };
+      this.savedShipListFilter = { isFinalOnly: true };
+      this.savedShipListSortKey = '';
 
       this.planeInitialLevels = [
         { id: 6, level: 100 },
@@ -218,6 +225,7 @@ export default class SiteSetting {
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;
       this.popUpCount = 400;
+      this.enabledAutoSave = false;
     }
   }
 }

@@ -265,32 +265,7 @@
               <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :label="$t('Setting.艦娘や装備名は翻訳しない')"></v-checkbox>
             </div>
           </div>
-          <div></div>
-          <div class="pt-5">
-            <div class="d-flex">
-              <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
-              <div class="header-divider"></div>
-            </div>
-            <div class="ml-3 mt-2">
-              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
-                {{ $t("Setting.通常") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }" :small="!isJapanese">
-                {{ $t("Setting.空色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }" :small="!isJapanese">
-                {{ $t("Setting.桜色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }" :small="!isJapanese">
-                {{ $t("Setting.翠色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }" :small="!isJapanese">
-                {{ $t("Setting.暗色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }" :small="!isJapanese">
-                {{ $t("Setting.深海") }}
-              </v-btn>
-            </div>
+          <div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.装備表示UI調整") }}</div>
               <div class="header-divider"></div>
@@ -323,6 +298,32 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="pt-5">
+            <div class="d-flex">
+              <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3 mt-2">
+              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
+                {{ $t("Setting.通常") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }" :small="!isJapanese">
+                {{ $t("Setting.空色") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }" :small="!isJapanese">
+                {{ $t("Setting.桜色") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }" :small="!isJapanese">
+                {{ $t("Setting.翠色") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }" :small="!isJapanese">
+                {{ $t("Setting.暗色") }}
+              </v-btn>
+              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }" :small="!isJapanese">
+                {{ $t("Setting.深海") }}
+              </v-btn>
+            </div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
               <div class="header-divider"></div>
@@ -330,6 +331,16 @@
             <div class="ml-3">
               <div class="d-flex">
                 <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')"></v-checkbox>
+                <v-spacer></v-spacer>
+              </div>
+            </div>
+            <div class="d-flex mt-5">
+              <div class="body-2">{{ $t("Setting.編成データのオートセーブ") }}</div>
+              <div class="header-divider"></div>
+            </div>
+            <div class="ml-3">
+              <div class="d-flex">
+                <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')"></v-checkbox>
                 <v-spacer></v-spacer>
               </div>
             </div>
