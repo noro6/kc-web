@@ -113,11 +113,10 @@
         <div class="type-divider">
           <div class="caption text--secondary" v-if="sortKey">
             {{ selectedSortText }} {{ typeData.typeName }}
-            <span class="caption2">{{ $t("ItemList.以上") }}</span>
+            <span class="caption2" v-if="typeData.needOrOver">{{ $t("ItemList.以上") }}</span>
           </div>
           <div class="caption text--secondary" v-else>{{ getShipTypeName(typeData.typeName) }}</div>
           <div class="type-divider-border"></div>
-          <div class="mx-2 text--secondary caption">({{ typeData.ships.length }})</div>
         </div>
         <div :class="{ multi: multiLine }">
           <div
@@ -439,6 +438,9 @@ export default Vue.extend({
       { text: '索敵', value: 'scout' },
       { text: '装甲', value: 'armor' },
       { text: '回避', value: 'avoid' },
+      { text: '燃料', value: 'fuel' },
+      { text: '弾薬', value: 'ammo' },
+      { text: '運改修', value: 'luckRemodel' },
     ],
     multiLine: true,
     isStockOnly: false,
@@ -554,6 +556,7 @@ export default Vue.extend({
 
       // 設置値復元
       this.isFinalOnly = this.setting.savedShipListFilter.isFinalOnly;
+      this.sortKey = this.setting.savedShipListSortKey ?? '';
 
       // 一時所持情報データがあるなら
       if (this.$store.getters.getExistsTempStock) {
@@ -584,6 +587,7 @@ export default Vue.extend({
       const t = this.types[this.type];
 
       this.setting.savedShipListFilter.isFinalOnly = this.isFinalOnly;
+      this.setting.savedShipListSortKey = this.sortKey;
       this.$store.dispatch('updateSetting', this.setting);
 
       // 検索語句あればこれ以外の検索はしない
@@ -762,6 +766,8 @@ export default Vue.extend({
             v.sortValue = v.level;
           } else if (key === 'luck') {
             v.sortValue = v.luck;
+          } else if (key === 'luckRemodel') {
+            v.sortValue = v.luck - v.ship.luck;
           } else if (key === 'scout') {
             v.sortValue = Ship.getStatusFromLevel(v.level, v.ship.maxScout, v.ship.minScout);
           } else if (key === 'avoid') {
@@ -770,6 +776,10 @@ export default Vue.extend({
             v.sortValue = v.asw + Ship.getStatusFromLevel(v.level, v.ship.maxAsw, v.ship.minAsw);
           } else if (key === 'nightBattleFirePower') {
             v.sortValue = v.ship.fire + v.ship.torpedo;
+          } else if (key === 'fuel') {
+            v.sortValue = v.level >= 100 ? Math.max(Math.floor(v.ship.fuel * 0.85), 1) : v.ship.fuel;
+          } else if (key === 'ammo') {
+            v.sortValue = v.level >= 100 ? Math.max(Math.floor(v.ship.ammo * 0.85), 1) : v.ship.ammo;
           } else {
             v.sortValue = (v.ship as unknown as { [key: string]: number })[key];
           }
@@ -787,13 +797,24 @@ export default Vue.extend({
           return a.ship.sort - b.ship.sort;
         });
 
-        // 最大値を10の倍数に均す
-        maxValue = Math.floor(maxValue / 10) * 10;
-        // 値毎にタイプ分け
-        for (let i = maxValue; i >= 0; i -= 10) {
-          const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10);
-          if (ships.length) {
-            resultShips.push({ typeName: `${i}`, ships });
+        if (key === 'luckRemodel') {
+          // 値毎にタイプ分け
+          for (let i = maxValue; i >= 0; i -= 1) {
+            const ships = viewShips.filter((v) => v.sortValue === i);
+            if (ships.length) {
+              const typeName = i ? `+${i}` : '0';
+              resultShips.push({ typeName, ships });
+            }
+          }
+        } else {
+          // 最大値を10の倍数に均す
+          maxValue = Math.floor(maxValue / 10) * 10;
+          // 値毎にタイプ分け
+          for (let i = maxValue; i >= 0; i -= 10) {
+            const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10);
+            if (ships.length) {
+              resultShips.push({ typeName: `${i}`, ships, needOrOver: true });
+            }
           }
         }
       }
@@ -820,7 +841,6 @@ export default Vue.extend({
       this.$store.dispatch('updateSetting', this.setting);
     },
     bootTooltip(viewShip: ViewShip, e: MouseEvent) {
-      const setting = this.$store.state.siteSetting as SiteSetting;
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
@@ -835,7 +855,7 @@ export default Vue.extend({
         });
         this.tooltipShip = ship;
         this.enabledTooltip = true;
-      }, Math.max(setting.popUpCount, 10));
+      }, Math.max(this.setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;

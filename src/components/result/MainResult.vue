@@ -112,7 +112,7 @@
             </td>
           </tr>
           <tr class="tr-status tr-fuel-ammo">
-            <td class="text-center" colspan="2">{{ $t("Result.燃料") }} &amp; {{ $t("Result.弾薬") }}</td>
+            <td class="text-center" colspan="2">{{ $t("Common.燃料") }} &amp; {{ $t("Common.弾薬") }}</td>
             <td v-for="(row, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
               <div class="d-flex flex-wrap justify-end" @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)" @mouseleave="clearTooltip">
                 <div class="d-flex">
