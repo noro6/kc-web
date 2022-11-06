@@ -644,6 +644,7 @@ export default Vue.extend({
       { text: 'コスト', key: 'cost' },
       { text: 'TP', key: 'tp' },
       { text: '射撃回避', key: 'avoidId' },
+      { text: '射程', key: 'range' },
     ],
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
