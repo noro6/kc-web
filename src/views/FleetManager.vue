@@ -374,7 +374,6 @@ import {
   child, getDatabase, push, ref, set,
 } from 'firebase/database';
 import { getAuth, signInAnonymously, UserCredential } from 'firebase/auth';
-import Const from '@/classes/const';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
 import ShipMaster from '@/classes/fleet/shipMaster';
@@ -681,45 +680,8 @@ export default Vue.extend({
         itemStock = this.$store.state.tempItemStock as ItemStock[];
       }
 
-      if (shipStock && shipStock.length) {
-        const shipJSONRows = [];
-        for (let i = 0; i < shipStock.length; i += 1) {
-          const stock = shipStock[i];
-          const nextLvObj = Const.LEVEL_BORDERS.find((v) => v.lv === stock.level + 1);
-          const nextExp = nextLvObj ? nextLvObj.req - stock.exp : 0;
-          const data = {
-            id: stock.id,
-            lv: stock.level,
-            st: [
-              stock.improvement.fire ? stock.improvement.fire : 0,
-              stock.improvement.torpedo ? stock.improvement.torpedo : 0,
-              stock.improvement.antiAir ? stock.improvement.antiAir : 0,
-              stock.improvement.armor ? stock.improvement.armor : 0,
-              stock.improvement.luck ? stock.improvement.luck : 0,
-              stock.improvement.hp ? stock.improvement.hp : 0,
-              stock.improvement.asw ? stock.improvement.asw : 0,
-            ],
-            exp: [stock.exp, nextExp, 0],
-          };
-          shipJSONRows.push(data);
-        }
-
-        this.kantaiAnalyticsShipsCode = JSON.stringify(shipJSONRows);
-      }
-
-      if (itemStock && itemStock.length && itemStock.some((v) => v.num.some((x) => x > 0))) {
-        const itemJSONRows = [];
-        for (let i = 0; i < itemStock.length; i += 1) {
-          const stock = itemStock[i];
-          for (let remodel = 0; remodel < stock.num.length; remodel += 1) {
-            const count = stock.num[remodel];
-            for (let j = 0; j < count; j += 1) {
-              itemJSONRows.push({ id: stock.id, lv: remodel });
-            }
-          }
-        }
-        this.kantaiAnalyticsItemsCode = JSON.stringify(itemJSONRows);
-      }
+      this.kantaiAnalyticsShipsCode = ShipStock.createFleetAnalyticsCode(shipStock);
+      this.kantaiAnalyticsItemsCode = ItemStock.createFleetAnalyticsCode(itemStock);
     },
     copyShipCode() {
       const textToCopy = document.getElementById('analytics-ship-code') as HTMLInputElement;

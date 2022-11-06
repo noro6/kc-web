@@ -1,3 +1,5 @@
+import Const from '../const';
+
 interface ShipImprovement {
   fire: number;
   torpedo: number;
@@ -34,4 +36,40 @@ export default class ShipStock {
 
   /** 出撃海域札 */
   public area = 0;
+
+  /**
+   * 艦隊分析コードを生成
+   * @static
+   * @param {ShipStock[]} stocks
+   * @returns
+   * @memberof ShipStock
+   */
+  public static createFleetAnalyticsCode(stocks: ShipStock[]): string {
+    const shipJSONRows = [];
+
+    if (stocks && stocks.length) {
+      for (let i = 0; i < stocks.length; i += 1) {
+        const stock = stocks[i];
+        const nextLvObj = Const.LEVEL_BORDERS.find((v) => v.lv === stock.level + 1);
+        const nextExp = nextLvObj ? nextLvObj.req - stock.exp : 0;
+        const data = {
+          id: stock.id,
+          lv: stock.level,
+          st: [
+            stock.improvement.fire ? stock.improvement.fire : 0,
+            stock.improvement.torpedo ? stock.improvement.torpedo : 0,
+            stock.improvement.antiAir ? stock.improvement.antiAir : 0,
+            stock.improvement.armor ? stock.improvement.armor : 0,
+            stock.improvement.luck ? stock.improvement.luck : 0,
+            stock.improvement.hp ? stock.improvement.hp : 0,
+            stock.improvement.asw ? stock.improvement.asw : 0,
+          ],
+          exp: [stock.exp, nextExp, 0],
+        };
+        shipJSONRows.push(data);
+      }
+    }
+
+    return JSON.stringify(shipJSONRows);
+  }
 }

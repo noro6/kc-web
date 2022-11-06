@@ -1317,8 +1317,13 @@ export default Vue.extend({
       }
     },
     downloadBackupFile() {
-      const data = JSON.stringify(this.saveData.getMinifyData());
-      const minify = LZString.compressToUTF16(data);
+      const backUpData = {
+        savedata: this.saveData.getMinifyData(),
+        shipStock: ShipStock.createFleetAnalyticsCode(this.$store.state.shipStock as ShipStock[]),
+        itemStock: ItemStock.createFleetAnalyticsCode(this.$store.state.itemStock as ItemStock[]),
+        ver: 2,
+      };
+      const minify = LZString.compressToUTF16(JSON.stringify(backUpData));
       const blob = new Blob([minify], { type: 'application/octet-stream' });
       saveAs(blob, `backup_${Convert.formatDate(new Date(), 'yyyyMMdd')}`);
     },
@@ -1329,10 +1334,14 @@ export default Vue.extend({
       }
       try {
         const minify = await file.text();
-        const saveDataString = LZString.decompressFromUTF16(minify);
-        // セーブデータとして復元できるかチェック
-        if (saveDataString && SaveData.IsSaveData(JSON.parse(saveDataString) as SaveData)) {
-          this.backupString = saveDataString;
+        const dataString = LZString.decompressFromUTF16(minify) ?? '{}';
+        const backUpData = JSON.parse(dataString);
+        if (backUpData.ver === 2 && SaveData.IsSaveData(backUpData.savedata as SaveData) && backUpData.shipStock && backUpData.itemStock) {
+          // 艦隊 装備分析データチェック
+          this.backupString = dataString;
+        } else if (SaveData.IsSaveData(backUpData as SaveData)) {
+          // セーブデータとして復元できるかチェック
+          this.backupString = dataString;
         } else {
           throw new Error('復号に失敗');
         }
@@ -1350,7 +1359,22 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('/');
         }
-        const saveData = SaveData.getInstance(JSON.parse(str) as SaveData);
+
+        const backUpData = JSON.parse(str);
+        let saveData: SaveData;
+
+        if (backUpData.ver === 2) {
+          saveData = SaveData.getInstance(backUpData.savedata as SaveData);
+          if (backUpData.shipStock) {
+            this.setShipStock(backUpData.shipStock);
+          }
+          if (backUpData.itemStock) {
+            this.setItemStock(backUpData.itemStock);
+          }
+        } else {
+          saveData = SaveData.getInstance(backUpData as SaveData);
+        }
+
         saveData.isReadonly = true;
 
         for (let i = 0; i < saveData.childItems.length; i += 1) {
