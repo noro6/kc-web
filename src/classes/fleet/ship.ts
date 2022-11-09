@@ -521,7 +521,7 @@ export default class Ship implements ShipBase {
       sumRemodelBonusFirePower += items[i].bonusFire;
     }
 
-    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker))) {
+    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker && v.data.apiTypeId !== 11))) {
       // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆)
       dayBattleFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) + sumRemodelBonusFirePower + correct)) + 55;
     } else {

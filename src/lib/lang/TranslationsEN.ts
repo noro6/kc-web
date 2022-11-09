@@ -146,6 +146,7 @@ export default {
       '本当に削除しますか？': 'Are you sure you want to delete it?',
       '装備特効表示': 'Equipment Bonuses',
       'なし': 'None',
+      '鎮守府秋刀魚祭り': 'Saury Festival',
       'ソート': 'Order',
       '昇順': 'Ascending',
       '降順': 'Descending',

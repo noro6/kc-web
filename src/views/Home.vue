@@ -1,7 +1,11 @@
 <template>
   <div class="site-top-container">
     <div class="site-title content">
-      {{ $t("Common.制空権シミュレータ") }} <span class="body-1">v{{ $store.state.siteVersion }}</span>
+      <div>{{ $t("Common.制空権シミュレータ") }}</div>
+      <div class="ml-1 mt-1 body-1">v{{ $store.state.siteVersion }}</div>
+      <div class="ml-1">
+        <v-icon color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+      </div>
     </div>
     <v-card class="site-body content">
       <div class="menu-buttons">
@@ -74,7 +78,10 @@
         </div>
         <div class="ml-4 mt-6 body-2">
           <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
-          <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}</div>
+          <div class="text--secondary">
+            (e.g.)
+            https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
+          </div>
         </div>
       </div>
     </v-card>
@@ -123,6 +130,8 @@
   max-width: 1200px;
 }
 .site-title {
+  display: flex;
+  align-items: center;
   margin-top: 1rem;
   font-size: 1.2em;
 }

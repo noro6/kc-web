@@ -117,7 +117,7 @@ export default class ItemMaster {
   public readonly isSPPlane: boolean;
 
   /** 特効情報 */
-  public readonly bonuses: {type:number, text: string, subText: string}[];
+  public readonly bonuses: { key: string, text: string }[];
 
   /**
    * Creates an instance of ItemMaster.
@@ -201,11 +201,11 @@ export default class ItemMaster {
     }
 
     // 特効テキストを用意
-    this.bonuses = [{ type: -1, text: '', subText: '' }];
+    this.bonuses = [{ key: '', text: '' }];
     const bonuses = Const.SPECIAL_GROUP.filter((v) => v.items.includes(this.id));
     for (let i = 0; i < bonuses.length; i += 1) {
       const bonus = bonuses[i];
-      this.bonuses.push({ type: bonus.type, text: bonus.text, subText: '' });
+      this.bonuses.push({ key: bonus.key, text: bonus.text });
     }
   }
 }

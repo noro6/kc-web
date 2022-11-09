@@ -42,9 +42,14 @@
     <!-- 装備名称 -->
     <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
       {{ itemName }}
-      <div class="item-special-text d-flex" v-if="bonusText">
+      <!-- 秋刀魚特効表示特別対応 -->
+      <div class="saury-bonus" v-if="bonusText === 'Saury'">
+        <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+        <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+      </div>
+      <!-- 特効装備表記 -->
+      <div class="item-special-text" v-else-if="bonusText">
         <div class="align-self-center">{{ bonusText }}</div>
-        <div class="sub-text">{{ '' }}</div>
       </div>
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
@@ -165,6 +170,7 @@
   color: #66bb6a;
 }
 .item-special-text {
+  display: flex;
   background-color: rgba(250, 250, 255, 0.9);
   border: 2px solid rgb(83, 158, 255);
   color: #000;
@@ -179,11 +185,15 @@
   height: 24px;
   top: 0px;
 }
-.sub-text {
-  font-size: 11px;
-  position: relative;
-  right: 0;
-  bottom: 0;
+
+.saury-bonus {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  filter: drop-shadow(0 0 1px #000);
+}
+.theme--dark .saury-bonus {
+  filter: drop-shadow(0 0 3px #000);
 }
 
 .item-remodel {
@@ -420,12 +430,14 @@ export default Vue.extend({
       return classes.join(' ');
     },
     bonusText(): string {
-      const type = (this.$store.state.siteSetting as SiteSetting).displayBonusType;
-      const bonus = this.value.data.bonuses.find((v) => v.type === type);
-      if (bonus) {
-        return bonus.text;
+      if (!this.value.data.id) {
+        return '';
       }
-      return '';
+
+      const key = (this.$store.state.siteSetting as SiteSetting).displayBonusKey;
+      const bonus = this.value.data.bonuses.find((v) => v.key === key);
+
+      return bonus ? bonus.text : '';
     },
   },
   methods: {

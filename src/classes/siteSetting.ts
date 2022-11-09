@@ -106,8 +106,8 @@ export default class SiteSetting {
   /** ブラックリスト装備 */
   public blacklistItemIds: number[];
 
-  /** 特効表示タイプ */
-  public displayBonusType: number;
+  /** 特効表示キー */
+  public displayBonusKey: string;
 
   /** 装備マウスホバー時詳細情報カウント */
   public popUpCount: number;
@@ -145,8 +145,7 @@ export default class SiteSetting {
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
-      // 特効表示一時停止
-      this.displayBonusType = 0;
+      this.displayBonusKey = setting.displayBonusKey ?? 'Saury';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
@@ -220,7 +219,7 @@ export default class SiteSetting {
         { id: 49, level: 25 },
       ];
       this.contentOrder = [];
-      this.displayBonusType = 0;
+      this.displayBonusKey = 'Saury';
       this.blacklistItemIds = [337];
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;

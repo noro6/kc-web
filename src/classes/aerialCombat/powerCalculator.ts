@@ -422,7 +422,6 @@ export default class AerialFirePowerCalculator {
     const b = item.data.asw >= 10 ? 0.3 : 0.45;
 
     // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 25} × {A + (0 ~ Bの乱数)}
-
     const terms: PreCapTerm[] = [];
     // 最小の場合 = {対潜 × √(1.8 × 搭載数) + 25} × {A + 0}
     const minTypeMultiplier = a;
@@ -598,6 +597,18 @@ export default class AerialFirePowerCalculator {
     return powers;
   }
 
+  /**
+   * 航空支援火力計算
+   * @static
+   * @param {Item} item 装備
+   * @param {number} slot 搭載
+   * @param {FirePowerCalcArgs} args
+   * @param {boolean} isEscort
+   * @param {number} rate
+   * @param {boolean} [isJetPhase=false]
+   * @return {*}  {PowerDist[]}
+   * @memberof AerialFirePowerCalculator
+   */
   public static getAirstrikeSupportPower(item: Item, slot: number, args: FirePowerCalcArgs, isEscort: boolean, rate: number, isJetPhase = false): PowerDist[] {
     if (slot <= 0) return [{ power: 0, rate: 1 }];
     let fire = 0;

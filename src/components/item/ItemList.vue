@@ -69,7 +69,7 @@
           ></v-checkbox>
         </div>
       </template>
-      <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusType">
+      <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusKey">
         <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')"></v-checkbox>
       </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
@@ -175,8 +175,13 @@
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
             </div>
-            <div class="item-special-text" v-if="setting.displayBonusType && v.item.data.bonuses.find((v) => v.type === setting.displayBonusType)">
-              <div class="align-self-center">{{ v.item.data.bonuses.find((v) => v.type === setting.displayBonusType).text }}</div>
+            <!-- 秋刀魚特効表示特別対応 -->
+            <div class="saury-bonus" v-if="v.text === 'Saury'">
+              <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+              <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+            </div>
+            <div class="item-special-text" v-else-if="v.text">
+              <div class="align-self-center">{{ v.text }}</div>
             </div>
             <div v-if="v.sumBonus" class="bonus-icon">
               <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
@@ -263,8 +268,8 @@
         </div>
         <div class="d-flex justify-center">
           <v-radio-group v-model="isDesc" row hide-detail @change="handleSortItem">
-            <v-radio  class="mx-10" :label="$t('Common.昇順')" :value="false"></v-radio>
-            <v-radio  class="mx-10" :label="$t('Common.降順')" :value="true"></v-radio>
+            <v-radio class="mx-10" :label="$t('Common.昇順')" :value="false"></v-radio>
+            <v-radio class="mx-10" :label="$t('Common.降順')" :value="true"></v-radio>
           </v-radio-group>
         </div>
         <v-divider></v-divider>
@@ -461,6 +466,24 @@
 .multi .item-special-text {
   left: 0px;
 }
+
+.saury-bonus {
+  position: absolute;
+  left: 1px;
+  top: -5px;
+  filter: drop-shadow(0 0 1px #000);
+  animation: special-text infinite 3s;
+}
+.theme--dark .saury-bonus {
+  filter: drop-shadow(0 0 3px #000);
+}
+.list-item.single.has-bonus .saury-bonus {
+  left: -5px;
+}
+.multi .saury-bonus {
+  left: -5px;
+}
+
 @keyframes special-text {
   0% {
     opacity: 0;
@@ -618,7 +641,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortKey: '',
     isDesc: false,
-    viewItems: [] as { item: Item; count: number; sumBonus: number; bonus: ItemBonusStatus }[],
+    viewItems: [] as { item: Item; count: number; sumBonus: number; bonus: ItemBonusStatus; text: string }[],
     itemStock: [] as ItemStock[],
     usedItems: [] as Item[],
     confirmDialog: false,
@@ -698,9 +721,9 @@ export default Vue.extend({
       return this.itemParent instanceof Airbase;
     },
     isAircraftMode(): boolean {
-      return this.itemParent instanceof Ship && (this.itemParent.data.isCV || ([352, 717].includes(this.itemParent.data.id)));
+      return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717].includes(this.itemParent.data.id));
     },
-    itemListData(): { typeName: string; items: { item: Item; count: number }[] }[] {
+    itemListData(): { typeName: string; items: { item: Item; count: number; text: string }[] }[] {
       const targetItems = this.viewItems;
       if (this.multiLine) {
         const depthChargeLauncher = { id: 1700, name: '爆雷投射機', sortKey: [] };
@@ -710,7 +733,7 @@ export default Vue.extend({
         const resultItems = [];
         for (let i = 0; i < types.length; i += 1) {
           const type = types[i];
-          let items: { item: Item; count: number }[] = [];
+          let items = [];
 
           // 爆雷関係でちょっと分ける
           if (type.id === 15) {
@@ -1014,7 +1037,7 @@ export default Vue.extend({
     filter() {
       const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.baseItems.concat();
-      const bonusType = this.setting.displayBonusType;
+      const bonusKey = this.setting.displayBonusKey;
 
       if (this.isEnemyMode) {
         // 敵装備
@@ -1036,8 +1059,8 @@ export default Vue.extend({
       if (this.type === 14 && !this.includeDepthChargeLauncher) {
         result = result.filter((v) => v.iconTypeId !== 17);
       }
-      if (this.isSpecialOnly && bonusType) {
-        result = result.filter((v) => v.bonuses.find((x) => x.type === bonusType));
+      if (this.isSpecialOnly && bonusKey) {
+        result = result.filter((v) => v.bonuses.find((x) => x.key === bonusKey));
       }
 
       // ブラックリスト
@@ -1092,6 +1115,7 @@ export default Vue.extend({
 
           // 熟練度 設定値より
           const level = iniLevel ? iniLevel.level : 0;
+          const bonus = bonusKey ? master.bonuses.find((v) => v.key === bonusKey) : null;
 
           // 改修値★10～0 だけ回す
           for (let remodel = 10; remodel >= 0; remodel -= 1) {
@@ -1114,6 +1138,7 @@ export default Vue.extend({
               count: Math.max(count, 0),
               sumBonus: 0,
               bonus: {},
+              text: bonus ? bonus.text : '',
             });
           }
         }
@@ -1123,6 +1148,7 @@ export default Vue.extend({
           const master = result[i];
           const iniLevel = iniLevels.find((v) => v.id === master.apiTypeId);
           const level = iniLevel ? iniLevel.level : 0;
+          const bonus = bonusKey ? master.bonuses.find((v) => v.key === bonusKey) : null;
           const item = new Item({
             master,
             slot,
@@ -1133,6 +1159,7 @@ export default Vue.extend({
             count: 1,
             sumBonus: 0,
             bonus: {},
+            text: bonus ? bonus.text : '',
           });
         }
       }
