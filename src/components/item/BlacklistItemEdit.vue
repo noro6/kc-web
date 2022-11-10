@@ -217,7 +217,7 @@ export default Vue.extend({
 
     const items = this.$store.state.items as ItemMaster[];
     for (let i = 0; i < items.length; i += 1) {
-      if (items[i].id < 500) {
+      if (!items[i].isEnemyItem) {
         this.all.push(items[i]);
       }
     }

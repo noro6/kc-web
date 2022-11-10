@@ -979,7 +979,7 @@ export default Vue.extend({
         // 基本は全装備
         types = Const.ITEM_API_TYPE.map((v) => v.id);
         // 敵装備マスタに存在しない装備カテゴリは抜いておく
-        const enemyItems = this.all.filter((v) => v.id > 500);
+        const enemyItems = this.all.filter((v) => v.isEnemyItem);
         types = types.filter((v) => enemyItems.some((x) => x.apiTypeId === v));
 
         // 敵装備フラグ強制ON
@@ -1041,9 +1041,9 @@ export default Vue.extend({
 
       if (this.isEnemyMode) {
         // 敵装備
-        result = result.filter((v) => v.id > 500);
+        result = result.filter((v) => v.isEnemyItem);
       } else {
-        result = result.filter((v) => v.id < 500);
+        result = result.filter((v) => !v.isEnemyItem);
       }
       if (this.type === 7 && this.onlyEnabledLandBaseAttack) {
         result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));

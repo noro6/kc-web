@@ -470,7 +470,7 @@ export default Vue.extend({
     initialize() {
       // 全データ取得
       this.all = this.$store.state.items as ItemMaster[];
-      this.all = this.all.filter((v) => v.id < 500);
+      this.all = this.all.filter((v) => !v.isEnemyItem);
       this.itemStock = this.$store.state.itemStock as ItemStock[];
 
       if (this.readOnly) {

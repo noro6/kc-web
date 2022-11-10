@@ -116,6 +116,9 @@ export default class ItemMaster {
   /** 水上機かどうか */
   public readonly isSPPlane: boolean;
 
+  /** 敵装備かどうか */
+  public readonly isEnemyItem: boolean;
+
   /** 特効情報 */
   public readonly bonuses: { key: string, text: string }[];
 
@@ -191,6 +194,7 @@ export default class ItemMaster {
     this.isStrictDepthCharge = Const.STRICT_DEPTH_CHARGE.includes(this.id);
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
     this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
+    this.isEnemyItem = this.id > 1500;
 
     if (!this.isSpecial) {
       this.isSpecial = this.isRocket || this.enabledAttackLandBase;
