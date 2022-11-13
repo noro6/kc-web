@@ -1,7 +1,7 @@
 import Const from '../const';
 
 export type ItemBonusStatus = {
-  firePower?: number, torpedo?: number, antiAir?: number, armor?: number, asw?: number, scout?: number, avoid?: number, accuracy?: number, bomber?: number, range?: number
+  firePower?: number, torpedo?: number, antiAir?: number, armor?: number, asw?: number, scout?: number, avoid?: number, accuracy?: number, bomber?: number, range?: number, fromTypeId?: number
 }
 
 type Bonus = {

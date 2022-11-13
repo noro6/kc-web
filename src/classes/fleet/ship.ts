@@ -130,9 +130,6 @@ export default class Ship implements ShipBase {
   /** 防空ボーナス */
   public readonly antiAirBonus: number;
 
-  /** 航空戦雷装ボーナス一覧 */
-  public readonly torpedoBonuses: number[];
-
   /** 随伴艦フラグ */
   public readonly isEscort: boolean;
 
@@ -294,23 +291,34 @@ export default class Ship implements ShipBase {
 
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
-    // 雷装ボーナス一覧
-    this.torpedoBonuses = [];
-    // 雷装ボーナス適用装備(最も雷装 or 爆装が高い)
-    let maximumAttacker = new Item();
 
-    // 対潜支援参加可能艦種
+    /** 対潜支援参加可能な艦種であるかどうか */
     const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
 
-    // 夜偵"失敗率"
+    /** 夜偵"失敗率" */
     let nightContactFailureRate = 1;
     // 装備一覧より取得
     const items = this.items.concat(this.exItem);
     // 装備ボーナス算出
     this.itemBonuses = Ship.getItemBonus(this.data, items);
-    // 熟練甲板要員＋航空整備員 整備員ボーナスがあるかどうかをチェック
-    const crewTorpedoBonus = items.some((v) => v.data.id === 478 && v.remodel >= 5) ? 1 : 0;
-    const crewBomberBonus = items.some((v) => v.data.id === 478 && v.remodel >= 4) ? 1 : 0;
+
+    let crewTorpedoBonus = 0;
+    let crewBomberBonus = 0;
+    const crewBonuses = this.itemBonuses.filter((v) => v.fromTypeId === 35);
+    for (let i = 0; i < crewBonuses.length; i += 1) {
+      const bonus = crewBonuses[i];
+      // 搭乗員雷装ボーナスを取得
+      if (bonus.torpedo && crewTorpedoBonus < bonus.torpedo) {
+        crewTorpedoBonus = bonus.torpedo;
+      }
+      // 搭乗員爆装ボーナスを取得
+      if (bonus.bomber && crewBomberBonus < bonus.bomber) {
+        crewBomberBonus = bonus.bomber;
+      }
+    }
+
+    /** 雷装ボーナス適用装備(最も雷装 or 爆装が高い) */
+    let maximumAttacker = new Item();
 
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
@@ -336,13 +344,14 @@ export default class Ship implements ShipBase {
       this.tp += item.tp;
       // 装甲値
       this.actualArmor += item.data.armor;
+
       // 射程(大きくなるなら)
       if (item.data.range > this.displayStatus.range) {
         this.displayStatus.range = item.data.range;
       }
 
       if (item.fullSlot > 0 && item.data.isPlane && !item.data.isRecon && !item.data.isABAttacker) {
-        // 通常制空値
+        // 制空値を加算 (搭載数1以上 航空機 偵察機でない 陸攻でない)
         this.fullAirPower += item.fullAirPower;
         this.supportAirPower += item.supportAirPower;
       }
@@ -370,29 +379,23 @@ export default class Ship implements ShipBase {
         }
       }
 
-      // 高角砲カウント
-      if (item.data.iconTypeId === 16 && !item.data.isSpecial) {
-        this.kokakuCount += 1;
+      if (item.data.iconTypeId === 11) {
+        // 対空電探
+        if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
+        // 水上電探
+        if (item.data.scout > 4) this.surfaceRadarCount += 1;
       }
-      // 特殊高角砲カウント
-      if (item.data.iconTypeId === 16 && item.data.isSpecial) {
-        this.specialKokakuCount += 1;
+      if (item.data.iconTypeId === 16) {
+        // 特殊高角砲
+        if (item.data.isSpecial) this.specialKokakuCount += 1;
+        // 高角砲
+        else this.kokakuCount += 1;
       }
-      // 機銃カウント
-      if (item.data.apiTypeId === 21 && !item.data.isSpecial) {
-        this.kijuCount += 1;
-      }
-      // 特殊機銃カウント
-      if (item.data.apiTypeId === 21 && item.data.isSpecial) {
-        this.specialKijuCount += 1;
-      }
-      // 対空電探カウント
-      if (item.data.iconTypeId === 11 && item.data.antiAir > 0) {
-        this.antiAirRadarCount += 1;
-      }
-      // 水上電探カウント
-      if (item.data.iconTypeId === 11 && item.data.scout > 4) {
-        this.surfaceRadarCount += 1;
+      if (item.data.apiTypeId === 21) {
+        // 特殊機銃
+        if (item.data.isSpecial) this.specialKijuCount += 1;
+        // 機銃
+        else this.kijuCount += 1;
       }
       // 高射装置カウント
       if (item.data.apiTypeId === 36) {
@@ -437,21 +440,29 @@ export default class Ship implements ShipBase {
     // 夜戦火力加算
     this.nightBattleFirePower += (this.displayStatus.firePower + this.displayStatus.torpedo);
 
-    // 雷装ボーナス適用装備抽出 & セット
+    // 航空戦雷装ボーナス適用装備抽出 & セット
     if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
-      let crewTorpedoBonusRemain = crewTorpedoBonus;
+      const torpBomberTorpedoBonuses = [];
+      const seaplaneBomberTorpedoBonuses = [];
+
       for (let i = 0; i < this.itemBonuses.length; i += 1) {
         const bonus = this.itemBonuses[i];
-        if (bonus.torpedo === crewTorpedoBonus && crewTorpedoBonusRemain) {
-          // 雷装ボーナスのうち1つ分は熟練甲板要員ボーナスによるものなので除外する
-          crewTorpedoBonusRemain -= 1;
-        } else if (bonus.torpedo) {
-          this.torpedoBonuses.push(bonus.torpedo);
+        if (bonus.torpedo && bonus.fromTypeId && bonus.fromTypeId === 8) {
+          // 艦攻による雷装ボーナス
+          torpBomberTorpedoBonuses.push(bonus.torpedo);
+        } else if (bonus.torpedo && bonus.fromTypeId && bonus.fromTypeId === 11) {
+          // 水上爆撃機による雷装ボーナス
+          seaplaneBomberTorpedoBonuses.push(bonus.torpedo);
         }
       }
-      if (this.torpedoBonuses.length) {
+
+      if (torpBomberTorpedoBonuses.length) {
         // 適用装備の最も低い雷装ボーナスを加算
-        maximumAttacker.attackerTorpedoBonus += this.torpedoBonuses.sort((a, b) => a - b)[0];
+        maximumAttacker.attackerTorpedoBonus += torpBomberTorpedoBonuses.sort((a, b) => a - b)[0];
+      }
+      if (seaplaneBomberTorpedoBonuses.length) {
+        // 適用装備の最も高い雷装ボーナスを加算
+        maximumAttacker.attackerTorpedoBonus += seaplaneBomberTorpedoBonuses.sort((a, b) => b - a)[0];
       }
     }
 
@@ -760,7 +771,7 @@ export default class Ship implements ShipBase {
       return [];
     }
 
-    const sumBonuses = [];
+    const sumBonuses: ItemBonusStatus[] = [];
 
     let antiAirRadarCount = 0;
     let surfaceRadarCount = 0;
@@ -855,11 +866,11 @@ export default class Ship implements ShipBase {
             } else if (!bonus.num) {
               // 個数制限がない場合はその数だけ回す
               for (let b = 0; b < remodelFits.length; b += 1) {
-                sumBonuses.push(bonus.bonus);
+                sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: remodelFits[b].data.apiTypeId }));
               }
             } else {
               // ようやくBonusを適用
-              sumBonuses.push(bonus.bonus);
+              sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: remodelFits[0].data.apiTypeId }));
             }
           } else if (bonus.num && fitItems.length < bonus.num) {
             // 合致した装備からさらに個数で判定
@@ -867,11 +878,11 @@ export default class Ship implements ShipBase {
           } else if (!bonus.num) {
             // 個数制限がない場合はその数だけ回す
             for (let b = 0; b < fitItems.length; b += 1) {
-              sumBonuses.push(bonus.bonus);
+              sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: fitItems[b].data.apiTypeId }));
             }
           } else {
             // ようやくBonusを適用
-            sumBonuses.push(bonus.bonus);
+            sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: fitItems[0].data.apiTypeId }));
           }
         }
       }
@@ -902,13 +913,9 @@ export default class Ship implements ShipBase {
         // => 表示対潜値60 + ソナー有
         return true;
       }
-      if (this.displayStatus.asw >= 75) {
+      if (this.displayStatus.asw >= 75 && this.itemAsw >= 4) {
         // => 表示対潜値75 + 装備対潜値合計が4以上
-        let sumAsw = 0;
-        for (let i = 0; i < items.length; i += 1) {
-          sumAsw += items[i].data.asw;
-        }
-        return sumAsw >= 4;
+        return true;
       }
     }
 
