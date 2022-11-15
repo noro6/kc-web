@@ -711,6 +711,7 @@ export default {
       '艦隊晒しページ(仮)で展開する場合はこちらから': 'Click here to expand on the 艦隊晒しページ(仮).',
       '反映手順を表示': 'Show steps to reflect',
       '反映手順を隠す': 'Hide steps to reflect',
+      '文字列thisKCSをコピー': 'Copy the string "this.KCS"',
       '艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。': 'After logging into the Kancolle, right-click on the Kancolle screen and select "Verification" from the context menu. Or, press the F12 key.',
       '以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。': 'The following procedures are explained for the PC version of the browser "Google Chrome".',
       'ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。': 'Open the "Console" tab and press the "Clear console" button.',

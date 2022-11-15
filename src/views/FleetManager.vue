@@ -26,6 +26,10 @@
               <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
             </v-btn>
           </div>
+          <div v-if="!showHowToDoIt" class="tutorial_box pa-0">
+            <v-btn color="secondary" @click="copyCode('this-kcs-code')" :disabled="successCopy">{{ $t("Database.文字列thisKCSをコピー") }}</v-btn>
+            <input id="this-kcs-code" type="text" value="this.KCS" />
+          </div>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>1. {{ $t("Database.艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。") }}</div>
             <div>※ {{ $t("Database.以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。") }}</div>
@@ -76,8 +80,8 @@
               <v-img :src="`./img/tutorial/tutorial6_2.jpg`" />
             </div>
           </v-card>
-          <v-card class="tutorial_box">
-            <div v-if="showHowToDoIt">
+          <v-card class="tutorial_box pt-2">
+            <div v-if="showHowToDoIt" class="pt-3">
               7. {{ $t("Database.下記のJavaScriptコードをconsoleに貼り付け、Enterを押下する。") }} ※
               {{
                 $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順8の入力欄に貼り付けることができます。")
@@ -343,6 +347,7 @@
 .copy_code > div {
   align-self: center;
 }
+#this-kcs-code,
 #ships-read-code,
 #item-read-code {
   margin-left: auto;
