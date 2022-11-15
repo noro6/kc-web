@@ -410,7 +410,7 @@ export default class Ship implements ShipBase {
       // 夜偵
       if (item.fullSlot && item.data.iconTypeId === 50) {
         // 夜偵発動率 = (int(sqrt(偵察機索敵值)*sqrt(Lv))) / 25
-        nightContactFailureRate -= nightContactFailureRate * (Math.floor(Math.sqrt(item.data.scout) * Math.sqrt(this.level)) / 25);
+        nightContactFailureRate -= nightContactFailureRate * Math.min((Math.floor(Math.sqrt(item.data.scout) * Math.sqrt(this.level)) / 25), 1);
       }
 
       // 夜戦火力
