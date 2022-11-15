@@ -162,7 +162,7 @@
         </div>
         <div v-if="generateError">
           <v-alert border="left" outlined type="error">
-            <div>画像出力ライブラリ側でエラーが発生しました。新装備や新艦娘が未対応である可能性があります。更新されるまでお待ちください。</div>
+            <div>Error</div>
             <div class="caption">{{ generateError }}</div>
           </v-alert>
         </div>
@@ -1290,6 +1290,14 @@ export default Vue.extend({
 
       // ターゲットの艦隊に絞る
       const targetFleets = manager.fleetInfo.fleets.filter((v, i) => !!this.gkcoiOutputTarget[i]);
+
+      if (targetFleets.every((v) => v.ships.every((w) => w.isEmpty || !w.isActive))) {
+        this.enabledOutput = true;
+        this.generatingImage = false;
+        this.generateError = `${this.$t('Fleet.艦隊に艦娘が設定されていません。')}`;
+        return;
+      }
+
       const newManager = new CalcManager();
       newManager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets: targetFleets });
       newManager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo });

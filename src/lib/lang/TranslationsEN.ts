@@ -442,6 +442,7 @@ export default {
       'クリックで展開': 'Click to expand',
       'リストへ追加': 'Add to list',
       'リセット': 'Reset',
+      '艦隊に艦娘が設定されていません。': 'No Ships',
     },
     Enemies: {
       '海域': 'World',
