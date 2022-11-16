@@ -55,6 +55,9 @@ export default class ShipMaster {
   /** 雷装 */
   public readonly torpedo: number;
 
+  /** 火力+雷装 */
+  public readonly night: number;
+
   /** 対空 */
   public readonly antiAir: number;
 
@@ -180,6 +183,7 @@ export default class ShipMaster {
       this.ammo = 0;
     }
 
+    this.night = this.fire + this.torpedo;
     this.isCV = this.type === SHIP_TYPE.CV || this.type === SHIP_TYPE.CVL || this.type === SHIP_TYPE.CVB;
   }
 

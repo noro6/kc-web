@@ -25,6 +25,11 @@ const routes: Array<RouteConfig> = [
     name: 'SaveDataList',
     component: () => import('../views/SaveDataList.vue'),
   },
+  {
+    path: '/extra',
+    name: 'ExtraPage',
+    component: () => import('../views/ExtraCalculator.vue'),
+  },
 ];
 
 const router = new VueRouter({
