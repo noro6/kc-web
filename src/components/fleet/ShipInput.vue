@@ -14,7 +14,7 @@
     <template v-if="ship.isEmpty">
       <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
         <div class="align-self-center">{{ shipName }}</div>
-        <div class="empty-temp-list">
+        <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon class="align-self-center" color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
@@ -69,7 +69,7 @@
                   <div class="edit-status-menu-text">
                     <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
                   </div>
-                  <div class="level-bar-container flex-grow-1">
+                  <div class="flex-grow-1">
                     <v-slider max="175" min="1" v-model="level" hide-details></v-slider>
                   </div>
                 </div>
@@ -205,7 +205,7 @@
             </template>
             <span>{{ $t("Fleet.コンバート改造") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="handleShowTempShipList">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
                 <v-icon>mdi-upload</v-icon>
@@ -213,7 +213,7 @@
             </template>
             <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="handleShowItemPreset">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
                 <v-icon>mdi-briefcase-variant</v-icon>
@@ -221,7 +221,7 @@
             </template>
             <span>{{ $t("Fleet.装備プリセット展開") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="!hideActiveButton">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click.stop="changeActive(false)">
                 <v-icon>mdi-eye</v-icon>
@@ -229,7 +229,7 @@
             </template>
             <span>{{ $t("Fleet.計算対象から省く") }}</span>
           </v-tooltip>
-          <v-btn icon small v-show="!ship.isActive" @click.stop="changeActive(true)">
+          <v-btn icon small v-show="!ship.isActive && !hideActiveButton" @click.stop="changeActive(true)">
             <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
@@ -473,11 +473,9 @@ export default Vue.extend({
     },
     handleShowTempShipList: {
       type: Function,
-      required: true,
     },
     handleShowItemPreset: {
       type: Function,
-      required: true,
     },
     value: {
       type: Ship,
@@ -500,6 +498,10 @@ export default Vue.extend({
       default: 0,
     },
     isLine2: {
+      type: Boolean,
+      default: false,
+    },
+    hideActiveButton: {
       type: Boolean,
       default: false,
     },
