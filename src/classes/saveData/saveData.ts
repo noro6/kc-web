@@ -683,7 +683,6 @@ export default class SaveData {
     if (!this.manager) {
       const newData = new CalcManager();
       newData.fleetInfo = new FleetInfo({ admiralLevel: initialAdmiralLevel });
-      newData.resetAll = true;
       // 一時保存データにこの情報を突っ込む
       this.tempData = [cloneDeep(newData)];
       this.tempIndex = 0;
@@ -825,8 +824,6 @@ export default class SaveData {
     resultData.airbaseInfo = manager.airbaseInfo;
     resultData.fleetInfo = manager.fleetInfo;
     resultData.battleInfo = manager.battleInfo;
-    // タブ切り替えは全ての情報をリセットする
-    resultData.resetAll = true;
 
     return resultData;
   }
