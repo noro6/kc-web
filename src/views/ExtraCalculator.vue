@@ -2,18 +2,23 @@
   <div class="mb-5">
     <div class="general-container">
       <v-tabs v-model="tab">
-        <v-tab href="#ships">{{ $t("Extra.艦娘性能一覧") }}</v-tab>
-        <v-tab href="#oasw">{{ $t("Extra.対潜値計算機") }}</v-tab>
+        <v-tab>{{ $t("Extra.艦娘性能一覧") }}</v-tab>
+        <v-tab>{{ $t("Extra.対潜値計算機") }}</v-tab>
+        <v-tab>{{ $t("Extra.敵艦生息地検索") }}</v-tab>
       </v-tabs>
       <v-divider></v-divider>
       <v-tabs-items v-model="tab" :touchless="true">
-        <v-tab-item value="ships">
+        <v-tab-item>
           <div class="my-3 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
           <ship-master-list />
         </v-tab-item>
-        <v-tab-item value="oasw">
+        <v-tab-item>
           <div class="my-3 body-2">{{ $t("Extra.艦娘と装備から、指定した対潜値と必要なLvを計算します。") }}</div>
           <required-asw-calculator />
+        </v-tab-item>
+        <v-tab-item>
+          <div class="my-3 body-2">{{ $t("Extra.指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。") }}</div>
+          <enemy-searcher />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -44,12 +49,13 @@
 import Vue from 'vue';
 import ShipMasterList from '@/components/fleet/ShipMasterList.vue';
 import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
+import EnemySearcher from '@/components/map/EnemySearcher.vue';
 
 export default Vue.extend({
   name: 'ExtraCalculator',
-  components: { ShipMasterList, RequiredAswCalculator },
+  components: { ShipMasterList, RequiredAswCalculator, EnemySearcher },
   data: () => ({
-    tab: 'ships',
+    tab: 0,
   }),
   mounted() {
     //
