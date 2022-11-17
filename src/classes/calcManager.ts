@@ -21,15 +21,12 @@ export default class CalcManager {
 
   public mainBattle: number;
 
-  public resetAll: boolean;
-
   constructor() {
     this.airbaseInfo = new AirbaseInfo();
     this.battleInfo = new BattleInfo();
     this.fleetInfo = new FleetInfo();
     this.isDefense = false;
     this.mainBattle = 0;
-    this.resetAll = false;
   }
 
   /**

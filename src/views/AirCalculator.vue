@@ -196,23 +196,7 @@ export default Vue.extend({
         const enemies = this.$store.getters.getEnemies as EnemyMaster[];
         const manager = saveData.loadManagerData(items, ships, enemies, this.setting.admiralLevel);
 
-        if (manager.resetAll) {
-          this.calcManager = manager;
-        } else {
-          if (manager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
-            // 空のデータじゃなければ置き換える
-            this.calcManager.airbaseInfo = manager.airbaseInfo;
-          }
-          if (manager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
-            // 空のデータじゃなければ置き換える
-            this.calcManager.fleetInfo = manager.fleetInfo;
-          }
-          if (manager.battleInfo.fleets.some((v) => v.enemies.some((s) => s.data.id > 0))) {
-            // 空のデータじゃなければ置き換える
-            this.calcManager.battleInfo = manager.battleInfo;
-          }
-        }
-
+        this.calcManager = manager;
         this.calcManager.mainBattle = manager.battleInfo.fleets.length - 1;
         // 特殊ケース -後続のwatch処理で再計算させないための苦肉の策
         this.calcManager.airbaseInfo.calculated = true;
