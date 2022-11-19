@@ -222,6 +222,10 @@
           <div>{{ preCapTerm.preCapFirePower ? Math.floor(100 * preCapTerm.preCapFirePower) / 100 : 0 }}</div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
+          <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
+            <div>{{ $t("Result.陸偵補正") }}:</div>
+            <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
+          </template>
           <div>{{ $t("Result.キャップ後攻撃力") }}:</div>
           <div>{{ postCapTerms[i].postCapFirePower ? postCapTerms[i].postCapFirePower : 0 }}</div>
           <template v-if="postCapTerms[i].LBASModifiers && postCapTerms[i].LBASModifiers !== 1">
@@ -245,10 +249,6 @@
           <template v-if="postCapTerms[i].airbaseAttackerMultiplier && postCapTerms[i].airbaseAttackerMultiplier !== 1">
             <div>{{ $t("Result.陸攻補正") }}:</div>
             <div>&times; {{ postCapTerms[i].airbaseAttackerMultiplier.toFixed(2) }}</div>
-          </template>
-          <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
-            <div>{{ $t("Result.陸偵補正") }}:</div>
-            <div>&times; {{ calcArgs.rikuteiBonus.toFixed(3) }}</div>
           </template>
           <template v-if="calcArgs.isAirbaseMode && calcArgs.unionBonus !== 1">
             <div>{{ $t("Result.敵連合補正") }}:</div>
@@ -518,7 +518,7 @@ export default Vue.extend({
         if (this.parent.items.some((v) => v.data.id === 312)) {
           this.calcArgs.rikuteiBonus = 1.15;
         } else if (this.parent.items.some((v) => v.data.id === 311 || v.data.id === 480)) {
-          this.calcArgs.rikuteiBonus = 1.125;
+          this.calcArgs.rikuteiBonus = 1.12;
         }
       } else {
         // 通常艦隊 最終戦闘をセット
@@ -560,7 +560,7 @@ export default Vue.extend({
     rikuteis(): { text: string; value: number }[] {
       const array = [
         { text: '-', value: 1 },
-        { text: '二式陸偵', value: 1.125 },
+        { text: '二式陸偵', value: 1.12 },
         { text: '二式陸偵(熟練)', value: 1.15 },
       ];
 

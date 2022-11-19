@@ -415,7 +415,7 @@ export default Vue.extend({
         this.slot = 999;
       }
 
-      const powers = AerialFirePowerCalculator.getAswSupportForePowers(this.asw, this.slot, this.isCritical);
+      const powers = AerialFirePowerCalculator.getAswSupportFirePowers(this.asw, this.slot, this.isCritical);
       this.powers = powers.map((v) => `${Math.floor(100 * v.power) / 100}(${100 * v.rate}%)`);
 
       const enemies = this.displayEnemies;
