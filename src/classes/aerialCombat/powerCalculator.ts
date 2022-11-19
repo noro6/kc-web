@@ -315,8 +315,10 @@ export default class AerialFirePowerCalculator {
    */
   public static getPostCapAttackPower(args: FirePowerCalcArgs, power: number): PostCapTerm {
     const { item, isAirbaseMode, defense } = args;
+    // 陸偵補正
+    const preCapFirePower = power * args.rikuteiBonus;
     // キャップ適用
-    const postCapFirePower = CommonCalc.softCap(power, CAP.AS);
+    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS);
 
     let finalFirePower = postCapFirePower;
     let LBASModifiers = 0;
@@ -338,7 +340,7 @@ export default class AerialFirePowerCalculator {
         bomberMultiplier = isBomber ? 2.1 : 1;
         LBASModifiers = 100;
         // a5 b5補正のため計算しなおし
-        finalFirePower = CommonCalc.softCap(power, CAP.AS, bomberMultiplier, LBASModifiers);
+        finalFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS, bomberMultiplier, LBASModifiers);
       } else {
         finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
       }
@@ -359,8 +361,8 @@ export default class AerialFirePowerCalculator {
 
     if (isAirbaseMode) {
       // 基地キャップ後処理
-      // 二式陸偵補正 * 触接補正 * 対連合補正 * キャップ後特殊補正
-      const multiplier = args.rikuteiBonus * args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
+      // 触接補正 * 対連合補正 * キャップ後特殊補正
+      const multiplier = args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
       finalFirePower = finalFirePower * airBaseBonus * aircraftCarrierPrincessMultiplier * multiplier;
     } else {
       // 通常航空戦キャップ後処理
@@ -466,7 +468,8 @@ export default class AerialFirePowerCalculator {
    */
   public static getAirbasePostCapAswAttackPower(args: FirePowerCalcArgs, baseFirePower: number, typeMultiplier: number): PostCapTerm {
     // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 25} × {A + (0 ~ Bの乱数)}（再掲）
-    const postCapFirePower = CommonCalc.softCap(baseFirePower * typeMultiplier, CAP.AS);
+    const preCapFirePower = baseFirePower * typeMultiplier * args.rikuteiBonus;
+    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS);
 
     let finalFirePower = postCapFirePower;
     // クリティカル補正
@@ -574,7 +577,7 @@ export default class AerialFirePowerCalculator {
    * @return {*}  {PowerDist[]}
    * @memberof AerialFirePowerCalculator
    */
-  public static getAswSupportForePowers(asw: number, slot: number, isCritical: boolean): PowerDist[] {
+  public static getAswSupportFirePowers(asw: number, slot: number, isCritical: boolean): PowerDist[] {
     const powers: { power: number, rate: number }[] = [];
 
     // キャップ前攻撃力＝int(int(0.6 × 機体対潜値) × √(搭載数) + 3)
