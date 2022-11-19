@@ -32,23 +32,31 @@
               <v-expansion-panel-header>
                 <div class="mr-3">
                   <div class="d-flex align-center">
-                    <div class="flex-grow-1">
+                    <div class="quest-icon">
+                      <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48"></v-img>
+                      <div class="quest-type-icon">
+                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_6.png`" width="42" height="43"></v-img>
+                        <v-img v-else-if="quest.type === 'Quarterly'" :src="`./img/util/quarterly.png`" width="41" height="40"></v-img>
+                        <v-img v-else-if="quest.type === 'Once'" :src="`./img/util/once.png`" width="41" height="40"></v-img>
+                      </div>
+                    </div>
+                    <div class="ml-4 flex-grow-1">
                       <div class="quest-title">
                         <div class="d-flex align-center">
-                          <div class="flex-grow-1">
+                          <div class="flex-grow-1 mr-3">
                             {{ $t(`Extra.${quest.name}`) }}
                           </div>
                           <template v-if="quest.type !== 'Once'">
-                            <div class="d-flex align-center text-no-wrap">
-                              <div class="ml-auto mr-1 caption">{{ $t("Extra.あと") }}</div>
-                              <div>{{ getTimeRemainingText(quest.type) }}</div>
+                            <div class="ml-auto d-flex align-center text-no-wrap">
+                              <div class="mr-1 caption">{{ $t("Extra.あと") }}</div>
+                              <div>{{ timeRemaining[i] }}</div>
                             </div>
                           </template>
                         </div>
                       </div>
                       <div class="bar-container">
                         <div>
-                          <v-progress-linear :value="quest.getProgressValue" :color="getBarColor(quest.getProgressValue)" />
+                          <v-progress-linear rounded :value="quest.getProgressValue" :color="getBarColor(quest.getProgressValue)" />
                         </div>
                         <div class="progress-count">{{ quest.getCompletedCount }} / {{ quest.requires.length }}</div>
                       </div>
@@ -68,7 +76,7 @@
                       </div>
                     </div>
                     <div class="ml-3">
-                      <v-img :src="`./img/util/slot_ex.png`" height="50" width="50"></v-img>
+                      <v-img :src="`./img/util/ranking_point.png`" height="50" width="50"></v-img>
                     </div>
                     <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
                   </div>
@@ -78,7 +86,12 @@
                 <v-divider></v-divider>
                 <div class="d-flex flex-wrap">
                   <div v-for="(check, j) in quest.requires" :key="`req${j}`" class="check-container">
-                    <v-checkbox v-model="check.isComplete" hide-details :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"></v-checkbox>
+                    <v-checkbox
+                      v-model="check.isComplete"
+                      @change="updateState"
+                      hide-details
+                      :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"
+                    ></v-checkbox>
                   </div>
                 </div>
                 <div class="mt-6">
@@ -95,8 +108,20 @@
           <div class="d-flex align-center">
             <div class="flex-grow-1">
               <div class="quest-title">
-                <div>
-                  {{ $t(`Extra.${quest.name}`) }}
+                <div class="d-flex align-center">
+                  <div class="flex-grow-1 mr-3">
+                    {{ $t(`Extra.${quest.name}`) }}
+                  </div>
+                  <div class="ml-auto text-no-wrap caption">
+                    <div class="d-flex align-center">
+                      <div class="mr-1 caption">{{ $t("Extra.達成日") }}:</div>
+                      <div>{{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
+                    </div>
+                    <div class="d-flex align-center">
+                      <div class="mr-1 caption">リセット:</div>
+                      <div>{{ new Date(quest.resetDate).toLocaleString($vuetify.lang.current) }}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="bar-container">
@@ -107,7 +132,7 @@
               </div>
             </div>
             <div class="ml-6">
-              <v-img :src="`./img/util/slot_ex.png`" height="50" width="50"></v-img>
+              <v-img :src="`./img/util/ranking_point.png`" height="50" width="50"></v-img>
             </div>
             <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
             <div class="ml-3">
@@ -155,6 +180,16 @@
 </template>
 
 <style scoped>
+.quest-icon {
+  position: relative;
+}
+.quest-type-icon {
+  position: absolute;
+  right: -18px;
+  bottom: -10px;
+  transform: scale(0.75);
+}
+
 .quest-title {
   display: flex;
   flex-direction: column;
@@ -176,9 +211,10 @@
   text-align: center;
 }
 .resource-reward {
-  width: 42px;
+  width: 38px;
   text-align: right;
   margin-right: 0.5rem;
+  font-size: 0.8em;
 }
 .ranking-point-reward {
   min-width: 36px;
@@ -212,12 +248,19 @@ export default Vue.extend({
     completeTargetQuest: new Quest(),
     snackBar: false,
     snackBarText: '',
+    timeRemaining: [] as string[],
+    intervalId: 0,
   }),
   mounted() {
     const quests = [];
+
+    const savedQuests = this.$store.state.quests as Quest[];
+
+    // 任務マスタより、全件取得
     for (let i = 0; i < Const.RANKING_POINT_QUESTS.length; i += 1) {
       const master = Const.RANKING_POINT_QUESTS[i];
-      // 初期化
+
+      // Questクラスとして初期化
       const quest = new Quest();
       quest.id = master.id;
       quest.name = master.name;
@@ -236,10 +279,27 @@ export default Vue.extend({
         });
       }
 
+      // 保存されている任務達成状況から値を復元
+      const savedQuest = savedQuests.find((v) => v.id === quest.id);
+      if (savedQuest) {
+        // 達成状況をセット
+        quest.isCompleted = !!savedQuest.isCompleted;
+        quest.requires = savedQuest.requires;
+        if (quest.isCompleted) {
+          quest.completedDate = savedQuest.completedDate;
+          quest.resetDate = savedQuest.resetDate;
+        }
+      }
+
       quests.push(quest);
     }
 
     this.allQuests = quests;
+    this.setTimeRemaining();
+
+    this.intervalId = window.setInterval(() => {
+      this.setTimeRemaining();
+    }, 1000);
   },
   computed: {
     uncompletedQuests(): Quest[] {
@@ -283,43 +343,13 @@ export default Vue.extend({
         return 'light-blue';
       };
     },
-    getTimeRemainingText() {
-      return (type: string) => {
-        const today = new Date('2022-5-31 16:00:00');
-        const month = today.getMonth();
-
-        let closingTime = new Date();
-        if (type === 'Quarterly') {
-          // 2,5,8,11の月末 13:59が締め日
-          closingTime = new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 0, 14, 59, 59);
-        } else if (type === 'Yearly') {
-          if (today.getTime() < new Date(today.getFullYear(), 5, 0, 14, 59, 59).getTime()) {
-            // 今年の5月末
-            closingTime = new Date(today.getFullYear(), 5, 0, 14, 59, 59);
-          } else {
-            // 来年の5月末
-            closingTime = new Date(today.getFullYear() + 1, 5, 0, 14, 59, 59);
-          }
-        }
-
-        const remainingDay = Math.floor((closingTime.getTime() - today.getTime()) / 86400000);
-        if (remainingDay > 1) {
-          return `${this.$t('Extra.x日', { days: remainingDay })}`;
-        }
-        if (remainingDay === 1) {
-          return `${this.$t('Extra.1日')}`;
-        }
-        if (remainingDay < 0) {
-          return `${this.$t('Extra.失効')}`;
-        }
-
-        // 時間単位
-        return 'TODO';
-      };
-    },
   },
   watch: {},
   methods: {
+    updateState() {
+      // ローカルの任務群に保存するだけ
+      this.$store.dispatch('updateQuests', this.allQuests);
+    },
     confirmComplete(quest: Quest) {
       this.completeTargetQuest = quest;
       this.confirmCompleteDialog = true;
@@ -331,7 +361,26 @@ export default Vue.extend({
       }
 
       quest.isCompleted = true;
+      quest.completedDate = new Date().getTime();
+
+      // リセット日を算出
+      const today = this.createDate(new Date());
+      const month = today.getMonth();
+      if (quest.type === 'Quarterly') {
+        quest.resetDate = this.createDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 1, 5, 0, 0)).getTime();
+      } else if (quest.type === 'Yearly') {
+        if (today.getTime() < this.createDate(new Date(today.getFullYear(), 5, 1, 4, 59, 59)).getTime()) {
+          // 今年の 6/1 4:59:59までに任務達成していたら今年の 6/1 5:00:00
+          quest.resetDate = this.createDate(new Date(today.getFullYear(), 5, 1, 5, 0, 0)).getTime();
+        } else {
+          // 上記を超えていたら、来年の 6/1 5:00:00
+          quest.resetDate = this.createDate(new Date(today.getFullYear() + 1, 5, 1, 5, 0, 0)).getTime();
+        }
+      }
       this.confirmCompleteDialog = false;
+
+      // ローカルの任務群に保存
+      this.$store.dispatch('updateQuests', this.allQuests);
 
       this.snackBar = true;
       this.snackBarText = `[ ${this.$t(`Extra.${this.completeTargetQuest.name}`)} ] ${this.$t('Extra.達成しました。')}`;
@@ -347,11 +396,99 @@ export default Vue.extend({
       }
 
       quest.isCompleted = false;
+      quest.completedDate = 0;
+      quest.resetDate = 0;
+      for (let i = 0; i < quest.requires.length; i += 1) {
+        quest.requires[i].isComplete = false;
+      }
+
       this.confirmResetDialog = false;
+
+      // ローカルの任務群に保存
+      this.$store.dispatch('updateQuests', this.allQuests);
 
       this.snackBar = true;
       this.snackBarText = `[ ${this.$t(`Extra.${this.completeTargetQuest.name}`)} ] ${this.$t('Extra.未達成にしました。')}`;
     },
+    createDate(date: Date): Date {
+      return new Date(date.getTime() + (new Date().getTimezoneOffset() + 9 * 60) * 60 * 1000);
+    },
+    setTimeRemaining() {
+      const today = this.createDate(new Date());
+      const month = today.getMonth();
+      let needUpdate = false;
+
+      const timeRemainingTexts: string[] = [];
+      for (let i = 0; i < this.allQuests.length; i += 1) {
+        const quest = this.allQuests[i];
+
+        let closingTime = new Date();
+        let timeRemainingText = '';
+
+        if (quest.type === 'Quarterly') {
+          // 2,5,8,11の月末 13:59締日
+          closingTime = this.createDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 0, 13, 59, 59));
+        } else if (quest.type === 'Yearly') {
+          // 実行日付と同じ年の5月末を過ぎているかどうか
+          if (today.getTime() < this.createDate(new Date(today.getFullYear(), 5, 0, 13, 59, 59)).getTime()) {
+            // 過ぎていないなら、今年の5月末
+            closingTime = this.createDate(new Date(today.getFullYear(), 5, 0, 13, 59, 59));
+          } else {
+            // 過ぎているなら、来年の5月末
+            closingTime = this.createDate(new Date(today.getFullYear() + 1, 5, 0, 13, 59, 59));
+          }
+        }
+
+        const diff = closingTime.getTime() - today.getTime();
+        const remainingDay = Math.floor(diff / 86400000);
+        if (remainingDay > 1) {
+          timeRemainingText = `${this.$t('Extra.x日', { days: remainingDay })}`;
+        } else if (remainingDay > 0) {
+          timeRemainingText = `${this.$t('Extra.1日')}`;
+        } else if (remainingDay === 0) {
+          // 時間単位
+          // ミリ秒から単位を修正
+          const calcHour = Math.floor(diff / 1000 / 60 / 60);
+          const calcMin = Math.floor(diff / 1000 / 60) % 60;
+          const calcSec = Math.floor(diff / 1000) % 60;
+
+          // 取得した時間を表示（2桁表示）
+          const hour = calcHour < 10 ? `0${calcHour}` : calcHour;
+          const min = calcMin < 10 ? `0${calcMin}` : calcMin;
+          const sec = calcSec < 10 ? `0${calcSec}` : calcSec;
+          timeRemainingText = `${hour}:${min}:${sec}`;
+        } else {
+          timeRemainingText = `${this.$t('Extra.失効')}`;
+        }
+
+        // 復活処理
+        if (quest.isCompleted && quest.resetDate && today.getTime() > quest.resetDate) {
+          // 達成任務かつ単発でないかつリセット日を超えたら復活
+          quest.isCompleted = false;
+          quest.completedDate = 0;
+          quest.resetDate = 0;
+          for (let j = 0; j < quest.requires.length; j += 1) {
+            quest.requires[j].isComplete = false;
+          }
+
+          // 更新がかけられたので更新要求
+          needUpdate = true;
+        }
+
+        if (!quest.isCompleted) {
+          timeRemainingTexts.push(timeRemainingText);
+        }
+      }
+
+      this.timeRemaining = timeRemainingTexts;
+
+      if (needUpdate) {
+        this.updateState();
+      }
+    },
+  },
+  beforeDestroy() {
+    window.clearInterval(this.intervalId);
   },
 });
 </script>

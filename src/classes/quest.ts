@@ -35,6 +35,12 @@ export default class Quest {
   /** 消化済み */
   public isCompleted = false;
 
+  /** 達成日 */
+  public completedDate = 0;
+
+  /** 任務リセット日 */
+  public resetDate = 0;
+
   /**
    * 達成されている海域の数
    * @readonly

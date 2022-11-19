@@ -764,6 +764,7 @@ export default {
       'x日': '{days} days',
       '1日': '1 day',
       '失効': 'lapse',
+      '達成日': 'Completed Date',
       'S勝利': 'Rank S',
       'A勝利': 'Rank A',
       '戦果砲残弾合計': 'Total Remaining Ranking Points',
