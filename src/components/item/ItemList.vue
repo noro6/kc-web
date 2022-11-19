@@ -20,7 +20,7 @@
       </div>
       <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
       <div class="ml-3 align-self-center">
-        <v-btn color="secondary" small @click="resetFilter()">{{ $t("ItemList.リセット") }}</v-btn>
+        <v-btn color="secondary" small @click="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
       </div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
@@ -274,7 +274,7 @@
         </div>
         <v-divider></v-divider>
         <div class="d-flex mt-3 justify-end">
-          <v-btn color="secondary" @click="resetOrdering">{{ $t("ItemList.リセット") }}</v-btn>
+          <v-btn color="secondary" @click="resetOrdering">{{ $t("Common.リセット") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>

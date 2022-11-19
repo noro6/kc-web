@@ -182,12 +182,6 @@ export default Vue.extend({
     this.results[5].targetAsw = 50;
   },
   computed: {
-    completed() {
-      return this.$store.getters.getCompletedAll;
-    },
-    isNotJapanese(): boolean {
-      return this.$i18n.locale !== 'ja';
-    },
     ship(): Ship {
       return this.fleet.ships[0];
     },

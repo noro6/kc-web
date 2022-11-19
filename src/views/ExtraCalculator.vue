@@ -4,21 +4,34 @@
       <v-tabs v-model="tab">
         <v-tab>{{ $t("Extra.艦娘性能一覧") }}</v-tab>
         <v-tab>{{ $t("Extra.対潜値計算機") }}</v-tab>
+        <v-tab>{{ $t("Extra.戦果砲管理") }}</v-tab>
         <v-tab>{{ $t("Extra.敵艦生息地検索") }}</v-tab>
       </v-tabs>
       <v-divider></v-divider>
       <v-tabs-items v-model="tab" :touchless="true">
         <v-tab-item>
-          <div class="my-3 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
-          <ship-master-list />
+          <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
+          <div class="pa-2">
+            <ship-master-list />
+          </div>
         </v-tab-item>
         <v-tab-item>
-          <div class="my-3 body-2">{{ $t("Extra.艦娘と装備から、指定した対潜値と必要なLvを計算します。") }}</div>
-          <required-asw-calculator />
+          <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘と装備から、指定した対潜値と必要なLvを計算します。") }}</div>
+          <div class="pa-2">
+            <required-asw-calculator />
+          </div>
         </v-tab-item>
         <v-tab-item>
-          <div class="my-3 body-2">{{ $t("Extra.指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。") }}</div>
-          <enemy-searcher />
+          <div class="mt-3 mx-3 body-2">{{ $t("Extra.戦果に関係する任務の進捗状態を管理する機能です。") }}</div>
+          <quest-manager />
+        </v-tab-item>
+        <v-tab-item>
+          <div class="my-3 mx-2 body-2">
+            {{ $t("Extra.指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。") }}
+          </div>
+          <div class="pa-2">
+            <enemy-searcher />
+          </div>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -50,10 +63,16 @@ import Vue from 'vue';
 import ShipMasterList from '@/components/fleet/ShipMasterList.vue';
 import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
 import EnemySearcher from '@/components/map/EnemySearcher.vue';
+import QuestManager from '@/components/result/QuestManager.vue';
 
 export default Vue.extend({
   name: 'ExtraCalculator',
-  components: { ShipMasterList, RequiredAswCalculator, EnemySearcher },
+  components: {
+    ShipMasterList,
+    RequiredAswCalculator,
+    EnemySearcher,
+    QuestManager,
+  },
   data: () => ({
     tab: 0,
   }),
