@@ -1,9 +1,14 @@
 <template>
   <div>
-    <v-tabs v-model="tab">
-      <v-tab>{{ $t("Extra.未達成") }}</v-tab>
-      <v-tab>{{ $t("Extra.達成済") }}</v-tab>
-    </v-tabs>
+    <div class="d-flex">
+      <v-tabs v-model="tab">
+        <v-tab>{{ $t("Extra.未達成") }}</v-tab>
+        <v-tab>{{ $t("Extra.達成済") }}</v-tab>
+      </v-tabs>
+      <div class="ml-3 align-self-center">
+        <v-btn color="secondary" @click="confirmReset()">{{ $t("Common.リセット") }}</v-btn>
+      </div>
+    </div>
     <v-divider></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item>
@@ -17,12 +22,16 @@
             <div class="d-flex justify-end caption">
               <div class="mr-1">{{ $t("Extra.クォータリー") }}:</div>
               <div>{{ totalQuarterlyRankingPoint }}</div>
-              <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.イヤーリー") }}:</div>
-              <div>{{ totalYearlyRankingPoint }}</div>
-              <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.単発") }}:</div>
-              <div>{{ totalOnceRankingPoint }}</div>
+              <template v-if="totalYearlyRankingPoint">
+                <div class="mx-2">/</div>
+                <div class="mr-1">{{ $t("Extra.イヤーリー") }}:</div>
+                <div>{{ totalYearlyRankingPoint }}</div>
+              </template>
+              <template v-if="totalOnceRankingPoint">
+                <div class="mx-2">/</div>
+                <div class="mr-1">{{ $t("Extra.単発") }}:</div>
+                <div v-if="totalOnceRankingPoint">{{ totalOnceRankingPoint }}</div>
+              </template>
             </div>
           </div>
         </div>
@@ -117,14 +126,6 @@
                       <div class="mr-1 caption">{{ $t("Extra.達成日") }}:</div>
                       <div>{{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
                     </div>
-                    <div class="d-flex justify-space-between">
-                      <div class="mr-1 caption">締日:</div>
-                      <div>{{ new Date(quest.closingDateTime).toLocaleString($vuetify.lang.current) }}</div>
-                    </div>
-                    <div class="d-flex justify-space-between">
-                      <div class="mr-1 caption">リセット:</div>
-                      <div>{{ new Date(quest.resetDateTime).toLocaleString($vuetify.lang.current) }}</div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -139,9 +140,6 @@
               <v-img :src="`./img/util/ranking_point.png`" height="50" width="50"></v-img>
             </div>
             <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
-            <div class="ml-3">
-              <v-btn color="secondary" @click="confirmReset(quest)">{{ $t("Extra.未達成にする") }}</v-btn>
-            </div>
           </div>
         </v-card>
       </v-tab-item>
@@ -160,16 +158,14 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="confirmResetDialog" transition="scroll-x-transition" width="500">
-      <v-card class="pa-3" v-if="completeTargetQuest.id">
-        <div class="ma-4">
-          <div class="my-3 py-3">{{ $t(`Extra.${completeTargetQuest.name}`) }}</div>
-          <div class="body-2">{{ $t("Extra.この任務を未達成状態にしますか？") }}</div>
-          <div class="caption mt-2">※ {{ $t("Extra.再度、未達成タブに表示されるようになります。") }}</div>
+    <v-dialog v-model="confirmResetDialog" transition="scroll-x-transition" width="440">
+      <v-card class="pa-3">
+        <div class="body-2 ma-6">
+          {{ $t("Extra.全ての任務進捗をリセットします。よろしいですか？") }}
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-3"></v-divider>
         <div class="d-flex">
-          <v-btn class="ml-auto" color="primary" dark @click.stop="resetQuest()">{{ $t("Common.OK") }}</v-btn>
+          <v-btn class="ml-auto" color="error" dark @click.stop="resetAllQuest()">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmResetDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -256,63 +252,7 @@ export default Vue.extend({
     intervalId: 0,
   }),
   mounted() {
-    const quests = [];
-    const savedQuests = this.$store.state.quests as Quest[];
-    // 任務マスタより、全件取得
-    for (let i = 0; i < Const.RANKING_POINT_QUESTS.length; i += 1) {
-      const master = Const.RANKING_POINT_QUESTS[i];
-
-      // Questクラスとして初期化
-      const quest = new Quest();
-      quest.id = master.id;
-      quest.name = master.name;
-      quest.type = master.type as 'Once' | 'Quarterly' | 'Yearly';
-      quest.fuel = master.fuel;
-      quest.ammo = master.ammo;
-      quest.steel = master.steel;
-      quest.bauxite = master.bauxite;
-      quest.rankingPoint = master.rankingPoint;
-      quest.resetMonth = master.resetMonth ?? 6;
-
-      for (let j = 0; j < master.requires.length; j += 1) {
-        quest.requires.push({
-          area: master.requires[j].area,
-          rank: master.requires[j].rank,
-          isComplete: false,
-        });
-      }
-
-      // 保存されている任務達成状況から値を復元
-      const savedQuest = savedQuests.find((v) => v.id === quest.id);
-      if (savedQuest) {
-        // 達成状況をセット
-        quest.isCompleted = !!savedQuest.isCompleted;
-        quest.requires = savedQuest.requires;
-        if (quest.isCompleted) {
-          quest.completedDate = savedQuest.completedDate;
-        }
-        quest.closingDateTime = savedQuest.closingDateTime;
-        quest.resetDateTime = savedQuest.resetDateTime;
-      }
-
-      if (!quest.closingDateTime) {
-        // 締日を設定
-        quest.setClosingDateTime();
-      }
-      if (!quest.resetDateTime) {
-        // リセット日を設定
-        quest.setResetDateTime();
-      }
-
-      quests.push(quest);
-    }
-
-    this.allQuests = quests;
-    this.setTimeRemaining();
-
-    this.intervalId = window.setInterval(() => {
-      this.setTimeRemaining();
-    }, 1000);
+    this.initializeQuests();
   },
   computed: {
     uncompletedQuests(): Quest[] {
@@ -359,6 +299,73 @@ export default Vue.extend({
   },
   watch: {},
   methods: {
+    initializeQuests(resetAll = false) {
+      if (this.intervalId) {
+        // タイマー動いていたらいったんストップ
+        window.clearInterval(this.intervalId);
+      }
+
+      const quests = [];
+      const savedQuests = this.$store.state.quests as Quest[];
+      // 任務マスタより、全件取得
+      for (let i = 0; i < Const.RANKING_POINT_QUESTS.length; i += 1) {
+        const master = Const.RANKING_POINT_QUESTS[i];
+
+        // Questクラスとして初期化
+        const quest = new Quest();
+        quest.id = master.id;
+        quest.name = master.name;
+        quest.type = master.type as 'Once' | 'Quarterly' | 'Yearly';
+        quest.fuel = master.fuel;
+        quest.ammo = master.ammo;
+        quest.steel = master.steel;
+        quest.bauxite = master.bauxite;
+        quest.rankingPoint = master.rankingPoint;
+        quest.resetMonth = master.resetMonth ?? 6;
+
+        for (let j = 0; j < master.requires.length; j += 1) {
+          quest.requires.push({
+            area: master.requires[j].area,
+            rank: master.requires[j].rank,
+            isComplete: false,
+          });
+        }
+
+        // 全リセットでないなら復元を試行
+        if (!resetAll) {
+          // 保存されている任務達成状況から値を復元(あれば)
+          const savedQuest = savedQuests.find((v) => v.id === quest.id);
+          if (savedQuest) {
+            // 達成状況をセット
+            quest.isCompleted = !!savedQuest.isCompleted;
+            quest.requires = savedQuest.requires;
+            if (quest.isCompleted) {
+              quest.completedDate = savedQuest.completedDate;
+            }
+            quest.closingDateTime = savedQuest.closingDateTime;
+            quest.resetDateTime = savedQuest.resetDateTime;
+          }
+        }
+
+        if (!quest.closingDateTime) {
+          // 締日を設定
+          quest.setClosingDateTime();
+        }
+        if (!quest.resetDateTime) {
+          // リセット日を設定
+          quest.setResetDateTime();
+        }
+
+        quests.push(quest);
+      }
+
+      this.allQuests = quests;
+      this.setTimeRemaining();
+
+      this.intervalId = window.setInterval(() => {
+        this.setTimeRemaining();
+      }, 1000);
+    },
     updateState() {
       // ローカルの任務群に保存
       this.$store.dispatch('updateQuests', this.allQuests);
@@ -383,42 +390,28 @@ export default Vue.extend({
       this.snackBar = true;
       this.snackBarText = `[ ${this.$t(`Extra.${this.completeTargetQuest.name}`)} ] ${this.$t('Extra.達成しました。')}`;
     },
-    confirmReset(quest: Quest) {
-      this.completeTargetQuest = quest;
+    confirmReset() {
       this.confirmResetDialog = true;
     },
-    resetQuest() {
-      const quest = this.allQuests.find((v) => v.id === this.completeTargetQuest.id);
-      if (!quest) {
-        return;
-      }
-
-      quest.isCompleted = false;
-      quest.completedDate = 0;
-      for (let i = 0; i < quest.requires.length; i += 1) {
-        quest.requires[i].isComplete = false;
-      }
-      // リセット日と締日を設定
-      quest.setClosingDateTime();
-      quest.setResetDateTime();
-
-      this.confirmResetDialog = false;
+    resetAllQuest() {
+      this.initializeQuests(true);
 
       // ローカルの任務群に保存
       this.$store.dispatch('updateQuests', this.allQuests);
 
+      this.confirmResetDialog = false;
       this.snackBar = true;
-      this.snackBarText = `[ ${this.$t(`Extra.${this.completeTargetQuest.name}`)} ] ${this.$t('Extra.未達成にしました。')}`;
+      this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
     },
     setTimeRemaining() {
-      const today = Quest.createJSTDate(new Date());
+      const todayTime = Quest.createJSTDate(new Date()).getTime();
       let needUpdate = false;
 
       const timeRemainingTexts: string[] = [];
       for (let i = 0; i < this.allQuests.length; i += 1) {
         const quest = this.allQuests[i];
 
-        const diff = quest.closingDateTime - today.getTime();
+        const diff = quest.closingDateTime - todayTime;
         const remainingDay = Math.floor(diff / 86400000);
 
         let timeRemainingText = '';
@@ -444,7 +437,7 @@ export default Vue.extend({
         }
 
         // 復活処理
-        if (quest.resetDateTime && today.getTime() > quest.resetDateTime) {
+        if (quest.resetDateTime && todayTime > quest.resetDateTime) {
           // リセット日を超えていたら復活
           quest.isCompleted = false;
           quest.completedDate = 0;
@@ -453,8 +446,8 @@ export default Vue.extend({
           }
 
           // 再度、リセット日と締日を再設定
-          quest.setClosingDateTime(today);
-          quest.setResetDateTime(today);
+          quest.setClosingDateTime();
+          quest.setResetDateTime();
 
           // 更新がかけられたので更新要求
           needUpdate = true;

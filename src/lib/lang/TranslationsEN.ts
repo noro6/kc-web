@@ -784,9 +784,8 @@ export default {
       'この任務を達成状態にしますか？': 'Are you sure you want to complete this quest?',
       '達成した任務は、達成済タブに表示されるようになります。': 'Completed quests will appear in the "COMPLETED" tab.',
       '達成しました。': 'Completed.',
-      '未達成にしました。': 'Reset.',
-      'この任務を未達成状態にしますか？': 'Are you sure you want to reset this quest?',
-      '再度、未達成タブに表示されるようになります。': 'This quest will again appear in the "IN PROGRESS" tab.',
+      '全ての任務進捗をリセットします。よろしいですか？': 'Are you sure you want to reset all quest?',
+      'リセットしました。': 'Reset',
     },
     EType: {
       '小口径主砲': 'Small Cal. Main Gun',
