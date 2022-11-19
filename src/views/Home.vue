@@ -3,9 +3,6 @@
     <div class="site-title content">
       <div>{{ $t("Common.制空権シミュレータ") }}</div>
       <div class="ml-1 mt-1 body-1">v{{ $store.state.siteVersion }}</div>
-      <div class="ml-1">
-        <v-icon color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-      </div>
     </div>
     <v-card class="site-body content">
       <div class="menu-buttons">
