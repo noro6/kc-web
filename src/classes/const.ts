@@ -1214,6 +1214,7 @@ export default class Const {
       id: 'By9',
       name: 'AL作戦',
       type: 'Yearly',
+      resetMonth: 6,
       requires: [
         { area: '3-1', rank: 'S' },
         { area: '3-3', rank: 'S' },
@@ -1230,6 +1231,7 @@ export default class Const {
       id: 'By10',
       name: '機動部隊決戦',
       type: 'Yearly',
+      resetMonth: 6,
       requires: [
         { area: '5-2', rank: 'S' },
         { area: '5-2', rank: 'S' },

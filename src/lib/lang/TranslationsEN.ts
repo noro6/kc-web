@@ -763,7 +763,7 @@ export default {
       'あと': 'Time Remaining',
       'x日': '{days} days',
       '1日': '1 day',
-      '失効': 'lapse',
+      '失効': 'Time-out',
       '達成日': 'Completed Date',
       'S勝利': 'Rank S',
       'A勝利': 'Rank A',

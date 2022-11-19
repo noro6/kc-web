@@ -35,7 +35,7 @@
                     <div class="quest-icon">
                       <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48"></v-img>
                       <div class="quest-type-icon">
-                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_6.png`" width="42" height="43"></v-img>
+                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_${quest.resetMonth}.png`" width="42" height="43"></v-img>
                         <v-img v-else-if="quest.type === 'Quarterly'" :src="`./img/util/quarterly.png`" width="41" height="40"></v-img>
                         <v-img v-else-if="quest.type === 'Once'" :src="`./img/util/once.png`" width="41" height="40"></v-img>
                       </div>
@@ -113,13 +113,17 @@
                     {{ $t(`Extra.${quest.name}`) }}
                   </div>
                   <div class="ml-auto text-no-wrap caption">
-                    <div class="d-flex align-center">
+                    <div class="d-flex align-center justify-space-between">
                       <div class="mr-1 caption">{{ $t("Extra.達成日") }}:</div>
                       <div>{{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
                     </div>
-                    <div class="d-flex align-center">
+                    <div class="d-flex justify-space-between">
+                      <div class="mr-1 caption">締日:</div>
+                      <div>{{ new Date(quest.closingDateTime).toLocaleString($vuetify.lang.current) }}</div>
+                    </div>
+                    <div class="d-flex justify-space-between">
                       <div class="mr-1 caption">リセット:</div>
-                      <div>{{ new Date(quest.resetDate).toLocaleString($vuetify.lang.current) }}</div>
+                      <div>{{ new Date(quest.resetDateTime).toLocaleString($vuetify.lang.current) }}</div>
                     </div>
                   </div>
                 </div>
@@ -253,9 +257,7 @@ export default Vue.extend({
   }),
   mounted() {
     const quests = [];
-
     const savedQuests = this.$store.state.quests as Quest[];
-
     // 任務マスタより、全件取得
     for (let i = 0; i < Const.RANKING_POINT_QUESTS.length; i += 1) {
       const master = Const.RANKING_POINT_QUESTS[i];
@@ -270,6 +272,7 @@ export default Vue.extend({
       quest.steel = master.steel;
       quest.bauxite = master.bauxite;
       quest.rankingPoint = master.rankingPoint;
+      quest.resetMonth = master.resetMonth ?? 6;
 
       for (let j = 0; j < master.requires.length; j += 1) {
         quest.requires.push({
@@ -287,8 +290,18 @@ export default Vue.extend({
         quest.requires = savedQuest.requires;
         if (quest.isCompleted) {
           quest.completedDate = savedQuest.completedDate;
-          quest.resetDate = savedQuest.resetDate;
         }
+        quest.closingDateTime = savedQuest.closingDateTime;
+        quest.resetDateTime = savedQuest.resetDateTime;
+      }
+
+      if (!quest.closingDateTime) {
+        // 締日を設定
+        quest.setClosingDateTime();
+      }
+      if (!quest.resetDateTime) {
+        // リセット日を設定
+        quest.setResetDateTime();
       }
 
       quests.push(quest);
@@ -347,7 +360,7 @@ export default Vue.extend({
   watch: {},
   methods: {
     updateState() {
-      // ローカルの任務群に保存するだけ
+      // ローカルの任務群に保存
       this.$store.dispatch('updateQuests', this.allQuests);
     },
     confirmComplete(quest: Quest) {
@@ -362,21 +375,6 @@ export default Vue.extend({
 
       quest.isCompleted = true;
       quest.completedDate = new Date().getTime();
-
-      // リセット日を算出
-      const today = this.createDate(new Date());
-      const month = today.getMonth();
-      if (quest.type === 'Quarterly') {
-        quest.resetDate = this.createDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 1, 5, 0, 0)).getTime();
-      } else if (quest.type === 'Yearly') {
-        if (today.getTime() < this.createDate(new Date(today.getFullYear(), 5, 1, 4, 59, 59)).getTime()) {
-          // 今年の 6/1 4:59:59までに任務達成していたら今年の 6/1 5:00:00
-          quest.resetDate = this.createDate(new Date(today.getFullYear(), 5, 1, 5, 0, 0)).getTime();
-        } else {
-          // 上記を超えていたら、来年の 6/1 5:00:00
-          quest.resetDate = this.createDate(new Date(today.getFullYear() + 1, 5, 1, 5, 0, 0)).getTime();
-        }
-      }
       this.confirmCompleteDialog = false;
 
       // ローカルの任務群に保存
@@ -397,10 +395,12 @@ export default Vue.extend({
 
       quest.isCompleted = false;
       quest.completedDate = 0;
-      quest.resetDate = 0;
       for (let i = 0; i < quest.requires.length; i += 1) {
         quest.requires[i].isComplete = false;
       }
+      // リセット日と締日を設定
+      quest.setClosingDateTime();
+      quest.setResetDateTime();
 
       this.confirmResetDialog = false;
 
@@ -410,43 +410,24 @@ export default Vue.extend({
       this.snackBar = true;
       this.snackBarText = `[ ${this.$t(`Extra.${this.completeTargetQuest.name}`)} ] ${this.$t('Extra.未達成にしました。')}`;
     },
-    createDate(date: Date): Date {
-      return new Date(date.getTime() + (new Date().getTimezoneOffset() + 9 * 60) * 60 * 1000);
-    },
     setTimeRemaining() {
-      const today = this.createDate(new Date());
-      const month = today.getMonth();
+      const today = Quest.createJSTDate(new Date());
       let needUpdate = false;
 
       const timeRemainingTexts: string[] = [];
       for (let i = 0; i < this.allQuests.length; i += 1) {
         const quest = this.allQuests[i];
 
-        let closingTime = new Date();
-        let timeRemainingText = '';
-
-        if (quest.type === 'Quarterly') {
-          // 2,5,8,11の月末 13:59締日
-          closingTime = this.createDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 0, 13, 59, 59));
-        } else if (quest.type === 'Yearly') {
-          // 実行日付と同じ年の5月末を過ぎているかどうか
-          if (today.getTime() < this.createDate(new Date(today.getFullYear(), 5, 0, 13, 59, 59)).getTime()) {
-            // 過ぎていないなら、今年の5月末
-            closingTime = this.createDate(new Date(today.getFullYear(), 5, 0, 13, 59, 59));
-          } else {
-            // 過ぎているなら、来年の5月末
-            closingTime = this.createDate(new Date(today.getFullYear() + 1, 5, 0, 13, 59, 59));
-          }
-        }
-
-        const diff = closingTime.getTime() - today.getTime();
+        const diff = quest.closingDateTime - today.getTime();
         const remainingDay = Math.floor(diff / 86400000);
+
+        let timeRemainingText = '';
         if (remainingDay > 1) {
           timeRemainingText = `${this.$t('Extra.x日', { days: remainingDay })}`;
         } else if (remainingDay > 0) {
           timeRemainingText = `${this.$t('Extra.1日')}`;
         } else if (remainingDay === 0) {
-          // 時間単位
+          // 残り1日を切った場合、時間単位表示
           // ミリ秒から単位を修正
           const calcHour = Math.floor(diff / 1000 / 60 / 60);
           const calcMin = Math.floor(diff / 1000 / 60) % 60;
@@ -458,18 +439,22 @@ export default Vue.extend({
           const sec = calcSec < 10 ? `0${calcSec}` : calcSec;
           timeRemainingText = `${hour}:${min}:${sec}`;
         } else {
+          // 期限切れ
           timeRemainingText = `${this.$t('Extra.失効')}`;
         }
 
         // 復活処理
-        if (quest.isCompleted && quest.resetDate && today.getTime() > quest.resetDate) {
-          // 達成任務かつ単発でないかつリセット日を超えたら復活
+        if (quest.resetDateTime && today.getTime() > quest.resetDateTime) {
+          // リセット日を超えていたら復活
           quest.isCompleted = false;
           quest.completedDate = 0;
-          quest.resetDate = 0;
           for (let j = 0; j < quest.requires.length; j += 1) {
             quest.requires[j].isComplete = false;
           }
+
+          // 再度、リセット日と締日を再設定
+          quest.setClosingDateTime(today);
+          quest.setResetDateTime(today);
 
           // 更新がかけられたので更新要求
           needUpdate = true;
@@ -483,7 +468,8 @@ export default Vue.extend({
       this.timeRemaining = timeRemainingTexts;
 
       if (needUpdate) {
-        this.updateState();
+        // ローカルの任務群に保存
+        this.$store.dispatch('updateQuests', this.allQuests);
       }
     },
   },
