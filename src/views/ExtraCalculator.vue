@@ -1,7 +1,7 @@
 <template>
   <div class="mb-5">
     <div class="general-container">
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" show-arrows>
         <v-tab>{{ $t("Extra.艦娘性能一覧") }}</v-tab>
         <v-tab>{{ $t("Extra.対潜値計算機") }}</v-tab>
         <v-tab>{{ $t("Extra.戦果砲管理") }}</v-tab>
@@ -22,7 +22,7 @@
           </div>
         </v-tab-item>
         <v-tab-item>
-          <div class="mt-3 mx-3 body-2">{{ $t("Extra.戦果に関係する任務の進捗状態を管理する機能です。") }}</div>
+          <div class="mt-3 mx-3 body-2">{{ $t("Extra.戦果に関係する任務の進捗を管理する機能です。") }}</div>
           <quest-manager />
         </v-tab-item>
         <v-tab-item>

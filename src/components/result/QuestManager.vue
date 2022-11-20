@@ -12,9 +12,18 @@
     <v-divider></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item>
-        <div class="d-flex mt-3 px-5">
-          <v-spacer></v-spacer>
-          <div class="mr-12">
+        <div class="d-flex align-center mt-3 pr-5 flex-wrap">
+          <div class="ml-3">
+            <v-select
+              prepend-inner-icon="mdi-magnify"
+              v-model="questType"
+              :items="questTypes"
+              :item-text="(item) => `${$t(`Extra.${item.text}`)}`"
+              hide-details
+              dense
+            ></v-select>
+          </div>
+          <div class="ml-auto mr-12">
             <div class="d-flex justify-end">
               <div class="mr-3">{{ $t("Extra.戦果砲残弾合計") }}</div>
               <div class="total-ranking-point">{{ totalRankingPoint }}</div>
@@ -22,22 +31,18 @@
             <div class="d-flex justify-end caption">
               <div class="mr-1">{{ $t("Extra.クォータリー") }}:</div>
               <div>{{ totalQuarterlyRankingPoint }}</div>
-              <template v-if="totalYearlyRankingPoint">
-                <div class="mx-2">/</div>
-                <div class="mr-1">{{ $t("Extra.イヤーリー") }}:</div>
-                <div>{{ totalYearlyRankingPoint }}</div>
-              </template>
-              <template v-if="totalOnceRankingPoint">
-                <div class="mx-2">/</div>
-                <div class="mr-1">{{ $t("Extra.単発") }}:</div>
-                <div v-if="totalOnceRankingPoint">{{ totalOnceRankingPoint }}</div>
-              </template>
+              <div class="mx-2">/</div>
+              <div class="mr-1">{{ $t("Extra.イヤーリー") }}:</div>
+              <div>{{ totalYearlyRankingPoint }}</div>
+              <div class="mx-2">/</div>
+              <div class="mr-1">{{ $t("Extra.単発") }}:</div>
+              <div>{{ totalOnceRankingPoint }}</div>
             </div>
           </div>
         </div>
         <div class="pa-2">
           <v-expansion-panels multiple>
-            <v-expansion-panel v-for="(quest, i) in uncompletedQuests" :key="i">
+            <v-expansion-panel v-for="(quest, i) in uncompletedQuests" :key="i" v-show="questType === 'All' || quest.type === questType">
               <v-expansion-panel-header>
                 <div class="mr-3">
                   <div class="d-flex align-center">
@@ -103,9 +108,12 @@
                     ></v-checkbox>
                   </div>
                 </div>
-                <div class="mt-6">
+                <div class="mt-6 d-flex align-center">
                   <v-btn v-if="quest.getProgressValue === 100" color="primary" @click="confirmComplete(quest)">{{ $t("Extra.達成") }}</v-btn>
                   <v-btn v-else depressed color="secondary" @click="confirmComplete(quest)">{{ $t("Extra.達成") }}</v-btn>
+                  <div class="ml-auto caption">{{ $t("Extra.wikiで開く") }}:</div>
+                  <v-btn text color="info" :href="`https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99#id-${quest.id}`" target="_blank">Japan wiki</v-btn>
+                  <v-btn text color="info" :href="`https://en.kancollewiki.net/Quests#${quest.id}`" target="_blank">English wiki</v-btn>
                 </div>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -131,7 +139,7 @@
               </div>
               <div class="bar-container">
                 <div>
-                  <v-progress-linear value="100" color="success" />
+                  <v-progress-linear rounded value="100" color="success" />
                 </div>
                 <div class="progress-count">{{ quest.requires.length }} / {{ quest.requires.length }}</div>
               </div>
@@ -243,6 +251,15 @@ export default Vue.extend({
   data: () => ({
     tab: 0,
     allQuests: [] as Quest[],
+    questTypes: [
+      { value: 'All', text: '全て' },
+      { value: 'Quarterly', text: 'クォータリー' },
+      { value: 'Yearly', text: 'イヤーリー' },
+      { value: 'Once', text: '単発' },
+      { value: 'Weekly', text: 'ウィークリー' },
+      { value: 'Monthly', text: 'マンスリー' },
+    ],
+    questType: 'All',
     confirmCompleteDialog: false,
     confirmResetDialog: false,
     completeTargetQuest: new Quest(),
@@ -347,13 +364,14 @@ export default Vue.extend({
           }
         }
 
+        const today = this.getToday();
         if (!quest.closingDateTime) {
           // 締日を設定
-          quest.setClosingDateTime();
+          quest.setClosingDateTime(today);
         }
         if (!quest.resetDateTime) {
           // リセット日を設定
-          quest.setResetDateTime();
+          quest.setResetDateTime(today);
         }
 
         quests.push(quest);
@@ -365,6 +383,9 @@ export default Vue.extend({
       this.intervalId = window.setInterval(() => {
         this.setTimeRemaining();
       }, 1000);
+    },
+    getToday() {
+      return new Date();
     },
     updateState() {
       // ローカルの任務群に保存
@@ -381,7 +402,7 @@ export default Vue.extend({
       }
 
       quest.isCompleted = true;
-      quest.completedDate = new Date().getTime();
+      quest.completedDate = this.getToday().getTime();
       this.confirmCompleteDialog = false;
 
       // ローカルの任務群に保存
@@ -404,12 +425,30 @@ export default Vue.extend({
       this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
     },
     setTimeRemaining() {
-      const todayTime = Quest.createJSTDate(new Date()).getTime();
+      const today = Quest.createJSTDate(this.getToday());
+      const todayTime = today.getTime();
       let needUpdate = false;
 
       const timeRemainingTexts: string[] = [];
       for (let i = 0; i < this.allQuests.length; i += 1) {
         const quest = this.allQuests[i];
+
+        // 復活判定
+        if (quest.resetDateTime && todayTime > quest.resetDateTime) {
+          // リセット日を超えていたら復活
+          quest.isCompleted = false;
+          quest.completedDate = 0;
+          for (let j = 0; j < quest.requires.length; j += 1) {
+            quest.requires[j].isComplete = false;
+          }
+
+          // 再度、リセット日と締日を再設定
+          quest.setClosingDateTime(new Date(todayTime));
+          quest.setResetDateTime(new Date(todayTime));
+
+          // 更新がかけられたので更新要求
+          needUpdate = true;
+        }
 
         const diff = quest.closingDateTime - todayTime;
         const remainingDay = Math.floor(diff / 86400000);
@@ -434,23 +473,6 @@ export default Vue.extend({
         } else {
           // 期限切れ
           timeRemainingText = `${this.$t('Extra.失効')}`;
-        }
-
-        // 復活処理
-        if (quest.resetDateTime && todayTime > quest.resetDateTime) {
-          // リセット日を超えていたら復活
-          quest.isCompleted = false;
-          quest.completedDate = 0;
-          for (let j = 0; j < quest.requires.length; j += 1) {
-            quest.requires[j].isComplete = false;
-          }
-
-          // 再度、リセット日と締日を再設定
-          quest.setClosingDateTime();
-          quest.setResetDateTime();
-
-          // 更新がかけられたので更新要求
-          needUpdate = true;
         }
 
         if (!quest.isCompleted) {

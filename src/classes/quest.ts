@@ -80,13 +80,11 @@ export default class Quest {
 
   /**
    * 任務のリセット日を返却
-   * @static
-   * @param {Quest} quest
-   * @returns {number}
+   * @param {Date} baseDate 算出基準日
    * @memberof Quest
    */
-  public setResetDateTime(now = new Date()): void {
-    const today = Quest.createJSTDate(now);
+  public setResetDateTime(baseDate: Date): void {
+    const today = Quest.createJSTDate(baseDate);
     const month = today.getMonth();
 
     if (this.type === 'Quarterly') {
@@ -113,14 +111,12 @@ export default class Quest {
   }
 
   /**
-   * 現在時刻を基準に、任務のリセット日をセット
-   * @static
-   * @param {Quest} quest
-   * @returns {number}
+   * 任務の締日を返却
+   * @param {Date} baseDate 算出基準日
    * @memberof Quest
    */
-  public setClosingDateTime(now = new Date()): void {
-    const today = Quest.createJSTDate(now);
+  public setClosingDateTime(baseDate: Date): void {
+    const today = Quest.createJSTDate(baseDate);
     const month = today.getMonth();
 
     if (this.type === 'Quarterly') {
@@ -129,13 +125,13 @@ export default class Quest {
     } else if (this.type === 'Yearly') {
       const resetMonth = this.resetMonth - 1;
       // 実行日付と同じ年の5月末を過ぎているかどうか
-      const thisYearClosingDateTime = Quest.createJSTDate(new Date(today.getFullYear(), resetMonth, 0, 13, 59, 59)).getTime();
+      const thisYearClosingDateTime = Quest.createJSTDate(new Date(today.getFullYear(), resetMonth, 1, 4, 59, 59)).getTime();
       if (today.getTime() < thisYearClosingDateTime) {
-        // 過ぎていないなら、今年の5月末
+        // 過ぎていないなら、今年の更新月4:59:59
         this.closingDateTime = thisYearClosingDateTime;
       } else {
-        // 過ぎているなら、来年の5月末
-        this.closingDateTime = Quest.createJSTDate(new Date(today.getFullYear() + 1, resetMonth, 0, 13, 59, 59)).getTime();
+        // 過ぎているなら、来年の更新月4:59:59
+        this.closingDateTime = Quest.createJSTDate(new Date(today.getFullYear() + 1, resetMonth, 1, 4, 59, 59)).getTime();
       }
     } else {
       this.closingDateTime = 0;
