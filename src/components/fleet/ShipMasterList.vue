@@ -73,6 +73,8 @@
       <template v-slot:[`header.range`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.night`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+      <template v-slot:[`header.fuel`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+      <template v-slot:[`header.ammo`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`item.id`]="{ item }">
         <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
       </template>
