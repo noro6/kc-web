@@ -115,6 +115,9 @@ export default class SiteSetting {
   /** 編成データのオートセーブ */
   public enabledAutoSave: boolean;
 
+  /** 対潜値計算機の目標対潜値 */
+  public requiredAswTargets: number[];
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -151,6 +154,7 @@ export default class SiteSetting {
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
       this.popUpCount = setting.popUpCount ?? 400;
       this.enabledAutoSave = !!setting.enabledAutoSave;
+      this.requiredAswTargets = setting.requiredAswTargets ? setting.requiredAswTargets : [];
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -225,6 +229,7 @@ export default class SiteSetting {
       this.isIncludeUnLockItem = false;
       this.popUpCount = 400;
       this.enabledAutoSave = false;
+      this.requiredAswTargets = [];
     }
   }
 }

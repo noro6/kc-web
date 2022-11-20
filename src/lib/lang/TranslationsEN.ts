@@ -718,6 +718,7 @@ export default {
       '艦隊コード': 'Ship',
       '装備コード': 'Equipment',
       '艦隊晒しページ(仮)で展開する場合はこちらから': 'Click here to expand on the 艦隊晒しページ(仮).',
+      '従来の反映手順より少し楽になったタイプです。': 'This type is a little easier than the conventional reflection procedure.',
       '反映手順を表示': 'Show steps to reflect',
       '反映手順を隠す': 'Hide steps to reflect',
       '文字列thisKCSをコピー': 'Copy the string "this.KCS"',

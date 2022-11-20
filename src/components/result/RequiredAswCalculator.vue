@@ -165,21 +165,29 @@ export default Vue.extend({
     results: [] as { targetAsw: number; missingAsw: number; requiredLevel: number; requiredExp: number }[],
   }),
   mounted() {
-    for (let i = 0; i < 7; i += 1) {
+    const setting = this.$store.state.siteSetting as SiteSetting;
+
+    for (let i = 0; i < 10; i += 1) {
       this.results.push({
         targetAsw: 0,
         missingAsw: 0,
         requiredLevel: 0,
         requiredExp: 0,
       });
+
+      if (i < setting.requiredAswTargets.length) {
+        this.results[i].targetAsw = setting.requiredAswTargets[i];
+      }
     }
 
-    this.results[0].targetAsw = 100;
-    this.results[1].targetAsw = 85;
-    this.results[2].targetAsw = 70;
-    this.results[3].targetAsw = 65;
-    this.results[4].targetAsw = 60;
-    this.results[5].targetAsw = 50;
+    if (!setting.requiredAswTargets.length) {
+      this.results[0].targetAsw = 100;
+      this.results[1].targetAsw = 85;
+      this.results[2].targetAsw = 70;
+      this.results[3].targetAsw = 65;
+      this.results[4].targetAsw = 60;
+      this.results[5].targetAsw = 50;
+    }
   },
   computed: {
     ship(): Ship {
@@ -365,6 +373,10 @@ export default Vue.extend({
       }
 
       this.results = results;
+
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.requiredAswTargets = results.map((v) => v.targetAsw);
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });
