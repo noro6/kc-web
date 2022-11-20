@@ -14,7 +14,7 @@
     <template v-if="ship.isEmpty">
       <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
         <div class="align-self-center">{{ shipName }}</div>
-        <div class="empty-temp-list">
+        <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon class="align-self-center" color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
@@ -39,10 +39,11 @@
         <div class="flex-grow-1">
           <div class="caption">
             <v-menu
-              offset-y
               v-model="editStatusMenu"
               :close-on-content-click="false"
               transition="slide-y-transition"
+              max-width="360"
+              min-width="360"
               bottom
               right
               @input="onEditStatusMenuToggle"
@@ -57,18 +58,20 @@
                 </div>
               </template>
               <v-card class="px-5 pt-5 pb-3">
-                <div class="d-flex">
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 1" color="grey">Lv1</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 50" color="primary">Lv50</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 80" color="teal">Lv80</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 99" color="teal">Lv99</v-btn>
-                  <v-btn class="mr-1 px-0" small outlined @click.stop="level = 175" color="red lighten-2">Lv175</v-btn>
+                <div class="d-flex justify-space-between">
+                  <v-btn small outlined @click.stop="level = 1" color="grey">Lv1</v-btn>
+                  <v-btn small outlined @click.stop="level = 50" color="primary">Lv50</v-btn>
+                  <v-btn small outlined @click.stop="level = 80" color="teal">Lv80</v-btn>
+                  <v-btn small outlined @click.stop="level = 99" color="teal">Lv99</v-btn>
+                  <v-btn small outlined @click.stop="level = 175" color="red lighten-2">Lv175</v-btn>
                 </div>
-                <div class="d-flex mt-4">
+                <div class="d-flex mt-4 align-center">
                   <div class="edit-status-menu-text">
                     <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
                   </div>
-                  <v-slider max="175" min="1" v-model="level" hide-details class="align-self-center"></v-slider>
+                  <div class="flex-grow-1">
+                    <v-slider max="175" min="1" v-model="level" hide-details></v-slider>
+                  </div>
                 </div>
                 <v-divider class="my-3"></v-divider>
                 <div class="edit-status-container">
@@ -87,8 +90,7 @@
                 <v-divider class="my-3"></v-divider>
                 <div class="d-flex">
                   <v-spacer></v-spacer>
-                  <v-btn @click="applyEdit()" color="primary" class="mr-2">{{ $t("Common.適用") }}</v-btn>
-                  <v-btn @click="editStatusMenu = false" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
+                  <v-btn @click="closeEditStatusMenu()" color="secondary">{{ $t("Common.閉じる") }}</v-btn>
                 </div>
               </v-card>
             </v-menu>
@@ -129,7 +131,7 @@
             </template>
             <table class="asw-table">
               <tr>
-                <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }}:</td>
+                <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }} :</td>
                 <td class="text-right pl-2">
                   <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">
                     <template v-if="!isNotJapanese">
@@ -144,23 +146,26 @@
                 </td>
               </tr>
               <tr>
-                <td class="body-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.艦娘") }}</span
-                  >：
+                <td class="body-2 grey--text text--lighten-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.艦娘") }}</span> :
                 </td>
-                <td class="text-right">{{ ship.asw }}</td>
+                <td class="text-right">{{ ship.asw - ship.improveAsw }}</td>
+              </tr>
+              <tr v-if="ship.improveAsw">
+                <td class="body-2 grey--text text--lighten-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.改修") }}</span> :
+                </td>
+                <td class="text-right">{{ ship.improveAsw }}</td>
               </tr>
               <tr>
-                <td class="body-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備") }}</span
-                  >：
+                <td class="body-2 grey--text text--lighten-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備") }}</span> :
                 </td>
                 <td class="text-right">{{ ship.itemAsw }}</td>
               </tr>
-              <tr>
-                <td class="body-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span
-                  >：
+              <tr v-if="ship.itemBonusStatus.asw">
+                <td class="body-2 grey--text text--lighten-2">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span> :
                 </td>
                 <td class="text-right">{{ ship.itemBonusStatus.asw }}</td>
               </tr>
@@ -168,11 +173,18 @@
                 <td colspan="3"></td>
               </tr>
               <tr>
-                <td class="body-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span
-                  >：
+                <td class="body-2 grey--text text--lighten-2 pb-1">
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span> :
                 </td>
-                <td class="text-right">{{ ship.displayStatus.asw }}</td>
+                <td class="text-right pb-1">{{ ship.displayStatus.asw }}</td>
+              </tr>
+              <tr v-if="!ship.enabledTSBK && ship.missingAsw">
+                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.不足対潜値") }} :</td>
+                <td class="text-right">{{ ship.missingAsw }}</td>
+              </tr>
+              <tr v-if="!ship.enabledTSBK && ship.needTSBKLevel">
+                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.必要艦娘Lv") }} :</td>
+                <td class="text-right">{{ ship.needTSBKLevel }}</td>
               </tr>
             </table>
           </v-tooltip>
@@ -193,7 +205,7 @@
             </template>
             <span>{{ $t("Fleet.コンバート改造") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="handleShowTempShipList">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
                 <v-icon>mdi-upload</v-icon>
@@ -201,7 +213,7 @@
             </template>
             <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="handleShowItemPreset">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
                 <v-icon>mdi-briefcase-variant</v-icon>
@@ -209,7 +221,7 @@
             </template>
             <span>{{ $t("Fleet.装備プリセット展開") }}</span>
           </v-tooltip>
-          <v-tooltip bottom color="black">
+          <v-tooltip bottom color="black" v-if="!hideActiveButton">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon small v-show="ship.isActive" v-bind="attrs" v-on="on" @click.stop="changeActive(false)">
                 <v-icon>mdi-eye</v-icon>
@@ -217,7 +229,7 @@
             </template>
             <span>{{ $t("Fleet.計算対象から省く") }}</span>
           </v-tooltip>
-          <v-btn icon small v-show="!ship.isActive" @click.stop="changeActive(true)">
+          <v-btn icon small v-show="!ship.isActive && !hideActiveButton" @click.stop="changeActive(true)">
             <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
@@ -461,11 +473,9 @@ export default Vue.extend({
     },
     handleShowTempShipList: {
       type: Function,
-      required: true,
     },
     handleShowItemPreset: {
       type: Function,
-      required: true,
     },
     value: {
       type: Ship,
@@ -488,6 +498,10 @@ export default Vue.extend({
       default: 0,
     },
     isLine2: {
+      type: Boolean,
+      default: false,
+    },
+    hideActiveButton: {
       type: Boolean,
       default: false,
     },
@@ -595,19 +609,21 @@ export default Vue.extend({
         this.luck = this.ship.luck;
         this.asw = this.ship.asw;
         this.antiAir = this.ship.antiAir;
+      } else {
+        // 閉じられる際にステータス反映
+        const builder: ShipBuilder = {
+          ship: this.ship,
+          level: this.level,
+          hp: this.hp,
+          luck: this.luck,
+          antiAir: this.antiAir,
+          asw: this.asw,
+        };
+
+        this.setShip(new Ship(builder));
       }
     },
-    applyEdit(): void {
-      const builder: ShipBuilder = {
-        ship: this.ship,
-        level: this.level,
-        hp: this.hp,
-        luck: this.luck,
-        antiAir: this.antiAir,
-        asw: this.asw,
-      };
-
-      this.setShip(new Ship(builder));
+    closeEditStatusMenu() {
       this.editStatusMenu = false;
       this.onEditStatusMenuToggle();
     },

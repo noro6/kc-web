@@ -234,7 +234,7 @@
             </div>
             <div class="ml-auto">
               <v-btn color="error" :disabled="!tempShipList.length" @click="resetTempShipList()">
-                <v-icon>mdi-trash-can-outline</v-icon>{{ $t("Fleet.リセット") }}
+                <v-icon>mdi-trash-can-outline</v-icon>{{ $t("Common.リセット") }}
               </v-btn>
             </div>
           </div>

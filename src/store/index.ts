@@ -19,12 +19,13 @@ import {
   Master, MasterEnemy, MasterEquipmentExSlot, MasterEquipmentShip, MasterItem, MasterMap, MasterShip, MasterWorld,
 } from '@/classes/interfaces/master';
 import OutputHistory from '@/classes/saveData/outputHistory';
+import Quest from '@/classes/quest';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.28.9',
+    siteVersion: '2.29.0',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -36,6 +37,7 @@ export default new Vuex.Store({
     manualEnemies: [] as EnemyMaster[],
     defaultEnemies: [] as EnemyMaster[],
     outputHistories: [] as OutputHistory[],
+    quests: [] as Quest[],
     saveData: new SaveData(),
     equipShips: [] as MasterEquipmentShip[],
     exSlotEquipShips: [] as MasterEquipmentExSlot[],
@@ -126,6 +128,9 @@ export default new Vuex.Store({
     },
     updateOutputHistories: (state, values: OutputHistory[]) => {
       state.outputHistories = values;
+    },
+    updateQuests: (state, values: Quest[]) => {
+      state.quests = values;
     },
     setMainSaveData: (state, value: SaveData) => {
       state.mainSaveData = value;
@@ -219,6 +224,14 @@ export default new Vuex.Store({
         });
       }
       context.commit('updateOutputHistories', values);
+    },
+    updateQuests: (context, values: Quest[]) => {
+      if (!context.state.disabledDatabase) {
+        context.state.kcWebDatabase.quests.clear().then(() => {
+          context.state.kcWebDatabase.quests.bulkAdd(values);
+        });
+      }
+      context.commit('updateQuests', values);
     },
     updateSetting: (context, value: SiteSetting) => {
       if (!context.state.disabledDatabase) {
@@ -370,8 +383,12 @@ export default new Vuex.Store({
       const loadHistory = db.outputHistories.toArray().then((data) => {
         context.commit('updateOutputHistories', data);
       });
+      // 出力履歴
+      const quest = db.quests.toArray().then((data) => {
+        context.commit('updateQuests', data);
+      });
 
-      const loader = [loadShipStock, loadItemStock, loadItemPreset, loadManualEnemy, loadHistory];
+      const loader = [loadShipStock, loadItemStock, loadItemPreset, loadManualEnemy, loadHistory, quest];
       Promise.all(loader).then(() => {
         context.commit('saveDataLoadCompleted', true);
       });

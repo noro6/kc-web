@@ -6,6 +6,7 @@ import ItemStock from './item/itemStock';
 import SaveData from './saveData/saveData';
 import SiteSetting from './siteSetting';
 import OutputHistory from './saveData/outputHistory';
+import Quest from './quest';
 
 export default class KcWebDatabase extends Dexie {
   public savedata!: Dexie.Table<SaveData, string>;
@@ -21,6 +22,8 @@ export default class KcWebDatabase extends Dexie {
   public manualEnemies!: Dexie.Table<EnemyMaster, number>;
 
   public outputHistories!: Dexie.Table<OutputHistory, number>;
+
+  public quests!: Dexie.Table<Quest, string>;
 
   constructor() {
     super('kc-web-database');
@@ -61,6 +64,18 @@ export default class KcWebDatabase extends Dexie {
       itemPresets: 'id',
       manualEnemies: 'id',
       outputHistories: 'id',
+    });
+
+    // v4 共有URL発行履歴追加
+    this.version(5).stores({
+      savedata: 'id',
+      items: 'id',
+      ships: 'uniqueId',
+      setting: 'id',
+      itemPresets: 'id',
+      manualEnemies: 'id',
+      outputHistories: 'id',
+      quests: 'id',
     });
   }
 }

@@ -567,15 +567,17 @@ export default Vue.extend({
       // 現在の計算画面内で配備されている艦娘を列挙する
       this.usedShips = [];
       const mainData = this.$store.state.mainSaveData as SaveData;
-      const manager = mainData.tempData[mainData.tempIndex];
-      if (enabledUserShip && manager) {
-        let allShips: Ship[] = [];
-        for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
-          const fleet = manager.fleetInfo.fleets[i];
-          allShips = allShips.concat(fleet.ships.filter((v) => v.data.id > 0));
-        }
+      if (mainData) {
+        const manager = mainData.tempData[mainData.tempIndex];
+        if (enabledUserShip && manager) {
+          let allShips: Ship[] = [];
+          for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+            const fleet = manager.fleetInfo.fleets[i];
+            allShips = allShips.concat(fleet.ships.filter((v) => v.data.id > 0));
+          }
 
-        this.usedShips = allShips;
+          this.usedShips = allShips;
+        }
       }
 
       this.changeMultiLine(this.setting.isMultiLineForShipList);

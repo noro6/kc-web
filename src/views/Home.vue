@@ -3,13 +3,10 @@
     <div class="site-title content">
       <div>{{ $t("Common.制空権シミュレータ") }}</div>
       <div class="ml-1 mt-1 body-1">v{{ $store.state.siteVersion }}</div>
-      <div class="ml-1">
-        <v-icon color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-      </div>
     </div>
     <v-card class="site-body content">
       <div class="menu-buttons">
-        <div class="my-2 mx-4">
+        <div class="ma-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
             <v-icon>mdi-calculator</v-icon>
             <span class="ml-1">{{ $t("Home.制空権シミュレータ") }}</span>
@@ -23,7 +20,7 @@
             </div>
           </div>
         </div>
-        <div class="my-2 mx-4">
+        <div class="ma-4">
           <v-btn x-large dark color="blue" @click="$router.push('manager')">
             <v-icon>mdi-database-cog</v-icon>
             <span class="ml-1">{{ $t("Home.艦娘 / 装備管理") }}</span>
@@ -39,13 +36,22 @@
             </div>
           </div>
         </div>
-        <div class="mt-4 mx-4">
+        <div class="ma-4">
           <v-btn x-large dark color="blue darken-4" @click="$router.push('list')">
             <v-icon>mdi-human-greeting-variant</v-icon>
             <span class="ml-1">{{ $t("Home.みんなの編成") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
             <div>{{ $t("Home.他の人がアップロードした編成データを閲覧できます。") }}</div>
+          </div>
+        </div>
+        <div class="ma-4">
+          <v-btn x-large dark color="pink lighten-1" @click="$router.push('extra')">
+            <v-icon>mdi-gift-open</v-icon>
+            <span class="ml-1">{{ $t("Home.おまけ") }}</span>
+          </v-btn>
+          <div class="mt-2 body-2">
+            <div>{{ $t("Home.おまけのページです") }}</div>
           </div>
         </div>
       </div>

@@ -175,6 +175,12 @@ export default class Ship implements ShipBase {
   /** 夜偵発動率 */
   public readonly nightContactRate: number;
 
+  /** 先制対潜不足対潜値 */
+  public missingAsw = 0;
+
+  /** 先制対潜可になるまでの残りLevel */
+  public needTSBKLevel = 0;
+
   /** 固定撃墜 画面表示用 */
   public fixDown = 0;
 
@@ -897,6 +903,10 @@ export default class Ship implements ShipBase {
    * @memberof Ship
    */
   private getEnabledTSBK(): boolean {
+    if (this.data.id === 0) {
+      return false;
+    }
+
     if ([141, 478, 624, 394, 893, 681, 920].includes(this.data.id) || this.data.type2 === 91) {
       // 無条件発動 順に五十鈴改二 龍田改二 夕張改二丁 J級改 Samuel B.Roberts(改 or MK.II) Fletcher級
       return true;
@@ -909,20 +919,31 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.DE) {
       // 海防艦
-      if (this.displayStatus.asw >= 60 && hasSonar) {
-        // => 表示対潜値60 + ソナー有
-        return true;
-      }
       if (this.displayStatus.asw >= 75 && this.itemAsw >= 4) {
         // => 表示対潜値75 + 装備対潜値合計が4以上
-        return true;
+        if (this.displayStatus.asw >= 75) {
+          return true;
+        }
+        this.missingAsw = 75 - this.displayStatus.asw;
+      }
+      if (this.displayStatus.asw >= 60 && hasSonar) {
+        // => 表示対潜値60 + ソナー有
+        if (this.displayStatus.asw >= 60) {
+          return true;
+        }
+        this.missingAsw = 60 - this.displayStatus.asw;
       }
     }
 
     if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.AO || type === SHIP_TYPE.AO_2) {
       // 駆逐 軽巡 練巡 雷巡 補給
       // => 表示対潜値100 + ソナー
-      return this.displayStatus.asw >= 100 && hasSonar;
+      if (hasSonar) {
+        if (this.displayStatus.asw >= 100) {
+          return true;
+        }
+        this.missingAsw = 100 - this.displayStatus.asw;
+      }
     }
 
     if ((this.data.type2 === 76 && this.data.name.indexOf('改') >= 0) || this.data.id === 646) {
@@ -932,19 +953,28 @@ export default class Ship implements ShipBase {
     }
 
     if (type === SHIP_TYPE.CVL) {
-      // 軽空母/護衛空母
+      // 軽空母 / 護衛空母
       const hasASWPlane = items.some((v) => v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
-      if (hasSonar && this.displayStatus.asw >= 50 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
-        // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
-        return true;
-      }
-      if (this.displayStatus.asw >= 65 && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
-        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
-        return true;
-      }
-      if (hasSonar && this.displayStatus.asw >= 100) {
+      if (hasSonar && (hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
         // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
-        return hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1);
+        if (this.displayStatus.asw >= 100) {
+          return true;
+        }
+        this.missingAsw = 100 - this.displayStatus.asw;
+      }
+      if (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7)) {
+        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        if (this.displayStatus.asw >= 65) {
+          return true;
+        }
+        this.missingAsw = 65 - this.displayStatus.asw;
+      }
+      if (hasSonar && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+        // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        if (this.displayStatus.asw >= 50) {
+          return true;
+        }
+        this.missingAsw = 50 - this.displayStatus.asw;
       }
     }
 
@@ -961,7 +991,25 @@ export default class Ship implements ShipBase {
     if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
       // 陸軍と航空戦艦
       // => 表示対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
-      return this.displayStatus.asw >= 100 && hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      if (hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26)) {
+        if (this.displayStatus.asw >= 100) {
+          return true;
+        }
+        this.missingAsw = 100 - this.displayStatus.asw;
+      }
+    }
+
+    // 対潜値が問題で先制対潜に失敗しているなら、残りの対潜値から上げるべきレベルを算出
+    if (this.missingAsw && this.data.maxAsw) {
+      const currentAsw = this.asw - this.improveAsw;
+      this.needTSBKLevel = -1;
+      for (let level = this.level + 1; level <= 999; level += 1) {
+        const asw = Ship.getStatusFromLevel(level, this.data.maxAsw, this.data.minAsw);
+        if (asw - currentAsw >= this.missingAsw) {
+          this.needTSBKLevel = level;
+          break;
+        }
+      }
     }
 
     return false;

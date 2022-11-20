@@ -1167,6 +1167,7 @@ export default Vue.extend({
       if (local === 'ja' || local === 'en') {
         document.getElementsByTagName('html')[0].lang = local;
       }
+      this.$vuetify.lang.current = local;
     },
     toggleItemUIHasBorder() {
       this.setting.itemUI.border = !this.setting.itemUI.border;

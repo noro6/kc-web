@@ -20,7 +20,7 @@
       </div>
       <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
       <div class="ml-3 align-self-center">
-        <v-btn color="secondary" small @click="resetFilter()">{{ $t("ItemList.リセット") }}</v-btn>
+        <v-btn color="secondary" small @click="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
       </div>
       <v-spacer></v-spacer>
       <div class="d-none d-sm-block mr-5">
@@ -274,7 +274,7 @@
         </div>
         <v-divider></v-divider>
         <div class="d-flex mt-3 justify-end">
-          <v-btn color="secondary" @click="resetOrdering">{{ $t("ItemList.リセット") }}</v-btn>
+          <v-btn color="secondary" @click="resetOrdering">{{ $t("Common.リセット") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -906,25 +906,27 @@ export default Vue.extend({
       // 現在の計算画面内で配備されている装備を列挙する
       this.usedItems = [];
       const mainData = this.$store.state.mainSaveData as SaveData;
-      const manager = mainData.tempData[mainData.tempIndex];
-      if (manager) {
-        let allItems: Item[] = [];
-        // 艦隊データから装備全取得
-        for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
-          const { ships } = manager.fleetInfo.fleets[i];
-          for (let j = 0; j < ships.length; j += 1) {
-            allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
-            if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+      if (mainData) {
+        const manager = mainData.tempData[mainData.tempIndex];
+        if (manager) {
+          let allItems: Item[] = [];
+          // 艦隊データから装備全取得
+          for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+            const { ships } = manager.fleetInfo.fleets[i];
+            for (let j = 0; j < ships.length; j += 1) {
+              allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+              if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+            }
           }
-        }
 
-        // 基地航空隊データから装備全取得
-        const { airbases } = manager.airbaseInfo;
-        for (let i = 0; i < airbases.length; i += 1) {
-          allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
-        }
+          // 基地航空隊データから装備全取得
+          const { airbases } = manager.airbaseInfo;
+          for (let i = 0; i < airbases.length; i += 1) {
+            allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
+          }
 
-        this.usedItems = allItems;
+          this.usedItems = allItems;
+        }
       }
 
       // 装備可能フィルタ
