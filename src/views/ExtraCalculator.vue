@@ -77,7 +77,11 @@ export default Vue.extend({
     tab: 0,
   }),
   mounted() {
-    //
+    const { hash } = document.location;
+    if (hash.endsWith('asw-calculator')) {
+      this.tab = 1;
+      this.$router.push({ path: '/extra' });
+    }
   },
   computed: {
     completed() {
