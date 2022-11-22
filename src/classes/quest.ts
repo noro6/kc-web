@@ -1,3 +1,5 @@
+import { padStart } from 'lodash';
+
 export interface QuestRequireBattle {
   area: string;
   rank: string;
@@ -68,13 +70,13 @@ export default class Quest {
   }
 
   /**
-   * 強制日本標準時時刻作成
+   * 日本標準時時刻に変換
    * @static
    * @param {Date} date
    * @returns {Date}
    * @memberof Quest
    */
-  public static createJSTDate(date: Date): Date {
+  private static toJSTDate(date: Date): Date {
     return new Date(date.getTime() + (new Date().getTimezoneOffset() + 9 * 60) * 60 * 1000);
   }
 
@@ -83,31 +85,36 @@ export default class Quest {
    * @param {Date} baseDate 算出基準日
    * @memberof Quest
    */
-  public setResetDateTime(baseDate: Date): void {
-    const today = Quest.createJSTDate(baseDate);
-    const month = today.getMonth();
+  public static getResetDateTime(quest: Quest, baseDate: Date): number {
+    const today = Quest.toJSTDate(baseDate);
+    // 現在月(1～12)
+    const month = today.getMonth() + 1;
 
-    if (this.type === 'Quarterly') {
-      if (month % 3 === 2 && today.getDate() === 1 && today.getHours() <= 4) {
-        // 本日の5:00:00更新
-        this.resetDateTime = Quest.createJSTDate(new Date(today.getFullYear(), month, 1, 5, 0, 0)).getTime();
+    let resetDateTime = 0;
+
+    if (quest.type === 'Quarterly') {
+      // 12月の更新日を超えているなら
+      if (month > 11 && today.getDate() === 1 && today.getHours() >= 5) {
+        // 来年の3月1日05:00:00
+        resetDateTime = new Date(`${today.getFullYear() + 1}-03-01T05:00:00+0900`).getTime();
       } else {
-        // 次回更新月の5:00:00更新
-        this.resetDateTime = Quest.createJSTDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 1, 5, 0, 0)).getTime();
+        // 直近の [3,6,9,12]月 1日 05:00:00
+        const nextResetMonth = month + (3 - (month % 3));
+        resetDateTime = new Date(`${today.getFullYear()}-${padStart(`${nextResetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
       }
-    } else if (this.type === 'Yearly') {
-      const resetMonth = this.resetMonth - 1;
-      const thisYearResetDate = Quest.createJSTDate(new Date(today.getFullYear(), resetMonth, 1, 5, 0, 0)).getTime();
-      if (today.getTime() < thisYearResetDate) {
-        // 今年の 6/1 4:59:59までに任務達成していたら今年の 6/1 5:00:00
-        this.resetDateTime = thisYearResetDate;
+    } else if (quest.type === 'Yearly') {
+      // 実行日付と同じ年の更新時刻を過ぎているかどうか
+      const thisYearClosingDateTime = new Date(`${today.getFullYear()}-${padStart(`${quest.resetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
+      if (today.getTime() < thisYearClosingDateTime) {
+        // 過ぎていないなら、今年の更新月4:59:59
+        resetDateTime = thisYearClosingDateTime;
       } else {
-        // 上記を超えていたら、来年の 6/1 5:00:00
-        this.resetDateTime = Quest.createJSTDate(new Date(today.getFullYear() + 1, resetMonth, 1, 5, 0, 0)).getTime();
+        // 過ぎているなら、来年の更新月4:59:59
+        resetDateTime = new Date(`${today.getFullYear() + 1}-${padStart(`${quest.resetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
       }
-    } else {
-      this.resetDateTime = 0;
     }
+
+    return resetDateTime;
   }
 
   /**
@@ -115,26 +122,37 @@ export default class Quest {
    * @param {Date} baseDate 算出基準日
    * @memberof Quest
    */
-  public setClosingDateTime(baseDate: Date): void {
-    const today = Quest.createJSTDate(baseDate);
-    const month = today.getMonth();
+  public static getClosingDateTime(quest: Quest, baseDate: Date): number {
+    // JSTにおける現在時刻を取得
+    const today = Quest.toJSTDate(baseDate);
+    // 現在月(1～12)
+    const month = today.getMonth() + 1;
+    const oneDayTime = 24 * 60 * 60 * 1000;
 
-    if (this.type === 'Quarterly') {
-      // 2,5,8,11の月末 13:59締日
-      this.closingDateTime = Quest.createJSTDate(new Date(today.getFullYear(), month + 2 - ((month + 1) % 3) + 1, 0, 13, 59, 59)).getTime();
-    } else if (this.type === 'Yearly') {
-      const resetMonth = this.resetMonth - 1;
-      // 実行日付と同じ年の5月末を過ぎているかどうか
-      const thisYearClosingDateTime = Quest.createJSTDate(new Date(today.getFullYear(), resetMonth, 1, 4, 59, 59)).getTime();
+    let closingDateTime = 0;
+
+    if (quest.type === 'Quarterly') {
+      // 12月の更新日を超えているなら
+      if (month > 11 && today.getDate() === 1 && today.getHours() >= 5) {
+        // 来年の2月末 => 3月1日13:59:59から-24時間分
+        closingDateTime = new Date(`${today.getFullYear() + 1}-03-01T13:59:59+0900`).getTime() - oneDayTime;
+      } else {
+        // 直近の2,5,8,11月末 => 直近の [3,6,9,12]月 1日 13:59:59から-24時間分
+        const nextResetMonth = month + (3 - (month % 3));
+        closingDateTime = new Date(`${today.getFullYear()}-${padStart(`${nextResetMonth}`, 2, '0')}-01T13:59:59+0900`).getTime() - oneDayTime;
+      }
+    } else if (quest.type === 'Yearly') {
+      // 実行日付と同じ年のリセット時刻直前を過ぎているかどうか
+      const thisYearClosingDateTime = new Date(`${today.getFullYear()}-${padStart(`${quest.resetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
       if (today.getTime() < thisYearClosingDateTime) {
         // 過ぎていないなら、今年の更新月4:59:59
-        this.closingDateTime = thisYearClosingDateTime;
+        closingDateTime = new Date(`${today.getFullYear()}-${padStart(`${quest.resetMonth}`, 2, '0')}-01T04:59:59+0900`).getTime();
       } else {
         // 過ぎているなら、来年の更新月4:59:59
-        this.closingDateTime = Quest.createJSTDate(new Date(today.getFullYear() + 1, resetMonth, 1, 4, 59, 59)).getTime();
+        closingDateTime = new Date(`${today.getFullYear() + 1}-${padStart(`${quest.resetMonth}`, 2, '0')}-01T04:59:59+0900`).getTime();
       }
-    } else {
-      this.closingDateTime = 0;
     }
+
+    return closingDateTime;
   }
 }

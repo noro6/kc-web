@@ -365,13 +365,15 @@ export default Vue.extend({
         }
 
         const today = this.getToday();
-        if (!quest.closingDateTime) {
+        const closingDateTime = Quest.getClosingDateTime(quest, today);
+        const resetDateTime = Quest.getResetDateTime(quest, today);
+        if (!quest.closingDateTime || closingDateTime !== quest.closingDateTime) {
           // 締日を設定
-          quest.setClosingDateTime(today);
+          quest.closingDateTime = closingDateTime;
         }
-        if (!quest.resetDateTime) {
+        if (!quest.resetDateTime || resetDateTime !== quest.resetDateTime) {
           // リセット日を設定
-          quest.setResetDateTime(today);
+          quest.resetDateTime = resetDateTime;
         }
 
         quests.push(quest);
@@ -425,7 +427,7 @@ export default Vue.extend({
       this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
     },
     setTimeRemaining() {
-      const today = Quest.createJSTDate(this.getToday());
+      const today = this.getToday();
       const todayTime = today.getTime();
       let needUpdate = false;
 
@@ -443,8 +445,8 @@ export default Vue.extend({
           }
 
           // 再度、リセット日と締日を再設定
-          quest.setClosingDateTime(new Date(todayTime));
-          quest.setResetDateTime(new Date(todayTime));
+          quest.closingDateTime = Quest.getClosingDateTime(quest, today);
+          quest.resetDateTime = Quest.getResetDateTime(quest, today);
 
           // 更新がかけられたので更新要求
           needUpdate = true;
