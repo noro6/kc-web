@@ -3,6 +3,7 @@
     <div class="general-container">
       <v-tabs v-model="tab" show-arrows>
         <v-tab>{{ $t("Extra.艦娘性能一覧") }}</v-tab>
+        <v-tab>{{ $t("Extra.装備性能一覧") }}</v-tab>
         <v-tab>{{ $t("Extra.対潜値計算機") }}</v-tab>
         <v-tab>{{ $t("Extra.戦果砲管理") }}</v-tab>
         <v-tab>{{ $t("Extra.敵艦生息地検索") }}</v-tab>
@@ -13,6 +14,12 @@
           <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
           <div class="pa-2">
             <ship-master-list />
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div class="my-3 mx-2 body-2">{{ $t("Extra.装備の基本ステータスの確認と比較を行えます。") }}</div>
+          <div class="pa-2">
+            <item-master-list />
           </div>
         </v-tab-item>
         <v-tab-item>
@@ -61,6 +68,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ShipMasterList from '@/components/fleet/ShipMasterList.vue';
+import ItemMasterList from '@/components/item/ItemMasterList.vue';
 import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
 import EnemySearcher from '@/components/map/EnemySearcher.vue';
 import QuestManager from '@/components/result/QuestManager.vue';
@@ -69,6 +77,7 @@ export default Vue.extend({
   name: 'ExtraCalculator',
   components: {
     ShipMasterList,
+    ItemMasterList,
     RequiredAswCalculator,
     EnemySearcher,
     QuestManager,
@@ -79,7 +88,7 @@ export default Vue.extend({
   mounted() {
     const { hash } = document.location;
     if (hash.endsWith('asw-calculator')) {
-      this.tab = 1;
+      this.tab = 2;
       this.$router.push({ path: '/extra' });
     }
   },
