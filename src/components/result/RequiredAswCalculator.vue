@@ -17,7 +17,16 @@
       </div>
       <div class="pa-2 status-input-container">
         <div>
-          <v-text-field label="Lv" v-model.number="level" max="175" min="1" type="number" @input="statusChanged" :disabled="ship.isEmpty"></v-text-field>
+          <v-text-field
+            label="Lv"
+            v-model.number="level"
+            max="175"
+            min="1"
+            type="number"
+            @input="statusChanged"
+            :append-icon="appendIcon"
+            :readonly="ship.isEmpty"
+          ></v-text-field>
         </div>
         <div>
           <v-text-field
@@ -27,26 +36,27 @@
             min="0"
             type="number"
             @input="statusChanged"
-            :disabled="ship.isEmpty"
+            :append-icon="appendIcon"
+            :readonly="ship.isEmpty"
           ></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly></v-text-field>
         </div>
         <div>
-          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" disabled></v-text-field>
+          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly></v-text-field>
         </div>
       </div>
     </div>
@@ -195,6 +205,9 @@ export default Vue.extend({
     },
     baseAsw(): number {
       return this.ship.asw - this.improveAsw;
+    },
+    appendIcon(): string {
+      return this.ship.isEmpty ? '' : 'mdi-pencil';
     },
   },
   watch: {
