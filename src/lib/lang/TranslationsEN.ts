@@ -800,6 +800,7 @@ export default {
       'リセットしました。': 'Reset',
       '敵対空おばけ': 'Abyssal AA Ranking',
       '敵艦の対空砲火ランキングです。見かけたら気を付けるか覚悟しましょう。': 'Ranking of Abyssal Anti-Air performance.',
+      '順位': 'Rank',
       '機': 'slots',
       '備考': 'Remarks',
       '対空CI発動可能': 'Anti-Air Cut-In can be triggered',

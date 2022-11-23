@@ -17,12 +17,13 @@
         'items-per-page-options': [50, 100],
       }"
     >
+      <template v-slot:[`header.rank`]="{ header }">{{ $t(`Extra.${header.text}`) }}</template>
       <template v-slot:[`header.enemy.data.name`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.enemy.data.antiAir`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.shoot.antiAirWeightList`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.shoot.rateDownList`]="{ header }">{{ $t(`Fleet.${header.text}`) }} (%)</template>
       <template v-slot:[`header.shoot.fixDownList`]="{ header }">{{ $t(`Fleet.${header.text}`) }} ({{ $t("Extra.機") }})</template>
-      <template v-slot:[`header.remarks`]="{ header }">{{ $t(`Extra.${header.text}`) }}</template>
+      <template v-slot:[`header.enemy.antiAirCutIn`]="{ header }">{{ $t(`Extra.${header.text}`) }}</template>
       <template v-slot:[`item.enemy.data.id`]="{ item }">
         <v-img :src="`./img/ship/${item.enemy.data.id}.png`" height="30" width="120"></v-img>
       </template>
