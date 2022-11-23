@@ -758,6 +758,8 @@ export default {
       '目標対潜値': 'Target Asw Value',
       '必要Exp': 'Required Ship Exp',
       '到達不可': 'Unreachable',
+      '参考': 'Reference',
+      '先制対潜発動条件について': 'About Opening Asw',
       '敵艦生息地検索': 'Abyssal Habitat Searcher',
       '指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。': 'Search for sea areas where the specified Abyssal appears. It may not be that correct, so just for fun.',
       '検索する敵艦を選択': 'Select Abyssal',

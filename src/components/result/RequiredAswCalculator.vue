@@ -62,8 +62,8 @@
       </div>
     </div>
     <div class="mx-3 pa-1 flex-grow-1">
-      <v-card>
-        <v-simple-table v-if="!ship.isEmpty">
+      <v-card class="mb-3" v-if="!ship.isEmpty">
+        <v-simple-table>
           <template v-slot:default>
             <thead>
               <tr>
@@ -96,6 +96,14 @@
           </template>
         </v-simple-table>
       </v-card>
+      <div class="d-flex justify-end body-2">
+        <div>{{ $t("Extra.参考") }}:</div>
+        <div class="ml-3">
+          <a href="https://wikiwiki.jp/kancolle/%E5%AF%BE%E6%BD%9C%E6%94%BB%E6%92%83#oasw" target="_blank">
+            {{ $t("Extra.先制対潜発動条件について") }} ( wiki )
+          </a>
+        </div>
+      </div>
     </div>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
