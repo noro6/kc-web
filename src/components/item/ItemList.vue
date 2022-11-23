@@ -876,7 +876,7 @@ export default Vue.extend({
       this.filterStatusValue = 0;
       this.changedFilter();
     },
-    initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0) {
+    initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0, usedItems: Item[] = []) {
       this.itemParent = parent;
       this.slotIndex = slotIndex;
       this.isEnemyMode = false;
@@ -903,29 +903,35 @@ export default Vue.extend({
         this.slot = parent.items[slotIndex] ? parent.items[slotIndex].fullSlot : 0;
       }
 
-      // 現在の計算画面内で配備されている装備を列挙する
       this.usedItems = [];
-      const mainData = this.$store.state.mainSaveData as SaveData;
-      if (mainData) {
-        const manager = mainData.tempData[mainData.tempIndex];
-        if (manager) {
-          let allItems: Item[] = [];
-          // 艦隊データから装備全取得
-          for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
-            const { ships } = manager.fleetInfo.fleets[i];
-            for (let j = 0; j < ships.length; j += 1) {
-              allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
-              if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+
+      // 利用済み装備(直接指定)
+      if (usedItems.length) {
+        this.usedItems = usedItems;
+      } else {
+        // 現在の計算画面内で配備されている装備を列挙する
+        const mainData = this.$store.state.mainSaveData as SaveData;
+        if (mainData) {
+          const manager = mainData.tempData[mainData.tempIndex];
+          if (manager) {
+            let allItems: Item[] = [];
+            // 艦隊データから装備全取得
+            for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+              const { ships } = manager.fleetInfo.fleets[i];
+              for (let j = 0; j < ships.length; j += 1) {
+                allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+                if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+              }
             }
-          }
 
-          // 基地航空隊データから装備全取得
-          const { airbases } = manager.airbaseInfo;
-          for (let i = 0; i < airbases.length; i += 1) {
-            allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
-          }
+            // 基地航空隊データから装備全取得
+            const { airbases } = manager.airbaseInfo;
+            for (let i = 0; i < airbases.length; i += 1) {
+              allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
+            }
 
-          this.usedItems = allItems;
+            this.usedItems = allItems;
+          }
         }
       }
 

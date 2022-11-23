@@ -8,6 +8,7 @@
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
           :handle-close-ship="removeShip"
+          :handle-show-item-preset="showItemPreset"
           :fix-down="ship.fixDown"
           :rate-down="ship.rateDown"
           :fleet-ros-corr="fleet.fleetRosCorr"
@@ -102,6 +103,9 @@
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
+    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
+      <item-preset-component v-if="itemPresetDialog" v-model="tempShip" :handle-expand-item-preset="expandItemPreset" :handle-close="closeDialog" />
+    </v-dialog>
   </v-card>
 </template>
 
@@ -134,16 +138,25 @@ import Vue from 'vue';
 import ShipInput from '@/components/fleet/ShipInput.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
 import ItemList from '@/components/item/ItemList.vue';
+import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Fleet from '@/classes/fleet/fleet';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
 import Const from '@/classes/const';
 import ShipValidation from '@/classes/fleet/shipValidation';
+import ItemPreset from '@/classes/item/itemPreset';
+import ItemMaster from '@/classes/item/itemMaster';
+import { cloneDeep } from 'lodash';
 
 export default Vue.extend({
   name: 'RequiredAswCalculator',
-  components: { ShipInput, ShipList, ItemList },
+  components: {
+    ShipInput,
+    ShipList,
+    ItemList,
+    ItemPresetComponent,
+  },
   data: () => ({
     fleet: new Fleet(),
     shipListDialog: false,
@@ -151,6 +164,10 @@ export default Vue.extend({
     itemDialogTargetIndex: 0,
     itemDialogWidth: 1200,
     shipDialogWidth: 1200,
+    itemPresetDialog: false,
+    tempShip: undefined as undefined | Ship,
+    tempShipListDialog: false,
+    tempShipList: [] as Ship[],
     level: 1,
     improveAsw: 0,
     minAsw: 0,
@@ -213,14 +230,15 @@ export default Vue.extend({
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
     },
-    async showItemList(fleetIndex: number, slotIndex: number) {
+    async showItemList(x: number, slotIndex: number) {
       this.itemDialogTargetIndex = slotIndex;
       await (this.itemListDialog = true);
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(this.ship, slotIndex);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(this.ship, slotIndex, this.ship.items);
     },
     closeDialog() {
       this.itemListDialog = false;
       this.shipListDialog = false;
+      this.itemPresetDialog = false;
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
@@ -336,6 +354,84 @@ export default Vue.extend({
     },
     removeShip() {
       this.fleet = new Fleet();
+    },
+    showItemPreset() {
+      this.tempShip = cloneDeep(this.ship);
+      this.itemPresetDialog = true;
+    },
+    expandItemPreset(preset: ItemPreset) {
+      const itemMasters = this.$store.state.items as ItemMaster[];
+      const items: Item[] = [];
+      for (let i = 0; i < preset.items.length; i += 1) {
+        const item = itemMasters.find((v) => v.id === preset.items[i].id);
+        if (item) {
+          items.push(new Item({ master: item, remodel: preset.items[i].remodel }));
+        } else {
+          items.push(new Item());
+        }
+      }
+
+      // もともとここに配備されていた艦娘の装備情報を抜き取る
+      const oldShip = this.ship;
+      const ship = oldShip.data;
+      const newItems = oldShip.items.concat();
+
+      for (let slotIndex = 0; slotIndex < newItems.length; slotIndex += 1) {
+        if (slotIndex < items.length) {
+          const newItem = items[slotIndex];
+          if (newItem && ShipValidation.isValidItem(ship, newItem.data, slotIndex)) {
+            // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
+            // 初期熟練度設定
+            const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+            let level = 0;
+            if (initialLevels) {
+              // 設定情報より初期熟練度を解決
+              const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
+              if (initData) {
+                level = initData.level;
+              }
+            }
+
+            if (newItem.data.id === 138 && ship.type2 === 90) {
+              // 日進 & 二式大艇
+              newItems[slotIndex] = new Item({
+                master: newItem.data,
+                item: newItems[slotIndex],
+                level,
+                remodel: newItem.remodel,
+                slot: 1,
+              });
+            } else {
+              newItems[slotIndex] = new Item({
+                master: newItem.data,
+                item: newItems[slotIndex],
+                level,
+                remodel: newItem.remodel,
+              });
+            }
+          } else {
+            // 不適合、外す
+            newItems[slotIndex] = new Item();
+          }
+        }
+      }
+
+      // 補強増設チェック
+      const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
+      let exItem;
+      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
+        // 搭載可能なら入れ替え
+        exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
+      }
+
+      // 元々いた艦娘を置き換える
+      const newShip = new Ship({ ship: oldShip, items: newItems, exItem });
+
+      this.fleet = new Fleet({ ships: [newShip] });
+      this.level = newShip.level;
+      this.improveAsw = newShip.improveAsw;
+      this.minAsw = newShip.data.minAsw;
+      this.maxAsw = newShip.data.maxAsw;
     },
     calculate() {
       const results = this.results.concat();
