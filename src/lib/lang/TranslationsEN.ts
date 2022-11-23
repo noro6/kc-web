@@ -798,6 +798,11 @@ export default {
       '達成しました。': 'Completed.',
       '全ての任務進捗をリセットします。よろしいですか？': 'Are you sure you want to reset all quest?',
       'リセットしました。': 'Reset',
+      '敵対空おばけ': 'Abyssal AA Ranking',
+      '敵艦の対空砲火ランキングです。見かけたら気を付けるか覚悟しましょう。': 'Ranking of Abyssal Anti-Air performance.',
+      '機': 'slots',
+      '備考': 'Remarks',
+      '対空CI発動可能': 'Anti-Air Cut-In can be triggered',
     },
     EType: {
       '小口径主砲': 'Small Cal. Main Gun',

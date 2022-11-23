@@ -7,6 +7,7 @@
         <v-tab>{{ $t("Extra.対潜値計算機") }}</v-tab>
         <v-tab>{{ $t("Extra.戦果砲管理") }}</v-tab>
         <v-tab>{{ $t("Extra.敵艦生息地検索") }}</v-tab>
+        <v-tab>{{ $t("Extra.敵対空おばけ") }}</v-tab>
       </v-tabs>
       <v-divider></v-divider>
       <v-tabs-items v-model="tab" :touchless="true">
@@ -38,6 +39,14 @@
           </div>
           <div class="pa-2">
             <enemy-searcher />
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div class="my-3 mx-2 body-2">
+            {{ $t("Extra.敵艦の対空砲火ランキングです。見かけたら気を付けるか覚悟しましょう。") }}
+          </div>
+          <div class="pa-2">
+            <enemy-aa-ranking />
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -72,6 +81,7 @@ import ItemMasterList from '@/components/item/ItemMasterList.vue';
 import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
 import EnemySearcher from '@/components/map/EnemySearcher.vue';
 import QuestManager from '@/components/result/QuestManager.vue';
+import EnemyAaRanking from '@/components/enemy/EnemyAARanking.vue';
 
 export default Vue.extend({
   name: 'ExtraCalculator',
@@ -81,6 +91,7 @@ export default Vue.extend({
     RequiredAswCalculator,
     EnemySearcher,
     QuestManager,
+    EnemyAaRanking,
   },
   data: () => ({
     tab: 0,
