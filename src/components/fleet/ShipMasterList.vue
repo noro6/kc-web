@@ -116,32 +116,14 @@
 .ship-name {
   max-width: 128px;
 }
-</style>
 
-<style>
-.ship-master-table.v-data-table {
-  background-color: unset !important;
-}
-.ship-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .ship-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 36, 38) !important;
-}
-.deep-sea .theme--dark .ship-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-.ship-master-table.v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
-}
-
-.ship-master-table.v-data-table th,
-.ship-master-table.v-data-table td {
+.v-card >>>.v-data-table th,
+.v-card >>>.v-data-table td {
   padding: 0 8px !important;
 }
 
-.ship-master-table.v-data-table th:first-child,
-.ship-master-table.v-data-table td:first-child {
+.v-card >>>.v-data-table th:first-child,
+.v-card >>>.v-data-table td:first-child {
   width: 120px;
   padding: 0 !important;
 }

@@ -39,7 +39,6 @@
       </div>
       <v-divider></v-divider>
       <v-data-table
-        class="item-master-table"
         dense
         fixed-header
         height="44vh"
@@ -190,32 +189,14 @@
   font-size: 0.9em;
   align-self: center;
 }
-</style>
 
-<style>
-.item-master-table.v-data-table {
-  background-color: unset !important;
-}
-.item-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .item-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 36, 38) !important;
-}
-.deep-sea .theme--dark .item-master-table.v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-.item-master-table.v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
-}
-
-.item-master-table.v-data-table th,
-.item-master-table.v-data-table td {
+.v-card >>> .v-data-table th,
+.v-card >>> .v-data-table td {
   padding: 0 8px !important;
 }
 
-.item-master-table.v-data-table th:nth-child(2),
-.item-master-table.v-data-table td:nth-child(2) {
+.v-card >>> .v-data-table th:nth-child(2),
+.v-card >>> .v-data-table td:nth-child(2) {
   padding: 0 !important;
 }
 </style>

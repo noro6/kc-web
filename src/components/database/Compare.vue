@@ -152,25 +152,9 @@ td.lose-sub {
 }
 
 /** 比較テーブルデザイン更新 */
-.v-data-table {
-  background-color: unset !important;
-}
 .v-data-table tbody tr,
 .v-data-table tbody td {
   height: 40px !important;
-}
-.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 36, 38) !important;
-}
-.deep-sea .theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-
-.v-data-table tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
 }
 .v-data-table tbody td.less {
   background-color: rgba(255, 131, 131, 0.3) !important;

@@ -1677,6 +1677,23 @@ export default Vue.extend({
   background: none !important;
 }
 
+/** データテーブル 背景色を上書き */
+.v-data-table {
+  background-color: unset !important;
+}
+.v-data-table.v-data-table--fixed-header thead th {
+  background-color: #eee !important;
+}
+.theme--dark .v-data-table.v-data-table--fixed-header thead th {
+  background-color: rgb(49, 49, 53) !important;
+}
+.deep-sea .theme--dark .v-data-table.v-data-table--fixed-header thead th {
+  background-color: rgb(36, 42, 53) !important;
+}
+.v-data-table tbody tr:hover {
+  background-color: rgba(128, 128, 128, 0.1) !important;
+}
+
 /** セーブデータ補足情報textarea指定 */
 .remarks-input textarea {
   font-size: 0.8em;

@@ -68,8 +68,8 @@ export default class Enemy implements ShipBase {
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
-    /** 装備ボーナス合計 まとめ */
-    readonly itemBonusStatus: ItemBonusStatus = {};
+  /** 装備ボーナス合計 まとめ */
+  readonly itemBonusStatus: ItemBonusStatus = {};
 
   /** 本隊航空戦に参加しないフラグ */
   public disabledMainAerialPhase = false;

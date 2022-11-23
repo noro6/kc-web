@@ -229,25 +229,11 @@
   font-size: 11px;
   height: 13px;
 }
-.v-data-table {
-  background-color: unset !important;
-}
 .v-data-table thead th {
   height: 36px !important;
-  background-color: rgb(242, 242, 242) !important;
-}
-.theme--dark .v-data-table thead th {
-  background-color: rgb(49, 49, 53) !important;
-}
-.deep-sea .theme--dark .v-data-table thead th {
-  background-color: rgb(36, 42, 53) !important;
 }
 .v-data-table tbody td {
-  background-color: unset !important;
   height: unset !important;
-}
-.v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
 }
 .v-data-table tbody tr.tr-half-damaged {
   background-color: rgba(255, 255, 10, 0.075);

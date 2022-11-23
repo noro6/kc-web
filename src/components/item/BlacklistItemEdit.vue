@@ -152,21 +152,6 @@
 }
 
 /** ブラックリストテーブル */
-.v-data-table {
-  background-color: unset !important;
-}
-.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 36, 38) !important;
-}
-.deep-sea .theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-.v-data-table tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
-}
 .v-data-table tbody tr:hover {
   cursor: pointer;
 }

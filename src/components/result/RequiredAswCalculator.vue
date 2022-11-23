@@ -60,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div class="result-container mx-3 pa-1 flex-grow-1">
+    <div class="mx-3 pa-1 flex-grow-1">
       <v-card>
         <v-simple-table v-if="!ship.isEmpty">
           <template v-slot:default>
@@ -120,28 +120,11 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 1rem;
 }
-</style>
 
-<style>
-.result-container .v-data-table {
-  background-color: unset !important;
-}
-.result-container .v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .result-container .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 36, 38) !important;
-}
-.deep-sea .theme--dark .result-container .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-.result-container .v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
-}
-.result-container .v-data-table tbody tr.ok {
+.v-data-table tbody tr.ok {
   background-color: rgba(0, 255, 64, 0.075);
 }
-.result-container .v-data-table tbody tr.ok:hover {
+.v-data-table tbody tr.ok:hover {
   background-color: rgba(0, 255, 64, 0.15) !important;
 }
 </style>

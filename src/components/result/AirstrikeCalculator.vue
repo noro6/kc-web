@@ -307,9 +307,6 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
-.v-data-table {
-  background-color: unset !important;
-}
 .v-data-table thead th {
   text-align: right !important;
   height: 36px !important;
@@ -325,9 +322,6 @@
   text-align: right;
   background-color: unset !important;
   height: unset !important;
-}
-.v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
 }
 .v-data-table tbody tr.tr-half-damaged {
   background-color: rgba(255, 255, 10, 0.075);
