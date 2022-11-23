@@ -70,6 +70,9 @@ export default class SiteSetting {
   /** 艦隊画面 最大列数を2にするかどうか */
   public isShipView2Line: boolean;
 
+  /** 艦隊画面 12隻表示にするかどうか */
+  public isShow12Ships: boolean;
+
   /** 装備所持数 総所持数カウント */
   public visibleAirCalcMenuButton: boolean;
 
@@ -139,6 +142,7 @@ export default class SiteSetting {
       this.themeDetail = setting.themeDetail ? setting.themeDetail : 'dark';
       this.visibleItemStockAllCount = !!setting.visibleItemStockAllCount;
       this.isShipView2Line = !!setting.isShipView2Line;
+      this.isShow12Ships = setting.isShow12Ships ?? true;
       this.visibleAirCalcMenuButton = !!setting.visibleAirCalcMenuButton;
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
@@ -197,6 +201,7 @@ export default class SiteSetting {
       this.themeDetail = 'dark';
       this.visibleItemStockAllCount = false;
       this.isShipView2Line = false;
+      this.isShow12Ships = true;
       this.visibleAirCalcMenuButton = false;
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;

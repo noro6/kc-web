@@ -1,13 +1,13 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="bonuses-group d-flex my-2 px-4 py-0" v-if="true">
+    <v-card class="general-container d-flex my-2 px-4 py-0" v-if="true">
       <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }} :</div>
       <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
         <v-radio :label="$t('Common.なし')" value=""></v-radio>
         <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury"></v-radio>
       </v-radio-group>
     </v-card>
-    <div class="minimize-group">
+    <div class="general-container d-flex">
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedDescription" @click="toggleMinimizeDescription(false)">{{ $t("Home.補足情報") }}</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">{{ $t("Airbase.基地航空隊") }}</v-btn>
       <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">{{ $t("Fleet.自艦隊") }}</v-btn>
@@ -99,18 +99,6 @@
 </template>
 
 <style scoped>
-.bonuses-group {
-  margin: 0 auto;
-  max-width: 1200px;
-  display: flex;
-}
-
-.minimize-group {
-  margin: 0 auto;
-  max-width: 1200px;
-  display: flex;
-}
-
 #content-container {
   margin: 0 auto;
   max-width: 1200px;

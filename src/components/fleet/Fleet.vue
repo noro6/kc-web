@@ -6,49 +6,8 @@
       </v-alert>
       <v-btn @click="removeFleet" color="secondary" class="ml-3">{{ $t("Fleet.艦隊削除") }}</v-btn>
     </div>
-    <div class="d-flex px-1 fleet-header flex-wrap align-center">
-      <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
-      <div class="mt-1 ml-1 mr-2 body-2">{{ fleet.fullAirPower }}</div>
-      <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
-      <div class="mt-1 ml-1 mr-2 body-2">{{ contactRate }}%</div>
-      <div class="mt-1 caption text--secondary">{{ $t("Fleet.夜偵") }}:</div>
-      <div class="mt-1 ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
-      <template v-if="actualFleet.fleetSpeed">
-        <div class="mt-1 caption text--secondary">{{ $t("Common.速力") }}:</div>
-        <div class="mt-1 ml-1 mr-2 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
-      </template>
-      <!-- 索敵値 -->
-      <div class="mt-1 d-flex">
-        <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
-          <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
-          <div class="option-status-label">{{ i + 1 }}</div>
-          <div class="ml-2 body-2">: {{ scout }}</div>
-        </div>
-      </div>
-      <!-- TP -->
-      <div class="mt-1 d-flex">
-        <div class="option-status d-flex">
-          <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
-          <div class="option-status-label label-tp">TP</div>
-          <div class="ml-2 body-2 align-self-center tp d-flex">
-            <div>: {{ actualFleet.tp }}</div>
-            <div class="status-label">S</div>
-          </div>
-          <div class="ml-2 mr-1">/</div>
-          <div class="body-2 align-self-center tp d-flex">
-            <div>{{ tpA }}</div>
-            <div class="status-label">A</div>
-          </div>
-        </div>
-      </div>
-      <div class="d-flex ml-3">
-        <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}:</div>
-        <div class="operation-button">
-          <v-btn color="primary" icon @click="clickedInfo">
-            <v-icon>mdi-information-outline</v-icon>
-          </v-btn>
-        </div>
-      </div>
+    <div class="d-flex px-1 flex-wrap align-center">
+      <fleet-info-header :value="value" :index="index" :isUnion="isUnion" :unionFleet="unionFleet" :admiralLv="admiralLv" />
       <div class="d-flex ml-auto">
         <div class="operation-button">
           <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
@@ -80,7 +39,7 @@
         </div>
       </div>
     </div>
-    <div class="ship-inputs-container" :class="{ line3: !isShipView2Line }">
+    <div class="ship-inputs-container" :class="{ line3: !is2line }">
       <ship-input
         v-for="(ship, i) in fleet.ships"
         :key="i"
@@ -94,44 +53,15 @@
         :fix-down="ship.fixDown"
         :rate-down="ship.rateDown"
         :fleet-ros-corr="fleet.fleetRosCorr"
-        :is-line2="isShipView2Line"
+        :is-line2="is2line"
         @input="updateShip"
       ></ship-input>
     </div>
-    <air-status-result-bar :result="actualFleet.mainResult" class="mt-3" />
-    <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
-      <fleet-detail v-if="!destroyDialog" :fleet="actualFleet" :index="index" :is-union="isUnion" ref="fleetDetail" :handle-close="closeDetail" />
-    </v-dialog>
+    <air-status-result-bar v-if="!hideResultBar" :result="actualFleet.mainResult" class="mt-3" />
   </div>
 </template>
 
 <style scoped>
-.option-status {
-  position: relative;
-}
-.option-status .option-status-label {
-  align-self: flex-end;
-  position: absolute;
-  opacity: 0.7;
-  font-size: 12px;
-  bottom: -2px;
-  left: 20px;
-}
-.tp {
-  position: relative;
-}
-.option-status .option-status-label.label-tp {
-  font-size: 11px;
-  left: 18px;
-}
-.tp .status-label {
-  align-self: flex-start;
-  position: absolute;
-  font-size: 11px;
-  opacity: 0.7;
-  right: -6px;
-  top: 6px;
-}
 .operation-button {
   padding: 0 0.2rem;
 }
@@ -177,8 +107,7 @@
 import Vue from 'vue';
 import ShipInput from '@/components/fleet/ShipInput.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
-import FleetDetail from '@/components/fleet/FleetDetail.vue';
-import Const from '@/classes/const';
+import FleetInfoHeader from '@/components/fleet/FleetInfoHeader.vue';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
@@ -186,9 +115,9 @@ import SiteSetting from '@/classes/siteSetting';
 export default Vue.extend({
   name: 'Fleet',
   components: {
+    FleetInfoHeader,
     ShipInput,
     AirStatusResultBar,
-    FleetDetail,
   },
   props: {
     value: {
@@ -215,6 +144,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    hideResultBar: {
+      type: Boolean,
+      default: false,
+    },
     unionFleet: {
       type: Fleet,
     },
@@ -232,11 +165,6 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    formations: Const.FORMATIONS,
-    cellTypes: Const.CELL_TYPES,
-    detailDialog: false,
-    destroyDialog: false,
-    lastTab: 'stage2',
     isShipView2Line: false,
   }),
   mounted() {
@@ -247,41 +175,20 @@ export default Vue.extend({
     fleet() {
       return this.value;
     },
-    contactRate() {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return this.unionFleet.getContactRates(true)[0].sumRate.toFixed(1);
-      }
-      return this.value.getContactRates()[0].sumRate.toFixed(1);
-    },
-    nightContactRate() {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return (100 * this.unionFleet.nightContactRate).toFixed(1);
-      }
-      return (100 * this.value.nightContactRate).toFixed(1);
-    },
-    fleetScouts(): number[] {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return this.unionFleet.getUnionScoutScore(this.admiralLv).map((v) => Math.floor(100 * v) / 100);
-      }
-      return Fleet.getScoutScore(this.fleet.ships, this.admiralLv).map((v) => Math.floor(100 * v) / 100);
-    },
     shipAddEnabled() {
       return this.value.ships.length < 7;
     },
     shipRemoveEnabled() {
       return this.value.ships.length > 1;
     },
-    tpA() {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return Math.floor(this.unionFleet.tp * 0.7);
-      }
-      return Math.floor(this.value.tp * 0.7);
-    },
     actualFleet(): Fleet {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
         return this.unionFleet;
       }
       return this.value;
+    },
+    is2line(): boolean {
+      return this.isShipView2Line;
     },
   },
   methods: {
@@ -297,11 +204,6 @@ export default Vue.extend({
     },
     showItemPreset(shipIndex: number) {
       this.handleShowItemPreset(this.index, shipIndex);
-    },
-    async clickedInfo() {
-      this.destroyDialog = false;
-      await (this.detailDialog = true);
-      (this.$refs.fleetDetail as InstanceType<typeof FleetDetail>).tab = this.lastTab;
     },
     updateShip() {
       if (document.getElementById('dragging-item')) {
@@ -345,20 +247,6 @@ export default Vue.extend({
     addEmptyShip() {
       this.fleet.ships.push(new Ship());
       this.setFleet(new Fleet({ fleet: this.fleet }));
-    },
-    toggleDetailDialog() {
-      if (!this.detailDialog) {
-        this.lastTab = (this.$refs.fleetDetail as InstanceType<typeof FleetDetail>).tab;
-        setTimeout(() => {
-          this.destroyDialog = true;
-        }, 100);
-      } else {
-        this.destroyDialog = false;
-      }
-    },
-    closeDetail() {
-      this.detailDialog = false;
-      this.toggleDetailDialog();
     },
     toggleViewLine(value: boolean) {
       const setting = this.$store.state.siteSetting as SiteSetting;

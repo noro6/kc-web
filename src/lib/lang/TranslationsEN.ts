@@ -352,6 +352,7 @@ export default {
     Fleet: {
       '自艦隊': 'Fleet',
       '全艦隊': 'All',
+      '12隻表示': 'Display 12 ships',
       '第x艦隊': 'Fleet #{number}',
       '艦隊追加': 'Add Fleet',
       '艦隊削除': 'Remove Fleet',

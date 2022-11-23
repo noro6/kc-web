@@ -67,7 +67,10 @@
           @change="changedInfo"
         ></v-select>
       </div>
-      <div class="mb-3">
+      <div class="mb-3 mr-3" v-if="fleetInfo.isUnion">
+        <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12"></v-checkbox>
+      </div>
+      <div class="mx-3 mb-3">
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -92,8 +95,10 @@
         @dragenter.stop="dragEnter($event)"
         @dragstart.stop="dragStart($event)"
         @dragend.stop="dragEnd($event)"
+        v-show="!isShow12 || i !== 2"
       >
-        <template v-if="fleetInfo.isUnion && i === 1">{{ $t("Fleet.主力艦隊") }}</template>
+        <template v-if="fleetInfo.isUnion && i === 1 && isShow12">{{ $t("Fleet.連合艦隊") }}</template>
+        <template v-else-if="fleetInfo.isUnion && i === 1 && !isShow12">{{ $t("Fleet.主力艦隊") }}</template>
         <template v-else-if="fleetInfo.isUnion && i === 2">{{ $t("Fleet.随伴艦隊") }}</template>
         <template v-else>{{ $t("Fleet.第x艦隊", { number: i }) }}</template>
       </v-tab>
@@ -109,7 +114,10 @@
         class="fleet-container"
         :class="{ captured: capturing, 'is-2line': is2Line }"
       >
+        <div class="primary--text font-weight-bold mx-2 mt-2" v-if="isShow12 && i === 0">{{ $t("Fleet.主力艦隊") }}</div>
+        <!-- 連合艦隊かつ12隻表示じゃないか、もしくは第2艦隊以外 -->
         <fleet-component
+          v-if="i !== 1 || !isShow12"
           v-model="fleetInfo.fleets[i]"
           :index="i"
           :handle-show-ship-list="showShipList"
@@ -120,8 +128,27 @@
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
           :handle-remove-fleet="removeFleet"
+          :hide-result-bar="isShow12 && i <= 1"
           @input="changedInfo"
         ></fleet-component>
+        <template v-if="isShow12 && i === 0">
+          <!-- タブが第1艦隊かつ12隻表示かつ連合艦隊 -->
+          <v-divider class="mt-2"></v-divider>
+          <div class="success--text font-weight-bold mx-2 mt-2">{{ $t("Fleet.随伴艦隊") }}</div>
+          <fleet-component
+            v-model="fleetInfo.fleets[1]"
+            :index="1"
+            :handle-show-ship-list="showShipList"
+            :handle-show-item-list="showItemList"
+            :handle-show-temp-ship-list="showTempShipList"
+            :handle-show-item-preset="showItemPreset"
+            :union-fleet="fleetInfo.unionFleet"
+            :is-union="fleetInfo.isUnion"
+            :admiral-lv="fleetInfo.admiralLevel"
+            :handle-remove-fleet="removeFleet"
+            @input="changedInfo"
+          ></fleet-component>
+        </template>
       </v-tab-item>
       <v-tab-item value="gkcoi" class="pa-2">
         <div class="d-flex flex-wrap">
@@ -636,6 +663,7 @@ export default Vue.extend({
     bulkUpdateDialog: false,
     bulkUpdateTarget: [1, 1, 1, 1],
     itemPresetDialog: false,
+    show12: false,
     gkcoiThemes: [
       { value: 'dark', text: 'Dark' },
       { value: 'dark-ex', text: 'Dark(遠征)' },
@@ -660,6 +688,9 @@ export default Vue.extend({
     if (this.$i18n.locale === 'en') {
       this.gkcoiLang = 'en';
     }
+
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.show12 = setting.isShow12Ships;
   },
   watch: {
     bulkUpdateDialog(value: boolean) {
@@ -683,6 +714,9 @@ export default Vue.extend({
     is2Line(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
       return setting.isShipView2Line;
+    },
+    isShow12(): boolean {
+      return this.show12 && this.fleetInfo.isUnion;
     },
     needTrans(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
@@ -1025,6 +1059,15 @@ export default Vue.extend({
       const newFleets = this.fleetInfo.fleets.filter((v, i) => i !== index);
       const info = new FleetInfo({ info: this.fleetInfo, fleets: newFleets, mainFleetIndex: index - 1 });
       this.setInfo(info);
+    },
+    changedShow12() {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.isShow12Ships = this.show12;
+      this.$store.dispatch('updateSetting', setting);
+
+      if (this.isShow12 && this.tab === 'fleet1') {
+        this.tab = 'fleet0';
+      }
     },
     changedTab() {
       if (this.tab && this.tab.includes('fleet')) {
