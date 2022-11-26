@@ -6,6 +6,7 @@ export interface UploadedPreset {
   map: number;
   name: string;
   ships: Ship[];
+  ships2: Ship[];
   manager: CalcManager;
   user: string;
   memo: string;

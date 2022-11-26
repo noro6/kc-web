@@ -36,7 +36,12 @@
             <v-divider></v-divider>
             <div class="d-flex flex-wrap my-1">
               <div v-for="(ship, j) in preset.ships" :key="`ship${i}_${j}`">
-                <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                <v-img v-if="ship.data.id && ship.isActive" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap my-1" v-if="preset.ships2 && preset.ships2.length">
+              <div v-for="(ship, j) in preset.ships2" :key="`ship${i}_${j}`">
+                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
               </div>
             </div>
             <div class="preset-memo" v-if="preset.memo">{{ preset.memo }}</div>
@@ -282,6 +287,9 @@ export default Vue.extend({
             const manager = SaveData.loadSaveDataManagerString(managerString, items, ships, enemies);
             if (manager) {
               preset.ships = manager.fleetInfo.fleets[0].ships;
+              if (manager.fleetInfo.isUnion) {
+                preset.ships2 = manager.fleetInfo.fleets[1].ships.filter((v) => v.data.id);
+              }
               preset.manager = manager;
               preset.createdAt = Convert.formatDate(doc.data().createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss');
               fetchData.push(preset);
@@ -291,6 +299,9 @@ export default Vue.extend({
             const manager = converter.restoreOldSaveData(doc.data().data);
             if (manager) {
               preset.ships = manager.fleetInfo.fleets[0].ships;
+              if (manager.fleetInfo.isUnion) {
+                preset.ships2 = manager.fleetInfo.fleets[1].ships.filter((v) => v.data.id);
+              }
               preset.manager = manager;
               preset.createdAt = Convert.formatDate(doc.data().createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss');
               fetchData.push(preset);
