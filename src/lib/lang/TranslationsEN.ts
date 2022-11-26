@@ -744,6 +744,7 @@ export default {
     Extra: {
       '艦娘性能一覧': 'Ships',
       '艦娘の基本ステータスの確認と比較を行えます。': 'You can check and compare the basic status of each ship.',
+      '差分表示': 'Diff',
       '装備性能一覧': 'Equipments',
       '装備の基本ステータスの確認と比較を行えます。': 'You can check and compare the basic status of each equipment.',
       '搭載可能な装備で絞り込み': 'Equipable Only',

@@ -16,6 +16,11 @@
           <div class="pa-2">
             <ship-master-list />
           </div>
+          <div class="pa-2">
+            <v-card class="pa-3">
+              <ship-status-compare />
+            </v-card>
+          </div>
         </v-tab-item>
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.装備の基本ステータスの確認と比較を行えます。") }}</div>
@@ -77,6 +82,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ShipMasterList from '@/components/fleet/ShipMasterList.vue';
+import ShipStatusCompare from '@/components/fleet/ShipStatusCompare.vue';
 import ItemMasterList from '@/components/item/ItemMasterList.vue';
 import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
 import EnemySearcher from '@/components/map/EnemySearcher.vue';
@@ -87,6 +93,7 @@ export default Vue.extend({
   name: 'ExtraCalculator',
   components: {
     ShipMasterList,
+    ShipStatusCompare,
     ItemMasterList,
     RequiredAswCalculator,
     EnemySearcher,

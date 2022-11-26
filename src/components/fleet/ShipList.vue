@@ -62,7 +62,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-24" />
+        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
       </div>
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>

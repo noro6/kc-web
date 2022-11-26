@@ -21,7 +21,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-24" />
+        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
       </div>
       <div class="flex-grow-1 align-self-end">
         <v-select v-model="selectedTypes" :items="translatedShipTypes" hide-details dense attach chips deletable-chips multiple @change="initShips">

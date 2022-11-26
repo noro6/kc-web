@@ -115,6 +115,12 @@ export default class Ship implements ShipBase {
   /** 速力 */
   public readonly speed: number;
 
+  /** 消費燃料 */
+  public readonly fuel: number;
+
+  /** 消費弾薬 */
+  public readonly ammo: number;
+
   /** 出撃海域 */
   public readonly area: number;
 
@@ -260,6 +266,8 @@ export default class Ship implements ShipBase {
     this.enabledASWSupport = false;
     this.sumSPRos = 0;
     this.nightBattleFirePower = 0;
+    this.fuel = Math.max(this.level > 99 ? Math.floor(this.data.fuel * 0.85) : this.data.fuel, 1);
+    this.ammo = Math.max(this.level > 99 ? Math.floor(this.data.ammo * 0.85) : this.data.ammo, 1);
 
     // 以下、計算により算出するステータス
     // レベルより算出
