@@ -108,6 +108,12 @@ export default Vue.extend({
     if (hash.endsWith('asw-calculator')) {
       this.tab = 2;
       this.$router.push({ path: '/extra' });
+    } else if (hash.endsWith('items')) {
+      this.tab = 1;
+      this.$router.push({ path: '/extra' });
+    } else if (hash.endsWith('quest')) {
+      this.tab = 3;
+      this.$router.push({ path: '/extra' });
     }
   },
   computed: {

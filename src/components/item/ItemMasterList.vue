@@ -372,7 +372,7 @@ export default Vue.extend({
   watch: {
     completed(value) {
       if (value) {
-        this.setItems();
+        this.removeShip();
       }
     },
   },
