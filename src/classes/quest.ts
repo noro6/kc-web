@@ -94,7 +94,7 @@ export default class Quest {
 
     if (quest.type === 'Quarterly') {
       // 12月の更新日を超えているなら
-      if (month > 11 && today.getDate() === 1 && today.getHours() >= 5) {
+      if (month > 11 && today.getDate() >= 1 && today.getHours() >= 5) {
         // 来年の3月1日05:00:00
         resetDateTime = new Date(`${today.getFullYear() + 1}-03-01T05:00:00+0900`).getTime();
       } else {
@@ -133,7 +133,7 @@ export default class Quest {
 
     if (quest.type === 'Quarterly') {
       // 12月の更新日を超えているなら
-      if (month > 11 && today.getDate() === 1 && today.getHours() >= 5) {
+      if (month > 11 && today.getDate() >= 1 && today.getHours() >= 5) {
         // 来年の2月末 => 3月1日13:59:59から-24時間分
         closingDateTime = new Date(`${today.getFullYear() + 1}-03-01T13:59:59+0900`).getTime() - oneDayTime;
       } else {
