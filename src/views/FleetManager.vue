@@ -22,6 +22,13 @@
       <v-tab-item>
         <div class="general-container px-4 my-2">
           <div class="tutorial_box pa-0">
+            <div>
+              <v-alert border="left" dense outlined type="error">{{
+                $t(
+                  "Database.現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。"
+                )
+              }}</v-alert>
+            </div>
             <v-btn :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
               <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>
               <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
@@ -201,6 +208,13 @@
       <v-tab-item>
         <div class="general-container px-4 my-2">
           <div class="tutorial_box pa-0">
+            <div>
+              <v-alert border="left" dense outlined type="error">{{
+                $t(
+                  "Database.現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。"
+                )
+              }}</v-alert>
+            </div>
             <div class="mb-3">{{ $t("Database.従来の反映手順より少し楽になったタイプです。") }}</div>
             <v-btn :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
               <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>

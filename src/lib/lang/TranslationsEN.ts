@@ -728,6 +728,7 @@ export default {
       '以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。': 'The following procedures are explained for the PC version of the browser "Google Chrome".',
       'ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。': 'Open the "Console" tab and press the "Clear console" button.',
       'コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。': 'Type "this.KCS" in the console and press Enter, then select the arrow for the displayed object and expand the contents.',
+      '現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。': 'Currently, due to an update to the latest version of Google Chrome, the [[Scopes]] object is not displayed and the following steps cannot be performed. Microsoft Edge is not affected, but this may also become unavailable in the future.(2022/12/03)',
       '4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。': 'Among the four objects, find the object whose content is "{__esModule: true, default: ƒ}".',
       '手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。': 'Among the objects found in step 4, look for one that has "model" inside when expanded to "default".',
       '「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。': 'Right-click on the "default" for the one in which "model" exists and select "Store function as global variable" (if not, select "Store as global variable").',

@@ -728,6 +728,7 @@ export default {
       '以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。': '以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。',
       'ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。': 'ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。',
       'コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。': 'consoleに「this.KCS」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。',
+      '現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。': '2022/12/03現在、最新版の「Google Chrome」のアップデートにより、手順の途中の[[Scopes]]オブジェクトが表示されない場合があり、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。(2022/12/03)',
       '4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。': '4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。',
       '手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。': '手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。',
       '「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。': '「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。',
