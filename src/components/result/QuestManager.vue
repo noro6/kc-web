@@ -355,7 +355,17 @@ export default Vue.extend({
           if (savedQuest) {
             // 達成状況をセット
             quest.isCompleted = !!savedQuest.isCompleted;
-            quest.requires = savedQuest.requires;
+
+            // インデックスに応じて、達成状況を復元
+            for (let j = 0; j < savedQuest.requires.length; j += 1) {
+              const savedRequire = savedQuest.requires[j];
+              if (quest.requires[j]) {
+                quest.requires[j].isComplete = !!savedRequire.isComplete;
+              } else {
+                quest.requires.push({ area: savedRequire.area, rank: savedRequire.rank, isComplete: savedRequire.isComplete });
+              }
+            }
+
             if (quest.isCompleted) {
               quest.completedDate = savedQuest.completedDate;
             }
