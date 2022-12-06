@@ -196,7 +196,7 @@ export default class ShipMaster {
   static getSuffix(ship: ShipMaster): string[] {
     if (!ship.version) return [ship.name];
 
-    const lastSuffix = ['甲', '乙', '丙', '丁', '戊', '特', '護', '重', '改', '航', '母'];
+    const lastSuffix = ['甲', '乙', '丙', '丁', '戊', '特', '護', '重', '改', '航', '母', '戦'];
     let name = `${ship.name}`;
     let array: string[] = [];
     // 最後の1文字

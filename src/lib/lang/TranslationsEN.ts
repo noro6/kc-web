@@ -933,6 +933,7 @@ export default {
     '護': ' Go',
     '重': ' Juu',
     '母': ' Bo',
+    '戦': ' Sen',
     '航': ' -Kou',
     '改二': ' Kai Ni',
     '3': ' III',
