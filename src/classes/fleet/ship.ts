@@ -693,8 +693,8 @@ export default class Ship implements ShipBase {
       }
     } else if (this.data.speed === 5) {
       // 低速
-      if ([37].includes(this.data.type2) || this.data.id === 541 || this.data.id === 573) {
-        // 大和型, 長門改二, 陸奥改二
+      if ([37].includes(this.data.type2) || this.data.id === 541 || this.data.id === 573 || this.data.id === 894 || this.data.id === 899) {
+        // 大和型, 長門改二, 陸奥改二, 鳳翔改二/戦
         if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 3) {
           // タービン + 新型缶含むいずれかの缶x3 => 最速
           return 20;
@@ -705,6 +705,10 @@ export default class Ship implements ShipBase {
         }
         if (hasTurbine && totalBoilerCount) {
           // タービン + いずれかの缶 => 高速
+          return 10;
+        }
+        if (hasTurbine && this.data.id === 894) {
+          // タービン + 鳳翔改二 => 高速
           return 10;
         }
       } else if (this.data.originalId === 561 || this.data.id === 623) {

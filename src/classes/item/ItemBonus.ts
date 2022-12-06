@@ -280,7 +280,13 @@ export default class ItemBonus {
           bonus: {
             firePower: 2, antiAir: 2, asw: 2, avoid: 2,
           },
-          shipClass: [27],
+          shipBase: [89],
+        },
+        {
+          bonus: {
+            firePower: 1, avoid: 1, asw: 1, antiAir: 1,
+          },
+          shipId: [894, 899],
         },
       ],
     },
@@ -635,9 +641,18 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 3, avoid: 3 },
-          shipId: [501, 506, 662, 663, 668],
+          shipId: [501, 506, 662, 663, 668, 894, 899],
           requiresAR: 1,
           num: 1,
+        },
+        {
+          bonus: { antiAir: 2, avoid: 2 },
+          shipId: [894, 899],
+        },
+        {
+          bonus: { firePower: 1, antiAir: 1, avoid: 1 },
+          shipId: [894, 899],
+          remodel: 10,
         },
       ],
     },
@@ -1252,7 +1267,13 @@ export default class ItemBonus {
           bonus: {
             firePower: 3, antiAir: 3, asw: 4, avoid: 4,
           },
-          shipClass: [27],
+          shipBase: [89],
+        },
+        {
+          bonus: {
+            firePower: 1, avoid: 2, asw: 2, antiAir: 1,
+          },
+          shipId: [894, 899],
         },
         {
           bonus: {
@@ -3367,7 +3388,7 @@ export default class ItemBonus {
           bonus: {
             firePower: 3, antiAir: 3, asw: 3, avoid: 3,
           },
-          shipClass: [69, 83, 84, 105, 116],
+          shipClass: [69, 83, 84, 105, 116, 118],
         },
         {
           bonus: {
@@ -4721,6 +4742,10 @@ export default class ItemBonus {
           shipId: [285],
         },
         {
+          bonus: { firePower: 4, antiAir: 4, avoid: 4 },
+          shipId: [894, 899],
+        },
+        {
           bonus: { firePower: 2, antiAir: 2, avoid: 3 },
           shipId: [196, 197],
         },
@@ -4917,6 +4942,12 @@ export default class ItemBonus {
         {
           bonus: { firePower: 1, asw: 2, avoid: 1 },
           shipBase: [89, 184],
+        },
+        {
+          bonus: {
+            firePower: 1, avoid: 1, asw: 1, antiAir: 1,
+          },
+          shipId: [894, 899],
         },
       ],
     },
@@ -5799,6 +5830,89 @@ export default class ItemBonus {
         },
         {
           bonus: { accuracy: 1 },
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [275],
+      bonuses: [
+        {
+          bonus: { firePower: 1, antiAir: 3, avoid: 2 },
+          shipId: [894, 899],
+        },
+        {
+          bonus: { antiAir: 3, avoid: 3 },
+          shipId: [894, 899],
+          requiresAR: 1,
+          num: 1,
+        },
+        {
+          bonus: { antiAir: 1, avoid: 1 },
+          shipId: [894, 899],
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1, antiAir: 1, accuracy: 1 },
+          shipId: [894, 899],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [486],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 4, antiAir: 4, avoid: 3, accuracy: 2,
+          },
+          shipId: [894, 899],
+        },
+        {
+          bonus: {
+            firePower: 2, antiAir: 2, avoid: 2, accuracy: 1,
+          },
+          shipId: [883, 888],
+        },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { antiAir: 1, avoid: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [487],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 5, antiAir: 3, avoid: 2, accuracy: 4,
+          },
+          shipId: [894, 899],
+        },
+        {
+          bonus: {
+            firePower: 3, antiAir: 1, avoid: 1, accuracy: 2,
+          },
+          shipId: [883, 888],
+        },
+        {
+          bonus: { firePower: 1, avoid: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { antiAir: 1, accuracy: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1 },
           remodel: 10,
         },
       ],
