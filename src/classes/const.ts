@@ -167,7 +167,7 @@ export default class Const {
 
   public static readonly ROCKET = [350, 351, 352];
 
-  public static readonly BAKUSEN = [60, 154, 219, 447];
+  public static readonly BAKUSEN = [60, 154, 219, 447, 487];
 
   public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421, 474];
 
