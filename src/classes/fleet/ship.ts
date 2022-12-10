@@ -707,8 +707,8 @@ export default class Ship implements ShipBase {
           // タービン + いずれかの缶 => 高速
           return 10;
         }
-        if (hasTurbine && this.data.id === 894) {
-          // タービン + 鳳翔改二 => 高速
+        if (newModelBoilerCount && (this.data.id === 894 || this.data.id === 899)) {
+          // 新型缶 + 鳳翔改二/戦 => 高速
           return 10;
         }
       } else if (this.data.originalId === 561 || this.data.id === 623) {
