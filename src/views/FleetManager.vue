@@ -8,7 +8,6 @@
       <v-tab>{{ $t("Fleet.艦娘") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Fleet.装備") }}</v-tab>
       <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
-      <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映(改)") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Common.共有") }}</v-tab>
     </v-tabs>
     <v-divider></v-divider>
@@ -22,356 +21,219 @@
       <v-tab-item>
         <div class="general-container px-4 my-2">
           <div class="tutorial_box pa-0">
-            <div>
-              <v-alert border="left" dense outlined type="error">{{
-                $t(
-                  "Database.現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。"
-                )
-              }}</v-alert>
-            </div>
-            <v-btn :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
+            <v-card v-if="$i18n.locale === 'ja'" elevation="0">
+              <v-alert border="left" dense outlined type="warning">
+                <div>以下の手順は、艦これサーバーから正常に送られてきた情報を、通常のブラウザの機能を使って閲覧しているだけのものであり、</div>
+                <div class="font-weight-bold">艦これサーバーへの不正なアクセスや、通常プレイ以外の方法でサーバーへの接続を試みるものではありません。</div>
+              </v-alert>
+            </v-card>
+            <v-btn class="mt-3" :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
               <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>
               <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
             </v-btn>
           </div>
-          <div v-if="!showHowToDoIt" class="tutorial_box pa-0">
-            <v-btn color="secondary" @click="copyCode('this-kcs-code')" :disabled="successCopy">{{ $t("Database.文字列thisKCSをコピー") }}</v-btn>
-            <input id="this-kcs-code" type="text" value="this.KCS" />
-          </div>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>1. {{ $t("Database.艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。") }}</div>
-            <div>※ {{ $t("Database.以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial1.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>2. {{ $t("Database.ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial2.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>3. {{ $t("Database.コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial3.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>4. {{ $t("Database.4つあるオブジェクトのなかで、内容が「{__esModule: true, default: ƒ}」となっているオブジェクトを探す。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial4.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>5. {{ $t("Database.手順4で見つけたオブジェクトのうち、「default」まで展開したときに中に「model」が存在するものを探す。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial5.webp`" />
-            </div>
-          </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>
-              6.
-              {{
-                $t(
-                  "Database.「model」が存在する方の「default」の上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。"
-                )
-              }}
+              1.
+              {{ $t("Database.ログイン後、ゲームスタート画面上で右クリックし、コンテキストメニューから「検証」または「開発者ツールで調査する」を選択する。") }}
             </div>
             <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial6.webp`" />
+              <a :href="`./img/tutorial/step1.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step1.webp`" max-height="900" max-width="1300" />
+              </a>
             </div>
-            <div>
-              {{
-                $t("Database.選択すると、下記のように「temp1」と出てきます。もし、temp2など数字が違っている場合、次の手順xの注意事項欄を見てください。", {
-                  step: 5,
-                })
-              }}
-            </div>
+            <div class="mt-15">※ {{ $t("Database.下記はGoogle Chromeの場合です。") }}</div>
             <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial6_2.webp`" />
+              <a :href="`./img/tutorial/step1-2.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step1-2.webp`" max-height="900" max-width="1300" />
+              </a>
+            </div>
+          </v-card>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>2. {{ $t("Database.「ネットワーク」タブを開き、赤枠の部分を確認したのち、ゲームスタートを押す。") }}</div>
+            <div class="tutorial_img">
+              <a :href="`./img/tutorial/step2.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step2.webp`" max-height="900" max-width="1300" />
+              </a>
+            </div>
+          </v-card>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>3. {{ $t("Database.母港画面が表示されたら、左の一覧から「port」を探し、クリックする。（絶対にダブルクリックをしないこと!）") }}</div>
+            <div class="tutorial_img">
+              <a :href="`./img/tutorial/step3.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step3.webp`" max-height="900" max-width="1300" />
+              </a>
+            </div>
+          </v-card>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>4. {{ $t("Database.「プレビュー」タブを選択し、「api_ship」の上で右クリックし、「objectをグローバル変数として格納する」を選択する。") }}</div>
+            <div class="tutorial_img">
+              <a :href="`./img/tutorial/step4.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step4.webp`" max-height="900" max-width="1300" />
+              </a>
             </div>
           </v-card>
           <v-card class="tutorial_box pt-2">
             <div v-if="showHowToDoIt" class="pt-3">
-              7. {{ $t("Database.下記のJavaScriptコードをconsoleに貼り付け、Enterを押下する。") }} ※
-              {{
-                $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。", {
-                  step: 8,
-                })
-              }}
+              <div>5. {{ $t("Database.下記のJavaScriptコードを貼り付けて、Enterを押下する。") }}</div>
+              <div>
+                ※
+                {{
+                  $t(
+                    "Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。",
+                    { step: 6 }
+                  )
+                }}
+              </div>
             </div>
-            <div>
-              <v-tabs v-model="code_tab">
-                <v-tab href="#ship_code">{{ $t("Fleet.艦娘") }}</v-tab>
-                <v-tab href="#item_code">{{ $t("Fleet.装備") }}</v-tab>
-              </v-tabs>
+            <v-template v-else>
+              <div class="mt-3">
+                {{ $t(`Fleet.艦娘`) }}
+              </div>
+              <v-divider class="mt-3 mb-6"></v-divider>
+            </v-template>
+            <div class="d-flex mt-2">
+              <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
+                {{ $t(`Common.コードをコピー`) }}
+              </v-btn>
+              <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
+                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
+                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+              </v-radio-group>
+              <input
+                v-if="includeUnLockedShip"
+                id="ships-read-code"
+                type="text"
+                value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}),['id','lv','st','exp','ex','area']))"
+              />
+              <input
+                v-else
+                id="ships-read-code"
+                type="text"
+                value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
+              />
             </div>
-            <v-divider class="mb-3"></v-divider>
-            <v-tabs-items v-model="code_tab" :touchless="true">
-              <v-tab-item value="ship_code">
-                <div class="d-flex mt-2">
-                  <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
-                    {{ $t(`Common.コードをコピー`) }}
-                  </v-btn>
-                  <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
-                  </v-radio-group>
-                  <input
-                    v-if="includeUnLockedShip"
-                    id="ships-read-code"
-                    type="text"
-                    value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}),['id','lv','st','exp','ex','area']))"
-                  />
-                  <input
-                    v-else
-                    id="ships-read-code"
-                    type="text"
-                    value="copy(JSON.stringify(Object.entries(temp1.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv': v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
-                  />
-                </div>
-                <v-card class="mt-6 copy_code" elevation="4">
-                  <div>
-                    copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.ship._map).map(([,v])=>{return{'id': v._o.api_ship_id,'lv':
-                    v._o.api_lv,'locked': v._o.api_locked,'st': v._o.api_kyouka,'exp':v._o.api_exp,'ex':v._o.api_slot_ex,'area':v._o.api_sally_area}})<span
-                      v-if="!includeUnLockedShip"
-                      >.filter(v=>v.locked)</span
-                    >,['id','lv','st','exp','ex','area']))
-                  </div>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item value="item_code">
-                <div class="d-flex mt-2">
-                  <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
-                    {{ $t(`Common.コードをコピー`) }}
-                  </v-btn>
-                  <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
-                  </v-radio-group>
-                  <input
-                    v-if="includeUnLockedItem"
-                    id="item-read-code"
-                    type="text"
-                    value="copy(JSON.stringify(Object.entries(temp1.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}),['id','lv']))"
-                  />
-                  <input
-                    v-else
-                    id="item-read-code"
-                    type="text"
-                    value="copy(JSON.stringify(Object.entries(temp1.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}).filter(v=>v.locked),['id','lv']))"
-                  />
-                </div>
-                <v-card class="copy_code" elevation="4">
-                  <div>
-                    copy(JSON.stringify(Object.entries(<span class="red--text">temp1</span>.model.slot._map).map(([,v])=>{return
-                    {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLockedItem">.filter(v=>v.locked)</span
-                    >,['id','lv']))
-                  </div>
-                </v-card>
-              </v-tab-item>
-            </v-tabs-items>
+            <v-card class="mt-6 copy_code" elevation="4">
+              <div>
+                copy(JSON.stringify(<span class="red--text">temp1</span>.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st':
+                v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}})<span v-if="!includeUnLockedShip">.filter(v=>v.locked)</span
+                >,['id','lv','st','exp','ex','area']))
+              </div>
+            </v-card>
             <div v-if="showHowToDoIt" class="tutorial_img">
-              <v-img :src="`./img/tutorial/tutorial7.webp`" />
+              <a :href="`./img/tutorial/step5.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step5.webp`" max-height="900" max-width="1300" />
+              </a>
             </div>
             <div v-if="showHowToDoIt" class="warning_box mt-3">
               <div>{{ $t("Database.注意事項") }}</div>
               <div class="mt-1">
-                {{
-                  $t(
-                    "Database.手順xで「Store function as global variable」を選択した際に出てくる「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。",
-                    { step: 6 }
-                  )
-                }}
+                {{ $t("Database.「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。") }}
               </div>
               <div>
-                {{
-                  $t(
-                    "Database.手順通りやると「temp1」となっているはずですが、手順xで例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を、自分で「temp2」と書き換えて実行してください。",
-                    { step: 6 }
-                  )
-                }}
+                {{ $t("Database.例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を、自分で「temp2」と書き換えて実行してください。") }}
               </div>
               <div class="tutorial_img">
-                <v-img :src="`./img/tutorial/tutorial7_2.webp`" />
+                <a :href="`./img/tutorial/step5-2.webp`" target="_blank">
+                  <v-img :src="`./img/tutorial/step5-2.webp`" max-height="900" max-width="1300" />
+                </a>
               </div>
             </div>
           </v-card>
-          <v-card class="tutorial_box">
-            <div v-if="showHowToDoIt">8. {{ $t("Database.下記の反映エリアに、手順7でコピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>6. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
-        </div>
-      </v-tab-item>
-      <v-tab-item>
-        <div class="general-container px-4 my-2">
-          <div class="tutorial_box pa-0">
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>7. {{ $t("Database.コンソールのタブをいったん閉じる。") }}</div>
+            <div class="tutorial_img">
+              <a :href="`./img/tutorial/step7.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step7.webp`" max-height="900" max-width="1300" />
+              </a>
+            </div>
+          </v-card>
+          <v-card class="tutorial_box" v-if="showHowToDoIt">
+            <div>8. {{ $t("Database.左の一覧から「require_info」を探し、クリックする。（絶対にダブルクリックをしないこと!）") }}</div>
             <div>
-              <v-alert border="left" dense outlined type="error">{{
-                $t(
-                  "Database.現在、最新版の「Google Chrome」のアップデートにより、途中のScopesオブジェクトが表示されず、反映ができません。Microsoft Edgeであれば問題ありませんが、今後こちらも使えなくなる可能性があります。"
-                )
-              }}</v-alert>
-            </div>
-            <div class="mb-3">{{ $t("Database.従来の反映手順より少し楽になったタイプです。") }}</div>
-            <v-btn :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
-              <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>
-              <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
-            </v-btn>
-          </div>
-          <div v-if="!showHowToDoIt" class="tutorial_box pa-0">
-            <v-btn color="secondary" @click="copyCode('this-kcs-code-kai')" :disabled="successCopy">{{ $t("Database.文字列thisKCSをコピー") }}</v-btn>
-            <input id="this-kcs-code-kai" type="text" value="this.KCS" />
-          </div>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>1. {{ $t("Database.艦これにログイン後、艦これ画面上で右クリックし、コンテキストメニューから「検証」を選択する。") }}</div>
-            <div>※ {{ $t("Database.以降、反映手順については、PC版ブラウザ「Google Chrome」における説明となっています。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial1.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>2. {{ $t("Database.ウインドウが開くので、「Console」タブを開き、「Clear console」ボタンを押下する。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial2.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>3. {{ $t("Database.コンソールに「x」と入力してEnterを押下、表示されたオブジェクトについて矢印を選択して内容を展開する。") }}</div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial3.webp`" />
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>
-              4.
-              {{ $t("Database.Scopesの上で右クリックし、「Store function as global variable」（なければ「Store as global variable」）を選択する。") }}
+              {{ $t("Database.「プレビュー」タブを選択し、「api_slot_item」の上で右クリックし、「objectをグローバル変数として格納する」を選択する。") }}
             </div>
             <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial4-1.webp`" />
-            </div>
-            <div class="mt-6">
-              {{
-                $t("Database.選択すると、下記のように「temp1」と出てきます。もし、temp2など数字が違っている場合、次の手順xの注意事項欄を見てください。", {
-                  step: 5,
-                })
-              }}
-            </div>
-            <div class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial4-2.webp`" />
+              <a :href="`./img/tutorial/step8.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step8.webp`" max-height="900" max-width="1300" />
+              </a>
             </div>
           </v-card>
           <v-card class="tutorial_box pt-2">
             <div v-if="showHowToDoIt" class="pt-3">
-              5. {{ $t("Database.下記のJavaScriptコードをconsoleに貼り付け、Enterを押下する。") }} ※
-              {{
-                $t("Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。", {
-                  step: 6,
-                })
-              }}
+              <div>9. {{ $t("Database.下記のJavaScriptコードを貼り付けて、Enterを押下する。") }}</div>
+              <div>
+                ※
+                {{
+                  $t(
+                    "Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。",
+                    { step: 10 }
+                  )
+                }}
+              </div>
             </div>
-            <div>
-              <v-tabs v-model="code_tab">
-                <v-tab href="#ship_code">{{ $t("Fleet.艦娘") }}</v-tab>
-                <v-tab href="#item_code">{{ $t("Fleet.装備") }}</v-tab>
-              </v-tabs>
+            <v-template v-else>
+              <div class="mt-3">
+                {{ $t(`Fleet.装備`) }}
+              </div>
+              <v-divider class="mt-3 mb-6"></v-divider>
+            </v-template>
+            <div class="d-flex mt-2">
+              <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
+                {{ $t(`Common.コードをコピー`) }}
+              </v-btn>
+              <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
+                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
+                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+              </v-radio-group>
+              <input
+                v-if="includeUnLockedItem"
+                id="item-read-code"
+                type="text"
+                value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}),['id','lv']))"
+              />
+              <input
+                v-else
+                id="item-read-code"
+                type="text"
+                value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}).filter(v=>v.locked),['id','lv']))"
+              />
             </div>
-            <v-divider class="mb-3"></v-divider>
-            <v-tabs-items v-model="code_tab" :touchless="true">
-              <v-tab-item value="ship_code">
-                <div class="d-flex mt-2">
-                  <v-btn color="primary" @click="copyCode('ships-read-code-kai')" :disabled="successCopy">
-                    {{ $t(`Common.コードをコピー`) }}
-                  </v-btn>
-                  <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
-                  </v-radio-group>
-                  <input
-                    v-if="includeUnLockedShip"
-                    id="ships-read-code-kai"
-                    type="text"
-                    value="for(let i of Object.values(temp1)){if(i.object){let x=!1;for(let j of Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.ship._map).map(([,v])=>{return{id:v._o.api_ship_id,lv:v._o.api_lv,locked:v._o.api_locked,st:v._o.api_kyouka,exp:v._o.api_exp,ex:v._o.api_slot_ex,area:v._o.api_sally_area,}}),['id','lv','st','exp','ex','area']));x=!0;break}} if(x){break}}}"
-                  />
-                  <input
-                    v-else
-                    id="ships-read-code-kai"
-                    type="text"
-                    value="for(let i of Object.values(temp1)){if(i.object){let x=!1;for(let j of Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.ship._map).map(([,v])=>{return{id:v._o.api_ship_id,lv:v._o.api_lv,locked:v._o.api_locked,st:v._o.api_kyouka,exp:v._o.api_exp,ex:v._o.api_slot_ex,area:v._o.api_sally_area,}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']));x=!0;break}} if(x){break}}}"
-                  />
-                </div>
-                <v-card class="mt-6 copy_code" elevation="4">
-                  <div>
-                    for(let i of Object.values(<span class="red--text">temp1</span>)){if(i.object){let x=!1;for(let j of
-                    Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.ship._map).map(([,v])=>{return{id:v._o.api_ship_id,lv:v._o.api_lv,locked:v._o.api_locked,st:v._o.api_kyouka,exp:v._o.api_exp,ex:v._o.api_slot_ex,area:v._o.api_sally_area,}})<span
-                      v-if="!includeUnLockedShip"
-                      >.filter(v=>v.locked)</span
-                    >,['id','lv','st','exp','ex','area']));x=!0;break}} if(x){break}}}
-                  </div>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item value="item_code">
-                <div class="d-flex mt-2">
-                  <v-btn color="primary" @click="copyCode('item-read-code-kai')" :disabled="successCopy">
-                    {{ $t(`Common.コードをコピー`) }}
-                  </v-btn>
-                  <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                    <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                    <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
-                  </v-radio-group>
-                  <input
-                    v-if="includeUnLockedItem"
-                    id="item-read-code-kai"
-                    type="text"
-                    value="for(let i of Object.values(temp1)){if(i.object){let x=!1;for(let j of Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}),['id','lv']));x=!0;break}} if(x){break}}}"
-                  />
-                  <input
-                    v-else
-                    id="item-read-code-kai"
-                    type="text"
-                    value="for(let i of Object.values(temp1)){if(i.object){let x=!1;for(let j of Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.slot._map).map(([,v])=>{return {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}}).filter(v=>v.locked),['id','lv']));x=!0;break}} if(x){break}}}"
-                  />
-                </div>
-                <v-card class="copy_code" elevation="4">
-                  <div>
-                    for(let i of Object.values(<span class="red--text">temp1</span>)){if(i.object){let x=!1;for(let j of
-                    Object.values(i.object)){if(j.default&&j.default.model){copy(JSON.stringify(Object.entries(j.default.model.slot._map).map(([,v])=>{return
-                    {'id':v._o.api_slotitem_id,'lv': v._o.api_level,'locked':v._o.api_locked}})<span v-if="!includeUnLockedItem">.filter(v=>v.locked)</span
-                    >,['id','lv']));x=!0;break}} if(x){break}}}
-                  </div>
-                </v-card>
-              </v-tab-item>
-            </v-tabs-items>
+            <v-card class="copy_code" elevation="4">
+              <div>
+                copy(JSON.stringify(<span class="red--text">temp2</span>.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}})<span
+                  v-if="!includeUnLockedItem"
+                  >.filter(v=>v.locked)</span
+                >,['id','lv']))
+              </div>
+            </v-card>
             <div v-if="showHowToDoIt" class="tutorial_img">
-              <v-img :src="`./img/tutorial/v2/tutorial5-1.webp`" />
+              <a :href="`./img/tutorial/step9.webp`" target="_blank">
+                <v-img :src="`./img/tutorial/step9.webp`" max-height="900" max-width="1300" />
+              </a>
             </div>
             <div v-if="showHowToDoIt" class="warning_box mt-3">
               <div>{{ $t("Database.注意事項") }}</div>
               <div class="mt-1">
-                {{
-                  $t(
-                    "Database.手順xで「Store function as global variable」を選択した際に出てくる「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。",
-                    { step: 4 }
-                  )
-                }}
+                {{ $t("Database.「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。") }}
               </div>
               <div>
-                {{
-                  $t(
-                    "Database.手順通りやると「temp1」となっているはずですが、手順xで例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を、自分で「temp2」と書き換えて実行してください。",
-                    { step: 4 }
-                  )
-                }}
+                {{ $t("Database.例えば「temp3」と出てきていたら、JavaScriptコードの「temp2」の部分を、自分で「temp3」と書き換えて実行してください。") }}
               </div>
               <div class="tutorial_img">
-                <v-img :src="`./img/tutorial/v2/tutorial5-2.webp`" />
+                <a :href="`./img/tutorial/step9-2.webp`" target="_blank">
+                  <v-img :src="`./img/tutorial/step9-2.webp`" max-height="900" max-width="1300" />
+                </a>
               </div>
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div v-if="showHowToDoIt">6. {{ $t("Database.下記の反映エリアに、手順7でコピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+            <div v-if="showHowToDoIt">10. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
@@ -535,12 +397,8 @@
 .copy_code > div {
   align-self: center;
 }
-#this-kcs-code,
 #ships-read-code,
-#item-read-code,
-#this-kcs-code-kai,
-#ships-read-code-kai,
-#item-read-code-kai {
+#item-read-code {
   margin-left: auto;
   width: 1px;
   opacity: 0;
@@ -580,7 +438,6 @@ export default Vue.extend({
   components: { Ships, Items },
   data: () => ({
     tab: 'ship',
-    code_tab: 'ship_code',
     includeUnLockedShip: true,
     includeUnLockedItem: false,
     readResultColor: 'success',
