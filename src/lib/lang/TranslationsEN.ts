@@ -376,6 +376,7 @@ export default {
       '夜偵': 'Night Contact',
       '艦隊詳細': 'Details',
       '艦隊情報': 'Information',
+      '艦隊ステータス': 'Fleet Status',
       '対空砲火': 'Fleet Anti-Air Defense',
       '航空戦火力': 'Airstrike Damage',
       '対潜支援火力': 'ASW Support Damage',

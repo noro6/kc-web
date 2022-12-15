@@ -1122,7 +1122,7 @@ export default class Ship implements ShipBase {
     const specialAttacks: { text: string, value: number }[] = [];
 
     // 弾着観測射撃判定
-    if (items.some((v) => v.data.apiTypeId === 10 || v.data.apiTypeId === 11)) {
+    if (items.some((v) => v.fullSlot && (v.data.apiTypeId === 10 || v.data.apiTypeId === 11))) {
       // 水上機は必須
       const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
       const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
@@ -1149,11 +1149,11 @@ export default class Ship implements ShipBase {
     }
 
     // 空母カットイン判定
-    if (this.items.some((v) => v.data.apiTypeId === 8)) {
+    if (this.items.some((v) => v.fullSlot && v.data.apiTypeId === 8)) {
       // 艦攻は必須
-      const bomberCount = items.filter((v) => v.data.apiTypeId === 7).length;
+      const bomberCount = items.filter((v) => v.fullSlot && v.data.apiTypeId === 7).length;
       // FBA => 艦攻 + 艦爆 + 艦戦
-      if (this.items.some((v) => v.data.apiTypeId === 6) && bomberCount) {
+      if (this.items.some((v) => v.fullSlot && v.data.apiTypeId === 6) && bomberCount) {
         specialAttacks.push({ text: 'FBA', value: 125 });
       }
       // BBA => 艦攻 + 艦爆2

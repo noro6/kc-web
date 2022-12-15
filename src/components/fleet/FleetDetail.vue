@@ -9,6 +9,7 @@
     </div>
     <v-divider class="mb-1"></v-divider>
     <v-tabs v-model="tab" show-arrows>
+      <v-tab href="#status">{{ $t("Fleet.艦隊ステータス") }}</v-tab>
       <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
       <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
       <v-tab href="#airstrike">{{ $t("Fleet.航空戦火力") }}</v-tab>
@@ -17,6 +18,9 @@
     </v-tabs>
     <v-divider></v-divider>
     <v-tabs-items class="detail-fleet" v-model="tab">
+      <v-tab-item value="status">
+        <fleet-status :fleet="fleet" />
+      </v-tab-item>
       <v-tab-item value="stage2">
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
       </v-tab-item>
@@ -52,6 +56,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import Fleet from '@/classes/fleet/fleet';
+import FleetStatus from '@/components/fleet/FleetStatus.vue';
 import ContactRates from '@/components/result/ContactRates.vue';
 import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import AirstrikeSupport from '@/components/result/AirstrikeSupport.vue';
@@ -61,6 +66,7 @@ import AirstrikeCalculatorWrapper from '@/components/result/AirstrikeCalculatorW
 export default Vue.extend({
   name: 'FleetDetail',
   components: {
+    FleetStatus,
     AirstrikeSupport,
     AntiSubmarineSupport,
     AntiAirCalculator,
@@ -86,7 +92,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    tab: 'stage2',
+    tab: 'status',
   }),
   mounted() {
     const contact = this.$refs.contactRates as InstanceType<typeof ContactRates>;

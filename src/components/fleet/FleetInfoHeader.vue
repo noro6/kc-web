@@ -5,7 +5,9 @@
       <div class="mt-1 ml-1 mr-2 body-2">{{ value.fullAirPower }}</div>
       <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ contactRate }}%</div>
-      <div class="mt-1 caption text--secondary">{{ $t("Fleet.夜偵") }}:</div>
+      <div>
+        <v-img :src="`./img/type/icon50.png`" height="24" width="24"></v-img>
+      </div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
       <template v-if="actualFleet.fleetSpeed">
         <div class="mt-1 caption text--secondary">{{ $t("Common.速力") }}:</div>
@@ -16,7 +18,7 @@
         <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
           <v-img :src="`./img/type/icon11.png`" height="20" width="20"></v-img>
           <div class="option-status-label">{{ i + 1 }}</div>
-          <div class="ml-2 body-2">: {{ scout }}</div>
+          <div class="ml-2 body-2">{{ scout }}</div>
         </div>
       </div>
       <!-- TP -->
@@ -25,7 +27,7 @@
           <v-img :src="`./img/type/icon25.png`" height="24" width="24"></v-img>
           <div class="option-status-label label-tp">TP</div>
           <div class="ml-2 body-2 align-self-center tp d-flex">
-            <div>: {{ actualFleet.tp }}</div>
+            <div>{{ actualFleet.tp }}</div>
             <div class="status-label">S</div>
           </div>
           <div class="ml-2 mr-1">/</div>
@@ -57,7 +59,7 @@
 .option-status .option-status-label {
   align-self: flex-end;
   position: absolute;
-  opacity: 0.7;
+  opacity: 0.75;
   font-size: 12px;
   bottom: -2px;
   left: 20px;
@@ -73,7 +75,7 @@
   align-self: flex-start;
   position: absolute;
   font-size: 11px;
-  opacity: 0.7;
+  opacity: 0.75;
   right: -6px;
   top: 6px;
 }
@@ -116,7 +118,7 @@ export default Vue.extend({
   data: () => ({
     detailDialog: false,
     destroyDialog: false,
-    lastTab: 'stage2',
+    lastTab: 'status',
   }),
   mounted() {
     //

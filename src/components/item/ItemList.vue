@@ -193,7 +193,7 @@
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
             </div>
-            <div class="item-count red--text caption" v-if="isStockOnly && !isEnemyMode">
+            <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
               <span>&times;</span>
               <span>{{ v.count }}</span>
             </div>
@@ -443,6 +443,8 @@
 .item-count {
   margin-left: 1px;
   width: 22px;
+  font-weight: bold;
+  color: rgb(255, 64, 64);
 }
 
 .item-special-text {
