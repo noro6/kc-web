@@ -136,7 +136,7 @@
     <div class="item-status-grid no-grid">
       <template v-if="value.data.isPlane && !isNotJapanese">
         <div class="grey--text text--lighten-1">熟練度</div>
-        <div><img class="grow-img" :src="`./img/util/prof7.png`" /></div>
+        <div><img class="grow-img" :src="`./img/util/prof7.png`" alt="prof7"/></div>
         <div class="grey--text text--lighten-1">まで</div>
         <div class="ml-5 grow-text">{{ growSpeedString(value.data) }} 戦</div>
       </template>

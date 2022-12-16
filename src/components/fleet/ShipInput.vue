@@ -12,7 +12,7 @@
     @dragover.prevent
   >
     <template v-if="ship.isEmpty">
-      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
+      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList" tabindex="0">
         <div class="align-self-center">{{ shipName }}</div>
         <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
@@ -28,8 +28,15 @@
     </template>
     <template v-else>
       <div class="d-flex px-2">
-        <div class="align-self-center ship-img-container" v-if="!isNoShip" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
-          <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip">
+        <div
+          class="align-self-center ship-img-container"
+          v-if="!isNoShip"
+          v-ripple="{ class: 'info--text' }"
+          @click.stop="showShipList"
+          @keypress.enter="showShipList"
+          tabindex="0"
+        >
+          <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip" @focus="bootShipTooltip($event)" @blur="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
@@ -95,7 +102,7 @@
               </v-card>
             </v-menu>
           </div>
-          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList">
+          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList" tabindex="0">
             <div class="ship-name text-truncate">{{ shipName }}</div>
           </div>
         </div>
@@ -243,7 +250,14 @@
       <v-divider class="mx-1 item-input-divider"></v-divider>
       <!-- 装備一覧 -->
       <div class="px-1" v-if="!ship.isEmpty">
-        <div @mouseenter="bootTooltip(item, j, $event)" @mouseleave="clearTooltip" v-for="(item, j) in ship.items" :key="j">
+        <div
+          @mouseenter="bootTooltip(item, j, $event)"
+          @mouseleave="clearTooltip"
+          @focus="bootTooltip(item, j, $event)"
+          @blur="clearTooltip"
+          v-for="(item, j) in ship.items"
+          :key="j"
+        >
           <item-input
             v-model="ship.items[j]"
             :index="j"
@@ -257,7 +271,7 @@
           />
         </div>
         <!-- 補強増設枠 -->
-        <div @mouseenter="bootTooltip(ship.exItem, -1, $event)" @mouseleave="clearTooltip">
+        <div @mouseenter="bootTooltip(ship.exItem, -1, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(ship.exItem, -1, $event)" @blur="clearTooltip">
           <item-input
             v-model="ship.exItem"
             :index="99"

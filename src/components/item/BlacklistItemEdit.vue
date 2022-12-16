@@ -37,6 +37,8 @@
           class="type-selector"
           :class="{ active: type === i.id, disabled: keyword || blacklistOnly }"
           @click="changeType(i.id)"
+          @keypress="changeType(i.id)"
+          tabindex="0"
         >
           <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
         </div>
@@ -58,8 +60,12 @@
               v-ripple
               :class="{ blacklisted: item.isBlacklisted }"
               @click="toggleBlacklisted(item)"
+              @keypress="toggleBlacklisted(item)"
+              tabindex="0"
               @mouseenter="bootTooltip(item.data, $event)"
               @mouseleave="clearTooltip"
+              @focus="bootTooltip(item.data, $event)"
+              @blur="clearTooltip"
             >
               <td class="icon-td text-center">
                 <v-icon v-if="item.isBlacklisted" color="grey">mdi-eye-off</v-icon>

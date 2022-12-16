@@ -97,7 +97,7 @@
       <v-card class="py-1" v-for="(header, i) in viewItems" :key="i">
         <div class="ma-1 d-flex">
           <div class="type-img">
-            <img :src="`./img/type/type${header.type.id}.png`" />
+            <img :src="`./img/type/type${header.type.id}.png`" :alt="`type-${header.type.id}`" />
           </div>
           <div class="ml-1 align-self-center">{{ isNotJapanese ? $t(`EType.${header.type.name}`) : header.type.name }}</div>
           <v-spacer></v-spacer>
@@ -109,13 +109,23 @@
                 </v-btn>
               </template>
               <v-card>
-                <div class="sort-key" v-ripple="{ class: 'info--text' }" @click="sortItems(header.items, 'id')">{{ $t("Database.図鑑ID") }}</div>
+                <div
+                  class="sort-key"
+                  v-ripple="{ class: 'info--text' }"
+                  @click="sortItems(header.items, 'id')"
+                  @keypress.enter="sortItems(header.items, 'id')"
+                  tabindex="0"
+                >
+                  {{ $t("Database.図鑑ID") }}
+                </div>
                 <div
                   v-for="(sortKey, j) in header.type.sortKey"
                   :key="`type${i}Key${j}`"
                   class="sort-key"
                   v-ripple="{ class: 'info--text' }"
                   @click="sortItems(header.items, sortKey)"
+                  @keypress.enter="sortItems(header.items, sortKey)"
+                  tabindex="0"
                 >
                   {{ convertStatusString(sortKey) }}
                 </div>
@@ -130,12 +140,16 @@
             :class="{ 'no-item': !itemRow.allCount }"
             v-ripple="{ class: 'info--text' }"
             @click="clickItem(itemRow.master)"
+            @keypress.enter="clickItem(itemRow.master)"
+            tabindex="0"
             @mouseenter="bootTooltip(itemRow.master, $event)"
             @mouseleave="clearTooltip"
+            @focus="bootTooltip(itemRow.master, $event)"
+            @blur="clearTooltip"
           >
             <div class="d-flex align-self-start flex-grow-1">
               <div class="icon-img">
-                <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" />
+                <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" :alt="`icon-${itemRow.master.iconTypeId}`" />
               </div>
               <div class="item-name flex-grow-1">
                 {{ needTrans ? $t(`${itemRow.master.name}`) : itemRow.master.name }}
@@ -373,7 +387,7 @@ interface ItemRow {
 }
 
 export default Vue.extend({
-  name: 'Items',
+  name: 'ItemsComponent',
   components: { ItemTooltip, BlacklistItemEdit },
   data: () => ({
     all: [] as ItemMaster[],

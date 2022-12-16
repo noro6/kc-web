@@ -42,8 +42,12 @@
             :class="{ clickable: !disabledEdit }"
             v-ripple="{ class: 'info--text' }"
             @click.stop="clickedShip(data.area, ship)"
+            @keypress.enter="clickedShip(data.area, ship)"
+            tabindex="0"
             @mouseenter="bootTooltip(ship, $event)"
             @mouseleave="clearTooltip"
+            @focus="bootTooltip(ship, $event)"
+            @blur="clearTooltip"
           >
             <div class="ship-img">
               <div>

@@ -1,5 +1,6 @@
 <template>
   <div class="pa-2">
+    <v-alert v-if="includePlane" border="left" dense outlined type="warning">{{ $t("Common.艦隊に艦載機が含まれています。遠征における艦載機の性能に対する補正の計算式が不明なため、遠征のステータス調整に利用する際は十分注意してください。") }}</v-alert>
     <v-divider></v-divider>
     <v-simple-table fixed-header height="64vh">
       <template v-slot:default>
@@ -98,6 +99,9 @@ export default Vue.extend({
     },
     totalLoS(): number {
       return sum(this.ships.map((v) => v.displayStatus.LoS));
+    },
+    includePlane(): boolean {
+      return this.ships.some((v) => v.items.some((x) => x.data.isPlane));
     },
   },
   methods: {

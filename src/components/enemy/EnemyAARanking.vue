@@ -66,6 +66,7 @@
 </style>
 
 <script lang="ts">
+import AntiAirCutIn from '@/classes/aerialCombat/antiAirCutIn';
 import ShootDownInfo, { ShootDownStatus } from '@/classes/aerialCombat/shootDownInfo';
 import Const from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
@@ -166,7 +167,7 @@ export default Vue.extend({
       const enemies = [];
       for (let i = 0; i < this.allEnemies.length; i += 1) {
         const enemy = this.allEnemies[i];
-        const shootDownInfo = ShootDownInfo.getStage2([enemy], true, false, Const.FORMATIONS[0]);
+        const shootDownInfo = ShootDownInfo.getStage2([enemy], true, false, Const.FORMATIONS[0], new AntiAirCutIn());
 
         enemies.push({ enemy, shoot: shootDownInfo[0] });
       }

@@ -55,11 +55,15 @@
         v-for="(enemy, index) in fleet.enemies"
         :key="index"
         v-ripple="{ class: 'info--text' }"
-        @click="openMenu(index)"
         class="d-flex enemy-list-item pr-2 align-center"
         :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
+        @click="openMenu(index)"
+        @keypress.enter="openMenu(index)"
         @mouseenter="bootTooltip(enemy, $event)"
         @mouseleave="clearTooltip"
+        @focus="bootTooltip(enemy, $event)"
+        @blur="clearTooltip"
+        tabindex="0"
       >
         <template v-if="enemy.data.id || (!capturing && enemy.data.id === 0)">
           <div class="item-index-area">

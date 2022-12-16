@@ -166,7 +166,7 @@ import SiteSetting from '@/classes/siteSetting';
 const radarDatasetLabels = ['最大Lv', '最小Lv', '中央Lv', '平均Lv'];
 
 export default Vue.extend({
-  name: 'Analytics',
+  name: 'AnalyticsComponent',
   components: { RadarChart, StackedBar },
   data: () => ({
     levelRange: [1, 175],

@@ -35,6 +35,8 @@
                 class="calc-item"
                 :class="{ selected: selectedIndex === i, 'no-item': !item.data.isPlane }"
                 @click="selectItem(item.data.isPlane ? i : -1)"
+                @keypress.enter="selectItem(item.data.isPlane ? i : -1)"
+                tabindex="0"
               >
                 <div class="align-self-center caption slot-area">{{ item.fullSlot }}</div>
                 <div>
@@ -77,7 +79,7 @@
           <bar-chart :data="graphData" :options="options" :title-text="$t('Result.残機数分布')" />
         </div>
         <div class="d-flex">
-          <textarea class="d-none" id="slot-rate-table-string" v-model="slotRateTableText" />
+          <textarea class="d-none" id="slot-rate-table-string" v-model="slotRateTableText" aria-label="st" />
           <v-btn class="ml-auto" color="teal" dark small @click="copySlotRate()">
             <v-icon small>mdi-file-table-outline</v-icon>{{ $t("Result.残機数分布をコピー") }}
           </v-btn>

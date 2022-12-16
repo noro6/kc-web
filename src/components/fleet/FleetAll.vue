@@ -47,8 +47,8 @@
     <v-divider></v-divider>
     <div class="d-flex align-center flex-wrap mt-6 mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
-        <template v-slot:activator="{ on, attrs }" v-ripple="{ class: 'info--text' }">
-          <div class="form-input mb-3" v-bind="attrs" v-on="on">
+        <template v-slot:activator="{ on, attrs }">
+          <div class="form-input mb-3" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
             <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly></v-text-field>
           </div>
         </template>
@@ -179,7 +179,7 @@
           </div>
           <div class="my-1" v-if="generatedCanvas">
             <v-btn @click="saveImage()" color="success"><v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}</v-btn>
-            <a class="d-none" id="gkcoi-download" />
+            <a class="d-none" id="gkcoi-download">download</a>
           </div>
         </div>
         <div v-if="generatingImage">
@@ -343,7 +343,7 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
+            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)" tabindex="0">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
@@ -354,7 +354,7 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
+            <div v-for="i in 11" :key="i" class="remodel-list-item" v-ripple @click="setRemodel(i - 1)" @keypress.enter="setRemodel(i - 1)" tabindex="0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>

@@ -14,6 +14,8 @@
             class="ship-selectable"
             :class="{ selected: i === selectedShipIndex }"
             @click="clickedShip(i)"
+            @keypress.enter="clickedShip(i)"
+            tabindex="0"
           >
             <div class="align-self-center">
               <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
@@ -30,6 +32,8 @@
             class="selectable-item"
             :class="{ selected: i === selectedItemIndex, edited: i === selectedItemIndex && isManualItem }"
             @click="clickedItem(i)"
+            @keypress.enter="clickedItem(i)"
+            tabindex="0"
           >
             <div class="caption item-slot">{{ item.fullSlot }}</div>
             <div class="mx-1">

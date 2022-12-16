@@ -1,21 +1,21 @@
 <template>
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-2 pt-1 flex-wrap">
-      <div class="pl-2 align-self-center">{{ $t('EnemyEdit.敵艦編集') }}</div>
+      <div class="pl-2 align-self-center">{{ $t("EnemyEdit.敵艦編集") }}</div>
       <v-spacer></v-spacer>
     </div>
     <v-divider></v-divider>
     <div class="px-2 mt-3 mb-1">
       <v-alert border="left" outlined type="error" class="my-2 body-2">
-       {{ $t('EnemyEdit.本機能は計算結果に大きな影響を及ぼすため、理解できる方のみ利用してください。') }}
+        {{ $t("EnemyEdit.本機能は計算結果に大きな影響を及ぼすため、理解できる方のみ利用してください。") }}
       </v-alert>
-      <div class="body-2">{{ $t('EnemyEdit.指定した敵艦の装備や搭載数を自由に変更できます。') }}</div>
-      <div class="body-2">{{ $t('EnemyEdit.設定内容はお使いのブラウザでのみ有効で、各種共有機能等による共有は行いません。') }}</div>
+      <div class="body-2">{{ $t("EnemyEdit.指定した敵艦の装備や搭載数を自由に変更できます。") }}</div>
+      <div class="body-2">{{ $t("EnemyEdit.設定内容はお使いのブラウザでのみ有効で、各種共有機能等による共有は行いません。") }}</div>
       <div class="my-3">
-        <v-btn color="teal" dark @click="showEnemyList()">{{ $t('EnemyEdit.編集する敵艦を選択') }}</v-btn>
+        <v-btn color="teal" dark @click="showEnemyList()">{{ $t("EnemyEdit.編集する敵艦を選択") }}</v-btn>
       </div>
       <div class="d-flex" v-if="manualEnemyRows.length">
-        <div class="body-2">{{ $t('EnemyEdit.変更済み敵艦一覧') }}</div>
+        <div class="body-2">{{ $t("EnemyEdit.変更済み敵艦一覧") }}</div>
         <div class="header-divider"></div>
       </div>
       <div class="manual-enemies-container">
@@ -25,6 +25,8 @@
           class="enemy-list"
           v-ripple="{ class: 'info--text' }"
           @click="showEditedEnemy(i)"
+          @keypress.enter="showEditedEnemy(i)"
+          tabindex="0"
         >
           <div class="enemy-header">
             <div>
@@ -37,9 +39,9 @@
               <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="enemy-status">
-              <div>{{ $t('Common.制空') }}</div>
+              <div>{{ $t("Common.制空") }}</div>
               <div class="text-right">{{ enemy.fullAirPower }}</div>
-              <div class="ml-1">{{ $t('Common.基地制空') }}</div>
+              <div class="ml-1">{{ $t("Common.基地制空") }}</div>
               <div class="text-right">{{ enemy.fullLBAirPower }}</div>
             </div>
           </div>
@@ -60,7 +62,7 @@
     <v-dialog v-model="enemyEditDialog" transition="scroll-x-transition" width="400">
       <v-card v-if="editingEnemy && editingEnemy.data.id">
         <div class="d-flex pt-2 pb-1 pr-2">
-          <div class="align-self-center ml-3">{{ $t('EnemyEdit.敵艦編集') }}</div>
+          <div class="align-self-center ml-3">{{ $t("EnemyEdit.敵艦編集") }}</div>
           <v-spacer></v-spacer>
           <v-btn icon @click="enemyEditDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -68,7 +70,7 @@
         </div>
         <v-divider></v-divider>
         <div class="ma-3">
-          <div class="body-2">{{ $t('EnemyEdit.装備、搭載数を設定してください。') }}</div>
+          <div class="body-2">{{ $t("EnemyEdit.装備、搭載数を設定してください。") }}</div>
           <div>
             <enemy-input :enemy="editingEnemy" :handle-show-item-list="showItemList" :readonly="false" @input="onChanged" />
           </div>
@@ -76,9 +78,9 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="success" @click="commitManualEnemy()">{{ $t('Common.適用') }}</v-btn>
-          <v-btn color="error" @click="deleteManualEnemy()" :disabled="disabledDelete">{{ $t('Common.削除') }}</v-btn>
-          <v-btn color="secondary" @click="resetEditingEnemy()">{{ $t('Common.既定値') }}</v-btn>
+          <v-btn color="success" @click="commitManualEnemy()">{{ $t("Common.適用") }}</v-btn>
+          <v-btn color="error" @click="deleteManualEnemy()" :disabled="disabledDelete">{{ $t("Common.削除") }}</v-btn>
+          <v-btn color="secondary" @click="resetEditingEnemy()">{{ $t("Common.既定値") }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -20,6 +20,8 @@
               :disabled="lb.mode !== 1"
               @mouseenter="bootTooltip(i, $event)"
               @mouseleave="clearTooltip"
+              @focus="bootTooltip(i, $event)"
+              @blur="clearTooltip"
               >{{ battle.nodeName ? battle.nodeName : i + 1 }}</v-btn
             >
           </v-btn-toggle>

@@ -37,10 +37,16 @@
     </v-menu>
     <!-- 装備種別 -->
     <div class="mx-1 item-icon" :class="{ draggable: isDraggable }">
-      <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" />
+      <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" alt="item-icon" />
     </div>
     <!-- 装備名称 -->
-    <div class="item-name text-truncate" :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }" @click.stop="showItemList()">
+    <div
+      class="item-name text-truncate"
+      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }"
+      @click.stop="showItemList()"
+      @keypress.enter="showItemList()"
+      tabindex="0"
+    >
       {{ itemName }}
       <!-- 秋刀魚特効表示特別対応 -->
       <div class="saury-bonus" v-if="bonusText === 'Saury'">
@@ -63,7 +69,7 @@
         </template>
         <v-card>
           <div class="d-flex">
-            <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" class="remodel-list-item">
+            <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" @keypress.enter="setRemodel(i - 1)" tabindex="0" class="remodel-list-item">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>
@@ -80,7 +86,15 @@
         </template>
         <v-card>
           <div class="d-flex">
-            <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
+            <div
+              v-for="i in 9"
+              :key="i - 1"
+              v-ripple="{ class: 'info--text' }"
+              class="level-list-item"
+              @click="setLevel(i - 1)"
+              @keypress.enter="setLevel(i - 1)"
+              tabindex="0"
+            >
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>

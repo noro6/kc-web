@@ -113,7 +113,7 @@ import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
 
 export default Vue.extend({
-  name: 'Fleet',
+  name: 'FleetComponent',
   components: {
     FleetInfoHeader,
     ShipInput,

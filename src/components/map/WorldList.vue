@@ -25,7 +25,7 @@
           <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`" width="467" height="268" />
         </div>
         <div class="dummy-map">
-          <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" />
+          <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" alt="dummy" />
           <map name="click_map">
             <area
               class="node"
@@ -33,9 +33,12 @@
               :key="i"
               :title="item.node"
               :coords="item.coords"
+              :alt="item.node"
               shape="rect"
               @click="cellClicked(i)"
               @dblclick="commitFleet"
+              @keypress.enter="cellClicked(i)"
+              tabindex="0"
             />
           </map>
         </div>
@@ -138,6 +141,8 @@
                   class="d-flex enemy-info"
                   @mouseenter="bootTooltip(enemy, $event)"
                   @mouseleave="clearTooltip"
+                  @focus="bootTooltip(enemy, $event)"
+                  @blur="clearTooltip"
                 >
                   <div class="align-self-center mr-1">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
@@ -164,6 +169,8 @@
                   class="d-flex enemy-info"
                   @mouseenter="bootTooltip(enemy, $event)"
                   @mouseleave="clearTooltip"
+                  @focus="bootTooltip(enemy, $event)"
+                  @blur="clearTooltip"
                 >
                   <div class="align-self-center mr-1">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>

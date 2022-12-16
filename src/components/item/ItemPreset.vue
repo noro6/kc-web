@@ -23,6 +23,8 @@
               :class="{ selected: i === selectedIndex }"
               v-ripple="{ class: 'info--text' }"
               @click="clickedPreset(i)"
+              @keypress.enter="clickedPreset(i)"
+              tabindex="0"
             >
               <div class="preset-id primary--text">{{ preset.id }}.</div>
               <div class="preset-name text-truncate">{{ preset.name }}</div>

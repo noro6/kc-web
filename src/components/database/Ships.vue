@@ -201,10 +201,18 @@
                   class="selected-area-btn align-self-center"
                   :class="{ selected: selectedArea.includes(i) }"
                   @click="clickedArea(i)"
+                  @keypress="clickedArea(i)"
+                  tabindex="0"
                 >
                   <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
                 </div>
-                <div class="selected-area-btn no-area align-self-center" :class="{ selected: visibleNoArea }" @click="clickedArea(-1)">
+                <div
+                  class="selected-area-btn no-area align-self-center"
+                  :class="{ selected: visibleNoArea }"
+                  @click="clickedArea(-1)"
+                  @keypress="clickedArea(-1)"
+                  tabindex="0"
+                >
                   {{ $t("Database.札なし") }}
                 </div>
               </div>
@@ -231,35 +239,59 @@
           <div class="ship-table" v-if="modeTable">
             <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
               <v-spacer></v-spacer>
-              <div class="status-td" @click.stop="toggleSortKey('level')" :class="{ sorted: sortKey === 'level' }">
+              <div
+                class="status-td"
+                :class="{ sorted: sortKey === 'level' }"
+                @click.stop="toggleSortKey('level')"
+                @keypress="toggleSortKey('level')"
+                tabindex="0"
+              >
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 Lv
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('hp')" :class="{ sorted: sortKey === 'hp' }">
+              <div class="status-td" :class="{ sorted: sortKey === 'hp' }" @click.stop="toggleSortKey('hp')" @keypress="toggleSortKey('hp')" tabindex="0">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.耐久") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('luck')" :class="{ sorted: sortKey === 'luck' }">
+              <div class="status-td" :class="{ sorted: sortKey === 'luck' }" @click.stop="toggleSortKey('luck')" @keypress="toggleSortKey('luck')" tabindex="0">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.運") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('asw')" :class="{ sorted: sortKey === 'asw' }">
+              <div class="status-td" :class="{ sorted: sortKey === 'asw' }" @click.stop="toggleSortKey('asw')" @keypress="toggleSortKey('asw')" tabindex="0">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.対潜") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('scout')" :class="{ sorted: sortKey === 'scout' }">
+              <div
+                class="status-td"
+                :class="{ sorted: sortKey === 'scout' }"
+                @click.stop="toggleSortKey('scout')"
+                @keypress="toggleSortKey('scout')"
+                tabindex="0"
+              >
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.索敵") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('accuracy')" :class="{ sorted: sortKey === 'accuracy' }">
+              <div
+                class="status-td"
+                :class="{ sorted: sortKey === 'accuracy' }"
+                @click.stop="toggleSortKey('accuracy')"
+                @keypress="toggleSortKey('accuracy')"
+                tabindex="0"
+              >
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.命中項") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('avoid')" :class="{ sorted: sortKey === 'avoid' }">
+              <div
+                class="status-td"
+                :class="{ sorted: sortKey === 'avoid' }"
+                @click.stop="toggleSortKey('avoid')"
+                @keypress="toggleSortKey('avoid')"
+                tabindex="0"
+              >
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.回避項") }}
               </div>
-              <div class="status-td" @click.stop="toggleSortKey('ci')" :class="{ sorted: sortKey === 'ci' }">
+              <div class="status-td" @click.stop="toggleSortKey('ci')" @keypress="toggleSortKey('ci')" tabindex="0" :class="{ sorted: sortKey === 'ci' }">
                 <div><v-icon small>mdi-chevron-down</v-icon></div>
                 {{ $t("Common.CI項") }}
               </div>
@@ -276,8 +308,12 @@
                 lv99: rowData.stockData.level === 99,
               }"
               @click.stop="showEditDialog(rowData)"
+              @keypress.enter="showEditDialog(rowData)"
+              tabindex="0"
               @mouseenter="bootTooltip(rowData, $event)"
               @mouseleave="clearTooltip"
+              @focus="bootTooltip(rowData, $event)"
+              @blur="clearTooltip"
             >
               <div class="edit-stock-img">
                 <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
@@ -331,7 +367,7 @@
                         <div class="caption align-self-end">{{ $t("Database.在籍") }}: {{ row.count }}</div>
                       </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0 }">
-                        <img class="status-img" :src="`./img/ship/${row.master.id}.png`" />
+                        <img class="status-img" :src="`./img/ship/${row.master.id}.png`" :alt="`ship-${row.master.id}`" />
                       </div>
                       <div
                         v-for="(data, j) in row.detail"
@@ -345,23 +381,27 @@
                           lv99: data.stockData.level === 99,
                         }"
                         @click.stop="showEditDialog(data)"
+                        @keypress.enter="showEditDialog(data)"
+                        tabindex="0"
                         @mouseenter="bootTooltip(data, $event)"
                         @mouseleave="clearTooltip"
+                        @focus="bootTooltip(data, $event)"
+                        @blur="clearTooltip"
                       >
                         <template v-if="data.count">
                           <div class="status-col sm">
                             <div>{{ data.level }}</div>
                           </div>
                           <div class="status-col">
-                            <img class="align-self-center" :src="`./img/util/status_hp.png`" height="16" />
+                            <img class="align-self-center" :src="`./img/util/status_hp.png`" height="16" alt="hp" />
                             <div class="align-self-center" :class="{ bold: data.impHP }">{{ data.hp }}</div>
                           </div>
                           <div class="status-col">
-                            <img class="align-self-center" :src="`./img/util/status_asw.png`" height="16" />
+                            <img class="align-self-center" :src="`./img/util/status_asw.png`" height="16" alt="asw" />
                             <div class="align-self-center" :class="{ bold: data.impAsw }">{{ data.asw }}</div>
                           </div>
                           <div class="status-col">
-                            <img class="align-self-center" :src="`./img/util/status_luck.png`" height="16" />
+                            <img class="align-self-center" :src="`./img/util/status_luck.png`" height="16" alt="luck" />
                             <div class="align-self-center" :class="{ bold: data.impLuck }">{{ data.luck }}</div>
                           </div>
                           <div class="status-area-img" :class="{ 'exist-img': data.stockData.area > 0 }">
@@ -369,10 +409,18 @@
                               v-if="data.stockData.area > 0"
                               class="status-area-img"
                               :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.stockData.area}_min.webp`"
+                              :alt="`area-${data.stockData.area}`"
                             />
                           </div>
                           <div class="status-ex-img">
-                            <img v-if="data.stockData.releaseExpand" class="status-ex-img" :src="`./img/util/slot_ex.png`" height="24" width="24" />
+                            <img
+                              v-if="data.stockData.releaseExpand"
+                              class="status-ex-img"
+                              :src="`./img/util/slot_ex.png`"
+                              height="24"
+                              width="24"
+                              alt="ex-slot"
+                            />
                           </div>
                         </template>
                         <template v-else>
@@ -479,6 +527,8 @@
               class="selected-area-btn"
               :class="{ selected: editRow.stockData.area === i }"
               @click.stop="toggleArea(i)"
+              @keypress="toggleArea(i)"
+              tabindex="0"
             >
               <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
             </div>
@@ -845,7 +895,7 @@ interface AltShipRowData {
 }
 
 export default Vue.extend({
-  name: 'Ships',
+  name: 'ShipsComponent',
   components: {
     Analytics,
     Compare,

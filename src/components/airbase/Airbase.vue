@@ -53,7 +53,14 @@
         </div>
       </div>
       <v-divider class="item-input-divider"></v-divider>
-      <div v-for="(item, i) in airbase.items" :key="i" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip">
+      <div
+        v-for="(item, i) in airbase.items"
+        :key="i"
+        @mouseenter="bootTooltip(item, $event)"
+        @mouseleave="clearTooltip"
+        @focus="bootTooltip(item, $event)"
+        @blur="clearTooltip"
+      >
         <item-input
           v-model="airbase.items[i]"
           :index="i"
@@ -141,7 +148,7 @@ export default Vue.extend({
     PlaneDetailResult,
     ContactRates,
   },
-  name: 'Airbase',
+  name: 'AirbaseComponent',
   props: {
     handleShowItemList: {
       type: Function,

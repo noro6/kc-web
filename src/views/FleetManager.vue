@@ -39,12 +39,14 @@
             </div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step1.webp`" target="_blank">
+                <span class="d-none">step1</span>
                 <v-img :src="`./img/tutorial/step1.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
             <div class="mt-15">※ {{ $t("Database.下記はGoogle Chromeの場合です。") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step1-2.webp`" target="_blank">
+                <span class="d-none">step1-2</span>
                 <v-img :src="`./img/tutorial/step1-2.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -53,6 +55,7 @@
             <div>2. {{ $t("Database.「ネットワーク」タブを開き、赤枠の部分を確認したのち、ゲームスタートを押す。") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step2.webp`" target="_blank">
+                <span class="d-none">step2</span>
                 <v-img :src="`./img/tutorial/step2.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -61,6 +64,7 @@
             <div>3. {{ $t("Database.母港画面が表示されたら、左の一覧から「port」を探し、クリックする。（絶対にダブルクリックをしないこと!）") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step3.webp`" target="_blank">
+                <span class="d-none">step3</span>
                 <v-img :src="`./img/tutorial/step3.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -69,6 +73,7 @@
             <div>4. {{ $t("Database.「プレビュー」タブを選択し、「api_ship」の上で右クリックし、「objectをグローバル変数として格納する」を選択する。") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step4.webp`" target="_blank">
+                <span class="d-none">step4</span>
                 <v-img :src="`./img/tutorial/step4.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -105,12 +110,14 @@
                 id="ships-read-code"
                 type="text"
                 value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}),['id','lv','st','exp','ex','area']))"
+                aria-label="ship-code"
               />
               <input
                 v-else
                 id="ships-read-code"
                 type="text"
                 value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
+                aria-label="ship-code"
               />
             </div>
             <v-card class="mt-6 copy_code" elevation="4">
@@ -122,6 +129,7 @@
             </v-card>
             <div v-if="showHowToDoIt" class="tutorial_img">
               <a :href="`./img/tutorial/step5.webp`" target="_blank">
+                <span class="d-none">step5</span>
                 <v-img :src="`./img/tutorial/step5.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -135,6 +143,7 @@
               </div>
               <div class="tutorial_img">
                 <a :href="`./img/tutorial/step5-2.webp`" target="_blank">
+                <span class="d-none">step5-2</span>
                   <v-img :src="`./img/tutorial/step5-2.webp`" max-height="900" max-width="1300" />
                 </a>
               </div>
@@ -149,6 +158,7 @@
             <div>7. {{ $t("Database.コンソールのタブをいったん閉じる。") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step7.webp`" target="_blank">
+                <span class="d-none">step7</span>
                 <v-img :src="`./img/tutorial/step7.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -160,6 +170,7 @@
             </div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step8.webp`" target="_blank">
+                <span class="d-none">step8</span>
                 <v-img :src="`./img/tutorial/step8.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -196,12 +207,14 @@
                 id="item-read-code"
                 type="text"
                 value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}),['id','lv']))"
+                aria-label="item-code"
               />
               <input
                 v-else
                 id="item-read-code"
                 type="text"
                 value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}).filter(v=>v.locked),['id','lv']))"
+                aria-label="item-code"
               />
             </div>
             <v-card class="copy_code" elevation="4">
@@ -214,6 +227,7 @@
             </v-card>
             <div v-if="showHowToDoIt" class="tutorial_img">
               <a :href="`./img/tutorial/step9.webp`" target="_blank">
+                <span class="d-none">step9</span>
                 <v-img :src="`./img/tutorial/step9.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
@@ -227,6 +241,7 @@
               </div>
               <div class="tutorial_img">
                 <a :href="`./img/tutorial/step9-2.webp`" target="_blank">
+                <span class="d-none">step9-2</span>
                   <v-img :src="`./img/tutorial/step9-2.webp`" max-height="900" max-width="1300" />
                 </a>
               </div>

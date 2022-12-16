@@ -50,7 +50,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <span @click="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
+        <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()" tabindex="0">{{ $t("ItemList.対地攻撃") }}</span>
       </div>
       <template v-if="type === 14">
         <div class="ml-3 align-self-center my-3">
@@ -81,7 +81,14 @@
       </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
-      <div v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: type === -1, disabled: keyword }" @click="changeType(-1)">
+      <div
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector d-flex"
+        :class="{ active: type === -1, disabled: keyword }"
+        @click="changeType(-1)"
+        @keypress="changeType(-1)"
+        tabindex="0"
+      >
         <div class="type-all-text">ALL</div>
       </div>
       <div
@@ -91,6 +98,8 @@
         class="type-selector"
         :class="{ active: type === i.id, disabled: keyword }"
         @click="changeType(i.id)"
+        @keypress="changeType(i.id)"
+        tabindex="0"
       >
         <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
       </div>
@@ -106,6 +115,8 @@
         <div
           class="item-status text-left flex-grow-1"
           @click="toggleSortKey('name')"
+          @keypress="toggleSortKey('name')"
+          tabindex="0"
           :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }"
         >
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.装備名称`) }}</div>
@@ -115,6 +126,8 @@
           v-for="(data, i) in headerItems"
           :key="`item${i}`"
           @click="toggleSortKey(data.key)"
+          @keypress="toggleSortKey(data.key)"
+          tabindex="0"
           :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
           v-show="isShow(data.key, viewStatus)"
         >
@@ -123,6 +136,8 @@
         <div
           class="item-status"
           @click="toggleSortKey('airPower')"
+          @keypress="toggleSortKey('airPower')"
+          tabindex="0"
           :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
           v-show="isShow('airPower', viewStatus)"
         >
@@ -139,6 +154,8 @@
         <div
           class="item-status"
           @click="toggleSortKey('defenseAirPower')"
+          @keypress="toggleSortKey('defenseAirPower')"
+          tabindex="0"
           :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
           v-show="isShow('defenseAirPower', viewStatus)"
         >
@@ -166,8 +183,12 @@
             class="list-item"
             :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.sumBonus, 'has-bad-bonus': v.sumBonus < 0 }"
             @click="clickedItem(v)"
+            @keypress.enter="clickedItem(v)"
+            tabindex="0"
             @mouseenter="bootTooltip(v.item, v.bonus, $event)"
             @mouseleave="clearTooltip"
+            @focus="bootTooltip(v.item, v.bonus, $event)"
+            @blur="clearTooltip"
           >
             <div>
               <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30"></v-img>
@@ -1374,7 +1395,7 @@ export default Vue.extend({
         return desc * ((b.item.data as { [key: string]: number })[key] - (a.item.data as { [key: string]: number })[key]);
       });
     },
-    bootTooltip(item: Item, bonus: ItemBonusStatus, e: MouseEvent) {
+    bootTooltip(item: Item, bonus: ItemBonusStatus, e: MouseEvent | FocusEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (setting.disabledItemTooltip) {
         return;
@@ -1382,7 +1403,13 @@ export default Vue.extend({
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
-        this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : e.clientX;
+
+        if (e instanceof FocusEvent) {
+          this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : rect.left;
+        } else {
+          this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : e.clientX;
+        }
+
         this.tooltipY = rect.y + rect.height;
         this.tooltipItem = item;
         this.tooltipBonus = bonus ? JSON.stringify(bonus) : '';

@@ -6,8 +6,11 @@
         v-for="(saveData, i) in viewData"
         :key="i"
         :class="{ active: saveData.isMain }"
-        @mousedown.middle="handleCloseTab(saveData, $event)"
         @click="clickSaveData(saveData)"
+        @mousedown.middle="handleCloseTab(saveData, $event)"
+        @keypress.enter="clickSaveData(saveData)"
+        @keypress.delete="handleCloseTab(saveData)"
+        tabindex="0"
       >
         <div class="drag-tab-handle tab-item-icon">
           <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
@@ -72,7 +75,7 @@
             <div class="ml-1 flex-grow-1 d-flex justify-space-around">
               <div v-for="color in fileColors" :key="`color${color}`" class="my-1">
                 <v-btn fab light x-small :color="color" @click="selectedColor = color">
-                  <v-icon v-if="color === selectedColor" >mdi-check-bold</v-icon>
+                  <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
                 </v-btn>
               </div>
             </div>

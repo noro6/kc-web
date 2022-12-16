@@ -220,7 +220,8 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)">
+            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)"
+            tabindex="0">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
@@ -231,7 +232,8 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item">
+            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item" @keypress.enter="setRemodel(i - 1)"
+            tabindex="0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>

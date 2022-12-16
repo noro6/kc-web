@@ -7,7 +7,7 @@
         </div>
         <div class="my-3 d-flex align-center">
           <template v-if="ship.id">
-            <div class="d-flex align-center" @click="showShipList()" v-ripple="{ class: 'primary--text' }">
+            <div class="d-flex align-center" @click="showShipList()" @keypress.enter="showShipList()" tabindex="0" v-ripple="{ class: 'primary--text' }">
               <div>
                 <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120"></v-img>
               </div>
@@ -23,7 +23,14 @@
         </div>
       </div>
       <div class="d-flex flex-wrap">
-        <div v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ disabled: keyword }" @click="toggleType(-1)">
+        <div
+          v-ripple="{ class: 'info--text' }"
+          class="type-selector d-flex"
+          :class="{ disabled: keyword }"
+          @click="toggleType(-1)"
+          @keypress="toggleType(-1)"
+          tabindex="0"
+        >
           <div class="type-all-text">ALL</div>
         </div>
         <div
@@ -33,6 +40,8 @@
           class="type-selector"
           :class="{ active: selectedTypes.includes(i.id), disabled: keyword }"
           @click="toggleType(i.id)"
+          @keypress="toggleType(i.id)"
+          tabindex="0"
         >
           <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
         </div>

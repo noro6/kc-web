@@ -54,7 +54,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
+        <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
@@ -62,7 +62,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
+        <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
       </div>
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
@@ -95,13 +95,39 @@
         class="type-selector"
         :class="{ active: index === type, disabled: keyword }"
         @click="changeType(index)"
+        @keypress="changeType(index)"
+        tabindex="0"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
       <div class="ml-auto mr-3" v-if="isStockOnly">
-        <img v-show="hasAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered1.png`" alt="area-img-1" />
-        <img v-show="hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered2.png`" alt="area-img-2" />
-        <img v-show="!hasAreaOnly && !hasNotAreaOnly" class="filter_img" @click="toggleAreaFilter()" :src="`./img/util/filtered0.png`" alt="area-img-0" />
+        <img
+          v-show="hasAreaOnly"
+          class="filter_img"
+          @click="toggleAreaFilter"
+          @keypress="toggleAreaFilter"
+          tabindex="0"
+          :src="`./img/util/filtered1.png`"
+          alt="area-img-1"
+        />
+        <img
+          v-show="hasNotAreaOnly"
+          class="filter_img"
+          @click="toggleAreaFilter"
+          @keypress="toggleAreaFilter"
+          tabindex="0"
+          :src="`./img/util/filtered2.png`"
+          alt="area-img-2"
+        />
+        <img
+          v-show="!hasAreaOnly && !hasNotAreaOnly"
+          class="filter_img"
+          @click="toggleAreaFilter"
+          @keypress="toggleAreaFilter"
+          tabindex="0"
+          :src="`./img/util/filtered0.png`"
+          alt="area-img-0"
+        />
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
@@ -126,8 +152,12 @@
             :class="{ 'pr-3': !multiLine, 'no-stock': !data.count }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data)"
+            @keypress.enter="clickedShip(data)"
+            tabindex="0"
             @mouseenter="bootTooltip(data, $event)"
             @mouseleave="clearTooltip"
+            @focus="bootTooltip(data, $event)"
+            @blur="clearTooltip"
           >
             <div class="ship-img">
               <div>
@@ -155,7 +185,7 @@
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
               </div>
             </div>
-            <div class="ship-count red--text caption" v-if="isStockOnly">
+            <div class="ship-count caption" v-if="isStockOnly">
               <span>&times;</span>
               <span>{{ data.count }}</span>
             </div>
@@ -317,6 +347,8 @@
   align-self: flex-end !important;
   margin-left: 1px;
   width: 22px;
+  font-weight: bold;
+  color: rgb(255, 64, 64);
 }
 
 .ship-status-header {
@@ -842,10 +874,16 @@ export default Vue.extend({
       this.setting.isMultiLineForShipList = isMulti;
       this.$store.dispatch('updateSetting', this.setting);
     },
-    bootTooltip(viewShip: ViewShip, e: MouseEvent) {
+    bootTooltip(viewShip: ViewShip, e: MouseEvent | FocusEvent) {
       this.tooltipTimer = window.setTimeout(() => {
-        this.tooltipX = e.clientX;
-        this.tooltipY = e.clientY;
+        if (e instanceof MouseEvent) {
+          this.tooltipX = e.clientX;
+          this.tooltipY = e.clientY;
+        } else if (e.target) {
+          const rect = (e.target as HTMLElement).getBoundingClientRect();
+          this.tooltipX = rect.left + rect.width / 2;
+          this.tooltipY = rect.top + rect.height;
+        }
 
         const baseAsw = Ship.getStatusFromLevel(viewShip.level, viewShip.ship.maxAsw, viewShip.ship.minAsw);
         const ship = new Ship({

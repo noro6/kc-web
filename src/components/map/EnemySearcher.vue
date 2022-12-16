@@ -101,6 +101,8 @@
                 class="d-flex enemy-info"
                 @mouseenter="bootTooltip(enemy, $event)"
                 @mouseleave="clearTooltip"
+                @focus="bootTooltip(enemy, $event)"
+                @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
                   <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
@@ -127,6 +129,8 @@
                 class="d-flex enemy-info"
                 @mouseenter="bootTooltip(enemy, $event)"
                 @mouseleave="clearTooltip"
+                @focus="bootTooltip(enemy, $event)"
+                @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
                   <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>

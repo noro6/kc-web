@@ -10,7 +10,15 @@
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
   >
-    <div v-ripple class="save-list-item pl-1" :class="{ selected: value.selected }" @click="itemClicked" v-click-outside="onClickOutside">
+    <div
+      v-ripple
+      class="save-list-item pl-1"
+      :class="{ selected: value.selected }"
+      @click="itemClicked"
+      @keypress.enter="itemClicked"
+      tabindex="0"
+      v-click-outside="onClickOutside"
+    >
       <v-icon v-if="value.isDirectory" :color="value.color" small> {{ value.isOpen ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
       <v-icon v-else-if="value.isActive" small :color="value.color">mdi-file-eye</v-icon>

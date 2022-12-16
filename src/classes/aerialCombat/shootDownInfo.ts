@@ -46,7 +46,7 @@ export default class ShootDownInfo {
    * @return {*}  {ShootDownStatus[]}
    * @memberof ShootDownInfo
    */
-  public static getStage2(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, formation: Formation, cutIn = new AntiAirCutIn(), isAirRaid?: boolean, avoid?: AvoidType): ShootDownStatus[] {
+  public static getStage2(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, formation: Formation, cutIn: AntiAirCutIn, isAirRaid?: boolean, avoid?: AvoidType): ShootDownStatus[] {
     const stage2: ShootDownStatus[] = [];
     const shipCount = ships.length;
     if (shipCount === 0) {

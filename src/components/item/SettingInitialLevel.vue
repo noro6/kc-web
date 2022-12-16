@@ -13,13 +13,21 @@
           </div>
         </template>
         <template v-else>
-          <div class="mx-auto caption">{{ $t('Common.一括変更') }}</div>
+          <div class="mx-auto caption">{{ $t("Common.一括変更") }}</div>
         </template>
       </div>
     </template>
     <v-card>
       <div class="d-flex">
-        <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)">
+        <div
+          v-for="i in 9"
+          :key="i - 1"
+          v-ripple="{ class: 'info--text' }"
+          class="level-list-item"
+          @click="setLevel(i - 1)"
+          @keypress.enter="setLevel(i - 1)"
+          tabindex="0"
+        >
           <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
           <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
         </div>
@@ -77,13 +85,13 @@
   width: 30px;
   right: 1px;
   z-index: 1;
-  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff,
-    0px 1px 1px #fff, 0px -1px 1px #fff;
+  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff, 0px 1px 1px #fff,
+    0px -1px 1px #fff;
 }
 .theme--dark .level-value,
 .theme--dark .level-list-value {
-  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000,
-    0px 1px 1px #000, 0px -1px 1px #000;
+  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000, 0px 1px 1px #000,
+    0px -1px 1px #000;
 }
 .level-value {
   text-align: left;

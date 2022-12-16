@@ -114,7 +114,13 @@
           <tr class="tr-status tr-fuel-ammo">
             <td class="text-center" colspan="2">{{ $t("Common.燃料") }} &amp; {{ $t("Common.弾薬") }}</td>
             <td v-for="(row, i) in remainingFuelAndAmmos" :key="i" :class="`td-battle${i}`">
-              <div class="d-flex flex-wrap justify-end" @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)" @mouseleave="clearTooltip">
+              <div
+                class="d-flex flex-wrap justify-end"
+                @mouseenter="bootTooltip(row.fuel.value, row.ammo.value, $event)"
+                @mouseleave="clearTooltip"
+                @focus="bootTooltip(row.fuel.value, row.ammo.value, $event)"
+                @blur="clearTooltip"
+              >
                 <div class="d-flex">
                   <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
                   <div class="align-self-center ml-0_5" :class="row.fuel.color">{{ row.fuel.value }}%</div>
@@ -171,7 +177,13 @@
           </div>
         </div>
       </div>
-      <div v-for="(ab, i) in airbaseWaveResults" :key="i" class="pb-1 cursor-pointer" @click="clickedAirbaseRow(ab.baseIndex)">
+      <div
+        v-for="(ab, i) in airbaseWaveResults"
+        :key="i"
+        class="pb-1 cursor-pointer"
+        @click="clickedAirbaseRow(ab.baseIndex)"
+        @keypress.enter="clickedAirbaseRow(ab.baseIndex)"
+      >
         <div class="d-flex">
           <div class="bar-label">{{ ab.text }}</div>
           <div class="align-self-center flex-grow-1">

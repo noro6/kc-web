@@ -169,7 +169,7 @@ import ItemStock from '@/classes/item/itemStock';
 import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
-  name: 'Home',
+  name: 'TopPage',
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
     saveData.disabledMain();

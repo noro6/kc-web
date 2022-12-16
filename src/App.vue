@@ -520,6 +520,8 @@
           class="selectable-fleet-container"
           :class="{ selected: row.selected }"
           @click.stop="row.selected = !row.selected"
+          @keypress="row.selected = !row.selected"
+          tabindex="0"
         >
           <div class="d-flex mb-1">
             <div>

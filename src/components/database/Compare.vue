@@ -28,6 +28,8 @@
         class="type-selector"
         :class="{ active: index === type }"
         @click="changeType(index)"
+        @keypress.enter="changeType(index)"
+        tabindex="0"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
@@ -185,7 +187,7 @@ import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
-  name: 'Compare',
+  name: 'CompareComponent',
   data: () => ({
     summaryTable: [] as { name: string; data: unknown; isWin: boolean; isLose: boolean }[],
     unsubscribe: undefined as unknown,

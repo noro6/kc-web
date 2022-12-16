@@ -9,7 +9,7 @@
       <div class="align-self-center">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <div class="home d-flex px-1 flex-grow-1" v-ripple @click="openGitHub()" v-bind="attrs" v-on="on">
+            <div class="home d-flex px-1 flex-grow-1" v-ripple @click="openGitHub()" @keypress.enter="openGitHub()" tabindex="0" v-bind="attrs" v-on="on">
               <v-icon>mdi-github</v-icon>
               <div class="align-self-center mx-1">{{ $t("Common.制空権シミュレータ") }}</div>
               <div class="align-self-center caption">v{{ $store.state.siteVersion }}</div>

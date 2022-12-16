@@ -133,6 +133,8 @@
               }"
               @mouseenter="bootDamageDetailTooltip(row, $event)"
               @mouseleave="clearTooltip"
+              @focus="bootDamageDetailTooltip(row, $event)"
+              @blur="clearTooltip"
             >
               <td class="px-1">
                 <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120"></v-img>
