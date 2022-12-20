@@ -1392,6 +1392,7 @@ export default Vue.extend({
           }
         }
 
+        saveData.sortChild();
         this.$store.dispatch('updateSaveData', saveData);
         this.inform('バックアップデータを復元しました。');
       }

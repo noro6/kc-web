@@ -106,6 +106,12 @@ export default class SaveData {
   /** 色 */
   public color: string;
 
+  /** ソート順(ディレクトリ内でソート) */
+  public order: number;
+
+  /** タブデータのソート順 */
+  public activeOrder: number;
+
   /** ハイライト表示 専ら旧データインポート時に分かりやすくするため */
   public highlight = false;
 
@@ -136,6 +142,8 @@ export default class SaveData {
     this.isReadonly = false;
     this.editedDate = Date.now();
     this.color = 'blue lighten-3';
+    this.order = 0;
+    this.activeOrder = 0;
   }
 
   /**
@@ -154,6 +162,8 @@ export default class SaveData {
     saveData.isOpen = data.isOpen;
     saveData.isUnsaved = false;
     saveData.editedDate = data.editedDate;
+    saveData.order = data.order ?? 0;
+    saveData.activeOrder = data.activeOrder ?? 0;
 
     if (!data.color) {
       saveData.color = data.isDirectory ? 'yellow lighten-1' : 'blue lighten-3';
@@ -251,7 +261,7 @@ export default class SaveData {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof SaveData) {
         return {
-          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate, color: v.color,
+          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate, color: v.color, order: v.order, activeOrder: v.activeOrder,
         };
       }
       return v;
@@ -389,22 +399,16 @@ export default class SaveData {
   }
 
   /**
-   * 子要素をソートする 再帰呼び出し
+   * 子要素をソートする
+   * また、orderを、インデックスの10の倍数に設定
+   * 再帰呼び出し
    * @memberof SaveData
    */
   public sortChild(): void {
     if (this.name !== 'root' && this.isDirectory) {
-      this.childItems.sort((a, b) => {
-        if (a.isDirectory && !b.isDirectory) return -1;
-        if (!a.isDirectory && b.isDirectory) return 1;
-
-        const sa = String(a.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
-        const sb = String(b.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
-        if (sa < sb) return -1;
-        return sa > sb ? 1 : 0;
-      });
-
+      this.childItems.sort((a, b) => a.order - b.order);
       for (let i = 0; i < this.childItems.length; i += 1) {
+        this.childItems[i].order = i * 10;
         this.childItems[i].sortChild();
       }
     }

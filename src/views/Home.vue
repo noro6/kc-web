@@ -4,7 +4,7 @@
       <div>{{ $t("Common.制空権シミュレータ") }}</div>
       <div class="ml-1 mt-1 body-1">v{{ $store.state.siteVersion }}</div>
     </div>
-    <v-card class="site-body content">
+    <v-card class="content">
       <div class="menu-buttons">
         <div class="ma-4">
           <v-btn x-large color="green" dark @click="goAirCalcPage">
@@ -55,42 +55,64 @@
           </div>
         </div>
       </div>
-      <v-divider class="my-4"></v-divider>
-      <div class="ma-2">
-        <div class="ml-2">{{ $t("Home.データ引き継ぎ") }}</div>
-        <div class="ml-4 mt-2 body-2">
-          <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
-          {{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
-        </div>
-        <div class="d-flex flex-wrap ml-2">
-          <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
-            {{ $t("Home.データ引継ぎ(編成)") }}
-          </v-btn>
-          <v-btn class="ma-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
-            {{ $t("Home.データ引継ぎ(装備/艦娘)") }}
-          </v-btn>
-        </div>
-      </div>
-      <v-divider class="my-4"></v-divider>
-      <div class="ma-2">
-        <div class="ml-2">{{ $t("Home.サイト連携") }}</div>
-        <div class="ml-4 mt-2 body-2">
-          <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
-          <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
-        </div>
-        <div class="ml-4 mt-6 body-2">
-          <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
-          <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
-        </div>
-        <div class="ml-4 mt-6 body-2">
-          <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
-          <div class="text--secondary">
-            (e.g.)
-            https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
-          </div>
-        </div>
-      </div>
     </v-card>
+    <v-expansion-panels class="content px-0 pb-0">
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+          <div class="d-flex align-center">
+            <div>
+              <v-icon>mdi-database-arrow-down</v-icon>
+            </div>
+            <div class="ml-3">{{ $t("Home.データ引き継ぎ") }}</div>
+          </div>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-divider></v-divider>
+          <div class="mt-4 body-2">
+            <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
+            {{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
+          </div>
+          <div class="d-flex flex-wrap">
+            <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
+              {{ $t("Home.データ引継ぎ(編成)") }}
+            </v-btn>
+            <v-btn class="ma-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
+              {{ $t("Home.データ引継ぎ(装備/艦娘)") }}
+            </v-btn>
+          </div>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
+    <v-expansion-panels class="content px-0">
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+          <div class="d-flex align-center">
+            <div>
+              <v-icon>mdi-link-variant</v-icon>
+            </div>
+            <div class="ml-3">{{ $t("Home.サイト連携") }}</div>
+          </div>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-divider></v-divider>
+          <div class="mt-4 body-2">
+            <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
+            <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
+          </div>
+          <div class="mt-6 body-2">
+            <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
+            <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
+          </div>
+          <div class="mt-6 body-2">
+            <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
+            <div class="text--secondary">
+              (e.g.)
+              https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
+            </div>
+          </div>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
     <div class="info-area">
       <v-divider class="mb-2"></v-divider>
       <div class="caption">
@@ -134,16 +156,13 @@
 .content {
   margin: 0 auto;
   max-width: 1200px;
+  padding: 1rem;
 }
 .site-title {
   display: flex;
   align-items: center;
   margin-top: 1rem;
   font-size: 1.2em;
-}
-.site-body {
-  margin-top: 2rem;
-  padding: 1rem;
 }
 .menu-buttons {
   display: grid;

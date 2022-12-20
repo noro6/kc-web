@@ -25,7 +25,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    siteVersion: '2.32.1',
+    siteVersion: '2.33.0',
     items: [] as ItemMaster[],
     ships: [] as ShipMaster[],
     cells: [] as CellMaster[],
@@ -356,6 +356,8 @@ export default new Vuex.Store({
         for (let i = 0; i < alreadyChildFile.length; i += 1) {
           data.childItems.push(alreadyChildFile[i]);
         }
+
+        data.sortChild();
         context.commit('updateSaveData', data);
       } else {
         // 初期セーブデータ作成

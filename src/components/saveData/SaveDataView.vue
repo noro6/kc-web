@@ -65,7 +65,7 @@
     </div>
     <v-divider></v-divider>
     <div class="item-container">
-      <save-item v-for="(item, i) in rootData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" />
+      <save-item v-for="(item, i) in rootData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" :parent-directory="rootData" />
     </div>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="500">
       <v-card class="pa-3">
@@ -189,6 +189,7 @@ export default Vue.extend({
       folder.isDirectory = true;
       folder.isUnsaved = false;
       folder.color = 'yellow lighten-1';
+      folder.order = 999999;
       this.addNewSaveData(folder);
       this.handleInform('新しいフォルダーを作成しました。');
 
@@ -212,6 +213,7 @@ export default Vue.extend({
           saveData.name = folder.getNewSaveDataName();
           saveData.name = saveData.name.replace('新規データ', `${this.$t('SaveData.新規データ')} `);
         }
+        saveData.order = 999999;
         folder.isOpen = true;
         folder.childItems.push(saveData);
         folder.sortChild();

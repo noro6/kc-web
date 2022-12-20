@@ -1,9 +1,10 @@
 <template>
-  <div class="active-tab-list">
-    <draggable animation="150" class="d-flex" handle=".drag-tab-handle">
+  <div id="active-tab-list">
+    <draggable animation="150" class="d-flex" handle=".drag-tab-handle" @end="sortEnd" v-if="!reload">
       <div
         class="tab-item"
         v-for="(saveData, i) in viewData"
+        :id="saveData.id"
         :key="i"
         :class="{ active: saveData.isMain }"
         @click="clickSaveData(saveData)"
@@ -90,7 +91,7 @@
 </template>
 
 <style scoped>
-.active-tab-list {
+#active-tab-list {
   font-size: 12px;
   width: 100%;
 }
@@ -193,9 +194,13 @@ export default Vue.extend({
     deleteConfirmData: undefined as SaveData | undefined,
     disabledConfirm: false,
     fileColors: Const.FILE_COLORS,
+    reload: false,
   }),
   computed: {
     viewData(): SaveData[] {
+      if (this.reload) {
+        return [];
+      }
       let activeData: SaveData[] = [];
       const data = this.saveData.childItems;
       for (let i = 0; i < data.length; i += 1) {
@@ -204,6 +209,7 @@ export default Vue.extend({
           activeData = activeData.concat(actives);
         }
       }
+      activeData.sort((a, b) => a.activeOrder - b.activeOrder);
       return activeData;
     },
     isNameEmpty(): boolean {
@@ -214,6 +220,26 @@ export default Vue.extend({
     },
   },
   methods: {
+    sortEnd() {
+      const base = document.getElementById('active-tab-list') as HTMLElement;
+      const itemElements = base.getElementsByClassName('tab-item');
+
+      for (let i = 0; i < this.viewData.length; i += 1) {
+        const data = this.viewData[i];
+        const targetElement = document.getElementById(data.id);
+        if (targetElement) {
+          const index = ([].slice.call(itemElements) as HTMLElement[]).indexOf(targetElement);
+          data.activeOrder = index ?? 0;
+        }
+      }
+
+      // インデックスが変更になったので
+      this.$store.dispatch('updateSaveData', this.saveData);
+      this.reload = true;
+      this.$nextTick(() => {
+        this.reload = false;
+      });
+    },
     showNameEditDialog(data: SaveData) {
       this.editedFile = data;
       this.editedName = data.name;

@@ -3,10 +3,9 @@
     :draggable="!value.isUnsaved"
     class="save-list"
     :class="{ 'disabled-drag': value.isUnsaved, highlight: value.highlight }"
-    @dragover.prevent
+    @dragover.stop="dragOver($event)"
     @drop.stop="dropItem($event)"
     @dragleave.stop="dragLeave($event)"
-    @dragenter.stop="dragEnter($event)"
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
   >
@@ -59,7 +58,7 @@
           <div class="depth-file-line"></div>
         </div>
         <div class="flex-grow-1">
-          <save-item :value="item" :index="i" :handle-delete="deleteChild" />
+          <save-item :value="item" :index="i" :handle-delete="deleteChild" :parent-directory="value" />
         </div>
       </div>
     </div>
@@ -129,6 +128,25 @@
 <style scoped>
 .save-list.disabled-drag {
   user-select: none;
+}
+
+.on-item-before,
+.on-item-after {
+  flex-wrap: wrap;
+}
+.on-item-before::before,
+.on-item-after::after {
+  margin-right: 2px;
+  display: block;
+  content: "";
+  height: 28px;
+  width: 100%;
+  border: 2px dashed rgb(32, 148, 243);
+  border-radius: 0.15rem;
+}
+.on-item-directory {
+  background-color: rgba(32, 148, 243, 0.8) !important;
+  border-radius: 0.1rem;
 }
 
 .depth-line {
@@ -219,6 +237,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    parentDirectory: {
+      type: SaveData,
+      required: true,
+    },
   },
   data: () => ({
     editDialog: false,
@@ -234,9 +256,6 @@ export default Vue.extend({
     colors: Const.FILE_COLORS,
   }),
   computed: {
-    saveData(): SaveData {
-      return this.value;
-    },
     isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
@@ -259,7 +278,7 @@ export default Vue.extend({
       this.$store.dispatch('updateSaveData', saveData);
     },
     itemClicked(): void {
-      const data = this.saveData;
+      const data = this.value;
       data.selected = true;
       if (!data.isDirectory) {
         if (data.isActive && data.isMain) {
@@ -285,7 +304,7 @@ export default Vue.extend({
       data.isOpen = !data.isOpen;
     },
     copyAndOpen() {
-      const data = this.saveData;
+      const data = this.value;
       if (!data.isDirectory) {
         // ルートのセーブデータを取得し、いったん全てのメイン状態を解除
         const saveData = this.$store.state.saveData as SaveData;
@@ -311,7 +330,7 @@ export default Vue.extend({
       data.isOpen = !data.isOpen;
     },
     onClickOutside(): void {
-      this.saveData.selected = false;
+      this.value.selected = false;
     },
     deleteData() {
       this.deleteConfirmDialog = false;
@@ -361,16 +380,46 @@ export default Vue.extend({
       }
     },
     dragLeave(e: DragEvent) {
-      (e.target as HTMLDivElement).style.backgroundColor = '';
+      const target = e.target as HTMLDivElement;
+      target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
     },
-    dragEnter(e: DragEvent): void {
+    dragOver(e: DragEvent) {
       const draggingDiv = document.getElementById('dragging-item');
       const target = e.target as HTMLDivElement;
-      if (!draggingDiv || !target || !this.value.isDirectory) {
+      if (!draggingDiv || !target || target === draggingDiv) {
+        target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
         return;
       }
-      // 受け入れ可能 背景色を青っぽく
-      target.style.backgroundColor = 'rgba(20, 160, 255, 0.8)';
+      // 乗っている要素に対するマウスのy座標
+      const mouseY = e.clientY - target.offsetTop;
+      if (this.value.isDirectory) {
+        // 並べ替え上下の境界
+        const beforeBorder = 5;
+        const afterBorder = 23;
+
+        if (!this.value.isReadonly && mouseY <= beforeBorder) {
+          target.classList.add('on-item-before');
+          target.classList.remove('on-item-after', 'on-item-directory');
+        } else if (mouseY <= afterBorder) {
+          // 中間地点 フォルダ内に突っ込む判定
+          target.classList.add('on-item-directory');
+          target.classList.remove('on-item-after', 'on-item-before');
+        } else if (!this.value.isOpen) {
+          target.classList.add('on-item-after');
+          target.classList.remove('on-item-before', 'on-item-directory');
+        }
+      } else if (!this.value.isUnsaved) {
+        // 並べ替え上下の境界
+        const border = target.offsetHeight / 2;
+        if (mouseY <= border) {
+          target.classList.add('on-item-before');
+          target.classList.remove('on-item-after');
+        } else {
+          target.classList.add('on-item-after');
+          target.classList.remove('on-item-before');
+        }
+      }
+      e.preventDefault();
     },
     dropItem(e: DragEvent) {
       // 受け渡されたデータ
@@ -382,23 +431,39 @@ export default Vue.extend({
 
       // ドロップされる要素
       const target = e.target as HTMLDivElement;
-      target.style.backgroundColor = '';
-      if (target.id) {
-        // 自身へのドロップ禁止
+      if (target.id || this.value.isUnsaved) {
+        // 自身へのドロップ禁止 未保存データへのドラッグ禁止
+        target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
         return;
       }
 
-      // 一時退避していたデータをセット
+      // 一時退避していたデータを取得
       const moveData = this.$store.state.draggingSaveData as SaveData;
-      const childIds = moveData.getAllDataId();
-      if (!this.value.isDirectory || childIds.includes(this.value.id)) {
-        // 自身がファイルじゃなかったり、子孫データに対して自分を入れようとした場合は無理
-        return;
-      }
 
-      this.value.childItems.push(moveData);
+      if (this.value.isDirectory && target.classList.contains('on-item-directory')) {
+        // ディレクトリで、ディレクトリ内に突っ込む判定だった場合
+        const childIds = moveData.getAllDataId();
+        if (childIds.includes(this.value.id)) {
+          // 自身がファイルじゃなかったり、子孫データに対して自分を入れようとした場合は無理
+          target.classList.remove('on-item-directory');
+          return;
+        }
+
+        // フォルダ内に挿入
+        moveData.order = 999999;
+        this.value.childItems.push(moveData);
+      } else if (this.parentDirectory.isDirectory && target.classList.contains('on-item-before')) {
+        // 対象の直前に挿入
+        moveData.order = this.value.order - 1;
+        this.parentDirectory.childItems.push(moveData);
+      } else if (this.parentDirectory.isDirectory && target.classList.contains('on-item-after')) {
+        // 対象の直後に挿入
+        moveData.order = this.value.order + 1;
+        this.parentDirectory.childItems.push(moveData);
+      }
 
       draggingDiv.classList.add('move-ok');
+      target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
     },
     dragEnd(e: DragEvent) {
       const target = e.target as HTMLDivElement;
