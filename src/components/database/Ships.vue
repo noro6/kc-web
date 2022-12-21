@@ -3,7 +3,7 @@
     <v-tabs v-model="tab">
       <v-tab href="#list">{{ $t("Database.一覧") }}</v-tab>
       <v-tab href="#group" v-if="shipStock.length">{{ $t("Database.札管理") }}</v-tab>
-      <v-tab href="#analytics">{{ $t("Database.経験値") }}</v-tab>
+      <v-tab href="#analytics">{{ $t("Database.分析") }}</v-tab>
       <v-tab href="#compare" v-if="readOnly">{{ $t("Database.比較") }}</v-tab>
     </v-tabs>
     <v-divider class="mb-2"></v-divider>
@@ -96,19 +96,6 @@
                 </div>
               </div>
               <div class="my-5 range-inputs">
-                <v-select
-                  class="mt-2 py-5"
-                  v-model="addHP"
-                  :items="hpItems"
-                  dense
-                  attach
-                  chips
-                  deletable-chips
-                  hide-details
-                  :label="$t('Database.耐久改修')"
-                  multiple
-                  @change="filter"
-                />
                 <div class="d-flex py-5">
                   <div class="range-input align-self-end">
                     <v-text-field
@@ -137,7 +124,48 @@
                     ></v-text-field>
                   </div>
                 </div>
+                <div class="d-flex py-5">
+                  <div class="range-input align-self-end">
+                    <v-text-field
+                      :label="$t('Database.運改修下限')"
+                      type="number"
+                      :max="luckImpRange[1]"
+                      min="0"
+                      dense
+                      v-model.trim="luckImpRange[0]"
+                      hide-details
+                      @input="filter"
+                    ></v-text-field>
+                  </div>
+                  <v-range-slider v-model="luckImpRange" dense thumb-label min="0" max="100" hide-details class="pt-2 align-center mx-2" @change="filter">
+                  </v-range-slider>
+                  <div class="range-input align-self-end">
+                    <v-text-field
+                      :label="$t('Database.運改修上限')"
+                      type="number"
+                      max="9"
+                      :min="luckImpRange[0]"
+                      dense
+                      v-model.trim="luckImpRange[1]"
+                      hide-details
+                      @input="filter"
+                    ></v-text-field>
+                  </div>
+                </div>
               </div>
+              <v-select
+                class="mt-2 py-5"
+                v-model="addHP"
+                :items="hpItems"
+                dense
+                attach
+                chips
+                deletable-chips
+                hide-details
+                :label="$t('Database.耐久改修')"
+                multiple
+                @change="filter"
+              />
               <v-select
                 class="my-10"
                 v-model="selectedTypes"
@@ -917,6 +945,7 @@ export default Vue.extend({
     isKamisha: false,
     luckRange: [1, 200],
     levelRange: [1, 175],
+    luckImpRange: [0, 100],
     aswRange: [0, 9],
     okDaihatsu: [] as number[],
     okKamisha: [] as number[],
@@ -1184,6 +1213,8 @@ export default Vue.extend({
       const minLevel = this.levelRange[0];
       const maxLuck = this.luckRange[1];
       const minLuck = this.luckRange[0];
+      const maxLuckImp = this.luckImpRange[1];
+      const minLuckImp = this.luckImpRange[0];
       const maxAsw = this.aswRange[1];
       const minAsw = this.aswRange[0];
       const buffHP = this.addHP;
@@ -1274,6 +1305,8 @@ export default Vue.extend({
             if (stockData.level < minLevel || stockData.level > maxLevel) continue;
             // 対潜改修で絞る
             if (stockData.improvement.asw < minAsw || stockData.improvement.asw > maxAsw) continue;
+            // 運改修で絞る
+            if (stockData.improvement.luck < minLuckImp || stockData.improvement.luck > maxLuckImp) continue;
             // 耐久改修で絞る
             if (!buffHP.includes(stockData.improvement.hp)) continue;
 
