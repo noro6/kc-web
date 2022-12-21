@@ -145,7 +145,7 @@
   border-radius: 0.15rem;
 }
 .on-item-directory {
-  background-color: rgba(32, 148, 243, 0.8) !important;
+  box-shadow: inset 0 0 24px rgb(32, 148, 243) !important;
   border-radius: 0.1rem;
 }
 
