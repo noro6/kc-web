@@ -6,28 +6,28 @@
     </div>
     <v-card class="content">
       <div class="menu-buttons">
-        <div class="ma-4">
-          <v-btn x-large color="green" dark @click="goAirCalcPage">
+        <div class="my-2 mx-4">
+          <v-btn large color="green" dark @click="goAirCalcPage">
             <v-icon>mdi-calculator</v-icon>
             <span class="ml-1">{{ $t("Home.制空権シミュレータ") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
             <div>{{ $t("Home.本サイトの主要機能です。") }}</div>
-            <div class="mt-2">
+            <div class="mt-1">
               {{
                 $t("Home.基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。")
               }}
             </div>
           </div>
         </div>
-        <div class="ma-4">
-          <v-btn x-large dark color="blue" @click="$router.push('manager')">
+        <div class="my-2 mx-4">
+          <v-btn large dark color="blue" @click="$router.push('manager')">
             <v-icon>mdi-database-cog</v-icon>
             <span class="ml-1">{{ $t("Home.艦娘 / 装備管理") }}</span>
           </v-btn>
           <div class="mt-2 body-2">
             <div>{{ $t("Home.サブの機能です。") }}</div>
-            <div class="mt-2">
+            <div class="mt-1">
               {{
                 $t(
                   "Home.自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってた…？と悩む心配がなくなります。"
@@ -36,8 +36,8 @@
             </div>
           </div>
         </div>
-        <div class="ma-4">
-          <v-btn x-large dark color="blue darken-4" @click="$router.push('list')">
+        <div class="my-2 mx-4">
+          <v-btn large dark color="blue darken-4" @click="$router.push('list')">
             <v-icon>mdi-human-greeting-variant</v-icon>
             <span class="ml-1">{{ $t("Home.みんなの編成") }}</span>
           </v-btn>
@@ -45,8 +45,8 @@
             <div>{{ $t("Home.他の人がアップロードした編成データを閲覧できます。") }}</div>
           </div>
         </div>
-        <div class="ma-4">
-          <v-btn x-large dark color="pink lighten-1" @click="$router.push('extra')">
+        <div class="my-2 mx-4">
+          <v-btn large dark color="pink lighten-1" @click="$router.push('extra')">
             <v-icon>mdi-gift-open</v-icon>
             <span class="ml-1">{{ $t("Home.おまけ") }}</span>
           </v-btn>
@@ -56,7 +56,7 @@
         </div>
       </div>
     </v-card>
-    <v-expansion-panels class="content px-0 pb-0">
+    <v-expansion-panels class="content pa-0 mt-4" multiple>
       <v-expansion-panel>
         <v-expansion-panel-header>
           <div class="d-flex align-center">
@@ -68,11 +68,11 @@
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-divider></v-divider>
-          <div class="mt-4 body-2">
+          <div class="mt-4 ml-4 body-2">
             <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
             {{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
           </div>
-          <div class="d-flex flex-wrap">
+          <div class="d-flex flex-wrap ml-4">
             <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
               {{ $t("Home.データ引継ぎ(編成)") }}
             </v-btn>
@@ -82,8 +82,6 @@
           </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
-    </v-expansion-panels>
-    <v-expansion-panels class="content px-0">
       <v-expansion-panel>
         <v-expansion-panel-header>
           <div class="d-flex align-center">
@@ -95,19 +93,54 @@
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-divider></v-divider>
-          <div class="mt-4 body-2">
+          <div class="mt-4 ml-4 body-2">
             <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
             <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
           </div>
-          <div class="mt-6 body-2">
+          <div class="mt-6 ml-4 body-2">
             <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
             <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
           </div>
-          <div class="mt-6 body-2">
+          <div class="mt-6 ml-4 body-2">
             <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
             <div class="text--secondary">
               (e.g.)
               https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
+            </div>
+          </div>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-header>
+          <div class="d-flex align-center">
+            <div>
+              <v-icon>mdi-party-popper</v-icon>
+            </div>
+            <div class="ml-3">{{ $t("Home.ご支援") }}</div>
+          </div>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-divider></v-divider>
+          <div class="mt-4 ml-4 body-2">
+            <div>{{ $t("Home.本サイトは無料ですが、それでもご支援いただけるという方向けに支援の手段を用意しました。") }}</div>
+            <div>{{ $t("Home.いつも本当にありがとうございます。") }}</div>
+          </div>
+          <div class="mt-2 ml-4 support-buttons">
+            <div>
+              <v-btn color="teal darken-1" large dark target="_blank" href="https://ofuse.me/noro">
+                <span class="ofuse-label">OFUSEで応援する</span>
+              </v-btn>
+              <div class="mt-2 body-2">
+                <div>{{ $t("Home.匿名でも利用可能な投げ銭サービスです。") }}</div>
+              </div>
+            </div>
+            <div>
+              <v-btn color="orange darken-1" large dark target="_blank" href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share">
+                {{ $t("Home.Amazon ほしい物リスト") }}
+              </v-btn>
+              <div class="mt-2 body-2">
+                <div>{{ $t("Home.物資やギフト券といった形であればこちら。") }}</div>
+              </div>
             </div>
           </div>
         </v-expansion-panel-content>
@@ -176,6 +209,11 @@
 .info-area {
   margin: 2rem auto 0.5rem auto;
   max-width: 1200px;
+}
+
+.support-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 </style>
 

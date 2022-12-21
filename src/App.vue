@@ -236,16 +236,12 @@
           <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
           へ。その他、作者へのご連絡は
           <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
-          までお願いします。カンパ等ご支援は
-          <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>から。
+          までお願いします。
         </template>
         <template v-else>
           {{ $t("Home.翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。") }}
           <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">{{ $t("Home.お題箱") }}</a>
           <a href="https://twitter.com/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">Twitter</a>
-          <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1 mx-1" target="_blank">
-            Amazon wish list
-          </a>
         </template>
       </span>
     </v-footer>
