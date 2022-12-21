@@ -875,6 +875,7 @@ export default Vue.extend({
       this.$store.dispatch('updateSetting', this.setting);
     },
     bootTooltip(viewShip: ViewShip, e: MouseEvent | FocusEvent) {
+      window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         if (e instanceof MouseEvent) {
           this.tooltipX = e.clientX;

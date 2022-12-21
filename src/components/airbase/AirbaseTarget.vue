@@ -117,6 +117,7 @@ export default Vue.extend({
       this.handleClose();
     },
     bootTooltip(index: number, e: MouseEvent) {
+      window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX + 20;
         this.tooltipY = e.clientY;

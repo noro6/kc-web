@@ -485,6 +485,7 @@ export default Vue.extend({
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).closest('.save-list')?.getElementsByClassName('item-name')[0] as HTMLDivElement;
+      window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x;

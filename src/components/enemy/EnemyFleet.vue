@@ -350,6 +350,7 @@ export default Vue.extend({
       }
       const setting = this.$store.state.siteSetting as SiteSetting;
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('enemy-air-power')[0] as HTMLDivElement;
+      window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         const rect = nameDiv.getBoundingClientRect();
         this.tooltipX = rect.x + rect.width;

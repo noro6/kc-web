@@ -1511,6 +1511,7 @@ export default Vue.extend({
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
+      window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
