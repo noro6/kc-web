@@ -58,10 +58,11 @@ export default class ShipValidation {
       }
       // 5inch連装砲(副砲配置)集中配備
       if (item.id === 467) {
-        // 航巡、軽巡系、軽空母、水母搭載不可
-        if (type === SHIP_TYPE.CAV || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.CVL || type === SHIP_TYPE.AV) {
-          return false;
+        // 重巡、戦艦系、軽空母、正規(装甲)空母のみ搭載可
+        if (type === SHIP_TYPE.CA || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBB || type === SHIP_TYPE.BBV || type === SHIP_TYPE.FBB || type === SHIP_TYPE.CV || type === SHIP_TYPE.CVB) {
+          return true;
         }
+        return false;
       }
     }
 
