@@ -1,104 +1,132 @@
 <template>
-  <div class="mt-3">
-    <v-card class="my-2 pa-4">
-      <div class="d-flex mt-3">
-        <div class="align-self-center mr-5">{{ $t("Database.集計対象Lv") }}</div>
-        <div class="range-input">
-          <v-text-field
-            :label="$t('Database.Lv下限')"
-            type="number"
-            :max="levelRange[1]"
-            min="1"
-            dense
-            v-model.trim="levelRange[0]"
-            hide-details
-            @input="analyze()"
-          ></v-text-field>
-        </div>
-        <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="analyze()">
-        </v-range-slider>
-        <div class="range-input">
-          <v-text-field
-            :label="$t('Database.Lv上限')"
-            type="number"
-            max="175"
-            :min="levelRange[0]"
-            dense
-            v-model.trim="levelRange[1]"
-            hide-details
-            @input="analyze()"
-          ></v-text-field>
-        </div>
+  <div class="mt-8">
+    <div class="d-flex my-3 mx-4">
+      <div class="align-self-center mr-5">{{ $t("Database.集計対象Lv") }}</div>
+      <div class="range-input">
+        <v-text-field
+          :label="$t('Database.Lv下限')"
+          type="number"
+          :max="levelRange[1]"
+          min="1"
+          dense
+          v-model.trim="levelRange[0]"
+          hide-details
+          @input="analyze()"
+        ></v-text-field>
       </div>
-      <v-card class="my-3">
-        <table>
+      <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="analyze()">
+      </v-range-slider>
+      <div class="range-input">
+        <v-text-field
+          :label="$t('Database.Lv上限')"
+          type="number"
+          max="175"
+          :min="levelRange[0]"
+          dense
+          v-model.trim="levelRange[1]"
+          hide-details
+          @input="analyze()"
+        ></v-text-field>
+      </div>
+    </div>
+    <v-card class="pa-1">
+      <v-divider></v-divider>
+      <v-simple-table dense>
+        <template v-slot:default>
           <thead>
             <tr>
-              <td class="text-left">{{ $t("Database.艦種") }}</td>
-              <td>{{ $t("Database.隻数") }}</td>
-              <td>{{ $t("Database.最大Lv") }}</td>
-              <td>{{ $t("Database.最小Lv") }}</td>
-              <td>{{ $t("Database.中央Lv") }}</td>
-              <td>{{ $t("Database.平均Lv") }}</td>
-              <td>{{ $t("Database.総経験値") }}</td>
-              <td>{{ $t("Database.1隻平均") }}</td>
-              <td>{{ $t("Database.経験値割合") }}</td>
+              <th class="text-right">{{ $t("Database.合計艦娘数") }}</th>
+              <th class="text-right">{{ $t("Database.ケッコン艦") }}</th>
+              <th class="text-right">{{ $t("Database.補強増設艦") }}</th>
+              <th class="text-right">{{ $t("Database.運改修合計") }}</th>
+              <th class="text-right">{{ $t("Database.耐久改修合計") }}</th>
+              <th class="text-right">{{ $t("Database.対潜改修合計") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-right">{{ allShipCount.toLocaleString() }}</td>
+              <td class="text-right">{{ allMarriageCount.toLocaleString() }}</td>
+              <td class="text-right">{{ allExSlotCount.toLocaleString() }}</td>
+              <td class="text-right">{{ totalLuckImprovement.toLocaleString() }}</td>
+              <td class="text-right">{{ totalHPImprovement.toLocaleString() }}</td>
+              <td class="text-right">{{ totalASWImprovement.toLocaleString() }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+    </v-card>
+    <v-card class="my-3 pa-1">
+      <v-divider></v-divider>
+      <v-simple-table>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">{{ $t("Database.艦種") }}</th>
+              <th class="text-right">{{ $t("Database.隻数") }}</th>
+              <th class="text-right">{{ $t("Database.最大Lv") }}</th>
+              <th class="text-right">{{ $t("Database.最小Lv") }}</th>
+              <th class="text-right">{{ $t("Database.中央Lv") }}</th>
+              <th class="text-right">{{ $t("Database.平均Lv") }}</th>
+              <th class="text-right">{{ $t("Database.総経験値") }}</th>
+              <th class="text-right">{{ $t("Database.1隻平均") }}</th>
+              <th class="text-right">{{ $t("Database.経験値割合") }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(row, i) in summaryTable" :key="`summary_row${i}`">
               <td class="text-left">{{ row.name }}</td>
-              <td>{{ row.data.count }}</td>
-              <td>{{ row.data.maxLevel }}</td>
-              <td>{{ row.data.minLevel }}</td>
-              <td>{{ row.data.midLevel }}</td>
-              <td>{{ row.data.avgLevel }}</td>
-              <td>{{ row.data.sumExp }}</td>
-              <td>{{ row.data.avgExp }}</td>
-              <td>{{ row.data.expRate }} %</td>
+              <td class="text-right">{{ row.data.count }}</td>
+              <td class="text-right">{{ row.data.maxLevel }}</td>
+              <td class="text-right">{{ row.data.minLevel }}</td>
+              <td class="text-right">{{ row.data.midLevel }}</td>
+              <td class="text-right">{{ row.data.avgLevel }}</td>
+              <td class="text-right">{{ row.data.sumExp }}</td>
+              <td class="text-right">{{ row.data.avgExp }}</td>
+              <td class="text-right">{{ row.data.expRate }} %</td>
             </tr>
           </tbody>
-        </table>
+        </template>
+      </v-simple-table>
+    </v-card>
+    <div class="graph-area">
+      <v-card class="py-4">
+        <div class="d-flex justify-center">
+          <div class="body-2">{{ $t("Database.艦種別Lv帯分析") }}</div>
+        </div>
+        <radar-chart :data="radarGraphData" :options="radarOptions" />
       </v-card>
-      <div class="graph-area">
-        <v-card class="py-4 exp-card">
-          <div class="d-flex justify-center">
-            <div class="body-2">{{ $t("Database.艦種別Lv帯分析") }}</div>
-          </div>
-          <radar-chart :data="radarGraphData" :options="radarOptions" />
-        </v-card>
-        <v-card class="py-4 exp-card">
-          <div class="d-flex justify-center">
-            <div class="body-2">{{ $t("Database.艦娘別経験値ランキング") }}</div>
-          </div>
-          <table>
+      <v-card class="pa-1">
+        <v-divider></v-divider>
+        <v-simple-table fixed-header height="64vh">
+          <template v-slot:default>
             <thead>
               <tr>
-                <td></td>
-                <td class="text-left"></td>
-                <td>{{ $t("Database.総経験値") }}</td>
-                <td>{{ $t("Database.経験値割合") }}</td>
+                <th class="text-right">Rank</th>
+                <th class="text-left">{{ $t("Common.艦娘名") }}</th>
+                <th class="text-right">{{ $t("Database.総経験値") }}</th>
+                <th class="text-right">{{ $t("Database.経験値割合") }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(row, i) in expRankTable" :key="`exp_rank_row${i}`">
-                <td>{{ row.rank }}</td>
+                <td class="text-right">{{ row.rank }}</td>
                 <td class="text-left">{{ needTrans ? $t(`${row.name}`) : row.name }}</td>
-                <td>{{ row.exp }}</td>
-                <td>{{ row.rate }} %</td>
+                <td class="text-right">{{ row.exp }}</td>
+                <td class="text-right">{{ row.rate }} %</td>
               </tr>
             </tbody>
-          </table>
-        </v-card>
-      </div>
-      <v-card class="my-4 pa-4">
-        <div class="d-flex justify-center">
-          <div class="body-2">{{ $t("Database.Lv帯別艦娘数") }}</div>
-        </div>
-        <div>
-          <stacked-bar :data="stackedBarData" :options="stackedBarOption" />
-        </div>
+          </template>
+        </v-simple-table>
       </v-card>
+    </div>
+    <v-card class="my-4 pa-4">
+      <div class="d-flex justify-center">
+        <div class="body-2">{{ $t("Database.Lv帯別艦娘数") }}</div>
+      </div>
+      <div>
+        <stacked-bar :data="stackedBarData" :options="stackedBarOption" />
+      </div>
     </v-card>
   </div>
 </template>
@@ -106,28 +134,6 @@
 <style scoped>
 .range-input {
   width: 80px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9em;
-}
-
-table td {
-  padding: 0.75rem;
-  text-align: right;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-}
-table thead td {
-  padding: 0.75rem;
-}
-
-table tbody tr {
-  transition: 0.1s;
-}
-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1);
 }
 
 .graph-area {
@@ -144,9 +150,14 @@ table tbody tr:hover {
   }
 }
 
-.exp-card {
-  height: 70vh;
-  overflow: auto;
+.v-data-table thead th {
+  background-color: #eee !important;
+}
+.theme--dark .v-data-table thead th {
+  background-color: rgb(49, 49, 53) !important;
+}
+.deep-sea .theme--dark .v-data-table thead th {
+  background-color: rgb(36, 42, 53) !important;
 }
 </style>
 
@@ -277,6 +288,12 @@ export default Vue.extend({
         legend: { display: true, position: 'bottom', labels: { color: 'rgb(64, 64, 64)' } },
       },
     },
+    allShipCount: 0,
+    allMarriageCount: 0,
+    allExSlotCount: 0,
+    totalLuckImprovement: 0,
+    totalHPImprovement: 0,
+    totalASWImprovement: 0,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -333,6 +350,12 @@ export default Vue.extend({
       let allExp = 0;
       let allLevels: number[] = [];
 
+      let marriageCount = 0;
+      let exSlotCount = 0;
+      let totalHPImprovement = 0;
+      let totalASWImprovement = 0;
+      let totalLuckImprovement = 0;
+
       // 経験値ランキング 初期艦毎
       let expRanks: { id: number; name: string; exp: number; rate: number }[] = [];
 
@@ -371,6 +394,12 @@ export default Vue.extend({
             const stock = stocks[j];
             levels.push(stock.level);
             exps.push(stock.exp);
+
+            marriageCount += stock.level > 99 ? 1 : 0;
+            exSlotCount += stock.releaseExpand ? 1 : 0;
+            totalHPImprovement += stock.improvement.hp;
+            totalASWImprovement += stock.improvement.asw;
+            totalLuckImprovement += stock.improvement.luck;
 
             newStackedData.data[17 - Math.floor(stock.level / 10)] += 1;
 
@@ -461,6 +490,13 @@ export default Vue.extend({
           expRate: allCount ? 100 : 0,
         },
       });
+
+      this.allShipCount = allCount;
+      this.allMarriageCount = marriageCount;
+      this.allExSlotCount = exSlotCount;
+      this.totalHPImprovement = totalHPImprovement;
+      this.totalLuckImprovement = totalLuckImprovement;
+      this.totalASWImprovement = totalASWImprovement;
 
       expRanks = expRanks
         .sort((a, b) => {
