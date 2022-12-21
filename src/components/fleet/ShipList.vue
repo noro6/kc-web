@@ -472,8 +472,10 @@ export default Vue.extend({
       { text: '回避', value: 'avoid' },
       { text: '燃料', value: 'fuel' },
       { text: '弾薬', value: 'ammo' },
+      { text: '射程', value: 'range' },
       { text: '運改修', value: 'luckRemodel' },
     ],
+    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     multiLine: true,
     isStockOnly: false,
     shipStock: [] as ShipStock[],
@@ -526,7 +528,7 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     displayLuck(): boolean {
-      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck';
+      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck' || this.sortKey === 'range';
     },
     selectedSortText(): string {
       if (this.sortKey) {
@@ -838,6 +840,15 @@ export default Vue.extend({
             if (ships.length) {
               const typeName = i ? `+${i}` : '0';
               resultShips.push({ typeName, ships });
+            }
+          }
+        } else if (key === 'range') {
+          // 値毎にタイプ分け
+          for (let i = maxValue; i >= 0; i -= 1) {
+            const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 1);
+            if (ships.length) {
+              const rangeText = this.rangeText[i];
+              resultShips.push({ typeName: `${this.$t(`Common.${rangeText}`)}`, ships, needOrOver: false });
             }
           }
         } else {
