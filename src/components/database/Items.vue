@@ -112,8 +112,9 @@
                 <div
                   class="sort-key"
                   v-ripple="{ class: 'info--text' }"
-                  @click="sortItems(header.items, 'id')"
-                  @keypress.enter="sortItems(header.items, 'id')"
+                  @click="sortItems(header, 'id')"
+                  :class="{ selected: header.selectedKey === 'id' }"
+                  @keypress.enter="sortItems(header, 'id')"
                   tabindex="0"
                 >
                   {{ $t("Database.図鑑ID") }}
@@ -122,9 +123,10 @@
                   v-for="(sortKey, j) in header.type.sortKey"
                   :key="`type${i}Key${j}`"
                   class="sort-key"
+                  :class="{ selected: header.selectedKey === sortKey }"
                   v-ripple="{ class: 'info--text' }"
-                  @click="sortItems(header.items, sortKey)"
-                  @keypress.enter="sortItems(header.items, sortKey)"
+                  @click="sortItems(header, sortKey)"
+                  @keypress.enter="sortItems(header, sortKey)"
                   tabindex="0"
                 >
                   {{ convertStatusString(sortKey) }}
@@ -144,7 +146,7 @@
             tabindex="0"
             @mouseenter="bootTooltip(itemRow.master, $event)"
             @mouseleave="clearTooltip"
-            @focus="bootTooltip(itemRow.master, $event)"
+            @focus="clearTooltip"
             @blur="clearTooltip"
           >
             <div class="d-flex align-self-start flex-grow-1">
@@ -348,11 +350,15 @@
 }
 
 .sort-key {
+  cursor: pointer;
   font-size: 0.9em;
   padding: 0.5rem 2rem 0.5rem 1rem;
 }
 .sort-key:hover {
   background-color: rgba(128, 128, 128, 0.2);
+}
+.sort-key.selected {
+  background-color: rgba(32, 148, 243, 0.2);
 }
 
 .stock-inputs {
@@ -386,6 +392,12 @@ interface ItemRow {
   details: ItemRowDetailData[];
 }
 
+interface ItemHeader {
+  type: { id: number; name: string };
+  items: ItemRow[];
+  selectedKey: string;
+}
+
 export default Vue.extend({
   name: 'ItemsComponent',
   components: { ItemTooltip, BlacklistItemEdit },
@@ -398,8 +410,8 @@ export default Vue.extend({
     remodelRange: [0, 10],
     selectedTypes: [] as number[],
     types: [] as { text: string; value: number }[],
-    baseViewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
-    viewItems: [] as { type: { id: number; name: string }; items: ItemRow[] }[],
+    baseViewItems: [] as ItemHeader[],
+    viewItems: [] as ItemHeader[],
     editDialog: false,
     editedItem: undefined as ItemMaster | undefined,
     editedStock: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -540,7 +552,7 @@ export default Vue.extend({
           itemRow.allCount = sumCount;
           rows.push(itemRow);
         }
-        viewItems.push({ type, items: rows });
+        viewItems.push({ type, items: rows, selectedKey: 'id' });
       }
 
       this.baseViewItems = viewItems;
@@ -556,7 +568,7 @@ export default Vue.extend({
       for (let i = 0; i < bases.length; i += 1) {
         const { items } = bases[i];
 
-        const viewRow = { type: bases[i].type, items: [] as ItemRow[] };
+        const viewRow = { type: bases[i].type, items: [] as ItemRow[], selectedKey: 'id' };
         for (let j = 0; j < items.length; j += 1) {
           const { master, details, allCount } = items[j];
 
@@ -593,7 +605,9 @@ export default Vue.extend({
         }
       });
     },
-    sortItems(items: { master: { [key: string]: number } }[], key: string) {
+    sortItems(header: ItemHeader, key: string) {
+      header.selectedKey = key;
+      const items = header.items as unknown as { master: { [key: string]: number } }[];
       if (key === 'id' || key === 'cost') {
         items.sort((a, b) => a.master[key] - b.master[key]);
       } else {
