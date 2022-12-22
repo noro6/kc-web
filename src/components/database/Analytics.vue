@@ -38,9 +38,21 @@
               <th class="text-right">{{ $t("Database.合計艦娘数") }}</th>
               <th class="text-right">{{ $t("Database.ケッコン艦") }}</th>
               <th class="text-right">{{ $t("Database.補強増設艦") }}</th>
-              <th class="text-right">{{ $t("Database.運改修合計") }}</th>
               <th class="text-right">{{ $t("Database.耐久改修合計") }}</th>
               <th class="text-right">{{ $t("Database.対潜改修合計") }}</th>
+              <th class="text-right">{{ $t("Database.運改修合計") }}</th>
+              <th class="text-right">
+                {{ $t("Database.まるゆ指数") }}
+                <v-tooltip top color="black">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon class="ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                  </template>
+                  <div>
+                    <s>{{ $t("Database.まるゆを近代化改修に使えば使うほど上昇します。") }}</s>
+                  </div>
+                  <div>{{ $t("Database.ケッコン以外の手段で運改修を進めていると上昇する指標です。") }}</div>
+                </v-tooltip>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -48,9 +60,10 @@
               <td class="text-right">{{ allShipCount.toLocaleString() }}</td>
               <td class="text-right">{{ allMarriageCount.toLocaleString() }}</td>
               <td class="text-right">{{ allExSlotCount.toLocaleString() }}</td>
-              <td class="text-right">{{ totalLuckImprovement.toLocaleString() }}</td>
               <td class="text-right">{{ totalHPImprovement.toLocaleString() }}</td>
               <td class="text-right">{{ totalASWImprovement.toLocaleString() }}</td>
+              <td class="text-right">{{ totalLuckImprovement.toLocaleString() }}</td>
+              <td class="text-right">{{ maruyuRank.toLocaleString() }}</td>
             </tr>
           </tbody>
         </template>
@@ -294,6 +307,7 @@ export default Vue.extend({
     totalLuckImprovement: 0,
     totalHPImprovement: 0,
     totalASWImprovement: 0,
+    maruyuRank: 0,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -497,6 +511,8 @@ export default Vue.extend({
       this.totalHPImprovement = totalHPImprovement;
       this.totalLuckImprovement = totalLuckImprovement;
       this.totalASWImprovement = totalASWImprovement;
+      // まるゆ指数 => - (ケッコン艦 * (4.5)) / 1.6
+      this.maruyuRank = Math.max(Math.floor((totalLuckImprovement - this.allMarriageCount * 4.5) / 1.6), 0);
 
       expRanks = expRanks
         .sort((a, b) => {
