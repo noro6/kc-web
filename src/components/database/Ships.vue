@@ -37,7 +37,7 @@
                 <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" :label="$t('Database.補強増設開放済')"></v-checkbox>
               </div>
-              <div class="my-5 range-inputs">
+              <div class="range-inputs">
                 <div class="d-flex py-5">
                   <div class="range-input">
                     <v-text-field
@@ -95,7 +95,7 @@
                   </div>
                 </div>
               </div>
-              <div class="my-5 range-inputs">
+              <div class="range-inputs">
                 <div class="d-flex py-5">
                   <div class="range-input align-self-end">
                     <v-text-field
@@ -154,7 +154,7 @@
                 </div>
               </div>
               <v-select
-                class="mt-2 py-5"
+                class="my-10"
                 v-model="addHP"
                 :items="hpItems"
                 dense
@@ -340,7 +340,7 @@
               tabindex="0"
               @mouseenter="bootTooltip(rowData, $event)"
               @mouseleave="clearTooltip"
-              @focus="bootTooltip(rowData, $event)"
+              @focus="clearTooltip"
               @blur="clearTooltip"
             >
               <div class="edit-stock-img">
@@ -413,7 +413,7 @@
                         tabindex="0"
                         @mouseenter="bootTooltip(data, $event)"
                         @mouseleave="clearTooltip"
-                        @focus="bootTooltip(data, $event)"
+                        @focus="clearTooltip"
                         @blur="clearTooltip"
                       >
                         <template v-if="data.count">

@@ -91,12 +91,12 @@
                 }}
               </div>
             </div>
-            <v-template v-else>
+            <div v-else>
               <div class="mt-3">
                 {{ $t(`Fleet.艦娘`) }}
               </div>
               <v-divider class="mt-3 mb-6"></v-divider>
-            </v-template>
+            </div>
             <div class="d-flex mt-2">
               <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
                 {{ $t(`Common.コードをコピー`) }}
@@ -188,12 +188,12 @@
                 }}
               </div>
             </div>
-            <v-template v-else>
+            <div v-else>
               <div class="mt-3">
                 {{ $t(`Fleet.装備`) }}
               </div>
               <v-divider class="mt-3 mb-6"></v-divider>
-            </v-template>
+            </div>
             <div class="d-flex mt-2">
               <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
                 {{ $t(`Common.コードをコピー`) }}
