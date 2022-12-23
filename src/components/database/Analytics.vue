@@ -369,6 +369,7 @@ export default Vue.extend({
       let totalHPImprovement = 0;
       let totalASWImprovement = 0;
       let totalLuckImprovement = 0;
+      let maruyuCount = 0;
 
       // 経験値ランキング 初期艦毎
       let expRanks: { id: number; name: string; exp: number; rate: number }[] = [];
@@ -414,6 +415,7 @@ export default Vue.extend({
             totalHPImprovement += stock.improvement.hp;
             totalASWImprovement += stock.improvement.asw;
             totalLuckImprovement += stock.improvement.luck;
+            maruyuCount += stock.id === 163 || stock.id === 402 ? 1 : 0;
 
             newStackedData.data[17 - Math.floor(stock.level / 10)] += 1;
 
@@ -511,8 +513,8 @@ export default Vue.extend({
       this.totalHPImprovement = totalHPImprovement;
       this.totalLuckImprovement = totalLuckImprovement;
       this.totalASWImprovement = totalASWImprovement;
-      // まるゆ指数 => - (ケッコン艦 * (4.5)) / 1.6
-      this.maruyuRank = Math.max(Math.floor((totalLuckImprovement - this.allMarriageCount * 4.5) / 1.6), 0);
+      // まるゆ指数 => - (ケッコン艦 * (4.5)) / 1.6 + まるゆ所持数 * 1.6
+      this.maruyuRank = Math.max(Math.floor(maruyuCount * 1.6 + (totalLuckImprovement - this.allMarriageCount * 4.5) / 1.6), 0);
 
       expRanks = expRanks
         .sort((a, b) => {
