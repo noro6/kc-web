@@ -441,7 +441,7 @@ export default class Item {
    */
   private getBonusNightFirePower(): number {
     // 主砲 / 副砲 / 魚雷 / 三式弾 / 徹甲弾 / 探照灯 / 高射装置 / 大発 / 水上艦要員 / 航空要員 / 特型内火艇 / 対地装備 / 司令部施設
-    if ([1, 2, 4, 5, 18, 19, 24, 29, 34, 35, 36, 37, 39, 42, 46].includes(this.data.apiTypeId)) {
+    if ([1, 2, 3, 4, 5, 18, 19, 24, 29, 34, 35, 36, 37, 39, 42, 46].includes(this.data.apiTypeId)) {
       if ([10, 66, 220, 275].includes(this.data.id)) {
         // 一部副砲
         return 0.2 * this.remodel;
