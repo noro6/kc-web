@@ -395,7 +395,7 @@
   overflow: unset;
 }
 .info-area {
-  margin: 2rem auto 0.5rem auto;
+  margin: 1rem auto 0.5rem auto;
 }
 .tutorial_box {
   max-width: 1200px;

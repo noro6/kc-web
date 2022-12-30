@@ -247,7 +247,7 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
-        <v-card class="ship-list-body my-3 pa-4">
+        <v-card class="ship-list-body mt-3 pa-4">
           <div v-if="!viewShips.length" class="text-center my-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
           </div>
@@ -264,122 +264,115 @@
               </v-btn>
             </v-btn-toggle>
           </div>
-          <div class="ship-table" v-if="modeTable">
-            <div v-if="viewShips.length" class="ship-tr header" :class="{ asc: !isDesc }">
-              <v-spacer></v-spacer>
-              <div
-                class="status-td"
-                :class="{ sorted: sortKey === 'level' }"
-                @click.stop="toggleSortKey('level')"
-                @keypress="toggleSortKey('level')"
-                tabindex="0"
-              >
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                Lv
-              </div>
-              <div class="status-td" :class="{ sorted: sortKey === 'hp' }" @click.stop="toggleSortKey('hp')" @keypress="toggleSortKey('hp')" tabindex="0">
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.耐久") }}
-              </div>
-              <div class="status-td" :class="{ sorted: sortKey === 'luck' }" @click.stop="toggleSortKey('luck')" @keypress="toggleSortKey('luck')" tabindex="0">
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.運") }}
-              </div>
-              <div class="status-td" :class="{ sorted: sortKey === 'asw' }" @click.stop="toggleSortKey('asw')" @keypress="toggleSortKey('asw')" tabindex="0">
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.対潜") }}
-              </div>
-              <div
-                class="status-td"
-                :class="{ sorted: sortKey === 'scout' }"
-                @click.stop="toggleSortKey('scout')"
-                @keypress="toggleSortKey('scout')"
-                tabindex="0"
-              >
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.索敵") }}
-              </div>
-              <div
-                class="status-td"
-                :class="{ sorted: sortKey === 'accuracy' }"
-                @click.stop="toggleSortKey('accuracy')"
-                @keypress="toggleSortKey('accuracy')"
-                tabindex="0"
-              >
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.命中項") }}
-              </div>
-              <div
-                class="status-td"
-                :class="{ sorted: sortKey === 'avoid' }"
-                @click.stop="toggleSortKey('avoid')"
-                @keypress="toggleSortKey('avoid')"
-                tabindex="0"
-              >
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.回避項") }}
-              </div>
-              <div class="status-td" @click.stop="toggleSortKey('ci')" @keypress="toggleSortKey('ci')" tabindex="0" :class="{ sorted: sortKey === 'ci' }">
-                <div><v-icon small>mdi-chevron-down</v-icon></div>
-                {{ $t("Common.CI項") }}
-              </div>
-            </div>
-            <div
-              v-for="(rowData, i) in shipList"
-              :key="`row_${i}`"
-              class="ship-tr"
-              v-ripple
-              :class="{
-                no_ship: rowData.count === 0,
-                lv175: rowData.stockData.level === 175,
-                lv100: rowData.stockData.level !== 175 && rowData.stockData.level > 99,
-                lv99: rowData.stockData.level === 99,
+          <div class="ship-table" v-if="modeTable && viewShips.length">
+            <v-divider></v-divider>
+            <v-data-table
+              fixed-header
+              height="72vh"
+              multi-sort
+              :page.sync="page"
+              :headers="headers"
+              :items="viewShips"
+              hide-default-footer
+              :footer-props="{
+                showFirstLastPage: true,
+                'items-per-page-options': [100],
               }"
-              @click.stop="showEditDialog(rowData)"
-              @keypress.enter="showEditDialog(rowData)"
-              tabindex="0"
-              @mouseenter="bootTooltip(rowData, $event)"
-              @mouseleave="clearTooltip"
-              @focus="clearTooltip"
-              @blur="clearTooltip"
             >
-              <div class="edit-stock-img">
-                <v-img :src="`./img/ship/${rowData.ship.id}.png`" height="50" width="200"></v-img>
-                <div class="area-banner mt-1" v-if="rowData.stockData.area > 0 && rowData.stockData.area <= maxAreas">
-                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${rowData.stockData.area}.webp`" height="60" width="42"></v-img>
-                </div>
-                <div class="slot-ex-img" v-if="rowData.stockData.releaseExpand">
-                  <v-img :src="`./img/util/slot_ex.png`" height="36" width="36"></v-img>
-                </div>
-              </div>
-              <div class="ml-1 td-name text-truncate">{{ getShipName(rowData.ship) }}</div>
-              <div class="status-td">{{ rowData.stockData.level }}</div>
-              <div class="status-td td-relative" :class="{ bold: rowData.impHP }">
-                {{ rowData.hp }}
-                <div class="status-td-absolute" v-if="rowData.impHP">↑{{ rowData.impHP }}</div>
-              </div>
-              <div class="status-td td-relative" :class="{ bold: rowData.impLuck }">
-                {{ rowData.luck }}
-                <div class="status-td-absolute" v-if="rowData.impLuck">↑{{ rowData.impLuck }}</div>
-              </div>
-              <div class="status-td td-relative" v-if="rowData.count" :class="{ bold: rowData.impAsw }">
-                {{ rowData.asw }}
-                <div class="status-td-absolute" v-if="rowData.impAsw">↑{{ rowData.impAsw }}</div>
-              </div>
-              <div class="status-td" v-if="rowData.count">{{ rowData.scout }}</div>
-              <div class="status-td" v-if="rowData.count">{{ rowData.accuracy }}</div>
-              <div class="status-td" v-if="rowData.count">{{ rowData.avoid }}</div>
-              <div class="status-td" v-if="rowData.count">{{ rowData.ci }}</div>
-              <div v-else class="status-td no-status d-flex">
-                <div class="line"></div>
-                <div>{{ $t("Database.未着任") }}</div>
-                <div class="line"></div>
-              </div>
-            </div>
-            <div class="d-flex">
-              <v-pagination v-if="viewShips.length" v-model="page" :length="pageLength" class="my-4" @input="scrollTop"></v-pagination>
-              <v-spacer></v-spacer>
-            </div>
+              <template v-slot:[`header.name`]></template>
+              <template v-slot:[`header.hp`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.impLuck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.asw`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.impAsw`]="{ header }">{{ $t(`Database.${header.text}`) }}</template>
+              <template v-slot:[`header.scout`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.accuracy`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.avoid`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.ci`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:item="{ item }">
+                <tr
+                  v-ripple
+                  :class="{
+                    no_ship: item.count === 0,
+                    lv175: item.stockData.level === 175,
+                    lv100: item.stockData.level !== 175 && item.stockData.level > 99,
+                    lv99: item.stockData.level === 99,
+                  }"
+                  @click.stop="showEditDialog(item)"
+                  @keypress.enter="showEditDialog(item)"
+                  tabindex="0"
+                  @mouseenter="bootTooltip(item, $event)"
+                  @mouseleave="clearTooltip"
+                  @focus="clearTooltip"
+                  @blur="clearTooltip"
+                >
+                  <td class="px-0">
+                    <div class="d-none d-md-flex align-center">
+                      <div class="edit-stock-img">
+                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="40" width="160"></v-img>
+                        <div class="area-banner mt-1" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
+                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="52" width="35"></v-img>
+                        </div>
+                        <div class="slot-ex-img" v-if="item.stockData.releaseExpand">
+                          <v-img :src="`./img/util/slot_ex.png`" height="30" width="30"></v-img>
+                        </div>
+                      </div>
+                      <div class="ship-name text-truncate" :title="item.ship.name">{{ getShipName(item.ship) }}</div>
+                    </div>
+                    <div class="d-flex d-md-none align-center">
+                      <div class="edit-stock-img">
+                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="30" width="120"></v-img>
+                        <div class="area-banner min" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
+                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="44" width="30"></v-img>
+                        </div>
+                        <div class="slot-ex-img min" v-if="item.stockData.releaseExpand">
+                          <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right">{{ item.level }}</td>
+                  <td class="text-right">
+                    <div class="td-relative">
+                      <div>{{ item.hp }}</div>
+                      <div v-if="item.impHP" class="improve-value"><v-icon small color="teal lighten-1">mdi-chevron-double-up</v-icon>{{ item.impHP }}</div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <div class="td-relative">
+                      <div>{{ item.luck }}</div>
+                      <div v-if="item.impLuck" class="improve-value"><v-icon small color="teal lighten-1">mdi-chevron-double-up</v-icon>{{ item.impLuck }}</div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="item.count" :class="{ 'text--secondary': !item.impLuck }">{{ item.impLuck }}</span>
+                    <span v-else>-</span>
+                  </td>
+                  <td class="text-right">
+                    <div class="td-relative">
+                      <div>{{ item.asw }}</div>
+                      <div v-if="item.impAsw" class="improve-value"><v-icon small color="teal lighten-1">mdi-chevron-double-up</v-icon>{{ item.impAsw }}</div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="item.count">{{ item.scout }}</span>
+                    <span v-else>-</span>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="item.count">{{ item.accuracy }}</span>
+                    <span v-else>-</span>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="item.count">{{ item.avoid }}</span>
+                    <span v-else>-</span>
+                  </td>
+                  <td class="text-right">
+                    <span v-if="item.count">{{ item.ci }}</span>
+                    <span v-else>-</span>
+                  </td>
+                </tr>
+              </template>
+            </v-data-table>
           </div>
           <template v-else>
             <div class="d-flex flex-wrap">
@@ -629,88 +622,12 @@
   text-align: center;
 }
 
-.ship-tr {
+.ship-card .ship-tr {
   display: flex;
   cursor: pointer;
   transition: 0.2s;
   border-bottom: 1px solid rgba(128, 128, 128, 0.8);
 }
-.ship-table .ship-tr {
-  padding: 0.1rem 0;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-}
-.ship-table .ship-tr > div {
-  align-self: center;
-}
-.ship-table .ship-tr .td-name {
-  width: calc(28% - 200px);
-  flex-grow: 1;
-  font-size: 0.95em;
-}
-
-.ship-table .ship-tr .status-td {
-  text-align: right;
-  width: 9%;
-  padding-right: 0.5rem;
-  font-size: 0.85em;
-}
-.ship-table .ship-tr .status-td.no-status {
-  text-align: center;
-  width: 45%;
-}
-.ship-table .ship-tr .status-td.no-status .line {
-  flex-grow: 1;
-  background-color: rgba(128, 128, 128, 0.4);
-  height: 2px;
-  margin: 0 1rem;
-  align-self: center;
-}
-
-/** 上昇値 */
-.ship-table .ship-tr .status-td.td-relative {
-  position: relative;
-}
-.status-col .bold,
-.ship-table .ship-tr .status-td.td-relative.bold {
-  font-weight: 600;
-}
-.ship-table .ship-tr .status-td-absolute {
-  position: absolute;
-  right: -10px;
-  top: -12px;
-  color: rgb(31, 190, 167);
-  font-weight: 600;
-}
-
-.ship-table .ship-tr.header {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 76px;
-  padding: 0;
-  z-index: 1;
-  background-color: rgba(128, 128, 128, 0.2);
-  border-top: 1px solid rgba(128, 128, 128, 0.2);
-}
-.ship-table .ship-tr.header .status-td {
-  padding: 0.75rem 0.5rem 0.75rem 0;
-  user-select: none;
-  display: flex;
-  justify-content: flex-end;
-}
-.ship-table .ship-tr.header .status-td:hover {
-  background-color: rgba(128, 128, 128, 0.1);
-}
-
-.ship-table .ship-tr.header .status-td .v-icon {
-  opacity: 0;
-}
-.ship-table .ship-tr.header .status-td.sorted .v-icon {
-  opacity: 1;
-}
-.ship-table .ship-tr.header.asc .status-td .v-icon {
-  transform: rotate(180deg);
-}
-
 .ship-card .ship-tr.lv175 {
   color: #000;
   background-color: rgba(131, 220, 255, 0.753);
@@ -728,60 +645,81 @@
   background-color: rgba(255, 242, 128, 0.753);
 }
 
-.ship-table .ship-tr.lv175 {
-  background-color: rgba(131, 220, 255, 0.3);
+.ship-table tr {
+  cursor: pointer;
 }
-.ship-table .ship-tr.lv100 {
-  background-color: rgba(255, 131, 131, 0.3);
+.ship-table tr.lv175 {
+  background-color: rgba(131, 220, 255, 0.3) !important;
 }
-.ship-table .ship-tr.lv99 {
-  background-color: rgba(131, 255, 131, 0.3);
+.ship-table tr.lv100 {
+  background-color: rgba(255, 131, 131, 0.3) !important;
 }
-.ship-table .ship-tr:not(.header):hover {
-  background-color: rgba(128, 128, 128, 0.05);
+.ship-table tr.lv99 {
+  background-color: rgba(131, 255, 131, 0.3) !important;
 }
-.ship-table .ship-tr.lv175:hover {
-  background-color: rgba(131, 220, 255, 0.5);
+.ship-table tr.lv175:hover {
+  background-color: rgba(131, 220, 255, 0.5) !important;
 }
-.ship-table .ship-tr.lv100:hover {
-  background-color: rgba(255, 131, 131, 0.5);
+.ship-table tr.lv100:hover {
+  background-color: rgba(255, 131, 131, 0.5) !important;
 }
-.ship-table .ship-tr.lv99:hover {
-  background-color: rgba(131, 255, 131, 0.5);
+.ship-table tr.lv99:hover {
+  background-color: rgba(131, 255, 131, 0.5) !important;
 }
-.theme--dark .ship-table .ship-tr.lv175 {
-  background-color: rgba(131, 220, 255, 0.2);
+.theme--dark .ship-table tr.lv175 {
+  background-color: rgba(131, 220, 255, 0.2) !important;
 }
-.theme--dark .ship-table .ship-tr.lv100 {
-  background-color: rgba(255, 131, 131, 0.2);
+.theme--dark .ship-table tr.lv100 {
+  background-color: rgba(255, 131, 131, 0.2) !important;
 }
-.theme--dark .ship-table .ship-tr.lv99 {
-  background-color: rgba(131, 255, 131, 0.2);
+.theme--dark .ship-table tr.lv99 {
+  background-color: rgba(131, 255, 131, 0.2) !important;
 }
-.theme--dark .ship-table .ship-tr.lv175:hover {
-  background-color: rgba(131, 220, 255, 0.25);
+.theme--dark .ship-table tr.lv175:hover {
+  background-color: rgba(131, 220, 255, 0.25) !important;
 }
-.theme--dark .ship-table .ship-tr.lv100:hover {
-  background-color: rgba(255, 131, 131, 0.25);
+.theme--dark .ship-table tr.lv100:hover {
+  background-color: rgba(255, 131, 131, 0.25) !important;
 }
-.theme--dark .ship-table .ship-tr.lv99:hover {
-  background-color: rgba(131, 255, 131, 0.25);
+.theme--dark .ship-table tr.lv99:hover {
+  background-color: rgba(131, 255, 131, 0.25) !important;
 }
-.ship-table .ship-tr.no_ship {
+.ship-table tr.no_ship {
   opacity: 0.7;
-  background-color: rgba(80, 80, 80, 0.2);
+  background-color: rgba(80, 80, 80, 0.2) !important;
 }
-.ship-table .ship-tr.no_ship:hover {
+.ship-table tr.no_ship:hover {
   opacity: 0.7;
-  background-color: rgba(80, 80, 80, 0.25);
+  background-color: rgba(80, 80, 80, 0.25) !important;
 }
-.theme--dark .ship-table .ship-tr.no_ship {
-  background-color: rgba(0, 0, 0, 1);
+.theme--dark .ship-table tr.no_ship {
+  background-color: rgba(0, 0, 0, 1) !important;
 }
-.theme--dark .ship-table .ship-tr.no_ship:hover {
-  background-color: rgb(15, 15, 15);
+.theme--dark .ship-table tr.no_ship:hover {
+  background-color: rgb(15, 15, 15) !important;
 }
-.ship-tr.no_ship img,
+.ship-table tr .ship-name {
+  font-size: 0.9em;
+  margin-left: 0.25rem;
+  max-width: 8vw;
+}
+.ship-table tr .td-relative {
+  position: relative;
+}
+.ship-table tr .improve-value {
+  position: absolute;
+  font-size: 0.95em;
+  left: calc(100% - 8px);
+  top: -14px;
+  color: rgb(31, 190, 167);
+  font-weight: bold;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.status-col .bold {
+  font-weight: 600;
+}
 .status-img.no_ship img {
   filter: grayscale(60%);
 }
@@ -792,14 +730,22 @@
 .area-banner {
   position: absolute;
   top: -8px;
-  left: 38px;
+  left: 28px;
+}
+.area-banner.min {
+  top: -6px;
+  left: 20px;
 }
 .edit-stock-img .slot-ex-img {
   position: absolute;
   bottom: 0px;
   right: 0px;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
+}
+.edit-stock-img .slot-ex-img.min {
+  width: 25px;
+  height: 25px;
 }
 
 .selected-area-btn {
@@ -971,8 +917,6 @@ export default Vue.extend({
     versionButtons: [] as ShipMaster[],
     version: 0,
     editLuck: 0,
-    sortKey: '',
-    isDesc: false,
     maxAreas: 0,
     confirmDialog: false,
     unsubscribe: undefined as unknown,
@@ -983,6 +927,58 @@ export default Vue.extend({
     visibleNoArea: true,
     readOnly: false,
     tab: 'list',
+    headers: [
+      {
+        text: '艦娘名',
+        value: 'name',
+        sortable: false,
+      },
+      {
+        text: 'Lv',
+        align: 'end',
+        value: 'level',
+      },
+      {
+        text: '耐久',
+        align: 'end',
+        value: 'hp',
+      },
+      {
+        text: '運',
+        align: 'end',
+        value: 'luck',
+      },
+      {
+        text: '運改修',
+        align: 'end',
+        value: 'impLuck',
+      },
+      {
+        text: '対潜',
+        align: 'end',
+        value: 'asw',
+      },
+      {
+        text: '索敵',
+        align: 'end',
+        value: 'scout',
+      },
+      {
+        text: '命中項',
+        align: 'end',
+        value: 'accuracy',
+      },
+      {
+        text: '回避項',
+        align: 'end',
+        value: 'avoid',
+      },
+      {
+        text: 'CI項',
+        align: 'end',
+        value: 'ci',
+      },
+    ],
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipShip: new Ship(),
@@ -1043,10 +1039,6 @@ export default Vue.extend({
       if (this.selectedAllNationality) return 'mdi-close-box';
       if (this.selectedSomeNationality) return 'mdi-minus-box';
       return 'mdi-checkbox-blank-outline';
-    },
-    shipList(): ShipRowData[] {
-      const start = (this.page - 1) * 100;
-      return this.viewShips.slice(start, start + 100);
     },
     pageLength(): number {
       return Math.ceil(this.viewShips.length / 100);
@@ -1290,7 +1282,7 @@ export default Vue.extend({
             impLuck: 0,
             impAsw: 0,
             level: 0,
-            asw: -1,
+            asw: base.minAsw,
             scout: -1,
             accuracy: -1,
             avoid: -1,
@@ -1365,7 +1357,7 @@ export default Vue.extend({
       this.allCount = sumCount;
 
       // ソート
-      this.sortRowData(rowData);
+      rowData.sort((a, b) => a.ship.sort - b.ship.sort);
 
       // ページ数チェック
       const maxPage = Math.ceil(rowData.length / 100);
@@ -1412,10 +1404,6 @@ export default Vue.extend({
       }
 
       this.filter();
-    },
-    scrollTop() {
-      const page = document.getElementsByClassName('v-pagination')[0] as HTMLUListElement;
-      window.scrollTo(0, page.getBoundingClientRect().y + window.pageYOffset - 80);
     },
     changeVersion(index: number) {
       this.version = index;
@@ -1486,36 +1474,6 @@ export default Vue.extend({
       const deletedList = stockAll.filter((v) => v.uniqueId !== id);
       this.$store.dispatch('updateShipStock', deletedList);
       this.shipStock = deletedList;
-    },
-    toggleSortKey(key: string) {
-      if (this.sortKey !== key) {
-        // 初回 降順
-        this.isDesc = true;
-        this.sortKey = key;
-      } else if (this.sortKey === key && this.isDesc) {
-        // 2回目 昇順
-        this.isDesc = false;
-      } else if (this.sortKey === key && !this.isDesc) {
-        // 3回目 ソート解除
-        this.sortKey = '';
-      }
-      this.sortRowData(this.viewShips);
-    },
-    sortRowData(rowData: ShipRowData[]) {
-      const { isDesc } = this;
-      const key = this.sortKey;
-      if (this.sortKey) {
-        (rowData as unknown as { [key: string]: number }[]).sort(
-          (a: { [key: string]: number }, b: { [key: string]: number }) => (isDesc ? -1 : 1) * (a[key] - b[key]),
-        );
-      } else {
-        rowData.sort((a, b) => {
-          if (a.ship.originalId !== b.ship.originalId) {
-            return a.ship.sort - b.ship.sort;
-          }
-          return b.ship.version - a.ship.version;
-        });
-      }
     },
     changeViewMode(modeTable: boolean) {
       this.modeTable = modeTable;
