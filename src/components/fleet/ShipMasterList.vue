@@ -9,7 +9,7 @@
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="blue lighten-1" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="primary" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
@@ -17,7 +17,7 @@
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="blue lighten-1" v-if="tankOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="primary" v-if="tankOK">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>

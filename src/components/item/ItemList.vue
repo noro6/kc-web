@@ -46,7 +46,7 @@
       </div>
       <div class="ml-3 d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
         <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="blue lighten-1" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
