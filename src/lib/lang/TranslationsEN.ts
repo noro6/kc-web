@@ -440,7 +440,7 @@ export default {
       '低速統一': 'Slow Only',
       '艦隊': ' Fleet',
       '札あり': 'Tag applied',
-      '補強増設あり': 'Ex Slot open',
+      '補強増設': 'Ex Slot',
       '在籍艦娘反映': 'Reflect ships data',
       '搭載': 'Slot ',
       'コンバート改造': 'Convert',

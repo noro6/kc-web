@@ -48,9 +48,18 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')"></v-checkbox>
       </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="includeFast" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速')"></v-checkbox>
+      </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')"></v-checkbox>
+      </div>
+      <div class="mr-3 align-self-center">
+        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
+      </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="blue lighten-1" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="primary" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
@@ -58,23 +67,19 @@
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="blue lighten-1" v-if="tankOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="primary" v-if="tankOK">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
         <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
       </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
-      </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeFast" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速')"></v-checkbox>
-      </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')"></v-checkbox>
-      </div>
-      <div class="mr-3 align-self-center" v-if="isStockOnly">
-        <v-checkbox v-model="isReleaseExSlotOnly" @click="filter()" dense hide-details :label="$t('Fleet.補強増設あり')"></v-checkbox>
+      <div class="mr-3 d-flex manual-checkbox text" v-if="isStockOnly">
+        <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="primary" v-if="isReleaseExSlotOnly">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="isNotReleaseExSlotOnly">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
       </div>
       <div class="mr-3 align-self-center" v-if="shipStock.length">
         <v-checkbox
@@ -403,6 +408,19 @@
   left: 32px;
   top: -1px;
 }
+.manual-checkbox.text {
+  width: 100px;
+  cursor: pointer;
+}
+.manual-checkbox .label {
+  user-select: none;
+  position: absolute;
+  font-size: 0.85em;
+  opacity: 0.7;
+  left: 32px;
+  bottom: 1px;
+  margin-left: 4px;
+}
 </style>
 
 <script lang="ts">
@@ -453,7 +471,7 @@ export default Vue.extend({
   },
   data: () => ({
     all: [] as ShipMaster[],
-    ships: [] as { typeName: string; ships: ViewShip[] }[],
+    ships: [] as { typeName: string; ships: ViewShip[]; needOrOver: boolean }[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
     isFinalOnly: true,
@@ -493,6 +511,7 @@ export default Vue.extend({
     includeFast: true,
     includeSlow: true,
     isReleaseExSlotOnly: false,
+    isNotReleaseExSlotOnly: false,
     maxAreas: 0,
     disabledStockOnlyChange: false,
     enabledTooltip: false,
@@ -528,7 +547,7 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     displayLuck(): boolean {
-      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck' || this.sortKey === 'range';
+      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck' || this.sortKey === 'range' || this.sortKey === 'luckRemodel';
     },
     selectedSortText(): string {
       if (this.sortKey) {
@@ -579,6 +598,17 @@ export default Vue.extend({
         this.tankNG = false;
       } else {
         this.tankOK = true;
+      }
+      this.filter();
+    },
+    toggleExSlotFilter() {
+      if (this.isReleaseExSlotOnly) {
+        this.isReleaseExSlotOnly = false;
+        this.isNotReleaseExSlotOnly = true;
+      } else if (this.isNotReleaseExSlotOnly) {
+        this.isNotReleaseExSlotOnly = false;
+      } else {
+        this.isReleaseExSlotOnly = true;
       }
       this.filter();
     },
@@ -712,6 +742,8 @@ export default Vue.extend({
             // 補強増設開放済み検索
             if (this.isReleaseExSlotOnly && !viewShip.expanded) {
               continue;
+            } else if (this.isNotReleaseExSlotOnly && viewShip.expanded) {
+              continue;
             }
             // 札付き検索
             if (this.hasAreaOnly && viewShip.area <= 0) {
@@ -787,7 +819,7 @@ export default Vue.extend({
             // 母港ソート
             ships.sort((a, b) => a.ship.sort - b.ship.sort);
             // 存在する艦型を生成
-            resultShips.push({ typeName: type.name, ships });
+            resultShips.push({ typeName: type.name, ships, needOrOver: false });
           }
         }
       } else {
@@ -839,7 +871,7 @@ export default Vue.extend({
             const ships = viewShips.filter((v) => v.sortValue === i);
             if (ships.length) {
               const typeName = i ? `+${i}` : '0';
-              resultShips.push({ typeName, ships });
+              resultShips.push({ typeName, ships, needOrOver: false });
             }
           }
         } else if (key === 'range') {
