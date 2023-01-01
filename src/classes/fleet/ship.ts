@@ -1346,7 +1346,7 @@ export default class Ship implements ShipBase {
   public getAswArmorDeBuff(): number {
     const items = this.items.concat(this.exItem);
     // 爆雷と一部装備
-    const targets = [226, 227, 377, 378, 439, 472];
+    const targets = [226, 227, 377, 378, 439, 472, 488];
     let sumCorr = 0;
 
     const isDE = this.data.type === SHIP_TYPE.DE;

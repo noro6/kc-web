@@ -373,6 +373,10 @@
                 </tr>
               </template>
             </v-data-table>
+            <v-divider></v-divider>
+            <div class="mt-2">
+              <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength"></v-pagination>
+            </div>
           </div>
           <template v-else>
             <div class="d-flex flex-wrap">
@@ -1244,7 +1248,7 @@ export default Vue.extend({
         }
 
         // 国籍で絞る
-        if (forbiddenNationalities.includes(base.type2) || (withoutJapan && Const.isJPN(base.type2))) continue;
+        if (forbiddenNationalities.includes(base.type2) || (withoutJapan && Const.JPN.includes(base.type2))) continue;
 
         // 在籍艦娘のなかから versions に含まれる艦娘を抽出
         const versionsIds = versions.map((v) => v.id);

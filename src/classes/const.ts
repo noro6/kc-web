@@ -173,7 +173,7 @@ export default class Const {
 
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
-  public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439];
+  public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439, 488];
 
   public static readonly SPECIAL_GROUP: { key: string, text: string, items: number[] }[] = [
     // { key: '55-3', text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254] },
@@ -514,6 +514,8 @@ export default class Const {
     { text: '補助艦艇', types: [15, 16, 17, 19, 20, 22] },
   ];
 
+  public static readonly JPN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54, 56, 59, 60, 62, 66, 71, 72, 74, 75, 76, 77, 85, 86, 90, 94, 97, 100, 101, 103, 104, 109, 111, 115, 117];
+
   public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116, 118];
 
   public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
@@ -531,26 +533,6 @@ export default class Const {
   public static readonly AUS = [96];
 
   public static readonly NLD = [98];
-
-  /**
-   * 日本艦かどうか判定
-   * @static
-   * @param {number} type
-   * @returns {boolean}
-   * @memberof Const
-   */
-  public static isJPN(type: number): boolean {
-    let others = Const.USA.concat();
-    others = others.concat(Const.ITA);
-    others = others.concat(Const.GBR);
-    others = others.concat(Const.DEU);
-    others = others.concat(Const.FRA);
-    others = others.concat(Const.RUS);
-    others = others.concat(Const.SWE);
-    others = others.concat(Const.AUS);
-    others = others.concat(Const.NLD);
-    return !others.includes(type);
-  }
 
   /**
    * 陣形一覧

@@ -862,11 +862,11 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2 },
-          shipId: [149],
+          shipId: [149, 591],
         },
         {
           bonus: { firePower: 1 },
-          shipId: [150, 152],
+          shipId: [150, 152, 592],
         },
         {
           bonus: { firePower: 2, antiAir: 1, avoid: 2 },
@@ -1897,11 +1897,11 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, antiAir: 1 },
-          shipId: [149],
+          shipId: [149, 591],
         },
         {
           bonus: { firePower: 1 },
-          shipId: [150, 152],
+          shipId: [150, 152, 592],
         },
         {
           bonus: { firePower: 2, antiAir: 2, avoid: 2 },
@@ -1909,9 +1909,79 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, avoid: 2 },
-          shipId: [149, 151],
+          shipId: [149, 151, 591],
           requiresSR: 1,
           num: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [151],
+          remodel: 1,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [151],
+          remodel: 3,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [151],
+          remodel: 5,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [151],
+          remodel: 7,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [151],
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [151],
+          remodel: 9,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [151],
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [591],
+          remodel: 4,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [591],
+          remodel: 6,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [591],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [591],
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [149, 150, 152, 592],
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [149, 150, 152, 592],
+          remodel: 9,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [149, 150, 152, 592],
+          remodel: 10,
         },
       ],
     },
@@ -5913,6 +5983,82 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, accuracy: 1 },
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [488],
+      bonuses: [
+        {
+          bonus: { asw: 1, avoid: 1 },
+          shipType: [2],
+          shipCountry: Const.JPN,
+        },
+        {
+          bonus: { asw: 1, avoid: 1 },
+          shipClass: [74, 77, 85, 104, 117],
+        },
+        {
+          bonus: { asw: 5, avoid: 4, accuracy: 2 },
+          shipId: [145],
+        },
+        {
+          bonus: { asw: 2, avoid: 1, accuracy: 1 },
+          shipId: [228, 243, 557, 558, 651, 656],
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [43, 235, 407, 411, 412, 419, 537, 538, 663, 668],
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [145],
+          remodel: 3,
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [145],
+          remodel: 5,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [145],
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [145],
+          remodel: 8,
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [145],
+          remodel: 9,
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [145],
+          remodel: 10,
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [228, 243, 557, 558, 651, 656, 43, 235, 407, 411, 412, 419, 537, 538, 663, 668],
+          remodel: 5,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipId: [228, 243, 557, 558, 651, 656, 43, 235, 407, 411, 412, 419, 537, 538, 663, 668],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [228, 243, 557, 558, 651, 656, 43, 235, 407, 411, 412, 419, 537, 538, 663, 668],
+          remodel: 9,
+        },
+        {
+          bonus: { asw: 1 },
+          shipId: [228, 243, 557, 558, 651, 656, 43, 235, 407, 411, 412, 419, 537, 538, 663, 668],
           remodel: 10,
         },
       ],
