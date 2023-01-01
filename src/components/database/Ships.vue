@@ -33,9 +33,30 @@
                 <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')"></v-checkbox>
                 <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="isDaihatsu" @change="filter" :label="$t('Fleet.大発搭載可')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="isKamisha" @change="filter" :label="$t('Fleet.内火艇搭載可')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="onlyReleaseExSlot" @change="filter" :label="$t('Database.補強増設開放済')"></v-checkbox>
+                <div class="mx-3 d-flex manual-checkbox">
+                  <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
+                    <v-icon class="manual-icon" color="primary" v-if="isDaihatsu">mdi-checkbox-marked</v-icon>
+                    <v-icon class="manual-icon" color="error" v-else-if="isNotDaihatsu">mdi-close-box</v-icon>
+                    <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+                  </v-btn>
+                  <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
+                </div>
+                <div class="mx-3 d-flex manual-checkbox">
+                  <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
+                    <v-icon class="manual-icon" color="primary" v-if="isKamisha">mdi-checkbox-marked</v-icon>
+                    <v-icon class="manual-icon" color="error" v-else-if="isNotKamisha">mdi-close-box</v-icon>
+                    <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+                  </v-btn>
+                  <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+                </div>
+                <div class="mx-2 d-flex manual-checkbox text">
+                  <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
+                    <v-icon class="manual-icon" color="primary" v-if="onlyReleaseExSlot">mdi-checkbox-marked</v-icon>
+                    <v-icon class="manual-icon" color="error" v-else-if="withoutReleaseExSlot">mdi-close-box</v-icon>
+                    <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+                  </v-btn>
+                  <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
+                </div>
               </div>
               <div class="range-inputs">
                 <div class="d-flex py-5">
@@ -826,6 +847,38 @@
   width: 24px;
   height: 24px;
 }
+
+.manual-checkbox {
+  position: relative;
+  height: 32px;
+  width: 74px;
+  cursor: pointer;
+}
+.manual-checkbox-button {
+  position: absolute;
+  bottom: -6px;
+}
+.manual-icon {
+  font-size: 20px !important;
+}
+.manual-checkbox img {
+  position: absolute;
+  left: 32px;
+  top: -1px;
+}
+.manual-checkbox.text {
+  width: 100px;
+  cursor: pointer;
+}
+.manual-checkbox .label {
+  user-select: none;
+  position: absolute;
+  font-size: 0.85em;
+  opacity: 0.7;
+  left: 32px;
+  bottom: 1px;
+  margin-left: 4px;
+}
 </style>
 
 <script lang="ts">
@@ -890,9 +943,12 @@ export default Vue.extend({
     onlyStock: false,
     onlyNoStock: false,
     onlyReleaseExSlot: false,
+    withoutReleaseExSlot: false,
     is4n: false,
     isDaihatsu: false,
+    isNotDaihatsu: false,
     isKamisha: false,
+    isNotKamisha: false,
     luckRange: [1, 200],
     levelRange: [1, 175],
     luckImpRange: [0, 100],
@@ -1201,6 +1257,39 @@ export default Vue.extend({
       }
       this.masterFilter();
     },
+    toggleDaihatsuFilter() {
+      if (this.isDaihatsu) {
+        this.isDaihatsu = false;
+        this.isNotDaihatsu = true;
+      } else if (this.isNotDaihatsu) {
+        this.isNotDaihatsu = false;
+      } else {
+        this.isDaihatsu = true;
+      }
+      this.filter();
+    },
+    toggleTankFilter() {
+      if (this.isKamisha) {
+        this.isKamisha = false;
+        this.isNotKamisha = true;
+      } else if (this.isNotKamisha) {
+        this.isNotKamisha = false;
+      } else {
+        this.isKamisha = true;
+      }
+      this.filter();
+    },
+    toggleExSlotFilter() {
+      if (this.onlyReleaseExSlot) {
+        this.onlyReleaseExSlot = false;
+        this.withoutReleaseExSlot = true;
+      } else if (this.withoutReleaseExSlot) {
+        this.withoutReleaseExSlot = false;
+      } else {
+        this.onlyReleaseExSlot = true;
+      }
+      this.filter();
+    },
     filter() {
       const masters = this.filteredShips;
       const stock = this.shipStock;
@@ -1267,8 +1356,10 @@ export default Vue.extend({
           if (this.is4n && base.hp % 4 > 0) continue;
           // 大発OKで絞る
           if (this.isDaihatsu && !this.okDaihatsu.includes(base.id)) continue;
+          if (this.isNotDaihatsu && this.okDaihatsu.includes(base.id)) continue;
           // カミ車OKで絞る
           if (this.isKamisha && !this.okKamisha.includes(base.id)) continue;
+          if (this.isNotKamisha && this.okKamisha.includes(base.id)) continue;
           // 補強増設開放で絞る
           if (this.onlyReleaseExSlot) continue;
           // 出撃海域で絞る
@@ -1319,14 +1410,16 @@ export default Vue.extend({
             if (this.is4n && hp % 4 > 0) continue;
             // 大発OKで絞る
             if (this.isDaihatsu && !this.okDaihatsu.includes(master.id)) continue;
+            if (this.isNotDaihatsu && this.okDaihatsu.includes(master.id)) continue;
             // カミ車OKで絞る
             if (this.isKamisha && !this.okKamisha.includes(master.id)) continue;
+            if (this.isNotKamisha && this.okKamisha.includes(master.id)) continue;
             // 補強増設開放で絞る
             if (this.onlyReleaseExSlot && !stockData.releaseExpand) continue;
+            if (this.withoutReleaseExSlot && stockData.releaseExpand) continue;
             // 出撃海域で絞る
             if (!this.visibleNoArea && stockData.area < 1) continue;
             if (this.selectedArea.length && !this.selectedArea.includes(stockData.area)) continue;
-
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
             pushedData.push({
               count: 1,
