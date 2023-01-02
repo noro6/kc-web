@@ -74,8 +74,8 @@
         </div>
         <v-text-field
           type="number"
-          min="0"
-          max="999"
+          min="-99"
+          max="0"
           v-model.number="armorDeBuff"
           :label="$t('Common.装甲減少')"
           outlined
