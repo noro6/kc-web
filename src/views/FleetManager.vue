@@ -143,7 +143,7 @@
               </div>
               <div class="tutorial_img">
                 <a :href="`./img/tutorial/step5-2.webp`" target="_blank">
-                <span class="d-none">step5-2</span>
+                  <span class="d-none">step5-2</span>
                   <v-img :src="`./img/tutorial/step5-2.webp`" max-height="900" max-width="1300" />
                 </a>
               </div>
@@ -241,7 +241,7 @@
               </div>
               <div class="tutorial_img">
                 <a :href="`./img/tutorial/step9-2.webp`" target="_blank">
-                <span class="d-none">step9-2</span>
+                  <span class="d-none">step9-2</span>
                   <v-img :src="`./img/tutorial/step9-2.webp`" max-height="900" max-width="1300" />
                 </a>
               </div>

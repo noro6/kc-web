@@ -74,6 +74,8 @@
         <template v-slot:[`header.accuracy`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.avoid`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.armor`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+        <template v-slot:[`header.interception`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+        <template v-slot:[`header.antiBomber`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.radius`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.range`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`item.iconTypeId`]="{ item }">
@@ -297,6 +299,18 @@ export default Vue.extend({
         filterable: false,
         align: 'end',
         value: 'armor',
+      },
+      {
+        text: '迎撃',
+        filterable: false,
+        align: 'end',
+        value: 'interception',
+      },
+      {
+        text: '対爆',
+        filterable: false,
+        align: 'end',
+        value: 'antiBomber',
       },
       {
         text: '半径',

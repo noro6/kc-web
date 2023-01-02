@@ -896,8 +896,9 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
 import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
-import { MasterEquipmentShip } from '@/classes/interfaces/master';
 import Convert from '@/classes/convert';
+import ItemMaster from '@/classes/item/itemMaster';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 interface ShipRowData {
   count: number;
@@ -1209,23 +1210,18 @@ export default Vue.extend({
         this.onlyStock = true;
       }
 
-      for (let i = 0; i < this.all.length; i += 1) {
-        const { id, type } = this.all[i];
-        const link = this.$store.state.equipShips as MasterEquipmentShip[];
-        const itemLink = link.find((v) => v.api_ship_id === id);
-        const baseItemLink = Const.SHIP_TYPES_INFO.find((v) => v.id === type);
-        // 大発チェック
-        if (itemLink && itemLink.api_equip_type.includes(24)) {
-          this.okDaihatsu.push(id);
-        } else if (baseItemLink && baseItemLink.itemType.includes(24)) {
-          this.okDaihatsu.push(id);
-        }
+      const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68) as ItemMaster;
+      const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167) as ItemMaster;
 
+      for (let i = 0; i < this.all.length; i += 1) {
+        const ship = this.all[i];
+        // 大発チェック
+        if (ShipValidation.isValidItem(ship, daihatsu)) {
+          this.okDaihatsu.push(ship.id);
+        }
         // カミ車チェック
-        if (itemLink && itemLink.api_equip_type.includes(46)) {
-          this.okKamisha.push(id);
-        } else if (baseItemLink && baseItemLink.itemType.includes(46)) {
-          this.okKamisha.push(id);
+        if (ShipValidation.isValidItem(ship, tank)) {
+          this.okKamisha.push(ship.id);
         }
       }
 
