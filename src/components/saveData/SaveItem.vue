@@ -36,6 +36,14 @@
         </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
+            <v-btn v-if="value.isDirectory" icon small @click.stop="sortConfirmDialog = true" v-bind="attrs" v-on="on">
+              <v-icon small>mdi-sort</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("SaveData.名前順でソート") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
             <v-btn v-if="!value.isUnsaved" icon small @click.stop="showEditDialog" :disabled="value.isReadonly" v-bind="attrs" v-on="on">
               <v-icon small>mdi-file-document-edit-outline</v-icon>
             </v-btn>
@@ -75,6 +83,18 @@
         <div class="d-flex">
           <v-btn class="ml-auto" color="red" dark @click.stop="deleteData">{{ $t("Common.削除") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="sortConfirmDialog" transition="scroll-x-transition" width="360">
+      <v-card class="pa-3">
+        <div class="ma-4 body-2">
+          <span>{{ $t("SaveData.このフォルダー内の全データ、フォルダーを名前順にソートします。") }}</span>
+        </div>
+        <v-divider class="my-2"></v-divider>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="primary" dark @click.stop="autoSortDirectory">{{ $t("Common.OK") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="sortConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -245,6 +265,7 @@ export default Vue.extend({
   data: () => ({
     editDialog: false,
     deleteConfirmDialog: false,
+    sortConfirmDialog: false,
     editedName: '',
     editedRemarks: '',
     selectedColor: '',
@@ -364,6 +385,11 @@ export default Vue.extend({
       this.value.editedDate = Date.now();
       this.value.color = this.selectedColor;
       this.handleUpdateSaveData();
+    },
+    autoSortDirectory() {
+      this.value.nameSortChild();
+      this.handleUpdateSaveData();
+      this.sortConfirmDialog = false;
     },
     dragStart(e: DragEvent) {
       this.clearTooltip();

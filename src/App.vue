@@ -843,7 +843,7 @@ export default Vue.extend({
           informText.push('編成の読み込み');
         }
         if (informText.length) {
-          this.inform(`URL fragmentより、${informText.join(', ')}が実行されました。`);
+          this.inform('URL fragmentsよりデータを読み込みました。');
         }
         // 処理完了後除去
         this.urlFragments = {};

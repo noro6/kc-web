@@ -290,6 +290,7 @@ export default {
       'コピーされました。': 'Copied.',
       '更新が完了しました。': 'Update completed.',
       '編成を展開しました。': 'Deployed.',
+      'URL fragmentsよりデータを読み込みました。': 'Data was read from URL fragments.',
     },
     SaveData: {
       '新しい編成を作成': 'New File',
@@ -300,6 +301,8 @@ export default {
       'サイドバー固定解除': 'Release sidebar fixation',
       '複製して開く': 'Duplicate and open',
       '情報を変更': 'Edit information',
+      '名前順でソート': 'Sort by name',
+      'このフォルダー内の全データ、フォルダーを名前順にソートします。': 'Sort all data and folders in this folder by name.',
       '本当にこのフォルダーを削除しますか？': 'Are you sure you want to delete this folder?',
       '本当にこのデータを削除しますか？': 'Are you sure you want to delete this file?',
       'フォルダー内の全データ、フォルダーが削除されます。': 'All files and folders in the folder will be deleted.',

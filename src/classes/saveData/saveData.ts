@@ -404,6 +404,30 @@ export default class SaveData {
    * 再帰呼び出し
    * @memberof SaveData
    */
+  public nameSortChild(): void {
+    if (this.name !== 'root' && this.isDirectory) {
+      this.childItems.sort((a, b) => {
+        if (a.isDirectory && !b.isDirectory) return -1;
+        if (!a.isDirectory && b.isDirectory) return 1;
+        const sa = String(a.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
+        const sb = String(b.name).replace(/(\d+)/g, (m) => m.padStart(30, '0'));
+        if (sa < sb) return -1;
+        return sa > sb ? 1 : 0;
+      });
+
+      for (let i = 0; i < this.childItems.length; i += 1) {
+        this.childItems[i].order = i * 10;
+        this.childItems[i].nameSortChild();
+      }
+    }
+  }
+
+  /**
+   * 子要素をソートする
+   * また、orderを、インデックスの10の倍数に設定
+   * 再帰呼び出し
+   * @memberof SaveData
+   */
   public sortChild(): void {
     if (this.name !== 'root' && this.isDirectory) {
       this.childItems.sort((a, b) => a.order - b.order);

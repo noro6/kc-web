@@ -196,6 +196,7 @@ export default Vue.extend({
       this.editedName = '';
     },
     addNewSaveData(saveData: SaveData) {
+      saveData.order = 999999;
       const data = this.rootData.childItems;
       for (let i = 0; i < data.length; i += 1) {
         if (data[i].addNewFileToSelectedData(saveData)) {
@@ -213,7 +214,6 @@ export default Vue.extend({
           saveData.name = folder.getNewSaveDataName();
           saveData.name = saveData.name.replace('新規データ', `${this.$t('SaveData.新規データ')} `);
         }
-        saveData.order = 999999;
         folder.isOpen = true;
         folder.childItems.push(saveData);
         folder.sortChild();
