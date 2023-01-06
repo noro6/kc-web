@@ -44,6 +44,14 @@
       <div class="align-self-center my-3">
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')"></v-checkbox>
       </div>
+      <div class="ml-3 d-flex manual-checkbox" v-if="!isAirbaseMode">
+        <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()" tabindex="0">{{ $t("ItemList.射程増加") }}</span>
+      </div>
       <div class="ml-3 d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
         <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
           <v-icon class="manual-icon" color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
@@ -657,6 +665,8 @@ export default Vue.extend({
     includeDepthChargeLauncher: true,
     onlyEnabledLandBaseAttack: false,
     onlyDisabledLandBaseAttack: false,
+    onlyAffectingRange: false,
+    onlyNotAffectingRange: false,
     isSpecialOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
@@ -1054,6 +1064,17 @@ export default Vue.extend({
       }
       this.filter();
     },
+    toggleAffectingRangeFilter() {
+      if (this.onlyAffectingRange) {
+        this.onlyAffectingRange = false;
+        this.onlyNotAffectingRange = true;
+      } else if (this.onlyNotAffectingRange) {
+        this.onlyNotAffectingRange = false;
+      } else {
+        this.onlyAffectingRange = true;
+      }
+      this.filter();
+    },
     toggleLandBaseAttackFilter() {
       if (this.onlyEnabledLandBaseAttack) {
         this.onlyEnabledLandBaseAttack = false;
@@ -1266,6 +1287,14 @@ export default Vue.extend({
             item.sumBonus = sumBonus;
             item.bonus = totalBonus;
           }
+        }
+
+        // 射程変化フィルタ
+        const currentRange = this.itemParent.displayStatus.range;
+        if (this.onlyAffectingRange) {
+          this.viewItems = this.viewItems.filter((v) => v.bonus.range || currentRange < v.item.data.range);
+        } else if (this.onlyNotAffectingRange) {
+          this.viewItems = this.viewItems.filter((v) => !v.bonus.range && currentRange >= v.item.data.range);
         }
       }
 
