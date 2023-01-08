@@ -573,6 +573,9 @@ export default Vue.extend({
     enabledConvert(): boolean {
       const ships = this.$store.state.ships as ShipMaster[];
       const master = this.value.data;
+      if (master.name === '宗谷') {
+        return true;
+      }
       return this.value.data.isFinal && ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).length >= 2;
     },
     maxAreas(): number {
@@ -672,7 +675,10 @@ export default Vue.extend({
       const ships = this.$store.state.ships as ShipMaster[];
       const master = this.value.data;
       // コンバート候補取得
-      const versions = ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).sort((a, b) => a.version - b.version);
+      let versions = ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).sort((a, b) => a.version - b.version);
+      if (master.name === '宗谷') {
+        versions = ships.filter((v) => v.name === '宗谷');
+      }
       // 現在のver
       const index = versions.findIndex((v) => v.id === master.id);
       let newVersion: ShipMaster;
