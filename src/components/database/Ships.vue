@@ -268,12 +268,12 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
-        <v-card class="ship-list-body mt-3 pa-4">
-          <div v-if="!viewShips.length" class="text-center my-10">
+        <div>
+          <v-card v-if="!viewShips.length" class="text-center my-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
-          </div>
-          <div v-else class="d-flex">
-            <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength"></v-pagination>
+          </v-card>
+          <div class="d-flex mt-3" v-else>
+            <v-pagination v-if="modeTable" v-model="page" :length="pageLength"></v-pagination>
             <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
               <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
                 <v-icon>mdi-view-headline</v-icon>
@@ -285,7 +285,7 @@
               </v-btn>
             </v-btn-toggle>
           </div>
-          <div class="ship-table" v-if="modeTable && viewShips.length">
+          <v-card class="ship-table mt-3 pa-2" v-if="modeTable && viewShips.length">
             <v-divider></v-divider>
             <v-data-table
               fixed-header
@@ -394,12 +394,8 @@
                 </tr>
               </template>
             </v-data-table>
-            <v-divider></v-divider>
-            <div class="mt-2">
-              <v-pagination v-if="modeTable && viewShips.length" v-model="page" :length="pageLength"></v-pagination>
-            </div>
-          </div>
-          <template v-else>
+          </v-card>
+          <div v-else-if="viewShips.length" class="mt-3">
             <div class="d-flex flex-wrap">
               <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container">
                 <div class="ma-2">{{ getShipTypeName(typeData.typeName) }}</div>
@@ -478,8 +474,11 @@
                 </div>
               </div>
             </div>
-          </template>
-        </v-card>
+          </div>
+          <div class="mt-2" v-if="modeTable && viewShips.length">
+            <v-pagination v-model="page" :length="pageLength"></v-pagination>
+          </div>
+        </div>
       </v-tab-item>
       <v-tab-item value="group">
         <area-manager :readonly="readOnly" />
@@ -790,6 +789,7 @@
   padding: 0.25rem;
   border-radius: 0.25rem;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  background-color: #fff;
 }
 .theme--dark .type-container {
   background-color: rgba(128, 128, 128, 0.1);

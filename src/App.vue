@@ -1672,7 +1672,7 @@ export default Vue.extend({
   background-color: rgb(30, 38, 60) !important;
 }
 /** ダークテーマ ボタン背景範囲 */
-.theme--dark .v-btn-toggle {
+.v-btn-toggle {
   background: none !important;
 }
 
