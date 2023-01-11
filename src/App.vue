@@ -598,6 +598,7 @@ export default Vue.extend({
     editedRemarks: '',
     isDirectory: false,
     selectedColor: '',
+    saveDataOrder: 0,
     shareDialog: false,
     urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
     urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[]; saveData?: string },
@@ -1060,6 +1061,11 @@ export default Vue.extend({
         this.editedRemarks = data.remarks;
         this.isDirectory = data.isDirectory;
         this.selectedColor = data.color;
+        if (data.isUnsaved) {
+          this.saveDataOrder = 999999;
+        } else {
+          this.saveDataOrder = data.order + 1;
+        }
         this.saveDialogTab = 'save';
         this.disabledUpload = data.isDirectory;
         this.editDialog = true;
@@ -1089,6 +1095,10 @@ export default Vue.extend({
           newData.name = this.editedName;
           newData.remarks = this.editedRemarks;
           newData.color = this.selectedColor;
+          if (this.saveDataOrder) {
+            newData.order = this.saveDataOrder;
+          }
+          this.saveDataOrder = 0;
           newData.editedDate = Date.now();
           newData.isUnsaved = false;
           newData.saveManagerData();
