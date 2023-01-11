@@ -23,6 +23,7 @@
               :class="{ selected: i === selectedIndex }"
               v-ripple="{ class: 'info--text' }"
               @click="clickedPreset(i)"
+              @dblclick="expandPreset()"
               @keypress.enter="clickedPreset(i)"
               tabindex="0"
             >
