@@ -181,6 +181,12 @@ export default class Ship implements ShipBase {
   /** 夜偵発動率 */
   public readonly nightContactRate: number;
 
+  /** 夜襲 熟練甲板要員火力ボーナス */
+  public readonly nightAttackCrewFireBonus: number;
+
+  /** 夜襲 熟練甲板要員雷装ボーナス */
+  public readonly nightAttackCrewTorpedoBonus: number;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -266,6 +272,8 @@ export default class Ship implements ShipBase {
     this.enabledASWSupport = false;
     this.sumSPRos = 0;
     this.nightBattleFirePower = 0;
+    this.nightAttackCrewFireBonus = 0;
+    this.nightAttackCrewTorpedoBonus = 0;
     this.fuel = Math.max(this.level > 99 ? Math.floor(this.data.fuel * 0.85) : this.data.fuel, 1);
     this.ammo = Math.max(this.level > 99 ? Math.floor(this.data.ammo * 0.85) : this.data.ammo, 1);
 
@@ -328,6 +336,14 @@ export default class Ship implements ShipBase {
       // 搭乗員爆装ボーナスを取得
       if (bonus.bomber && crewBomberBonus < bonus.bomber) {
         crewBomberBonus = bonus.bomber;
+      }
+      // 搭乗員夜襲ボーナスを加算
+      if (bonus.torpedo) {
+        this.nightAttackCrewTorpedoBonus += bonus.torpedo;
+      }
+      // 搭乗員夜襲ボーナスを加算
+      if (bonus.firePower) {
+        this.nightAttackCrewFireBonus += bonus.firePower;
       }
     }
 

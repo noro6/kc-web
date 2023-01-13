@@ -113,6 +113,9 @@ export default class ItemMaster {
   /** 雷装による攻撃を行うかどうか => 現行では火力計算で0.8倍1.5倍が発生するのに使う */
   public readonly isTorpedoAttacker: boolean;
 
+  /** 夜間航空機 */
+  public readonly isNightAircraftItem: boolean;
+
   /** 水上機かどうか */
   public readonly isSPPlane: boolean;
 
@@ -211,5 +214,7 @@ export default class ItemMaster {
       const bonus = bonuses[i];
       this.bonuses.push({ key: bonus.key, text: bonus.text });
     }
+
+    this.isNightAircraftItem = this.iconTypeId === 45 || this.iconTypeId === 46 || [154, 242, 243, 244, 320].includes(this.id);
   }
 }

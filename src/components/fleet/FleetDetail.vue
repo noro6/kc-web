@@ -12,6 +12,7 @@
       <v-tab href="#status">{{ $t("Fleet.艦隊ステータス") }}</v-tab>
       <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
       <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
+      <v-tab href="#aircraft-night-attack-power">{{ $t("Fleet.夜間航空攻撃") }}</v-tab>
       <v-tab href="#airstrike">{{ $t("Fleet.航空戦火力") }}</v-tab>
       <v-tab href="#airstrike-support">{{ $t("Fleet.航空支援火力") }}</v-tab>
       <v-tab href="#anti-submarine">{{ $t("Fleet.対潜支援火力") }}</v-tab>
@@ -26,6 +27,9 @@
       </v-tab-item>
       <v-tab-item value="contact">
         <contact-rates :fleet="fleet" ref="contactRates" />
+      </v-tab-item>
+      <v-tab-item value="aircraft-night-attack-power">
+        <aircraft-night-attack-power :fleet="fleet" />
       </v-tab-item>
       <v-tab-item value="airstrike">
         <airstrike-calculator-wrapper :fleet="fleet" />
@@ -62,6 +66,7 @@ import AntiAirCalculator from '@/components/result/AntiAirCalculator.vue';
 import AirstrikeSupport from '@/components/result/AirstrikeSupport.vue';
 import AntiSubmarineSupport from '@/components/result/AntiSubmarineSupport.vue';
 import AirstrikeCalculatorWrapper from '@/components/result/AirstrikeCalculatorWrapper.vue';
+import AircraftNightAttackPower from '@/components/result/AircraftNightAttackPower.vue';
 
 export default Vue.extend({
   name: 'FleetDetail',
@@ -72,6 +77,7 @@ export default Vue.extend({
     AntiAirCalculator,
     ContactRates,
     AirstrikeCalculatorWrapper,
+    AircraftNightAttackPower,
   },
   props: {
     fleet: {

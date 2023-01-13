@@ -389,6 +389,7 @@ export default {
       '艦隊情報': 'Information',
       '艦隊ステータス': 'Fleet Status',
       '対空砲火': 'Fleet Anti-Air Defense',
+      '夜間航空攻撃': 'Carrier Night Attack',
       '航空戦火力': 'Airstrike Damage',
       '対潜支援火力': 'ASW Support Damage',
       '航空支援火力': 'Airstrike Support Damage',
