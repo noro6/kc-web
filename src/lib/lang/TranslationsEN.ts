@@ -551,6 +551,7 @@ export default {
       '対潜支援火力計算機で確認してください': 'Please show ASW Support Damage Tab',
       '雷装補正': 'Torpedo Multiplier',
       '種別倍率': 'Type Multiplier',
+      'CI倍率': 'Cut-In Multiplier',
       '種別倍率(最小)': 'Type Multiplier (min)',
       '改修強化値': 'Improvement Bonus',
       '装備シナジーボーナス': 'Equipment Synergy Bonus',
@@ -607,6 +608,8 @@ export default {
       '-': '-',
       '二式陸偵': 'Type 2',
       '二式陸偵(熟練)': 'Type 2 (Skilled)',
+      '素火力': 'Ship FP',
+      '夜襲CI': 'Cut-In',
     },
     EnemyEdit: {
       '敵艦編集': 'Edit Abyssal',

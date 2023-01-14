@@ -184,8 +184,8 @@ export default class Ship implements ShipBase {
   /** 夜襲 熟練甲板要員火力ボーナス */
   public readonly nightAttackCrewFireBonus: number;
 
-  /** 夜襲 熟練甲板要員雷装ボーナス */
-  public readonly nightAttackCrewTorpedoBonus: number;
+  /** 夜襲 熟練甲板要員爆装ボーナス */
+  public readonly nightAttackCrewBomberBonus: number;
 
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
@@ -273,7 +273,7 @@ export default class Ship implements ShipBase {
     this.sumSPRos = 0;
     this.nightBattleFirePower = 0;
     this.nightAttackCrewFireBonus = 0;
-    this.nightAttackCrewTorpedoBonus = 0;
+    this.nightAttackCrewBomberBonus = 0;
     this.fuel = Math.max(this.level > 99 ? Math.floor(this.data.fuel * 0.85) : this.data.fuel, 1);
     this.ammo = Math.max(this.level > 99 ? Math.floor(this.data.ammo * 0.85) : this.data.ammo, 1);
 
@@ -337,11 +337,11 @@ export default class Ship implements ShipBase {
       if (bonus.bomber && crewBomberBonus < bonus.bomber) {
         crewBomberBonus = bonus.bomber;
       }
-      // 搭乗員夜襲ボーナスを加算
-      if (bonus.torpedo) {
-        this.nightAttackCrewTorpedoBonus += bonus.torpedo;
+      // 搭乗員夜襲(爆装)ボーナスを加算
+      if (bonus.bomber) {
+        this.nightAttackCrewBomberBonus += bonus.bomber;
       }
-      // 搭乗員夜襲ボーナスを加算
+      // 搭乗員夜襲(火力)ボーナスを加算
       if (bonus.firePower) {
         this.nightAttackCrewFireBonus += bonus.firePower;
       }
@@ -1229,9 +1229,9 @@ export default class Ship implements ShipBase {
    * @return {*}  {{ text: string, rate: number[] }[]}
    * @memberof Ship
    */
-  public getNightBattleSpecialAttackRate(isFlagship: boolean): { text: string, rate: number[] }[] {
+  public getNightBattleSpecialAttackRate(isFlagship: boolean): { text: string, rate: number[], multiplier?: number }[] {
     const items = this.items.concat(this.exItem);
-    const specialAttacks: { text: string, value: number }[] = [];
+    const specialAttacks: { text: string, value: number, multiplier?: number }[] = [];
 
     const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
     const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
@@ -1290,19 +1290,19 @@ export default class Ship implements ShipBase {
         const nightSuiseiCount = items.filter((v) => v.data.id === 320).length;
         const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id)).length;
         if (nightFighterCount >= 2 && nightAttackerCount) {
-          specialAttacks.push({ text: '夜襲CIA', value: 105 });
+          specialAttacks.push({ text: '夜襲CIA', value: 105, multiplier: 1.25 });
         }
         if (nightFighterCount && nightAttackerCount) {
-          specialAttacks.push({ text: '夜襲CIB', value: 120 });
+          specialAttacks.push({ text: '夜襲CIB', value: 120, multiplier: 1.20 });
         }
         if (nightFighterCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 120 });
+          specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
         } else if (nightAttackerCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 120 });
+          specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
         }
         if (nightFighterCount && nightPlaneCount >= 3) {
           if (nightFighterCount !== 2 || nightAttackerCount !== 1) {
-            specialAttacks.push({ text: '夜襲CIC', value: 130 });
+            specialAttacks.push({ text: '夜襲CIC', value: 130, multiplier: 1.18 });
           }
         }
       }
@@ -1349,7 +1349,7 @@ export default class Ship implements ShipBase {
       sumRates[2] -= rate[2];
       sumRates[3] -= rate[3];
 
-      results.push({ text: attack.text, rate });
+      results.push({ text: attack.text, rate, multiplier: attack.multiplier });
     }
 
     return results;

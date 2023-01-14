@@ -654,8 +654,13 @@ export default class AerialFirePowerCalculator {
    * @memberof AerialFirePowerCalculator
    */
   public static getAircraftNightAttackPrePower(ship: Ship, contactBonus = 0): number {
-    // 艦娘の素火力 + 熟練甲板ボーナス
-    let power = ship.data.fire + ship.nightAttackCrewFireBonus + ship.nightAttackCrewTorpedoBonus;
+    // 艦娘の素火力 + 熟練甲板ボーナス(火力青字 + 爆装青地)
+    let power = ship.data.fire + ship.nightAttackCrewFireBonus + ship.nightAttackCrewBomberBonus;
+    if (ship.itemBonusStatus.torpedo) {
+      // 雷装ボーナス
+      power += ship.itemBonusStatus.torpedo;
+    }
+
     for (let i = 0; i < ship.items.length; i += 1) {
       const item = ship.items[i];
       if (!item.data.isNightAircraftItem) {
