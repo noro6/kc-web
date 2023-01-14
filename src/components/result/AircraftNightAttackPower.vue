@@ -71,7 +71,7 @@
           :items="specials"
           v-model="special"
           hide-details
-          :item-text="(item) => `${$t(`Fleet.${item.text}`)}`"
+          :item-text="(item) => `${item.text ? $t(`Fleet.${item.text}`) : ''}`"
           dense
           return-object
           @change="calculate()"
@@ -80,8 +80,6 @@
           class="mt-3"
           type="number"
           v-model.number="manualAfterCapBonus"
-          v-bind="attrs"
-          v-on="on"
           min="0"
           max="9999"
           :label="$t('Result.特効')"
