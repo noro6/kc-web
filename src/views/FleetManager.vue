@@ -27,6 +27,12 @@
                 <div class="font-weight-bold">艦これサーバーへの不正なアクセスや、通常プレイ以外の方法でサーバーへの接続を試みるものではありません。</div>
               </v-alert>
             </v-card>
+            <v-card v-if="$i18n.locale === 'ja'" elevation="0">
+              <v-alert border="left" dense outlined type="info">
+                <div>以前の反映方法は主要ブラウザにおいてChromiumのアップデートにより使えなくなりました。</div>
+                <div>反映方法が面倒になった、以前の方法に戻してほしい等の要望については、申し訳ないですがどうしようもないですので我慢してください。</div>
+              </v-alert>
+            </v-card>
             <v-btn class="mt-3" :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
               <template v-if="showHowToDoIt"> <v-icon>mdi-close</v-icon>{{ $t("Database.反映手順を隠す") }}</template>
               <template v-else><v-icon>mdi-plus</v-icon>{{ $t("Database.反映手順を表示") }}</template>
@@ -120,13 +126,13 @@
                 aria-label="ship-code"
               />
             </div>
-            <v-card class="mt-6 copy_code" elevation="4">
+            <v-sheet class="copy_code" outlined rounded>
               <div>
                 copy(JSON.stringify(<span class="red--text">temp1</span>.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st':
                 v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}})<span v-if="!includeUnLockedShip">.filter(v=>v.locked)</span
                 >,['id','lv','st','exp','ex','area']))
               </div>
-            </v-card>
+            </v-sheet>
             <div v-if="showHowToDoIt" class="tutorial_img">
               <a :href="`./img/tutorial/step5.webp`" target="_blank">
                 <span class="d-none">step5</span>
@@ -217,14 +223,14 @@
                 aria-label="item-code"
               />
             </div>
-            <v-card class="copy_code" elevation="4">
+            <v-sheet class="copy_code" outlined rounded>
               <div>
                 copy(JSON.stringify(<span class="red--text">temp2</span>.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}})<span
                   v-if="!includeUnLockedItem"
                   >.filter(v=>v.locked)</span
                 >,['id','lv']))
               </div>
-            </v-card>
+            </v-sheet>
             <div v-if="showHowToDoIt" class="tutorial_img">
               <a :href="`./img/tutorial/step9.webp`" target="_blank">
                 <span class="d-none">step9</span>
@@ -403,15 +409,19 @@
   padding: 1.5rem;
 }
 .copy_code {
-  margin-top: 8px;
+  margin-top: 16px;
   margin-bottom: 16px;
   padding: 1rem;
   display: flex;
   min-height: 80px;
+  cursor: text;
+  align-items: center;
+  transition: 0.2s;
 }
-.copy_code > div {
-  align-self: center;
+.copy_code:hover {
+  border-color: #888 !important;
 }
+
 #ships-read-code,
 #item-read-code {
   margin-left: auto;
