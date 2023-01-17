@@ -338,6 +338,7 @@ import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import SiteSetting from '@/classes/siteSetting';
+import Airbase from '@/classes/airbase/airbase';
 
 export default Vue.extend({
   name: 'ItemInput',
@@ -497,6 +498,7 @@ export default Vue.extend({
       target.id = 'dragging-item';
       target.dataset.itemId = `${this.value.data.id}`;
       target.dataset.apiType = `${this.value.data.apiTypeId}`;
+      target.dataset.isPlane = `${this.value.data.isPlane ? 'true' : ''}`;
 
       // 一時的に全てのitem inputの子要素マウスイベントを消す
       const itemInputs = document.getElementsByClassName('item-input');
@@ -530,7 +532,10 @@ export default Vue.extend({
       const item = new ItemMaster();
       item.id = +draggingDiv.dataset.itemId;
       item.apiTypeId = +draggingDiv.dataset.apiType;
-      if (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index)) {
+      if (
+        (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index))
+        || (this.itemParent instanceof Airbase && !draggingDiv.dataset.isPlane)
+      ) {
         // 搭載不可なので背景色を変な色にする
         target.style.backgroundColor = 'rgba(255, 128, 128, 0.6)';
         // 毎回判定していたらダルいので2回目以降判定しないフラグ持たせておく
@@ -586,6 +591,9 @@ export default Vue.extend({
             builder.slot = this.value.fullSlot;
           }
         }
+        if (this.itemParent instanceof Airbase && builder.item && builder.item.fullSlot > this.max) {
+          builder.slot = this.max;
+        }
         this.setItem(new Item(builder));
       }
     },
@@ -615,6 +623,7 @@ export default Vue.extend({
       draggingDiv.id = '';
       delete draggingDiv.dataset.itemId;
       delete draggingDiv.dataset.apiType;
+      delete draggingDiv.dataset.isPlane;
 
       const builder: ItemBuilder = {};
       if (!this.dragSlot) {
@@ -633,6 +642,7 @@ export default Vue.extend({
             // 搭載不可なので外す
             builder.item = undefined;
             this.setItem(new Item(builder));
+            delete draggingDiv.dataset.item;
           } else {
             // 日進 & 大型飛行艇調整
             if (builder.item.data.apiTypeId === 41) {
@@ -645,7 +655,12 @@ export default Vue.extend({
             this.setItem(new Item(builder));
             delete draggingDiv.dataset.item;
           }
+        } else if (builder.item && builder.item.data.isPlane) {
+          this.setItem(new Item(builder));
+          delete draggingDiv.dataset.item;
         } else {
+          // 搭載不可なので外す
+          builder.item = undefined;
           this.setItem(new Item(builder));
           delete draggingDiv.dataset.item;
         }
