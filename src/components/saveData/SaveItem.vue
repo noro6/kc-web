@@ -77,6 +77,10 @@
             <span v-if="value.isDirectory">{{ $t("SaveData.本当にこのフォルダーを削除しますか？") }}</span>
             <span v-else>{{ $t("SaveData.本当にこのデータを削除しますか？") }}</span>
           </div>
+          <div class="mt-1">
+            <v-icon :color="value.color">{{ value.isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
+            <span class="ml-1">{{ value.name }}</span>
+          </div>
           <div v-if="value.isDirectory" class="caption mt-2">※ {{ $t("SaveData.フォルダー内の全データ、フォルダーが削除されます。") }}</div>
         </div>
         <v-divider class="my-2"></v-divider>
