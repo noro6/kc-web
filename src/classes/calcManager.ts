@@ -184,6 +184,8 @@ export default class CalcManager {
         // いろいろ記録
         item.slotResult += item.slot;
         item.deathRate += item.slot === 0 ? 1 : 0;
+        item.minSlot = item.slot < item.minSlot ? item.slot : item.minSlot;
+        item.maxSlot = item.slot > item.maxSlot ? item.slot : item.maxSlot;
         sumDownSlot += (item.fullSlot - item.slot);
         // 艦隊装備補給
         Item.supply(item);
@@ -228,6 +230,8 @@ export default class CalcManager {
       // いろいろ搭載数とか記録したやつを受け渡す
       mainItem.slotHistories = item.slotHistories.map((v) => Math.round(v / maxCount));
       mainItem.slotResult = Math.round(item.slotResult / maxCount);
+      mainItem.minSlot = item.minSlot;
+      mainItem.maxSlot = item.maxSlot;
       const deathRate = (100 * item.deathRate) / maxCount;
       mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
       if (mainItem.needRecord) {

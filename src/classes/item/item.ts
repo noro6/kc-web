@@ -164,6 +164,12 @@ export default class Item {
   /** 全滅率 表示用 */
   public deathRate = 0;
 
+  /** 戦闘後搭載数の最小 夜襲計算用 */
+  public minSlot = 0;
+
+  /** 戦闘後搭載数の最大 夜襲計算用 */
+  public maxSlot = 0;
+
   /** 第2艦隊搭載機かどうかフラグ 計算用 */
   public isEscortItem = false;
 
@@ -192,6 +198,10 @@ export default class Item {
 
     // 現在搭載数の初期化
     this.slot = this.fullSlot;
+
+    // 全戦闘終了時のうちの最大搭載数、最小搭載数
+    this.minSlot = this.fullSlot;
+    this.maxSlot = this.data.isPlane ? 0 : this.fullSlot;
 
     // 計算により算出するステータス
     this.bonusAirPower = this.getBonusAirPower();

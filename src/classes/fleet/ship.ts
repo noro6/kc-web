@@ -1285,10 +1285,10 @@ export default class Ship implements ShipBase {
     if (this.data.isCV) {
       // 夜間航空攻撃発動判定
       if ([545, 599, 610, 883].includes(this.data.id) || items.some((v) => v.data.id === 258 || v.data.id === 259)) {
-        const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45).length;
-        const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46).length;
-        const nightSuiseiCount = items.filter((v) => v.data.id === 320).length;
-        const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id)).length;
+        const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45 && v.fullSlot).length;
+        const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46 && v.fullSlot).length;
+        const nightSuiseiCount = items.filter((v) => v.data.id === 320 && v.fullSlot).length;
+        const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id) && v.fullSlot).length;
         if (nightFighterCount >= 2 && nightAttackerCount) {
           specialAttacks.push({ text: '夜襲CIA', value: 105, multiplier: 1.25 });
         }

@@ -1,99 +1,133 @@
 <template>
   <div class="pa-2 container">
-    <div class="d-flex">
-      <div class="caption">{{ $t("Fleet.艦娘選択") }}</div>
-      <div class="header-divider"></div>
-    </div>
-    <div class="select-ship-container">
-      <div class="selectable-ship-container">
-        <div
-          v-for="(ship, i) in enabledShips"
-          :key="`ship${i}`"
-          v-ripple="{ class: 'info--text' }"
-          class="ship-selectable"
-          :class="{ selected: i === selectedShipIndex }"
-          @click="clickedShip(i)"
-          @keypress.enter="clickedShip(i)"
-          tabindex="0"
-        >
-          <div class="align-self-center">
-            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+    <v-card class="pa-3">
+      <div class="d-flex">
+        <div class="caption">{{ $t("Fleet.艦娘選択") }}</div>
+        <div class="header-divider"></div>
+      </div>
+      <div class="select-ship-container">
+        <div class="flex-grow-1">
+          <div class="selectable-ship-container">
+            <div
+              v-for="(ship, i) in enabledShips"
+              :key="`ship${i}`"
+              v-ripple="{ class: 'info--text' }"
+              class="ship-selectable"
+              :class="{ selected: i === selectedShipIndex }"
+              @click="clickedShip(i)"
+              @keypress.enter="clickedShip(i)"
+              tabindex="0"
+            >
+              <div class="align-self-center">
+                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+              </div>
+            </div>
+          </div>
+          <div v-if="!selectedShip.isEmpty">
+            <div class="d-flex">
+              <div class="caption">{{ $t("Fleet.装備") }}</div>
+              <div class="header-divider"></div>
+            </div>
+            <v-divider class="mt-1 item-input-divider"></v-divider>
+            <div
+              @mouseenter="bootTooltip(item, j, $event)"
+              @mouseleave="clearTooltip"
+              @focus="bootTooltip(item, j, $event)"
+              @blur="clearTooltip"
+              v-for="(item, j) in selectedShip.items"
+              :key="j"
+            >
+              <item-input
+                v-model="selectedShip.items[j]"
+                :index="j"
+                :max="99"
+                :dragSlot="false"
+                :init="selectedShip.data.slots[j]"
+                :handle-show-item-list="showItemList"
+                :item-parent="selectedShip"
+                :handle-drag-start="clearTooltip"
+                @input="updateItem"
+              />
+            </div>
+            <!-- 補強増設枠 -->
+            <div
+              @mouseenter="bootTooltip(selectedShip.exItem, -1, $event)"
+              @mouseleave="clearTooltip"
+              @focus="bootTooltip(ship.exItem, -1, $event)"
+              @blur="clearTooltip"
+            >
+              <item-input
+                v-model="selectedShip.exItem"
+                :index="99"
+                :max="0"
+                :init="0"
+                :dragSlot="false"
+                :handle-show-item-list="showItemList"
+                :item-parent="selectedShip"
+                :handle-drag-start="clearTooltip"
+                @input="updateItem"
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="!selectedShip.isEmpty">
-        <v-divider class="mt-1 item-input-divider"></v-divider>
-        <div
-          @mouseenter="bootTooltip(item, j, $event)"
-          @mouseleave="clearTooltip"
-          @focus="bootTooltip(item, j, $event)"
-          @blur="clearTooltip"
-          v-for="(item, j) in selectedShip.items"
-          :key="j"
-        >
-          <item-input
-            v-model="selectedShip.items[j]"
-            :index="j"
-            :max="99"
-            :dragSlot="false"
-            :init="selectedShip.data.slots[j]"
-            :handle-show-item-list="showItemList"
-            :item-parent="selectedShip"
-            :handle-drag-start="clearTooltip"
-            @input="updateItem"
-          />
+        <div class="border-left ml-2 px-4 auto-slot-container" v-if="!selectedShip.isEmpty">
+          <div class="d-flex align-center">
+            <div class="body-2">{{ $t("Fleet.搭載数") }}</div>
+            <div class="ml-2 pb-1">
+              <v-tooltip bottom color="black">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                </template>
+                <div class="caption">{{ $t("Fleet.最終戦闘までの撃墜数に応じて、搭載数を自動設定します。") }}</div>
+              </v-tooltip>
+            </div>
+          </div>
+          <div>
+            <v-btn color="success" @click="bulkSetSlots(fullSlots)" block>{{ $t("Fleet.満タン") }}</v-btn>
+          </div>
+          <div>
+            <v-btn color="primary" @click="bulkSetSlots(maxSlots)" block>{{ $t("Fleet.最大") }}</v-btn>
+          </div>
+          <div>
+            <v-btn color="warning" @click="bulkSetSlots(avgSlots)" block>{{ $t("Fleet.平均") }}</v-btn>
+          </div>
+          <div>
+            <v-btn color="error" @click="bulkSetSlots(minSlots)" block>{{ $t("Fleet.最小") }}</v-btn>
+          </div>
         </div>
-        <!-- 補強増設枠 -->
-        <div
-          @mouseenter="bootTooltip(selectedShip.exItem, -1, $event)"
-          @mouseleave="clearTooltip"
-          @focus="bootTooltip(ship.exItem, -1, $event)"
-          @blur="clearTooltip"
-        >
-          <item-input
-            v-model="selectedShip.exItem"
-            :index="99"
-            :max="0"
-            :init="0"
-            :dragSlot="false"
-            :handle-show-item-list="showItemList"
-            :item-parent="selectedShip"
-            :handle-drag-start="clearTooltip"
-            @input="updateItem"
-          />
+        <div class="border-left pl-2 input-container" v-if="!selectedShip.isEmpty">
+          <v-select
+            class="mt-3"
+            outlined
+            :label="$t('Result.夜襲CI')"
+            :items="specials"
+            v-model="special"
+            hide-details
+            :item-text="(item) => `${item.text ? $t(`Fleet.${item.text}`) : ''} ${item.rate && item.rate[0] ? `( ${Math.floor(item.rate[0] * 100)}% )` : ''}`"
+            dense
+            return-object
+            @change="calculate()"
+          ></v-select>
+          <v-text-field
+            class="mt-3"
+            type="number"
+            v-model.number="manualAfterCapBonus"
+            min="0"
+            max="9999"
+            :label="$t('Result.特効')"
+            hide-details
+            outlined
+            dense
+            step="0.01"
+            @input="calculate()"
+          ></v-text-field>
+          <v-select class="mt-3" :label="$t('Result.弾薬補正')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculate()"></v-select>
+          <v-checkbox class="mt-3" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
         </div>
       </div>
-      <div class="border-left pl-2 selectable-ship-container" v-if="!selectedShip.isEmpty">
-        <v-select
-          class="mt-3"
-          outlined
-          :label="$t('Result.夜襲CI')"
-          :items="specials"
-          v-model="special"
-          hide-details
-          :item-text="(item) => `${item.text ? $t(`Fleet.${item.text}`) : ''}`"
-          dense
-          return-object
-          @change="calculate()"
-        ></v-select>
-        <v-text-field
-          class="mt-3"
-          type="number"
-          v-model.number="manualAfterCapBonus"
-          min="0"
-          max="9999"
-          :label="$t('Result.特効')"
-          hide-details
-          outlined
-          dense
-          step="0.01"
-          @input="calculate()"
-        ></v-text-field>
-        <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
-      </div>
-    </div>
-    <div class="d-flex pt-1">
-      <div class="caption">{{ $t("Result.計算結果") }}</div>
+    </v-card>
+    <div class="d-flex pt-6">
+      <div class="body-2">{{ $t("Result.計算結果") }}</div>
       <div class="header-divider"></div>
     </div>
     <div v-if="!selectedShip.isEmpty">
@@ -169,7 +203,8 @@
       <div class="d-flex py-2">
         <div class="damage-detail-container caption">
           <div>{{ $t("Result.基本攻撃力") }}:</div>
-          <div>{{ baseFirePower ? Math.floor(100 * baseFirePower) / 100 : 0 }}</div>
+          <div v-if="isLandBase">{{ baseFirePowerForLandBase ? Math.floor(100 * baseFirePowerForLandBase) / 100 : 0 }}</div>
+          <div v-else>{{ baseFirePower ? Math.floor(100 * baseFirePower) / 100 : 0 }}</div>
           <div>{{ $t("Result.CI倍率") }}:</div>
           <div>&times; {{ CIMultiplier.toFixed(2) }}</div>
           <div>{{ $t("Result.キャップ前攻撃力") }}:</div>
@@ -191,7 +226,8 @@
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div>{{ $t("Result.最終攻撃力") }}:</div>
-          <div>{{ finalFirePower ? Math.floor(100 * finalFirePower) / 100 : 0 }}</div>
+          <div v-if="isLandBase">{{ finalFirePowerForLandBase ? Math.floor(100 * finalFirePowerForLandBase) / 100 : 0 }}</div>
+          <div v-else>{{ finalFirePower ? Math.floor(100 * finalFirePower) / 100 : 0 }}</div>
           <div>{{ $t("Common.装甲") }}:</div>
           <div>{{ minArmor }} ~ {{ maxArmor }}</div>
           <template v-if="ammo !== 1">
@@ -199,26 +235,27 @@
             <div>&times; {{ ammo }}</div>
           </template>
           <div>{{ $t("Result.ダメージ幅") }}:</div>
-          <div>{{ getDamageRangeString(finalFirePower) }}</div>
+          <div v-if="isLandBase">{{ getDamageRangeString(finalFirePowerForLandBase) }}</div>
+          <div v-else>{{ getDamageRangeString(finalFirePower) }}</div>
         </div>
       </div>
     </v-tooltip>
     <v-tooltip v-model="enabledItemTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
+    </v-dialog>
   </div>
 </template>
 
 <style scoped>
 .select-ship-container {
-  display: grid;
-  grid-template-columns: 140px 1fr 0.5fr;
-  column-gap: 0.5rem;
+  display: flex;
 }
-
 .selectable-ship-container {
-  min-height: 160px;
-  overflow-y: auto;
+  display: flex;
+  overflow-x: auto;
 }
 
 .ship-selectable {
@@ -244,6 +281,17 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
+
+.auto-slot-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 140px;
+}
+.input-container {
+  width: 180px;
+}
+
 .border-left {
   border-left: 1px solid rgba(128, 128, 128, 0.4);
 }
@@ -303,7 +351,7 @@ import sum from 'lodash/sum';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Fleet from '@/classes/fleet/fleet';
-import Ship from '@/classes/fleet/ship';
+import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
 import AerialFirePowerCalculator from '@/classes/aerialCombat/powerCalculator';
@@ -314,9 +362,10 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import SaveData from '@/classes/saveData/saveData';
 import ItemBonus from '@/classes/item/ItemBonus';
 import { cloneDeep } from 'lodash';
-import { CAP } from '@/classes/const';
-import ItemInput from '@/components/item/ItemInput.vue';
+import Const, { CAP } from '@/classes/const';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
+import ItemInput from '@/components/item/ItemInput.vue';
+import ItemList from '@/components/item/ItemList.vue';
 
 interface DamageRow {
   enemy: Enemy;
@@ -329,7 +378,7 @@ interface DamageRow {
 
 export default Vue.extend({
   name: 'AircraftNightAttackPower',
-  components: { ItemTooltip, ItemInput },
+  components: { ItemTooltip, ItemInput, ItemList },
   props: {
     fleet: {
       type: Fleet,
@@ -356,12 +405,15 @@ export default Vue.extend({
     tooltipBonus: '',
     tooltipX: 0,
     tooltipY: 0,
+    isLandBase: false,
     enabledShips: [] as Ship[],
     baseFirePower: 0,
+    baseFirePowerForLandBase: 0,
     CIMultiplier: 0,
     preCapFirePower: 0,
     postCapFirePower: 0,
     finalFirePower: 0,
+    finalFirePowerForLandBase: 0,
     specials: [] as { text: string; rate: number[]; multiplier?: number }[],
     special: { text: '', rate: [], multiplier: 1 },
     maxArmor: 0,
@@ -379,7 +431,13 @@ export default Vue.extend({
       { text: '～10%', value: 0.2 },
       { text: '～5%', value: 0.1 },
     ],
-    initSlots: [] as number[][],
+    fullSlots: [] as number[][],
+    maxSlots: [] as number[][],
+    avgSlots: [] as number[][],
+    minSlots: [] as number[][],
+    itemListDialog: false,
+    itemDialogTargetIndex: 0,
+    itemDialogWidth: 1200,
   }),
   mounted() {
     const saveData = this.$store.state.mainSaveData as SaveData;
@@ -403,16 +461,26 @@ export default Vue.extend({
     this.defenseIndex = this.defenseFleets.length - 1;
 
     const cloneFleet = cloneDeep(this.fleet.ships);
-    this.enabledShips = cloneFleet.filter((v) => [545, 599, 610, 883].includes(v.data.id) || v.items.some((w) => w.data.id === 258 || w.data.id === 259));
+    this.enabledShips = cloneFleet.filter((v) => [545, 599, 610, 883].includes(v.data.id) || (v.data.isCV && v.items.some((w) => w.data.id === 258 || w.data.id === 259)));
 
     // 搭載数初期値を取得 => 計算結果の最終搭載数
     for (let i = 0; i < this.enabledShips.length; i += 1) {
       const ship = this.enabledShips[i];
-      const slotInits = [];
+      const fullSlots = [];
+      const maxSlots = [];
+      const avgSlots = [];
+      const minSlots = [];
       for (let j = 0; j < ship.items.length; j += 1) {
-        slotInits.push(ship.items[j].slotResult);
+        const item = ship.items[j];
+        fullSlots.push(item.fullSlot);
+        maxSlots.push(item.maxSlot);
+        avgSlots.push(item.data.isPlane ? item.slotResult : item.fullSlot);
+        minSlots.push(item.minSlot);
       }
-      this.initSlots.push(slotInits);
+      this.fullSlots.push(fullSlots);
+      this.maxSlots.push(maxSlots);
+      this.avgSlots.push(avgSlots);
+      this.minSlots.push(minSlots);
     }
 
     if (this.enabledShips.length) {
@@ -455,36 +523,49 @@ export default Vue.extend({
       if (ship.isEmpty) {
         return;
       }
-      // 搭載数を最終戦闘時の値に調整
-      const initSlot = this.initSlots[index];
+      // 搭載数を最終戦闘時の平均値に調整
+      this.bulkSetSlots(this.avgSlots);
+    },
+    bulkSetSlots(slots: number[][]) {
+      const ship = this.enabledShips[this.selectedShipIndex];
 
-      const items = [];
-      if (initSlot) {
-        for (let j = 0; j < ship.items.length; j += 1) {
-          const item = ship.items[j];
-          items.push(new Item({ item, slot: initSlot[j] ?? 0 }));
-        }
-
-        // 装備の搭載数だけ置き換えたやつを設置
-        this.enabledShips[index] = new Ship({ ship, items });
+      if (!ship || ship.isEmpty) {
+        return;
       }
 
-      this.specials = ship.getNightBattleSpecialAttackRate(index === 0);
-      this.specials.push({ text: `${this.$t('Fleet.通常')}`, rate: [1], multiplier: 1 });
+      const setSlots = slots[this.selectedShipIndex];
+      if (!setSlots) {
+        return;
+      }
+
+      const items = [];
+      for (let j = 0; j < ship.items.length; j += 1) {
+        const item = ship.items[j];
+        items.push(new Item({ item, slot: setSlots[j] ?? 0 }));
+      }
+      // 装備の搭載数だけ置き換えたやつを設置
+      const newShip = new Ship({ ship, items });
+      this.enabledShips[this.selectedShipIndex] = newShip;
+      this.specials = newShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+      this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
+
       this.calculate();
     },
     calculate() {
       this.selectedShip = this.enabledShips[this.selectedShipIndex] ?? new Ship();
 
       // 火力計算
-      this.baseFirePower = AerialFirePowerCalculator.getAircraftNightAttackPrePower(this.selectedShip);
+      this.baseFirePower = AerialFirePowerCalculator.getAircraftNightAttackPrePower(this.selectedShip, 0);
+      this.baseFirePowerForLandBase = AerialFirePowerCalculator.getAircraftNightAttackPrePower(this.selectedShip, 0, true);
       this.criticalBonus = this.selectedShip.getProfCriticalBonus();
 
       let power = this.baseFirePower;
+      let powerForLandBase = this.baseFirePowerForLandBase;
       this.CIMultiplier = 1;
       if (this.special && this.special.multiplier) {
         this.CIMultiplier = this.special.multiplier;
         power *= this.special.multiplier;
+        powerForLandBase *= this.special.multiplier;
       }
 
       // キャップ処理
@@ -494,14 +575,18 @@ export default Vue.extend({
       if (this.isCritical) {
         // クリティカル時
         power = Math.floor(power * 1.5 * this.criticalBonus);
+        powerForLandBase = Math.floor(powerForLandBase * 1.5 * this.criticalBonus);
       }
 
       if (this.manualAfterCapBonus) {
         power *= Math.max(this.manualAfterCapBonus, 0);
+        powerForLandBase *= Math.max(this.manualAfterCapBonus, 0);
       }
       this.finalFirePower = power;
+      this.finalFirePowerForLandBase = powerForLandBase;
 
       const powers = [{ power, rate: 1 }];
+      const powersForLandBase = [{ power: powerForLandBase, rate: 1 }];
 
       const rows = this.defenseShipRows;
       this.enemyRows = [];
@@ -510,7 +595,10 @@ export default Vue.extend({
         const HP = row.enemy.data.hp;
 
         // 火力分布より、被ダメージ分布を取得
-        const damageDist = CommonCalc.getDamageDistribution(powers, row.enemy.actualArmor, 1, HP, true);
+        let damageDist = CommonCalc.getDamageDistribution(powers, row.enemy.actualArmor, this.ammo, HP, true);
+        if (row.enemy.data.isLandBase) {
+          damageDist = CommonCalc.getDamageDistribution(powersForLandBase, row.enemy.actualArmor, this.ammo, HP, true);
+        }
         const damages = damageDist.map((v) => v.damage);
 
         // 最低 最大ダメ
@@ -560,12 +648,80 @@ export default Vue.extend({
         this.clearTooltip();
         this.enabledShips[this.selectedShipIndex] = new Ship({ ship: this.selectedShip });
 
+        this.specials = this.selectedShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+        this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
+
         this.calculate();
       }
     },
-    showItemList(slotIndex: number): void {
-      this.clearTooltip();
-      console.log(slotIndex);
+    async showItemList(slotIndex: number) {
+      if (!this.selectedShip.isEmpty) {
+        this.clearTooltip();
+        this.itemDialogTargetIndex = slotIndex;
+        await (this.itemListDialog = true);
+        (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(this.selectedShip, slotIndex, this.selectedShip.items);
+      }
+    },
+    equipItem(item: Item) {
+      const master = item.data;
+      this.itemListDialog = false;
+      const slotIndex = this.itemDialogTargetIndex;
+      const ship = this.enabledShips[this.selectedShipIndex];
+      let newShip: Ship;
+
+      // 新しい装備配列を生成
+      const items = ship.items.concat();
+      // 初期熟練度設定
+      const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+      let level = 0;
+      if (initialLevels) {
+        // 設定情報より初期熟練度を解決
+        const initData = initialLevels.find((v) => v.id === master.apiTypeId);
+        if (initData) {
+          level = initData.level;
+        }
+      }
+
+      if (slotIndex < items.length) {
+        if (item.data.apiTypeId === 41 && ship.data.type2 === 90) {
+          // 日進 & 大型飛行艇
+          items[slotIndex] = new Item({
+            item: items[slotIndex],
+            master,
+            remodel: item.remodel,
+            level,
+            slot: 1,
+          });
+        } else {
+          // 装備を置き換え
+          items[slotIndex] = new Item({
+            item: items[slotIndex],
+            master,
+            remodel: item.remodel,
+            level,
+          });
+        }
+        // 装備を変更した艦娘インスタンス再生成
+        newShip = new Ship({ ship, items });
+      } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
+        // 補強増設を変更した艦娘インスタンス再生成
+        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master, remodel: item.remodel }) };
+        newShip = new Ship(builder);
+      } else {
+        // 搭載失敗
+        return;
+      }
+
+      this.enabledShips[this.selectedShipIndex] = newShip;
+      this.specials = newShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+      this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
+      this.calculate();
+    },
+    closeDialog() {
+      this.itemListDialog = false;
+    },
+    changeWidth(width: number) {
+      this.itemDialogWidth = width;
     },
     getEnemyName(name: string): string {
       if (name && this.needTrans) {
@@ -644,6 +800,7 @@ export default Vue.extend({
         this.tooltipX = e.clientX;
         this.tooltipY = rect.y;
         this.enabledDamageDetailTooltip = true;
+        this.isLandBase = row.enemy.data.isLandBase;
 
         this.maxArmor = Math.floor(100 * (row.enemy.actualArmor * 1.3 - 0.6)) / 100;
         this.minArmor = Math.floor(100 * row.enemy.actualArmor * 0.7) / 100;
