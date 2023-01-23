@@ -198,6 +198,7 @@ export default {
       '装備選択時のデフォルト熟練度': 'Default proficiency when selecting equipment',
       '一括設定': 'batch setting',
       'デッキビルダー形式データ読込設定': 'Deck Builder format data loading settings',
+      '全滅率インジケーターを表示しない': 'Hide Annihilation Indicator',
       '常に全艦隊データを読み込む': 'Always load all fleet data',
       '編成データのバックアップ': 'Backup of saved data',
       '復元': 'restore',

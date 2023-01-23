@@ -89,9 +89,13 @@ export default class CalcManager {
     let sumUsedSteels = 0;
 
     // 初期化
+    // 基地航空隊初期化
     for (let i = 0; i < airbases.length; i += 1) {
       airbases[i].resultWave1 = new AirCalcResult();
       airbases[i].resultWave2 = new AirCalcResult();
+      for (let j = 0; j < airbases[i].items.length; j += 1) {
+        airbases[i].items[j].deathRate = 0;
+      }
     }
 
     // 計算結果格納用リザルト全艦隊初期化
@@ -171,12 +175,7 @@ export default class CalcManager {
 
       // 次の計算に備え、減った艦載機や制空値を補給したり記録したりいろいろ
       for (let i = 0; i < airbases.length; i += 1) {
-        const airbase = airbases[i];
-        if (airbase.needSupply) {
-          // 基地補給
-          Airbase.supply(airbases[i]);
-          airbase.needSupply = false;
-        }
+        Airbase.supply(airbases[i]);
       }
 
       for (let i = 0; i < fleet.allPlanes.length; i += 1) {
@@ -197,18 +196,25 @@ export default class CalcManager {
     // 基地航空隊計算結果を整形してセット
     for (let i = 0; i < calcInfo.airbaseInfo.airbases.length; i += 1) {
       const lb = calcInfo.airbaseInfo.airbases[i];
+      const displayAirbase = this.airbaseInfo.airbases[i];
       if (lb.mode === AB_MODE.BATTLE && lb.items.find((v) => v.data.id > 0)) {
         AirCalcResult.formatResult(lb.resultWave1, maxCount);
         AirCalcResult.formatResult(lb.resultWave2, maxCount);
 
-        this.airbaseInfo.airbases[i].resultWave1 = lb.resultWave1;
-        this.airbaseInfo.airbases[i].resultWave2 = lb.resultWave2;
+        displayAirbase.resultWave1 = lb.resultWave1;
+        displayAirbase.resultWave2 = lb.resultWave2;
 
-        const recordedItemIndex = lb.items.findIndex((v) => v.needRecord);
-        if (recordedItemIndex >= 0) {
-          const item = this.airbaseInfo.airbases[i].items[recordedItemIndex];
-          item.dist = lb.items[recordedItemIndex].dist.concat();
-          item.needRecord = false;
+        for (let j = 0; j < lb.items.length; j += 1) {
+          // 表示用のitem
+          const item = displayAirbase.items[j];
+          // 計算処理で履歴が保存されているitem
+          const lbItem = lb.items[j];
+          const deathRate = (100 * lbItem.deathRate) / maxCount;
+          item.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
+          if (lbItem.needRecord) {
+            item.dist = lb.items[j].dist.concat();
+            item.needRecord = false;
+          }
         }
       }
     }
@@ -355,10 +361,8 @@ export default class CalcManager {
 
       // 次の計算に備え、減った艦載機や制空値を補給
       for (let i = 0; i < allAirbase.airbases.length; i += 1) {
-        const airbase = allAirbase.airbases[i];
         // 基地補給
         Airbase.supply(allAirbase.airbases[i]);
-        airbase.needSupply = false;
       }
       allAirbase.superHighDefenseAirPower = allAirbase.fullSuperHighDefenseAirPower;
     }

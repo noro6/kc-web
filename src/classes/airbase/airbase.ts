@@ -78,9 +78,6 @@ export default class Airbase {
   /** 現在搭載数における制空値 計算用 */
   public airPower: number;
 
-  /** 補給処理が要るかどうか 計算用 */
-  public needSupply = false;
-
   /** 集中のときでも撃墜処理を行わせたいフラグ 計算用 */
   public needShootDown = false;
 
@@ -223,6 +220,8 @@ export default class Airbase {
   public static supply(airbase: Airbase): void {
     airbase.airPower = airbase.fullAirPower;
     for (let i = 0; i < airbase.items.length; i += 1) {
+      const item = airbase.items[i];
+      item.deathRate += item.slot === 0 ? 1 : 0;
       Item.supply(airbase.items[i]);
     }
   }

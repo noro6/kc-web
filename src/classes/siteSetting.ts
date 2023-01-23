@@ -121,6 +121,9 @@ export default class SiteSetting {
   /** 対潜値計算機の目標対潜値 */
   public requiredAswTargets: number[];
 
+  /** 全滅率インジケーター表示 */
+  public hideDeathRateIndicator: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -159,6 +162,7 @@ export default class SiteSetting {
       this.popUpCount = setting.popUpCount ?? 400;
       this.enabledAutoSave = !!setting.enabledAutoSave;
       this.requiredAswTargets = setting.requiredAswTargets ? setting.requiredAswTargets : [];
+      this.hideDeathRateIndicator = setting.hideDeathRateIndicator ?? false;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -235,6 +239,7 @@ export default class SiteSetting {
       this.popUpCount = 400;
       this.enabledAutoSave = false;
       this.requiredAswTargets = [];
+      this.hideDeathRateIndicator = false;
     }
   }
 }

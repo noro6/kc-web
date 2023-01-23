@@ -289,10 +289,23 @@
                     <span class="teal--text text--accent-4">10</span>
                   </div>
                   <div class="ml-1 align-self-center">
-                    <v-btn icon x-small><v-icon small class="text--secondary">mdi-close</v-icon></v-btn>
+                    <v-tooltip top color="black" :disabled="setting.hideDeathRateIndicator">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-hover v-slot="{ hover }">
+                          <v-btn icon x-small v-bind="attrs" v-on="on">
+                            <v-icon small v-if="!setting.hideDeathRateIndicator && !hover" color="orange">mdi-record</v-icon>
+                            <v-icon small v-else-if="hover">mdi-close</v-icon>
+                          </v-btn>
+                        </v-hover>
+                      </template>
+                      <span>{{ $t("Result.全滅率") }} xx %</span>
+                    </v-tooltip>
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="ml-3 mt-2 d-flex">
+              <v-checkbox v-model="setting.hideDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーターを表示しない')"></v-checkbox>
             </div>
           </div>
           <div class="pt-5">

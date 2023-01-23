@@ -103,9 +103,17 @@
       </v-menu>
       <!-- 解除 -->
       <div class="ml-1 item-remove align-self-center">
-        <v-btn v-show="isDraggable" icon x-small @click="removeItem()">
-          <v-icon small>mdi-close</v-icon>
-        </v-btn>
+        <v-tooltip top color="black" :open-delay="200" :disabled="!deathIndicator">
+          <template v-slot:activator="{ on, attrs }">
+            <v-hover v-slot="{ hover }">
+              <v-btn v-show="isDraggable" icon x-small @click="removeItem()" v-bind="attrs" v-on="on">
+                <v-icon small v-if="hover" :color="deathIndicator">mdi-close</v-icon>
+                <v-icon small v-else-if="deathIndicator" :color="deathIndicator">mdi-record</v-icon>
+              </v-btn>
+            </v-hover>
+          </template>
+          <span>{{ $t("Result.全滅率") }} {{ item.deathRate }} %</span>
+        </v-tooltip>
       </div>
     </template>
   </div>
@@ -259,12 +267,11 @@
 }
 .item-remove {
   width: 20px;
+}
+.captured .item-remove {
   opacity: 0;
-  transition: 0.2s;
 }
-.item-input:hover .item-remove {
-  opacity: 1;
-}
+
 .remodel-list-item,
 .level-list-item {
   padding: 0.5rem 0.75rem;
@@ -397,9 +404,11 @@ export default Vue.extend({
     isNoItem() {
       return this.value.data.id === 0;
     },
+    setting(): SiteSetting {
+      return this.$store.state.siteSetting as SiteSetting;
+    },
     needTrans(): boolean {
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+      return this.$i18n.locale !== 'ja' && !this.setting.nameIsNotTranslate;
     },
     itemName() {
       if (this.needTrans && this.value.data.name) {
@@ -448,11 +457,22 @@ export default Vue.extend({
       if (!this.value.data.id) {
         return '';
       }
-
-      const key = (this.$store.state.siteSetting as SiteSetting).displayBonusKey;
+      const key = this.setting.displayBonusKey;
       const bonus = this.value.data.bonuses.find((v) => v.key === key);
-
       return bonus ? bonus.text : '';
+    },
+    deathIndicator(): string {
+      if (!this.value.data.isPlane || !this.value.deathRate || this.setting.hideDeathRateIndicator) {
+        return '';
+      }
+
+      if (this.value.deathRate < 10) {
+        return 'amber';
+      }
+      if (this.value.deathRate < 20) {
+        return 'orange darken-3';
+      }
+      return 'red darken-2';
     },
   },
   methods: {
