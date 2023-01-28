@@ -181,6 +181,9 @@ export default class Ship implements ShipBase {
   /** 夜偵発動率 */
   public readonly nightContactRate: number;
 
+  /** 夜襲 発動可能判定 */
+  public readonly enabledAircraftNightAttack: boolean;
+
   /** 夜襲 熟練甲板要員火力ボーナス */
   public readonly nightAttackCrewFireBonus: number;
 
@@ -467,8 +470,16 @@ export default class Ship implements ShipBase {
       this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
     }
 
-    // 夜戦火力加算
-    this.nightBattleFirePower += (this.displayStatus.firePower + this.displayStatus.torpedo);
+    // 空母夜襲発動判定
+    this.enabledAircraftNightAttack = this.data.isCV && ([545, 599, 610, 883].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)));
+
+    if (this.enabledAircraftNightAttack) {
+      // 空母夜襲火力に置き換え
+      this.nightBattleFirePower = this.getAircraftNightAttackPrePower(0);
+    } else {
+      // 夜戦火力加算
+      this.nightBattleFirePower += (this.displayStatus.firePower + this.displayStatus.torpedo);
+    }
 
     // 航空戦雷装ボーナス適用装備抽出 & セット
     if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
@@ -1223,6 +1234,48 @@ export default class Ship implements ShipBase {
   }
 
   /**
+   * 空母夜間航空攻撃の基本火力を返却
+   * @static
+   * @param {number} [contactBonus=0] 夜偵
+   * @param {boolean} [isLandBase=false] 地上施設かどうか
+   * @returns {number}
+   * @memberof AerialFirePowerCalculator
+   */
+  public getAircraftNightAttackPrePower(contactBonus = 0, isLandBase = false): number {
+    // 艦娘の素火力 + 熟練甲板ボーナス(火力青字 + 爆装青地)
+    let power = this.data.fire + this.nightAttackCrewFireBonus + this.nightAttackCrewBomberBonus;
+    if (this.itemBonusStatus.torpedo) {
+      // 雷装ボーナス
+      power += this.itemBonusStatus.torpedo;
+    }
+
+    for (let i = 0; i < this.items.length; i += 1) {
+      const item = this.items[i];
+      if (!item.data.isNightAircraftItem) {
+        // 夜間機以外は飛ばし
+        continue;
+      }
+
+      // +（夜間飛行機の火力 + 雷装(対地時無効) + 爆装）
+      if (isLandBase) {
+        power += (item.data.fire + (item.data.isTorpedoAttacker ? 0 : item.data.bomber));
+      } else {
+        power += (item.data.fire + (item.data.isTorpedoAttacker ? item.data.torpedo : item.data.bomber));
+      }
+      const totalStatus = item.data.fire + item.data.torpedo + item.data.bomber + item.data.asw;
+      if (item.data.iconTypeId === 45 || item.data.iconTypeId === 46) {
+        // 夜間飛行機搭載補正 = A(3.0) × 搭載数 + B(0.45) × (火力 + 雷装 + 爆装 + 対潜) × √(搭載数) + √(★)
+        power += (3 * item.fullSlot + 0.45 * totalStatus * Math.sqrt(item.fullSlot) + Math.sqrt(item.remodel));
+      } else {
+        // 夜間飛行機搭載補正 = B(0.3) × (火力 + 雷装 + 爆装 + 対潜) × √(搭載数) + √(★)
+        power += (0.3 * totalStatus * Math.sqrt(item.fullSlot) + Math.sqrt(item.remodel));
+      }
+    }
+
+    return power + contactBonus;
+  }
+
+  /**
    * 夜間特殊攻撃発動率を返却
    * @param {number} fleetRosCorr
    * @param {boolean} isFlagship
@@ -1282,28 +1335,25 @@ export default class Ship implements ShipBase {
     }
 
     // 空母夜戦判定
-    if (this.data.isCV) {
-      // 夜間航空攻撃発動判定
-      if ([545, 599, 610, 883].includes(this.data.id) || items.some((v) => v.data.id === 258 || v.data.id === 259)) {
-        const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45 && v.fullSlot).length;
-        const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46 && v.fullSlot).length;
-        const nightSuiseiCount = items.filter((v) => v.data.id === 320 && v.fullSlot).length;
-        const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id) && v.fullSlot).length;
-        if (nightFighterCount >= 2 && nightAttackerCount) {
-          specialAttacks.push({ text: '夜襲CIA', value: 105, multiplier: 1.25 });
-        }
-        if (nightFighterCount && nightAttackerCount) {
-          specialAttacks.push({ text: '夜襲CIB', value: 120, multiplier: 1.20 });
-        }
-        if (nightFighterCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
-        } else if (nightAttackerCount && nightSuiseiCount) {
-          specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
-        }
-        if (nightFighterCount && nightPlaneCount >= 3) {
-          if (nightFighterCount !== 2 || nightAttackerCount !== 1) {
-            specialAttacks.push({ text: '夜襲CIC', value: 130, multiplier: 1.18 });
-          }
+    if (this.enabledAircraftNightAttack) {
+      const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45 && v.fullSlot).length;
+      const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46 && v.fullSlot).length;
+      const nightSuiseiCount = items.filter((v) => v.data.id === 320 && v.fullSlot).length;
+      const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244].includes(v.data.id) && v.fullSlot).length;
+      if (nightFighterCount >= 2 && nightAttackerCount) {
+        specialAttacks.push({ text: '夜襲CIA', value: 105, multiplier: 1.25 });
+      }
+      if (nightFighterCount && nightAttackerCount) {
+        specialAttacks.push({ text: '夜襲CIB', value: 120, multiplier: 1.20 });
+      }
+      if (nightFighterCount && nightSuiseiCount) {
+        specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
+      } else if (nightAttackerCount && nightSuiseiCount) {
+        specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
+      }
+      if (nightFighterCount && nightPlaneCount >= 3) {
+        if (nightFighterCount !== 2 || nightAttackerCount !== 1) {
+          specialAttacks.push({ text: '夜襲CIC', value: 130, multiplier: 1.18 });
         }
       }
     }

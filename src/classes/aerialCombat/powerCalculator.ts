@@ -644,47 +644,4 @@ export default class AerialFirePowerCalculator {
     }
     return retPowers;
   }
-
-  /**
-   * 空母夜間航空攻撃の基本火力を返却
-   * @static
-   * @param {Ship} ship
-   * @param {number} [contactBonus=0] 夜偵
-   * @param {boolean} [isLandBase=false] 地上施設かどうか
-   * @returns {number}
-   * @memberof AerialFirePowerCalculator
-   */
-  public static getAircraftNightAttackPrePower(ship: Ship, contactBonus = 0, isLandBase = false): number {
-    // 艦娘の素火力 + 熟練甲板ボーナス(火力青字 + 爆装青地)
-    let power = ship.data.fire + ship.nightAttackCrewFireBonus + ship.nightAttackCrewBomberBonus;
-    if (ship.itemBonusStatus.torpedo) {
-      // 雷装ボーナス
-      power += ship.itemBonusStatus.torpedo;
-    }
-
-    for (let i = 0; i < ship.items.length; i += 1) {
-      const item = ship.items[i];
-      if (!item.data.isNightAircraftItem) {
-        // 夜間機以外は飛ばし
-        continue;
-      }
-
-      // +（夜間飛行機の火力 + 雷装(対地時無効) + 爆装）
-      if (isLandBase) {
-        power += (item.data.fire + (item.data.isTorpedoAttacker ? 0 : item.data.bomber));
-      } else {
-        power += (item.data.fire + (item.data.isTorpedoAttacker ? item.data.torpedo : item.data.bomber));
-      }
-      const totalStatus = item.data.fire + item.data.torpedo + item.data.bomber + item.data.asw;
-      if (item.data.iconTypeId === 45 || item.data.iconTypeId === 46) {
-        // 夜間飛行機搭載補正 = A(3.0) × 搭載数 + B(0.45) × (火力 + 雷装 + 爆装 + 対潜) × √(搭載数) + √(★)
-        power += (3 * item.fullSlot + 0.45 * totalStatus * Math.sqrt(item.fullSlot) + Math.sqrt(item.remodel));
-      } else {
-        // 夜間飛行機搭載補正 = B(0.3) × (火力 + 雷装 + 爆装 + 対潜) × √(搭載数) + √(★)
-        power += (0.3 * totalStatus * Math.sqrt(item.fullSlot) + Math.sqrt(item.remodel));
-      }
-    }
-
-    return power + contactBonus;
-  }
 }

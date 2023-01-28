@@ -16,6 +16,10 @@
               :class="{ selected: i === selectedShipIndex }"
               @click="clickedShip(i)"
               @keypress.enter="clickedShip(i)"
+              @mouseenter="bootShipTooltip($event)"
+              @mouseleave="clearTooltip"
+              @focus="bootShipTooltip($event)"
+              @blur="clearTooltip"
               tabindex="0"
             >
               <div class="align-self-center">
@@ -30,9 +34,9 @@
             </div>
             <v-divider class="mt-1 item-input-divider"></v-divider>
             <div
-              @mouseenter="bootTooltip(item, j, $event)"
+              @mouseenter="bootItemTooltip(item, j, $event)"
               @mouseleave="clearTooltip"
-              @focus="bootTooltip(item, j, $event)"
+              @focus="bootItemTooltip(item, j, $event)"
               @blur="clearTooltip"
               v-for="(item, j) in selectedShip.items"
               :key="j"
@@ -51,9 +55,9 @@
             </div>
             <!-- 補強増設枠 -->
             <div
-              @mouseenter="bootTooltip(selectedShip.exItem, -1, $event)"
+              @mouseenter="bootItemTooltip(selectedShip.exItem, -1, $event)"
               @mouseleave="clearTooltip"
-              @focus="bootTooltip(ship.exItem, -1, $event)"
+              @focus="bootItemTooltip(ship.exItem, -1, $event)"
               @blur="clearTooltip"
             >
               <item-input
@@ -240,6 +244,9 @@
         </div>
       </div>
     </v-tooltip>
+    <v-tooltip v-model="enabledShipTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
+      <ship-tooltip v-model="tooltipShip" :is-flagship="selectedShipIndex === 0" />
+    </v-tooltip>
     <v-tooltip v-model="enabledItemTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
@@ -354,7 +361,6 @@ import Fleet from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
-import AerialFirePowerCalculator from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
 import SiteSetting from '@/classes/siteSetting';
 import CalcManager from '@/classes/calcManager';
@@ -363,6 +369,7 @@ import SaveData from '@/classes/saveData/saveData';
 import ItemBonus from '@/classes/item/ItemBonus';
 import { cloneDeep } from 'lodash';
 import Const, { CAP } from '@/classes/const';
+import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import ItemInput from '@/components/item/ItemInput.vue';
 import ItemList from '@/components/item/ItemList.vue';
@@ -378,7 +385,9 @@ interface DamageRow {
 
 export default Vue.extend({
   name: 'AircraftNightAttackPower',
-  components: { ItemTooltip, ItemInput, ItemList },
+  components: {
+    ShipTooltip, ItemTooltip, ItemInput, ItemList,
+  },
   props: {
     fleet: {
       type: Fleet,
@@ -402,6 +411,7 @@ export default Vue.extend({
     enabledDamageDetailTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipItem: new Item(),
+    tooltipShip: new Ship(),
     tooltipBonus: '',
     tooltipX: 0,
     tooltipY: 0,
@@ -461,7 +471,7 @@ export default Vue.extend({
     this.defenseIndex = this.defenseFleets.length - 1;
 
     const cloneFleet = cloneDeep(this.fleet.ships);
-    this.enabledShips = cloneFleet.filter((v) => [545, 599, 610, 883].includes(v.data.id) || (v.data.isCV && v.items.some((w) => w.data.id === 258 || w.data.id === 259)));
+    this.enabledShips = cloneFleet.filter((v) => v.enabledAircraftNightAttack);
 
     // 搭載数初期値を取得 => 計算結果の最終搭載数
     for (let i = 0; i < this.enabledShips.length; i += 1) {
@@ -555,14 +565,14 @@ export default Vue.extend({
       this.selectedShip = this.enabledShips[this.selectedShipIndex] ?? new Ship();
 
       // 火力計算
-      this.baseFirePower = AerialFirePowerCalculator.getAircraftNightAttackPrePower(this.selectedShip, 0);
-      this.baseFirePowerForLandBase = AerialFirePowerCalculator.getAircraftNightAttackPrePower(this.selectedShip, 0, true);
+      this.baseFirePower = this.selectedShip.getAircraftNightAttackPrePower(0);
+      this.baseFirePowerForLandBase = this.selectedShip.getAircraftNightAttackPrePower(0, true);
       this.criticalBonus = this.selectedShip.getProfCriticalBonus();
 
       let power = this.baseFirePower;
       let powerForLandBase = this.baseFirePowerForLandBase;
       this.CIMultiplier = 1;
-      if (this.special && this.special.multiplier) {
+      if (this.special && this.special.multiplier && this.specials.find((v) => v.multiplier === this.special.multiplier)) {
         this.CIMultiplier = this.special.multiplier;
         power *= this.special.multiplier;
         powerForLandBase *= this.special.multiplier;
@@ -731,7 +741,19 @@ export default Vue.extend({
       }
       return name || '';
     },
-    bootTooltip(item: Item, index: number, e: MouseEvent) {
+    bootShipTooltip(e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.disabledShipTooltip) {
+        return;
+      }
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+        this.enabledShipTooltip = true;
+        this.tooltipShip = this.selectedShip;
+      }, Math.max(setting.popUpCount, 10));
+    },
+    bootItemTooltip(item: Item, index: number, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (!item.data.id || setting.disabledItemTooltip || this.selectedShip.isEmpty) {
         return;
