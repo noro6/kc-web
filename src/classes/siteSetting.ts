@@ -82,6 +82,9 @@ export default class SiteSetting {
   /** 装備詳細ポップアップoff */
   public disabledItemTooltip: boolean;
 
+  /** 装備詳細ポップアップoff */
+  public disabledShipTooltip: boolean;
+
   /** デッキビルダーからの取込時、全て取り込む */
   public importAllDeck: boolean;
 
@@ -149,6 +152,7 @@ export default class SiteSetting {
       this.visibleAirCalcMenuButton = !!setting.visibleAirCalcMenuButton;
       this.itemUI = setting.itemUI ? setting.itemUI : { border: false, bold: true, radius: true };
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
+      this.disabledShipTooltip = !!setting.disabledShipTooltip;
       this.importAllDeck = !!setting.importAllDeck;
       this.locale = setting.locale ? setting.locale : 'ja';
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
@@ -209,6 +213,7 @@ export default class SiteSetting {
       this.visibleAirCalcMenuButton = false;
       this.itemUI = { border: false, bold: true, radius: true };
       this.disabledItemTooltip = false;
+      this.disabledShipTooltip = false;
       this.importAllDeck = false;
       this.locale = 'ja';
       this.nameIsNotTranslate = false;
