@@ -54,7 +54,7 @@
       <div class="mr-3 align-self-center">
         <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')"></v-checkbox>
       </div>
-      <div class="mr-3 align-self-center">
+      <div class="mr-3 align-self-center" v-if="visibleFighterFilter">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
       </div>
       <div class="mr-3 d-flex manual-checkbox">
@@ -72,6 +72,30 @@
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
         <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+      </div>
+      <div class="mr-1 d-flex manual-checkbox min" v-if="visibleCommanderFilter">
+        <v-btn icon @click="toggleCommanderFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="primary" v-if="commanderOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="commanderNG">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <img
+          @click="toggleCommanderFilter()"
+          @keypress="toggleCommanderFilter()"
+          tabindex="0"
+          :src="`./img/type/type34.png`"
+          alt="type-34"
+          width="35"
+          height="35"
+        />
+      </div>
+      <div class="mr-2 d-flex manual-checkbox min" v-if="visibleArmorFilter">
+        <v-btn icon @click="toggleArmorFilter()" class="manual-checkbox-button">
+          <v-icon class="manual-icon" color="primary" v-if="armorOK">mdi-checkbox-marked</v-icon>
+          <v-icon class="manual-icon" color="error" v-else-if="armorNG">mdi-close-box</v-icon>
+          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+        </v-btn>
+        <img @click="toggleArmorFilter()" @keypress="toggleArmorFilter()" tabindex="0" :src="`./img/type/type27.png`" alt="type-27" width="35" height="35" />
       </div>
       <div class="mr-3 d-flex manual-checkbox text" v-if="isStockOnly">
         <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
@@ -393,7 +417,7 @@
 .manual-checkbox {
   position: relative;
   height: 32px;
-  width: 74px;
+  width: 64px;
   cursor: pointer;
 }
 .manual-checkbox-button {
@@ -406,7 +430,8 @@
 .manual-checkbox img {
   position: absolute;
   left: 32px;
-  top: -1px;
+  top: 50%;
+  transform: translateY(-45%);
 }
 .manual-checkbox.text {
   width: 100px;
@@ -427,7 +452,7 @@
 import Vue from 'vue';
 import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
-import Const from '@/classes/const';
+import Const, { SHIP_TYPE } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 import ShipStock from '@/classes/fleet/shipStock';
 import SaveData from '@/classes/saveData/saveData';
@@ -506,6 +531,10 @@ export default Vue.extend({
     tankOK: false,
     tankNG: false,
     fighterOK: false,
+    commanderOK: false,
+    commanderNG: false,
+    armorOK: false,
+    armorNG: false,
     hasAreaOnly: false,
     hasNotAreaOnly: false,
     includeFast: true,
@@ -557,6 +586,43 @@ export default Vue.extend({
 
       return '';
     },
+    selectedShipTypes(): number[] {
+      const t = this.types[this.type];
+      if (t) {
+        return t.types;
+      }
+      return [];
+    },
+    visibleFighterFilter(): boolean {
+      // 戦闘機搭載可フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.CL, SHIP_TYPE.CA, SHIP_TYPE.FBB, SHIP_TYPE.BB, SHIP_TYPE.BBB].includes(type)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    visibleArmorFilter(): boolean {
+      // バルジ搭載可フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.DD, SHIP_TYPE.CL, SHIP_TYPE.AV].includes(type)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    visibleCommanderFilter(): boolean {
+      // 司令部搭載可フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.DD, SHIP_TYPE.AV].includes(type)) {
+          return true;
+        }
+      }
+      return false;
+    },
   },
   methods: {
     changeType(index = 0) {
@@ -598,6 +664,28 @@ export default Vue.extend({
         this.tankNG = false;
       } else {
         this.tankOK = true;
+      }
+      this.filter();
+    },
+    toggleCommanderFilter() {
+      if (this.commanderOK) {
+        this.commanderOK = false;
+        this.commanderNG = true;
+      } else if (this.commanderNG) {
+        this.commanderNG = false;
+      } else {
+        this.commanderOK = true;
+      }
+      this.filter();
+    },
+    toggleArmorFilter() {
+      if (this.armorOK) {
+        this.armorOK = false;
+        this.armorNG = true;
+      } else if (this.armorNG) {
+        this.armorNG = false;
+      } else {
+        this.armorOK = true;
       }
       this.filter();
     },
@@ -701,7 +789,37 @@ export default Vue.extend({
             result = result.filter((v) => !isValid(v, tank));
           }
         }
-        if (this.fighterOK) {
+        if (this.visibleCommanderFilter) {
+          if (this.commanderOK) {
+            // 司令部搭載可能
+            const commander = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 107);
+            if (commander) {
+              result = result.filter((v) => isValid(v, commander));
+            }
+          } else if (this.commanderNG) {
+            // 司令部搭載不可
+            const commander = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 107);
+            if (commander) {
+              result = result.filter((v) => !isValid(v, commander));
+            }
+          }
+        }
+        if (this.visibleArmorFilter) {
+          if (this.armorOK) {
+            // バルジ搭載可能
+            const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
+            if (armor) {
+              result = result.filter((v) => isValid(v, armor));
+            }
+          } else if (this.armorNG) {
+            // バルジ搭載不可
+            const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
+            if (armor) {
+              result = result.filter((v) => !isValid(v, armor));
+            }
+          }
+        }
+        if (this.fighterOK && this.visibleFighterFilter) {
           // 戦闘機搭載可
           const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
           const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
