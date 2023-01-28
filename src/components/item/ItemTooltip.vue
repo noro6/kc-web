@@ -29,6 +29,9 @@
         <span class="item-status-value" :class="{ 'bad-status': value.aircraftDayBattleFirePower < 0 }">
           {{ formatStatus2(value.aircraftDayBattleFirePower) }}
         </span>
+        <span v-if="existsBonus && aircraftDayBattleFirePowerFitBonus" class="fit-bonus temp">
+          {{ aircraftDayBattleFirePowerFitBonus }} )
+        </span>
       </div>
       <div v-if="value.data.torpedo || value.bonusTorpedo || itemBonus.torpedo">
         <span class="item-status-text">{{ $t("Common.雷装") }}</span>
@@ -136,7 +139,7 @@
     <div class="item-status-grid no-grid">
       <template v-if="value.data.isPlane && !isNotJapanese">
         <div class="grey--text text--lighten-1">熟練度</div>
-        <div><img class="grow-img" :src="`./img/util/prof7.png`" alt="prof7"/></div>
+        <div><img class="grow-img" :src="`./img/util/prof7.png`" alt="prof7" /></div>
         <div class="grey--text text--lighten-1">まで</div>
         <div class="ml-5 grow-text">{{ growSpeedString(value.data) }} 戦</div>
       </template>
@@ -201,9 +204,17 @@
   width: 32px;
   margin-left: 1.5rem;
   color: #60c5ff;
+  position: relative;
+  white-space: nowrap;
 }
 .fit-bonus.bad-status {
   color: #ff6767;
+}
+.fit-bonus.temp::before {
+  content: "(";
+  color: #60c5ff;
+  position: absolute;
+  left: -8px;
 }
 
 .grow-img {
@@ -281,6 +292,17 @@ export default Vue.extend({
       };
       if (!this.bonus) return bonus;
       return JSON.parse(this.bonus) as ItemBonusStatus;
+    },
+    aircraftDayBattleFirePowerFitBonus(): string {
+      if (!this.existsBonus) return '';
+
+      const firePower = this.itemBonus.firePower ? this.itemBonus.firePower : 0;
+      const torpedo = this.itemBonus.torpedo ? this.itemBonus.torpedo : 0;
+      const bomber = this.itemBonus.bomber ? this.itemBonus.bomber : 0;
+
+      const value = (firePower + torpedo + bomber) * 1.5;
+      if (!value) return '';
+      return value >= 0 ? `+ ${value}` : `- ${Math.abs(value)}`;
     },
   },
 });
