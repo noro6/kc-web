@@ -79,7 +79,7 @@
                   <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate"></v-text-field>
                 </td>
                 <td class="text-right">{{ result.missingAsw }}</td>
-                <template v-if="!result.missingAsw">
+                <template v-if="result.targetAsw <= 0">
                   <td class="text-right">-</td>
                   <td class="text-right">-</td>
                 </template>
@@ -453,10 +453,28 @@ export default Vue.extend({
         result.requiredLevel = 0;
         result.requiredExp = 0;
 
-        if (!result.missingAsw || !result.targetAsw || !this.ship.data.id) {
+        if (!result.targetAsw || !this.ship.data.id) {
           continue;
         }
 
+        if (!result.missingAsw) {
+          if (result.targetAsw < this.minAsw) {
+            continue;
+          }
+          // 素ステータス以外の対潜値を取得
+          const aswWithoutStatus = this.ship.displayStatus.asw - Ship.getStatusFromLevel(this.level, this.maxAsw, this.minAsw);
+          // いつ達成していたか？
+          for (let level = 1; level <= this.level; level += 1) {
+            const asw = Ship.getStatusFromLevel(level, this.maxAsw, this.minAsw) + aswWithoutStatus;
+            if (asw === result.targetAsw) {
+              result.requiredLevel = level;
+              break;
+            }
+          }
+          continue;
+        }
+
+        // 仮想Lvとして1ずつ増加させ、到達するまで回す
         for (let level = this.level + 1; level <= 999; level += 1) {
           const prevLevelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === level - 1);
           const levelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === level);
@@ -464,7 +482,9 @@ export default Vue.extend({
             result.requiredExp += levelInfo.req - (prevLevelInfo ? prevLevelInfo.req : 0);
           }
 
+          // 仮想Lvにおける対潜値
           const asw = Ship.getStatusFromLevel(level, this.maxAsw, this.minAsw);
+          // 現在の対潜値と仮想Lvにおける対潜値の差分(左辺)が、不足分対潜値(右辺)に到達しているかどうかチェック
           if (asw - currentAsw >= result.missingAsw) {
             result.requiredLevel = level;
             break;
