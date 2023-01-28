@@ -249,7 +249,7 @@
       <v-card>
         <div class="site-setting-container px-5 pb-3">
           <div>
-            <div class="d-flex mt-3">
+            <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.言語") }}</div>
               <div class="header-divider"></div>
             </div>
@@ -257,8 +257,14 @@
               <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
               <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
             </div>
-            <div class="ml-3" v-if="!isJapanese">
-              <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :label="$t('Setting.艦娘や装備名は翻訳しない')"></v-checkbox>
+            <div class="ml-3 mt-2">
+              <v-checkbox
+                v-model="setting.nameIsNotTranslate"
+                hide-details
+                dense
+                :disabled="isJapanese"
+                :label="$t('Setting.艦娘や装備名は翻訳しない')"
+              ></v-checkbox>
             </div>
           </div>
           <div>
@@ -289,12 +295,15 @@
                     <span class="teal--text text--accent-4">10</span>
                   </div>
                   <div class="ml-1 align-self-center">
-                    <v-tooltip top color="black" :disabled="setting.hideDeathRateIndicator">
+                    <v-tooltip top color="black" :disabled="!setting.showDeathRateIndicator">
                       <template v-slot:activator="{ on, attrs }">
                         <v-hover v-slot="{ hover }">
                           <v-btn icon x-small v-bind="attrs" v-on="on">
-                            <v-icon small v-if="!setting.hideDeathRateIndicator && !hover" color="orange">mdi-record</v-icon>
-                            <v-icon small v-else-if="hover">mdi-close</v-icon>
+                            <v-icon small v-if="hover">mdi-close</v-icon>
+                            <template v-else-if="setting.showDeathRateIndicator">
+                              <v-icon x-small v-if="setting.isGraphicModeDeathRateIndicator" color="orange">mdi-triangle</v-icon>
+                              <v-icon small v-else color="orange">mdi-record</v-icon>
+                            </template>
                           </v-btn>
                         </v-hover>
                       </template>
@@ -304,8 +313,16 @@
                 </div>
               </div>
             </div>
-            <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.hideDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーターを表示しない')"></v-checkbox>
+            <div class="ml-3 mt-2 d-flex justify-content-around">
+              <v-checkbox v-model="setting.showDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーター表示')"></v-checkbox>
+              <v-checkbox
+                v-if="setting.showDeathRateIndicator"
+                class="ml-3"
+                v-model="setting.isGraphicModeDeathRateIndicator"
+                dense
+                hide-details
+                :label="$t('Setting.図形で区別')"
+              ></v-checkbox>
             </div>
           </div>
           <div class="pt-5">
@@ -368,13 +385,14 @@
           </div>
           <div>
             <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.装備マウスホバー時の詳細情報表示") }}</div>
+              <div class="body-2">{{ $t("Setting.マウスホバー時の詳細情報表示") }}</div>
               <div class="header-divider"></div>
             </div>
             <div class="ml-3 mt-2 d-flex align-center">
-              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.詳細情報を表示しない')"></v-checkbox>
+              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.無効(装備)')"></v-checkbox>
+              <v-checkbox class="ml-3" v-model="setting.disabledShipTooltip" dense :label="$t('Setting.無効(艦娘)')"></v-checkbox>
               <v-text-field
-                class="ml-6"
+                class="ml-3"
                 type="number"
                 :label="$t('Setting.表示までのディレイ')"
                 max="10000"
@@ -382,7 +400,7 @@
                 suffix="ms"
                 v-model.number="setting.popUpCount"
                 :rules="[rules.popUpRange]"
-                :disabled="setting.disabledItemTooltip"
+                :disabled="setting.disabledItemTooltip && setting.disabledShipTooltip"
               ></v-text-field>
             </div>
           </div>

@@ -125,7 +125,10 @@ export default class SiteSetting {
   public requiredAswTargets: number[];
 
   /** 全滅率インジケーター表示 */
-  public hideDeathRateIndicator: boolean;
+  public showDeathRateIndicator: boolean;
+
+  /** 全滅率インジケーター図形表示 */
+  public isGraphicModeDeathRateIndicator: boolean;
 
   constructor(setting?: SiteSetting) {
     if (setting) {
@@ -166,7 +169,8 @@ export default class SiteSetting {
       this.popUpCount = setting.popUpCount ?? 400;
       this.enabledAutoSave = !!setting.enabledAutoSave;
       this.requiredAswTargets = setting.requiredAswTargets ? setting.requiredAswTargets : [];
-      this.hideDeathRateIndicator = setting.hideDeathRateIndicator ?? false;
+      this.showDeathRateIndicator = setting.showDeathRateIndicator ?? true;
+      this.isGraphicModeDeathRateIndicator = !!setting.isGraphicModeDeathRateIndicator;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -244,7 +248,8 @@ export default class SiteSetting {
       this.popUpCount = 400;
       this.enabledAutoSave = false;
       this.requiredAswTargets = [];
-      this.hideDeathRateIndicator = false;
+      this.showDeathRateIndicator = true;
+      this.isGraphicModeDeathRateIndicator = false;
     }
   }
 }

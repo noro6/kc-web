@@ -103,12 +103,15 @@
       </v-menu>
       <!-- 解除 -->
       <div class="ml-1 item-remove align-self-center">
-        <v-tooltip top color="black" :open-delay="200" :disabled="!deathIndicator">
+        <v-tooltip top color="black" :open-delay="200" :disabled="!deathIndicatorColor">
           <template v-slot:activator="{ on, attrs }">
             <v-hover v-slot="{ hover }">
               <v-btn v-show="isDraggable" icon x-small @click="removeItem()" v-bind="attrs" v-on="on">
-                <v-icon small v-if="hover" :color="deathIndicator">mdi-close</v-icon>
-                <v-icon small v-else-if="deathIndicator" :color="deathIndicator">mdi-record</v-icon>
+                <v-icon small v-if="hover" :color="deathIndicatorColor">mdi-close</v-icon>
+                <template v-else-if="deathIndicatorColor">
+                  <v-icon x-small v-if="isTriangleIcon" :color="deathIndicatorColor">mdi-triangle</v-icon>
+                  <v-icon small v-else :color="deathIndicatorColor">mdi-record</v-icon>
+                </template>
               </v-btn>
             </v-hover>
           </template>
@@ -461,8 +464,9 @@ export default Vue.extend({
       const bonus = this.value.data.bonuses.find((v) => v.key === key);
       return bonus ? bonus.text : '';
     },
-    deathIndicator(): string {
-      if (!this.value.data.isPlane || !this.value.deathRate || this.setting.hideDeathRateIndicator) {
+    deathIndicatorColor(): string {
+      // 全滅率インジケーターのカラー設定 表示有無もこれの返り値で判定
+      if (!this.value.data.isPlane || !this.value.deathRate || !this.setting.showDeathRateIndicator) {
         return '';
       }
 
@@ -473,6 +477,10 @@ export default Vue.extend({
         return 'orange darken-3';
       }
       return 'red darken-2';
+    },
+    isTriangleIcon(): boolean {
+      // 全滅率インジケーターを三角表示にするかどうか
+      return this.setting.isGraphicModeDeathRateIndicator && this.value.deathRate >= 10;
     },
   },
   methods: {

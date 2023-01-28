@@ -443,6 +443,9 @@ export default Vue.extend({
     },
     bootTooltip(ship: GroupShip, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.disabledShipTooltip) {
+        return;
+      }
       window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
