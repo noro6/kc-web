@@ -6063,5 +6063,38 @@ export default class ItemBonus {
         },
       ],
     },
+    {
+      ids: [489],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 1, antiAir: 2, avoid: 1, asw: 1, accuracy: 1,
+          },
+          shipBase: [161, 900],
+        },
+        {
+          bonus: {
+            firePower: 2, antiAir: 2, avoid: 2, asw: 1, accuracy: 1,
+          },
+          shipId: [717],
+        },
+        {
+          bonus: { avoid: 1 },
+          remodel: 3,
+        },
+        {
+          bonus: { asw: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 10,
+        },
+      ],
+    },
   ];
 }

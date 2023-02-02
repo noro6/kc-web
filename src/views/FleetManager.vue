@@ -292,8 +292,8 @@
           <v-divider></v-divider>
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.発行履歴") }}</div>
-            <v-card v-for="(data, i) in outputHistories" :key="`history_${i}`" class="ma-2 pa-3">
-              <div class="d-flex">
+            <div class="d-flex flex-column-reverse">
+              <v-card v-for="(data, i) in outputHistories" :key="`history_${i}`" class="ma-2 pa-3 d-flex">
                 <div class="mr-2 align-self-center caption">
                   <div>{{ $t("Database.発行日") }}:</div>
                   <div>{{ data.createdAt }}</div>
@@ -310,8 +310,8 @@
                 <div class="align-self-center flex-grow-1">
                   <v-text-field v-model="data.remarks" dense outlined hide-details label="Memo"></v-text-field>
                 </div>
-              </div>
-            </v-card>
+              </v-card>
+            </div>
           </div>
         </v-card>
         <v-card class="my-3 pa-2">
