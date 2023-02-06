@@ -563,7 +563,7 @@ export default class Item {
 
     // 対潜哨戒機
     if (type === 26) {
-      if (this.data.asw > 8) {
+      if (this.data.asw >= 8) {
         return 0.3 * this.remodel;
       }
 
