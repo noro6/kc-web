@@ -106,6 +106,15 @@ export default class ShipMaster {
   /** 搭載弾薬 */
   public readonly ammo: number;
 
+  /** 改装設計図消費数 */
+  public readonly blueprints: number;
+
+  /** 戦闘詳報消費数 */
+  public readonly actionReports: number;
+
+  /** カタパルト消費数 */
+  public readonly catapults: number;
+
   /** 空母か */
   public readonly isCV: boolean
 
@@ -146,8 +155,11 @@ export default class ShipMaster {
       this.sort = ship.sort ? ship.sort : 0;
       this.slots = ship.slots ? ship.slots : [];
       this.originalId = ship.orig ? ship.orig : 0;
-      this.fuel = ship.fuel ? ship.fuel : 0;
-      this.ammo = ship.ammo ? ship.ammo : 0;
+      this.fuel = ship.fuel ?? 0;
+      this.ammo = ship.ammo ?? 0;
+      this.blueprints = ship.blueprints ?? 0;
+      this.actionReports = ship.reports ?? 0;
+      this.catapults = ship.catapults ?? 0;
     } else {
       this.id = 0;
       this.albumId = 0;
@@ -181,6 +193,9 @@ export default class ShipMaster {
       this.originalId = 0;
       this.fuel = 0;
       this.ammo = 0;
+      this.blueprints = 0;
+      this.actionReports = 0;
+      this.catapults = 0;
     }
 
     this.night = this.fire + this.torpedo;

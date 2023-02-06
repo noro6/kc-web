@@ -503,7 +503,7 @@
             <div class="align-self-center ml-2">
               <v-btn-toggle dense v-model="version" borderless mandatory class="flex-wrap">
                 <v-btn v-for="(ship, i) in versionButtons" :key="`ver${i}`" :value="i" @click.stop="changeVersion(i)">
-                  <span class="hidden-sm-and-down">{{ getShipName(ship) }}</span>
+                  <span>{{ getShipName(ship) }}</span>
                 </v-btn>
               </v-btn-toggle>
             </div>
