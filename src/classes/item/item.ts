@@ -68,32 +68,35 @@ export default class Item {
   /** 装備防空ボーナス 誤差考慮のため100倍された値 */
   public readonly antiAirBonus: number;
 
-  /** 改修効果込み実火力値 */
-  public readonly actualFire: number;
-
   /** 昼砲撃戦火力(通常) */
   public readonly dayBattleFirePower: number;
 
   /** 昼砲撃戦火力(空母) */
   public readonly aircraftDayBattleFirePower: number;
 
+  /** 改修効果込み実火力値 装備ボーナス分は後付け(艦娘が必要なため) */
+  public actualFire: number;
+
   /** 制空値計算時に適用される実対空値 */
   public readonly actualAntiAir: number;
 
-  /** 改修効果込み実雷装値 */
-  public readonly actualTorpedo: number;
+  /** 改修効果込み実雷装値 装備ボーナス分は後付け(艦娘が必要なため)  */
+  public actualTorpedo: number;
 
   /** 改修効果込み実爆装値 */
   public readonly actualBomber: number;
 
-  /** 改修効果込み実対潜値 */
-  public readonly actualAsw: number;
+  /** 改修効果込み実対潜値 装備ボーナス分は後付け(艦娘が必要なため) */
+  public actualAsw: number;
 
-  /** 改修効果込み実命中値 */
-  public readonly actualAccuracy: number;
+  /** 改修効果込み実命中値 装備ボーナスは後付け(艦娘が必要なため) */
+  public actualAccuracy: number;
 
-  /** 改修効果込み実索敵値 */
-  public readonly actualScout: number;
+  /** 改修効果込み実索敵値 装備ボーナス分は後付け(艦娘が必要なため) */
+  public actualScout: number;
+
+  /** 改修効果込み実回避 装備ボーナス分は後付け(艦娘が必要なため) */
+  public actualAvoid: number;
 
   /** 制空値計算時に適用される実対空値(防空時) */
   public readonly actualDefenseAntiAir: number;
@@ -228,6 +231,7 @@ export default class Item {
     this.actualAsw = this.data.asw + this.bonusAsw;
     this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
     this.actualScout = this.data.scout + this.bonusScout;
+    this.actualAvoid = this.data.avoid;
     this.dayBattleFirePower = this.data.fire + this.bonusFire;
     this.aircraftDayBattleFirePower = this.data.fire + this.bonusFire;
 

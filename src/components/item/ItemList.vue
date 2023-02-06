@@ -228,8 +228,8 @@
             </div>
             <template v-if="!multiLine">
               <div class="item-status" v-if="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
-              <div class="item-status" v-if="isShowDayBattleFire && isAircraftMode">{{ formatStatus(v.item.aircraftDayBattleFirePower) }}</div>
-              <div class="item-status" v-else-if="isShowDayBattleFire">{{ formatStatus(v.item.dayBattleFirePower) }}</div>
+              <div class="item-status" v-if="isShowDayBattleFire && isAircraftMode">{{ formatStatus(v.aircraftDayBattleFirePower) }}</div>
+              <div class="item-status" v-else-if="isShowDayBattleFire">{{ formatStatus(v.dayBattleFirePower) }}</div>
               <div class="item-status" v-if="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
               <div class="item-status" v-if="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
               <div class="item-status" v-if="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
@@ -238,7 +238,7 @@
               <div class="item-status" v-if="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
               <div class="item-status" v-if="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
               <div class="item-status" v-if="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
-              <div class="item-status" v-if="isShowAvoid">{{ v.item.data.avoid ? v.item.data.avoid : "" }}</div>
+              <div class="item-status" v-if="isShowAvoid">{{ formatStatus(v.item.actualAvoid) }}</div>
               <div class="item-status" v-if="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
               <div class="item-status" v-if="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
               <div class="item-status" v-if="isShowAntiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
@@ -629,6 +629,15 @@ import { cloneDeep } from 'lodash';
 import ItemBonus, { ItemBonusStatus } from '@/classes/item/ItemBonus';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
+type viewItem = {
+  item: Item;
+  count: number;
+  sumBonus: number;
+  bonus: ItemBonusStatus;
+  text: string;
+  dayBattleFirePower: number;
+  aircraftDayBattleFirePower: number;
+};
 
 export default Vue.extend({
   name: 'ItemList',
@@ -674,7 +683,7 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortKey: '',
     isDesc: false,
-    viewItems: [] as { item: Item; count: number; sumBonus: number; bonus: ItemBonusStatus; text: string }[],
+    viewItems: [] as viewItem[],
     itemStock: [] as ItemStock[],
     usedItems: [] as Item[],
     confirmDialog: false,
@@ -690,7 +699,7 @@ export default Vue.extend({
       { text: '装甲', key: 'armor' },
       { text: '対潜', key: 'asw' },
       { text: '対潜', key: 'actualAsw' },
-      { text: '回避', key: 'avoid' },
+      { text: '回避', key: 'actualAvoid' },
       { text: '索敵', key: 'actualScout' },
       { text: '命中', key: 'actualAccuracy' },
       { text: '対爆', key: 'antiBomber' },
@@ -839,7 +848,7 @@ export default Vue.extend({
       return this.viewStatus.includes('actualAsw');
     },
     isShowAvoid(): boolean {
-      return this.viewStatus.includes('avoid');
+      return this.viewStatus.includes('actualAvoid');
     },
     isShowScout(): boolean {
       return this.viewStatus.includes('actualScout');
@@ -1140,12 +1149,12 @@ export default Vue.extend({
         // カテゴリ全て検索
         if (this.itemParent instanceof Ship) {
           // 艦娘 -全て
-          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'asw'];
+          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'actualAsw'];
         } else if (this.isAirbaseMode) {
           // 基地 -全て
           this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
         } else {
-          this.viewStatus = ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'avoid', 'armor'];
+          this.viewStatus = ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'actualAvoid', 'armor'];
         }
       }
 
@@ -1191,6 +1200,8 @@ export default Vue.extend({
               sumBonus: 0,
               bonus: {},
               text: bonus ? bonus.text : '',
+              dayBattleFirePower: item.dayBattleFirePower,
+              aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
             });
           }
         }
@@ -1212,6 +1223,8 @@ export default Vue.extend({
             sumBonus: 0,
             bonus: {},
             text: bonus ? bonus.text : '',
+            dayBattleFirePower: item.dayBattleFirePower,
+            aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
           });
         }
       }
@@ -1286,6 +1299,23 @@ export default Vue.extend({
 
             item.sumBonus = sumBonus;
             item.bonus = totalBonus;
+
+            // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
+            item.item.actualFire += totalBonus.firePower ?? 0;
+            item.item.actualTorpedo += totalBonus.torpedo ?? 0;
+            item.item.actualAsw += totalBonus.asw ?? 0;
+            item.item.actualAccuracy += totalBonus.accuracy ?? 0;
+            item.item.actualScout += totalBonus.scout ?? 0;
+            item.item.actualAvoid += totalBonus.avoid ?? 0;
+
+            // 砲戦火力に加算
+            if (item.item.data.isPlane && !item.item.data.isSPPlane) {
+              item.dayBattleFirePower += totalBonus.firePower ?? 0;
+              item.aircraftDayBattleFirePower += ((totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0) + (totalBonus.bomber ?? 0)) * 1.5;
+            } else {
+              item.dayBattleFirePower += totalBonus.firePower ?? 0;
+              item.aircraftDayBattleFirePower += totalBonus.firePower ?? 0;
+            }
           }
         }
 
@@ -1315,6 +1345,7 @@ export default Vue.extend({
         });
       }
 
+      // ソートを行う
       if (this.sortKey) {
         this.sortItems();
       }
@@ -1394,23 +1425,23 @@ export default Vue.extend({
       }
     },
     sortItems() {
-      let key = this.sortKey;
+      const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
-      const isNameSort = key === 'name';
 
-      // 装備マスタの値でソートできないものたち
-      const isActualValue = key.indexOf('actual') >= 0
-        || key === 'tp'
-        || key === 'airPower'
-        || key === 'defenseAirPower'
-        || key === 'antiAirWeight'
-        || key === 'antiAirBonus'
-        || key === 'dayBattleFirePower';
-
-      if (key === 'dayBattleFirePower' && this.isAircraftMode) {
-        // 空母モードなら砲撃戦火力を空母式にする
-        key = 'aircraftDayBattleFirePower';
+      // 砲戦火力ソート時特別対応
+      if (key === 'dayBattleFirePower') {
+        if (this.isAircraftMode) {
+          this.viewItems.sort((a, b) => desc * (b.aircraftDayBattleFirePower - a.aircraftDayBattleFirePower));
+          return;
+        }
+        this.viewItems.sort((a, b) => desc * (b.dayBattleFirePower - a.dayBattleFirePower));
+        return;
       }
+
+      const isNameSort = key === 'name';
+      // 装備マスタの値でソートできないものたち
+      const isActualValue = key.indexOf('actual') >= 0 || key === 'tp' || key === 'airPower' || key === 'defenseAirPower' || key === 'antiAirWeight' || key === 'antiAirBonus';
+
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {
           return desc * ((b.item[key] as number) - (a.item[key] as number));
