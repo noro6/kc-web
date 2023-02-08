@@ -76,22 +76,22 @@
               <th class="text-right">
                 <v-btn small text @click.stop="showBlueprintPlanDialog()" :disabled="!totalBluePrintsPlan">
                   <v-icon class="ml-1" small>mdi-magnify</v-icon>
-                  {{ $t("Database.設計図消費予定") }}
+                  {{ $t("Database.改装設計図必要数") }}
                 </v-btn>
               </th>
               <th class="text-right">
                 <v-btn small text @click.stop="showActionReportPlanDialog()" :disabled="!totalActionReportsPlan">
                   <v-icon class="ml-1" small>mdi-magnify</v-icon>
-                  {{ $t("Database.詳報消費予定") }}
+                  {{ $t("Database.戦闘詳報必要数") }}
                 </v-btn>
               </th>
               <th class="text-right">
                 <v-btn small text @click.stop="showCatapultPlanDialog()" :disabled="!totalCatapultsPlan">
                   <v-icon class="ml-1" small>mdi-magnify</v-icon>
-                  {{ $t("Database.カタパルト消費予定") }}
+                  {{ $t("Database.カタパルト必要数") }}
                 </v-btn>
               </th>
-              <th class="text-right">{{ $t("Database.設計図消費数") }}</th>
+              <th class="text-right">{{ $t("Database.改装設計図消費数") }}</th>
               <th class="text-right">{{ $t("Database.戦闘詳報消費数") }}</th>
               <th class="text-right">{{ $t("Database.カタパルト消費数") }}</th>
             </tr>
@@ -190,68 +190,84 @@
         </div>
         <v-divider class="mx-2"></v-divider>
         <div class="detail-content pa-4">
-          <v-card v-for="(row, i) in reportPlans" :key="`row${i}`" class="mt-2 pa-2">
-            <div class="d-flex align-center">
-              <div>
-                <v-img :src="`./img/ship/${row.master.id}.png`" height="30" width="120"></v-img>
-              </div>
-              <div class="ml-1 flex-grow-1">
-                <div class="primary--text caption">Lv: {{ row.stock.level }}</div>
-                <div class="d-flex">
-                  <div class="ship-name text-truncate">{{ getShipName(row.master) }}</div>
+          <v-expansion-panels v-for="(row, i) in reportPlans" :key="`row${i}`" class="mt-2" v-model="row.open">
+            <v-expansion-panel>
+              <v-expansion-panel-header hide-actions class="py-2 pl-2">
+                <div class="d-flex align-center">
+                  <div>
+                    <v-img :src="`./img/ship/${row.master.id}.png`" height="40" width="160"></v-img>
+                  </div>
+                  <div class="ml-1 flex-grow-1">
+                    <div class="primary--text caption">Lv.{{ row.stock.level }}</div>
+                    <div class="d-flex">
+                      <div class="ship-name text-truncate">{{ getShipName(row.master) }}</div>
+                    </div>
+                  </div>
+                  <v-slide-y-reverse-transition>
+                    <div class="ml-auto d-flex" v-if="row.open !== 0">
+                      <div class="d-flex align-center" :class="{ 'opacity-10': !row.blueprints }">
+                        <img :src="`./img/util/blueprint.png`" height="40" width="40" alt="blueprint" />
+                        <div class="ml-1 body-2">x {{ row.blueprints }}</div>
+                      </div>
+                      <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.actionReports }">
+                        <img :src="`./img/util/actionReport.png`" height="40" width="40" alt="actionReport" />
+                        <div class="ml-1 body-2">x {{ row.actionReports }}</div>
+                      </div>
+                      <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.catapults }">
+                        <img :src="`./img/util/catapult.png`" height="40" width="40" alt="catapult" />
+                        <div class="ml-1 body-2">x {{ row.catapults }}</div>
+                      </div>
+                    </div>
+                  </v-slide-y-reverse-transition>
                 </div>
-              </div>
-              <div class="ml-auto d-none">
-                <div class="d-flex align-center" :class="{ 'opacity-10': !row.blueprints }">
-                  <v-img :src="`./img/util/blueprint.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ row.blueprints }}</div>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-divider></v-divider>
+                <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-flex mt-2">
+                  <div class="next-arrow-container">
+                    <div class="mr-3">
+                      <v-icon v-if="detail.requireEXP" color="warning">mdi-arrow-right-bold</v-icon>
+                      <v-icon v-else color="success">mdi-arrow-right-bold</v-icon>
+                    </div>
+                    <div class="next-level" :class="{ 'warning--text': detail.requireEXP, 'success--text': !detail.requireEXP }">
+                      <span class="caption">Lv.</span><span class="body-2">{{ detail.base.nextLv }}</span>
+                    </div>
+                  </div>
+                  <div class="align-self-center">
+                    <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160"></v-img>
+                  </div>
+                  <div class="ml-1 flex-grow-1 align-self-center">
+                    <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }}: {{ detail.requireEXP.toLocaleString() }}</div>
+                    <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
+                    <div class="d-flex">
+                      <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>
+                    </div>
+                  </div>
+                  <div class="ml-auto d-flex align-self-center">
+                    <div class="d-flex align-center" :class="{ 'opacity-10': !detail.blueprints }">
+                      <v-img :src="`./img/util/blueprint.png`" height="40" width="40"></v-img>
+                      <div class="ml-1 body-2">x {{ detail.blueprints }}</div>
+                    </div>
+                    <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.actionReports }">
+                      <v-img :src="`./img/util/actionReport.png`" height="40" width="40"></v-img>
+                      <div class="ml-1 body-2">x {{ detail.actionReports }}</div>
+                    </div>
+                    <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.catapults }">
+                      <v-img :src="`./img/util/catapult.png`" height="40" width="40"></v-img>
+                      <div class="ml-1 body-2">x {{ detail.catapults }}</div>
+                    </div>
+                  </div>
                 </div>
-                <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.actionReports }">
-                  <v-img :src="`./img/util/actionReport.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ row.actionReports }}</div>
-                </div>
-                <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.catapults }">
-                  <v-img :src="`./img/util/catapult.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ row.catapults }}</div>
-                </div>
-              </div>
-            </div>
-            <v-divider class="my-1"></v-divider>
-            <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-flex mt-2">
-              <div class="next-arrow-container">
-                <div class="mx-3">
-                  <v-icon v-if="detail.requireEXP">mdi-arrow-right-bold</v-icon>
-                  <v-icon v-else color="success">mdi-arrow-right-bold</v-icon>
-                </div>
-                <div class="next-level" :class="{ 'success--text': !detail.requireEXP }">Lv: {{ detail.base.nextLv }}</div>
-              </div>
-              <div class="align-self-center">
-                <v-img :src="`./img/ship/${detail.next.id}.png`" height="30" width="120"></v-img>
-              </div>
-              <div class="ml-1 flex-grow-1 align-self-center">
-                <div class="caption" v-if="detail.requireEXP">{{ $t("Database.残exp") }}: {{ detail.requireEXP.toLocaleString() }}</div>
-                <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
-                <div class="d-flex">
-                  <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>
-                </div>
-              </div>
-              <div class="ml-auto d-flex align-self-center">
-                <div class="d-flex align-center" :class="{ 'opacity-10': !detail.blueprints }">
-                  <v-img :src="`./img/util/blueprint.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ detail.blueprints }}</div>
-                </div>
-                <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.actionReports }">
-                  <v-img :src="`./img/util/actionReport.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ detail.actionReports }}</div>
-                </div>
-                <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.catapults }">
-                  <v-img :src="`./img/util/catapult.png`" height="40" width="40"></v-img>
-                  <div class="ml-1">x {{ detail.catapults }}</div>
-                </div>
-              </div>
-            </div>
-          </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </div>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="expandAll()">{{ $t("Database.全て展開") }}</v-btn>
+          <v-btn color="secondary" @click="collapseAll()">{{ $t("Database.全て折りたたむ") }}</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -287,7 +303,7 @@
 }
 
 .detail-content {
-  height: 75vh;
+  height: 70vh;
   overflow-y: auto;
 }
 
@@ -299,7 +315,7 @@
   white-space: nowrap;
 }
 .opacity-10 {
-  opacity: 0.2;
+  opacity: 0.3;
 }
 .next-arrow-container {
   position: relative;
@@ -307,9 +323,8 @@
 .next-level {
   position: absolute;
   white-space: nowrap;
-  left: 4px;
-  bottom: 0;
-  font-size: 0.85em;
+  left: -4px;
+  bottom: -4px;
 }
 </style>
 
@@ -464,6 +479,7 @@ export default Vue.extend({
       actionReports: number;
       catapults: number;
       details: planeDetail[];
+      open: number;
     }[],
   }),
   mounted() {
@@ -795,6 +811,7 @@ export default Vue.extend({
           actionReports: 0,
           catapults: 0,
           details: [] as planeDetail[],
+          open: -1,
         };
 
         // 以降(自身を含む)の改装状態を取得
@@ -843,6 +860,16 @@ export default Vue.extend({
       this.reportPlans = array;
 
       this.detailDialog = true;
+    },
+    expandAll() {
+      for (let i = 0; i < this.reportPlans.length; i += 1) {
+        this.reportPlans[i].open = 0;
+      }
+    },
+    collapseAll() {
+      for (let i = 0; i < this.reportPlans.length; i += 1) {
+        this.reportPlans[i].open = -1;
+      }
     },
   },
 });

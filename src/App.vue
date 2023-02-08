@@ -1683,7 +1683,8 @@ export default Vue.extend({
   background-color: rgb(40, 40, 45) !important;
 }
 /** ダークテーマ card2層目 */
-.theme--dark.v-card .v-card {
+.theme--dark.v-card .v-card,
+.theme--dark .v-dialog .v-expansion-panel {
   background-color: rgb(52, 52, 56) !important;
 }
 /** ダークテーマ card3層目 */
