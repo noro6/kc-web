@@ -298,8 +298,8 @@ export default {
     SaveData: {
       '新しい編成を作成': 'New File',
       '新しいフォルダーを作成': 'New Folder',
-      'フォルダーを全て開く': 'Collapse Folders',
-      'フォルダーを全て閉じる': 'Expand Folders',
+      'フォルダーを全て開く': 'Expand Folders',
+      'フォルダーを全て閉じる': 'Collapse Folders',
       'サイドバー固定': 'Fix sidebar',
       'サイドバー固定解除': 'Release sidebar fixation',
       '複製して開く': 'Duplicate and open',

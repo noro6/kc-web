@@ -1090,6 +1090,7 @@ export default class Ship implements ShipBase {
     if (type === SHIP_TYPE.CVL) {
       // 軽空母 / 護衛空母
       const hasASWPlane = items.some((v) => v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      const hasAttacker = items.some((v) => v.data.isAttacker);
       if (hasSonar && (hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
         // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
         if (this.displayStatus.asw >= 100) {
@@ -1098,15 +1099,15 @@ export default class Ship implements ShipBase {
         this.missingAsw = 100 - this.displayStatus.asw;
       }
       if (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7)) {
-        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
-        if (this.displayStatus.asw >= 65) {
+        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機) + 何らかの攻撃機
+        if (this.displayStatus.asw >= 65 && hasAttacker) {
           return true;
         }
         this.missingAsw = 65 - this.displayStatus.asw;
       }
       if (hasSonar && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
         // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
-        if (this.displayStatus.asw >= 50) {
+        if (this.displayStatus.asw >= 50 && hasAttacker) {
           return true;
         }
         this.missingAsw = 50 - this.displayStatus.asw;
@@ -1135,17 +1136,13 @@ export default class Ship implements ShipBase {
     }
 
     // 対潜値が問題で先制対潜に失敗しているなら、残りの対潜値から上げるべきレベルを算出
-    if (this.missingAsw && this.data.maxAsw) {
-      const currentAsw = this.asw - this.improveAsw;
-      this.needTSBKLevel = -1;
-      for (let level = this.level + 1; level <= 999; level += 1) {
-        const asw = Ship.getStatusFromLevel(level, this.data.maxAsw, this.data.minAsw);
-        if (asw - currentAsw >= this.missingAsw) {
-          this.needTSBKLevel = level;
-          break;
-        }
-      }
+    if (this.missingAsw > 0 && this.data.maxAsw) {
+      // 目標対潜値 = (装備なし表示値 - 対潜改修分) + 残りの必要対潜値
+      const targetAsw = (this.asw - this.improveAsw) + this.missingAsw;
+      this.needTSBKLevel = Ship.getRequiredLevel(targetAsw, this.data.maxAsw, this.data.minAsw);
     }
+
+    this.missingAsw = Math.max(this.missingAsw, 0);
 
     return false;
   }

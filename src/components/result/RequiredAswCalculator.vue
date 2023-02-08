@@ -447,47 +447,24 @@ export default Vue.extend({
         const result = results[index];
 
         result.targetAsw = Math.max(Math.min(result.targetAsw, 200), 0);
-
-        const currentAsw = this.ship.asw - this.improveAsw;
         result.missingAsw = Math.max(result.targetAsw - this.ship.displayStatus.asw, 0);
         result.requiredLevel = 0;
         result.requiredExp = 0;
-
-        if (!result.targetAsw || !this.ship.data.id) {
+        // 素ステータス以外の対潜値を取得 = 装備分と改修分
+        const aswWithoutStatus = this.ship.displayStatus.asw - Ship.getStatusFromLevel(this.level, this.maxAsw, this.minAsw);
+        if (!result.targetAsw || !this.ship.data.id || result.targetAsw < this.minAsw) {
+          // 算出不要
           continue;
         }
+        // いつ達成していたか？
+        result.requiredLevel = Ship.getRequiredLevel(result.targetAsw - aswWithoutStatus, this.maxAsw, this.minAsw);
 
-        if (!result.missingAsw) {
-          if (result.targetAsw < this.minAsw) {
-            continue;
-          }
-          // 素ステータス以外の対潜値を取得
-          const aswWithoutStatus = this.ship.displayStatus.asw - Ship.getStatusFromLevel(this.level, this.maxAsw, this.minAsw);
-          // いつ達成していたか？
-          for (let level = 1; level <= this.level; level += 1) {
-            const asw = Ship.getStatusFromLevel(level, this.maxAsw, this.minAsw) + aswWithoutStatus;
-            if (asw === result.targetAsw) {
-              result.requiredLevel = level;
-              break;
-            }
-          }
-          continue;
-        }
-
-        // 仮想Lvとして1ずつ増加させ、到達するまで回す
-        for (let level = this.level + 1; level <= 999; level += 1) {
-          const prevLevelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === level - 1);
-          const levelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === level);
-          if (levelInfo) {
-            result.requiredExp += levelInfo.req - (prevLevelInfo ? prevLevelInfo.req : 0);
-          }
-
-          // 仮想Lvにおける対潜値
-          const asw = Ship.getStatusFromLevel(level, this.maxAsw, this.minAsw);
-          // 現在の対潜値と仮想Lvにおける対潜値の差分(左辺)が、不足分対潜値(右辺)に到達しているかどうかチェック
-          if (asw - currentAsw >= result.missingAsw) {
-            result.requiredLevel = level;
-            break;
+        // まだ到達していないなら必要経験値を取得
+        if (result.requiredLevel > this.level) {
+          const targetLevelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === result.requiredLevel);
+          const levelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === this.level);
+          if (targetLevelInfo) {
+            result.requiredExp = targetLevelInfo.req - (levelInfo ? levelInfo.req : 0);
           }
         }
       }
