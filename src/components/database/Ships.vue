@@ -2,9 +2,10 @@
   <div class="mt-3">
     <v-tabs v-model="tab">
       <v-tab href="#list">{{ $t("Database.一覧") }}</v-tab>
-      <v-tab href="#group" v-if="shipStock.length">{{ $t("Database.札管理") }}</v-tab>
       <v-tab href="#analytics">{{ $t("Database.分析") }}</v-tab>
+      <v-tab href="#status_up">{{ $t("Database.ステータス上昇") }}</v-tab>
       <v-tab href="#compare" v-if="readOnly">{{ $t("Database.比較") }}</v-tab>
+      <v-tab href="#group" v-if="shipStock.length">{{ $t("Database.札管理") }}</v-tab>
     </v-tabs>
     <v-divider class="mb-2"></v-divider>
     <v-tabs-items v-model="tab" :touchless="true">
@@ -480,14 +481,17 @@
           </div>
         </div>
       </v-tab-item>
-      <v-tab-item value="group">
-        <area-manager :readonly="readOnly" />
-      </v-tab-item>
       <v-tab-item value="analytics">
         <analytics />
       </v-tab-item>
+      <v-tab-item value="status_up">
+        <status-up-line-list />
+      </v-tab-item>
       <v-tab-item value="compare">
         <compare />
+      </v-tab-item>
+      <v-tab-item value="group">
+        <area-manager :readonly="readOnly" />
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="600">
@@ -890,6 +894,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import Analytics from '@/components/database/Analytics.vue';
 import Compare from '@/components/database/Compare.vue';
 import AreaManager from '@/components/database/AreaManager.vue';
+import StatusUpLineList from '@/components/database/StatusUpLineList.vue';
 import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import Const from '@/classes/const';
 import ShipMaster from '@/classes/fleet/shipMaster';
@@ -933,6 +938,7 @@ export default Vue.extend({
     Compare,
     ShipTooltip,
     AreaManager,
+    StatusUpLineList,
   },
   data: () => ({
     all: [] as ShipMaster[],

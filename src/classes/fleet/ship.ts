@@ -622,6 +622,22 @@ export default class Ship implements ShipBase {
   }
 
   /**
+   * 指定数値に到達するために必要なLevelを算出
+   * @static
+   * @param {number} target
+   * @param {number} max Lv.99時最大値
+   * @param {number} min 初期値
+   * @return {*} 必要Level
+   * @memberof Ship
+   */
+  public static getRequiredLevel(target: number, max: number, min: number): number {
+    if (!(max - min)) {
+      return 0;
+    }
+    return Math.max(Math.ceil((99 * (target - min)) / (max - min)), 1);
+  }
+
+  /**
    * 命中項を返却
    * @static
    * @param {number} level
@@ -631,6 +647,33 @@ export default class Ship implements ShipBase {
    */
   public static getAccuracyValue(level: number, luck: number): number {
     return Math.floor(2 * Math.sqrt(level) + 1.5 * Math.sqrt(luck));
+  }
+
+  /**
+   * 指定命中項に到達するために必要なLevelを算出
+   * @static
+   * @param {number} target 目標数値
+   * @param {number} luck 運
+   * @return {*}  {number} 必要Level
+   * @memberof Ship
+   */
+  public static getRequiredLevelAccuracy(target: number, luck: number): number {
+    if (target - (3 / 2) * Math.sqrt(luck) >= 0) {
+      return Math.ceil(((target - (3 / 2) * Math.sqrt(luck)) ** 2) / 4);
+    }
+    return 0;
+  }
+
+  /**
+   * 指定命中項に到達するために必要な運を算出
+   * @static
+   * @param {number} target 目標数値
+   * @param {number} level Level
+   * @return {*}  {number} 必要運
+   * @memberof Ship
+   */
+  public static getRequiredLuckAccuracy(target: number, level: number): number {
+    return Math.ceil((4 / 9) * (target - (2 * Math.sqrt(level))) ** 2);
   }
 
   /**
@@ -665,6 +708,45 @@ export default class Ship implements ShipBase {
       return Math.floor(65 + Math.sqrt(luck - 50) + 0.8 * Math.sqrt(level));
     }
     return Math.floor(15 + luck + 0.75 * Math.sqrt(level));
+  }
+
+  /**
+   * 指定CI項に到達するために必要なLevelを算出
+   * @static
+   * @param {number} target 目標数値
+   * @param {number} luck 運
+   * @return {*}  {number} 必要Level
+   * @memberof Ship
+   */
+  public static getRequiredLevelCI(target: number, luck: number): number {
+    if (luck >= 50) {
+      if (target - (65 + Math.sqrt(luck - 50)) >= 0) {
+        return Math.ceil((25 * (target - (65 + Math.sqrt(luck - 50))) ** 2) / 16);
+      }
+      return 0;
+    }
+
+    if (target - (15 + luck) >= 0) {
+      return Math.ceil((16 * (target - (15 + luck)) ** 2) / 9);
+    }
+    return 0;
+  }
+
+  /**
+   * 指定CI項に到達するために必要な運を算出
+   * @static
+   * @param {number} target 目標数値
+   * @param {number} level Level
+   * @return {*}  {number} 必要運
+   * @memberof Ship
+   */
+  public static getRequiredLuckCI(target: number, level: number): number {
+    const luck = Math.ceil(target - (15 + 0.75 * Math.sqrt(level)));
+    if (luck > 50) {
+      // 運50を超える場合は別式
+      return Math.ceil((target - (65 + 0.8 * Math.sqrt(level))) ** 2 + 50);
+    }
+    return luck;
   }
 
   /**
