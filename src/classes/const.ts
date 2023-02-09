@@ -494,7 +494,8 @@ export default class Const {
     { text: '駆逐', types: [2] },
     { text: '海防', types: [1] },
     { text: '潜水', types: [13, 14] },
-    { text: 'その他', types: [15, 16, 17, 19, 20, 22] },
+    { text: '水母', types: [16] },
+    { text: 'その他', types: [15, 17, 19, 20, 22] },
   ];
 
   /**

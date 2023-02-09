@@ -607,7 +607,7 @@ export default Vue.extend({
       // バルジ搭載可フィルタ表示制御
       for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
         const type = this.selectedShipTypes[i];
-        if ([+SHIP_TYPE.DD, SHIP_TYPE.CL, SHIP_TYPE.AV].includes(type)) {
+        if ([+SHIP_TYPE.DD, SHIP_TYPE.CL, SHIP_TYPE.AO_2].includes(type)) {
           return true;
         }
       }
@@ -617,7 +617,7 @@ export default Vue.extend({
       // 司令部搭載可フィルタ表示制御
       for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
         const type = this.selectedShipTypes[i];
-        if ([+SHIP_TYPE.DD, SHIP_TYPE.AV].includes(type)) {
+        if ([+SHIP_TYPE.DD, SHIP_TYPE.AO_2].includes(type)) {
           return true;
         }
       }
