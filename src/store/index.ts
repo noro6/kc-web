@@ -20,6 +20,7 @@ import {
 } from '@/classes/interfaces/master';
 import OutputHistory from '@/classes/saveData/outputHistory';
 import Quest from '@/classes/quest';
+import Fleet from '@/classes/fleet/fleet';
 
 Vue.use(Vuex);
 
@@ -33,6 +34,8 @@ export default new Vuex.Store({
     shipStock: [] as ShipStock[],
     tempItemStock: [] as ItemStock[],
     tempShipStock: [] as ShipStock[],
+    tempShipList: [] as Ship[],
+    tempFleetList: [] as Fleet[],
     itemPresets: [] as ItemPreset[],
     manualEnemies: [] as EnemyMaster[],
     defaultEnemies: [] as EnemyMaster[],
@@ -120,6 +123,12 @@ export default new Vuex.Store({
     updateTempShipStock: (state, values: ShipStock[]) => {
       state.tempShipStock = values;
     },
+    updateTempShipList: (state, values: Ship[]) => {
+      state.tempShipList = values;
+    },
+    updateTempFleetList: (state, values: Fleet[]) => {
+      state.tempFleetList = values;
+    },
     updateItemPresets: (state, values: ItemPreset[]) => {
       state.itemPresets = values;
     },
@@ -200,6 +209,12 @@ export default new Vuex.Store({
     },
     updateTempShipStock: (context, values: ShipStock[]) => {
       context.commit('updateTempShipStock', values);
+    },
+    updateTempShipList: (context, values: Ship[]) => {
+      context.commit('updateTempShipList', values);
+    },
+    updateTempFleetList: (context, values: Fleet[]) => {
+      context.commit('updateTempFleetList', values);
     },
     updateItemPresets: (context, values: ItemPreset[]) => {
       if (!context.state.disabledDatabase) {

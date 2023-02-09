@@ -123,6 +123,7 @@
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
           :handle-show-temp-ship-list="showTempShipList"
+          :handle-show-temp-fleet-list="showTempFleetList"
           :handle-show-item-preset="showItemPreset"
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
@@ -141,6 +142,7 @@
             :handle-show-ship-list="showShipList"
             :handle-show-item-list="showItemList"
             :handle-show-temp-ship-list="showTempShipList"
+            :handle-show-temp-fleet-list="showTempFleetList"
             :handle-show-item-preset="showItemPreset"
             :union-fleet="fleetInfo.unionFleet"
             :is-union="fleetInfo.isUnion"
@@ -208,7 +210,7 @@
     <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="900">
       <v-card v-if="tempShipListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
-          <div class="align-self-center ml-3">{{ $t("Fleet.一時保存済みリスト") }}</div>
+          <div class="align-self-center ml-3">{{ $t("Fleet.艦娘クリップボード") }}</div>
           <v-spacer></v-spacer>
           <v-btn icon @click="tempShipListDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -249,14 +251,14 @@
             </v-card>
             <div>
               <v-btn color="primary" :disabled="!enabledPushTempShip" @click="pushTempShip()">
-                <v-icon>mdi-tray-arrow-down</v-icon>{{ $t("Fleet.リストへ追加") }}
+                <v-icon>mdi-clipboard-arrow-down</v-icon>{{ $t("Fleet.クリップボードへ追加") }}
               </v-btn>
             </div>
           </div>
-          <v-divider class="mt-3 mb-1" v-if="!tempShip.isEmpty"></v-divider>
+          <v-divider class="mt-3 mb-2" v-if="!tempShip.isEmpty"></v-divider>
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
-              <div class="body-2 align-self-end">{{ $t("Fleet.一時保存済みリスト") }}</div>
+              <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
               <div class="ml-3 align-self-end caption">※ {{ $t("Fleet.クリックで展開") }}</div>
             </div>
             <div class="ml-auto">
@@ -297,6 +299,109 @@
               </div>
             </v-card>
           </div>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="tempFleetListDialog" transition="scroll-x-transition" width="900">
+      <v-card v-if="tempFleetListDialog">
+        <div class="d-flex pb-1 px-2 pt-2">
+          <div class="align-self-center ml-3">{{ $t("Fleet.艦隊クリップボード") }}</div>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="tempFleetListDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider></v-divider>
+        <div class="pa-3">
+          <div v-if="tempFleet.ships.some((v) => !v.isEmpty)" class="px-2">
+            <v-card class="px-2 pt-2 pb-1 my-2">
+              <div class="caption">{{ $t("Fleet.現在の艦隊") }}</div>
+              <div class="d-flex flex-wrap">
+                <div v-for="(ship, i) in tempFleet.ships" :key="`ship_${i}`">
+                  <div v-if="ship.data.id" class="mr-1">
+                    <div>
+                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                    </div>
+                    <div class="d-flex">
+                      <div v-for="(item, j) in ship.items.concat(ship.exItem)" :key="`ship${i}_item${j}`">
+                        <v-img v-if="item.data.iconTypeId > 0 && j <= 4" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+            <v-btn color="primary" :disabled="!enabledPushTempFleet" @click="pushTempFleet">
+              <v-icon>mdi-clipboard-arrow-down</v-icon>{{ $t("Fleet.クリップボードへ追加") }}
+            </v-btn>
+          </div>
+          <v-divider class="mt-3 mb-2" v-if="tempFleet.ships.some((v) => !v.isEmpty)"></v-divider>
+          <div class="d-flex ml-2 mb-2">
+            <div class="align-self-center d-flex">
+              <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
+              <div class="ml-3 align-self-end caption">※ {{ $t("Fleet.クリックで展開") }}</div>
+            </div>
+            <div class="ml-auto">
+              <v-btn color="success" class="mr-2" @click="loadDeckBuilderDialog = true">
+                <v-icon>mdi-code-json</v-icon>{{ $t("Fleet.デッキビルダー読込") }}
+              </v-btn>
+              <v-btn color="error" :disabled="!tempFleetList.length" @click="resetTempFleetList">
+                <v-icon>mdi-trash-can-outline</v-icon>{{ $t("Common.リセット") }}
+              </v-btn>
+            </div>
+          </div>
+          <div class="temp-fleet-list px-2">
+            <v-card
+              class="my-2 pl-2 pb-1"
+              v-ripple="{ class: 'info--text' }"
+              v-for="(temp, i) in tempFleetList"
+              :key="`tempFleet_${i}`"
+              @click="popTempFleet(temp)"
+            >
+              <div class="d-flex">
+                <div class="caption align-self-center">#{{ i + 1 }}</div>
+                <div class="ml-auto">
+                  <v-btn small icon @click.stop="deleteTempFleet(i)">
+                    <v-icon small>mdi-trash-can-outline</v-icon>
+                  </v-btn>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap">
+                <div v-for="(ship, j) in temp.ships" :key="`fleet${i}_ship_${j}`" class="mr-1">
+                  <div v-if="ship.data.id">
+                    <div>
+                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                    </div>
+                    <div class="d-flex">
+                      <div v-for="(item, k) in ship.items.concat(ship.exItem)" :key="`fleet${i}_ship${j}_item${k}`">
+                        <v-img v-if="item.data.iconTypeId > 0 && k <= 4" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="loadDeckBuilderDialog" transition="scroll-x-transition" width="620">
+      <v-card class="pa-6">
+        <div class="body-2 mb-3">
+          {{ $t("Fleet.艦隊クリップボードにデッキビルダー形式の艦隊データを直接追加することができます。") }}
+        </div>
+        <v-textarea
+          v-model.trim="tempDeckBuilder"
+          :label="`${$t('Home.デッキビルダー形式データ')}`"
+          placeholder="{'f1':{'s1':{'id':323,'lv':175... }"
+          dense
+          outlined
+          hide-details
+          @input="tempDeckBuilderError = false"
+          :error="tempDeckBuilderError"
+        ></v-textarea>
+        <div class="d-flex mt-3">
+          <v-btn class="ml-auto" color="success" :disabled="!tempDeckBuilder" @click.stop="readTempDeckBuilder">{{ $t("Common.実行") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -482,8 +587,11 @@
 }
 
 /** 以下、一時保存リスト用 */
-.temp-ship-list {
-  min-height: 120px;
+.temp-ship-list,
+.temp-fleet-list {
+  min-height: 240px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 .temp-ship-view,
 .temp-ship-list {
@@ -510,7 +618,8 @@
 .temp-ship-list .temp-ship {
   cursor: pointer;
 }
-.temp-ship-list .temp-ship:hover {
+.temp-ship-list .temp-ship:hover,
+.temp-fleet-list .v-card:hover {
   background-color: rgba(128, 200, 255, 0.1) !important;
 }
 .temp-ship-item-name,
@@ -660,6 +769,13 @@ export default Vue.extend({
     tempShipListDialog: false,
     tempShipList: [] as Ship[],
     enabledPushTempShip: true,
+    tempFleet: undefined as undefined | Fleet,
+    tempFleetListDialog: false,
+    tempFleetList: [] as Fleet[],
+    enabledPushTempFleet: true,
+    loadDeckBuilderDialog: false,
+    tempDeckBuilder: '',
+    tempDeckBuilderError: false,
     bulkUpdateDialog: false,
     bulkUpdateTarget: [1, 1, 1, 1],
     itemPresetDialog: false,
@@ -691,6 +807,9 @@ export default Vue.extend({
 
     const setting = this.$store.state.siteSetting as SiteSetting;
     this.show12 = setting.isShow12Ships;
+
+    this.tempShipList = this.$store.state.tempShipList ?? [];
+    this.tempFleetList = this.$store.state.tempFleetList ?? [];
   },
   watch: {
     bulkUpdateDialog(value: boolean) {
@@ -798,6 +917,7 @@ export default Vue.extend({
         // 一時保存リストに追加
         this.enabledPushTempShip = false;
         this.tempShipList.push(this.tempShip);
+        this.$store.dispatch('updateTempShipList', this.tempShipList);
       }
     },
     popTempShip(ship: Ship) {
@@ -821,6 +941,77 @@ export default Vue.extend({
       // 一時保存リストリセット
       this.enabledPushTempShip = true;
       this.tempShipList = [];
+      this.$store.dispatch('updateTempShipList', []);
+    },
+    showTempFleetList(fleetIndex: number) {
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+      this.shipDialogTarget = [fleetIndex, 0];
+      this.tempFleet = cloneDeep(fleet);
+      this.tempFleetListDialog = true;
+      this.enabledPushTempFleet = true;
+    },
+    pushTempFleet() {
+      if (this.tempFleet && this.tempFleet.ships.some((v) => !v.isEmpty)) {
+        // 一時保存リストに追加
+        this.enabledPushTempFleet = false;
+        this.tempFleetList.push(this.tempFleet);
+        this.$store.dispatch('updateTempFleetList', this.tempFleetList);
+      }
+    },
+    popTempFleet(newFleet: Fleet) {
+      const fleetIndex = this.shipDialogTarget[0];
+      // 展開先の艦隊
+      const originalFleet = this.fleetInfo.fleets[fleetIndex];
+      const ships = [];
+      // 随伴フラグは元の艦娘状態から引き継ぐようにする
+      const { isEscort } = originalFleet.ships[0] ?? new Ship();
+
+      for (let i = 0; i < newFleet.ships.length; i += 1) {
+        const newShip = newFleet.ships[i];
+        const items = [];
+        for (let j = 0; j < newShip.items.length; j += 1) {
+          items.push(new Item({ item: newShip.items[j] }));
+        }
+        ships.push(new Ship({ ship: newShip, isEscort, items }));
+      }
+      // 艦娘構成のみ置き換える形 それ以外は元々の艦隊データを引き継ぐ
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet: originalFleet, ships });
+
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+      this.tempFleetListDialog = false;
+    },
+    deleteTempFleet(index: number) {
+      this.tempFleetList = this.tempFleetList.filter((v, i) => i !== index);
+      this.$store.dispatch('updateTempFleetList', this.tempFleetList);
+    },
+    resetTempFleetList() {
+      // 一時保存リストリセット
+      this.enabledPushTempShip = true;
+      this.tempFleetList = [];
+      this.$store.dispatch('updateTempFleetList', []);
+    },
+    readTempDeckBuilder() {
+      const text = this.tempDeckBuilder;
+      const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+
+      try {
+        const manager = converter.loadDeckBuilder(text);
+        if (manager) {
+          for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+            const fleet = manager.fleetInfo.fleets[i];
+            if (fleet.ships.some((v) => !v.isEmpty)) {
+              this.tempFleetList.push(fleet);
+            }
+          }
+          this.loadDeckBuilderDialog = false;
+          this.$store.dispatch('updateTempFleetList', this.tempFleetList);
+        }
+      } catch (error) {
+        this.tempDeckBuilderError = true;
+      } finally {
+        this.tempDeckBuilder = '';
+      }
     },
     putShip(viewShip: ViewShip) {
       const { ship } = viewShip;

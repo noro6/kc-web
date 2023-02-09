@@ -10,12 +10,22 @@
       <fleet-info-header :value="value" :index="index" :isUnion="isUnion" :unionFleet="unionFleet" :admiralLv="admiralLv" />
       <div class="d-flex ml-auto">
         <div class="operation-button">
-          <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip">
-            <v-icon>mdi-minus</v-icon>
-          </v-btn>
-          <v-btn icon :disabled="!shipAddEnabled" @click="addEmptyShip">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon :disabled="!shipRemoveEnabled" @click="removeLastShip" v-bind="attrs" v-on="on">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.艦娘入力欄を減らす") }}</span>
+          </v-tooltip>
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon :disabled="!shipAddEnabled" @click="addEmptyShip" v-bind="attrs" v-on="on">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.艦娘入力欄を増やす") }}</span>
+          </v-tooltip>
         </div>
         <div class="operation-button">
           <v-tooltip bottom color="black">
@@ -27,7 +37,17 @@
             <span>{{ $t("Fleet.艦隊リセット") }}</span>
           </v-tooltip>
         </div>
-        <div class="d-capture-none ship-line-setting">
+        <div class="operation-button">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon @click="showTempFleetList(index)" v-bind="attrs" v-on="on">
+                <v-icon>mdi-clipboard-flow</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.艦隊クリップボード") }}</span>
+          </v-tooltip>
+        </div>
+        <div class="d-capture-none ship-line-setting ml-2">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
             <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
               <span class="white--text">{{ $t("Fleet.x列", { number: 2 }) }}</span>
@@ -134,6 +154,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleShowTempFleetList: {
+      type: Function,
+      required: true,
+    },
     handleShowItemPreset: {
       type: Function,
       required: true,
@@ -195,6 +219,9 @@ export default Vue.extend({
     },
     showTempShipList(shipIndex: number) {
       this.handleShowTempShipList(this.index, shipIndex);
+    },
+    showTempFleetList() {
+      this.handleShowTempFleetList(this.index);
     },
     showItemPreset(shipIndex: number) {
       this.handleShowItemPreset(this.index, shipIndex);
