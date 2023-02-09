@@ -64,7 +64,7 @@
           prepend-inner-icon="mdi-magnify"
         ></v-text-field>
       </div>
-      <div class="ml-3">
+      <div class="ml-3" v-if="viewStatus">
         <v-text-field
           type="number"
           dense
@@ -100,9 +100,9 @@
       <template v-slot:[`header.target1`]="{ header }">{{ targetText(header.text) }} +1</template>
       <template v-slot:[`header.target2`]="{ header }">{{ targetText(header.text) }} +2</template>
       <template v-slot:[`header.target3`]="{ header }">{{ targetText(header.text) }} +3</template>
-      <template v-slot:[`header.manual`]="{ header }">{{ $t(`Database.${header.text}`) }}({{ viewStatus.manual }})</template>
+      <template v-slot:[`header.manual`]="{ header }">{{ $t(`Database.${header.text}`) }}({{ viewStatus ? viewStatus.manual : '' }})</template>
       <template v-slot:item="{ item }">
-        <tr :class="{ lv175: item.stock.level === 175 && !isLuckResult }">
+        <tr :class="{ lv175: item.target1 > 175 && !isLuckResult }">
           <td class="px-0 py-1">
             <div class="d-none d-md-flex align-center">
               <div class="ship-img">
@@ -301,7 +301,6 @@ export default Vue.extend({
         text: '項目1',
         align: 'end',
         value: 'target1',
-        sortable: false,
       },
       {
         text: '項目2',
@@ -335,7 +334,7 @@ export default Vue.extend({
     page: 1,
     types: [] as { text: string; types: number[] }[],
     luckMode: false,
-    showDiff: false,
+    showDiff: true,
     unsubscribe: undefined as unknown,
   }),
   mounted() {
