@@ -87,12 +87,10 @@ export default class Fleet {
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ
       this.ships = builder.ships ? builder.ships.concat() : builder.fleet.ships.concat();
-      this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : builder.fleet.isUnion;
       this.formation = builder.formation !== undefined ? builder.formation : builder.fleet.formation;
     } else {
       this.ships = builder.ships ? builder.ships.concat() : [];
-      this.formation = builder.formation !== undefined ? builder.formation : 1;
       this.isUnion = builder.isUnion !== undefined ? builder.isUnion : false;
       this.formation = builder.formation !== undefined ? builder.formation : FORMATION.LINE_AHEAD;
 

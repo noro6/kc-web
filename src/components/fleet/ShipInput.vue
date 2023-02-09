@@ -17,11 +17,11 @@
         <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon class="align-self-center" color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
-                <v-icon>mdi-download</v-icon>
+              <v-btn icon small class="align-self-center" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+                <v-icon small>mdi-clipboard-arrow-down</v-icon>
               </v-btn>
             </template>
-            <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
+            <span>{{ $t("Fleet.艦娘クリップボード") }}</span>
           </v-tooltip>
         </div>
       </div>
@@ -206,7 +206,7 @@
         <div class="ml-auto ship-buttons">
           <v-tooltip bottom color="black" v-if="enabledConvert">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon color="blue lighten-1" small v-bind="attrs" v-on="on" @click.stop="toggleVersion()">
+              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="toggleVersion()">
                 <v-icon>mdi-sync</v-icon>
               </v-btn>
             </template>
@@ -214,15 +214,15 @@
           </v-tooltip>
           <v-tooltip bottom color="black" v-if="handleShowTempShipList">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small color="teal lighten-1" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
-                <v-icon>mdi-upload</v-icon>
+              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+                <v-icon>mdi-clipboard-arrow-up</v-icon>
               </v-btn>
             </template>
-            <span>{{ $t("Fleet.一時保存艦娘リスト") }}</span>
+            <span>{{ $t("Fleet.艦娘クリップボード") }}</span>
           </v-tooltip>
           <v-tooltip bottom color="black" v-if="handleShowItemPreset">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon color="orange darken-2" small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
+              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
                 <v-icon>mdi-briefcase-variant</v-icon>
               </v-btn>
             </template>

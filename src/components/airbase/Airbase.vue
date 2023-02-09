@@ -12,7 +12,7 @@
         </v-btn>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon small color="orange darken-2" v-bind="attrs" v-on="on" @click="showItemPresets()">
+            <v-btn icon small v-bind="attrs" v-on="on" @click="showItemPresets()">
               <v-icon small>mdi-briefcase-variant</v-icon>
             </v-btn>
           </template>

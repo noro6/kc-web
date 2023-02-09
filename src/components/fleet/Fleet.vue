@@ -61,12 +61,6 @@
   </div>
 </template>
 
-<style scoped>
-.operation-button {
-  padding: 0 0.2rem;
-}
-</style>
-
 <style>
 .ship-inputs-container {
   grid-template-columns: 1fr;
