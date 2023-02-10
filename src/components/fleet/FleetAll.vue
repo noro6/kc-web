@@ -56,7 +56,7 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')"></v-text-field>
         </v-card>
       </v-menu>
-      <div class="mx-3 mb-3">
+      <div class="ml-3 mb-3">
         <v-select
           class="fleet-type-input"
           :label="$t('Fleet.艦隊形式')"
@@ -67,10 +67,10 @@
           @change="changedInfo"
         ></v-select>
       </div>
-      <div class="mb-3 mr-3" v-if="fleetInfo.isUnion">
+      <div class="mb-3 ml-1" v-if="fleetInfo.isUnion">
         <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12"></v-checkbox>
       </div>
-      <div class="mx-3 mb-3">
+      <div class="ml-3 mb-3">
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -226,8 +226,8 @@
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
-                    <div class="caption blue--text">Lv: {{ tempShip.level }}</div>
-                    <div class="caption ml-2">{{ $t("Common.制空") }}: {{ tempShip.fullAirPower }}</div>
+                    <div class="caption blue--text">Lv {{ tempShip.level }}</div>
+                    <div class="caption ml-2">{{ $t("Common.制空") }} {{ tempShip.fullAirPower }}</div>
                   </div>
                   <div class="d-flex flex-grow-1">
                     <div class="temp-ship-name">{{ getShipName(tempShip.data) }}</div>
@@ -259,7 +259,7 @@
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
-              <div class="ml-3 align-self-end caption">※ {{ $t("Fleet.クリックで展開") }}</div>
+              <div class="ml-3 align-self-end caption" v-if="tempShipList.length">※ {{ $t("Fleet.クリックで展開") }}</div>
             </div>
             <div class="ml-auto">
               <v-btn color="error" :disabled="!tempShipList.length" @click="resetTempShipList()">
@@ -275,8 +275,8 @@
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
-                    <div class="caption blue--text">Lv: {{ temp.level }}</div>
-                    <div class="caption ml-2">{{ $t("Common.制空") }}: {{ temp.fullAirPower }}</div>
+                    <div class="caption blue--text">Lv {{ temp.level }}</div>
+                    <div class="caption ml-2">{{ $t("Common.制空") }} {{ temp.fullAirPower }}</div>
                   </div>
                   <div class="d-flex flex-grow-1">
                     <div class="temp-ship-name">{{ getShipName(temp.data) }}</div>
@@ -339,7 +339,7 @@
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
-              <div class="ml-3 align-self-end caption">※ {{ $t("Fleet.クリックで展開") }}</div>
+              <div class="ml-3 align-self-end caption" v-if="tempFleetList.length">※ {{ $t("Fleet.クリックで展開") }}</div>
             </div>
             <div class="ml-auto">
               <v-btn color="success" class="mr-2" @click="loadDeckBuilderDialog = true">

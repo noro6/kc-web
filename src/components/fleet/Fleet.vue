@@ -41,7 +41,7 @@
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon @click="showTempFleetList(index)" v-bind="attrs" v-on="on">
-                <v-icon>mdi-clipboard-flow</v-icon>
+                <v-icon color="orange lighten-2">mdi-clipboard-edit</v-icon>
               </v-btn>
             </template>
             <span>{{ $t("Fleet.艦隊クリップボード") }}</span>

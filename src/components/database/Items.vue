@@ -176,7 +176,7 @@
               <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40"></v-img>
             </div>
             <div class="align-self-center ml-1">
-              <div class="caption info--text">ID: {{ editedItem.id }}</div>
+              <div class="caption info--text">id {{ editedItem.id }}</div>
               <div class="body-2">{{ needTrans ? $t(`${editedItem.name}`) : editedItem.name }}</div>
             </div>
           </div>

@@ -5,7 +5,7 @@
         <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120"></v-img>
       </div>
       <div class="ml-3 align-self-center">
-        <div class="caption">Lv: {{ value.level }}</div>
+        <div class="caption">Lv {{ value.level }}</div>
         <div class="body-2">
           <span>{{ shipName }}</span>
         </div>

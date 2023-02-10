@@ -136,11 +136,11 @@
     </div>
     <div v-if="!selectedShip.isEmpty">
       <div class="d-flex flex-wrap">
-        <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}:</div>
+        <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}</div>
         <div>
           <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="calculate"></v-select>
         </div>
-        <div class="ml-auto align-self-end caption">{{ $t("Result.最終攻撃力") }}:</div>
+        <div class="ml-auto align-self-end caption">{{ $t("Result.最終攻撃力") }}</div>
         <div class="ml-1 align-self-end">{{ finalFirePower ? Math.floor(100 * finalFirePower) / 100 : 0 }}</div>
       </div>
       <v-divider class="mt-2"></v-divider>
@@ -176,7 +176,7 @@
                   <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120"></v-img>
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
-                  <div class="text-left enemy-id primary--text">id:{{ row.enemy.data.id }}</div>
+                  <div class="text-left enemy-id primary--text">id {{ row.enemy.data.id }}</div>
                   <div class="d-flex">
                     <div class="caption text-truncate">{{ getEnemyName(row.enemy.data.name) }}</div>
                   </div>
@@ -206,39 +206,39 @@
     <v-tooltip v-model="enabledDamageDetailTooltip" color="black" top :position-x="tooltipX" :position-y="tooltipY">
       <div class="d-flex py-2">
         <div class="damage-detail-container caption">
-          <div>{{ $t("Result.基本攻撃力") }}:</div>
+          <div>{{ $t("Result.基本攻撃力") }}</div>
           <div v-if="isLandBase">{{ baseFirePowerForLandBase ? Math.floor(100 * baseFirePowerForLandBase) / 100 : 0 }}</div>
           <div v-else>{{ baseFirePower ? Math.floor(100 * baseFirePower) / 100 : 0 }}</div>
-          <div>{{ $t("Result.CI倍率") }}:</div>
+          <div>{{ $t("Result.CI倍率") }}</div>
           <div>&times; {{ CIMultiplier.toFixed(2) }}</div>
-          <div>{{ $t("Result.キャップ前攻撃力") }}:</div>
+          <div>{{ $t("Result.キャップ前攻撃力") }}</div>
           <div>{{ preCapFirePower ? Math.floor(100 * preCapFirePower) / 100 : 0 }}</div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
-          <div>{{ $t("Result.キャップ後攻撃力") }}:</div>
+          <div>{{ $t("Result.キャップ後攻撃力") }}</div>
           <div>{{ postCapFirePower ? postCapFirePower : 0 }}</div>
           <template v-if="isCritical">
-            <div>{{ $t("Result.クリティカル補正") }}:</div>
+            <div>{{ $t("Result.クリティカル補正") }}</div>
             <div>&times; 1.50</div>
-            <div>{{ $t("Result.熟練度クリティカル補正") }}:</div>
+            <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
             <div>&times; {{ criticalBonus.toFixed(2) }}</div>
           </template>
           <template v-if="manualAfterCapBonus !== 1">
-            <div>{{ $t("Result.特効") }}:</div>
+            <div>{{ $t("Result.特効") }}</div>
             <div>&times; {{ manualAfterCapBonus }}</div>
           </template>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
-          <div>{{ $t("Result.最終攻撃力") }}:</div>
+          <div>{{ $t("Result.最終攻撃力") }}</div>
           <div v-if="isLandBase">{{ finalFirePowerForLandBase ? Math.floor(100 * finalFirePowerForLandBase) / 100 : 0 }}</div>
           <div v-else>{{ finalFirePower ? Math.floor(100 * finalFirePower) / 100 : 0 }}</div>
-          <div>{{ $t("Common.装甲") }}:</div>
+          <div>{{ $t("Common.装甲") }}</div>
           <div>{{ minArmor }} ~ {{ maxArmor }}</div>
           <template v-if="ammo !== 1">
-            <div>{{ $t("Result.弾薬補正値") }}:</div>
+            <div>{{ $t("Result.弾薬補正値") }}</div>
             <div>&times; {{ ammo }}</div>
           </template>
-          <div>{{ $t("Result.ダメージ幅") }}:</div>
+          <div>{{ $t("Result.ダメージ幅") }}</div>
           <div v-if="isLandBase">{{ getDamageRangeString(finalFirePowerForLandBase) }}</div>
           <div v-else>{{ getDamageRangeString(finalFirePower) }}</div>
         </div>

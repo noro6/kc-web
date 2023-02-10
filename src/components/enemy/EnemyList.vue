@@ -57,7 +57,15 @@
                 <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
               </div>
               <div class="flex-grow-1 ml-1">
-                <div class="enemy-id primary--text">id:{{ enemy.id }}</div>
+                <div class="d-flex align-center enemy-caption">
+                  <div class="enemy-id primary--text">id <span class="font-weight-bold">{{ enemy.id }}</span></div>
+                  <div class="ml-1">
+                    {{ $t("Common.耐久") }} <span class="font-weight-bold">{{ enemy.hp }}</span>
+                  </div>
+                  <div class="ml-1">
+                    {{ $t("Common.装甲") }} <span class="font-weight-bold">{{ enemy.armor }}</span>
+                  </div>
+                </div>
                 <div class="d-flex">
                   <div class="enemy-name text-truncate">{{ getEnemyName(enemy.name) }}</div>
                 </div>
@@ -143,8 +151,10 @@
 .enemy-list > div {
   align-self: center;
 }
-.enemy-id {
+.enemy-caption {
   font-size: 11px;
+}
+.enemy-id {
   margin-left: 0.1rem;
 }
 .enemy-name {

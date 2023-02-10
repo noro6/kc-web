@@ -21,7 +21,7 @@
               <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="ml-1">
-              <div class="level-area">Lv: {{ ship.level }}</div>
+              <div class="level-area">Lv {{ ship.level }}</div>
               <div class="caption">{{ getShipName(ship.data) }}</div>
             </div>
           </div>
@@ -45,7 +45,7 @@
             </div>
             <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
             <template v-if="item.data.isTorpedoAttacker">
-              <div class="ml-auto">{{ $t("Common.雷装") }}:</div>
+              <div class="ml-auto">{{ $t("Common.雷装") }}</div>
               <div class="item-torpedo">{{ item.data.torpedo }}</div>
               <template v-if="item.crewTorpedoBonus || item.attackerTorpedoBonus">
                 <div class="ml-2">(</div>
@@ -54,7 +54,7 @@
               </template>
             </template>
             <template v-else-if="item.data.isAttacker">
-              <div class="ml-auto">{{ $t("Common.爆装") }}:</div>
+              <div class="ml-auto">{{ $t("Common.爆装") }}</div>
               <div class="item-torpedo">{{ item.data.bomber }}</div>
               <template v-if="item.crewBomberBonus || item.attackerTorpedoBonus">
                 <div class="ml-2">(</div>
@@ -68,15 +68,15 @@
       <div class="pa-1" v-if="selectedItem.attackerTorpedoBonus || selectedItem.crewBomberBonus || selectedItem.crewTorpedoBonus">
         <v-card class="pa-3">
           <div v-if="selectedItem.attackerTorpedoBonus" class="d-flex caption">
-            <div class="mr-2">{{ $t("Result.装備シナジーボーナス") }}:</div>
+            <div class="mr-2">{{ $t("Result.装備シナジーボーナス") }}</div>
             <div class="ml-auto">&plus; {{ selectedItem.attackerTorpedoBonus }}</div>
           </div>
           <div v-if="selectedItem.data.isTorpedoAttacker && selectedItem.crewTorpedoBonus" class="d-flex caption">
-            <div class="mr-2">{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+            <div class="mr-2">{{ $t("Result.熟練甲板要員ボーナス") }}</div>
             <div class="ml-auto">&plus; {{ selectedItem.crewTorpedoBonus }}</div>
           </div>
           <div v-else-if="selectedItem.data.isAttacker && selectedItem.crewBomberBonus" class="d-flex caption">
-            <div class="mr-2">{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+            <div class="mr-2">{{ $t("Result.熟練甲板要員ボーナス") }}</div>
             <div class="ml-auto">&plus; {{ selectedItem.crewBomberBonus }}</div>
           </div>
         </v-card>

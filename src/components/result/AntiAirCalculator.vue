@@ -56,7 +56,7 @@
     </div>
     <div class="mb-1 d-flex px-1">
       <div class="align-self-end">
-        <span class="body-2 text--secondary mr-2">{{ $t("Common.艦隊防空値") }}:</span>
+        <span class="body-2 text--secondary mr-2">{{ $t("Common.艦隊防空値") }}</span>
         <span>{{ fleetAntiAir }}</span>
       </div>
       <div class="ml-auto d-flex">
@@ -89,7 +89,7 @@
                 <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
               </div>
               <div class="align-self-center d-none d-sm-block flex-grow-1">
-                <div class="stage2-id primary--text" v-if="item.isEnemy">id:{{ item.id }}</div>
+                <div class="stage2-id primary--text" v-if="item.isEnemy">id {{ item.id }}</div>
                 <div class="d-flex">
                   <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
                 </div>

@@ -1,9 +1,9 @@
 <template>
   <div class="ma-2">
-    <div class="d-flex ml-5">
-      <div class="align-self-center pt-3">{{ $t("Result.制空状態") }}:</div>
+    <div class="d-flex ml-5 align-center">
+      <div>{{ $t("Result.制空状態") }}</div>
       <div class="ml-5">
-        <v-radio-group v-model="airState" row @change="changeAirState" hide-details class="py-0">
+        <v-radio-group v-model="airState" row @change="changeAirState">
           <v-radio :label="$t('Common.制空権確保')" :value="0"></v-radio>
           <v-radio :label="$t('Common.航空優勢')" :value="1"></v-radio>
           <v-radio :label="$t('Common.航空劣勢')" :value="2"></v-radio>

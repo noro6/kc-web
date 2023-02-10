@@ -30,12 +30,12 @@
     </div>
     <v-tooltip v-model="enabledTooltip" color="black" right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <div class="py-1">
-        <div class="d-flex my-1">
-          <div class="grey--text text--lighten-1">{{ $t("Enemies.戦闘形式") }}:</div>
+        <div class="d-flex my-1 align-center">
+          <div class="grey--text text--lighten-1 caption">{{ $t("Enemies.戦闘形式") }}</div>
           <div class="ml-1">{{ getCellName(tooltipFleet.cellType) }}</div>
-          <div class="ml-2 grey--text text--lighten-1">{{ $t("Enemies.陣形") }}:</div>
+          <div class="ml-2 grey--text text--lighten-1 caption">{{ $t("Enemies.陣形") }}</div>
           <div class="ml-1">{{ getFormationName(tooltipFleet.formation) }}</div>
-          <div class="ml-2 grey--text text--lighten-1" v-if="tooltipFleet.radius[0]">{{ $t("Common.半径") }}:</div>
+          <div class="ml-2 grey--text text--lighten-1 caption" v-if="tooltipFleet.radius[0]">{{ $t("Common.半径") }}</div>
           <div class="ml-1" v-if="tooltipFleet.radius[0]">{{ tooltipFleet.radius.join(" or ") }}</div>
         </div>
         <div v-for="(enemy, i) in tooltipFleet.enemies" :key="`preview_enemy${i}`" class="d-flex">
@@ -44,7 +44,7 @@
               <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
             </div>
             <div class="ml-1 align-self-center caption">
-              <div class="enemy-id info--text">id:{{ enemy.data.id }}</div>
+              <div class="enemy-id info--text">id {{ enemy.data.id }}</div>
               <div class="enemy-name">{{ getEnemyName(enemy.data.name) }}</div>
             </div>
           </template>

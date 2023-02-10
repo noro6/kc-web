@@ -21,7 +21,7 @@
                 <v-img :src="`./img/ship/${parent.data.id}.png`" height="30" width="120"></v-img>
               </div>
               <div class="px-2 align-self-center">
-                <div v-if="parent.data.id > 1500" class="parent-id">id: {{ parent.data.id }}</div>
+                <div v-if="parent.data.id > 1500" class="parent-id">id {{ parent.data.id }}</div>
                 <div class="caption">{{ getShipName(parent.data) }}</div>
               </div>
             </div>

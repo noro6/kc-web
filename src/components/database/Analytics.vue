@@ -237,7 +237,7 @@
                     <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160"></v-img>
                   </div>
                   <div class="ml-1 flex-grow-1 align-self-center">
-                    <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }}: {{ detail.requireEXP.toLocaleString() }}</div>
+                    <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
                     <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
                     <div class="d-flex">
                       <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>

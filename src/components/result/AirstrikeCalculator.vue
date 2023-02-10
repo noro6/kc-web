@@ -103,7 +103,7 @@
       <div class="d-flex align-center">
         <div class="body-2">{{ $t("Result.ダメージ計算結果") }}</div>
         <v-spacer></v-spacer>
-        <div class="caption mr-3">{{ $t("Result.防御艦隊") }}:</div>
+        <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
         <div class="form-control lg mt-0 pt-0">
           <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex"></v-select>
         </div>
@@ -158,123 +158,123 @@
       <div v-if="selectedItem" class="d-flex py-2" :class="{ 'multi-container': preCapTerms.length >= 2 }">
         <div class="damage-detail-container caption" v-for="(preCapTerm, i) in preCapTerms" :key="`term${i}`">
           <template v-if="postCapTerms[i].isSubmarine">
-            <div>{{ $t("Common.対潜") }}:</div>
+            <div>{{ $t("Common.対潜") }}</div>
           </template>
           <template v-else-if="selectedItem.data.isTorpedoAttacker && !preCapTerm.isLandBase">
-            <div>{{ $t("Common.雷装") }}:</div>
+            <div>{{ $t("Common.雷装") }}</div>
             <div>{{ selectedItem.data.torpedo }}</div>
             <template v-if="preCapTerm.torpedoMultiplier && preCapTerm.torpedoMultiplier !== 1">
-              <div>{{ $t("Result.雷装補正") }}:</div>
+              <div>{{ $t("Result.雷装補正") }}</div>
               <div>&times; {{ preCapTerm.torpedoMultiplier }}</div>
             </template>
             <template v-if="selectedItem.bonusTorpedo">
-              <div>{{ $t("Result.改修強化値") }}:</div>
+              <div>{{ $t("Result.改修強化値") }}</div>
               <div>&plus; {{ Math.floor(100 * selectedItem.bonusTorpedo) / 100 }}</div>
             </template>
             <template v-if="selectedItem.attackerTorpedoBonus">
-              <div>{{ $t("Result.装備シナジーボーナス") }}:</div>
+              <div>{{ $t("Result.装備シナジーボーナス") }}</div>
               <div>&plus; {{ selectedItem.attackerTorpedoBonus }}</div>
             </template>
             <template v-if="selectedItem.crewTorpedoBonus">
-              <div>{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+              <div>{{ $t("Result.熟練甲板要員ボーナス") }}</div>
               <div>&plus; {{ selectedItem.crewTorpedoBonus }}</div>
             </template>
-            <div>{{ $t("Result.実雷装値") }}:</div>
+            <div>{{ $t("Result.実雷装値") }}</div>
           </template>
           <template v-else>
-            <div>{{ $t("Common.爆装") }}:</div>
+            <div>{{ $t("Common.爆装") }}</div>
             <div>{{ selectedItem.data.bomber }}</div>
             <template v-if="selectedItem.bonusBomber">
-              <div>{{ $t("Result.改修強化値") }}:</div>
+              <div>{{ $t("Result.改修強化値") }}</div>
               <div>&plus; {{ Math.floor(100 * selectedItem.bonusBomber) / 100 }}</div>
             </template>
             <template v-if="selectedItem.attackerTorpedoBonus">
-              <div>{{ $t("Result.装備シナジーボーナス") }}:</div>
+              <div>{{ $t("Result.装備シナジーボーナス") }}</div>
               <div>&plus; {{ selectedItem.attackerTorpedoBonus }}</div>
             </template>
             <template v-if="selectedItem.crewBomberBonus">
-              <div>{{ $t("Result.熟練甲板要員ボーナス") }}:</div>
+              <div>{{ $t("Result.熟練甲板要員ボーナス") }}</div>
               <div>&plus; {{ selectedItem.crewBomberBonus }}</div>
             </template>
-            <div>{{ $t("Result.実爆装値") }}:</div>
+            <div>{{ $t("Result.実爆装値") }}</div>
           </template>
           <div>{{ preCapTerm.actualTorpedo ? Math.floor(100 * preCapTerm.actualTorpedo) / 100 : 0 }}</div>
           <div>
-            {{ $t("Result.搭載数") }} <template v-if="useResult">( {{ minSlot }} ~ {{ maxSlot }} ):</template>
+            {{ $t("Result.搭載数") }} <template v-if="useResult">( {{ minSlot }} ~ {{ maxSlot }} )</template>
           </div>
           <div v-if="useResult">{{ Math.floor((maxSlot + minSlot) / 2) }}</div>
           <div v-else>{{ attackerSlot }}</div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
-          <div>{{ $t("Result.種別倍率") }}:</div>
+          <div>{{ $t("Result.種別倍率") }}</div>
           <div>&times; {{ preCapTerm.typeMultiplier ? preCapTerm.typeMultiplier.toFixed(2) : 1 }}</div>
-          <div>{{ $t("Result.航空戦定数") }}:</div>
+          <div>{{ $t("Result.航空戦定数") }}</div>
           <div>&plus; {{ preCapTerm.airstrikeModifiers }}</div>
-          <div>{{ $t("Result.基本攻撃力") }}:</div>
+          <div>{{ $t("Result.基本攻撃力") }}</div>
           <div>{{ preCapTerm.baseFirePower ? Math.floor(100 * preCapTerm.baseFirePower) / 100 : 0 }}</div>
           <template v-if="preCapTerm.B25Modifiers && preCapTerm.B25Modifiers !== 1">
-            <div>{{ $t("Result.B-25補正") }}:</div>
+            <div>{{ $t("Result.B-25補正") }}</div>
             <div>&times; {{ preCapTerm.B25Modifiers.toFixed(2) }}</div>
           </template>
           <template v-if="preCapTerm.LBASModifiers && preCapTerm.LBASModifiers !== 1">
-            <div>{{ $t("Result.基地航空隊補正") }}:</div>
+            <div>{{ $t("Result.基地航空隊補正") }}</div>
             <div>&times; {{ preCapTerm.LBASModifiers.toFixed(2) }}</div>
           </template>
-          <div>{{ $t("Result.キャップ前攻撃力") }}:</div>
+          <div>{{ $t("Result.キャップ前攻撃力") }}</div>
           <div>{{ preCapTerm.preCapFirePower ? Math.floor(100 * preCapTerm.preCapFirePower) / 100 : 0 }}</div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
           <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
-            <div>{{ $t("Result.陸偵補正") }}:</div>
+            <div>{{ $t("Result.陸偵補正") }}</div>
             <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
           </template>
-          <div>{{ $t("Result.キャップ後攻撃力") }}:</div>
+          <div>{{ $t("Result.キャップ後攻撃力") }}</div>
           <div>{{ postCapTerms[i].postCapFirePower ? postCapTerms[i].postCapFirePower : 0 }}</div>
           <template v-if="postCapTerms[i].LBASModifiers && postCapTerms[i].LBASModifiers !== 1">
-            <div>{{ $t("Result.基地航空隊補正") }}:</div>
+            <div>{{ $t("Result.基地航空隊補正") }}</div>
             <div>&plus; {{ postCapTerms[i].LBASModifiers }}</div>
           </template>
           <template v-if="postCapTerms[i].bomberMultiplier && postCapTerms[i].bomberMultiplier !== 1">
-            <div>{{ $t("Result.爆撃機補正") }}:</div>
+            <div>{{ $t("Result.爆撃機補正") }}</div>
             <div>&times; {{ postCapTerms[i].bomberMultiplier.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.isCritical">
-            <div>{{ $t("Result.クリティカル補正") }}:</div>
+            <div>{{ $t("Result.クリティカル補正") }}</div>
             <div>&times; 1.50</div>
-            <div>{{ $t("Result.熟練度クリティカル補正") }}:</div>
+            <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
             <div>&times; {{ calcArgs.criticalBonus.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.contactBonus !== 1">
-            <div>{{ $t("Result.触接補正") }}:</div>
+            <div>{{ $t("Result.触接補正") }}</div>
             <div>&times; {{ calcArgs.contactBonus.toFixed(2) }}</div>
           </template>
           <template v-if="postCapTerms[i].airbaseAttackerMultiplier && postCapTerms[i].airbaseAttackerMultiplier !== 1">
-            <div>{{ $t("Result.陸攻補正") }}:</div>
+            <div>{{ $t("Result.陸攻補正") }}</div>
             <div>&times; {{ postCapTerms[i].airbaseAttackerMultiplier.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.isAirbaseMode && calcArgs.unionBonus !== 1">
-            <div>{{ $t("Result.敵連合補正") }}:</div>
+            <div>{{ $t("Result.敵連合補正") }}</div>
             <div>&times; {{ calcArgs.unionBonus.toFixed(2) }}</div>
           </template>
           <template v-if="postCapTerms[i].aircraftCarrierPrincessMultiplier && postCapTerms[i].aircraftCarrierPrincessMultiplier !== 1">
-            <div>{{ $t("Result.空母棲姫補正") }}:</div>
+            <div>{{ $t("Result.空母棲姫補正") }}</div>
             <div>&times; {{ postCapTerms[i].aircraftCarrierPrincessMultiplier.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.manualAfterCapBonus !== 1">
-            <div>{{ $t("Result.特効") }}:</div>
+            <div>{{ $t("Result.特効") }}</div>
             <div>&times; {{ calcArgs.manualAfterCapBonus }}</div>
           </template>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
-          <div>{{ $t("Result.最終攻撃力") }}:</div>
+          <div>{{ $t("Result.最終攻撃力") }}</div>
           <div>{{ postCapTerms[i].finalFirePower ? Math.floor(100 * postCapTerms[i].finalFirePower) / 100 : 0 }}</div>
-          <div>{{ $t("Common.装甲") }}:</div>
+          <div>{{ $t("Common.装甲") }}</div>
           <div>{{ minArmor }} ~ {{ maxArmor }}</div>
           <template v-if="ammo !== 1">
-            <div>{{ $t("Result.弾薬補正値") }}:</div>
+            <div>{{ $t("Result.弾薬補正値") }}</div>
             <div>&times; {{ ammo }}</div>
           </template>
-          <div>{{ $t("Result.ダメージ幅") }}:</div>
+          <div>{{ $t("Result.ダメージ幅") }}</div>
           <div>{{ getDamageRangeString(postCapTerms[i].finalFirePower) }}</div>
         </div>
       </div>

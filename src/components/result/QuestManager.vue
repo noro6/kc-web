@@ -29,13 +29,13 @@
               <div class="total-ranking-point">{{ totalRankingPoint }}</div>
             </div>
             <div class="d-flex justify-end caption">
-              <div class="mr-1">{{ $t("Extra.クォータリー") }}:</div>
+              <div class="mr-1">{{ $t("Extra.クォータリー") }}</div>
               <div>{{ totalQuarterlyRankingPoint }}</div>
               <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.イヤーリー") }}:</div>
+              <div class="mr-1">{{ $t("Extra.イヤーリー") }}</div>
               <div>{{ totalYearlyRankingPoint }}</div>
               <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.単発") }}:</div>
+              <div class="mr-1">{{ $t("Extra.単発") }}</div>
               <div>{{ totalOnceRankingPoint }}</div>
             </div>
           </div>
@@ -131,7 +131,7 @@
                   </div>
                   <div class="ml-auto text-no-wrap caption">
                     <div class="d-flex align-center justify-space-between">
-                      <div class="mr-1 caption">{{ $t("Extra.達成日") }}:</div>
+                      <div class="mr-1 caption">{{ $t("Extra.達成日") }}</div>
                       <div>{{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
                     </div>
                   </div>

@@ -5,7 +5,7 @@
         <v-img :src="`./img/type/icon${value.data.iconTypeId}.png`" height="32" width="32"></v-img>
       </div>
       <div class="ml-1 align-self-center">
-        <div class="tooltip-item-id">id:{{ value.data.id }}</div>
+        <div class="tooltip-item-id">id {{ value.data.id }}</div>
         <div class="body-2">
           <span>{{ needTrans ? $t(`${value.data.name}`) : value.data.name }}</span>
           <span v-if="value.remodel" class="ml-1">

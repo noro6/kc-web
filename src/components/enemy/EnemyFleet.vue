@@ -34,18 +34,18 @@
       </div>
     </div>
     <div class="d-flex mx-2">
-      <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}:</div>
+      <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}</div>
       <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
       <v-spacer></v-spacer>
-      <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
+      <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
       <div class="body-2 enemy-air-power">{{ fleet.fullAirPower }}</div>
       <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
     </div>
     <div class="d-flex mx-2">
-      <div class="caption text--secondary">{{ $t("Common.半径") }}:</div>
+      <div class="caption text--secondary">{{ $t("Common.半径") }}</div>
       <div class="ml-1 caption">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
       <v-spacer></v-spacer>
-      <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}:</div>
+      <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}</div>
       <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
       <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
     </div>
@@ -73,7 +73,7 @@
             <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
-          <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
+          <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
           <div
             class="body-2 enemy-air-power"
             :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }"

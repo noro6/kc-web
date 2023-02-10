@@ -74,12 +74,14 @@
       </div>
       <div class="d-flex ml-2 mb-2" v-if="airbaseInfo.isDefense">
         <template v-if="isNormalAirRaidMode">
-          <div class="align-self-end text--secondary body-2">{{ $t("Airbase.防空時制空値") }}:</div>
-          <div class="align-self-end ml-1">{{ airbaseInfo.defenseAirPower }}</div>
-          <div class="ml-3 align-self-end text--secondary body-2">{{ $t("Airbase.対重爆制空値") }}:</div>
-          <div class="align-self-end ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
-          <div class="ml-3 align-self-end text--secondary body-2">{{ $t("Airbase.対重爆補正") }}:</div>
-          <div class="align-self-end ml-1">&times;{{ airbaseInfo.highDefenseCoefficient }}</div>
+          <div class="d-flex align-center align-self-end">
+            <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
+            <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+            <div class="ml-3 text--secondary body-2">{{ $t("Airbase.対重爆制空値") }}</div>
+            <div class="ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
+            <div class="ml-3 text--secondary body-2">{{ $t("Airbase.対重爆補正") }}</div>
+            <div class="ml-1">&times;{{ airbaseInfo.highDefenseCoefficient }}</div>
+          </div>
           <div class="ml-5 difficulty-select mt-3">
             <v-select
               dense
@@ -91,14 +93,14 @@
             ></v-select>
           </div>
         </template>
-        <template v-else>
-          <div class="align-self-center text--secondary body-2">{{ $t("Airbase.防空時制空値") }}:</div>
-          <div class="align-self-center ml-1">{{ airbaseInfo.defenseAirPower }}</div>
-          <div class="ml-5 align-self-center text--secondary body-2">{{ $t("Airbase.対超重爆補正") }}:</div>
-          <div class="align-self-center ml-1 body-2">&times;{{ Math.floor(100000 * airbaseInfo.superHighAirRaidCoefficient) / 100000 }}</div>
+        <div v-else class="d-flex align-center">
+          <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
+          <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+          <div class="ml-5 text--secondary body-2">{{ $t("Airbase.対超重爆補正") }}</div>
+          <div class="ml-1">&times;{{ Math.floor(100000 * airbaseInfo.superHighAirRaidCoefficient) / 100000 }}</div>
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-icon class="align-self-center ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+              <v-icon class="ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
             </template>
             <div class="body-2">
               <table>
@@ -125,9 +127,9 @@
               </table>
             </div>
           </v-tooltip>
-          <div class="ml-5 align-self-center text--secondary body-2">{{ $t("Airbase.対超重爆制空値") }}:</div>
-          <div class="align-self-center ml-1">{{ airbaseInfo.fullSuperHighDefenseAirPower }}</div>
-        </template>
+          <div class="ml-5 text--secondary body-2">{{ $t("Airbase.対超重爆制空値") }}</div>
+          <div class="ml-1">{{ airbaseInfo.fullSuperHighDefenseAirPower }}</div>
+        </div>
       </div>
     </div>
     <v-tabs class="small-airbases" v-model="tab" vertical :class="{ captured: capturing }">
@@ -220,8 +222,7 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)"
-            tabindex="0">
+            <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)" tabindex="0">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
@@ -232,8 +233,7 @@
             <div class="header-divider"></div>
           </div>
           <div class="d-flex justify-space-between">
-            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item" @keypress.enter="setRemodel(i - 1)"
-            tabindex="0">
+            <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item" @keypress.enter="setRemodel(i - 1)" tabindex="0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
             </div>

@@ -43,26 +43,26 @@
           <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()"></v-select>
         </div>
         <div class="align-self-center body-2" v-if="nodeString">
-          <span class="text--secondary mr-3">{{ $t("Enemies.航路") }}:</span>
+          <span class="text--secondary mr-2">{{ $t("Enemies.航路") }}</span>
           <span>{{ nodeString }}</span>
         </div>
       </div>
       <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-1">
         <div>
           <v-chip class="mr-1" color="green" label outlined>
-            <span>{{ $t("Common.確保") }}:</span>
+            <span>{{ $t("Common.確保") }}</span>
             <span class="chip-value">{{ defenseAirPowerBorders[0] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="light-green" label outlined>
-            <span>{{ $t("Common.優勢") }}:</span>
+            <span>{{ $t("Common.優勢") }}</span>
             <span class="chip-value">{{ defenseAirPowerBorders[1] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="orange" label outlined>
-            <span>{{ $t("Common.拮抗") }}:</span>
+            <span>{{ $t("Common.拮抗") }}</span>
             <span class="chip-value">{{ defenseAirPowerBorders[2] }}</span>
           </v-chip>
           <v-chip class="mr-1" color="deep-orange" label outlined>
-            <span>{{ $t("Common.劣勢") }}:</span>
+            <span>{{ $t("Common.劣勢") }}</span>
             <span class="chip-value">{{ defenseAirPowerBorders[3] }}</span>
           </v-chip>
         </div>
@@ -120,6 +120,11 @@
 .air-power-info .value-text {
   width: 40px;
   text-align: right;
+}
+
+.chip-value {
+  margin-left: 2px;
+  margin-left: 4px;
 }
 </style>
 

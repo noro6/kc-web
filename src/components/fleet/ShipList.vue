@@ -202,12 +202,12 @@
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
                 <div class="primary--text ship-level mr-1">
-                  <template v-if="isStockOnly">Lv: {{ data.level }}</template>
-                  <template v-else>id: {{ data.ship.id }}</template>
+                  <template v-if="isStockOnly">Lv {{ data.level }}</template>
+                  <template v-else>id {{ data.ship.id }}</template>
                 </div>
-                <div v-if="displayLuck">{{ $t("Common.運") }}: {{ data.luck }}</div>
+                <div v-if="displayLuck">{{ $t("Common.運") }} {{ data.luck }}</div>
                 <div v-else class="sort-status">
-                  <div>{{ selectedSortText }}: {{ data.sortValue }}</div>
+                  <div>{{ selectedSortText }} {{ data.sortValue }}</div>
                 </div>
               </div>
               <div class="d-flex">

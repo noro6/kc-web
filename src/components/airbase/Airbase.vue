@@ -7,12 +7,12 @@
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem"></v-select>
       </div>
       <div class="mr-1 align-self-end operation-buttons">
-        <v-btn color="primary" icon small @click="viewDetail" :disabled="!enabledDetail">
+        <v-btn color="blue lighten-1" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon small>mdi-information-outline</v-icon>
         </v-btn>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon small v-bind="attrs" v-on="on" @click="showItemPresets()">
+            <v-btn icon small color="deep-orange lighten-1" v-bind="attrs" v-on="on" @click="showItemPresets()">
               <v-icon small>mdi-briefcase-variant</v-icon>
             </v-btn>
           </template>
@@ -26,7 +26,7 @@
     <div>
       <div class="d-flex caption pl-2 sub-status-area">
         <div>
-          {{ $t("Common.制空") }}:<span class="ml-1 font-weight-medium">{{ airPower }}</span>
+          {{ $t("Common.制空") }}<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
         <template v-if="!visibleResource">
           <div class="ml-1 text--secondary font-weight-medium">{{ airPowerDetail }}</div>
@@ -34,7 +34,7 @@
           <div class="ml-1 text--secondary font-weight-medium" v-if="reconCorrDefString">&times;{{ reconCorrDefString }}</div>
         </template>
         <div :class="{ 'ml-auto': !visibleResource, 'ml-2': visibleResource }">
-          {{ $t("Common.半径") }}:<span class="mx-1 font-weight-medium">{{ airbase.radius }}</span>
+          {{ $t("Common.半径") }}<span class="mx-1 font-weight-medium">{{ airbase.radius }}</span>
         </div>
         <template v-if="visibleResource">
           <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img></div>

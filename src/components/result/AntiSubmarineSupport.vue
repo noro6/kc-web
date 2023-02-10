@@ -40,7 +40,7 @@
               <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
             </div>
             <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-            <div class="ml-auto caption">{{ $t("Common.対潜") }}:</div>
+            <div class="ml-auto caption">{{ $t("Common.対潜") }}</div>
             <div class="item-asw caption">{{ item.data.asw }}</div>
           </div>
         </div>
@@ -94,7 +94,7 @@
       <div class="d-flex flex-wrap">
         <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()"></v-checkbox>
         <div class="ml-auto d-flex">
-          <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}:</div>
+          <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}</div>
           <div class="d-flex align-self-end">
             <div v-for="(powerString, i) in powers" :key="`power${i}`" class="ml-3 caption">{{ powerString }}</div>
           </div>
@@ -129,7 +129,7 @@
                   <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120"></v-img>
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
-                  <div class="text-left enemy-id primary--text">id:{{ row.enemy.data.id }}</div>
+                  <div class="text-left enemy-id primary--text">id {{ row.enemy.data.id }}</div>
                   <div class="d-flex">
                     <div class="caption text-truncate">{{ getEnemyName(row.enemy.data.name) }}</div>
                   </div>

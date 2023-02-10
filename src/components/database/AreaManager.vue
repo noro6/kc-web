@@ -63,7 +63,7 @@
             <div class="caption" v-if="visibleShipName">
               <div class="ship-status">
                 <div class="align-self-center primary--text">Lv:{{ ship.level }}</div>
-                <div class="ml-1 align-self-center">{{ $t("Common.運") }}:{{ ship.luck }}</div>
+                <div class="ml-1 align-self-center">{{ $t("Common.運") }} {{ ship.luck }}</div>
               </div>
               <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
             </div>
@@ -84,7 +84,7 @@
             <div class="caption">
               <div class="ship-status">
                 <div class="align-self-center primary--text">Lv:{{ confirmShip.level }}</div>
-                <div class="ml-1 align-self-center">{{ $t("Common.運") }}:{{ confirmShip.luck }}</div>
+                <div class="ml-1 align-self-center">{{ $t("Common.運") }} {{ confirmShip.luck }}</div>
               </div>
               <div class="ml-1 text-truncate">{{ getShipName(confirmShip.data) }}</div>
             </div>

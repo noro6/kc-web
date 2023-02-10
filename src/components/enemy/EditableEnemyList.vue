@@ -31,7 +31,7 @@
           <div class="enemy-header">
             <div>
               <div class="caption-2">
-                <div class="primary--text mr-2">id:{{ enemy.data.id }}</div>
+                <div class="primary--text mr-2">id {{ enemy.data.id }}</div>
               </div>
               <div class="enemy-name">{{ getShipName(enemy.data.name) }}</div>
             </div>

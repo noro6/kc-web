@@ -17,7 +17,7 @@
         <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small class="align-self-center" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+              <v-btn icon small color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
                 <v-icon small>mdi-clipboard-arrow-down</v-icon>
               </v-btn>
             </template>
@@ -57,10 +57,12 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <div class="pr-2 clickable-status d-flex flex-wrap" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-                  <div class="pl-1 pr-1 primary--text">Lv:{{ ship.level }}</div>
-                  <div class="pl-1 text--secondary">{{ $t("Common.運") }}:</div>
+                  <div class="pl-1 pr-1 primary--text">
+                    Lv<span class="font-weight-bold">{{ ship.level }}</span>
+                  </div>
+                  <div class="pl-1 text--secondary">{{ $t("Common.運") }}</div>
                   <div class="pl-1 pr-1 font-weight-medium">{{ ship.luck }}</div>
-                  <div class="pl-1 text--secondary">{{ $t("Common.対空") }}:</div>
+                  <div class="pl-1 text--secondary">{{ $t("Common.対空") }}</div>
                   <div class="pl-1 font-weight-medium">{{ ship.antiAir }}</div>
                 </div>
               </template>
@@ -114,23 +116,21 @@
         </div>
       </div>
       <div class="align-self-center caption pl-2">
-        <span class="text--secondary">{{ $t("Fleet.撃墜") }}:</span>
+        <span class="text--secondary">{{ $t("Fleet.撃墜") }}</span>
         <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
-          <span class="text--secondary text-no-wrap">{{ $t("Fleet.噴進") }}:</span>
+          <span class="text--secondary text-no-wrap">{{ $t("Fleet.噴進") }}</span>
           <span class="ml-1 font-weight-medium mr-2">{{ ship.hunshinRate.toFixed(1) }}%</span>
         </template>
-        <span class="text--secondary">{{ $t("Common.射程") }}:</span>
+        <span class="text--secondary">{{ $t("Common.射程") }}</span>
         <span class="ml-1 font-weight-medium">{{ $t(`Common.${rangeText[ship.displayStatus.range]}`) }}</span>
         <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <span class="asw-view" v-bind="attrs" v-on="on">
-                <span class="ml-2 text--secondary mr-1">{{ $t("Fleet.先制対潜") }}:</span>
+                <span class="ml-2 text--secondary mr-1">{{ $t("Fleet.先制対潜") }}</span>
                 <span v-if="ship.enabledTSBK">
-                  <template v-if="!isNotJapanese">
-                    {{ $t("Fleet.可") }}
-                  </template>
+                  <template v-if="!isNotJapanese">{{ $t("Fleet.可") }}</template>
                   <template v-else>&#10004;</template>
                 </span>
                 <span v-else>&times;</span>
@@ -138,7 +138,7 @@
             </template>
             <table class="asw-table">
               <tr>
-                <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }} :</td>
+                <td class="body-2">{{ $t("Fleet.対潜先制爆雷攻撃") }}</td>
                 <td class="text-right pl-2">
                   <span v-if="ship.enabledTSBK" class="blue--text text--lighten-2">
                     <template v-if="!isNotJapanese">
@@ -154,25 +154,25 @@
               </tr>
               <tr>
                 <td class="body-2 grey--text text--lighten-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.艦娘") }}</span> :
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.艦娘") }}</span>
                 </td>
                 <td class="text-right">{{ ship.asw - ship.improveAsw }}</td>
               </tr>
               <tr v-if="ship.improveAsw">
                 <td class="body-2 grey--text text--lighten-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.改修") }}</span> :
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.改修") }}</span>
                 </td>
                 <td class="text-right">{{ ship.improveAsw }}</td>
               </tr>
               <tr>
                 <td class="body-2 grey--text text--lighten-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備") }}</span> :
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備") }}</span>
                 </td>
                 <td class="text-right">{{ ship.itemAsw }}</td>
               </tr>
               <tr v-if="ship.itemBonusStatus.asw">
                 <td class="body-2 grey--text text--lighten-2">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span> :
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Fleet.装備ボーナス") }}</span>
                 </td>
                 <td class="text-right">{{ ship.itemBonusStatus.asw }}</td>
               </tr>
@@ -181,16 +181,16 @@
               </tr>
               <tr>
                 <td class="body-2 grey--text text--lighten-2 pb-1">
-                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span> :
+                  {{ $t("Common.対潜") }}<span class="ml-2 caption">{{ $t("Common.合計") }}</span>
                 </td>
                 <td class="text-right pb-1">{{ ship.displayStatus.asw }}</td>
               </tr>
               <tr v-if="!ship.enabledTSBK && ship.missingAsw">
-                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.不足対潜値") }} :</td>
+                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.不足対潜値") }}</td>
                 <td class="text-right">{{ ship.missingAsw }}</td>
               </tr>
               <tr v-if="!ship.enabledTSBK && ship.needTSBKLevel">
-                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.必要艦娘Lv") }} :</td>
+                <td class="caption grey--text text--lighten-2">{{ $t("Fleet.必要艦娘Lv") }}</td>
                 <td class="text-right">{{ ship.needTSBKLevel }}</td>
               </tr>
             </table>
@@ -199,14 +199,14 @@
       </div>
       <div class="d-flex pr-1 pl-2 flex-wrap">
         <div class="align-self-center caption">
-          <span class="text--secondary">{{ $t("Common.制空") }}:</span>
+          <span class="text--secondary">{{ $t("Common.制空") }}</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
           <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
         </div>
         <div class="ml-auto ship-buttons">
           <v-tooltip bottom color="black" v-if="enabledConvert">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="toggleVersion()">
+              <v-btn icon small color="blue lighten-1" v-bind="attrs" v-on="on" @click.stop="toggleVersion()">
                 <v-icon>mdi-sync</v-icon>
               </v-btn>
             </template>
@@ -214,7 +214,7 @@
           </v-tooltip>
           <v-tooltip bottom color="black" v-if="handleShowTempShipList">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+              <v-btn icon small color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
                 <v-icon>mdi-clipboard-arrow-up</v-icon>
               </v-btn>
             </template>
@@ -222,7 +222,7 @@
           </v-tooltip>
           <v-tooltip bottom color="black" v-if="handleShowItemPreset">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
+              <v-btn icon small color="deep-orange lighten-1" v-bind="attrs" v-on="on" @click.stop="showItemPresets()">
                 <v-icon>mdi-briefcase-variant</v-icon>
               </v-btn>
             </template>

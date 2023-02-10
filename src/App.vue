@@ -556,7 +556,7 @@
               <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
             </div>
             <div class="align-self-end body-2 ml-3">{{ $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
-            <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }}: {{ row.supportTypeName }}</div>
+            <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }} {{ row.supportTypeName }}</div>
           </div>
           <div class="d-flex flex-wrap">
             <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
@@ -820,7 +820,9 @@ export default Vue.extend({
           this.inform('編成の読み込みが完了しました。');
         } else if (this.urlParameters.stockid) {
           // 所持情報データ解析
+          this.loading = true;
           const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
+          this.loading = false;
 
           // 一時所持情報にセットして管理ページを展開
           let available = false;

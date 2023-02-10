@@ -3,9 +3,9 @@
     <div class="d-flex">
       <div class="ml-1">
         <div class="d-flex">
-          <div class="tooltip-item-text id">id:{{ value.data.id }}</div>
-          <div class="ml-2 tooltip-item-text">{{ $t("Common.耐久") }}: {{ value.data.hp }}</div>
-          <div class="ml-2 tooltip-item-text">{{ $t("Common.装甲") }}: {{ value.data.armor }} ({{ armor }})</div>
+          <div class="tooltip-item-text id">id {{ value.data.id }}</div>
+          <div class="ml-2 tooltip-item-text">{{ $t("Common.耐久") }} {{ value.data.hp }}</div>
+          <div class="ml-2 tooltip-item-text">{{ $t("Common.装甲") }} {{ value.data.armor }} ({{ armor }})</div>
         </div>
         <div class="d-flex my-1">
           <div>{{ getEnemyName(value.data.name) }}</div>
@@ -21,7 +21,7 @@
           <div>
             <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
           </div>
-          <div class="ml-1 align-self-center tooltip-item-text id">id:{{ item.data.id }}</div>
+          <div class="ml-1 align-self-center tooltip-item-text id">id {{ item.data.id }}</div>
           <div class="ml-1 align-self-center item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
         </div>
       </div>

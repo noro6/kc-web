@@ -8,11 +8,13 @@
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">
-            <div class="enemy-id ml-2 primary--text">id:{{ targetEnemy.data.id }}</div>
+            <div class="enemy-id ml-2 primary--text">
+              id <span class="font-weight-bold">{{ targetEnemy.data.id }}</span>
+            </div>
             <div class="ml-2">
-              <span class="text--secondary">{{ $t("Common.耐久") }}:</span>
+              <span class="text--secondary">{{ $t("Common.耐久") }}</span>
               <span class="ml-1 font-weight-medium">{{ targetEnemy.data.hp }}</span>
-              <span class="ml-2 text--secondary">{{ $t("Common.装甲") }}:</span>
+              <span class="ml-2 text--secondary">{{ $t("Common.装甲") }}</span>
               <span class="ml-1 font-weight-medium">{{ targetEnemy.actualArmor }}</span>
             </div>
           </div>
@@ -79,14 +81,14 @@
           <v-img class="mx-auto" width="467" height="268" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${selectedArea}.webp`" />
         </div>
         <div class="d-flex align-center body-2">
-          <div class="text--secondary">{{ $t("Enemies.セル") }} :</div>
+          <div class="text--secondary caption">{{ $t("Enemies.セル") }}</div>
           <div class="ml-1">{{ selectedCell.node }}</div>
-          <div class="ml-3 text--secondary">{{ $t("Enemies.戦闘形式") }} :</div>
+          <div class="ml-3 text--secondary caption">{{ $t("Enemies.戦闘形式") }}</div>
           <div class="ml-1">{{ getCellName(selectedCell.type) }}</div>
-          <div v-if="selectedCell.level" class="ml-3 text--secondary">{{ $t("Difficulty.難易度") }} :</div>
+          <div v-if="selectedCell.level" class="ml-3 text--secondary caption">{{ $t("Difficulty.難易度") }}</div>
           <div v-if="selectedCell.level" class="ml-1">{{ levelText(selectedCell.level) }}</div>
           <div class="ml-auto d-flex">
-            <div class="text--secondary align-self-center">{{ $t("Enemies.詳細") }}:</div>
+            <div class="text--secondary align-self-center">{{ $t("Enemies.詳細") }}</div>
             <v-btn color="primary" icon @click.stop="showEnemyFleetDetail">
               <v-icon>mdi-information-outline</v-icon>
             </v-btn>
@@ -109,8 +111,8 @@
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">
-                    <div class="primary--text">id:{{ enemy.data.id }}</div>
-                    <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }}: {{ enemy.fullAirPower }}</div>
+                    <div class="primary--text">id {{ enemy.data.id }}</div>
+                    <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }} {{ enemy.fullAirPower }}</div>
                     <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
                     <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t("Common.制空") }}: ({{ enemy.fullLBAirPower }})</div>
                   </div>
@@ -137,12 +139,12 @@
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">
-                    <div class="primary--text">id:{{ enemy.data.id }}</div>
-                    <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }}: {{ enemy.fullAirPower }}</div>
+                    <div class="primary--text">id {{ enemy.data.id }}</div>
+                    <div class="ml-2" v-if="enemy.fullAirPower">{{ $t("Common.制空") }} {{ enemy.fullAirPower }}</div>
                     <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">{{ $t("Common.制空") }}: ({{ enemy.fullLBAirPower }})</div>
                     <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                    <div class="ml-2 text--secondary" v-if="!selectedFleet.isUnion">{{ $t("Common.耐久") }}: {{ enemy.data.hp }}</div>
-                    <div class="ml-2 text--secondary" v-if="!selectedFleet.isUnion">{{ $t("Common.装甲") }}: {{ enemy.actualArmor }}</div>
+                    <div class="ml-2 text--secondary" v-if="!selectedFleet.isUnion">{{ $t("Common.耐久") }} {{ enemy.data.hp }}</div>
+                    <div class="ml-2 text--secondary" v-if="!selectedFleet.isUnion">{{ $t("Common.装甲") }} {{ enemy.actualArmor }}</div>
                   </div>
                   <div class="d-flex">
                     <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">

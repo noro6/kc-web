@@ -1,16 +1,16 @@
 <template>
   <div>
     <div class="d-flex px-1 flex-wrap align-center">
-      <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}:</div>
+      <div class="mt-1 caption text--secondary">{{ $t("Common.制空") }}</div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ value.fullAirPower }}</div>
-      <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}:</div>
+      <div class="mt-1 caption text--secondary">{{ $t("Fleet.触接") }}</div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ contactRate }}%</div>
       <div>
         <v-img :src="`./img/type/icon50.png`" height="24" width="24"></v-img>
       </div>
       <div class="mt-1 ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
       <template v-if="actualFleet.fleetSpeed">
-        <div class="mt-1 caption text--secondary">{{ $t("Common.速力") }}:</div>
+        <div class="mt-1 caption text--secondary">{{ $t("Common.速力") }}</div>
         <div class="mt-1 ml-1 mr-2 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
       </template>
       <!-- 索敵値 -->
@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="d-flex">
-        <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}:</div>
+        <div class="mt-1 align-self-center caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}</div>
         <div class="operation-button">
           <v-btn color="primary" icon @click="clickedInfo">
             <v-icon>mdi-information-outline</v-icon>

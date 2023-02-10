@@ -6,11 +6,11 @@
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">
-          <div class="enemy-id ml-2 primary--text">id:{{ enemy.data.id }}</div>
+          <div class="enemy-id ml-2 primary--text">id {{ enemy.data.id }}</div>
           <div class="ml-2">
-            <span class="text--secondary">{{ $t("Common.耐久") }}:</span>
+            <span class="text--secondary">{{ $t("Common.耐久") }}</span>
             <span class="ml-1 font-weight-medium">{{ enemy.data.hp }}</span>
-            <span class="ml-2 text--secondary">{{ $t("Common.装甲") }}:</span>
+            <span class="ml-2 text--secondary">{{ $t("Common.装甲") }}</span>
             <span class="ml-1 font-weight-medium">{{ enemy.actualArmor }}</span>
           </div>
         </div>
@@ -21,20 +21,20 @@
     </div>
     <div class="d-flex caption px-1 flex-wrap">
       <div v-if="enemy.fullAirPower > 0 || !enemy.fullLBAirPower">
-        <span class="text--secondary">{{ $t("Common.制空") }}:</span>
+        <span class="text--secondary">{{ $t("Common.制空") }}</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullAirPower }}</span>
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetail }}</span>
       </div>
       <div v-if="enemy.fullLBAirPower && enemy.fullLBAirPower !== enemy.fullAirPower">
-        <span class="text--secondary">{{ $t("Common.基地制空") }}:</span>
+        <span class="text--secondary">{{ $t("Common.基地制空") }}</span>
         <span class="ml-1 font-weight-medium">{{ enemy.fullLBAirPower }}</span>
         <span class="ml-1 mr-2 text--secondary">{{ airPowerDetailAB }}</span>
       </div>
     </div>
     <div class="caption px-1">
-      <span class="text--secondary">{{ $t("Common.装備命中") }}:</span>
+      <span class="text--secondary">{{ $t("Common.装備命中") }}</span>
       <span class="ml-1 font-weight-medium">{{ enemy.sumItemAccuracy }}</span>
-      <span class="ml-3 text--secondary">{{ $t("Common.総搭載数") }}:</span>
+      <span class="ml-3 text--secondary">{{ $t("Common.総搭載数") }}</span>
       <span class="ml-1 font-weight-medium">{{ sumSlot }}</span>
     </div>
     <v-divider class="item-input-divider"></v-divider>

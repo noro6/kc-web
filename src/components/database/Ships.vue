@@ -407,7 +407,7 @@
                       <div class="d-flex">
                         <div>{{ getShipName(row.master) }}</div>
                         <v-spacer></v-spacer>
-                        <div class="caption align-self-end">{{ $t("Database.在籍") }}: {{ row.count }}</div>
+                        <div class="caption align-self-end">{{ $t("Database.在籍") }} {{ row.count }}</div>
                       </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0 }">
                         <img class="status-img" :src="`./img/ship/${row.master.id}.png`" :alt="`ship-${row.master.id}`" />
