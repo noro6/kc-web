@@ -37,7 +37,7 @@
                   v-model.number="ship.level"
                   dense
                   outlined
-                  max="175"
+                  :max="maxLevel"
                   min="1"
                   type="number"
                   :rules="[rules.level]"
@@ -354,6 +354,7 @@ import Ship from '@/classes/fleet/ship';
 import { max, min } from 'lodash';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ItemMaster from '@/classes/item/itemMaster';
+import Const from '@/classes/const';
 
 interface displayStatus {
   hp: number;
@@ -423,8 +424,9 @@ export default Vue.extend({
     shipListDialog: false,
     shipDialogWidth: 1200,
     rules: {
-      level: (value: number) => !(value < 1 || value > 175) || '1 ～ 175',
+      level: (value: number) => !(value < 1 || value > Const.MAX_LEVEL) || `1 ～ ${Const.MAX_LEVEL}`,
     },
+    maxLevel: Const.MAX_LEVEL,
     isDiffMode: false,
     diffs: [] as number[],
   }),
@@ -537,7 +539,7 @@ export default Vue.extend({
     statusChanged(index: number) {
       const ships = this.ships.concat();
       const ship = ships[index];
-      const level = Math.max(Math.min(ships[index].level, 175), 1);
+      const level = Math.max(Math.min(ships[index].level, this.maxLevel), 1);
       const asw = Ship.getStatusFromLevel(level, ship.data.maxAsw, ship.data.minAsw);
       ships[index] = new Ship({ ship: this.ships[index], level, asw: asw + ship.improveAsw });
       this.ships = ships;

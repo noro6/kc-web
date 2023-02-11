@@ -100,9 +100,10 @@
       <template v-slot:[`header.target1`]="{ header }">{{ targetText(header.text) }} +1</template>
       <template v-slot:[`header.target2`]="{ header }">{{ targetText(header.text) }} +2</template>
       <template v-slot:[`header.target3`]="{ header }">{{ targetText(header.text) }} +3</template>
-      <template v-slot:[`header.manual`]="{ header }">{{ $t(`Database.${header.text}`) }}({{ viewStatus ? viewStatus.manual : '' }})</template>
+      <template v-slot:[`header.manual`]="{ header }">{{ $t(`Database.${header.text}`) }}({{ viewStatus ? viewStatus.manual : "" }})</template>
+      <template v-slot:[`header.nextExp`]>Next EXP</template>
       <template v-slot:item="{ item }">
-        <tr :class="{ lv175: item.target1 > 175 && !isLuckResult }">
+        <tr :class="{ maximum: item.isMaximum }">
           <td class="px-0 py-1">
             <div class="d-none d-md-flex align-center">
               <div class="ship-img">
@@ -127,36 +128,57 @@
           <td class="text-right">{{ item.target ? item.target : "-" }}</td>
           <td class="result-td">
             <div>
-              <span class="luck-caption" v-if="isLuckResult">{{ $t("Common.運") }}</span>
-              <span class="lv-caption" v-else>Lv.</span>
-              <span :class="{ 'red--text': item.target1 > 175 }">{{ item.target1 }}</span>
+              <template v-if="isLuckResult">
+                <span class="luck-caption">{{ $t("Common.運") }}</span>
+                <span :class="{ 'red--text': item.target1 > item.master.maxLuck }">{{ item.target1 }}</span>
+              </template>
+              <template v-else>
+                <span class="lv-caption">Lv.</span>
+                <span :class="{ 'red--text': item.target1 > maxLevel }">{{ item.target1 }}</span>
+              </template>
             </div>
             <div class="diff" v-if="showDiff">+{{ item.target1 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
-              <span class="luck-caption" v-if="isLuckResult">{{ $t("Common.運") }}</span>
-              <span class="lv-caption" v-else>Lv.</span>
-              <span :class="{ 'red--text': item.target2 > 175 }">{{ item.target2 }}</span>
+              <template v-if="isLuckResult">
+                <span class="luck-caption">{{ $t("Common.運") }}</span>
+                <span :class="{ 'red--text': item.target2 > item.master.maxLuck }">{{ item.target2 }}</span>
+              </template>
+              <template v-else>
+                <span class="lv-caption">Lv.</span>
+                <span :class="{ 'red--text': item.target2 > maxLevel }">{{ item.target2 }}</span>
+              </template>
             </div>
             <div class="diff" v-if="showDiff">+{{ item.target2 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
-              <span class="luck-caption" v-if="isLuckResult">{{ $t("Common.運") }}</span>
-              <span class="lv-caption" v-else>Lv.</span>
-              <span :class="{ 'red--text': item.target3 > 175 }">{{ item.target3 }}</span>
+              <template v-if="isLuckResult">
+                <span class="luck-caption">{{ $t("Common.運") }}</span>
+                <span :class="{ 'red--text': item.target3 > item.master.maxLuck }">{{ item.target3 }}</span>
+              </template>
+              <template v-else>
+                <span class="lv-caption">Lv.</span>
+                <span :class="{ 'red--text': item.target3 > maxLevel }">{{ item.target3 }}</span>
+              </template>
             </div>
             <div class="diff" v-if="showDiff">+{{ item.target3 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
-              <span class="luck-caption" v-if="isLuckResult">{{ $t("Common.運") }}</span>
-              <span class="lv-caption" v-else>Lv.</span>
-              <span :class="{ 'red--text': item.manual > 175 }">{{ item.manual }}</span>
+              <template v-if="isLuckResult">
+                <span class="luck-caption">{{ $t("Common.運") }}</span>
+                <span :class="{ 'red--text': item.manual > item.master.maxLuck }">{{ item.manual }}</span>
+              </template>
+              <template v-else>
+                <span class="lv-caption">Lv.</span>
+                <span :class="{ 'red--text': item.manual > maxLevel }">{{ item.manual }}</span>
+              </template>
             </div>
             <div class="diff" v-if="showDiff">{{ item.manualDiffString }}</div>
           </td>
+          <td class="result-td">{{ isLuckResult || item.isMaximum ? '-' : item.nextExp.toLocaleString() }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -227,10 +249,10 @@
   min-width: 24px;
 }
 
-.ship-list >>> tr.lv175 {
+.ship-list >>> tr.maximum {
   background-color: rgba(255, 131, 131, 0.15) !important;
 }
-.ship-list >>> tr.lv175:hover {
+.ship-list >>> tr.maximum:hover {
   background-color: rgba(255, 131, 131, 0.2) !important;
 }
 
@@ -267,6 +289,8 @@ type listRow = {
   target3: number;
   manual: number;
   manualDiffString: string;
+  nextExp: number;
+  isMaximum: boolean;
 };
 
 export default Vue.extend({
@@ -319,6 +343,11 @@ export default Vue.extend({
         align: 'end',
         value: 'manual',
       },
+      {
+        text: 'next',
+        align: 'end',
+        value: 'nextExp',
+      },
     ],
     viewStatus: undefined as undefined | { text: string; value: string; manual: number },
     viewStatuses: [
@@ -336,6 +365,7 @@ export default Vue.extend({
     luckMode: false,
     showDiff: true,
     unsubscribe: undefined as unknown,
+    maxLevel: Const.MAX_LEVEL,
   }),
   mounted() {
     for (let i = 0; i < Const.SHIP_TYPES_ALT2.length; i += 1) {
@@ -449,6 +479,8 @@ export default Vue.extend({
           target3: 0,
           manual: 0,
           manualDiffString: '',
+          isMaximum: false,
+          nextExp: 0,
         };
 
         if (target === 'asw' || target === 'LoS' || target === 'avoid') {
@@ -468,6 +500,7 @@ export default Vue.extend({
           row.target2 = Ship.getRequiredLevel(rawValue + 2, maxValue, minValue);
           row.target3 = Ship.getRequiredLevel(rawValue + 3, maxValue, minValue);
           row.manual = Ship.getRequiredLevel(manual - improvement, maxValue, minValue);
+          row.isMaximum = row.target1 > this.maxLevel;
         } else if (isLuckMode) {
           // 運改修モード => 運を主語に判定
           row.diffBase = row.luck;
@@ -484,21 +517,31 @@ export default Vue.extend({
             row.target3 = Ship.getRequiredLuckAccuracy(row.target + 3, row.stock.level);
             row.manual = Ship.getRequiredLuckAccuracy(manual, row.stock.level);
           }
+          row.isMaximum = row.target1 > row.master.maxLuck;
         } else if (target === 'ci') {
           row.target = Ship.getCIValue(stock.level, row.luck);
           row.target1 = Ship.getRequiredLevelCI(row.target + 1, row.luck);
           row.target2 = Ship.getRequiredLevelCI(row.target + 2, row.luck);
           row.target3 = Ship.getRequiredLevelCI(row.target + 3, row.luck);
           row.manual = Ship.getRequiredLevelCI(manual, row.luck);
+          row.isMaximum = row.target1 > this.maxLevel;
         } else if (target === 'acc') {
           row.target = Ship.getAccuracyValue(stock.level, row.luck);
           row.target1 = Ship.getRequiredLevelAccuracy(row.target + 1, row.luck);
           row.target2 = Ship.getRequiredLevelAccuracy(row.target + 2, row.luck);
           row.target3 = Ship.getRequiredLevelAccuracy(row.target + 3, row.luck);
           row.manual = Ship.getRequiredLevelAccuracy(manual, row.luck);
+          row.isMaximum = row.target1 > this.maxLevel;
         }
 
-        if (!this.enabledOnly || row.target1 <= 175) {
+        if (!isLuckMode && !row.isMaximum) {
+          const nextLevelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === row.target1);
+          if (nextLevelInfo) {
+            row.nextExp = nextLevelInfo.req - stock.exp;
+          }
+        }
+
+        if (!this.enabledOnly || !row.isMaximum) {
           const diff = row.manual - row.diffBase;
           row.manualDiffString = diff < 0 ? `-${-diff}` : `+${diff}`;
           array.push(row);

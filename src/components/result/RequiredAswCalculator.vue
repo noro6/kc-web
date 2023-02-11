@@ -21,7 +21,7 @@
           <v-text-field
             label="Lv"
             v-model.number="level"
-            max="175"
+            :max="maxLevel"
             min="1"
             type="number"
             @input="statusChanged"
@@ -84,8 +84,8 @@
                   <td class="text-right">-</td>
                 </template>
                 <template v-else-if="minAsw || maxAsw">
-                  <td class="text-right" :class="{ 'red--text': result.requiredLevel > 175 }">{{ result.requiredLevel }}</td>
-                  <td class="text-right" v-if="result.requiredLevel > 175">-</td>
+                  <td class="text-right" :class="{ 'red--text': result.requiredLevel > maxLevel }">{{ result.requiredLevel }}</td>
+                  <td class="text-right" v-if="result.requiredLevel > maxLevel">-</td>
                   <td class="text-right" v-else>{{ result.requiredExp ? result.requiredExp.toLocaleString() : "0" }}</td>
                 </template>
                 <template v-else>
@@ -181,6 +181,7 @@ export default Vue.extend({
     minAsw: 0,
     maxAsw: 0,
     results: [] as { targetAsw: number; missingAsw: number; requiredLevel: number; requiredExp: number }[],
+    maxLevel: Const.MAX_LEVEL,
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -226,7 +227,7 @@ export default Vue.extend({
   methods: {
     statusChanged() {
       const asw = Ship.getStatusFromLevel(this.level, this.ship.data.maxAsw, this.ship.data.minAsw);
-      this.level = Math.max(Math.min(175, this.level), 1);
+      this.level = Math.max(Math.min(this.maxLevel, this.level), 1);
       this.fleet = new Fleet({ ships: [new Ship({ ship: this.fleet.ships[0], level: this.level, asw: asw + this.improveAsw })] });
     },
     updateShip() {

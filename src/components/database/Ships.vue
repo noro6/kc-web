@@ -73,7 +73,7 @@
                       @input="filter"
                     ></v-text-field>
                   </div>
-                  <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="filter">
+                  <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
                   <div class="range-input">
                     <v-text-field
@@ -316,8 +316,8 @@
                   v-ripple
                   :class="{
                     no_ship: item.count === 0,
-                    lv175: item.stockData.level === 175,
-                    lv100: item.stockData.level !== 175 && item.stockData.level > 99,
+                    lvMax: item.stockData.level === maxLevel,
+                    lv100: item.stockData.level !== maxLevel && item.stockData.level > 99,
                     lv99: item.stockData.level === 99,
                   }"
                   @click.stop="showEditDialog(item)"
@@ -419,8 +419,8 @@
                         v-ripple
                         :class="{
                           no_ship: data.count === 0,
-                          lv175: data.stockData.level === 175,
-                          lv100: data.stockData.level !== 175 && data.stockData.level > 99,
+                          lvMax: data.stockData.level === maxLevel,
+                          lv100: data.stockData.level !== maxLevel && data.stockData.level > 99,
                           lv99: data.stockData.level === 99,
                         }"
                         @click.stop="showEditDialog(data)"
@@ -515,9 +515,9 @@
           <v-divider class="mt-3"></v-divider>
           <div class="d-flex mt-3">
             <div class="range-input">
-              <v-text-field :label="$t('Database.練度(Lv)')" type="number" max="175" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
+              <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
             </div>
-            <v-slider class="mx-5 align-self-center" hide-details max="175" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
+            <v-slider class="mx-5 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
             <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">LV99</v-btn>
           </div>
           <div class="d-flex mt-8">
@@ -656,7 +656,7 @@
   transition: 0.2s;
   border-bottom: 1px solid rgba(128, 128, 128, 0.8);
 }
-.ship-card .ship-tr.lv175 {
+.ship-card .ship-tr.lvMax {
   color: #000;
   background-color: rgba(131, 220, 255, 0.753);
 }
@@ -676,7 +676,7 @@
 .ship-table tr {
   cursor: pointer;
 }
-.ship-table tr.lv175 {
+.ship-table tr.lvMax {
   background-color: rgba(131, 220, 255, 0.3) !important;
 }
 .ship-table tr.lv100 {
@@ -685,7 +685,7 @@
 .ship-table tr.lv99 {
   background-color: rgba(131, 255, 131, 0.3) !important;
 }
-.ship-table tr.lv175:hover {
+.ship-table tr.lvMax:hover {
   background-color: rgba(131, 220, 255, 0.5) !important;
 }
 .ship-table tr.lv100:hover {
@@ -694,7 +694,7 @@
 .ship-table tr.lv99:hover {
   background-color: rgba(131, 255, 131, 0.5) !important;
 }
-.theme--dark .ship-table tr.lv175 {
+.theme--dark .ship-table tr.lvMax {
   background-color: rgba(131, 220, 255, 0.2) !important;
 }
 .theme--dark .ship-table tr.lv100 {
@@ -703,7 +703,7 @@
 .theme--dark .ship-table tr.lv99 {
   background-color: rgba(131, 255, 131, 0.2) !important;
 }
-.theme--dark .ship-table tr.lv175:hover {
+.theme--dark .ship-table tr.lvMax:hover {
   background-color: rgba(131, 220, 255, 0.25) !important;
 }
 .theme--dark .ship-table tr.lv100:hover {
@@ -957,7 +957,7 @@ export default Vue.extend({
     isKamisha: false,
     isNotKamisha: false,
     luckRange: [1, 200],
-    levelRange: [1, 175],
+    levelRange: [1, Const.MAX_LEVEL],
     luckImpRange: [0, 100],
     aswRange: [0, 9],
     okDaihatsu: [] as number[],
@@ -1051,6 +1051,7 @@ export default Vue.extend({
     tooltipShip: new Ship(),
     tooltipX: 0,
     tooltipY: 0,
+    maxLevel: Const.MAX_LEVEL,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {

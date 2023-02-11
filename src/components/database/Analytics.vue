@@ -14,13 +14,13 @@
           @input="analyze()"
         ></v-text-field>
       </div>
-      <v-range-slider v-model="levelRange" dense thumb-label min="1" max="175" hide-details class="pt-2 align-center mx-2" @change="analyze()">
+      <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="analyze()">
       </v-range-slider>
       <div class="range-input">
         <v-text-field
           :label="$t('Database.Lv上限')"
           type="number"
-          max="175"
+          :max="maxLevel"
           :min="levelRange[0]"
           dense
           v-model.trim="levelRange[1]"
@@ -348,7 +348,7 @@ export default Vue.extend({
   name: 'AnalyticsComponent',
   components: { RadarChart, StackedBar },
   data: () => ({
-    levelRange: [1, 175],
+    levelRange: [1, Const.MAX_LEVEL],
     summaryTable: [] as { name: string; data: unknown }[],
     expRankTable: [] as { rank: number; name: string; exp: string; rate: string }[],
     unsubscribe: undefined as unknown,
@@ -404,7 +404,7 @@ export default Vue.extend({
       scales: {
         r: {
           min: 0,
-          max: 175,
+          max: Const.MAX_LEVEL,
           ticks: {
             stepSize: 25,
             color: 'rgb(64, 64, 64)',
@@ -481,6 +481,7 @@ export default Vue.extend({
       details: planeDetail[];
       open: number;
     }[],
+    maxLevel: Const.MAX_LEVEL,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {

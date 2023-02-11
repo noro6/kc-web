@@ -690,6 +690,13 @@ export default class Const {
   public static readonly EXPAND_SLOT_INDEX = 99;
 
   /**
+   * 実装最大レベル
+   * @static
+   * @memberof Const
+   */
+  public static readonly MAX_LEVEL = 175;
+
+  /**
    * 対空射撃回避
    * @static
    * @memberof Const

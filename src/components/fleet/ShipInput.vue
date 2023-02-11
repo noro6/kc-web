@@ -72,14 +72,14 @@
                   <v-btn small outlined @click.stop="level = 50" color="primary">Lv50</v-btn>
                   <v-btn small outlined @click.stop="level = 80" color="teal">Lv80</v-btn>
                   <v-btn small outlined @click.stop="level = 99" color="teal">Lv99</v-btn>
-                  <v-btn small outlined @click.stop="level = 175" color="red lighten-2">Lv175</v-btn>
+                  <v-btn small outlined @click.stop="level = maxLevel" color="red lighten-2">Lv{{ maxLevel }}</v-btn>
                 </div>
                 <div class="d-flex mt-4 align-center">
                   <div class="edit-status-menu-text">
-                    <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" max="175" min="1" hide-details type="number"></v-text-field>
+                    <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" :max="maxLevel" min="1" hide-details type="number"></v-text-field>
                   </div>
                   <div class="flex-grow-1">
-                    <v-slider max="175" min="1" v-model="level" hide-details></v-slider>
+                    <v-slider :max="maxLevel" min="1" v-model="level" hide-details></v-slider>
                   </div>
                 </div>
                 <v-divider class="my-3"></v-divider>
@@ -468,6 +468,7 @@ import SiteSetting from '@/classes/siteSetting';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import { cloneDeep } from 'lodash';
 import ItemBonus from '@/classes/item/ItemBonus';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   components: { ItemInput, ItemTooltip, ShipTooltip },
@@ -535,6 +536,7 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
+    maxLevel: Const.MAX_LEVEL,
   }),
   computed: {
     ship(): Ship {
