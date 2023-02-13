@@ -76,6 +76,7 @@
           type="number"
           min="-99"
           max="0"
+          step="0.1"
           v-model.number="armorDeBuff"
           :label="$t('Common.装甲減少')"
           outlined
@@ -368,7 +369,7 @@ export default Vue.extend({
       }
       const ship = this.enabledShips[this.selectedShipIndex];
       if (ship) {
-        this.armorDeBuff = ship.getAswArmorDeBuff();
+        this.armorDeBuff = Math.round(1000 * ship.getAswArmorDeBuff()) / 1000;
       }
 
       this.clickedItem(this.selectedItemIndex);

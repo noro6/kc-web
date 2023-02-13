@@ -123,8 +123,9 @@ export default class CommonCalc {
     // 各ダメージ値とその確率のdictionary
     const damageDist: { damage: number, rate: number }[] = [];
     // 0～(装甲 - 1)まで
-    const step = 1 / armor;
-    for (let i = 0; i < armor; i += 1) {
+    const loopCount = Math.floor(armor);
+    const step = 1 / loopCount;
+    for (let i = 0; i < loopCount; i += 1) {
       const tempArmor = armor * 0.7 + i * 0.6;
       for (let k = 0; k < powers.length; k += 1) {
         const p = powers[k];
