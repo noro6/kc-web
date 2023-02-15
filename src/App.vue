@@ -1856,14 +1856,16 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-10,
 .item-input.type-33,
 .item-input.type-43,
-.item-input.type-50 {
+.item-input.type-50,
+.item-input.type-51 {
   box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15) !important;
   border-color: rgb(140, 205, 150) !important;
 }
 .item-input.type-10:hover,
 .item-input.type-33:hover,
 .item-input.type-43:hover,
-.item-input.type-50:hover {
+.item-input.type-50:hover,
+.item-input.type-51:hover {
   box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.4) !important;
 }
 .item-input.type-11 {
@@ -2040,7 +2042,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-10,
 .captured .item-input.type-33,
 .captured .item-input.type-43,
-.captured .item-input.type-50 {
+.captured .item-input.type-50,
+.captured .item-input.type-51 {
   background: rgba(86, 255, 122, 0.075) !important;
 }
 .captured .item-input.type-11 {
