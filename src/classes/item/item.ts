@@ -871,8 +871,8 @@ export default class Item {
    */
   public getProfCriticalBonus(): number {
     let bonus = 0;
-    // 搭載数が存在する攻撃機か大型飛行艇
-    if (this.slot > 0 && (this.data.isAttacker || this.data.apiTypeId === 41)) {
+    // 搭載数が存在する攻撃機か大型飛行艇、対潜哨戒機 オートジャイロ
+    if (this.slot > 0 && (this.data.isAttacker || this.data.apiTypeId === 41 || this.data.isAswPlane)) {
       // 熟練度定数C
       const c = [0, 1, 2, 3, 4, 5, 7, 10][this.levelAlt];
       bonus += Math.floor(Math.sqrt(this.level) + c) / 100;
