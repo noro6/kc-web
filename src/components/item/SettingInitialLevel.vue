@@ -154,9 +154,6 @@ export default Vue.extend({
         // 一括
         for (let i = 0; i < this.setting.planeInitialLevels.length; i += 1) {
           this.setting.planeInitialLevels[i].level = Const.PROF_LEVEL_BORDER[value];
-          if (this.setting.planeInitialLevels[i].id === 49 && Const.PROF_LEVEL_BORDER[value] > 25) {
-            this.setting.planeInitialLevels[i].level = 25;
-          }
         }
       }
     },

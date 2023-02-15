@@ -673,15 +673,6 @@ export default Vue.extend({
           if (initData) {
             initialLevel = initData.level;
           }
-
-          if (item.apiTypeId === 49) {
-            if (item.id === 312) {
-              // 陸上偵察機(熟練)の制御
-              initialLevel = Math.min(25, initialLevel);
-            } else {
-              initialLevel = 0;
-            }
-          }
         }
 
         const builder: ItemBuilder = {
@@ -827,23 +818,13 @@ export default Vue.extend({
           const item = items[j];
           if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
             let { slot } = item;
-            let { level } = itemBuilder;
+            const { level } = itemBuilder;
             if (item.data.isRecon && itemBuilder.slot !== undefined) {
               slot = Math.min(4, itemBuilder.slot);
             } else if (item.data.isShinzan && itemBuilder.slot !== undefined) {
               slot = Math.min(9, itemBuilder.slot);
             } else if (item.data.isPlane && itemBuilder.slot !== undefined) {
               slot = Math.min(18, itemBuilder.slot);
-            }
-
-            if (item.data.apiTypeId === 49) {
-              if (item.data.id === 312) {
-                if (itemBuilder.level) {
-                  level = Math.min(25, itemBuilder.level);
-                }
-              } else {
-                level = 0;
-              }
             }
             items[j] = new Item({
               item,
@@ -916,15 +897,6 @@ export default Vue.extend({
               const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
               if (initData) {
                 level = initData.level;
-              }
-
-              if (newItem.data.apiTypeId === 49) {
-                if (newItem.data.id === 312) {
-                  // 陸上偵察機(熟練)の制御
-                  level = Math.max(25, level);
-                } else {
-                  level = 0;
-                }
               }
             }
             newItems[slotIndex] = new Item({
