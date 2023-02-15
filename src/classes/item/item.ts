@@ -360,38 +360,38 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAirPower(): number {
-    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane) {
+    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane || (this.data.isAswPlane && !this.data.isAttacker)) {
       return 0;
     }
     const type = this.data.apiTypeId;
     let sum = 0;
 
     if (this.level >= 100) {
-      if (this.data.isFighter) {
+      if (this.data.isFighter || this.data.isAswPlane) {
         sum += 22;
       } else if (type === 11) {
         sum += 6;
       }
     } else if (this.level >= 70) {
-      if (this.data.isFighter) {
+      if (this.data.isFighter || this.data.isAswPlane) {
         sum += 14;
       } else if (type === 11) {
         sum += 3;
       }
     } else if (this.level >= 55) {
-      if (this.data.isFighter) {
+      if (this.data.isFighter || this.data.isAswPlane) {
         sum += 9;
       } else if (type === 11) {
         sum += 1;
       }
     } else if (this.level >= 40) {
-      if (this.data.isFighter) {
+      if (this.data.isFighter || this.data.isAswPlane) {
         sum += 5;
       } else if (type === 11) {
         sum += 1;
       }
     } else if (this.level >= 25) {
-      if (this.data.isFighter) {
+      if (this.data.isFighter || this.data.isAswPlane) {
         sum += 2;
       } else if (type === 11) {
         sum += 1;
