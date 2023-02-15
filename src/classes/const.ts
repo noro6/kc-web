@@ -147,34 +147,52 @@ export default class Const {
     { text: '待機', value: AB_MODE.WAIT },
   ];
 
-  public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 41, 45, 47, 48, 49, 53, 57];
+  /** 航空戦に関係する装備カテゴリ */
+  public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 25, 26, 41, 45, 47, 48, 49, 53, 57];
 
+  /** 空母のみ搭載可である機体カテゴリ */
   public static readonly CB_PLANE_TYPES = [6, 7, 8, 9, 57];
 
+  /** 水上機 */
   public static readonly SP_PLANE_TYPES = [10, 11, 41, 45];
 
+  /** 基地航空隊のみ搭載可である機体カテゴリ */
   public static readonly AB_PLANE_TYPES = [47, 48, 49, 53];
 
+  /** 艦戦カテゴリ */
   public static readonly FIGHTERS = [6, 45, 48];
 
+  /** 攻撃機カテゴリ */
   public static readonly ATTACKERS = [7, 8, 11, 47, 53, 57];
 
+  /** 対潜哨戒機 オートジャイロ */
+  public static readonly ASW_PLANES = [25, 26];
+
+  /** 偵察機カテゴリ */
   public static readonly RECONNAISSANCES = [9, 10, 41, 49];
 
+  /** 陸上攻撃機カテゴリ */
   public static readonly AB_ATTACKERS = [47, 53];
 
+  /** 大型陸上機カテゴリ */
   public static readonly AB_ATTACKERS_LARGE = [53];
 
-  public static readonly ROCKET = [350, 351, 352];
-
-  public static readonly BAKUSEN = [60, 154, 219, 447, 487];
-
-  public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421, 474];
-
-  public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
-
+  /** 狭義の爆雷カテゴリ */
   public static readonly STRICT_DEPTH_CHARGE = [226, 227, 378, 439, 488];
 
+  /** ロケット戦闘機id */
+  public static readonly ROCKET = [350, 351, 352];
+
+  /** 爆戦id */
+  public static readonly BAKUSEN = [60, 154, 219, 447, 487];
+
+  /** 対地攻撃可能な艦爆id */
+  public static readonly ENABLED_LAND_BASE_ATTACK = [64, 148, 233, 277, 305, 306, 319, 320, 391, 392, 420, 421, 474];
+
+  /** 対潜支援可能艦種 */
+  public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
+
+  /** 特効情報 */
   public static readonly SPECIAL_GROUP: { key: string, text: string, items: number[] }[] = [
     // { key: '55-3', text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254] },
     // { key: '55-3', text: 'A3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },

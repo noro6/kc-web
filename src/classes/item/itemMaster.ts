@@ -86,6 +86,9 @@ export default class ItemMaster {
   /** 攻撃機フラグ */
   public readonly isAttacker: boolean;
 
+  /** 対潜哨戒機フラグ */
+  public readonly isAswPlane: boolean;
+
   /** 基地攻撃機フラグ */
   public readonly isABAttacker: boolean;
 
@@ -186,7 +189,8 @@ export default class ItemMaster {
     // その他区分解決
     this.isPlane = Const.PLANE_TYPES.includes(this.apiTypeId);
     this.isFighter = Const.FIGHTERS.includes(this.apiTypeId);
-    this.isAttacker = Const.ATTACKERS.includes(this.apiTypeId);
+    this.isAswPlane = Const.ASW_PLANES.includes(this.apiTypeId);
+    this.isAttacker = Const.ATTACKERS.includes(this.apiTypeId) || (this.isAswPlane && this.bomber > 0);
     this.isRecon = Const.RECONNAISSANCES.includes(this.apiTypeId);
     this.isABAttacker = Const.AB_ATTACKERS.includes(this.apiTypeId);
     this.isBakusen = Const.BAKUSEN.includes(this.id);
