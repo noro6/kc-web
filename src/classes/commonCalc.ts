@@ -176,19 +176,31 @@ export default class CommonCalc {
       case 2:
         return '100';
       case 3:
-        return '57 ~ 75';
+        return '52 ~ 79';
       case 4:
-        return '39 ~ 47';
+        return '37 ~ 49';
       case 5:
-        return '31 ~ 40';
+        return '28 ~ 43';
       case 6:
-        return '25 ~ 31';
+        return '23 ~ 32';
       case 7:
-        return '20 ~ 28';
+        return '19 ~ 29';
       case 8:
-        return '18 ~ 23';
+        return '16 ~ 24';
       case 9:
-        return '16 ~ 20';
+        return '14 ~ 23';
+      case 10:
+        return '13 ~ 20';
+      case 11:
+        return '12 ~ 19';
+      case 12:
+        return '11 ~ 16';
+      case 13:
+        return '10 ~ 16';
+      case 14:
+        return '9 ~ 14';
+      case 15:
+        return '8 ~ 14';
       default:
         return '?';
     }
