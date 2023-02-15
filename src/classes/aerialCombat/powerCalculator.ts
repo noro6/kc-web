@@ -151,7 +151,7 @@ export default class AerialFirePowerCalculator {
    */
   public static getPreCapTerms(args: FirePowerCalcArgs): PreCapTerm[] {
     const { item, defense, isAirbaseMode } = args;
-    // ※種別倍率
+    // 種別倍率
     const typeMultipliers = [0];
 
     // 航空戦定数 基本は25だが…？
@@ -189,6 +189,11 @@ export default class AerialFirePowerCalculator {
         // 噴式機
         actualTorpedo = item.actualBomber;
         typeMultipliers[0] = 0.7071;
+        break;
+      case 26:
+        // 対潜哨戒機 なぜか0
+        actualTorpedo = 0;
+        typeMultipliers[0] = 1;
         break;
       case 47:
         // 陸上攻撃機

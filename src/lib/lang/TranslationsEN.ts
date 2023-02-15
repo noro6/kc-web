@@ -573,6 +573,7 @@ export default {
       '熟練甲板要員ボーナス': 'Skilled Deck Personnel Bonus',
       '実雷装値': 'Actual Torpedo',
       '実爆装値': 'Actual Bomber',
+      '実対潜値': 'Actual Asw',
       '航空戦定数': 'Airstrike Modifiers',
       '基本攻撃力': 'Basic Attack Power',
       'キャップ前攻撃力': 'Pre-Cap Attack Power',
