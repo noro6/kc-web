@@ -1418,7 +1418,7 @@ export default class ItemBonus {
       ],
     },
     {
-      ids: [237, 322, 323],
+      ids: [237, 322, 323, 490],
       bonuses: [
         {
           bonus: { firePower: 3, avoid: 1 },
@@ -1427,7 +1427,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 3, antiAir: 1, avoid: 2 },
-          shipId: [501, 506, 663, 668],
+          shipId: [501, 506, 553, 554, 663, 668],
         },
       ],
     },
