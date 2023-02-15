@@ -159,6 +159,12 @@
         <div class="damage-detail-container caption" v-for="(preCapTerm, i) in preCapTerms" :key="`term${i}`">
           <template v-if="postCapTerms[i].isSubmarine">
             <div>{{ $t("Common.対潜") }}</div>
+            <div>{{ selectedItem.data.asw }}</div>
+            <template v-if="selectedItem.remodel && preCapTerm.actualTorpedo">
+              <div>{{ $t("Result.改修強化値") }}</div>
+              <div>{{ Math.floor(100 * (preCapTerm.actualTorpedo - selectedItem.data.asw)) / 100 }}</div>
+            </template>
+            <div>{{ $t("Result.実対潜値") }}</div>
           </template>
           <template v-else-if="selectedItem.data.isTorpedoAttacker && !preCapTerm.isLandBase">
             <div>{{ $t("Common.雷装") }}</div>

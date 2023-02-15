@@ -416,8 +416,9 @@ export default class AerialFirePowerCalculator {
     const { slot, item } = args;
     // 航空戦定数 25
     const airstrikeModifiers = 25;
-    // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 航空戦定数}
-    const baseFirePower = (slot > 0 && item.data.asw >= 7) ? item.data.asw * Math.sqrt(1.8 * slot) + airstrikeModifiers : 0;
+    // 基本攻撃力 = {(対潜 + 0.66 * √★) × √(1.8 × 搭載数) + 航空戦定数}
+    const actualAsw = item.data.asw + 0.66 * Math.sqrt(item.remodel);
+    const baseFirePower = (slot > 0 && item.data.asw >= 7) ? actualAsw * Math.sqrt(1.8 * slot) + airstrikeModifiers : 0;
     // A 対潜10以上で0.7 それ以外0.35
     const a = item.data.asw >= 10 ? 0.7 : 0.35;
     // B 対潜10以上で0.3、それ以外0.45
@@ -431,7 +432,7 @@ export default class AerialFirePowerCalculator {
       airstrikeModifiers,
       baseFirePower,
       preCapFirePower: baseFirePower * minTypeMultiplier,
-      actualTorpedo: item.data.asw,
+      actualTorpedo: actualAsw,
       typeMultiplier: minTypeMultiplier,
       B25Modifiers: 1,
       torpedoMultiplier: 1,
@@ -445,7 +446,7 @@ export default class AerialFirePowerCalculator {
       airstrikeModifiers,
       baseFirePower,
       preCapFirePower: baseFirePower * typeMultiplier,
-      actualTorpedo: item.data.asw,
+      actualTorpedo: actualAsw,
       typeMultiplier,
       B25Modifiers: 1,
       torpedoMultiplier: 1,
