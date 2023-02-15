@@ -186,11 +186,21 @@ export default class SiteSetting {
           { id: 47, level: 0 },
           { id: 53, level: 0 },
           { id: 48, level: 100 },
-          { id: 49, level: 25 },
+          { id: 49, level: 100 },
+          { id: 25, level: 0 },
+          { id: 26, level: 0 },
         ];
         this.contentOrder = [];
       } else {
         this.planeInitialLevels = setting.planeInitialLevels;
+
+        // 熟練度追加分
+        if (!this.planeInitialLevels.find((v) => v.id === 25)) {
+          this.planeInitialLevels.push({ id: 25, level: 0 });
+        }
+        if (!this.planeInitialLevels.find((v) => v.id === 26)) {
+          this.planeInitialLevels.push({ id: 26, level: 0 });
+        }
       }
       this.contentOrder = setting.contentOrder ? setting.contentOrder : [];
     } else {
@@ -238,7 +248,9 @@ export default class SiteSetting {
         { id: 47, level: 0 },
         { id: 53, level: 0 },
         { id: 48, level: 100 },
-        { id: 49, level: 25 },
+        { id: 49, level: 100 },
+        { id: 25, level: 0 },
+        { id: 26, level: 0 },
       ];
       this.contentOrder = [];
       this.displayBonusKey = '';
