@@ -1084,13 +1084,12 @@ export default class Ship implements ShipBase {
     if ((this.data.type2 === 76 && this.data.name.indexOf('改') >= 0) || this.data.id === 646) {
       // 大鷹型改 改二 or 加賀改二護
       // => 対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機
-      return items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
+      return items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.isAswPlane);
     }
 
     if (type === SHIP_TYPE.CVL) {
       // 軽空母 / 護衛空母
-      const hasASWPlane = items.some((v) => v.data.apiTypeId === 25 || v.data.apiTypeId === 26);
-      const hasAttacker = items.some((v) => v.data.isAttacker);
+      const hasASWPlane = items.some((v) => v.fullSlot && v.data.isAswPlane);
       if (hasSonar && (hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
         // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
         if (this.displayStatus.asw >= 100) {
@@ -1100,14 +1099,14 @@ export default class Ship implements ShipBase {
       }
       if (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7)) {
         // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機) + 何らかの攻撃機
-        if (this.displayStatus.asw >= 65 && hasAttacker) {
+        if (this.displayStatus.asw >= 65) {
           return true;
         }
         this.missingAsw = 65 - this.displayStatus.asw;
       }
       if (hasSonar && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
         // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
-        if (this.displayStatus.asw >= 50 && hasAttacker) {
+        if (this.displayStatus.asw >= 50) {
           return true;
         }
         this.missingAsw = 50 - this.displayStatus.asw;
@@ -1123,11 +1122,21 @@ export default class Ship implements ShipBase {
       // => カ号 / オ号改 / オ号改二 の数が2以上
       return items.filter((v) => v.data.id === 69 || v.data.id === 324 || v.data.id === 325).length >= 2;
     }
+    if (this.data.id === 411 || this.data.id === 412) {
+      // 扶桑型改二
+      // => 表示対潜値100 + ソナー + (水上爆撃機 or 爆雷 or 対潜哨戒機 or 回転翼機)
+      if (hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 15 || v.data.isAswPlane)) {
+        if (this.displayStatus.asw >= 100) {
+          return true;
+        }
+        this.missingAsw = 100 - this.displayStatus.asw;
+      }
+    }
 
     if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
       // 陸軍と航空戦艦
       // => 表示対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
-      if (hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 25 || v.data.apiTypeId === 26)) {
+      if (hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.isAswPlane)) {
         if (this.displayStatus.asw >= 100) {
           return true;
         }
