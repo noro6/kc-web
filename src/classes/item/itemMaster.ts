@@ -74,6 +74,12 @@ export default class ItemMaster {
   /** 熟練度成長定数 */
   public readonly grow: number;
 
+  /** 出撃対空 */
+  public readonly sortieAntiAir: number;
+
+  /** 防空対空 */
+  public readonly defenseAntiAir: number;
+
   /** 特殊機銃とか高角砲とかそういうの 一覧で緑色になる */
   public readonly isSpecial: boolean;
 
@@ -202,6 +208,11 @@ export default class ItemMaster {
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
     this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
     this.isEnemyItem = this.id > 1500;
+
+    // 出撃対空 = 対空値 + 1.5 * 迎撃
+    this.sortieAntiAir = this.antiAir + 1.5 * this.interception;
+    // 防空対空 = 対空値 + 迎撃 + 2 * 対爆
+    this.defenseAntiAir = this.antiAir + this.interception + 2 * this.antiBomber;
 
     if (!this.isSpecial) {
       this.isSpecial = this.isRocket || this.enabledAttackLandBase;

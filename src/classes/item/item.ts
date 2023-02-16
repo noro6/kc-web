@@ -240,9 +240,9 @@ export default class Item {
 
     if (this.data.isPlane) {
       // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
-      this.actualAntiAir = this.data.antiAir + 1.5 * this.data.interception + this.bonusAntiAir;
+      this.actualAntiAir = this.data.sortieAntiAir + this.bonusAntiAir;
       // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
-      this.actualDefenseAntiAir = this.data.antiAir + this.data.interception + 2 * this.data.antiBomber + this.bonusAntiAir;
+      this.actualDefenseAntiAir = this.data.defenseAntiAir + this.bonusAntiAir;
       // 砲撃戦火力
       if (!this.data.isSPPlane) {
         this.aircraftDayBattleFirePower = (this.dayBattleFirePower + this.data.torpedo + Math.floor(1.3 * this.data.bomber)) * 1.5;

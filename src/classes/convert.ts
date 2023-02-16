@@ -969,6 +969,10 @@ export default class Convert {
         return '配置コスト';
       case 'avoidId':
         return '射撃回避';
+      case 'sortieAntiAir':
+        return '出撃対空';
+      case 'defenseAntiAir':
+        return '防空対空';
       default:
         return value;
     }

@@ -231,7 +231,7 @@ export default class Const {
     { id: 41, name: '大型飛行艇', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 47, name: '陸上攻撃機', sortKey: ['torpedo', 'bomber', 'antiAir', 'asw', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
     { id: 53, name: '大型陸上機', sortKey: ['torpedo', 'bomber', 'antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
-    { id: 48, name: '局地/陸軍戦闘機', sortKey: ['antiAir', 'antiBomber', 'interception', 'radius', 'cost'] },
+    { id: 48, name: '局地/陸軍戦闘機', sortKey: ['antiAir', 'antiBomber', 'interception', 'radius', 'cost', 'sortieAntiAir', 'defenseAntiAir'] },
     { id: 49, name: '陸上偵察機', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 1, name: '小口径主砲', sortKey: ['fire', 'accuracy', 'antiAir', 'armor', 'range'] },
     { id: 2, name: '中口径主砲', sortKey: ['fire', 'accuracy', 'antiAir', 'armor', 'range'] },
