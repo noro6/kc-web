@@ -65,12 +65,14 @@
               <td class="td-ship-name" v-if="j === 0" :rowspan="ship.items.length">
                 {{ getShipName(ship.data) }}
               </td>
-              <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
-                <div class="d-none d-sm-block px-0 px-md-1">
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
-                </div>
-                <div class="align-self-center item-name text-truncate">
-                  {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+              <td :class="`text-left item-input type-${item.data.iconTypeId}`">
+                <div class="d-flex">
+                  <div class="d-none d-sm-block px-0 px-md-1">
+                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="25" width="25"></v-img>
+                  </div>
+                  <div class="align-self-center item-name text-truncate">
+                    {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                  </div>
                 </div>
               </td>
               <td v-for="k in battleCount" :key="k" class="pr-md-1" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
@@ -338,7 +340,13 @@
           </v-btn>
         </div>
         <v-divider></v-divider>
-        <plane-detail-result v-if="!destroyDialog && detailParent" :parent="detailParent" :index="detailIndex" :fleetIndex="detailFleetIndex" />
+        <plane-detail-result
+          v-if="!destroyDialog && detailParent"
+          :parent="detailParent"
+          :index="detailIndex"
+          :fleetIndex="detailFleetIndex"
+          :manager="value"
+        />
       </v-card>
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
@@ -423,13 +431,12 @@ td.item-input {
   border-bottom: none !important;
   border-top: 1px solid rgba(128, 128, 128, 0.25) !important;
   margin: 0 !important;
-  padding-top: 2px;
-  padding-bottom: 2px;
 }
 .item-name {
   flex-grow: 1;
   font-size: 0.9em;
   width: 85px;
+  padding-top: 2px;
 }
 
 .tr-status {
@@ -573,6 +580,7 @@ import Convert from '@/classes/convert';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
+import { cloneDeep } from 'lodash';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -622,6 +630,7 @@ export default Vue.extend({
     tooltipY: 0,
     fuelCorr: '',
     ammoCorr: '',
+    managerForDialog: new CalcManager(),
   }),
   computed: {
     formations(): Formation[] {
@@ -891,6 +900,8 @@ export default Vue.extend({
       }
     },
     viewDetail(parent: Enemy | Ship | Airbase, index: number): void {
+      this.managerForDialog = cloneDeep(this.value);
+
       this.detailParent = parent;
       this.detailIndex = index;
       if (parent instanceof Enemy) {

@@ -100,7 +100,7 @@
             <contact-rates :fleet="value" />
           </v-tab-item>
           <v-tab-item value="detail">
-            <plane-detail-result :parent="value" :index="index" />
+            <plane-detail-result :parent="value" :index="index" :manager="manager" />
           </v-tab-item>
         </v-tabs-items>
       </v-card>
@@ -140,6 +140,11 @@ import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
+import SaveData from '@/classes/saveData/saveData';
+import ItemMaster from '@/classes/item/itemMaster';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import EnemyMaster from '@/classes/enemy/enemyMaster';
+import CalcManager from '@/classes/calcManager';
 
 export default Vue.extend({
   components: {
@@ -184,6 +189,7 @@ export default Vue.extend({
     destroyDialog: false,
     detailDialog: false,
     visibleResource: false,
+    manager: new CalcManager(),
   }),
   computed: {
     modes(): { text: string; value: number }[] {
@@ -263,6 +269,12 @@ export default Vue.extend({
       this.setAirbase(new Airbase());
     },
     viewDetail(): void {
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      const items = this.$store.state.items as ItemMaster[];
+      const ships = this.$store.state.ships as ShipMaster[];
+      const enemies = this.$store.getters.getEnemies as EnemyMaster[];
+
+      this.manager = saveData.loadManagerData(items, ships, enemies);
       this.destroyDialog = false;
       this.detailDialog = true;
     },

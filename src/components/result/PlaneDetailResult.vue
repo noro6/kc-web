@@ -254,10 +254,13 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
+    manager: {
+      type: CalcManager,
+      required: true,
+    },
   },
   data: () => ({
     visibleSlotRate: true,
-    calcManager: undefined as undefined | CalcManager,
     selectedIndex: -1,
     selectedItem: new Item(),
     graphData: {
@@ -319,13 +322,6 @@ export default Vue.extend({
     slotRateTableText: '',
   }),
   mounted() {
-    const saveData = this.$store.state.mainSaveData as SaveData;
-    const items = this.$store.state.items as ItemMaster[];
-    const ships = this.$store.state.ships as ShipMaster[];
-    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
-
-    this.calcManager = saveData.loadManagerData(items, ships, enemies);
-
     // ないとバグる 意味不明！！！！！！！！！！！！！！！
     setTimeout(() => {
       // 最初の攻撃機
@@ -357,23 +353,20 @@ export default Vue.extend({
       this.setGraphData();
     },
     setGraphData() {
-      if (!this.calcManager) {
-        return;
-      }
       const index = this.selectedIndex;
       let item: Item;
       // この艦載機情報の詳細計算フラグを立て、計算を行う
       if (this.parent instanceof Ship) {
         // 艦隊
-        item = this.calcManager.fleetInfo.mainFleet.ships[this.index].items[index];
+        item = this.manager.fleetInfo.mainFleet.ships[this.index].items[index];
       } else if (this.parent instanceof Airbase) {
         // 基地
-        this.calcManager.airbaseInfo.airbases[this.index].needShootDown = true;
-        item = this.calcManager.airbaseInfo.airbases[this.index].items[index];
+        this.manager.airbaseInfo.airbases[this.index].needShootDown = true;
+        item = this.manager.airbaseInfo.airbases[this.index].items[index];
       } else {
         // 敵
-        this.calcManager.mainBattle = this.fleetIndex;
-        item = this.calcManager.battleInfo.fleets[this.fleetIndex].enemies[this.index].items[index];
+        this.manager.mainBattle = this.fleetIndex;
+        item = this.manager.battleInfo.fleets[this.fleetIndex].enemies[this.index].items[index];
       }
 
       if (item) {
@@ -381,7 +374,7 @@ export default Vue.extend({
       }
 
       // 計算実行
-      this.calcManager.updateInfo();
+      this.manager.updateInfo();
 
       if (item) {
         this.selectedItem = cloneDeep(item);
@@ -433,7 +426,7 @@ export default Vue.extend({
     },
     changeDefenseIndex(index: number) {
       // 火力計算画面より、防御艦隊を変更した際のイベント
-      if (this.parent instanceof Ship && this.calcManager) {
+      if (this.parent instanceof Ship && this.manager) {
         // 展開している敵艦隊までの計算に変更
         const saveData = this.$store.state.mainSaveData as SaveData;
         const items = this.$store.state.items as ItemMaster[];
@@ -441,8 +434,8 @@ export default Vue.extend({
         const enemies = this.$store.getters.getEnemies as EnemyMaster[];
         const baseInfo = saveData.loadManagerData(items, ships, enemies).battleInfo;
 
-        this.calcManager.mainBattle = index;
-        this.calcManager.battleInfo = new BattleInfo({ info: baseInfo, fleets: baseInfo.fleets.slice(0, index + 1) });
+        this.manager.mainBattle = index;
+        this.manager.battleInfo = new BattleInfo({ info: baseInfo, fleets: baseInfo.fleets.slice(0, index + 1) });
       }
       this.setGraphData();
     },
