@@ -876,6 +876,10 @@ export default class Item {
       // 熟練度定数C
       const c = [0, 1, 2, 3, 4, 5, 7, 10][this.levelAlt];
       bonus += Math.floor(Math.sqrt(this.level) + c) / 100;
+      if (this.data.isAswPlane) {
+        // 対潜哨戒機
+        bonus = Math.floor(Math.sqrt(this.level) + c) / 128;
+      }
     }
     // 補正値 = int(√内部熟練度  + C) / 100
     return 1 + bonus;

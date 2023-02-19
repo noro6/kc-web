@@ -886,23 +886,28 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       // 対象は搭載数が存在する攻撃機か大型飛行艇
-      if (item.slot > 0 && !item.data.isAswPlane && (item.data.isAttacker || item.data.apiTypeId === 41)) {
+      if (item.slot > 0 && (item.data.isAttacker || item.data.apiTypeId === 41)) {
         // 熟練度定数C
         const c = [0, 1, 2, 3, 4, 5, 7, 10][item.levelAlt];
+
+        if (item.data.isAswPlane) {
+          // 対潜哨戒機
+          if (i === 0) {
         // 隊長機補正
-        const div = i === 0 ? 100 : 200;
-        bonus += Math.floor(Math.sqrt(item.level) + c) / div;
-      } else if (item.slot > 0 && item.data.isAswPlane) {
-        // 対潜哨戒機対応 速報値にあうようにとりあえず仮置き
-        // 熟練度定数C
-        const c = [0, 1, 2, 3, 4, 5, 7, 10][item.levelAlt];
+            bonus += Math.floor(Math.sqrt(item.level) + c) / 128;
+          } else {
+            bonus += Math.floor(Math.sqrt(item.level) + c) / 242;
+          }
+        } else if (i === 0) {
         // 隊長機補正
-        const div = i === 0 ? 125 : 225;
-        bonus += Math.floor(Math.sqrt(item.level) + c) / div;
+          bonus += Math.floor(Math.sqrt(item.level) + c) / 100;
+        } else {
+          bonus += Math.floor(Math.sqrt(item.level) + c) / 200;
+        }
       }
     }
 
-    // 補正値 = int(√内部熟練度  + C) / (100 or 200)
+    // 補正値 = int(√内部熟練度  + C) / (隊長機によって変動 100 ~ 240)
     return 1 + bonus;
   }
 
