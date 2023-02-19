@@ -355,11 +355,6 @@ export default class AerialFirePowerCalculator {
       }
     }
 
-    if (args.isCritical) {
-      // クリティカル時
-      finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
-    }
-
     // 陸攻補正
     const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
     // 空母棲姫特効
@@ -377,6 +372,11 @@ export default class AerialFirePowerCalculator {
       // 通常航空戦キャップ後処理
       // 触接補正 * キャップ後特殊補正
       finalFirePower = finalFirePower * args.contactBonus * args.manualAfterCapBonus;
+    }
+
+    if (args.isCritical) {
+      // クリティカル時
+      finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
     }
 
     return {
@@ -482,10 +482,6 @@ export default class AerialFirePowerCalculator {
     const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS);
 
     let finalFirePower = postCapFirePower;
-    // クリティカル補正
-    if (args.isCritical) {
-      finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
-    }
     // 陸攻補正
     let airbaseAttackerMultiplier = 1;
     if (args.item.data.apiTypeId === 47) {
@@ -493,6 +489,11 @@ export default class AerialFirePowerCalculator {
     }
     // 触接 特効を付与
     finalFirePower = finalFirePower * airbaseAttackerMultiplier * args.contactBonus * args.manualAfterCapBonus;
+
+    // クリティカル補正
+    if (args.isCritical) {
+      finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
+    }
 
     // 水上偵察機攻撃力 0 補正
     if (Const.RECONNAISSANCES.includes(args.item.data.apiTypeId)) {
@@ -578,8 +579,7 @@ export default class AerialFirePowerCalculator {
   }
 
   /**
-   *
-   *
+   * 対潜支援火力を返却
    * @static
    * @param {number} asw
    * @param {number} slot

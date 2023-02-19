@@ -125,7 +125,7 @@
             step="0.01"
             @input="calculate()"
           ></v-text-field>
-          <v-select class="mt-3" :label="$t('Result.弾薬補正')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculate()"></v-select>
+          <v-select class="mt-3" :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculate()"></v-select>
           <v-checkbox class="mt-3" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
         </div>
       </div>
@@ -386,7 +386,10 @@ interface DamageRow {
 export default Vue.extend({
   name: 'AircraftNightAttackPower',
   components: {
-    ShipTooltip, ItemTooltip, ItemInput, ItemList,
+    ShipTooltip,
+    ItemTooltip,
+    ItemInput,
+    ItemList,
   },
   props: {
     fleet: {
@@ -582,16 +585,19 @@ export default Vue.extend({
       this.preCapFirePower = power;
       power = CommonCalc.softCap(power, CAP.NIGHT);
       this.postCapFirePower = power;
+
+      // 海域特効
+      const manualAfterCapBonus = Math.max(+this.manualAfterCapBonus ?? 1, 0);
+      power *= manualAfterCapBonus;
+      powerForLandBase *= manualAfterCapBonus;
+      this.manualAfterCapBonus = manualAfterCapBonus;
+
       if (this.isCritical) {
         // クリティカル時
         power = Math.floor(power * 1.5 * this.criticalBonus);
         powerForLandBase = Math.floor(powerForLandBase * 1.5 * this.criticalBonus);
       }
 
-      if (this.manualAfterCapBonus) {
-        power *= Math.max(this.manualAfterCapBonus, 0);
-        powerForLandBase *= Math.max(this.manualAfterCapBonus, 0);
-      }
       this.finalFirePower = power;
       this.finalFirePowerForLandBase = powerForLandBase;
 
