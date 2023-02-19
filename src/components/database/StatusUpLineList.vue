@@ -25,7 +25,10 @@
       <div class="ml-6">
         <v-checkbox v-model="enabledOnly" @change="setShipList" dense hide-details :label="$t('Database.成長限界に到達した艦娘を省略')"></v-checkbox>
       </div>
-      <div class="ml-6">
+      <div class="ml-6" v-if="!luckMode">
+        <v-checkbox v-model="showEXP" @change="setShipList" dense hide-details :label="$t('Database.必要経験値表示')"></v-checkbox>
+      </div>
+      <div class="ml-6" v-if="!showEXP">
         <v-checkbox v-model="showDiff" dense hide-details :label="$t('Extra.差分表示')"></v-checkbox>
       </div>
       <div class="ml-6" v-if="enabledLuckMode">
@@ -132,12 +135,15 @@
                 <span class="luck-caption">{{ $t("Common.運") }}</span>
                 <span :class="{ 'red--text': item.target1 > item.master.maxLuck }">{{ item.target1 }}</span>
               </template>
+              <template v-else-if="showEXP">
+                <span :class="{ 'red--text': item.target1 < 0 }">{{ item.target1 > 0 ? item.target1.toLocaleString() : "-" }}</span>
+              </template>
               <template v-else>
                 <span class="lv-caption">Lv.</span>
                 <span :class="{ 'red--text': item.target1 > maxLevel }">{{ item.target1 }}</span>
               </template>
             </div>
-            <div class="diff" v-if="showDiff">+{{ item.target1 - item.diffBase }}</div>
+            <div class="diff" v-if="showDiff && !showEXP">+{{ item.target1 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
@@ -145,12 +151,15 @@
                 <span class="luck-caption">{{ $t("Common.運") }}</span>
                 <span :class="{ 'red--text': item.target2 > item.master.maxLuck }">{{ item.target2 }}</span>
               </template>
+              <template v-else-if="showEXP">
+                <span :class="{ 'red--text': item.target2 < 0 }">{{ item.target2 > 0 ? item.target2.toLocaleString() : "-" }}</span>
+              </template>
               <template v-else>
                 <span class="lv-caption">Lv.</span>
                 <span :class="{ 'red--text': item.target2 > maxLevel }">{{ item.target2 }}</span>
               </template>
             </div>
-            <div class="diff" v-if="showDiff">+{{ item.target2 - item.diffBase }}</div>
+            <div class="diff" v-if="showDiff && !showEXP">+{{ item.target2 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
@@ -158,12 +167,15 @@
                 <span class="luck-caption">{{ $t("Common.運") }}</span>
                 <span :class="{ 'red--text': item.target3 > item.master.maxLuck }">{{ item.target3 }}</span>
               </template>
+              <template v-else-if="showEXP">
+                <span :class="{ 'red--text': item.target3 < 0 }">{{ item.target3 > 0 ? item.target3.toLocaleString() : "-" }}</span>
+              </template>
               <template v-else>
                 <span class="lv-caption">Lv.</span>
                 <span :class="{ 'red--text': item.target3 > maxLevel }">{{ item.target3 }}</span>
               </template>
             </div>
-            <div class="diff" v-if="showDiff">+{{ item.target3 - item.diffBase }}</div>
+            <div class="diff" v-if="showDiff && !showEXP">+{{ item.target3 - item.diffBase }}</div>
           </td>
           <td class="result-td">
             <div>
@@ -171,14 +183,17 @@
                 <span class="luck-caption">{{ $t("Common.運") }}</span>
                 <span :class="{ 'red--text': item.manual > item.master.maxLuck }">{{ item.manual }}</span>
               </template>
+              <template v-else-if="showEXP">
+                <span :class="{ 'red--text': item.manual < 0 }">{{ item.manual > 0 ? item.manual.toLocaleString() : "-" }}</span>
+              </template>
               <template v-else>
                 <span class="lv-caption">Lv.</span>
                 <span :class="{ 'red--text': item.manual > maxLevel }">{{ item.manual }}</span>
               </template>
             </div>
-            <div class="diff" v-if="showDiff">{{ item.manualDiffString }}</div>
+            <div class="diff" v-if="showDiff && !showEXP">{{ item.manualDiffString }}</div>
           </td>
-          <td class="result-td">{{ isLuckResult || item.isMaximum ? '-' : item.nextExp.toLocaleString() }}</td>
+          <td class="result-td">{{ isLuckResult || item.isMaximum ? "-" : item.nextExp.toLocaleString() }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -364,6 +379,7 @@ export default Vue.extend({
     types: [] as { text: string; types: number[] }[],
     luckMode: false,
     showDiff: true,
+    showEXP: false,
     unsubscribe: undefined as unknown,
     maxLevel: Const.MAX_LEVEL,
   }),
@@ -539,6 +555,16 @@ export default Vue.extend({
           if (nextLevelInfo) {
             row.nextExp = nextLevelInfo.req - stock.exp;
           }
+        }
+        if (!isLuckMode && this.showEXP) {
+          const nextLevelInfo1 = Const.LEVEL_BORDERS.find((v) => v.lv === row.target1);
+          row.target1 = nextLevelInfo1 ? nextLevelInfo1.req - stock.exp : -1;
+          const nextLevelInfo2 = Const.LEVEL_BORDERS.find((v) => v.lv === row.target2);
+          row.target2 = nextLevelInfo2 ? nextLevelInfo2.req - stock.exp : -1;
+          const nextLevelInfo3 = Const.LEVEL_BORDERS.find((v) => v.lv === row.target3);
+          row.target3 = nextLevelInfo3 ? nextLevelInfo3.req - stock.exp : -1;
+          const nextLevelInfoM = Const.LEVEL_BORDERS.find((v) => v.lv === row.manual);
+          row.manual = nextLevelInfoM ? nextLevelInfoM.req - stock.exp : -1;
         }
 
         if (!this.enabledOnly || !row.isMaximum) {
