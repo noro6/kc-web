@@ -191,8 +191,12 @@ export default class AerialFirePowerCalculator {
         typeMultipliers[0] = 0.7071;
         break;
       case 26:
-        // 対潜哨戒機 なぜか0
-        actualTorpedo = 0;
+        // 対潜哨戒機
+        actualTorpedo = item.actualBomber;
+        if (!isAirbaseMode) {
+          // 基地じゃない場合はなぜか0
+          actualTorpedo = 0;
+        }
         typeMultipliers[0] = 1;
         break;
       case 47:
