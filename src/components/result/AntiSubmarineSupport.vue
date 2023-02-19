@@ -409,6 +409,11 @@ export default Vue.extend({
       const powers = AerialFirePowerCalculator.getAswSupportFirePowers(this.asw, this.slot, this.isCritical);
       this.powers = powers.map((v) => `${Math.floor(100 * v.power) / 100}(${100 * v.rate}%)`);
 
+      const armorDeBuff = Math.min(this.armorDeBuff, 0);
+      if (this.armorDeBuff !== armorDeBuff) {
+        this.armorDeBuff = armorDeBuff;
+      }
+
       const enemies = this.displayEnemies;
       this.enemyRows = [];
       for (let i = 0; i < enemies.length; i += 1) {
@@ -416,7 +421,7 @@ export default Vue.extend({
         const HP = enemy.data.hp;
 
         // 火力分布より、被ダメージ分布を取得
-        const armor = Math.max(enemy.actualArmor + this.armorDeBuff, 1);
+        const armor = Math.max(enemy.actualArmor + armorDeBuff, 1);
         const damageDist = CommonCalc.getDamageDistribution(powers, armor, 1, HP, true);
         const damages = damageDist.map((v) => v.damage);
 
