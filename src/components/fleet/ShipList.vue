@@ -251,6 +251,7 @@
 .ship-table-body {
   overflow-y: auto;
   height: 64vh;
+  overscroll-behavior: contain;
 }
 .ship-search-text {
   width: 200px;

@@ -113,7 +113,7 @@
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
-    <div id="item-table-body" class="pb-2" :class="{ 'mx-3': multiLine }">
+    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div class="pl-1">
           <v-btn icon small @click="sortDialog = true">
@@ -314,6 +314,7 @@
 #item-table-body {
   overflow-y: auto;
   height: 64vh;
+  overscroll-behavior: contain;
 }
 .item-search-text {
   width: 160px;

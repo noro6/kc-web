@@ -85,6 +85,7 @@
 .enemy-table-container {
   height: 64vh;
   overflow-y: scroll;
+  overscroll-behavior: contain;
 }
 .enemy-table-body {
   display: grid;

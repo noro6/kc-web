@@ -27,7 +27,7 @@
       </v-btn>
     </div>
     <v-divider></v-divider>
-    <div class="px-3 pt-3">
+    <div class="pt-3">
       <div class="body-2 mb-2 ml-2">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
       <div class="d-flex flex-wrap">
         <div
