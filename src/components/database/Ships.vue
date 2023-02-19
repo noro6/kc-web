@@ -273,9 +273,24 @@
           <v-card v-if="!viewShips.length" class="text-center my-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
           </v-card>
-          <div class="d-flex mt-3" v-else>
+          <div class="d-flex align-center mt-3" v-else>
             <v-pagination v-if="modeTable" v-model="page" :length="pageLength"></v-pagination>
-            <v-btn-toggle dense v-model="modeTable" borderless mandatory class="ml-auto">
+            <v-spacer></v-spacer>
+            <div v-if="modeTable" class="mr-3 manual-column-select">
+              <v-select
+                outlined
+                dense
+                :label="$t('Database.任意表示列')"
+                hide-details
+                v-model="manualValue"
+                :items="manualValues"
+                item-value="value"
+                :item-text="(item) => $t('Common.' + item.text)"
+                @input="filter()"
+                prepend-inner-icon="mdi-eye"
+              />
+            </div>
+            <v-btn-toggle dense v-model="modeTable" borderless mandatory>
               <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
                 <v-icon>mdi-view-headline</v-icon>
                 <span>{{ $t("Database.一覧表示") }}</span>
@@ -307,7 +322,7 @@
               <template v-slot:[`header.impLuck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.asw`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.impAsw`]="{ header }">{{ $t(`Database.${header.text}`) }}</template>
-              <template v-slot:[`header.scout`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
+              <template v-slot:[`header.manualValue`]>{{ manualColumnText }}</template>
               <template v-slot:[`header.accuracy`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.avoid`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.ci`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -353,7 +368,7 @@
                       </div>
                     </div>
                   </td>
-                  <td class="text-right">{{ item.level }}</td>
+                  <td class="text-right">{{ item.level ? item.level : "-" }}</td>
                   <td class="text-right">
                     <div class="td-relative">
                       <div>{{ item.hp }}</div>
@@ -377,8 +392,7 @@
                     </div>
                   </td>
                   <td class="text-right">
-                    <span v-if="item.count">{{ item.scout }}</span>
-                    <span v-else>-</span>
+                    <span>{{ item.manualValue }}</span>
                   </td>
                   <td class="text-right">
                     <span v-if="item.count">{{ item.accuracy }}</span>
@@ -515,7 +529,14 @@
           <v-divider class="mt-3"></v-divider>
           <div class="d-flex mt-3">
             <div class="range-input">
-              <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details></v-text-field>
+              <v-text-field
+                :label="$t('Database.練度(Lv)')"
+                type="number"
+                :max="maxLevel"
+                min="1"
+                v-model="editRow.stockData.level"
+                hide-details
+              ></v-text-field>
             </div>
             <v-slider class="mx-5 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
             <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">LV99</v-btn>
@@ -883,6 +904,10 @@
   bottom: 1px;
   margin-left: 4px;
 }
+
+.manual-column-select {
+  width: 180px;
+}
 </style>
 
 <script lang="ts">
@@ -919,10 +944,10 @@ interface ShipRowData {
   /** 表示値対潜 */
   asw: number;
   impAsw: number;
-  scout: number;
   accuracy: number;
   avoid: number;
   ci: number;
+  manualValue: number;
 }
 
 interface AltShipRowData {
@@ -1026,9 +1051,9 @@ export default Vue.extend({
         value: 'asw',
       },
       {
-        text: '索敵',
+        text: '任意',
         align: 'end',
-        value: 'scout',
+        value: 'manualValue',
       },
       {
         text: '命中項',
@@ -1052,6 +1077,19 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     maxLevel: Const.MAX_LEVEL,
+    manualValue: 'fire',
+    manualValues: [
+      { text: '火力', value: 'fire' },
+      { text: '雷装', value: 'torpedo' },
+      { text: '夜戦火力', value: 'nightBattleFirePower' },
+      { text: '対空', value: 'antiAir' },
+      { text: '装甲', value: 'armor' },
+      { text: '索敵', value: 'scout' },
+      { text: '回避', value: 'avoid' },
+      { text: '燃料', value: 'fuel' },
+      { text: '弾薬', value: 'ammo' },
+      { text: '射程', value: 'range' },
+    ],
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1193,6 +1231,14 @@ export default Vue.extend({
         array.push({ text: `${this.$t(`Database.${data.text}`)}`, value: data.value, filter: data.filter });
       }
       return array;
+    },
+    manualColumnText(): string {
+      if (this.manualValue) {
+        const key = this.manualValues.find((v) => v.value === this.manualValue);
+        return key ? `${this.$t(`Common.${key.text}`)}` : '';
+      }
+
+      return '';
     },
   },
   beforeDestroy() {
@@ -1381,10 +1427,10 @@ export default Vue.extend({
             impAsw: 0,
             level: 0,
             asw: base.minAsw,
-            scout: -1,
             accuracy: -1,
             avoid: -1,
             ci: -1,
+            manualValue: 0,
           });
         } else if (!this.onlyNoStock) {
           // いるだけ回す
@@ -1435,10 +1481,10 @@ export default Vue.extend({
               impLuck: stockData.improvement.luck,
               impAsw: stockData.improvement.asw,
               asw: Ship.getStatusFromLevel(stockData.level, master.maxAsw, master.minAsw) + stockData.improvement.asw,
-              scout: Ship.getStatusFromLevel(stockData.level, master.maxScout, master.minScout),
               accuracy: Ship.getAccuracyValue(stockData.level, luck),
               avoid: Ship.getAvoidValue(avoid, luck),
               ci: Ship.getCIValue(stockData.level, luck),
+              manualValue: 0,
             });
           }
 
@@ -1455,6 +1501,27 @@ export default Vue.extend({
       }
 
       this.allCount = sumCount;
+
+      if (this.manualValue) {
+        const key = this.manualValue;
+        for (let i = 0; i < rowData.length; i += 1) {
+          const v = rowData[i];
+          // ソート用のステータスに値を設定
+          if (key === 'avoid') {
+            v.manualValue = Ship.getStatusFromLevel(v.level, v.ship.maxAvoid, v.ship.minAvoid);
+          } else if (key === 'scout') {
+            v.manualValue = Ship.getStatusFromLevel(v.level, v.ship.maxScout, v.ship.minScout);
+          } else if (key === 'nightBattleFirePower') {
+            v.manualValue = v.ship.fire + v.ship.torpedo;
+          } else if (key === 'fuel') {
+            v.manualValue = v.level >= 100 ? Math.max(Math.floor(v.ship.fuel * 0.85), 1) : v.ship.fuel;
+          } else if (key === 'ammo') {
+            v.manualValue = v.level >= 100 ? Math.max(Math.floor(v.ship.ammo * 0.85), 1) : v.ship.ammo;
+          } else {
+            v.manualValue = (v.ship as unknown as { [key: string]: number })[key];
+          }
+        }
+      }
 
       // ソート
       rowData.sort((a, b) => a.ship.sort - b.ship.sort);
