@@ -893,13 +893,13 @@ export default class Ship implements ShipBase {
         if (item.data.isAswPlane) {
           // 対潜哨戒機
           if (i === 0) {
-        // 隊長機補正
+            // 隊長機補正
             bonus += Math.floor(Math.sqrt(item.level) + c) / 128;
           } else {
             bonus += Math.floor(Math.sqrt(item.level) + c) / 242;
           }
         } else if (i === 0) {
-        // 隊長機補正
+          // 隊長機補正
           bonus += Math.floor(Math.sqrt(item.level) + c) / 100;
         } else {
           bonus += Math.floor(Math.sqrt(item.level) + c) / 200;
@@ -1101,23 +1101,26 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.CVL) {
       // 軽空母 / 護衛空母
-      const hasASWPlane = items.some((v) => v.fullSlot && v.data.isAswPlane);
-      if (hasSonar && (hasASWPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
+      const hasAswPlane = items.some((v) => v.fullSlot && v.data.isAswPlane);
+      const hasEmptyASWPlane = items.some((v) => v.fullSlot === 0 && v.data.isAswPlane);
+      if (hasSonar && (hasAswPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
         // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
         if (this.displayStatus.asw >= 100) {
           return true;
         }
         this.missingAsw = 100 - this.displayStatus.asw;
       }
-      if (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7)) {
-        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機) + 何らかの攻撃機
+      if (hasAswPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7) || (hasEmptyASWPlane && items.some((v) => v.data.isAttacker && v.data.asw && v.fullSlot))) {
+        // => 表示対潜値65 + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        // または、表示対潜値65 + 搭載数0の対潜哨戒機 or 回転翼機 + 対潜1以上の攻撃機
         if (this.displayStatus.asw >= 65) {
           return true;
         }
         this.missingAsw = 65 - this.displayStatus.asw;
       }
-      if (hasSonar && (hasASWPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7))) {
+      if (hasSonar && (hasAswPlane || items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7) || (hasEmptyASWPlane && items.some((v) => v.data.isAttacker && v.data.asw && v.fullSlot)))) {
         // => 表示対潜値50 + ソナー + (対潜値7以上の艦攻 or 対潜哨戒機 or 回転翼機)
+        // 表示対潜値50 + ソナー + 搭載数0の対潜哨戒機 or 回転翼機 + 対潜1以上の攻撃機
         if (this.displayStatus.asw >= 50) {
           return true;
         }
