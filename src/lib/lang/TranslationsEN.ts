@@ -605,7 +605,7 @@ export default {
       '残機数分布を利用': 'Use Distribution',
       '対空砲火により撃墜される機数の確率分布を利用して計算します。': 'Calculations are performed using the results of probability distribution calculations.',
       '搭載数を固定してダメージを確認したい場合はチェックを外してください。': 'Uncheck the box if you want to fix the number of slots and check the damage.',
-      '弾薬補正': 'Remaining Ammo',
+      '残弾薬': 'Remaining Ammo',
       '燃料補正': 'Remaining Fuel Modifier',
       '残弾薬補正': 'Remaining Ammo Modifier',
       '回避項x': 'Eva Term -{value}',
