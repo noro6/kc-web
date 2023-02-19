@@ -217,15 +217,15 @@
           <div class="divider my-1"><v-divider></v-divider></div>
           <div>{{ $t("Result.キャップ後攻撃力") }}</div>
           <div>{{ postCapFirePower ? postCapFirePower : 0 }}</div>
+          <template v-if="manualAfterCapBonus !== 1">
+            <div>{{ $t("Result.特効") }}</div>
+            <div>&times; {{ manualAfterCapBonus }}</div>
+          </template>
           <template v-if="isCritical">
             <div>{{ $t("Result.クリティカル補正") }}</div>
             <div>&times; 1.50</div>
             <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
             <div>&times; {{ criticalBonus.toFixed(2) }}</div>
-          </template>
-          <template v-if="manualAfterCapBonus !== 1">
-            <div>{{ $t("Result.特効") }}</div>
-            <div>&times; {{ manualAfterCapBonus }}</div>
           </template>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>

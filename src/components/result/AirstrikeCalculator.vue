@@ -78,7 +78,7 @@
           </v-tooltip>
         </div>
         <div class="form-control" v-show="!isAirbase">
-          <v-select :label="$t('Result.弾薬補正')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
+          <v-select :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
         </div>
         <div class="d-flex">
           <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
@@ -244,12 +244,6 @@
             <div>{{ $t("Result.爆撃機補正") }}</div>
             <div>&times; {{ postCapTerms[i].bomberMultiplier.toFixed(2) }}</div>
           </template>
-          <template v-if="calcArgs.isCritical">
-            <div>{{ $t("Result.クリティカル補正") }}</div>
-            <div>&times; 1.50</div>
-            <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
-            <div>&times; {{ calcArgs.criticalBonus.toFixed(2) }}</div>
-          </template>
           <template v-if="calcArgs.contactBonus !== 1">
             <div>{{ $t("Result.触接補正") }}</div>
             <div>&times; {{ calcArgs.contactBonus.toFixed(2) }}</div>
@@ -269,6 +263,12 @@
           <template v-if="calcArgs.manualAfterCapBonus !== 1">
             <div>{{ $t("Result.特効") }}</div>
             <div>&times; {{ calcArgs.manualAfterCapBonus }}</div>
+          </template>
+          <template v-if="calcArgs.isCritical">
+            <div>{{ $t("Result.クリティカル補正") }}</div>
+            <div>&times; 1.50</div>
+            <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
+            <div>&times; {{ calcArgs.criticalBonus.toFixed(2) }}</div>
           </template>
           <div class="divider my-1"><v-divider></v-divider></div>
           <div class="divider my-1"><v-divider></v-divider></div>
