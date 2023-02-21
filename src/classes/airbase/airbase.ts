@@ -191,26 +191,35 @@ export default class Airbase {
    * @memberof Airbase
    */
   private getRadius(): number {
+    let maxRange = 999;
     let minRange = 999;
     let maxLos = 1;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       if (item.data.id) {
-        // 最も短い半径
+        // 最も短い半径を更新
         minRange = item.data.radius < minRange ? item.data.radius : minRange;
 
-        // 偵察機の中でで最も長い半径を取得
+        // 対潜哨戒機による半径最大制限
+        if (item.data.isAswPlane && item.data.radius < maxRange) {
+          maxRange = item.data.radius;
+        }
+
+        // 偵察機の中で最も長い半径を取得
         if (item.data.isRecon) {
           maxLos = maxLos < item.data.radius ? item.data.radius : maxLos;
         }
       }
     }
 
+    let radius = minRange === 999 ? 0 : minRange;
+
     if (maxLos < 999 && maxLos > minRange) {
       // 偵察機による半径拡張
-      return Math.round(minRange + Math.min(Math.sqrt(maxLos - minRange), 3));
+      radius = Math.round(minRange + Math.min(Math.sqrt(maxLos - minRange), 3));
     }
-    return minRange === 999 ? 0 : minRange;
+
+    return Math.min(radius, maxRange);
   }
 
   /**
