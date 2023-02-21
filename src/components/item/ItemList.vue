@@ -1141,9 +1141,15 @@ export default Vue.extend({
       if (!word && this.type && t) {
         this.viewStatus = t.viewStatus.concat();
 
-        if (!this.isAirbaseMode && this.viewStatus.includes('radius')) {
-          // 基地じゃない場合に半径が含まれていたら、砲撃戦火力に置換
-          this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
+        if (!this.isAirbaseMode) {
+          if (this.viewStatus.includes('radius')) {
+            // 基地じゃない場合に半径が含まれていたら、砲撃戦火力に置換
+            this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
+          }
+          if (this.viewStatus.includes('cost')) {
+            // 基地じゃない場合にコストが含まれていたら、回避に置換
+            this.viewStatus[this.viewStatus.indexOf('cost')] = 'actualAvoid';
+          }
         }
         result = result.filter((v) => t.types.includes(v.apiTypeId));
       } else if (!word && this.type === -1) {

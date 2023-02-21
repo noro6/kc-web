@@ -9,7 +9,7 @@
     </div>
     <v-divider></v-divider>
     <div class="pa-4">
-      <div class="mb-8 mt-4">
+      <div class="mb-6 mt-4">
         <v-btn v-show="!createdURL" block color="teal" class="white--text" :loading="loadingURL" :disabled="loadingURL" @click="createURL()">
           <v-icon>mdi-web</v-icon>{{ $t("SaveData.共有URLを生成") }}
         </v-btn>
@@ -26,12 +26,12 @@
           @blur="clearURLHint"
         ></v-text-field>
       </div>
-      <div class="my-8">
+      <div class="my-6">
         <v-btn block color="blue" class="white--text" @click="shareTwitter()" :loading="loadingTwitter" :disabled="loadingTwitter">
           <v-icon>mdi-twitter</v-icon>{{ $t("SaveData.Twitterで共有") }}
         </v-btn>
       </div>
-      <div class="my-8">
+      <div class="my-6">
         <v-btn
           block
           color="indigo"
@@ -43,12 +43,12 @@
           <v-icon>mdi-anchor</v-icon>{{ $t("SaveData.作戦室で開く") }}
         </v-btn>
       </div>
-      <div class="my-8" v-if="saveData && !saveData.isUnsaved">
+      <div class="my-6" v-if="saveData && !saveData.isUnsaved">
         <v-btn block color="deep-purple" class="white--text" :disabled="!saveData || saveData.isUnsaved" @click="showUploadDialog">
           <v-icon>mdi-upload</v-icon>{{ $t("Common.編成アップロード") }}
         </v-btn>
       </div>
-      <div class="my-8">
+      <div class="my-6">
         <v-btn
           block
           :dark="!!deckBuilder"
@@ -64,6 +64,7 @@
       <div class="mt-6">
         <v-textarea
           class="mt-0 no-scroll"
+          outlined
           readonly
           append-icon="mdi-content-copy"
           v-model="deckBuilder"
@@ -92,12 +93,6 @@
     </v-dialog>
   </v-card>
 </template>
-
-<style scoped>
-html {
-  color: rgb(100, 181, 246);
-}
-</style>
 
 <script lang="ts">
 import Vue from 'vue';
