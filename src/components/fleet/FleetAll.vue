@@ -129,7 +129,6 @@
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
           :handle-remove-fleet="removeFleet"
-          :hide-result-bar="isShow12 && i <= 1"
           @input="changedInfo"
         ></fleet-component>
         <template v-if="isShow12 && i === 0">
@@ -825,6 +824,13 @@ export default Vue.extend({
         }
       }
     },
+    'value.mainFleetIndex': {
+      handler(current: number) {
+        if (current >= 0 && current < 10 && `fleet${current}` !== this.tab) {
+          this.tab = `fleet${current}`;
+        }
+      },
+    },
   },
   computed: {
     fleetInfo(): FleetInfo {
@@ -1236,6 +1242,11 @@ export default Vue.extend({
     },
     changedInfo() {
       const isUnion = this.fleetInfo.fleetType !== FLEET_TYPE.SINGLE;
+
+      if (this.show12 && isUnion && this.tab === 'fleet1') {
+        this.tab = 'fleet0';
+      }
+
       this.setInfo(new FleetInfo({ info: this.fleetInfo, fleetType: this.fleetInfo.fleetType, isUnion }));
     },
     createNewFleet() {
