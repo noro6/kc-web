@@ -401,10 +401,7 @@ export default class Item {
     // 内部熟練度ボーナス
     sum += Math.sqrt(this.level / 10);
 
-    if (type === 49) {
-      // 陸偵 搭載4★2以上で制空値+1
-      sum += (this.remodel >= 2 && this.fullSlot === 4 ? 1 : 0);
-    } else if (this.data.id === 138) {
+    if (this.data.id === 138) {
       // 二式大艇 搭載4★4で制空+1
       sum += (this.remodel >= 4 && this.fullSlot === 4 ? 1 : 0);
     }
@@ -538,6 +535,10 @@ export default class Item {
     // 陸攻
     if (this.data.isABAttacker) {
       return 0.5 * Math.sqrt(this.remodel);
+    }
+    // 陸上偵察機 具体的な数値分からないので実測を満たすように仮置き => 内部100で+0 内部120で+1
+    if (this.data.apiTypeId === 49) {
+      return 0.2 * this.remodel;
     }
     return 0;
   }
