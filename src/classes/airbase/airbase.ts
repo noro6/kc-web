@@ -191,35 +191,29 @@ export default class Airbase {
    * @memberof Airbase
    */
   private getRadius(): number {
-    let maxRange = 999;
-    let minRange = 999;
-    let maxLos = 1;
+    let minRadius = 999;
+    let maxReconRadius = 1;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
       if (item.data.id) {
         // 最も短い半径を更新
-        minRange = item.data.radius < minRange ? item.data.radius : minRange;
-
-        // 対潜哨戒機による半径最大制限
-        if (item.data.isAswPlane && item.data.radius < maxRange) {
-          maxRange = item.data.radius;
-        }
+        minRadius = item.data.radius < minRadius ? item.data.radius : minRadius;
 
         // 偵察機の中で最も長い半径を取得
-        if (item.data.isRecon) {
-          maxLos = maxLos < item.data.radius ? item.data.radius : maxLos;
+        if (item.data.isRecon && maxReconRadius < item.data.radius) {
+          maxReconRadius = item.data.radius;
         }
       }
     }
 
-    let radius = minRange === 999 ? 0 : minRange;
-
-    if (maxLos < 999 && maxLos > minRange) {
+    // 対潜哨戒機が存在したら半径延長無効
+    const containAswPlane = this.items.some((v) => v.data.isAswPlane && !v.data.isAttacker);
+    if (!containAswPlane && maxReconRadius > minRadius) {
       // 偵察機による半径拡張
-      radius = Math.round(minRange + Math.min(Math.sqrt(maxLos - minRange), 3));
+      return Math.round(minRadius + Math.min(Math.sqrt(maxReconRadius - minRadius), 3));
     }
 
-    return Math.min(radius, maxRange);
+    return minRadius === 999 ? 0 : minRadius;
   }
 
   /**
