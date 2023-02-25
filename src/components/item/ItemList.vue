@@ -725,6 +725,7 @@ export default Vue.extend({
     blacklistDialog: false,
     blacklistItems: [] as number[],
     sortDialog: false,
+    decidedItem: false,
   }),
   mounted() {
     this.types = [];
@@ -920,6 +921,7 @@ export default Vue.extend({
       this.changedFilter();
     },
     initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0, usedItems: Item[] = []) {
+      this.decidedItem = false;
       this.itemParent = parent;
       this.slotIndex = slotIndex;
       this.isEnemyMode = false;
@@ -1358,6 +1360,11 @@ export default Vue.extend({
       }
     },
     clickedItem(data: { item: Item; count: number }) {
+      if (this.decidedItem) {
+        return;
+      }
+      this.decidedItem = true;
+
       this.clearTooltip();
       if (data.count || this.confirmDialog) {
         this.confirmDialog = false;

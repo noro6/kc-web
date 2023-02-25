@@ -549,6 +549,7 @@ export default Vue.extend({
     tooltipShip: new Ship(),
     tooltipX: 0,
     tooltipY: 0,
+    decidedShip: false,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -702,6 +703,7 @@ export default Vue.extend({
       this.filter();
     },
     initialize(enabledUserShip = true) {
+      this.decidedShip = false;
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
       this.setting = this.$store.state.siteSetting as SiteSetting;
@@ -1018,6 +1020,11 @@ export default Vue.extend({
       this.ships = resultShips;
     },
     clickedShip(ship: ViewShip) {
+      if (this.decidedShip) {
+        return;
+      }
+      this.decidedShip = true;
+
       if (ship.count || this.confirmDialog) {
         this.confirmDialog = false;
         this.handleDecideShip(ship);

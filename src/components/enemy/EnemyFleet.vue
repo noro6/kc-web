@@ -59,17 +59,19 @@
         :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
         @click="openMenu(index)"
         @keypress.enter="openMenu(index)"
-        @mouseenter="bootTooltip(enemy, $event)"
-        @mouseleave="clearTooltip"
-        @focus="bootTooltip(enemy, $event)"
-        @blur="clearTooltip"
-        tabindex="0"
       >
         <template v-if="enemy.data.id || (!capturing && enemy.data.id === 0)">
           <div class="item-index-area">
             <div class="enemy-index caption primary--text mr-1" :class="{ 'success--text': index >= 6 }">{{ (index % 6) + 1 }}</div>
           </div>
-          <div v-if="enemy.data.id > 0">
+          <div
+            v-if="enemy.data.id > 0"
+            @mouseenter="bootTooltip(enemy, $event)"
+            @mouseleave="clearTooltip"
+            @focus="bootTooltip(enemy, $event)"
+            @blur="clearTooltip"
+            tabindex="0"
+          >
             <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
@@ -349,10 +351,9 @@ export default Vue.extend({
         return;
       }
       const setting = this.$store.state.siteSetting as SiteSetting;
-      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('enemy-air-power')[0] as HTMLDivElement;
       window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
-        const rect = nameDiv.getBoundingClientRect();
+        const rect = (e.target as HTMLDivElement).getBoundingClientRect();
         this.tooltipX = rect.x + rect.width;
         this.tooltipY = rect.y + rect.height;
         this.tooltipEnemy = enemy;
