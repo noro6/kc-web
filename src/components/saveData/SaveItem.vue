@@ -28,7 +28,7 @@
       <div class="ml-auto file-action-buttons">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn v-if="!value.isUnsaved && !value.isDirectory" icon small @click.stop="copyAndOpen" v-bind="attrs" v-on="on">
+            <v-btn v-if="!value.isDirectory" icon small @click.stop="copyAndOpen" v-bind="attrs" v-on="on">
               <v-icon small>mdi-content-duplicate</v-icon>
             </v-btn>
           </template>
@@ -421,7 +421,7 @@ export default Vue.extend({
         return;
       }
       // 乗っている要素に対するマウスのy座標
-      const mouseY = e.clientY - target.offsetTop;
+      const mouseY = e.clientY - target.getBoundingClientRect().top;
       if (this.value.isDirectory) {
         // 並べ替え上下の境界
         const beforeBorder = 5;
