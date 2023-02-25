@@ -481,6 +481,7 @@ export default {
       'クリックで展開': 'Click to expand',
       'クリップボードへ追加': 'Add to Clipboard',
       '艦隊に艦娘が設定されていません。': 'No Ships',
+      '索敵値が不足している可能性があります。': 'Line of Sight (LoS) value may be insufficient. Need LoS: {LoS}, Cn: {num}',
     },
     Enemies: {
       '海域': 'World',

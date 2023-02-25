@@ -61,6 +61,7 @@
           :handle-change-formation="changeFormation"
           :handle-minimize="toggleMinimizeFleet"
           :sort-mode="sortMode"
+          :battle-info="calcManager.battleInfo"
         />
       </div>
       <div id="enemy-content" class="content-frame" v-show="sortMode || !setting.isMinimizedEnemy">

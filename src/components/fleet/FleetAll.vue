@@ -106,6 +106,9 @@
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
     </v-tabs>
     <v-divider class="mx-2"></v-divider>
+    <div v-if="scoutError" class="mx-2 mt-1">
+      <v-alert class="ma-0" dense outlined type="warning">{{ scoutError }}</v-alert>
+    </div>
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item
         v-for="(fleet, i) in fleetInfo.fleets"
@@ -196,7 +199,7 @@
         </div>
         <div id="image-area" class="mt-3"></div>
         <div class="d-flex">
-          <v-btn class="ml-auto" @click="openGkcoiPage()"><v-icon>mdi-github</v-icon>Nishisonic/gkcoi</v-btn>
+          <v-btn class="ml-auto" href="https://github.com/Nishisonic/gkcoi/" target="_blank"> <v-icon>mdi-github</v-icon>Nishisonic/gkcoi </v-btn>
         </div>
       </v-tab-item>
     </v-tabs-items>
@@ -721,7 +724,7 @@ import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Item, { ItemBuilder } from '@/classes/item/item';
-import Const, { FLEET_TYPE, Formation } from '@/classes/const';
+import Const, { FLEET_TYPE, Formation, SHIP_TYPE } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -730,6 +733,7 @@ import SaveData from '@/classes/saveData/saveData';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import CalcManager from '@/classes/calcManager';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
+import BattleInfo from '@/classes/enemy/battleInfo';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -750,6 +754,10 @@ export default Vue.extend({
     },
     handleMinimize: {
       type: Function,
+      required: true,
+    },
+    battleInfo: {
+      type: BattleInfo,
       required: true,
     },
   },
@@ -888,6 +896,115 @@ export default Vue.extend({
     invalidExportTargets(): boolean {
       // 画像出力対象が一つもないか、4艦隊を超える場合true
       return this.gkcoiOutputTarget.every((v) => !v) || this.gkcoiOutputTarget.filter((v) => !!v).length > 4;
+    },
+    scoutError(): string {
+      const fleet = this.value.mainFleet;
+      const lastBattle = this.battleInfo.fleets[this.battleInfo.fleets.length - 1];
+
+      let LoS = 0;
+      let coefficient = 0;
+      if (lastBattle) {
+        const nodeList = this.battleInfo.fleets.map((v) => v.nodeName);
+        const scores = Fleet.getScoutScore(fleet.ships, this.value.admiralLevel).map((v) => Math.floor(100 * v) / 100);
+        let score = 0;
+        switch (lastBattle.area) {
+          case 25:
+            coefficient = 1;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'O') {
+              if (nodeList.includes('J') && score < 49) LoS = 49;
+              // Gマス経由
+              else if (nodeList.includes('E') && nodeList.includes('L') && score < 41) LoS = 41;
+              else if (nodeList.includes('E') && score < 34) LoS = 34;
+            }
+            break;
+          case 35:
+            coefficient = 4;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'K') {
+              if (nodeList.includes('G') && score < 28) LoS = 28;
+              else if (nodeList.includes('H') && score < 40) LoS = 40;
+            }
+            break;
+          case 45:
+            coefficient = 2;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'T') {
+              if (nodeList.includes('S') && score < 59) LoS = 59;
+              else if (nodeList.includes('K') && !nodeList.includes('N') && !nodeList.includes('O') && score < 70) LoS = 70;
+            }
+            break;
+          case 52:
+            coefficient = 2;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'O') {
+              if (nodeList.includes('F') && score < 70) LoS = 70;
+              else if (nodeList.includes('L') && score < 62) LoS = 62;
+            }
+            break;
+          case 54:
+            coefficient = 2;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'P') {
+              if (nodeList.includes('L') && fleet.fleetSpeed !== '最速' && fleet.fleetSpeed !== '高速+' && score < 60) LoS = 60;
+              else if (nodeList.includes('J') && fleet.fleetSpeed !== '最速' && fleet.fleetSpeed !== '高速+' && score < 45) LoS = 45;
+            }
+            break;
+          case 55:
+            coefficient = 2;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'S') {
+              if ((nodeList.includes('N') || nodeList.includes('M')) && fleet.fleetSpeed !== '最速' && fleet.fleetSpeed !== '高速+' && score < 66) LoS = 66;
+              else if (nodeList.includes('P') && fleet.fleetSpeed !== '最速' && score < 80) LoS = 80;
+            }
+            break;
+          case 61:
+            coefficient = 4;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'K') {
+              if (nodeList.includes('H') && fleet.ships.some((v) => v.data.type === SHIP_TYPE.AS) && score < 25) LoS = 25;
+              else if (nodeList.includes('H') && score < 36) LoS = 36;
+            }
+            break;
+          case 62:
+            coefficient = 3;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'K') {
+              if (nodeList.includes('H') && score < 32) LoS = 32;
+              else if (nodeList.includes('I') && score < 40) LoS = 40;
+            }
+            break;
+          case 63:
+            coefficient = 3;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'J') {
+              if (score < 38) LoS = 38;
+            }
+            break;
+          case 65:
+            coefficient = 3;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'M') {
+              if (nodeList.includes('G') && score < 50) LoS = 50;
+              else if (nodeList.includes('J') && score < 35) LoS = 35;
+            }
+            break;
+          case 72:
+            coefficient = 4;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'M') {
+              if (nodeList.includes('I') && score < 69) LoS = 69;
+            }
+            break;
+          default:
+            break;
+        }
+      }
+
+      if (LoS && coefficient) {
+        return `${this.$t('Fleet.索敵値が不足している可能性があります。', { LoS, num: coefficient })}`;
+      }
+      return '';
     },
   },
   methods: {
@@ -1582,9 +1699,6 @@ export default Vue.extend({
         download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
         download.click();
       }
-    },
-    openGkcoiPage() {
-      window.open('https://github.com/Nishisonic/gkcoi/', '_blank');
     },
     getShipName(ship: ShipMaster) {
       if (ship.name && this.needTrans) {
