@@ -257,7 +257,7 @@ export default class Item {
         // 陸攻補正
         this.fuel = Math.ceil(this.fullSlot * (this.data.isShinzan ? 2 : 1.5));
         this.ammo = this.data.isShinzan ? this.fullSlot * 2 : Math.floor(this.fullSlot * 0.7);
-        this.bauxite = this.data.cost * (this.data.isShinzan ? 9 : 18);
+        this.bauxite = this.data.cost * this.data.airbaseMaxSlot;
       } else if (this.data.apiTypeId === 41) {
         // 大型偵察機補正
         this.fuel = this.fullSlot * 3;

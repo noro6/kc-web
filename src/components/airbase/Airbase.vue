@@ -66,8 +66,8 @@
           :index="i"
           :item-parent="airbase"
           :handle-show-item-list="showItemList"
-          :max="item.data.isRecon ? 4 : item.data.isShinzan ? 9 : 18"
-          :init="item.data.isRecon ? 4 : item.data.isShinzan ? 9 : 18"
+          :max="item.data.airbaseMaxSlot"
+          :init="item.data.airbaseMaxSlot"
           :handle-drag-start="clearTooltip"
           @input="updateItem"
         />

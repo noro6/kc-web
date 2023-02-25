@@ -134,6 +134,9 @@ export default class ItemMaster {
   /** 特効情報 */
   public readonly bonuses: { key: string, text: string }[];
 
+  /** 基地配備時の最大搭載数 */
+  public readonly airbaseMaxSlot: number;
+
   /**
    * Creates an instance of ItemMaster.
    * API取得itemよりクラスにマッピング
@@ -208,6 +211,17 @@ export default class ItemMaster {
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
     this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
     this.isEnemyItem = this.id > 1500;
+    this.airbaseMaxSlot = 0;
+
+    if (this.isPlane) {
+      if (this.isShinzan) {
+        this.airbaseMaxSlot = 9;
+      } else if (this.isRecon) {
+        this.airbaseMaxSlot = 4;
+      } else {
+        this.airbaseMaxSlot = 18;
+      }
+    }
 
     // 出撃対空 = 対空値 + 1.5 * 迎撃
     this.sortieAntiAir = this.antiAir + 1.5 * this.interception;

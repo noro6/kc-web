@@ -657,16 +657,7 @@ export default Vue.extend({
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
       if (slot < base.items.length) {
         // インスタンス化用のいろいろ用意
-        let initialSlot = 18;
         let initialLevel = 0;
-
-        if (Const.RECONNAISSANCES.includes(item.apiTypeId)) {
-          // 偵察機の場合、搭載数関係はすべて4機制限
-          initialSlot = 4;
-        } else if (Const.AB_ATTACKERS_LARGE.includes(item.apiTypeId)) {
-          // 大型陸上機は9機
-          initialSlot = 9;
-        }
         if (initialLevels) {
           // 設定情報より初期熟練度を解決
           const initData = initialLevels.find((v) => v.id === item.apiTypeId);
@@ -677,7 +668,7 @@ export default Vue.extend({
 
         const builder: ItemBuilder = {
           master: item,
-          slot: initialSlot,
+          slot: item.airbaseMaxSlot,
           level: initialLevel,
           remodel: argItem.remodel,
         };
@@ -707,38 +698,7 @@ export default Vue.extend({
       this.bulkUpdateTarget = targets;
     },
     doAirRaid() {
-      // 基地空襲を起こす => 補給してから起こす
-      const { airbases } = this.airbaseInfo;
-      for (let i = 0; i < airbases.length; i += 1) {
-        if (airbases[i].mode === AB_MODE.WAIT) {
-          continue;
-        }
-
-        let count = 4;
-        const { items } = airbases[i];
-        for (let j = 0; j < items.length; j += 1) {
-          const item = items[j];
-          if (!item.data.id) {
-            continue;
-          }
-
-          if (item.data.isRecon) {
-            if (count) {
-              items[j] = new Item({ item, slot: 1 });
-              count = 1;
-            } else {
-              items[j] = new Item({ item, slot: 4 });
-            }
-          } else if (item.data.isShinzan) {
-            items[j] = new Item({ item, slot: 9 - count });
-            count = 0;
-          } else {
-            items[j] = new Item({ item, slot: 18 - count });
-            count = 0;
-          }
-        }
-        airbases[i] = new Airbase({ airbase: airbases[i], items });
-      }
+      this.airbaseInfo.shootDownByAirRaid();
       this.setInfo();
     },
     resetAirbaseAll() {
@@ -819,12 +779,8 @@ export default Vue.extend({
           if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
             let { slot } = item;
             const { level } = itemBuilder;
-            if (item.data.isRecon && itemBuilder.slot !== undefined) {
-              slot = Math.min(4, itemBuilder.slot);
-            } else if (item.data.isShinzan && itemBuilder.slot !== undefined) {
-              slot = Math.min(9, itemBuilder.slot);
-            } else if (item.data.isPlane && itemBuilder.slot !== undefined) {
-              slot = Math.min(18, itemBuilder.slot);
+            if (item.data.isPlane && itemBuilder.slot !== undefined) {
+              slot = Math.min(item.data.airbaseMaxSlot, itemBuilder.slot);
             }
             items[j] = new Item({
               item,

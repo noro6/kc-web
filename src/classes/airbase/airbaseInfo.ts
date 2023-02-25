@@ -1,5 +1,6 @@
 import AirCalcResult from '../airCalcResult';
 import { DIFFICULTY_LEVEL, AB_MODE } from '../const';
+import Item from '../item/item';
 import Airbase from './airbase';
 
 export interface AirbaseInfoBuilder {
@@ -193,5 +194,40 @@ export default class AirbaseInfo {
     this.superHighDefenseAirPower = Math.floor(this.defenseAirPower * this.superHighAirRaidCoefficient);
     this.fullSuperHighDefenseAirPower = this.superHighDefenseAirPower;
     this.superHighAirRaidResults = [new AirCalcResult(), new AirCalcResult(), new AirCalcResult()];
+  }
+
+  /**
+   * 基地空襲被害を各航空隊に発生させる
+   * @memberof AirbaseInfo
+   */
+  public shootDownByAirRaid() {
+    for (let i = 0; i < this.airbases.length; i += 1) {
+      if (this.airbases[i].mode === AB_MODE.WAIT) {
+        continue;
+      }
+
+      let count = 4;
+      const { items } = this.airbases[i];
+      for (let j = 0; j < items.length; j += 1) {
+        const item = items[j];
+        if (!item.data.id) {
+          continue;
+        }
+
+        if (item.data.isRecon) {
+          // 偵察機系
+          if (count) {
+            items[j] = new Item({ item, slot: 1 });
+            count = 1;
+          } else {
+            items[j] = new Item({ item, slot: item.data.airbaseMaxSlot });
+          }
+        } else {
+          items[j] = new Item({ item, slot: item.data.airbaseMaxSlot - count });
+          count = 0;
+        }
+      }
+      this.airbases[i] = new Airbase({ airbase: this.airbases[i], items });
+    }
   }
 }
