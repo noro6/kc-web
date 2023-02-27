@@ -619,8 +619,9 @@ export default Vue.extend({
             builder.slot = this.value.fullSlot;
           }
         }
-        if (this.itemParent instanceof Airbase && builder.item && builder.item.fullSlot > this.max) {
-          builder.slot = this.max;
+
+        if (this.itemParent instanceof Airbase && builder.item) {
+          // 基地航空隊の場合 => スルー
         }
         this.setItem(new Item(builder));
       }
