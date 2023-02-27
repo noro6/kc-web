@@ -1023,11 +1023,11 @@ export default Vue.extend({
       if (this.decidedShip) {
         return;
       }
-      this.decidedShip = true;
 
       if (ship.count || this.confirmDialog) {
         this.confirmDialog = false;
         this.handleDecideShip(ship);
+        this.decidedShip = true;
       } else {
         this.confirmShip = ship;
         this.confirmDialog = true;

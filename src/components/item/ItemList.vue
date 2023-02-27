@@ -1363,12 +1363,11 @@ export default Vue.extend({
       if (this.decidedItem) {
         return;
       }
-      this.decidedItem = true;
-
       this.clearTooltip();
       if (data.count || this.confirmDialog) {
         this.confirmDialog = false;
         this.handleEquipItem(data.item);
+        this.decidedItem = true;
       } else {
         this.confirmItem = data;
         this.confirmDialog = true;
