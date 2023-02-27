@@ -211,7 +211,7 @@ export default class ItemMaster {
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
     this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
     this.isEnemyItem = this.id > 1500;
-    this.airbaseMaxSlot = 0;
+    this.airbaseMaxSlot = 18;
 
     if (this.isPlane) {
       if (this.isShinzan) {

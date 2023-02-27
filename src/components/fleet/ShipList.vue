@@ -1025,9 +1025,9 @@ export default Vue.extend({
       }
 
       if (ship.count || this.confirmDialog) {
+        this.decidedShip = true;
         this.confirmDialog = false;
         this.handleDecideShip(ship);
-        this.decidedShip = true;
       } else {
         this.confirmShip = ship;
         this.confirmDialog = true;
