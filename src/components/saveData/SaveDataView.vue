@@ -58,7 +58,7 @@
         </v-tooltip>
       </div>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="item-container">
       <save-item v-for="(item, i) in rootData.childItems" :key="i" :value="item" :index="i" :handle-delete="deleteChild" :parent-directory="rootData" />
     </div>
@@ -74,7 +74,7 @@
             :label="$t('SaveData.フォルダー名')"
             @keydown.enter="addNewDirectory"
             :disabled="!editDialog"
-          ></v-text-field>
+          />
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>

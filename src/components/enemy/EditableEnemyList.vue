@@ -2,9 +2,9 @@
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-2 pt-1 flex-wrap">
       <div class="pl-2 align-self-center">{{ $t("EnemyEdit.敵艦編集") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="px-2 mt-3 mb-1">
       <v-alert border="left" outlined type="error" class="my-2 body-2">
         {{ $t("EnemyEdit.本機能は計算結果に大きな影響を及ぼすため、理解できる方のみ利用してください。") }}
@@ -16,7 +16,7 @@
       </div>
       <div class="d-flex" v-if="manualEnemyRows.length">
         <div class="body-2">{{ $t("EnemyEdit.変更済み敵艦一覧") }}</div>
-        <div class="header-divider"></div>
+        <div class="header-divider" />
       </div>
       <div class="manual-enemies-container">
         <div
@@ -36,7 +36,7 @@
               <div class="enemy-name">{{ getShipName(enemy.data.name) }}</div>
             </div>
             <div>
-              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
             </div>
             <div class="enemy-status">
               <div>{{ $t("Common.制空") }}</div>
@@ -50,7 +50,7 @@
               <div v-for="(item, j) in enemy.items" :key="`slot${j}`" class="d-flex">
                 <div class="enemy-slot">{{ item.fullSlot >= 0 ? item.fullSlot : "-" }}</div>
                 <div class="px-1">
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="22" width="22"></v-img>
+                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="22" width="22" />
                 </div>
                 <div class="align-self-center text-truncate">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
               </div>
@@ -63,21 +63,21 @@
       <v-card v-if="editingEnemy && editingEnemy.data.id">
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("EnemyEdit.敵艦編集") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="enemyEditDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="ma-3">
           <div class="body-2">{{ $t("EnemyEdit.装備、搭載数を設定してください。") }}</div>
           <div>
             <enemy-input :enemy="editingEnemy" :handle-show-item-list="showItemList" :readonly="false" @input="onChanged" />
           </div>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="success" @click="commitManualEnemy()">{{ $t("Common.適用") }}</v-btn>
           <v-btn color="error" @click="deleteManualEnemy()" :disabled="disabledDelete">{{ $t("Common.削除") }}</v-btn>
           <v-btn color="secondary" @click="resetEditingEnemy()">{{ $t("Common.既定値") }}</v-btn>

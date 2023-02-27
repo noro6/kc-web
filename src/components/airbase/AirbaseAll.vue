@@ -2,7 +2,7 @@
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">{{ $t("Airbase.基地航空隊") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
@@ -55,7 +55,7 @@
         <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
-    <v-divider class="mb-3"></v-divider>
+    <v-divider class="mb-3" />
     <div :class="{ 'has-error-space': !airbaseInfo.isDefense && needErrorSpace }">
       <div v-if="!airbaseInfo.isDefense && needAirRaid" class="w-100">
         <v-alert outlined type="error"
@@ -64,7 +64,7 @@
         </v-alert>
       </div>
       <div class="d-flex w-100">
-        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo"></v-switch>
+        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo" />
         <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t("Airbase.基地派遣先設定") }}</v-btn>
         </div>
@@ -90,7 +90,7 @@
               :items="difficultyLevelItems"
               :label="$t('Difficulty.難易度')"
               @change="setInfo"
-            ></v-select>
+            />
           </div>
         </template>
         <div v-else class="d-flex align-center">
@@ -192,21 +192,21 @@
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("Common.装備一括設定") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="px-5 pt-2 pb-5">
           <div>
             <div class="d-flex">
               <div class="caption">{{ $t("Common.適用対象") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="caption">{{ $t("Common.選択されている航空隊に対し、下記の設定を適用します。") }}</div>
             <div class="d-flex justify-space-between">
-              <v-checkbox :label="$t('Airbase.全航空隊')" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly></v-checkbox>
+              <v-checkbox :label="$t('Airbase.全航空隊')" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly />
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -214,23 +214,23 @@
                 dense
                 hide-details
                 v-model="bulkUpdateTarget[i]"
-              ></v-checkbox>
+              />
             </div>
           </div>
           <div class="d-flex mt-8">
             <div class="caption">{{ $t("Common.熟練度") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)" tabindex="0">
-              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
             <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">{{ $t("Common.戦闘機のみ最大") }}</v-btn>
           </div>
           <div class="d-flex mt-8">
             <div class="caption">{{ $t("Common.改修値") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item" @keypress.enter="setRemodel(i - 1)" tabindex="0">
@@ -240,7 +240,7 @@
           </div>
           <div class="d-flex mt-8">
             <div class="caption">{{ $t("Common.艦載機搭載数") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex">
             <v-slider
@@ -250,7 +250,7 @@
               v-model.number="bulkUpdateSlotValue"
               hide-details
               @input="bulkUpdateSlotChanged = true"
-            ></v-slider>
+            />
             <div class="d-flex">
               <v-text-field
                 class="slot-input mx-2"
@@ -260,7 +260,7 @@
                 v-model.number="bulkUpdateSlotValue"
                 hide-details
                 @input="bulkUpdateSlotChanged = true"
-              ></v-text-field>
+              />
             </div>
           </div>
           <div class="d-flex mt-3">
@@ -322,12 +322,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
-      <item-preset-component
-        v-if="itemPresetDialog"
-        v-model="tempAirbase"
-        :handle-expand-item-preset="expandItemPreset"
-        :handle-close="closeItemPreset"
-      ></item-preset-component>
+      <item-preset-component v-if="itemPresetDialog" v-model="tempAirbase" :handle-expand-item-preset="expandItemPreset" :handle-close="closeItemPreset" />
     </v-dialog>
   </v-card>
 </template>
@@ -340,6 +335,13 @@
   font-size: 0.9em;
   margin: 0 0.75rem;
   padding: 5px 0.5rem;
+}
+
+.has-error-space {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 90px;
 }
 
 .difficulty-select {
@@ -441,46 +443,6 @@
 }
 .opacity0 {
   opacity: 0;
-}
-</style>
-
-<style>
-/** スクショ用調整  */
-.normal-airbases.captured {
-  width: 1200px !important;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.2rem;
-  padding: 0.75rem 0.5rem;
-}
-.normal-airbases.captured * {
-  box-shadow: none !important;
-}
-.normal-airbases.captured > div {
-  border: 1px solid #bbb;
-}
-.theme--dark .normal-airbases.captured {
-  background: rgb(40, 40, 45);
-  border: 1px solid #444;
-}
-.deep-sea .theme--dark .normal-airbases.captured {
-  background: rgb(8, 18, 42);
-}
-.theme--dark .normal-airbases.captured > div {
-  border: 1px solid #444;
-}
-
-.small-airbases.captured {
-  display: none;
-}
-
-.has-error-space {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 90px;
 }
 </style>
 

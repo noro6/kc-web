@@ -11,7 +11,7 @@
           <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
         </v-tooltip>
       </div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div v-if="capturing && fleet.nodeName" class="mx-3">{{ fleet.nodeName }}</div>
       <div class="align-self-center mr-1" v-if="!capturing">
         <v-btn outlined small color="primary" @click.stop="showWorldList">{{ $t("Enemies.海域選択") }}</v-btn>
@@ -27,16 +27,16 @@
     </div>
     <div class="d-flex mb-1 justify-space-between mx-2">
       <div class="cell-type-select">
-        <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()"></v-select>
+        <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()" />
       </div>
       <div class="formation-select">
-        <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()"></v-select>
+        <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()" />
       </div>
     </div>
     <div class="d-flex mx-2">
       <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}</div>
       <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
       <div class="body-2 enemy-air-power">{{ fleet.fullAirPower }}</div>
       <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
@@ -44,12 +44,12 @@
     <div class="d-flex mx-2">
       <div class="caption text--secondary">{{ $t("Common.半径") }}</div>
       <div class="ml-1 caption">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}</div>
       <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
       <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="enemy-list mt-1">
       <div
         v-for="(enemy, index) in fleet.enemies"
@@ -72,7 +72,7 @@
             @blur="clearTooltip"
             tabindex="0"
           >
-            <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+            <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
           <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
@@ -96,7 +96,7 @@
         <v-btn class="my-3" color="secondary" block @click="removeEnemy(editEnemyIndex)">{{ $t("Enemies.はずす") }}</v-btn>
         <div class="type-divider mt-10">
           <div class="caption text--secondary">{{ $t("Enemies.詳細設定") }}</div>
-          <div class="type-divider-border"></div>
+          <div class="type-divider-border" />
         </div>
         <v-btn class="mt-3" color="error" block :disabled="editEnemy.disabledMainAerialPhase" @click="toggleDisabledStage2(editEnemyIndex)">
           {{ $t("Enemies.基地航空隊フェーズで撃沈する") }}
@@ -166,9 +166,7 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
-</style>
 
-<style>
 .formation-select,
 .cell-type-select {
   width: 94px;

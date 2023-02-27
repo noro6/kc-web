@@ -4,7 +4,7 @@
       <v-btn color="teal" dark @click="showEnemyList()">{{ $t("Extra.検索する敵艦を選択") }}</v-btn>
       <div class="ml-3 d-flex" v-if="targetEnemy.data.id">
         <div class="align-self-center">
-          <v-img :src="`./img/ship/${targetEnemy.data.id}.png`" height="30" width="120"></v-img>
+          <v-img :src="`./img/ship/${targetEnemy.data.id}.png`" height="30" width="120" />
         </div>
         <div class="flex-grow-1">
           <div class="d-flex caption flex-wrap">
@@ -25,9 +25,9 @@
       </div>
     </div>
     <div v-if="targetEnemy.data.id" class="my-3">
-      <v-text-field v-model="keyword" dense prepend-inner-icon="mdi-magnify" clearable hide-details></v-text-field>
+      <v-text-field v-model="keyword" dense prepend-inner-icon="mdi-magnify" clearable hide-details />
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <v-data-table
       dense
       fixed-header
@@ -107,7 +107,7 @@
                 @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">
@@ -135,7 +135,7 @@
                 @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">
@@ -155,11 +155,11 @@
                 <div v-if="!selectedFleet.isUnion" class="item-preview">
                   <div v-for="(item, k) in enemy.items" :key="k" class="mr-4 item-image-area">
                     <template v-if="enemy.items.length < 5">
-                      <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+                      <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                       <div class="slot" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
                     </template>
                     <template v-else>
-                      <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+                      <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
                       <div class="slot tiny" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
                     </template>
                   </div>

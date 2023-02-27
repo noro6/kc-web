@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex">
       <div class="align-self-center">
-        <v-img :src="`./img/type/icon${value.data.iconTypeId}.png`" height="32" width="32"></v-img>
+        <v-img :src="`./img/type/icon${value.data.iconTypeId}.png`" height="32" width="32" />
       </div>
       <div class="ml-1 align-self-center">
         <div class="tooltip-item-id">id {{ value.data.id }}</div>
@@ -29,9 +29,7 @@
         <span class="item-status-value" :class="{ 'bad-status': value.aircraftDayBattleFirePower < 0 }">
           {{ formatStatus2(value.aircraftDayBattleFirePower) }}
         </span>
-        <span v-if="existsBonus && aircraftDayBattleFirePowerFitBonus" class="fit-bonus temp">
-          {{ aircraftDayBattleFirePowerFitBonus }} )
-        </span>
+        <span v-if="existsBonus && aircraftDayBattleFirePowerFitBonus" class="fit-bonus temp"> {{ aircraftDayBattleFirePowerFitBonus }} ) </span>
       </div>
       <div v-if="value.data.torpedo || value.bonusTorpedo || itemBonus.torpedo">
         <span class="item-status-text">{{ $t("Common.雷装") }}</span>

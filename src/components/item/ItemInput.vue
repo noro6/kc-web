@@ -29,7 +29,7 @@
       </template>
       <v-card class="px-2">
         <div class="d-flex px-2">
-          <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue"></v-text-field>
+          <v-text-field class="slot-input" type="number" :max="max" min="0" v-model.number="slotValue" />
           <v-btn depressed class="ml-2 align-self-center" @click="slotValue = init">{{ $t("Common.初期値") }}</v-btn>
         </div>
         <v-slider :max="max" min="0" v-model="slotValue"></v-slider>
@@ -80,7 +80,7 @@
       <v-menu offset-y transition="slide-y-transition" left :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
-            <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
+            <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18" />
             <span class="level-value">{{ item.level }}</span>
           </div>
         </template>
@@ -95,7 +95,7 @@
               @keypress.enter="setLevel(i - 1)"
               tabindex="0"
             >
-              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
           </div>

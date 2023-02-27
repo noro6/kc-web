@@ -10,19 +10,19 @@
           hide-details
           dense
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        />
       </div>
       <div class="ml-5 align-self-center filter-select">
-        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()"></v-select>
+        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()" />
       </div>
       <div class="align-self-center filter-value-input">
-        <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()"></v-text-field>
+        <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
       </div>
       <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
       <div class="ml-3 align-self-center">
         <v-btn color="secondary" small @click="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
       </div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
@@ -39,10 +39,10 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="d-flex flex-wrap px-3">
       <div class="align-self-center my-3">
-        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')"></v-checkbox>
+        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
       </div>
       <div class="ml-3 d-flex manual-checkbox" v-if="!isAirbaseMode">
         <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
@@ -62,10 +62,10 @@
       </div>
       <template v-if="type === 14">
         <div class="ml-3 align-self-center my-3">
-          <v-checkbox v-model="includeSonar" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.ソナー') : 'ソナー'"></v-checkbox>
+          <v-checkbox v-model="includeSonar" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.ソナー') : 'ソナー'" />
         </div>
         <div class="ml-3 align-self-center my-3">
-          <v-checkbox v-model="includeDepthCharge" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.爆雷') : '爆雷'"></v-checkbox>
+          <v-checkbox v-model="includeDepthCharge" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.爆雷') : '爆雷'" />
         </div>
         <div class="ml-3 align-self-center my-3">
           <v-checkbox
@@ -74,16 +74,16 @@
             hide-details
             dense
             :label="isNotJapanese ? $t('EType.爆雷投射機') : '爆雷投射機'"
-          ></v-checkbox>
+          />
         </div>
       </template>
       <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusKey">
-        <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')"></v-checkbox>
+        <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')" />
       </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')"></v-checkbox>
+        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')" />
       </div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
         <v-icon>mdi-eye-off</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
       </v-btn>
@@ -109,10 +109,10 @@
         @keypress="changeType(i.id)"
         tabindex="0"
       >
-        <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
+        <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
       </div>
     </div>
-    <v-divider :class="{ 'mx-3': multiLine }"></v-divider>
+    <v-divider :class="{ 'mx-3': multiLine }" />
     <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div class="pl-1">
@@ -181,7 +181,7 @@
       <div v-for="(data, i) in itemListData" :key="i">
         <div class="type-divider" v-if="multiLine">
           <div class="caption text--secondary">{{ isNotJapanese ? $t(`EType.${data.typeName}`) : data.typeName }}</div>
-          <div class="type-divider-border"></div>
+          <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine }">
           <div
@@ -199,7 +199,7 @@
             @blur="clearTooltip"
           >
             <div>
-              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
             </div>
             <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
               {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
@@ -269,7 +269,7 @@
           <div>{{ $t("Common.既に配備されています。") }}</div>
           <div class="caption mt-2">※ {{ $t("Common.配備を押せば無視して配備できます。") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem)">{{ $t("Common.配備") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -277,7 +277,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog">
-      <blacklist-item-edit :handle-close="closeBlacklist"></blacklist-item-edit>
+      <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
     <v-dialog v-model="sortDialog" width="600">
       <v-card class="px-3 py-3">
@@ -287,7 +287,7 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider class="mt-2 mb-3"></v-divider>
+        <v-divider class="mt-2 mb-3" />
         <div class="sort-selector px-2">
           <div class="sort-key" v-for="(item, j) in sortKeyItems" :key="`key${j}`">
             <v-btn block text :class="{ primary: item.value === sortKey }" @click="selectSortKey(item.value)">
@@ -297,11 +297,11 @@
         </div>
         <div class="d-flex justify-center">
           <v-radio-group v-model="isDesc" row hide-detail @change="handleSortItem">
-            <v-radio class="mx-10" :label="$t('Common.昇順')" :value="false"></v-radio>
-            <v-radio class="mx-10" :label="$t('Common.降順')" :value="true"></v-radio>
+            <v-radio class="mx-10" :label="$t('Common.昇順')" :value="false" />
+            <v-radio class="mx-10" :label="$t('Common.降順')" :value="true" />
           </v-radio-group>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="d-flex mt-3 justify-end">
           <v-btn color="secondary" @click="resetOrdering">{{ $t("Common.リセット") }}</v-btn>
         </div>

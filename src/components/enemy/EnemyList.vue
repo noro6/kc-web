@@ -3,20 +3,20 @@
     <v-card>
       <div class="d-flex pt-2 pb-1 pr-2">
         <div class="align-self-center ml-3">{{ $t("Enemies.敵艦選択") }}</div>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn icon @click="close">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <div class="d-flex px-2 pt-2">
         <div class="align-self-center">
-          <v-text-field :label="$t('ItemList.図鑑id 名称検索')" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify"></v-text-field>
+          <v-text-field :label="$t('ItemList.図鑑id 名称検索')" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify" />
         </div>
         <div class="ml-5 align-self-center">
-          <v-checkbox v-model="isLandBase" @change="filter()" :label="$t('Enemies.地上施設')"></v-checkbox>
+          <v-checkbox v-model="isLandBase" @change="filter()" :label="$t('Enemies.地上施設')" />
         </div>
-        <v-spacer></v-spacer>
+        <v-spacer />
       </div>
       <div class="d-flex flex-wrap mx-3">
         <div
@@ -32,12 +32,12 @@
           {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
         </div>
       </div>
-      <v-divider class="mx-3"></v-divider>
+      <v-divider class="mx-3" />
       <div class="enemy-table-container pa-3">
         <div v-for="(row, i) in enemies" :key="`type${i}`">
           <div class="type-divider">
             <div class="caption text--secondary">{{ needTrans ? $t(row.name) : row.name }}</div>
-            <div class="type-divider-border"></div>
+            <div class="type-divider-border" />
           </div>
           <div class="enemy-table-body">
             <div
@@ -54,11 +54,13 @@
               @blur="clearTooltip"
             >
               <div>
-                <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120" />
               </div>
               <div class="flex-grow-1 ml-1">
                 <div class="d-flex align-center enemy-caption">
-                  <div class="enemy-id primary--text">id <span class="font-weight-bold">{{ enemy.id }}</span></div>
+                  <div class="enemy-id primary--text">
+                    id <span class="font-weight-bold">{{ enemy.id }}</span>
+                  </div>
                   <div class="ml-1">
                     {{ $t("Common.耐久") }} <span class="font-weight-bold">{{ enemy.hp }}</span>
                   </div>

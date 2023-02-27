@@ -68,7 +68,7 @@
                 <td :class="{ more: row.isMore, less: row.isLess, exist: !row.stock2 }">{{ row.stock1.improvement.luck || "" }}</td>
               </template>
               <template v-else>
-                <td class="none" colspan="6"></td>
+                <td class="none" colspan="6" />
               </template>
               <template v-if="row.stock2">
                 <td class="text-left pl-0" :class="{ more: row.isLess, less: row.isMore, exist: !row.stock1 }">
@@ -83,7 +83,7 @@
                 <td :class="{ more: row.isLess, less: row.isMore, exist: !row.stock1 }">{{ row.stock2.improvement.luck || "" }}</td>
               </template>
               <template v-else>
-                <td class="none" colspan="6"></td>
+                <td class="none" colspan="6" />
               </template>
             </tr>
           </tbody>

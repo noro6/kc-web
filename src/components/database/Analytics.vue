@@ -12,7 +12,7 @@
           v-model.trim="levelRange[0]"
           hide-details
           @input="analyze()"
-        ></v-text-field>
+        />
       </div>
       <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="analyze()">
       </v-range-slider>
@@ -26,11 +26,11 @@
           v-model.trim="levelRange[1]"
           hide-details
           @input="analyze()"
-        ></v-text-field>
+        />
       </div>
     </div>
     <v-card class="pa-1">
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table dense>
         <template v-slot:default>
           <thead>
@@ -68,7 +68,7 @@
           </tbody>
         </template>
       </v-simple-table>
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table dense>
         <template v-slot:default>
           <thead>
@@ -110,7 +110,7 @@
       </v-simple-table>
     </v-card>
     <v-card class="my-3 pa-1">
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table>
         <template v-slot:default>
           <thead>
@@ -150,7 +150,7 @@
         <radar-chart :data="radarGraphData" :options="radarOptions" />
       </v-card>
       <v-card class="pa-1">
-        <v-divider></v-divider>
+        <v-divider />
         <v-simple-table fixed-header height="64vh">
           <template v-slot:default>
             <thead>
@@ -188,14 +188,14 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider class="mx-2"></v-divider>
+        <v-divider class="mx-2" />
         <div class="detail-content pa-4">
           <v-expansion-panels v-for="(row, i) in reportPlans" :key="`row${i}`" class="mt-2" v-model="row.open">
             <v-expansion-panel>
               <v-expansion-panel-header hide-actions class="py-2 pl-2">
                 <div class="d-flex align-center">
                   <div>
-                    <v-img :src="`./img/ship/${row.master.id}.png`" height="40" width="160"></v-img>
+                    <v-img :src="`./img/ship/${row.master.id}.png`" height="40" width="160" />
                   </div>
                   <div class="ml-1 flex-grow-1">
                     <div class="primary--text caption">Lv.{{ row.stock.level }}</div>
@@ -222,7 +222,7 @@
                 </div>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-divider></v-divider>
+                <v-divider />
                 <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-flex mt-2">
                   <div class="next-arrow-container">
                     <div class="mr-3">
@@ -234,7 +234,7 @@
                     </div>
                   </div>
                   <div class="align-self-center">
-                    <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160"></v-img>
+                    <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160" />
                   </div>
                   <div class="ml-1 flex-grow-1 align-self-center">
                     <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
@@ -245,15 +245,15 @@
                   </div>
                   <div class="ml-auto d-flex align-self-center">
                     <div class="d-flex align-center" :class="{ 'opacity-10': !detail.blueprints }">
-                      <v-img :src="`./img/util/blueprint.png`" height="40" width="40"></v-img>
+                      <v-img :src="`./img/util/blueprint.png`" height="40" width="40" />
                       <div class="ml-1 body-2">x {{ detail.blueprints }}</div>
                     </div>
                     <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.actionReports }">
-                      <v-img :src="`./img/util/actionReport.png`" height="40" width="40"></v-img>
+                      <v-img :src="`./img/util/actionReport.png`" height="40" width="40" />
                       <div class="ml-1 body-2">x {{ detail.actionReports }}</div>
                     </div>
                     <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.catapults }">
-                      <v-img :src="`./img/util/catapult.png`" height="40" width="40"></v-img>
+                      <v-img :src="`./img/util/catapult.png`" height="40" width="40" />
                       <div class="ml-1 body-2">x {{ detail.catapults }}</div>
                     </div>
                   </div>
@@ -262,9 +262,9 @@
             </v-expansion-panel>
           </v-expansion-panels>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" @click="expandAll()">{{ $t("Database.全て展開") }}</v-btn>
           <v-btn color="secondary" @click="collapseAll()">{{ $t("Database.全て折りたたむ") }}</v-btn>
         </v-card-actions>

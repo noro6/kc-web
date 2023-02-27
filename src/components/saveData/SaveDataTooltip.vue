@@ -6,20 +6,20 @@
     </div>
     <template v-if="!value.isDirectory">
       <div v-if="ships1.length" class="mb-2">
-        <v-divider class="mb-2"></v-divider>
+        <v-divider class="mb-2" />
         <div class="caption info--text">第1艦隊</div>
         <div class="d-flex">
           <div v-for="(ship, i) in ships1" :key="`ship1_${i}`">
-            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
         </div>
       </div>
       <div v-if="ships2.length" class="mb-2">
-        <v-divider class="mb-2"></v-divider>
+        <v-divider class="mb-2" />
         <div class="caption success--text">第2艦隊</div>
         <div class="d-flex">
           <div v-for="(ship, i) in ships2" :key="`ship2_${i}`">
-            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
         </div>
       </div>

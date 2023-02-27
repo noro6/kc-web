@@ -2,7 +2,7 @@
   <v-card class="ma-1 pa-2 enemy-preview">
     <div class="d-flex">
       <div class="align-self-center">
-        <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+        <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">
@@ -37,7 +37,7 @@
       <span class="ml-3 text--secondary">{{ $t("Common.総搭載数") }}</span>
       <span class="ml-1 font-weight-medium">{{ sumSlot }}</span>
     </div>
-    <v-divider class="item-input-divider"></v-divider>
+    <v-divider class="item-input-divider" />
     <div>
       <div
         v-for="(item, j) in enemy.items"

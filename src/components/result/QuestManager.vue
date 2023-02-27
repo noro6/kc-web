@@ -9,7 +9,7 @@
         <v-btn color="secondary" @click="confirmReset()">{{ $t("Common.リセット") }}</v-btn>
       </div>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item>
         <div class="d-flex align-center mt-3 pr-5 flex-wrap">
@@ -21,7 +21,7 @@
               :item-text="(item) => `${$t(`Extra.${item.text}`)}`"
               hide-details
               dense
-            ></v-select>
+             />
           </div>
           <div class="ml-auto mr-12">
             <div class="d-flex justify-end">
@@ -47,11 +47,11 @@
                 <div class="mr-3">
                   <div class="d-flex align-center">
                     <div class="quest-icon">
-                      <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48"></v-img>
+                      <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48" />
                       <div class="quest-type-icon">
-                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_${quest.resetMonth}.png`" width="42" height="43"></v-img>
-                        <v-img v-else-if="quest.type === 'Quarterly'" :src="`./img/util/quarterly.png`" width="41" height="40"></v-img>
-                        <v-img v-else-if="quest.type === 'Once'" :src="`./img/util/once.png`" width="41" height="40"></v-img>
+                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_${quest.resetMonth}.png`" width="42" height="43" />
+                        <v-img v-else-if="quest.type === 'Quarterly'" :src="`./img/util/quarterly.png`" width="41" height="40" />
+                        <v-img v-else-if="quest.type === 'Once'" :src="`./img/util/once.png`" width="41" height="40" />
                       </div>
                     </div>
                     <div class="ml-4 flex-grow-1">
@@ -77,27 +77,27 @@
                     </div>
                     <div class="ml-6 d-none d-sm-block">
                       <div class="mb-1 d-flex align-center">
-                        <v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img>
+                        <v-img :src="`./img/util/fuel.png`" height="18" width="18" />
                         <div class="resource-reward">{{ quest.fuel }}</div>
-                        <v-img :src="`./img/util/steel.png`" height="18" width="18"></v-img>
+                        <v-img :src="`./img/util/steel.png`" height="18" width="18" />
                         <div class="resource-reward">{{ quest.steel }}</div>
                       </div>
                       <div class="d-flex align-center">
-                        <v-img :src="`./img/util/ammo.png`" height="18" width="18"></v-img>
+                        <v-img :src="`./img/util/ammo.png`" height="18" width="18" />
                         <div class="resource-reward">{{ quest.ammo }}</div>
-                        <v-img :src="`./img/util/bauxite.png`" height="18" width="18"></v-img>
+                        <v-img :src="`./img/util/bauxite.png`" height="18" width="18" />
                         <div class="resource-reward">{{ quest.bauxite }}</div>
                       </div>
                     </div>
                     <div class="ml-3">
-                      <v-img :src="`./img/util/ranking_point.png`" height="50" width="50"></v-img>
+                      <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
                     </div>
                     <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
                   </div>
                 </div>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-divider></v-divider>
+                <v-divider />
                 <div class="d-flex flex-wrap">
                   <div v-for="(check, j) in quest.requires" :key="`req${j}`" class="check-container">
                     <v-checkbox
@@ -105,7 +105,7 @@
                       @change="updateState"
                       hide-details
                       :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"
-                    ></v-checkbox>
+                     />
                   </div>
                 </div>
                 <div class="mt-6 d-flex align-center">
@@ -145,7 +145,7 @@
               </div>
             </div>
             <div class="ml-6">
-              <v-img :src="`./img/util/ranking_point.png`" height="50" width="50"></v-img>
+              <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
             </div>
             <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
           </div>
@@ -159,7 +159,7 @@
           <div class="body-2">{{ $t("Extra.この任務を達成状態にしますか？") }}</div>
           <div class="caption mt-2">※ {{ $t("Extra.達成した任務は、達成済タブに表示されるようになります。") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark @click.stop="completeQuest()">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmCompleteDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -171,7 +171,7 @@
         <div class="body-2 ma-6">
           {{ $t("Extra.全ての任務進捗をリセットします。よろしいですか？") }}
         </div>
-        <v-divider class="my-3"></v-divider>
+        <v-divider class="my-3" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="error" dark @click.stop="resetAllQuest()">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmResetDialog = false">{{ $t("Common.戻る") }}</v-btn>

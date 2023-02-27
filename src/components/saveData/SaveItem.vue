@@ -63,7 +63,7 @@
     <div v-if="value.isOpen">
       <div v-for="(item, i) in value.childItems" class="d-flex pl-1" :key="`item_${i}`">
         <div class="depth-line" :class="{ 'is-last': i === value.childItems.length - 1 }">
-          <div class="depth-file-line"></div>
+          <div class="depth-file-line" />
         </div>
         <div class="flex-grow-1">
           <save-item :value="item" :index="i" :handle-delete="deleteChild" :parent-directory="value" />
@@ -83,7 +83,7 @@
           </div>
           <div v-if="value.isDirectory" class="caption mt-2">※ {{ $t("SaveData.フォルダー内の全データ、フォルダーが削除されます。") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="red" dark @click.stop="deleteData">{{ $t("Common.削除") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -95,7 +95,7 @@
         <div class="ma-4 body-2">
           <span>{{ $t("SaveData.このフォルダー内の全データ、フォルダーを名前順にソートします。") }}</span>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark @click.stop="autoSortDirectory">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="sortConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -114,7 +114,7 @@
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
             @keydown.enter="commitName"
             :disabled="!editDialog"
-          ></v-text-field>
+          />
           <v-textarea
             v-if="!value.isDirectory"
             v-model.trim="editedRemarks"
@@ -124,7 +124,7 @@
             hide-details
             :label="$t('SaveData.補足情報')"
             class="remarks-input"
-          ></v-textarea>
+          />
           <div class="mt-4 d-flex">
             <div class="align-self-center">
               <v-icon x-large :color="selectedColor">{{ value.isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>

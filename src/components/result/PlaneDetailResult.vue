@@ -18,7 +18,7 @@
           <div class="header-content">
             <div v-if="parent.data" class="d-flex px-2">
               <div class="align-self-center">
-                <v-img :src="`./img/ship/${parent.data.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${parent.data.id}.png`" height="30" width="120" />
               </div>
               <div class="px-2 align-self-center">
                 <div v-if="parent.data.id > 1500" class="parent-id">id {{ parent.data.id }}</div>
@@ -40,7 +40,7 @@
               >
                 <div class="align-self-center caption slot-area">{{ item.fullSlot }}</div>
                 <div>
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
                 </div>
                 <div class="item-name text-truncate">{{ needTrans && item.data.name ? $t(`${item.data.name}`) : item.data.name }}</div>
                 <div v-if="item.remodel" class="item-remodel">
@@ -49,7 +49,7 @@
                 </div>
                 <div class="item-level">
                   <template v-if="item.data.isPlane">
-                    <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18"></v-img>
+                    <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18" />
                     <span class="level-value">{{ item.level }}</span>
                   </template>
                 </div>

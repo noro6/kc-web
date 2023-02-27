@@ -2,7 +2,7 @@
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-1 flex-wrap">
       <div class="pl-2 align-self-center">{{ $t("Enemies.敵艦隊") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="resetFleetAll">
         <v-icon>mdi-trash-can-outline</v-icon>
       </v-btn>
@@ -23,7 +23,7 @@
         <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div id="enemies-container" :class="{ captured: capturing }">
       <div class="d-flex mx-1 mt-3" v-if="!isDefense">
         <div class="align-self-center mr-3 pb-2" v-if="!capturing">
@@ -40,7 +40,7 @@
           </v-tooltip>
         </div>
         <div class="align-self-center mr-4" id="battle-count-select">
-          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()"></v-select>
+          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()" />
         </div>
         <div class="align-self-center body-2" v-if="nodeString">
           <span class="text--secondary mr-2">{{ $t("Enemies.航路") }}</span>
@@ -125,32 +125,6 @@
 .chip-value {
   margin-left: 2px;
   margin-left: 4px;
-}
-</style>
-
-<style>
-#enemies-container.captured {
-  width: 1160px !important;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.2rem;
-  padding: 0.75rem 0.5rem;
-}
-#enemies-container.captured * {
-  box-shadow: none !important;
-}
-.theme--dark #enemies-container.captured {
-  background: rgb(40, 40, 45);
-  border: 1px solid #444;
-}
-.deep-sea .theme--dark #enemies-container.captured {
-  background: rgb(8, 18, 42);
-}
-#enemies-container.captured .v-card {
-  border: 1px solid #ddd;
-}
-.theme--dark #enemies-container.captured .v-card {
-  border: 1px solid rgb(28, 28, 34);
 }
 </style>
 

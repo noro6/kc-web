@@ -4,11 +4,11 @@
       <div class="level-setting-container" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
         <template v-if="index >= 0">
           <div>
-            <v-img :src="`./img/type/type${typeId}.png`" height="30" width="30"></v-img>
+            <v-img :src="`./img/type/type${typeId}.png`" height="30" width="30" />
           </div>
           <div class="ml-1 item-name text-truncate">{{ needTrans ? $t(`EType.${typeName}`) : typeName }}</div>
           <div class="item-level">
-            <v-img :src="`./img/util/prof${levelValue}.png`" height="24" width="18"></v-img>
+            <v-img :src="`./img/util/prof${levelValue}.png`" height="24" width="18" />
             <span class="level-value">{{ level }}</span>
           </div>
         </template>
@@ -28,7 +28,7 @@
           @keypress.enter="setLevel(i - 1)"
           tabindex="0"
         >
-          <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+          <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
           <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
         </div>
       </div>

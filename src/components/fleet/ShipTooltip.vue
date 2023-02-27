@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex mt-1">
       <div class="align-self-center">
-        <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120"></v-img>
+        <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120" />
       </div>
       <div class="ml-3 align-self-center">
         <div class="caption">Lv {{ value.level }}</div>
@@ -21,9 +21,9 @@
             >)
           </span>
         </div>
-        <div></div>
-        <div></div>
-        <div></div>
+        <div />
+        <div />
+        <div />
         <div class="caption grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
         <div>{{ value.displayStatus.firePower }}</div>
         <div>
@@ -34,13 +34,13 @@
         </div>
         <div class="caption grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
         <div>{{ supportFirePower }}</div>
-        <div></div>
+        <div />
         <div class="caption grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
         <div>{{ dayBattleFirePower }}</div>
-        <div></div>
+        <div />
         <div class="caption grey--text text--lighten-1">{{ $t("Common.夜戦火力") }}</div>
         <div>{{ Math.floor(value.nightBattleFirePower) }}</div>
-        <div></div>
+        <div />
         <div class="caption grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
         <div>{{ value.displayStatus.armor }}</div>
         <div>
@@ -124,7 +124,7 @@
         </div>
       </div>
       <template v-if="specialAttacks.length">
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <table>
           <tr>
             <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.特殊攻撃") }}</td>
@@ -141,22 +141,22 @@
         </table>
       </template>
       <template v-if="nightSpecialAttacks.length">
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <table>
           <tr>
             <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.夜間特殊攻撃") }}</td>
             <td class="caption grey--text text--lighten-1 px-2">{{ $t("Fleet.通常") }}</td>
             <td class="caption pl-6 pr-1">
-              <v-img :src="`./img/type/icon24.png`" height="27" width="27"></v-img>
+              <v-img :src="`./img/type/icon24.png`" height="27" width="27" />
             </td>
             <td class="caption pl-6 pr-1">
-              <v-img :src="`./img/type/icon27.png`" height="27" width="27"></v-img>
+              <v-img :src="`./img/type/icon27.png`" height="27" width="27" />
             </td>
             <td>
               <div class="d-flex caption">
-                <v-img :src="`./img/type/icon24.png`" height="27" width="27"></v-img>
+                <v-img :src="`./img/type/icon24.png`" height="27" width="27" />
                 <div class="align-self-center grey--text text--lighten-3">&plus;</div>
-                <v-img :src="`./img/type/icon27.png`" height="27" width="27"></v-img>
+                <v-img :src="`./img/type/icon27.png`" height="27" width="27" />
               </div>
             </td>
           </tr>
@@ -171,7 +171,7 @@
           </tr>
         </table>
       </template>
-      <v-divider class="my-2"></v-divider>
+      <v-divider class="my-2" />
       <table>
         <tr>
           <td class="text-left caption grey--text text--lighten-1">{{ $t("Fleet.一撃大破") }}</td>

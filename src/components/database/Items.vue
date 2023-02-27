@@ -6,7 +6,7 @@
           <div><v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}</div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-divider class="mb-3"></v-divider>
+          <v-divider class="mb-3" />
           <div class="range-inputs">
             <div class="d-flex my-4">
               <v-text-field
@@ -18,8 +18,8 @@
                 clearable
                 hide-details
                 prepend-inner-icon="mdi-magnify"
-              ></v-text-field>
-              <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未所持装備非表示')"></v-checkbox>
+              />
+              <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未所持装備非表示')" />
             </div>
             <div class="d-flex my-4">
               <div class="range-input">
@@ -32,7 +32,7 @@
                   v-model.trim="remodelRange[0]"
                   hide-details
                   @input="filter"
-                ></v-text-field>
+                />
               </div>
               <v-range-slider v-model="remodelRange" dense thumb-label min="0" max="10" hide-details class="pt-2 align-center mx-2" @change="filter">
               </v-range-slider>
@@ -46,7 +46,7 @@
                   v-model.trim="remodelRange[1]"
                   hide-details
                   @input="filter"
-                ></v-text-field>
+                />
               </div>
             </div>
           </div>
@@ -74,11 +74,11 @@
                   <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider class="mt-2"></v-divider>
+              <v-divider class="mt-2" />
             </template>
           </v-select>
           <div>
-            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')"></v-checkbox>
+            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')" />
           </div>
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -100,7 +100,7 @@
             <img :src="`./img/type/type${header.type.id}.png`" :alt="`type-${header.type.id}`" />
           </div>
           <div class="ml-1 align-self-center">{{ isNotJapanese ? $t(`EType.${header.type.name}`) : header.type.name }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <div v-if="header.type.sortKey">
             <v-menu offset-y left>
               <template v-slot:activator="{ on, attrs }">
@@ -135,7 +135,7 @@
             </v-menu>
           </div>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div v-for="(itemRow, j) in header.items" :key="`${i}${j}`">
           <div
             class="item-container"
@@ -173,7 +173,7 @@
         <div class="mx-2 mb-2">
           <div class="d-flex">
             <div class="align-self-center">
-              <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40"></v-img>
+              <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40" />
             </div>
             <div class="align-self-center ml-1">
               <div class="caption info--text">id {{ editedItem.id }}</div>
@@ -181,7 +181,7 @@
             </div>
           </div>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="ma-3">
           <div class="caption">{{ $t("Database.所持数") }}</div>
           <div class="stock-inputs">
@@ -196,11 +196,11 @@
               hide-details
               :readonly="readOnly"
               v-model.number="editedStock[i]"
-            ></v-text-field>
-            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" :label="$t('Fleet.合計')"></v-text-field>
+            />
+            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" :label="$t('Fleet.合計')" />
           </div>
         </div>
-        <v-divider class="mb-2"></v-divider>
+        <v-divider class="mb-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="commitStock">{{ $t("Common.更新") }}</v-btn>
           <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">{{ $t("Database.全破棄") }}</v-btn>
@@ -209,7 +209,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="blacklistDialog" width="660">
-      <blacklist-item-edit :handle-close="closeBlacklist"></blacklist-item-edit>
+      <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />

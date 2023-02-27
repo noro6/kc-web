@@ -2,13 +2,13 @@
   <v-card>
     <div class="d-flex px-2 pt-2 pb-1">
       <div class="align-self-center ml-3">{{ $t("Airbase.基地航空隊派遣先設定") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
     <div class="px-4 target-buttons" v-for="(lb, i) in info.airbases" :key="i">
-      <v-divider></v-divider>
+      <v-divider />
       <div class="py-3">
         <div v-for="(t, j) in lb.battleTarget" :key="j" class="d-flex ml-3 pb-1">
           <div class="align-self-center body-2 mr-3">{{ $t("Airbase.第x基地航空隊", { number: i + 1 }) }} {{ $t("Airbase.第x波", { number: j + 1 }) }}</div>
@@ -41,7 +41,7 @@
         <div v-for="(enemy, i) in tooltipFleet.enemies" :key="`preview_enemy${i}`" class="d-flex">
           <template v-if="enemy.data.id">
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
             </div>
             <div class="ml-1 align-self-center caption">
               <div class="enemy-id info--text">id {{ enemy.data.id }}</div>

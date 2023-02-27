@@ -4,9 +4,9 @@
       <div>{{ $t("Result.制空状態") }}</div>
       <div class="ml-5">
         <v-radio-group v-model="airState" row @change="changeAirState">
-          <v-radio :label="$t('Common.制空権確保')" :value="0"></v-radio>
-          <v-radio :label="$t('Common.航空優勢')" :value="1"></v-radio>
-          <v-radio :label="$t('Common.航空劣勢')" :value="2"></v-radio>
+          <v-radio :label="$t('Common.制空権確保')" :value="0" />
+          <v-radio :label="$t('Common.航空優勢')" :value="1" />
+          <v-radio :label="$t('Common.航空劣勢')" :value="2" />
         </v-radio-group>
       </div>
     </div>
@@ -28,7 +28,7 @@
     </div>
     <div class="contact-legends">
       <div class="d-flex" v-for="(legend, i) in graphLegends" :key="`legend${i}`">
-        <div class="legend-color-label" :style="`background-color: ${legend.color}`"></div>
+        <div class="legend-color-label" :style="`background-color: ${legend.color}`" />
         <div class="ml-2">{{ legend.text }}</div>
       </div>
     </div>

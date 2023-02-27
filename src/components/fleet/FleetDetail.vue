@@ -2,12 +2,12 @@
   <v-card class="pa-2 detail-card">
     <div class="d-flex pb-1">
       <div class="align-self-center ml-3">{{ $t("Fleet.艦隊詳細") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider class="mb-1"></v-divider>
+    <v-divider class="mb-1" />
     <v-tabs v-model="tab" show-arrows>
       <v-tab href="#status">{{ $t("Fleet.艦隊ステータス") }}</v-tab>
       <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
@@ -17,7 +17,7 @@
       <v-tab href="#airstrike-support">{{ $t("Fleet.航空支援火力") }}</v-tab>
       <v-tab href="#anti-submarine">{{ $t("Fleet.対潜支援火力") }}</v-tab>
     </v-tabs>
-    <v-divider></v-divider>
+    <v-divider />
     <v-tabs-items class="detail-fleet" v-model="tab">
       <v-tab-item value="status">
         <fleet-status :fleet="fleet" />

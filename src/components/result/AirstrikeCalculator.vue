@@ -13,7 +13,7 @@
             outlined
             dense
             @input="calculateFire"
-          ></v-text-field>
+          />
         </div>
         <div class="form-control">
           <v-text-field
@@ -27,10 +27,10 @@
             dense
             @input="calculateFire"
             :disabled="enabledDist && useResult"
-          ></v-text-field>
+          />
         </div>
         <div class="d-flex" v-if="enabledDist">
-          <v-checkbox :label="$t('Result.残機数分布を利用')" dense hide-details v-model="useResult" @change="calculateFire"></v-checkbox>
+          <v-checkbox :label="$t('Result.残機数分布を利用')" dense hide-details v-model="useResult" @change="calculateFire" />
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-icon class="align-self-center mt-2 ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
@@ -41,7 +41,7 @@
             </div>
           </v-tooltip>
         </div>
-        <div class="w-100" v-if="enabledDist"></div>
+        <div class="w-100" v-if="enabledDist" />
         <div class="form-control lg" v-show="isAirbase">
           <v-select
             :label="isNotJapanese ? $t('EType.陸上偵察機') : '陸上偵察機'"
@@ -51,10 +51,10 @@
             outlined
             dense
             @change="calculateFire"
-          ></v-select>
+          />
         </div>
         <div class="form-control">
-          <v-select :label="$t('Fleet.触接')" v-model="calcArgs.contactBonus" :items="contacts" hide-details outlined dense @change="calculateFire"></v-select>
+          <v-select :label="$t('Fleet.触接')" v-model="calcArgs.contactBonus" :items="contacts" hide-details outlined dense @change="calculateFire" />
         </div>
         <div class="form-control">
           <v-tooltip bottom color="black">
@@ -72,16 +72,16 @@
                 dense
                 step="0.01"
                 @input="calculateFire"
-              ></v-text-field>
+              />
             </template>
             <div class="caption">{{ $t("Result.キャップ後火力に適用される倍率です。") }}</div>
           </v-tooltip>
         </div>
         <div class="form-control" v-show="!isAirbase">
-          <v-select :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire"></v-select>
+          <v-select :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculateFire" />
         </div>
         <div class="d-flex">
-          <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire"></v-checkbox>
+          <v-checkbox :label="$t('Result.クリティカル')" dense hide-details v-model="calcArgs.isCritical" @change="calculateFire" />
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-icon class="align-self-center mt-2 ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
@@ -99,21 +99,21 @@
           </v-tooltip>
         </div>
       </div>
-      <v-divider class="mt-2"></v-divider>
+      <v-divider class="mt-2" />
       <div class="d-flex align-center">
         <div class="body-2">{{ $t("Result.ダメージ計算結果") }}</div>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
         <div class="form-control lg mt-0 pt-0">
-          <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex"></v-select>
+          <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex" />
         </div>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table fixed-header :height="tableHeight">
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="pr-1"></th>
+              <th class="pr-1" />
               <th class="pr-1">{{ $t("Common.耐久") }}</th>
               <th class="pr-1">{{ $t("Common.装甲") }}</th>
               <th class="pr-1 text-no-wrap">{{ $t("Result.ダメージ幅") }}</th>
@@ -137,7 +137,7 @@
               @blur="clearTooltip"
             >
               <td class="px-1">
-                <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120" />
               </td>
               <td class="pr-1">{{ row.ship.hp }}</td>
               <td class="pr-1">{{ row.ship.actualArmor }}</td>
@@ -210,8 +210,8 @@
           </div>
           <div v-if="useResult">{{ Math.floor((maxSlot + minSlot) / 2) }}</div>
           <div v-else>{{ attackerSlot }}</div>
-          <div class="divider my-1"><v-divider></v-divider></div>
-          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider /></div>
+          <div class="divider my-1"><v-divider /></div>
           <div>{{ $t("Result.種別倍率") }}</div>
           <div>&times; {{ preCapTerm.typeMultiplier ? preCapTerm.typeMultiplier.toFixed(2) : 1 }}</div>
           <div>{{ $t("Result.航空戦定数") }}</div>
@@ -228,8 +228,8 @@
           </template>
           <div>{{ $t("Result.キャップ前攻撃力") }}</div>
           <div>{{ preCapTerm.preCapFirePower ? Math.floor(100 * preCapTerm.preCapFirePower) / 100 : 0 }}</div>
-          <div class="divider my-1"><v-divider></v-divider></div>
-          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider /></div>
+          <div class="divider my-1"><v-divider /></div>
           <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
             <div>{{ $t("Result.陸偵補正") }}</div>
             <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
@@ -270,8 +270,8 @@
             <div>{{ $t("Result.熟練度クリティカル補正") }}</div>
             <div>&times; {{ calcArgs.criticalBonus.toFixed(2) }}</div>
           </template>
-          <div class="divider my-1"><v-divider></v-divider></div>
-          <div class="divider my-1"><v-divider></v-divider></div>
+          <div class="divider my-1"><v-divider /></div>
+          <div class="divider my-1"><v-divider /></div>
           <div>{{ $t("Result.最終攻撃力") }}</div>
           <div>{{ postCapTerms[i].finalFirePower ? Math.floor(100 * postCapTerms[i].finalFirePower) / 100 : 0 }}</div>
           <div>{{ $t("Common.装甲") }}</div>

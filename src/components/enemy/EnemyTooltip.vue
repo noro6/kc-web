@@ -9,7 +9,7 @@
         </div>
         <div class="d-flex my-1">
           <div>{{ getEnemyName(value.data.name) }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <div v-if="value.antiAirCutIn.length" class="ml-3 anti-air-cutin">対空CI発動可能</div>
         </div>
       </div>
@@ -19,7 +19,7 @@
         <div class="d-flex">
           <div class="align-self-center item-slot">{{ item.fullSlot }}</div>
           <div>
-            <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+            <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
           </div>
           <div class="ml-1 align-self-center tooltip-item-text id">id {{ item.data.id }}</div>
           <div class="ml-1 align-self-center item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>

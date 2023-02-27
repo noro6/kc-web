@@ -76,29 +76,22 @@
                 </div>
                 <div class="d-flex mt-4 align-center">
                   <div class="edit-status-menu-text">
-                    <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" :max="maxLevel" min="1" hide-details type="number"></v-text-field>
+                    <v-text-field label="Lv" v-model.number="level" class="pt-0 mt-0" :max="maxLevel" min="1" hide-details type="number" />
                   </div>
                   <div class="flex-grow-1">
                     <v-slider :max="maxLevel" min="1" v-model="level" hide-details></v-slider>
                   </div>
                 </div>
-                <v-divider class="my-3"></v-divider>
+                <v-divider class="my-3" />
                 <div class="edit-status-container">
-                  <v-text-field :label="$t('Common.耐久')" v-model.number="hp" :max="value.data.maxHp" :min="minHP" hide-details type="number"></v-text-field>
-                  <v-text-field :label="$t('Common.対潜')" v-model.number="asw" :max="maxAsw" :min="minAsw" hide-details type="number"></v-text-field>
-                  <v-text-field
-                    :label="$t('Common.運')"
-                    v-model.number="luck"
-                    :max="ship.data.maxLuck"
-                    :min="ship.data.luck"
-                    hide-details
-                    type="number"
-                  ></v-text-field>
-                  <v-text-field :label="$t('Common.対空')" v-model.number="antiAir" :max="ship.data.antiAir" min="0" hide-details type="number"></v-text-field>
+                  <v-text-field :label="$t('Common.耐久')" v-model.number="hp" :max="value.data.maxHp" :min="minHP" hide-details type="number" />
+                  <v-text-field :label="$t('Common.対潜')" v-model.number="asw" :max="maxAsw" :min="minAsw" hide-details type="number" />
+                  <v-text-field :label="$t('Common.運')" v-model.number="luck" :max="ship.data.maxLuck" :min="ship.data.luck" hide-details type="number" />
+                  <v-text-field :label="$t('Common.対空')" v-model.number="antiAir" :max="ship.data.antiAir" min="0" hide-details type="number" />
                 </div>
-                <v-divider class="my-3"></v-divider>
+                <v-divider class="my-3" />
                 <div class="d-flex">
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn @click="closeEditStatusMenu()" color="secondary">{{ $t("Common.閉じる") }}</v-btn>
                 </div>
               </v-card>
@@ -247,7 +240,7 @@
           </div>
         </div>
       </div>
-      <v-divider class="mx-1 item-input-divider"></v-divider>
+      <v-divider class="mx-1 item-input-divider" />
       <!-- 装備一覧 -->
       <div class="px-1" v-if="!ship.isEmpty">
         <div

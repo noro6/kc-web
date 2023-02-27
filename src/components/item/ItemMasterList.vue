@@ -3,13 +3,13 @@
     <v-card class="px-3">
       <div class="d-flex align-center flex-wrap">
         <div class="keyword-text mr-3 my-3">
-          <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details></v-text-field>
+          <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details />
         </div>
         <div class="my-3 d-flex align-center">
           <template v-if="ship.id">
             <div class="d-flex align-center" @click="showShipList()" @keypress.enter="showShipList()" tabindex="0" v-ripple="{ class: 'primary--text' }">
               <div>
-                <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120" />
               </div>
               <div class="ml-2 caption">{{ getShipName(ship) }}</div>
             </div>
@@ -19,7 +19,7 @@
           <v-btn v-else color="primary" @click="showShipList()">{{ $t("Extra.搭載可能な装備で絞り込み") }}</v-btn>
         </div>
         <div class="ml-auto mr-3 my-3">
-          <v-checkbox v-model="isEnemyMode" :disabled="!!keyword" @change="setItems" dense hide-details :label="$t('ItemList.敵装備')"></v-checkbox>
+          <v-checkbox v-model="isEnemyMode" :disabled="!!keyword" @change="setItems" dense hide-details :label="$t('ItemList.敵装備')" />
         </div>
       </div>
       <div class="d-flex flex-wrap">
@@ -43,10 +43,10 @@
           @keypress="toggleType(i.id)"
           tabindex="0"
         >
-          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
+          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
         </div>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <v-data-table
         dense
         fixed-header
@@ -80,7 +80,7 @@
         <template v-slot:[`header.range`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`item.iconTypeId`]="{ item }">
           <div>
-            <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="30" width="30"></v-img>
+            <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="30" width="30" />
           </div>
         </template>
         <template v-slot:[`item.name`]="{ item }">
@@ -95,7 +95,7 @@
     </v-card>
     <div class="mt-10 mb-3 mx-2 body-2">{{ $t("Extra.対空射撃回避機体一覧") }}</div>
     <v-card class="pa-3">
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table class="item-master-table" dense fixed-header height="70vh">
         <template v-slot:default>
           <thead>
@@ -114,7 +114,7 @@
               <td class="text-left" :class="{ 'is-special': item.isSpecial }">
                 <div class="d-flex align-center">
                   <div>
-                    <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="30" width="30"></v-img>
+                    <v-img :src="`./img/type/icon${item.iconTypeId}.png`" height="30" width="30" />
                   </div>
                   <div class="ml-1" :class="{ 'is-special': item.isSpecial }">
                     {{ needTrans ? $t(`${item.name}`) : item.name }}

@@ -10,9 +10,9 @@
           @input="filter()"
           clearable
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        />
       </div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div class="mr-3 ship-sort-select">
         <v-select
           dense
@@ -43,19 +43,19 @@
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="d-flex pl-4 pt-1 pb-2 flex-wrap">
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')"></v-checkbox>
+        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')" />
       </div>
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeFast" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速')"></v-checkbox>
+        <v-checkbox v-model="includeFast" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速')" />
       </div>
       <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')"></v-checkbox>
+        <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')" />
       </div>
       <div class="mr-3 align-self-center" v-if="visibleFighterFilter">
-        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')"></v-checkbox>
+        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')" />
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
@@ -113,7 +113,7 @@
           hide-details
           :label="$t('Fleet.在籍艦娘反映')"
           :disabled="disabledStockOnlyChange"
-        ></v-checkbox>
+        />
       </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
@@ -159,7 +159,7 @@
         />
       </div>
     </div>
-    <v-divider :class="{ 'ml-3': multiLine }"></v-divider>
+    <v-divider :class="{ 'ml-3': multiLine }" />
     <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
         <div class="ship-status" v-for="i in 5" :key="`slot${i}`">{{ $t("Fleet.搭載") }}{{ i }}</div>
@@ -171,7 +171,7 @@
             <span class="caption2" v-if="typeData.needOrOver">{{ $t("ItemList.以上") }}</span>
           </div>
           <div class="caption text--secondary" v-else>{{ getShipTypeName(typeData.typeName) }}</div>
-          <div class="type-divider-border"></div>
+          <div class="type-divider-border" />
         </div>
         <div :class="{ multi: multiLine }">
           <div
@@ -196,7 +196,7 @@
                 <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="40" width="27" />
               </div>
               <div class="slot-ex-img" v-if="data.expanded">
-                <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>
+                <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
               </div>
             </div>
             <div class="flex-grow-1 ml-1">
@@ -237,7 +237,7 @@
           <div>{{ $t("Common.既に配備されています。") }}</div>
           <div class="caption mt-2">※ {{ $t("Common.配備を押せば無視して配備できます。") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark @click.stop="clickedShip(confirmShip)">{{ $t("Common.配備") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>

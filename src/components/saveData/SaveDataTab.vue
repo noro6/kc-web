@@ -44,10 +44,10 @@
           </div>
           <div class="caption">{{ $t("SaveData.変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。") }}</div>
         </div>
-        <v-divider class="mt-4"></v-divider>
+        <v-divider class="mt-4" />
         <div class="d-flex mt-1">
           <div class="ml-4">
-            <v-checkbox v-model="disabledConfirm" :label="$t('SaveData.次回以降表示しない')" hide-details dense></v-checkbox>
+            <v-checkbox v-model="disabledConfirm" :label="$t('SaveData.次回以降表示しない')" hide-details dense />
             <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
           <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">{{ $t("Common.OK") }}</v-btn>
@@ -67,8 +67,8 @@
             :label="$t('SaveData.編成データ名')"
             @keyup.enter="commitName"
             :disabled="!editDialog"
-          ></v-text-field>
-          <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input"></v-textarea>
+          />
+          <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input" />
           <div class="mt-4 d-flex" v-if="!editedIsUnsaved">
             <div class="align-self-center">
               <v-icon x-large :color="selectedColor">{{ editedIsDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>

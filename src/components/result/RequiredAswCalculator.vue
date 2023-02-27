@@ -27,7 +27,7 @@
             @input="statusChanged"
             :append-icon="appendIcon"
             :readonly="ship.isEmpty"
-          ></v-text-field>
+           />
         </div>
         <div>
           <v-text-field
@@ -39,25 +39,25 @@
             @input="statusChanged"
             :append-icon="appendIcon"
             :readonly="ship.isEmpty"
-          ></v-text-field>
+           />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly />
         </div>
         <div>
-          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly></v-text-field>
+          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly />
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@
             <tbody>
               <tr v-for="(result, i) in results" :key="`result_${i}`" :class="{ ok: !result.missingAsw }">
                 <td class="py-2" width="180px">
-                  <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate"></v-text-field>
+                  <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate" />
                 </td>
                 <td class="text-right">{{ result.missingAsw }}</td>
                 <template v-if="result.targetAsw <= 0">

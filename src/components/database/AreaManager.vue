@@ -1,15 +1,8 @@
 <template>
   <div class="area-manager-container mt-3">
     <div class="align-self-center pl-2 d-flex">
-      <v-checkbox v-model="visibleShipName" dense :label="$t('Database.艦娘名表示')"></v-checkbox>
-      <v-text-field
-        class="search-input ml-5"
-        :label="$t('Database.名称検索')"
-        dense
-        v-model.trim="searchWord"
-        clearable
-        prepend-inner-icon="mdi-magnify"
-      ></v-text-field>
+      <v-checkbox v-model="visibleShipName" dense :label="$t('Database.艦娘名表示')" />
+      <v-text-field class="search-input ml-5" :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
     </div>
     <div>
       <div class="d-flex my-2" v-if="!readonly">
@@ -19,7 +12,7 @@
     <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
       <div class="d-flex">
         <div class="area-banner">
-          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="38"></v-img>
+          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="38" />
         </div>
         <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
           {{ $t("Common.配備") }}
@@ -28,11 +21,11 @@
           {{ $t("Database.解散") }}
         </v-btn>
       </div>
-      <div v-if="data.headers.length > 0" class="py-1"></div>
+      <div v-if="data.headers.length > 0" class="py-1" />
       <div v-for="header in data.headers" :key="`type_${header.text}`">
         <div class="type-divider mt-1">
           <div class="caption">{{ header.text }}</div>
-          <div class="type-divider-border"></div>
+          <div class="type-divider-border" />
         </div>
         <div class="d-flex flex-wrap">
           <div
@@ -51,13 +44,13 @@
           >
             <div class="ship-img">
               <div>
-                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
               </div>
               <div class="ship-area-banner">
                 <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}_min.webp`" height="33" width="30" />
               </div>
               <div class="slot-ex-img" v-if="ship.expand">
-                <v-img :src="`./img/util/slot_ex.png`" height="27" width="27"></v-img>
+                <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
               </div>
             </div>
             <div class="caption" v-if="visibleShipName">
@@ -79,7 +72,7 @@
         <div class="ma-4">
           <div class="d-flex mb-3" v-if="confirmShip">
             <div>
-              <v-img :src="`./img/ship/${confirmShip.data.id}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${confirmShip.data.id}.png`" height="30" width="120" />
             </div>
             <div class="caption">
               <div class="ship-status">
@@ -92,7 +85,7 @@
           <div v-if="confirmShip">{{ $t("Database.札を解除します。よろしいですか？") }}</div>
           <div v-else>{{ $t("Database.解散します。よろしいですか？") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="red" dark @click.stop="removeShip()" v-if="confirmShip">{{ $t("Database.解除") }}</v-btn>
           <v-btn class="ml-auto" color="red" dark @click.stop="resetShips()" v-else>{{ $t("Database.解散") }}</v-btn>

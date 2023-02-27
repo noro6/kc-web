@@ -2,7 +2,7 @@
   <v-card class="my-2 px-1 py-2">
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">{{ $t("Fleet.自艦隊") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="optimizeFighterSlot()" v-bind="attrs" v-on="on">
@@ -44,16 +44,16 @@
         <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="d-flex align-center flex-wrap mt-6 mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }">
           <div class="form-input mb-3" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
-            <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly></v-text-field>
+            <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly />
           </div>
         </template>
         <v-card class="pa-5">
-          <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')"></v-text-field>
+          <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')" />
         </v-card>
       </v-menu>
       <div class="ml-3 mb-3">
@@ -65,10 +65,10 @@
           hide-details
           dense
           @change="changedInfo"
-        ></v-select>
+        />
       </div>
       <div class="mb-3 ml-1" v-if="fleetInfo.isUnion">
-        <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12"></v-checkbox>
+        <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12" />
       </div>
       <div class="ml-3 mb-3">
         <v-select
@@ -79,7 +79,7 @@
           hide-details
           dense
           @change="changedFormation(fleetInfo.mainFleet.formation)"
-        ></v-select>
+        />
       </div>
     </div>
     <v-tabs class="px-2" v-model="tab" center-active show-arrows @change="changedTab">
@@ -105,7 +105,7 @@
       <v-btn v-if="fleetCount < 8" large text tile @click="createNewFleet" class="btn-create-feet">{{ $t("Fleet.艦隊追加") }}</v-btn>
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
     </v-tabs>
-    <v-divider class="mx-2"></v-divider>
+    <v-divider class="mx-2" />
     <div v-if="scoutError" class="mx-2 mt-1">
       <v-alert class="ma-0" dense outlined type="warning">{{ scoutError }}</v-alert>
     </div>
@@ -136,7 +136,7 @@
         ></fleet-component>
         <template v-if="isShow12 && i === 0">
           <!-- タブが第1艦隊かつ12隻表示かつ連合艦隊 -->
-          <v-divider class="mt-2"></v-divider>
+          <v-divider class="mt-2" />
           <div class="success--text font-weight-bold mx-2 mt-2">{{ $t("Fleet.随伴艦隊") }}</div>
           <fleet-component
             v-model="fleetInfo.fleets[1]"
@@ -157,10 +157,10 @@
       <v-tab-item value="gkcoi" class="pa-2">
         <div class="d-flex flex-wrap">
           <div class="gkcoi-select mr-3 my-1">
-            <v-select :items="gkcoiThemes" dense hide-details v-model="gkcoiTheme" outlined label="Theme"></v-select>
+            <v-select :items="gkcoiThemes" dense hide-details v-model="gkcoiTheme" outlined label="Theme" />
           </div>
           <div class="gkcoi-select mr-3 my-1">
-            <v-select :items="gkcoiLangs" dense hide-details v-model="gkcoiLang" outlined label="Languages"></v-select>
+            <v-select :items="gkcoiLangs" dense hide-details v-model="gkcoiLang" outlined label="Languages" />
           </div>
           <div class="d-flex mr-3 my-1">
             <v-checkbox
@@ -172,7 +172,7 @@
               v-model="gkcoiOutputTarget[i]"
               class="mr-3"
               :error="invalidExportTargets"
-            ></v-checkbox>
+            />
           </div>
         </div>
         <div class="d-flex">
@@ -213,18 +213,18 @@
       <v-card v-if="tempShipListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Fleet.艦娘クリップボード") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="tempShipListDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="pa-3">
           <div class="temp-ship-view" v-if="!tempShip.isEmpty">
             <v-card class="temp-ship">
               <div class="d-flex ml-1">
                 <div class="align-self-center">
-                  <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
@@ -236,7 +236,7 @@
                   </div>
                 </div>
               </div>
-              <v-divider class="mb-1"></v-divider>
+              <v-divider class="mb-1" />
               <div v-for="(item, i) in tempShip.items.concat(tempShip.exItem)" :key="`tempItem${i}`" class="temp-item">
                 <div class="caption temp-slot">
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
@@ -257,7 +257,7 @@
               </v-btn>
             </div>
           </div>
-          <v-divider class="mt-3 mb-2" v-if="!tempShip.isEmpty"></v-divider>
+          <v-divider class="mt-3 mb-2" v-if="!tempShip.isEmpty" />
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
@@ -273,7 +273,7 @@
             <v-card class="temp-ship" v-ripple="{ class: 'info--text' }" v-for="(temp, i) in tempShipList" :key="`tempShip${i}`" @click="popTempShip(temp)">
               <div class="d-flex ml-1">
                 <div class="align-self-center">
-                  <v-img :src="`./img/ship/${temp.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${temp.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
@@ -285,7 +285,7 @@
                   </div>
                 </div>
               </div>
-              <v-divider class="mb-1"></v-divider>
+              <v-divider class="mb-1" />
               <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempShip${i}item${j}`" class="temp-item">
                 <div class="caption temp-slot">
                   <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
@@ -308,12 +308,12 @@
       <v-card v-if="tempFleetListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Fleet.艦隊クリップボード") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="tempFleetListDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="pa-3">
           <div v-if="tempFleet.ships.some((v) => !v.isEmpty)" class="px-2">
             <v-card class="px-2 pt-2 pb-1 my-2">
@@ -322,7 +322,7 @@
                 <div v-for="(ship, i) in tempFleet.ships" :key="`ship_${i}`">
                   <div v-if="ship.data.id" class="mr-1">
                     <div>
-                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="d-flex">
                       <div v-for="(item, j) in ship.items.concat(ship.exItem)" :key="`ship${i}_item${j}`">
@@ -337,7 +337,7 @@
               <v-icon>mdi-clipboard-arrow-down</v-icon>{{ $t("Fleet.クリップボードへ追加") }}
             </v-btn>
           </div>
-          <v-divider class="mt-3 mb-2" v-if="tempFleet.ships.some((v) => !v.isEmpty)"></v-divider>
+          <v-divider class="mt-3 mb-2" v-if="tempFleet.ships.some((v) => !v.isEmpty)" />
           <div class="d-flex ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
@@ -372,7 +372,7 @@
                 <div v-for="(ship, j) in temp.ships" :key="`fleet${i}_ship_${j}`" class="mr-1">
                   <div v-if="ship.data.id">
                     <div>
-                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="d-flex">
                       <div v-for="(item, k) in ship.items.concat(ship.exItem)" :key="`fleet${i}_ship${j}_item${k}`">
@@ -401,7 +401,7 @@
           hide-details
           @input="tempDeckBuilderError = false"
           :error="tempDeckBuilderError"
-        ></v-textarea>
+        />
         <div class="d-flex mt-3">
           <v-btn class="ml-auto" color="success" :disabled="!tempDeckBuilder" @click.stop="readTempDeckBuilder">{{ $t("Common.実行") }}</v-btn>
         </div>
@@ -411,29 +411,21 @@
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("Common.装備一括設定") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div class="px-5 pt-2 pb-5">
           <div>
             <div class="d-flex">
               <div class="caption">{{ $t("Common.適用対象") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="caption">{{ $t("Common.選択されている艦隊の全艦娘に対し、下記の設定を適用します。") }}</div>
             <div class="d-flex flex-wrap">
-              <v-checkbox
-                :label="$t('Fleet.全艦隊')"
-                class="mx-2"
-                dense
-                hide-details
-                @click="toggleBulkTarget"
-                v-model="isBulkUpdateTargetAll"
-                readonly
-              ></v-checkbox>
+              <v-checkbox :label="$t('Fleet.全艦隊')" class="mx-2" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly />
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
                 :key="i"
@@ -442,23 +434,23 @@
                 hide-details
                 v-model="bulkUpdateTarget[i]"
                 class="mx-2"
-              ></v-checkbox>
+              />
             </div>
           </div>
           <div class="d-flex mt-6">
             <div class="caption">{{ $t("Common.熟練度") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)" tabindex="0">
-              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24"></v-img>
+              <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
             </div>
             <v-btn color="success" outlined @click="setMaxLevelOnlyFighter">{{ $t("Common.戦闘機のみ最大") }}</v-btn>
           </div>
           <div class="d-flex mt-8">
             <div class="caption">{{ $t("Common.改修値") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex justify-space-between">
             <div v-for="i in 11" :key="i" class="remodel-list-item" v-ripple @click="setRemodel(i - 1)" @keypress.enter="setRemodel(i - 1)" tabindex="0">
@@ -468,7 +460,7 @@
           </div>
           <div class="d-flex mt-8">
             <div class="caption">{{ $t("Common.艦載機搭載数") }}</div>
-            <div class="header-divider"></div>
+            <div class="header-divider" />
           </div>
           <div class="d-flex mt-3">
             <div class="flex-grow-1 mx-2">
@@ -665,7 +657,6 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
-.gkcoi-select,
 .gkcoi-select {
   width: 140px;
 }

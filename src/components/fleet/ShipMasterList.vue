@@ -2,10 +2,10 @@
   <v-card class="px-3">
     <div class="d-flex align-center flex-wrap">
       <div class="keyword-text align-self-end mr-3">
-        <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details></v-text-field>
+        <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details />
       </div>
       <div class="mr-3">
-        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="initShips" dense hide-details :label="$t('Fleet.最終改造')"></v-checkbox>
+        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="initShips" dense hide-details :label="$t('Fleet.最終改造')" />
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
@@ -36,12 +36,12 @@
                 <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-divider class="mt-2"></v-divider>
+            <v-divider class="mt-2" />
           </template>
         </v-select>
       </div>
     </div>
-    <v-divider class="mt-2"></v-divider>
+    <v-divider class="mt-2" />
     <v-data-table
       class="ship-master-table"
       dense
@@ -76,7 +76,7 @@
       <template v-slot:[`header.fuel`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.ammo`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`item.id`]="{ item }">
-        <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
+        <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
       </template>
       <template v-slot:[`item.name`]="{ item }">
         <div class="ship-name text-truncate caption" :title="item.name">{{ getShipName(item) }}</div>

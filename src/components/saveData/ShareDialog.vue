@@ -2,12 +2,12 @@
   <v-card class="pa-2">
     <div class="d-flex pb-1 pr-2">
       <div class="align-self-center ml-3">{{ $t("Common.編成共有") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="pa-4">
       <div class="mb-6 mt-4">
         <v-btn v-show="!createdURL" block color="teal" class="white--text" :loading="loadingURL" :disabled="loadingURL" @click="createURL()">
@@ -24,7 +24,7 @@
           :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : copiedURLHint"
           @click:append="copyURL"
           @blur="clearURLHint"
-        ></v-text-field>
+        />
       </div>
       <div class="my-6">
         <v-btn block color="blue" class="white--text" @click="shareTwitter()" :loading="loadingTwitter" :disabled="loadingTwitter">
@@ -60,7 +60,7 @@
           {{ $t("SaveData.デッキビルダーで開く") }}
         </v-btn>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <div class="mt-6">
         <v-textarea
           class="mt-0 no-scroll"
@@ -75,7 +75,7 @@
           :label="$t('Home.デッキビルダー形式データ')"
           id="deck-builder-text"
           :hint="copiedDeckHint ? $t(`Common.${copiedDeckHint}`) : ''"
-        ></v-textarea>
+        />
       </div>
     </div>
 

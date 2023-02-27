@@ -10,7 +10,7 @@
       <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Common.共有") }}</v-tab>
     </v-tabs>
-    <v-divider></v-divider>
+    <v-divider />
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item>
         <ships />
@@ -101,15 +101,15 @@
               <div class="mt-3">
                 {{ $t(`Fleet.艦娘`) }}
               </div>
-              <v-divider class="mt-3 mb-6"></v-divider>
+              <v-divider class="mt-3 mb-6" />
             </div>
             <div class="d-flex mt-2">
               <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
                 {{ $t(`Common.コードをコピー`) }}
               </v-btn>
               <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+                <v-radio :label="$t('Database.未ロックも含める')" :value="true" />
+                <v-radio :label="$t('Database.ロック済みのみ')" :value="false" />
               </v-radio-group>
               <input
                 v-if="includeUnLockedShip"
@@ -157,7 +157,7 @@
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>6. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
-            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
+            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
@@ -198,15 +198,15 @@
               <div class="mt-3">
                 {{ $t(`Fleet.装備`) }}
               </div>
-              <v-divider class="mt-3 mb-6"></v-divider>
+              <v-divider class="mt-3 mb-6" />
             </div>
             <div class="d-flex mt-2">
               <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
                 {{ $t(`Common.コードをコピー`) }}
               </v-btn>
               <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                <v-radio :label="$t('Database.未ロックも含める')" :value="true"></v-radio>
-                <v-radio :label="$t('Database.ロック済みのみ')" :value="false"></v-radio>
+                <v-radio :label="$t('Database.未ロックも含める')" :value="true" />
+                <v-radio :label="$t('Database.ロック済みのみ')" :value="false" />
               </v-radio-group>
               <input
                 v-if="includeUnLockedItem"
@@ -255,7 +255,7 @@
           </v-card>
           <v-card class="tutorial_box">
             <div v-if="showHowToDoIt">10. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
-            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')"></v-textarea>
+            <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
         </div>
@@ -265,7 +265,7 @@
           <div class="d-flex pt-3 pb-4">
             <div class="align-self-center ml-3">{{ $t("Database.共有URL発行機能") }}</div>
           </div>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.URL発行") }}</div>
             <div class="body-2">{{ $t("Database.自分の艦隊、装備情報を他の人に見てもらうためのURLを発行します。") }}</div>
@@ -286,10 +286,10 @@
                 :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : ''"
                 @click:append="copyURL"
                 @blur="clearURLHint"
-              ></v-text-field>
+              />
             </div>
           </div>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.発行履歴") }}</div>
             <div class="d-flex flex-column-reverse">
@@ -308,7 +308,7 @@
                   <v-btn color="success" :disabled="!data.remarks || !data.remarks.length" @click="updateHistory(i)">{{ $t("Common.更新") }}</v-btn>
                 </div>
                 <div class="align-self-center flex-grow-1">
-                  <v-text-field v-model="data.remarks" dense outlined hide-details label="Memo"></v-text-field>
+                  <v-text-field v-model="data.remarks" dense outlined hide-details label="Memo" />
                 </div>
               </v-card>
             </div>
@@ -318,7 +318,7 @@
           <div class="d-flex pt-3 pb-4">
             <div class="align-self-center ml-3">{{ $t("Database.他サイト連携") }}</div>
           </div>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.艦隊分析コード") }}</div>
             <div class="body-2">
@@ -336,7 +336,7 @@
                 :hint="copiedShipCodeHint ? $t(`Common.${copiedShipCodeHint}`) : ''"
                 @click:append="copyShipCode"
                 @blur="clearShipCodeHint"
-              ></v-text-field>
+              />
             </div>
             <div>
               <v-text-field
@@ -350,10 +350,10 @@
                 :hint="copiedItemCodeHint ? $t(`Common.${copiedItemCodeHint}`) : copiedItemCodeHint"
                 @click:append="copyItemCode"
                 @blur="clearItemCodeHint"
-              ></v-text-field>
+              />
             </div>
           </div>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="pa-4">
             <div class="mb-2">艦隊晒しページ(仮)</div>
             <div class="body-2">
@@ -364,7 +364,7 @@
       </v-tab-item>
     </v-tabs-items>
     <div class="info-area">
-      <v-divider class="mb-2"></v-divider>
+      <v-divider class="mb-2" />
       <div class="caption">
         {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>
@@ -377,7 +377,7 @@
         <div class="ma-4">
           <div>{{ $t("Common.本当に削除しますか？") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark :disabled="!confirmDialog" @click.stop="deleteHistory()">{{ $t("Common.削除") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -388,7 +388,7 @@
       <v-card dark>
         <v-card-text>
           <div class="pt-2">{{ $t("Database.在籍艦娘 / 所持装備データ読込中") }}...</div>
-          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+          <v-progress-linear indeterminate color="white" class="mb-0" />
         </v-card-text>
       </v-card>
     </v-dialog>

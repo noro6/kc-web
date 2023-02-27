@@ -2,7 +2,7 @@
   <div class="pa-2 container">
     <div class="d-flex">
       <div class="caption">{{ $t("Result.攻撃機選択") }}</div>
-      <div class="header-divider"></div>
+      <div class="header-divider" />
     </div>
     <div class="select-item-container">
       <div>
@@ -18,7 +18,7 @@
             tabindex="0"
           >
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
             dense
             :rules="[rules.counter]"
             @input="calculate()"
-          ></v-text-field>
+          />
           <v-text-field
             class="ml-1"
             type="number"
@@ -70,7 +70,7 @@
             dense
             :rules="[rules.counter]"
             @input="calculate()"
-          ></v-text-field>
+          />
         </div>
         <v-text-field
           type="number"
@@ -83,17 +83,17 @@
           dense
           :rules="[rules.counter2]"
           @input="calculate()"
-        ></v-text-field>
-        <v-checkbox class="mt-0 pt-0" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()"></v-checkbox>
+        />
+        <v-checkbox class="mt-0 pt-0" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()" />
       </div>
     </div>
     <div class="d-flex">
       <div class="caption">{{ $t("Result.計算結果") }}</div>
-      <div class="header-divider"></div>
+      <div class="header-divider" />
     </div>
     <div>
       <div class="d-flex flex-wrap">
-        <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()"></v-checkbox>
+        <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()" />
         <div class="ml-auto d-flex">
           <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}</div>
           <div class="d-flex align-self-end">
@@ -101,12 +101,12 @@
           </div>
         </div>
       </div>
-      <v-divider class="mt-2"></v-divider>
+      <v-divider class="mt-2" />
       <v-simple-table fixed-header height="34vh">
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="py-1 pl-1 text-left"></th>
+              <th class="py-1 pl-1 text-left" />
               <th class="pr-1 py-1">{{ $t("Common.耐久") }}</th>
               <th class="pr-1">{{ $t("Common.装甲") }}</th>
               <th class="pr-1 text-no-wrap">{{ $t("Result.ダメージ幅") }}</th>
@@ -127,7 +127,7 @@
             >
               <td class="d-flex pl-1 enemy-name-td">
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
                   <div class="text-left enemy-id primary--text">id {{ row.enemy.data.id }}</div>
@@ -145,9 +145,9 @@
                 <td class="pr-1">{{ row.damage ? row.chuha + "%" : "" }}</td>
               </template>
               <template v-else>
-                <td class="pr-1"></td>
+                <td class="pr-1" />
                 <td class="pr-1 red--text">{{ $t("Result.確殺") }}</td>
-                <td class="pr-1"></td>
+                <td class="pr-1" />
               </template>
             </tr>
           </tbody>

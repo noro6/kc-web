@@ -2,18 +2,18 @@
   <v-card class="pa-2 detail-card">
     <div class="d-flex pb-1">
       <div class="align-self-center ml-3">{{ $t("Fleet.艦隊詳細") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider class="mb-1"></v-divider>
+    <v-divider class="mb-1" />
     <v-tabs v-model="tab">
       <v-tab href="#fleet">{{ $t("Fleet.艦隊情報") }}</v-tab>
       <v-tab href="#stage2">{{ $t("Fleet.対空砲火") }}</v-tab>
       <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
       <v-tab-item value="fleet" class="detail-fleet">
-        <v-divider></v-divider>
+        <v-divider />
         <div class="ma-1">
           <div class="d-flex air-power-info flex-wrap">
             <div class="text--secondary label-text body-2">{{ $t("Common.制空") }}</div>
@@ -60,7 +60,7 @@
             </div>
           </div>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <div>
           <div class="mt-3 mb-5">
             <div v-if="fleet.isUnion" class="d-flex">
@@ -74,7 +74,7 @@
               <enemy-input v-for="(enemy, i) in fleet.mainEnemies" :key="i" :enemy="enemy" :handle-show-item-list="showItemList"></enemy-input>
             </div>
           </div>
-          <v-divider v-if="fleet.isUnion"></v-divider>
+          <v-divider v-if="fleet.isUnion" />
           <div v-if="fleet.isUnion" class="my-3">
             <div class="d-flex">
               <div class="align-self-center px-2 success--text">{{ $t("Fleet.第x艦隊", { number: 2 }) }}</div>
@@ -90,11 +90,11 @@
         </div>
       </v-tab-item>
       <v-tab-item value="stage2" class="detail-fleet">
-        <v-divider></v-divider>
+        <v-divider />
         <anti-air-calculator :fleet="fleet" ref="antiAirCalculator" />
       </v-tab-item>
       <v-tab-item value="contact" class="detail-fleet">
-        <v-divider></v-divider>
+        <v-divider />
         <contact-rates :fleet="fleet" ref="contactRates" />
       </v-tab-item>
     </v-tabs>

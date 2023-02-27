@@ -7,7 +7,7 @@
       <v-tab href="#compare" v-if="readOnly">{{ $t("Database.比較") }}</v-tab>
       <v-tab href="#group" v-if="shipStock.length">{{ $t("Database.札管理") }}</v-tab>
     </v-tabs>
-    <v-divider class="mb-2"></v-divider>
+    <v-divider class="mb-2" />
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item value="list">
         <v-expansion-panels>
@@ -19,7 +19,7 @@
               </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-              <v-divider class="mb-6"></v-divider>
+              <v-divider class="mb-6" />
               <div class="d-flex flex-wrap my-2">
                 <v-text-field
                   class="search-input"
@@ -30,10 +30,10 @@
                   clearable
                   hide-details
                   prepend-inner-icon="mdi-magnify"
-                ></v-text-field>
-                <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')"></v-checkbox>
-                <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')"></v-checkbox>
+                />
+                <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')" />
+                <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')" />
+                <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')" />
                 <div class="mx-3 d-flex manual-checkbox">
                   <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
                     <v-icon class="manual-icon" color="primary" v-if="isDaihatsu">mdi-checkbox-marked</v-icon>
@@ -71,7 +71,7 @@
                       v-model.trim="levelRange[0]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                   <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
@@ -85,7 +85,7 @@
                       v-model.trim="levelRange[1]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                 </div>
                 <div class="d-flex py-5">
@@ -99,7 +99,7 @@
                       v-model.trim="luckRange[0]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                   <v-range-slider v-model="luckRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
@@ -113,7 +113,7 @@
                       v-model.trim="luckRange[1]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                 </div>
               </div>
@@ -129,7 +129,7 @@
                       v-model.trim="aswRange[0]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                   <v-range-slider v-model="aswRange" dense thumb-label min="0" max="9" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
@@ -143,7 +143,7 @@
                       v-model.trim="aswRange[1]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                 </div>
                 <div class="d-flex py-5">
@@ -157,7 +157,7 @@
                       v-model.trim="luckImpRange[0]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                   <v-range-slider v-model="luckImpRange" dense thumb-label min="0" max="100" hide-details class="pt-2 align-center mx-2" @change="filter">
                   </v-range-slider>
@@ -171,7 +171,7 @@
                       v-model.trim="luckImpRange[1]"
                       hide-details
                       @input="filter"
-                    ></v-text-field>
+                    />
                   </div>
                 </div>
               </div>
@@ -212,7 +212,7 @@
                       <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-                  <v-divider class="mt-2"></v-divider>
+                  <v-divider class="mt-2" />
                 </template>
               </v-select>
               <v-select
@@ -241,7 +241,7 @@
                       <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-                  <v-divider class="mt-2"></v-divider>
+                  <v-divider class="mt-2" />
                 </template>
               </v-select>
               <div class="d-flex">
@@ -254,7 +254,7 @@
                   @keypress="clickedArea(i)"
                   tabindex="0"
                 >
-                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
+                  <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47" />
                 </div>
                 <div
                   class="selected-area-btn no-area align-self-center"
@@ -274,8 +274,8 @@
             <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
           </v-card>
           <div class="d-flex align-center mt-3" v-else>
-            <v-pagination v-if="modeTable" v-model="page" :length="pageLength"></v-pagination>
-            <v-spacer></v-spacer>
+            <v-pagination v-if="modeTable" v-model="page" :length="pageLength" />
+            <v-spacer />
             <div v-if="modeTable" class="mr-3 manual-column-select">
               <v-select
                 outlined
@@ -302,7 +302,7 @@
             </v-btn-toggle>
           </div>
           <v-card class="ship-table mt-3 pa-2" v-if="modeTable && viewShips.length">
-            <v-divider></v-divider>
+            <v-divider />
             <v-data-table
               fixed-header
               height="72vh"
@@ -346,24 +346,24 @@
                   <td class="px-0">
                     <div class="d-none d-md-flex align-center">
                       <div class="edit-stock-img">
-                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="40" width="160"></v-img>
+                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="40" width="160" />
                         <div class="area-banner mt-1" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
-                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="52" width="35"></v-img>
+                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="52" width="35" />
                         </div>
                         <div class="slot-ex-img" v-if="item.stockData.releaseExpand">
-                          <v-img :src="`./img/util/slot_ex.png`" height="30" width="30"></v-img>
+                          <v-img :src="`./img/util/slot_ex.png`" height="30" width="30" />
                         </div>
                       </div>
                       <div class="ship-name text-truncate" :title="item.ship.name">{{ getShipName(item.ship) }}</div>
                     </div>
                     <div class="d-flex d-md-none align-center">
                       <div class="edit-stock-img">
-                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="30" width="120"></v-img>
+                        <v-img :src="`./img/ship/${item.ship.id}.png`" height="30" width="120" />
                         <div class="area-banner min" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
-                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="44" width="30"></v-img>
+                          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${item.stockData.area}.webp`" height="44" width="30" />
                         </div>
                         <div class="slot-ex-img min" v-if="item.stockData.releaseExpand">
-                          <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>
+                          <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
                         </div>
                       </div>
                     </div>
@@ -420,7 +420,7 @@
                     <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
                       <div class="d-flex">
                         <div>{{ getShipName(row.master) }}</div>
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <div class="caption align-self-end">{{ $t("Database.在籍") }} {{ row.count }}</div>
                       </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0 }">
@@ -491,7 +491,7 @@
             </div>
           </div>
           <div class="mt-2" v-if="modeTable && viewShips.length">
-            <v-pagination v-model="page" :length="pageLength"></v-pagination>
+            <v-pagination v-model="page" :length="pageLength" />
           </div>
         </div>
       </v-tab-item>
@@ -513,9 +513,9 @@
         <div class="mx-2 mt-2">
           <div class="d-flex">
             <div class="align-self-center edit-stock-img">
-              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200"></v-img>
+              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200" />
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
-                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${editRow.stockData.area}.webp`" height="68" width="47"></v-img>
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${editRow.stockData.area}.webp`" height="68" width="47" />
               </div>
             </div>
             <div class="align-self-center ml-2">
@@ -526,17 +526,10 @@
               </v-btn-toggle>
             </div>
           </div>
-          <v-divider class="mt-3"></v-divider>
+          <v-divider class="mt-3" />
           <div class="d-flex mt-3">
             <div class="range-input">
-              <v-text-field
-                :label="$t('Database.練度(Lv)')"
-                type="number"
-                :max="maxLevel"
-                min="1"
-                v-model="editRow.stockData.level"
-                hide-details
-              ></v-text-field>
+              <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details />
             </div>
             <v-slider class="mx-5 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
             <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">LV99</v-btn>
@@ -550,7 +543,7 @@
                 :min="versionButtons[version].luck"
                 v-model="editLuck"
                 hide-details
-              ></v-text-field>
+              />
             </div>
             <v-slider
               class="ml-5 align-self-center"
@@ -563,32 +556,18 @@
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
-              <v-text-field
-                :label="$t('Database.耐久改修')"
-                type="number"
-                max="2"
-                min="0"
-                v-model="editRow.stockData.improvement.hp"
-                hide-details
-              ></v-text-field>
+              <v-text-field :label="$t('Database.耐久改修')" type="number" max="2" min="0" v-model="editRow.stockData.improvement.hp" hide-details />
             </div>
             <v-slider class="ml-5 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label></v-slider>
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
-              <v-text-field
-                :label="$t('Database.対潜改修')"
-                type="number"
-                max="9"
-                min="0"
-                v-model="editRow.stockData.improvement.asw"
-                hide-details
-              ></v-text-field>
+              <v-text-field :label="$t('Database.対潜改修')" type="number" max="9" min="0" v-model="editRow.stockData.improvement.asw" hide-details />
             </div>
             <v-slider class="ml-5 align-self-center" hide-details max="9" min="0" v-model="editRow.stockData.improvement.asw" thumb-label></v-slider>
           </div>
           <div class="mt-8">
-            <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')"></v-checkbox>
+            <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" />
           </div>
           <div class="d-flex justify-space-around">
             <div
@@ -600,10 +579,10 @@
               @keypress="toggleArea(i)"
               tabindex="0"
             >
-              <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47"></v-img>
+              <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="47" />
             </div>
           </div>
-          <v-divider class="my-2"></v-divider>
+          <v-divider class="my-2" />
           <div class="d-flex">
             <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="primary" @click.stop="commitStock">
               {{ $t("Database.着任") }}
@@ -624,7 +603,7 @@
         <div class="ma-4">
           <div>{{ $t("Database.本当に除籍しますか？") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="error" :disabled="btnPushed" dark @click.stop="deleteStock">{{ $t("Database.除籍") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>

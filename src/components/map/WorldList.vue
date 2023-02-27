@@ -11,13 +11,13 @@
             @change="worldChanged"
             :label="$t('Enemies.海域')"
             :menu-props="{ maxHeight: '600px' }"
-          ></v-select>
+          />
         </div>
         <div v-show="isEvent">
-          <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" :label="$t('Difficulty.難易度')"></v-select>
+          <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" :label="$t('Difficulty.難易度')" />
         </div>
         <div>
-          <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" :label="$t('Enemies.セル')"></v-select>
+          <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" :label="$t('Enemies.セル')" />
         </div>
       </div>
       <div class="map-img-area">
@@ -54,7 +54,7 @@
             {{ name ? $t(`Enemies.${name}`) : `#${i + 1}` }}
           </v-tab>
           <v-tab-item v-for="(fleet, i) in fleetPatterns" :key="i" :value="`pattern${i}`">
-            <v-divider></v-divider>
+            <v-divider />
             <div class="d-flex flex-wrap body-2 align-center mt-1">
               <div class="ml-2 text--secondary caption">{{ $t("Enemies.戦闘形式") }}</div>
               <div class="ml-1">{{ getCellName(fleet.cellType) }}</div>
@@ -145,7 +145,7 @@
                   @blur="clearTooltip"
                 >
                   <div class="align-self-center mr-1">
-                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -180,7 +180,7 @@
                   @blur="clearTooltip"
                 >
                   <div class="align-self-center mr-1">
-                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120"></v-img>
+                    <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -213,11 +213,11 @@
                   <div v-if="!fleet.isUnion" class="item-preview">
                     <div v-for="(item, k) in enemy.items" :key="k" class="mr-4 item-image-area">
                       <template v-if="enemy.items.length < 5">
-                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                         <div class="slot" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
                       </template>
                       <template v-else>
-                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24"></v-img>
+                        <v-img v-if="item.data.iconTypeId" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
                         <div class="slot tiny" v-if="item.data.isPlane">{{ item.fullSlot }}</div>
                       </template>
                     </div>
@@ -229,10 +229,10 @@
         </v-tabs>
         <div v-show="!enabledCommitBtn" class="pt-10 text-center">{{ $t("Enemies.展開したい海域、セル、敵編成を選択してください。") }}</div>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <v-card-actions>
         <div v-if="selectedNodeNames.length" class="body-2">{{ $t("Enemies.選択したセル") }} {{ selectedNodeNames.join(" → ") }}</div>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn color="primary" @click="commitFleet" :disabled="!enabledCommitBtn">{{ $t("Common.展開") }}</v-btn>
         <v-btn color="secondary" @click="close">{{ $t("Common.閉じる") }}</v-btn>
       </v-card-actions>

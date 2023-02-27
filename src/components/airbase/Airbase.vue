@@ -2,9 +2,9 @@
   <v-card class="mx-1 pt-1" @dragover.prevent @drop.stop>
     <div class="d-flex mb-1">
       <div class="ml-2 align-self-end airbase-title">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <div class="mr-1 mode-select">
-        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem"></v-select>
+        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem" />
       </div>
       <div class="mr-1 align-self-end operation-buttons">
         <v-btn color="blue lighten-1" icon small @click="viewDetail" :disabled="!enabledDetail">
@@ -37,13 +37,13 @@
           {{ $t("Common.半径") }}<span class="mx-1 font-weight-medium">{{ airbase.radius }}</span>
         </div>
         <template v-if="visibleResource">
-          <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18"></v-img></div>
+          <div class="ml-auto"><v-img :src="`./img/util/fuel.png`" height="18" width="18" /></div>
           <div class="mx-1 font-weight-medium">{{ airbase.fuel }}</div>
-          <div><v-img :src="`./img/util/ammo.png`" height="18" width="18"></v-img></div>
+          <div><v-img :src="`./img/util/ammo.png`" height="18" width="18" /></div>
           <div class="mx-1 font-weight-medium">{{ airbase.ammo }}</div>
-          <div v-if="airbase.steel"><v-img :src="`./img/util/steel.png`" height="18" width="18"></v-img></div>
+          <div v-if="airbase.steel"><v-img :src="`./img/util/steel.png`" height="18" width="18" /></div>
           <div v-if="airbase.steel" class="mx-1 font-weight-medium">{{ airbase.steel }}</div>
-          <div><v-img :src="`./img/util/bauxite.png`" height="18" width="18"></v-img></div>
+          <div><v-img :src="`./img/util/bauxite.png`" height="18" width="18" /></div>
           <div class="mx-1 font-weight-medium">{{ airbase.bauxite }}</div>
         </template>
         <div>
@@ -52,7 +52,7 @@
           </v-btn>
         </div>
       </div>
-      <v-divider class="item-input-divider"></v-divider>
+      <v-divider class="item-input-divider" />
       <div
         v-for="(item, i) in airbase.items"
         :key="i"
@@ -84,17 +84,17 @@
       <v-card class="px-2 pb-2" v-if="!destroyDialog">
         <div class="d-flex pt-2 pb-1">
           <div class="align-self-center ml-3">{{ $t("Airbase.基地航空隊詳細") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <v-tabs v-model="tab">
           <v-tab href="#contact">{{ $t("Fleet.触接") }}</v-tab>
           <v-tab href="#detail">{{ $t("Result.残機数詳細") }}</v-tab>
         </v-tabs>
-        <v-divider></v-divider>
+        <v-divider />
         <v-tabs-items v-model="tab">
           <v-tab-item value="contact">
             <contact-rates :fleet="value" />

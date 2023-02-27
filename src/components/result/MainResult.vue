@@ -2,7 +2,7 @@
   <v-card class="my-2 px-1 py-2" id="result-container" :class="{ captured: capturing }">
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">{{ $t("Result.計算結果") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="refresh" v-bind="attrs" v-on="on">
@@ -28,7 +28,7 @@
         <span>{{ $t("Common.最小化") }}</span>
       </v-tooltip>
     </div>
-    <v-divider class="mb-3"></v-divider>
+    <v-divider class="mb-3" />
     <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested && !capturing">
       <div class="d-flex">
         <div class="align-self-center">
@@ -68,7 +68,7 @@
               <td :class="`text-left item-input type-${item.data.iconTypeId}`">
                 <div class="d-flex">
                   <div class="d-none d-sm-block px-0 px-md-1">
-                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="25" width="25"></v-img>
+                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="25" width="25" />
                   </div>
                   <div class="align-self-center item-name text-truncate">
                     {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
@@ -97,11 +97,11 @@
             <td colspan="2" rowspan="2">
               <div class="flex-grow-1 d-flex flex-column">
                 <div class="d-flex mx-auto">
-                  <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20"></v-img></div>
+                  <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20" /></div>
                   <div class="ml-1">{{ calcBauxite }}</div>
                 </div>
                 <div class="d-flex mx-auto" v-if="calcSteel !== '0'">
-                  <div><v-img :src="`./img/util/steel.png`" height="20" width="20"></v-img></div>
+                  <div><v-img :src="`./img/util/steel.png`" height="20" width="20" /></div>
                   <div class="ml-1">{{ calcSteel }}</div>
                 </div>
               </div>
@@ -148,32 +148,32 @@
           </tr>
         </tbody>
       </table>
-      <v-divider></v-divider>
+      <v-divider />
     </div>
     <v-tabs v-model="tab" class="px-3">
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ $t("Enemies.x戦目", { number: i + 1 }) }}</v-tab>
     </v-tabs>
-    <v-divider class="mx-3"></v-divider>
+    <v-divider class="mx-3" />
     <v-card class="ma-3 py-3 pr-4 pl-2">
       <div class="d-flex mt-1">
-        <div class="bar-label"></div>
+        <div class="bar-label" />
         <div class="flex-grow-1 d-flex">
           <div class="status-bar-label" style="width: 10%">
             <div>{{ $t("Common.喪失") }}</div>
           </div>
-          <div class="status-bar-divide"></div>
+          <div class="status-bar-divide" />
           <div class="status-bar-label" style="width: 10%">
             <div>{{ $t("Common.劣勢") }}</div>
           </div>
-          <div class="status-bar-divide"></div>
+          <div class="status-bar-divide" />
           <div class="status-bar-label" style="width: 25%">
             <div>{{ $t("Common.拮抗") }}</div>
           </div>
-          <div class="status-bar-divide"></div>
+          <div class="status-bar-divide" />
           <div class="status-bar-label" style="width: 45%">
             <div>{{ $t("Common.優勢") }}</div>
           </div>
-          <div class="status-bar-divide"></div>
+          <div class="status-bar-divide" />
           <div class="status-bar-label" style="width: 10%">
             <div>{{ $t("Common.確保") }}</div>
           </div>
@@ -189,14 +189,14 @@
         <div class="d-flex">
           <div class="bar-label">{{ ab.text }}</div>
           <div class="align-self-center flex-grow-1">
-            <air-status-result-bar :result="ab.result" :no-label="true"></air-status-result-bar>
+            <air-status-result-bar :result="ab.result" :no-label="true" />
           </div>
         </div>
       </div>
       <div class="d-flex mt-2">
         <div class="bar-label">{{ $t("Result.本隊") }}</div>
         <div class="align-self-center flex-grow-1">
-          <air-status-result-bar :result="fleet.mainResult" :no-label="true"></air-status-result-bar>
+          <air-status-result-bar :result="fleet.mainResult" :no-label="true" />
         </div>
       </div>
     </v-card>
@@ -205,7 +205,7 @@
       <table>
         <thead>
           <tr>
-            <th></th>
+            <th />
             <th>{{ $t("Common.制空値") }}</th>
             <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
             <th class="pr-sm-1">{{ $t("Common.確保") }}</th>
@@ -213,7 +213,7 @@
             <th class="pr-sm-1">{{ $t("Common.拮抗") }}</th>
             <th class="pr-sm-1">{{ $t("Common.劣勢") }}</th>
             <th class="pr-sm-1">{{ $t("Common.喪失") }}</th>
-            <th></th>
+            <th />
           </tr>
         </thead>
         <tbody>
@@ -237,13 +237,13 @@
           </tr>
         </tbody>
       </table>
-      <v-divider></v-divider>
+      <v-divider />
     </v-card>
     <v-card class="ma-3 pb-3 px-2">
       <div class="d-flex mb-1">
         <div class="body-2 px-2 align-self-end">{{ $t("Result.敵機残数") }}</div>
         <div class="ml-auto">
-          <v-select class="form-input" v-model="fleet.formation" :items="formations" hide-details dense @change="changedFormation(fleet.formation)"></v-select>
+          <v-select class="form-input" v-model="fleet.formation" :items="formations" hide-details dense @change="changedFormation(fleet.formation)" />
         </div>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -274,7 +274,7 @@
               </td>
               <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20"></v-img>
+                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20" />
                 </div>
                 <div class="align-self-center item-name py-1 text-truncate">
                   {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
@@ -295,7 +295,7 @@
           </template>
         </tbody>
       </table>
-      <v-divider></v-divider>
+      <v-divider />
     </v-card>
     <v-card class="ma-3 py-3 px-2">
       <div class="body-2 px-2">{{ $t("Result.支援艦隊") }}</div>
@@ -326,7 +326,7 @@
           </tr>
         </tbody>
       </table>
-      <v-divider></v-divider>
+      <v-divider />
       <div class="pl-2 caption mt-1">※ {{ $t("Result.制空値は航空支援専用の制空値です。熟練度や改修値に影響されません。") }}</div>
       <div class="pl-2 caption">※ {{ $t("Result.敵制空値は本隊航空戦終了時点での制空値の平均です。") }}</div>
     </v-card>
@@ -334,12 +334,12 @@
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("Result.詳細計算") }}</div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider></v-divider>
+        <v-divider />
         <plane-detail-result
           v-if="!destroyDialog && detailParent"
           :parent="detailParent"

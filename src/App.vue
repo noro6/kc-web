@@ -10,7 +10,7 @@
       />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
-      <v-app-bar-nav-icon v-if="!drawerFixed" @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon v-if="!drawerFixed" @click="drawer = !drawer" />
       <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
@@ -26,8 +26,8 @@
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked">
-            <v-icon small>mdi-undo-variant</v-icon></v-btn
-          >
+            <v-icon small>mdi-undo-variant</v-icon>
+          </v-btn>
         </template>
         <span>{{ $t("Common.元に戻す") }}</span>
       </v-tooltip>
@@ -55,7 +55,7 @@
           :loading="readState"
           @click:append="readSomethingText"
           @keypress.enter="readSomethingText"
-        ></v-textarea>
+        />
       </div>
       <v-tooltip left>
         <template v-slot:activator="{ on, attrs }">
@@ -251,26 +251,20 @@
           <div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.言語") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2">
               <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
               <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
             </div>
             <div class="ml-3 mt-2">
-              <v-checkbox
-                v-model="setting.nameIsNotTranslate"
-                hide-details
-                dense
-                :disabled="isJapanese"
-                :label="$t('Setting.艦娘や装備名は翻訳しない')"
-              ></v-checkbox>
+              <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :disabled="isJapanese" :label="$t('Setting.艦娘や装備名は翻訳しない')" />
             </div>
           </div>
           <div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.装備表示UI調整") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2 d-flex">
               <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
@@ -283,7 +277,7 @@
                 {{ $t("Setting.角丸") }}
               </v-btn>
               <div class="align-self-center flex-grow-1">
-                <v-divider v-if="!hasItemUIBorder"></v-divider>
+                <v-divider v-if="!hasItemUIBorder" />
                 <div class="item-input my-0 type-6 d-flex">
                   <div class="align-self-center body-2 ml-2">24</div>
                   <div class="mx-1 item-icon">
@@ -314,7 +308,7 @@
               </div>
             </div>
             <div class="ml-3 mt-2 d-flex justify-content-around">
-              <v-checkbox v-model="setting.showDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーター表示')"></v-checkbox>
+              <v-checkbox v-model="setting.showDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーター表示')" />
               <v-checkbox
                 v-if="setting.showDeathRateIndicator"
                 class="ml-3"
@@ -322,13 +316,13 @@
                 dense
                 hide-details
                 :label="$t('Setting.図形で区別')"
-              ></v-checkbox>
+              />
             </div>
           </div>
           <div class="pt-5">
             <div class="d-flex">
               <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2">
               <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
@@ -352,29 +346,29 @@
             </div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3">
               <div class="d-flex">
-                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')"></v-checkbox>
-                <v-spacer></v-spacer>
+                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')" />
+                <v-spacer />
               </div>
             </div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.編成データのオートセーブ") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3">
               <div class="d-flex">
-                <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')"></v-checkbox>
-                <v-spacer></v-spacer>
+                <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
+                <v-spacer />
               </div>
             </div>
           </div>
           <div class="pt-5">
             <div class="d-flex">
               <div class="body-2">{{ $t("Setting.装備選択時のデフォルト熟練度") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3">
               <div class="initial-level-items">
@@ -386,11 +380,11 @@
           <div>
             <div class="d-flex mt-3">
               <div class="body-2">{{ $t("Setting.マウスホバー時の詳細情報表示") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2 d-flex align-center">
-              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.無効(装備)')"></v-checkbox>
-              <v-checkbox class="ml-3" v-model="setting.disabledShipTooltip" dense :label="$t('Setting.無効(艦娘)')"></v-checkbox>
+              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.無効(装備)')" />
+              <v-checkbox class="ml-3" v-model="setting.disabledShipTooltip" dense :label="$t('Setting.無効(艦娘)')" />
               <v-text-field
                 class="ml-3"
                 type="number"
@@ -401,28 +395,27 @@
                 v-model.number="setting.popUpCount"
                 :rules="[rules.popUpRange]"
                 :disabled="setting.disabledItemTooltip && setting.disabledShipTooltip"
-              ></v-text-field>
+              />
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
               <div class="body-2">{{ $t("Setting.デッキビルダー形式データ読込設定") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.常に全艦隊データを読み込む')"></v-checkbox>
+              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.常に全艦隊データを読み込む')" />
             </div>
           </div>
           <div>
             <div class="d-flex mt-3">
               <div class="body-2">{{ $t("Setting.制空計算時のシミュレーション回数") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3">
               <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
                 <div>{{ $t("Setting.数値が大きいほど計算の精度が上がりますが、") }}</div>
                 <div>{{ $t("Setting.計算時のパフォーマンスが低下します。") }}</div>
-                <div></div>
               </v-alert>
               <div class="d-flex">
                 <v-text-field
@@ -432,7 +425,7 @@
                   min="100"
                   v-model.number="setting.simulationCount"
                   :rules="[rules.simulationCountRange]"
-                ></v-text-field>
+                />
                 <div class="ml-3 align-self-center">{{ $t("Setting.回") }}</div>
               </div>
             </div>
@@ -440,7 +433,7 @@
           <div>
             <div class="d-flex mt-3">
               <div class="body-2">{{ $t("Setting.編成データのバックアップ") }}</div>
-              <div class="header-divider"></div>
+              <div class="header-divider" />
             </div>
             <div class="ml-3 mt-2">
               <div class="d-flex">
@@ -450,7 +443,7 @@
               <div class="d-flex mt-3">
                 <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">{{ $t("Setting.復元") }}</v-btn>
                 <div class="flex-grow-1 align-self-center mt-3">
-                  <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" dense></v-file-input>
+                  <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" dense />
                 </div>
               </div>
             </div>
@@ -462,7 +455,7 @@
       <v-card dark>
         <v-card-text>
           <div class="pt-2">{{ $t("Common.マスターデータ読込中") }}...</div>
-          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+          <v-progress-linear indeterminate color="white" class="mb-0" />
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -472,7 +465,7 @@
         <div class="mt-2 body-2">{{ $t("Home.お使いのブラウザはIndexedDB非対応のようです。") }}</div>
         <div class="body-2">{{ $t("Home.編成、設定、艦娘/装備を含む全データは本サイトを閉じた時点で削除されます。") }}</div>
         <div class="body-2">{{ $t("Home.別のブラウザのご利用をお勧めします。") }}</div>
-        <v-divider class="my-3"></v-divider>
+        <v-divider class="my-3" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="secondary" @click.stop="disabledIndexedDB = false">OK</v-btn>
         </div>
@@ -484,7 +477,7 @@
           <v-tab href="#save">{{ $t("Common.保存") }}</v-tab>
           <v-tab href="#upload" :disabled="disabledUpload">{{ $t("Common.編成アップロード") }}</v-tab>
         </v-tabs>
-        <v-divider></v-divider>
+        <v-divider />
         <v-tabs-items v-model="saveDialogTab" :touchless="true">
           <v-tab-item value="save">
             <div class="mx-4 mt-4">
@@ -497,8 +490,8 @@
                 :label="$t('Home.編成データ名')"
                 @keydown.enter="saveAndRenameCurrentData"
                 :disabled="!editDialog"
-              ></v-text-field>
-              <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input"></v-textarea>
+              />
+              <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input" />
               <div class="mt-4 d-flex">
                 <div class="align-self-center">
                   <v-icon x-large :color="selectedColor">{{ isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
@@ -538,7 +531,7 @@
     <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
       <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
         <div>{{ $t("Home.艦隊選択") }}</div>
-        <v-divider class="my-3"></v-divider>
+        <v-divider class="my-3" />
         <div class="body-2">{{ $t("Home.取り込む艦隊を選択し、取り込みボタンを押してください。") }}</div>
         <div
           v-for="(row, i) in selectableFleets"
@@ -560,13 +553,13 @@
           </div>
           <div class="d-flex flex-wrap">
             <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
-              <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="25" width="100"></v-img>
+              <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="25" width="100" />
             </div>
           </div>
         </div>
         <div class="d-flex mt-2">
           <div>
-            <v-checkbox v-model="setting.importAllDeck" :label="$t('Home.常に全艦隊取り込む')" hide-details dense></v-checkbox>
+            <v-checkbox v-model="setting.importAllDeck" :label="$t('Home.常に全艦隊取り込む')" hide-details dense />
             <div class="caption ml-1">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
             <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
@@ -1594,517 +1587,4 @@ export default Vue.extend({
 }
 </style>
 
-<style>
-/** システム共通CSS定義 */
-
-/** dense適用時フォントを小さく */
-.v-input--dense .v-select__selection,
-.v-input--dense.v-input--selection-controls .v-label {
-  font-size: 0.85em;
-}
-.v-text-field.v-input--dense {
-  font-size: 1em;
-}
-
-/** v-btn 自動で大文字にさせない */
-.v-btn {
-  text-transform: none;
-}
-
-/* スクロールバー webkit系 */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar:horizontal {
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(128, 128, 128, 0.2);
-}
-::-webkit-scrollbar-thumb {
-  border-radius: 1px;
-  background: rgb(128, 128, 128, 0.7);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(177, 177, 177);
-}
-
-/* Firefox ScrollBar */
-* {
-  scrollbar-width: thin;
-}
-.theme--dark {
-  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.2);
-}
-
-/** 基本背景色 */
-.theme--light.v-application {
-  background-color: rgb(240, 235, 230) !important;
-  background-attachment: fixed !important;
-}
-/** テーマ空色 */
-.ice .theme--light.v-application {
-  background-color: rgb(225, 245, 255) !important;
-  background: linear-gradient(rgb(200, 230, 255), rgb(245, 250, 255)) !important;
-  background-attachment: fixed !important;
-}
-/** テーマ桜色 */
-.pink .theme--light.v-application {
-  background-color: rgb(255, 225, 225) !important;
-  background: linear-gradient(rgb(255, 225, 225), rgb(255, 245, 245)) !important;
-  background-attachment: fixed !important;
-}
-/** テーマ翠色 */
-.green .theme--light.v-application {
-  background-color: rgb(225, 255, 225) !important;
-  background: linear-gradient(rgb(220, 255, 230), rgb(250, 255, 250)) !important;
-  background-attachment: fixed !important;
-}
-
-/** ダークテーマ 基本背景色変更 */
-.theme--dark.v-application {
-  background-color: rgb(25, 25, 32) !important;
-  background: linear-gradient(rgb(22, 22, 28), 90%, rgb(40, 40, 46)) !important;
-  background-attachment: fixed !important;
-}
-/** ダークテーマ[深海] 基本背景色変更 */
-.deep-sea .theme--dark.v-application {
-  background-color: rgb(16, 24, 36) !important;
-  background: linear-gradient(rgb(20, 40, 80), rgb(2, 4, 12)) !important;
-  background-attachment: fixed !important;
-}
-
-/** ダークテーマ モーダル背景調整 */
-.theme--dark.v-application .v-overlay__scrim {
-  background-color: rgb(0, 0, 0) !important;
-}
-
-/** ダークテーマ card1層目 */
-.theme--dark.v-card,
-.theme--dark .v-expansion-panel {
-  background-color: rgb(40, 40, 45) !important;
-}
-/** ダークテーマ card2層目 */
-.theme--dark.v-card .v-card,
-.theme--dark .v-dialog .v-expansion-panel {
-  background-color: rgb(52, 52, 56) !important;
-}
-/** ダークテーマ card3層目 */
-.theme--dark.v-card .v-card .v-card {
-  background-color: rgb(65, 65, 70) !important;
-}
-
-/** ダークテーマ[深海] card1層目 */
-.deep-sea .theme--dark.v-card,
-.deep-sea .theme--dark .v-expansion-panel {
-  background-color: rgba(36, 44, 54, 0.6) !important;
-}
-/** ダークテーマ[深海] card2層目 */
-.deep-sea .theme--dark.v-card .v-card {
-  background-color: rgba(48, 56, 68, 0.6) !important;
-}
-/** ダークテーマ[深海] card3層目 */
-.deep-sea .theme--dark.v-card .v-card .v-card {
-  background-color: rgba(60, 68, 80, 0.6) !important;
-}
-/** ダークテーマ[深海] ダイアログ */
-.deep-sea .theme--dark .v-dialog {
-  background-color: rgb(10, 15, 30) !important;
-}
-/** ダークテーマ[深海] メニュー背景 */
-.deep-sea .theme--dark .v-menu__content {
-  background-color: rgb(30, 38, 60) !important;
-}
-/** ダークテーマ ボタン背景範囲 */
-.v-btn-toggle {
-  background: none !important;
-}
-
-/** データテーブル 背景色を上書き */
-.v-data-table {
-  background-color: unset !important;
-}
-.v-data-table.v-data-table--fixed-header thead th {
-  background-color: #eee !important;
-}
-.theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(49, 49, 53) !important;
-}
-.deep-sea .theme--dark .v-data-table.v-data-table--fixed-header thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-.v-data-table tbody tr:hover {
-  background-color: rgba(128, 128, 128, 0.1) !important;
-}
-
-/** セーブデータ補足情報textarea指定 */
-.remarks-input textarea {
-  font-size: 0.8em;
-  line-height: 1.2rem;
-}
-
-/** タブ内背景色を裏と合わせる */
-.v-tabs-bar,
-.v-tabs-items {
-  background-color: transparent !important;
-}
-
-#multipurpose-textarea {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
-  flex-grow: 1;
-}
-#multipurpose-textarea textarea {
-  font-size: 0.8em;
-}
-.no-scroll textarea {
-  overflow: hidden !important;
-}
-
-/** 編成タブのやつ */
-.v-toolbar--dense.v-app-bar {
-  height: 76px !important;
-}
-.v-toolbar--dense.v-app-bar .v-toolbar__extension {
-  padding: 0;
-  border-top: 1px solid #363636;
-  background-color: #0a0a0c;
-  height: 31px !important;
-}
-
-body:not(.item-ui-border) .item-input {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.25) !important;
-}
-body.item-ui-border .item-input {
-  border: 1px solid rgba(128, 128, 128, 0.5);
-  margin: 2px 1px;
-}
-body.item-ui-border.item-ui-bold .item-input {
-  border: 2px solid rgba(128, 128, 128, 0.5);
-}
-body.item-ui-border.item-ui-radius .item-input {
-  border-radius: 3px;
-}
-body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
-  border-radius: 4px;
-}
-
-/** アイコン毎の背景色 */
-.item-input.type-1,
-.item-input.type-2,
-.item-input.type-3,
-.item-input.type-7 {
-  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.15) !important;
-  border-color: rgb(247, 110, 110) !important;
-}
-.item-input.type-1:hover,
-.item-input.type-2:hover,
-.item-input.type-3:hover,
-.item-input.type-7:hover {
-  box-shadow: inset 0 0 24px rgba(255, 0, 0, 0.4) !important;
-}
-.item-input.type-4,
-.item-input.type-9,
-.item-input.type-19,
-.item-input.type-27,
-.item-input.type-39,
-.item-input.type-40 {
-  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15) !important;
-  border-color: rgb(255, 200, 10) !important;
-}
-.item-input.type-4:hover,
-.item-input.type-9:hover,
-.item-input.type-19:hover,
-.item-input.type-27:hover,
-.item-input.type-39:hover,
-.item-input.type-40:hover {
-  box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4) !important;
-}
-.item-input.type-5,
-.item-input.type-8,
-.item-input.type-46 {
-  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.15) !important;
-  border-color: rgb(100, 190, 255) !important;
-}
-.item-input.type-5:hover,
-.item-input.type-8:hover,
-.item-input.type-46:hover {
-  box-shadow: inset 0 0 24px rgba(0, 190, 255, 0.4) !important;
-}
-.item-input.type-6,
-.item-input.type-12,
-.item-input.type-15,
-.item-input.type-16,
-.item-input.type-21,
-.item-input.type-44,
-.item-input.type-45 {
-  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
-  border-color: rgb(100, 200, 120) !important;
-}
-.item-input.type-6:hover,
-.item-input.type-12:hover,
-.item-input.type-15:hover,
-.item-input.type-16:hover,
-.item-input.type-21:hover,
-.item-input.type-44:hover,
-.item-input.type-45:hover {
-  box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4) !important;
-}
-.item-input.type-10,
-.item-input.type-33,
-.item-input.type-43,
-.item-input.type-50,
-.item-input.type-51 {
-  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.15) !important;
-  border-color: rgb(140, 205, 150) !important;
-}
-.item-input.type-10:hover,
-.item-input.type-33:hover,
-.item-input.type-43:hover,
-.item-input.type-50:hover,
-.item-input.type-51:hover {
-  box-shadow: inset 0 0 24px rgba(86, 255, 122, 0.4) !important;
-}
-.item-input.type-11 {
-  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.15) !important;
-  border-color: rgb(210, 150, 70) !important;
-}
-.item-input.type-11:hover {
-  box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4) !important;
-}
-.item-input.type-13 {
-  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15) !important;
-  border-color: rgb(255, 125, 125) !important;
-}
-.item-input.type-13:hover {
-  box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4) !important;
-}
-.item-input.type-14,
-.item-input.type-34 {
-  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25) !important;
-  border-color: rgb(196, 196, 196) !important;
-}
-.item-input.type-14:hover,
-.item-input.type-34:hover {
-  box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4) !important;
-}
-.item-input.type-17,
-.item-input.type-1700,
-.item-input.type-18,
-.item-input.type-22 {
-  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.15) !important;
-  border-color: rgb(128, 216, 255) !important;
-}
-.item-input.type-17:hover,
-.item-input.type-1700:hover,
-.item-input.type-18:hover,
-.item-input.type-22:hover {
-  box-shadow: inset 0 0 24px rgba(27, 187, 255, 0.4) !important;
-}
-.item-input.type-20,
-.item-input.type-36 {
-  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.15) !important;
-  border-color: rgb(155, 165, 95) !important;
-}
-.item-input.type-20:hover,
-.item-input.type-36:hover {
-  box-shadow: inset 0 0 24px rgba(155, 165, 95, 0.4) !important;
-}
-.item-input.type-23 {
-  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.25) !important;
-  border-color: rgb(150, 125, 175) !important;
-}
-.item-input.type-23:hover {
-  box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5) !important;
-}
-.item-input.type-24 {
-  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15) !important;
-  border-color: rgba(240, 130, 60) !important;
-}
-.item-input.type-24:hover {
-  box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4) !important;
-}
-.item-input.type-25 {
-  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25) !important;
-  border-color: rgb(128, 128, 128) !important;
-}
-.item-input.type-25:hover {
-  box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5) !important;
-}
-.item-input.type-26,
-.item-input.type-29 {
-  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.15) !important;
-  border-color: rgb(205, 165, 100) !important;
-}
-.item-input.type-26:hover,
-.item-input.type-29:hover {
-  box-shadow: inset 0 0 24px rgba(205, 165, 100, 0.4) !important;
-}
-.item-input.type-28 {
-  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.15) !important;
-  border-color: rgb(140, 120, 170) !important;
-}
-.item-input.type-28:hover {
-  box-shadow: inset 0 0 24px rgba(140, 120, 170, 0.4) !important;
-}
-.item-input.type-30 {
-  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.15) !important;
-  border-color: rgb(135, 150, 75) !important;
-}
-.item-input.type-30:hover {
-  box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4) !important;
-}
-.item-input.type-31 {
-  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15) !important;
-  border-color: rgb(255, 55, 55) !important;
-}
-.item-input.type-31:hover {
-  box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4) !important;
-}
-.item-input.type-32 {
-  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.15) !important;
-  border-color: rgb(190, 240, 150) !important;
-}
-.item-input.type-32:hover {
-  box-shadow: inset 0 0 24px rgba(190, 240, 150, 0.4) !important;
-}
-.item-input.type-35 {
-  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.15) !important;
-  border-color: rgb(95, 195, 155) !important;
-}
-.item-input.type-35:hover {
-  box-shadow: inset 0 0 24px rgba(95, 195, 155, 0.4) !important;
-}
-.item-input.type-37,
-.item-input.type-38,
-.item-input.type-41,
-.item-input.type-48,
-.item-input.type-49 {
-  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.15) !important;
-  border-color: rgb(60, 170, 30) !important;
-}
-.item-input.type-37:hover,
-.item-input.type-38:hover,
-.item-input.type-41:hover,
-.item-input.type-48:hover,
-.item-input.type-49:hover {
-  box-shadow: inset 0 0 24px rgba(53, 199, 17, 0.4) !important;
-}
-.item-input.type-44 {
-  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.15) !important;
-  border-color: rgb(150, 230, 165) !important;
-}
-.item-input.type-44:hover {
-  box-shadow: inset 0 0 24px rgba(36, 255, 91, 0.4) !important;
-}
-.item-input.type-47 {
-  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.15) !important;
-  border-color: rgb(110, 135, 205) !important;
-}
-.item-input.type-47:hover {
-  box-shadow: inset 0 0 24px rgba(0, 110, 255, 0.4) !important;
-}
-
-.captured .item-input {
-  box-shadow: unset !important;
-}
-.captured .item-input.type-1,
-.captured .item-input.type-2,
-.captured .item-input.type-3,
-.captured .item-input.type-7 {
-  background: rgba(255, 0, 0, 0.075) !important;
-}
-.captured .item-input.type-4,
-.captured .item-input.type-9,
-.captured .item-input.type-19,
-.captured .item-input.type-27,
-.captured .item-input.type-39,
-.captured .item-input.type-40 {
-  background: rgba(255, 255, 70, 0.075) !important;
-}
-.captured .item-input.type-5,
-.captured .item-input.type-8,
-.captured .item-input.type-46 {
-  background: rgba(0, 190, 255, 0.075) !important;
-}
-.captured .item-input.type-6,
-.captured .item-input.type-12,
-.captured .item-input.type-15,
-.captured .item-input.type-16,
-.captured .item-input.type-21,
-.captured .item-input.type-44,
-.captured .item-input.type-45 {
-  background: rgba(0, 255, 100, 0.075) !important;
-}
-.captured .item-input.type-10,
-.captured .item-input.type-33,
-.captured .item-input.type-43,
-.captured .item-input.type-50,
-.captured .item-input.type-51 {
-  background: rgba(86, 255, 122, 0.075) !important;
-}
-.captured .item-input.type-11 {
-  background: rgba(210, 120, 20, 0.075) !important;
-}
-.captured .item-input.type-13 {
-  background: rgba(255, 125, 125, 0.075) !important;
-}
-.captured .item-input.type-14,
-.captured .item-input.type-34 {
-  background: rgba(196, 196, 196, 0.1) !important;
-}
-.captured .item-input.type-17,
-.captured .item-input.type-1700,
-.captured .item-input.type-18,
-.captured .item-input.type-22 {
-  background: rgba(27, 187, 255, 0.075) !important;
-}
-.captured .item-input.type-20,
-.captured .item-input.type-36 {
-  background: rgba(155, 165, 95, 0.075) !important;
-}
-.captured .item-input.type-23 {
-  background: rgba(150, 125, 175, 0.1) !important;
-}
-.captured .item-input.type-24 {
-  background: rgba(240, 130, 60, 0.075) !important;
-}
-.captured .item-input.type-25 {
-  background: rgba(128, 128, 128, 0.1) !important;
-}
-.captured .item-input.type-26,
-.captured .item-input.type-29 {
-  background: rgba(205, 165, 100, 0.075) !important;
-}
-.captured .item-input.type-28 {
-  background: rgba(140, 120, 170, 0.075) !important;
-}
-.captured .item-input.type-30 {
-  background: rgba(135, 150, 75, 0.1) !important;
-}
-.captured .item-input.type-31 {
-  background: rgba(255, 55, 55, 0.075) !important;
-}
-.captured .item-input.type-32 {
-  background: rgba(190, 240, 150, 0.2) !important;
-}
-.captured .item-input.type-35 {
-  background: rgba(95, 195, 155, 0.075) !important;
-}
-.captured .item-input.type-37,
-.captured .item-input.type-38,
-.captured .item-input.type-41,
-.captured .item-input.type-48,
-.captured .item-input.type-49 {
-  background: rgba(53, 199, 17, 0.075) !important;
-}
-.captured .item-input.type-44 {
-  background: rgba(36, 255, 91, 0.075) !important;
-}
-.captured .item-input.type-47 {
-  background: rgba(0, 110, 255, 0.075) !important;
-}
-</style>
+<style src="./css/common.css">

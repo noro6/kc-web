@@ -67,7 +67,7 @@
           </div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="mt-4 ml-4 body-2">
             <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
             {{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
@@ -92,7 +92,7 @@
           </div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="mt-4 ml-4 body-2">
             <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
             <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
@@ -120,7 +120,7 @@
           </div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-divider></v-divider>
+          <v-divider />
           <div class="mt-4 ml-4 body-2">
             <div>{{ $t("Home.本サイトは無料ですが、それでもご支援いただけるという方向けに支援の手段を用意しました。") }}</div>
             <div>{{ $t("Home.いつも本当にありがとうございます。") }}</div>
@@ -147,7 +147,7 @@
       </v-expansion-panel>
     </v-expansion-panels>
     <div class="info-area">
-      <v-divider class="mb-2"></v-divider>
+      <v-divider class="mb-2" />
       <div class="caption">
         {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>
@@ -160,7 +160,7 @@
         <div class="mx-4 mt-4">
           <div class="body-2">{{ $t("Home.引き継ぎ対象のデータを格納するフォルダーを作成します。") }}</div>
           <div class="mb-5 body-2">{{ $t("Home.フォルダー名を指定し、実行を押すと引き継ぎを開始します。") }}</div>
-          <v-text-field v-model="importFileName" dense outlined maxlength="100" counter :label="$t('SaveData.フォルダー名')"></v-text-field>
+          <v-text-field v-model="importFileName" dense outlined maxlength="100" counter :label="$t('SaveData.フォルダー名')" />
           <div class="d-flex mt-3">
             <v-btn class="ml-auto" color="success" @click.stop="importOldData" :disabled="isNameEmpty || imported">{{ $t("Common.実行") }}</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="importConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
@@ -175,7 +175,7 @@
           <div class="body-2">{{ $t("Home.引き継ぎを行うとこれらのデータは上書きされます。") }}</div>
           <div class="body-2 mt-3">{{ $t("Home.本当に引き継ぎを行いますか？") }}</div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="success" dark :disabled="!confirmDialog" @click.stop="importOldStockData()">{{ $t("Common.実行") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>

@@ -10,7 +10,7 @@
           hide-details
           dense
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        />
       </div>
       <v-checkbox
         class="ml-3"
@@ -21,12 +21,12 @@
         dense
         :label="$t('ItemList.ブラックリスト登録済み装備')"
       />
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="pt-3">
       <div class="body-2 mb-2 ml-2">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
       <div class="d-flex flex-wrap">
@@ -40,10 +40,10 @@
           @keypress="changeType(i.id)"
           tabindex="0"
         >
-          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32"></v-img>
+          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
         </div>
       </div>
-      <v-divider></v-divider>
+      <v-divider />
       <v-simple-table fixed-header height="52vh" dense>
         <template v-slot:default>
           <thead>
@@ -76,7 +76,7 @@
               <td class="item-name">
                 <div class="d-flex align-center py-1">
                   <div>
-                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30"></v-img>
+                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                   </div>
                   <div class="ml-1" :class="{ 'is-special': item.data.isSpecial }">
                     {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
@@ -88,9 +88,9 @@
         </template>
       </v-simple-table>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="d-flex px-3 py-3">
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn color="secondary" :dark="existsBlacklist" :disabled="!existsBlacklist" @click.stop="removeAll()">
         {{ $t("ItemList.全解除") }}
       </v-btn>

@@ -1,6 +1,6 @@
 <template>
   <v-card class="pa-3">
-    <v-divider></v-divider>
+    <v-divider />
     <v-data-table
       dense
       fixed-header
@@ -25,7 +25,7 @@
       <template v-slot:[`header.shoot.fixDownList`]="{ header }">{{ $t(`Fleet.${header.text}`) }} ({{ $t("Extra.機") }})</template>
       <template v-slot:[`header.enemy.antiAirCutIn`]="{ header }">{{ $t(`Extra.${header.text}`) }}</template>
       <template v-slot:[`item.enemy.data.id`]="{ item }">
-        <v-img :src="`./img/ship/${item.enemy.data.id}.png`" height="30" width="120"></v-img>
+        <v-img :src="`./img/ship/${item.enemy.data.id}.png`" height="30" width="120" />
       </template>
       <template v-slot:[`item.enemy.data.name`]="{ item }">
         <div class="text-truncate" :title="item.enemy.data.name">{{ getEnemyName(item.enemy.data.name) }}</div>

@@ -3,8 +3,8 @@
     <v-card class="general-container d-flex my-2 px-4 py-0" v-if="false">
       <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
       <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
-        <v-radio :label="$t('Common.なし')" value=""></v-radio>
-        <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury"></v-radio>
+        <v-radio :label="$t('Common.なし')" value="" />
+        <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" />
       </v-radio-group>
     </v-card>
     <div class="general-container d-flex">
@@ -24,7 +24,7 @@
           <v-card class="my-2 px-1 py-2">
             <div class="d-flex pb-1">
               <div class="pl-2 align-self-center">{{ $t("Home.補足情報") }}</div>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-tooltip bottom color="black">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn icon @click="toggleMinimizeDescription(true)" v-bind="attrs" v-on="on">
@@ -34,7 +34,7 @@
                 <span>{{ $t("Common.最小化") }}</span>
               </v-tooltip>
             </div>
-            <v-divider></v-divider>
+            <v-divider />
             <div class="px-1 pt-2 d-flex">
               <div class="flex-grow-1 remarks-input">
                 <v-textarea auto-grow rows="2" v-model="editedRemarks" outlined dense hide-details @blur="commitRemarks()" />
@@ -88,7 +88,7 @@
       <editable-enemy-list />
     </div>
     <div class="info-area">
-      <v-divider class="mb-2"></v-divider>
+      <v-divider class="mb-2" />
       <div class="caption">
         {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>

@@ -2,7 +2,7 @@
   <div class="pa-2 container">
     <div class="d-flex">
       <div class="caption">{{ $t("Result.攻撃機選択") }}</div>
-      <div class="header-divider"></div>
+      <div class="header-divider" />
     </div>
     <div class="select-item-container">
       <div>
@@ -18,7 +18,7 @@
             tabindex="0"
           >
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
             </div>
             <div class="ml-1">
               <div class="level-area">Lv {{ ship.level }}</div>
@@ -84,7 +84,7 @@
     </div>
     <div class="d-flex mt-3">
       <div class="caption">{{ $t("Result.航空戦火力計算機") }}</div>
-      <div class="header-divider"></div>
+      <div class="header-divider" />
     </div>
     <v-card class="mt-2 fire-calc-container" v-if="selectedShip">
       <airstrike-calculator ref="airstrikeCalculator" :parent="selectedShip" :tableHeight="''" />

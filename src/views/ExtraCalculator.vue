@@ -9,7 +9,7 @@
         <v-tab>{{ $t("Extra.敵艦生息地検索") }}</v-tab>
         <v-tab>{{ $t("Extra.敵対空おばけ") }}</v-tab>
       </v-tabs>
-      <v-divider></v-divider>
+      <v-divider />
       <v-tabs-items v-model="tab" :touchless="true">
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
@@ -57,7 +57,7 @@
       </v-tabs-items>
     </div>
     <div class="info-area">
-      <v-divider class="mb-2"></v-divider>
+      <v-divider class="mb-2" />
       <div class="caption">
         {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
       </div>

@@ -2,10 +2,10 @@
   <div class="mt-2">
     <div class="d-flex flex-wrap">
       <div class="form-control">
-        <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable" />
       </div>
       <div class="form-control">
-        <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable" />
       </div>
       <div class="form-control">
         <v-text-field
@@ -18,10 +18,10 @@
           outlined
           dense
           @input="updateTable"
-        ></v-text-field>
+         />
       </div>
       <div class="form-control">
-        <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable"></v-select>
+        <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable" />
       </div>
       <div class="form-control">
         <v-text-field
@@ -36,7 +36,7 @@
           dense
           :disabled="!isManual"
           @input="updateTable"
-        ></v-text-field>
+         />
       </div>
       <div class="form-control">
         <v-text-field
@@ -51,7 +51,7 @@
           dense
           :disabled="!isManual"
           @input="updateTable"
-        ></v-text-field>
+         />
       </div>
     </div>
     <div class="mb-1 d-flex px-1">
@@ -60,11 +60,11 @@
         <span>{{ fleetAntiAir }}</span>
       </div>
       <div class="ml-auto d-flex">
-        <v-checkbox class="mr-3" :label="$t('Fleet.空襲マス')" v-model="isAirRaid" dense hide-details @change="updateTable"></v-checkbox>
-        <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemy" dense hide-details @change="updateTable"></v-checkbox>
+        <v-checkbox class="mr-3" :label="$t('Fleet.空襲マス')" v-model="isAirRaid" dense hide-details @change="updateTable" />
+        <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemy" dense hide-details @change="updateTable" />
       </div>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <v-simple-table fixed-header height="54vh">
       <template v-slot:default>
         <thead>
@@ -86,7 +86,7 @@
           >
             <td class="d-flex pl-1">
               <div class="align-self-center mr-2">
-                <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
               </div>
               <div class="align-self-center d-none d-sm-block flex-grow-1">
                 <div class="stage2-id primary--text" v-if="item.isEnemy">id {{ item.id }}</div>

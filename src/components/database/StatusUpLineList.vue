@@ -1,6 +1,6 @@
 <template>
   <v-card class="ma-2 pa-3">
-    <div class="my-1 d-flex align-center">
+    <div class="my-1 d-flex align-center flex-wrap">
       <div class="select-item">
         <v-select
           v-model="viewStatus"
@@ -12,7 +12,7 @@
           outlined
           @change="setShipList"
           :label="$t('Database.計算したい項目')"
-        ></v-select>
+        />
       </div>
       <div>
         <v-tooltip top color="black">
@@ -23,16 +23,16 @@
         </v-tooltip>
       </div>
       <div class="ml-6">
-        <v-checkbox v-model="enabledOnly" @change="setShipList" dense hide-details :label="$t('Database.成長限界に到達した艦娘を省略')"></v-checkbox>
+        <v-checkbox v-model="enabledOnly" @change="setShipList" dense hide-details :label="$t('Database.成長限界に到達した艦娘を省略')" />
       </div>
       <div class="ml-6" v-if="!luckMode">
-        <v-checkbox v-model="showEXP" @change="setShipList" dense hide-details :label="$t('Database.必要経験値表示')"></v-checkbox>
+        <v-checkbox v-model="showEXP" @change="setShipList" dense hide-details :label="$t('Database.必要経験値表示')" />
       </div>
       <div class="ml-6" v-if="!showEXP">
-        <v-checkbox v-model="showDiff" dense hide-details :label="$t('Extra.差分表示')"></v-checkbox>
+        <v-checkbox v-model="showDiff" dense hide-details :label="$t('Extra.差分表示')" />
       </div>
       <div class="ml-6" v-if="enabledLuckMode">
-        <v-checkbox v-model="luckMode" @change="setShipList" dense hide-details :label="$t('Database.運改修モード')"></v-checkbox>
+        <v-checkbox v-model="luckMode" @change="setShipList" dense hide-details :label="$t('Database.運改修モード')" />
       </div>
       <div class="ml-1 mt-1" v-if="enabledLuckMode">
         <v-tooltip top color="black">
@@ -65,7 +65,10 @@
           hide-details
           dense
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        />
+      </div>
+      <div class="ml-3">
+        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="setShipList" dense hide-details :label="$t('Fleet.最終改造')" />
       </div>
       <div class="ml-3" v-if="viewStatus">
         <v-text-field
@@ -78,10 +81,10 @@
           v-model.number="viewStatus.manual"
           min="0"
           max="200"
-        ></v-text-field>
+        />
       </div>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <v-data-table
       dense
       fixed-header
@@ -110,18 +113,18 @@
           <td class="px-0 py-1">
             <div class="d-none d-md-flex align-center">
               <div class="ship-img">
-                <v-img :src="`./img/ship/${item.master.id}.png`" height="35" width="140"></v-img>
+                <v-img :src="`./img/ship/${item.master.id}.png`" height="35" width="140" />
                 <div class="slot-ex-img" v-if="item.stock.releaseExpand">
-                  <v-img :src="`./img/util/slot_ex.png`" height="30" width="30"></v-img>
+                  <v-img :src="`./img/util/slot_ex.png`" height="30" width="30" />
                 </div>
               </div>
               <div class="ship-name text-truncate" :title="item.master.name">{{ getShipName(item.master) }}</div>
             </div>
             <div class="d-flex d-md-none align-center">
               <div class="ship-img">
-                <v-img :src="`./img/ship/${item.master.id}.png`" height="30" width="120"></v-img>
+                <v-img :src="`./img/ship/${item.master.id}.png`" height="30" width="120" />
                 <div class="slot-ex-img min" v-if="item.stock.releaseExpand">
-                  <v-img :src="`./img/util/slot_ex.png`" height="25" width="25"></v-img>
+                  <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
                 </div>
               </div>
             </div>
@@ -197,16 +200,16 @@
         </tr>
       </template>
     </v-data-table>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="mt-3">
-      <v-pagination v-model="page" :length="pageLength" total-visible="9"></v-pagination>
+      <v-pagination v-model="page" :length="pageLength" total-visible="9" />
     </div>
   </v-card>
 </template>
 
 <style scoped>
 .select-item {
-  width: 200px;
+  width: 160px;
 }
 
 .type-selector {
@@ -315,6 +318,7 @@ export default Vue.extend({
     all: [] as ShipMaster[],
     readOnly: false,
     keyword: '',
+    isFinalOnly: true,
     headers: [
       {
         text: '艦娘名',
@@ -480,8 +484,15 @@ export default Vue.extend({
           if (master.name.toUpperCase().indexOf(searchWord) < 0) {
             continue;
           }
-        } else if (!viewTypes.includes(master.type)) {
-          continue;
+        } else {
+          if (!viewTypes.includes(master.type)) {
+            // 艦種フィルタ
+            continue;
+          }
+          if (this.isFinalOnly && !master.isFinal) {
+            // 最終改造フィルタ
+            continue;
+          }
         }
 
         const row = {

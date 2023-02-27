@@ -1,8 +1,8 @@
 <template>
   <div class="mx-4 mt-4">
-    <div class="body-2 mt-2 mb-5">{{ $t('SaveData.『トップページ > みんなの編成』ページにて公開される編成をアップロードできます。') }}</div>
+    <div class="body-2 mt-2 mb-5">{{ $t("SaveData.『トップページ > みんなの編成』ページにて公開される編成をアップロードできます。") }}</div>
     <v-form ref="uploadForm">
-      <v-text-field v-model="editedName" dense outlined counter="100" :label="$t('SaveData.編成データ名')" :rules="nameRules" required></v-text-field>
+      <v-text-field v-model="editedName" dense outlined counter="100" :label="$t('SaveData.編成データ名')" :rules="nameRules" required />
       <v-textarea
         v-model.trim="editedRemarks"
         rows="8"
@@ -12,42 +12,38 @@
         required
         :rules="remarksRules"
         class="remarks-input mt-2"
-      ></v-textarea>
+      />
       <div class="d-flex mt-2">
         <div class="flex-grow-1">
-          <v-select
-            dense
-            v-model="area"
-            outlined
-            hide-details
-            :items="areaItems"
-            :label="$t('Enemies.海域')"
-            :menu-props="{ maxHeight: '600px' }"
-          ></v-select>
+          <v-select dense v-model="area" outlined hide-details :items="areaItems" :label="$t('Enemies.海域')" :menu-props="{ maxHeight: '600px' }" />
         </div>
         <div v-show="isEvent" class="ml-5">
-          <v-select dense v-model="level" outlined hide-details :items="levelItems" :label="$t('Difficulty.難易度')"></v-select>
+          <v-select dense v-model="level" outlined hide-details :items="levelItems" :label="$t('Difficulty.難易度')" />
         </div>
       </div>
       <div class="mt-5">
-        <v-text-field v-model="uploadUserName" :rules="userNameRules" dense outlined counter="20" :label="$t('SaveData.投稿者')"></v-text-field>
+        <v-text-field v-model="uploadUserName" :rules="userNameRules" dense outlined counter="20" :label="$t('SaveData.投稿者')" />
       </div>
     </v-form>
     <div class="d-flex">
-      <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">{{ $t('Common.編成アップロード') }}</v-btn>
+      <v-btn class="ml-auto" color="primary" @click.stop="validateUpload">{{ $t("Common.編成アップロード") }}</v-btn>
       <v-btn class="ml-4" color="secondary" @click.stop="cancelDialog()">{{ $t("Common.戻る") }}</v-btn>
     </div>
     <v-dialog v-model="uploadConfirmDialog" transition="scroll-x-transition" width="600">
       <v-card class="pa-3">
         <div class="ma-4">
-          <div>{{ $t('SaveData.編成のアップロードを行います。よろしいですか？') }}</div>
+          <div>{{ $t("SaveData.編成のアップロードを行います。よろしいですか？") }}</div>
           <div class="caption mt-5 mx-3">
-            <div>{{ $t('SaveData.海域、難易度の指定が正しいか、アップロード前に今一度確認してください。') }}</div>
-            <div>{{ $t('SaveData.原則、アップロードした編成をあとから編集・削除することはできません。') }}</div>
-            <div>{{ $t('SaveData.どうしても削除したい場合、編成名や投稿者、出撃海域、更新日時や編成の特徴など、削除対象が特定できる情報を添えてご連絡ください。') }}</div>
+            <div>{{ $t("SaveData.海域、難易度の指定が正しいか、アップロード前に今一度確認してください。") }}</div>
+            <div>{{ $t("SaveData.原則、アップロードした編成をあとから編集・削除することはできません。") }}</div>
+            <div>
+              {{
+                $t("SaveData.どうしても削除したい場合、編成名や投稿者、出撃海域、更新日時や編成の特徴など、削除対象が特定できる情報を添えてご連絡ください。")
+              }}
+            </div>
           </div>
         </div>
-        <v-divider class="my-2"></v-divider>
+        <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" :dark="!uploadClicked" :disabled="uploadClicked" @click.stop="uploadSaveData">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="uploadConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>

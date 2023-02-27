@@ -2,17 +2,17 @@
   <v-card>
     <div class="d-flex pt-2 pb-1 pr-2">
       <div class="align-self-center ml-3">{{ $t("ItemList.装備プリセット") }}</div>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-btn icon @click="handleClose">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <div class="px-3 pt-3">
       <v-btn color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()">
         {{ $t("ItemList.現在の装備構成で新規登録") }}
       </v-btn>
-      <v-divider class="mt-3"></v-divider>
+      <v-divider class="mt-3" />
       <div class="preset-container py-1">
         <div class="preset-list">
           <draggable handle=".preset-id" animation="150" @end="sortEnd()" v-model="presets">
@@ -35,7 +35,7 @@
         <div class="preset-view pl-2">
           <div class="mt-5 d-flex" v-if="!isPresetItemEmpty">
             <div>
-              <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100"></v-text-field>
+              <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100" />
             </div>
             <div>
               <v-btn class="ml-1" color="success" :disabled="!selectedPreset.name" @click="savePreset()">

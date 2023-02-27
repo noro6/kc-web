@@ -3,21 +3,21 @@
     <div class="d-flex justify-end mb-3">
       <v-btn @click="resetShips"><v-icon>mdi-trash-can-outline</v-icon>{{ $t("Common.リセット") }}</v-btn>
     </div>
-    <v-divider></v-divider>
+    <v-divider />
     <v-simple-table fixed-header height="64vh" dense>
       <template v-slot:default>
         <thead>
           <tr>
             <th>
               <div class="pb-2">
-                <v-checkbox v-model="isDiffMode" :disabled="enabledShipsCount < 2" hide-details dense :label="$t('Extra.差分表示')"></v-checkbox>
+                <v-checkbox v-model="isDiffMode" :disabled="enabledShipsCount < 2" hide-details dense :label="$t('Extra.差分表示')" />
               </div>
             </th>
             <th v-for="(ship, i) in ships" :key="`select${i}`" class="py-1 text-right">
               <v-btn v-if="ship.isEmpty" text @click="showShipList(i)"><v-icon>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}</v-btn>
               <div v-else class="d-flex justify-end">
                 <div class="ship-img" @click="showShipList(i)" @keypress.enter="showShipList(i)" tabindex="0" v-ripple="{ class: 'text-primary' }">
-                  <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120"></v-img>
+                  <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
                 </div>
               </div>
             </th>
@@ -43,7 +43,7 @@
                   :rules="[rules.level]"
                   hide-details
                   @input="statusChanged(i)"
-                ></v-text-field>
+                />
               </div>
             </td>
           </tr>
