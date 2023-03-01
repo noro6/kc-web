@@ -12,7 +12,7 @@
     <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
       <div class="d-flex">
         <div class="area-banner">
-          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="38" />
+          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="40" />
         </div>
         <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
           {{ $t("Common.配備") }}

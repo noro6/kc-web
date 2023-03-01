@@ -40,7 +40,7 @@
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
-            <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${ship.area}.webp`" height="40" width="28" />
+            <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${ship.area}.webp`" height="40" width="29" />
           </div>
         </div>
         <div class="flex-grow-1">
