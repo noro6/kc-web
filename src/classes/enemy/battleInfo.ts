@@ -87,6 +87,9 @@ export default class BattleInfo {
       } else if (isAllSubmarine && !isBoss && area !== 41 && area !== 43) {
         // 全員潜水艦(第4海域以外、ボス戦闘以外)
         consumptions.push([8, 0]);
+      } else if (cellType === CELL_TYPE.AIR_SUPPORTED_ASW) {
+        // 対潜空襲マス
+        consumptions.push([12, 6]);
       } else {
         // その他のマス
         consumptions.push([20, 20]);

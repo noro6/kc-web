@@ -131,6 +131,7 @@ export default {
       '重爆': 'High Altitude Air-Raid',
       '航空戦': 'Air Battle',
       '超重爆': 'Superfortress Air-Raid Sequence',
+      '対潜空襲': 'Air Supported Asw',
       '支援': 'Support',
       '合計': 'Total',
       '平均': 'Avg.',

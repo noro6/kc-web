@@ -184,7 +184,7 @@ export default class EnemyFleet {
     this.isSkipAerialCombatCell = this.cellType === CELL_TYPE.NIGHT;
     this.isAirRaidCell = this.cellType === CELL_TYPE.AIR_RAID;
     this.isAerialCombatCell = this.cellType === CELL_TYPE.AERIAL_COMBAT;
-    this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AIR_RAID || this.cellType === CELL_TYPE.AERIAL_COMBAT;
+    this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AIR_RAID || this.cellType === CELL_TYPE.AERIAL_COMBAT || this.cellType === CELL_TYPE.AIR_SUPPORTED_ASW;
 
     // 計算により算出するステータス
     this.isAllSubmarine = this.enemies.some((v) => v.data.id);

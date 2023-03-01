@@ -6064,7 +6064,7 @@ export default class ItemBonus {
       ],
     },
     {
-      ids: [489],
+      ids: [489, 491],
       bonuses: [
         {
           bonus: {
