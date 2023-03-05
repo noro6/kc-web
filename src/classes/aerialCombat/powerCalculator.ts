@@ -200,7 +200,7 @@ export default class AerialFirePowerCalculator {
         } else if (item.data.id === 491 && shipType === SHIP_TYPE.DD) {
           // 20戦隊熟練 VS 駆逐の場合、雷装値19として計算
           typeMultipliers[0] = 0.8;
-          actualTorpedo = 18 + item.bonusTorpedo;
+          actualTorpedo = 19 + item.bonusTorpedo;
         }
         break;
       case 47:
