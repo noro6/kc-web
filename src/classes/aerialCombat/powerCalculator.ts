@@ -192,12 +192,16 @@ export default class AerialFirePowerCalculator {
         break;
       case 26:
         // 対潜哨戒機
+        typeMultipliers[0] = 1;
         actualTorpedo = item.actualBomber;
         if (!isAirbaseMode) {
           // 基地じゃない場合はなぜか0
           actualTorpedo = 0;
+        } else if (item.data.id === 491 && shipType === SHIP_TYPE.DD) {
+          // 20戦隊熟練 VS 駆逐の場合、雷装値19として計算
+          typeMultipliers[0] = 0.8;
+          actualTorpedo = 18 + item.bonusTorpedo;
         }
-        typeMultipliers[0] = 1;
         break;
       case 47:
         // 陸上攻撃機
@@ -356,7 +360,11 @@ export default class AerialFirePowerCalculator {
     }
 
     // 陸攻補正
-    const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
+    let airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
+    if (item.data.id === 491 && defense.data.type === SHIP_TYPE.DD) {
+      // 20戦隊熟練
+      airBaseBonus = 1.8;
+    }
     // 空母棲姫特効
     let aircraftCarrierPrincessMultiplier = 1;
     if (item.data.isABAttacker && (defense.data.id === 1586 || defense.data.id === 1620)) {
