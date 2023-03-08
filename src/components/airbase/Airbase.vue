@@ -73,8 +73,14 @@
         />
       </div>
       <div v-if="showAirStatusBar" class="mx-1 pb-2">
-        <air-status-result-bar :result="airbase.resultWave1" :dense="true" class="mt-3" />
-        <air-status-result-bar :result="airbase.resultWave2" :dense="true" class="mt-3" />
+        <template v-if="!isWait">
+          <air-status-result-bar :result="airbase.resultWave1" :dense="true" class="mt-3" />
+          <air-status-result-bar :result="airbase.resultWave2" :dense="true" class="mt-3" />
+        </template>
+        <template v-else>
+          <air-status-result-bar :result="emptyResult" :dense="true" class="mt-3" />
+          <air-status-result-bar :result="emptyResult" :dense="true" class="mt-3" />
+        </template>
       </div>
     </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
@@ -145,6 +151,7 @@ import ItemMaster from '@/classes/item/itemMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import CalcManager from '@/classes/calcManager';
+import AirCalcResult from '../../classes/airCalcResult';
 
 export default Vue.extend({
   components: {
@@ -190,6 +197,7 @@ export default Vue.extend({
     detailDialog: false,
     visibleResource: false,
     manager: new CalcManager(),
+    emptyResult: new AirCalcResult(),
   }),
   computed: {
     modes(): { text: string; value: number }[] {
@@ -247,6 +255,9 @@ export default Vue.extend({
     },
     showAirStatusBar(): boolean {
       return !this.isDefense && this.value.mode !== AB_MODE.DEFENSE;
+    },
+    isWait(): boolean {
+      return this.value.mode === AB_MODE.WAIT;
     },
   },
   methods: {
