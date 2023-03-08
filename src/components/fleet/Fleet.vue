@@ -47,10 +47,10 @@
             <span>{{ $t("Fleet.艦隊クリップボード") }}</span>
           </v-tooltip>
         </div>
-        <div class="operation-button" v-if="!readOnlyMode">
+        <div class="operation-button">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon :disabled="!updateAreaTagEnabled" @click="showAreaTagDialog()" v-bind="attrs" v-on="on">
+              <v-btn icon :disabled="!updateAreaTagEnabled || readOnlyMode" @click="showAreaTagDialog()" v-bind="attrs" v-on="on">
                 <v-icon color="light-green">mdi-cards</v-icon>
               </v-btn>
             </template>
@@ -252,6 +252,7 @@ export default Vue.extend({
     const setting = this.$store.state.siteSetting as SiteSetting;
     this.isShipView2Line = setting.isShipView2Line;
 
+    this.readOnlyMode = !!this.$store.getters.getExistsTempStock;
     this.maxAreas = this.$store.state.areaCount as number;
   },
   computed: {
