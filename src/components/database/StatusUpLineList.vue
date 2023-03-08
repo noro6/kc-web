@@ -22,9 +22,6 @@
           <div>{{ $t("Database.選択した項目と、次にその項目が1繰り上がるのは何Lvであるかを表示します。") }}</div>
         </v-tooltip>
       </div>
-      <div class="ml-6">
-        <v-checkbox v-model="enabledOnly" @change="setShipList" dense hide-details :label="$t('Database.成長限界に到達した艦娘を省略')" />
-      </div>
       <div class="ml-6" v-if="!luckMode">
         <v-checkbox v-model="showEXP" @change="setShipList" dense hide-details :label="$t('Database.必要経験値表示')" />
       </div>
@@ -43,34 +40,23 @@
         </v-tooltip>
       </div>
     </div>
-    <div class="d-flex flex-wrap align-center">
-      <div
-        v-for="(i, index) in types"
-        :key="index"
-        v-ripple="{ class: 'info--text' }"
-        class="type-selector"
-        :class="{ active: index === type, disabled: keyword }"
-        @click="changeType(index)"
-        @keypress.enter="changeType(index)"
-        tabindex="0"
-      >
-        {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
-      </div>
-      <div class="ml-auto">
+    <div class="d-flex flex-wrap align-center mt-3">
+      <div class="text-field">
         <v-text-field
-          :placeholder="$t('Database.名称検索')"
+          :label="$t('Database.名称検索')"
+          :placeholder="$t('Database.空白区切りで複数指定可')"
           clearable
           v-model="keyword"
-          @input="setShipList"
+          @input="setShipList()"
           hide-details
           dense
           prepend-inner-icon="mdi-magnify"
         />
       </div>
-      <div class="ml-3">
-        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="setShipList" dense hide-details :label="$t('Fleet.最終改造')" />
+      <div>
+        <v-btn text @click="filterDialog = true" :disabled="!!keyword"><v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }}</v-btn>
       </div>
-      <div class="ml-3" v-if="viewStatus">
+      <div class="ml-auto" v-if="viewStatus">
         <v-text-field
           type="number"
           dense
@@ -204,6 +190,54 @@
     <div class="mt-3">
       <v-pagination v-model="page" :length="pageLength" total-visible="9" />
     </div>
+    <v-dialog v-model="filterDialog" width="740" @input="toggleFilterDialog">
+      <v-card class="px-3 pt-2 pb-3">
+        <div class="d-flex">
+          <div class="align-self-center mx-2"><v-icon>mdi-filter-variant</v-icon></div>
+          <div class="align-self-center">{{ $t("Common.絞り込み") }}</div>
+          <v-spacer />
+          <v-btn icon @click.stop="closeFilterDialog()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider />
+        <div class="ma-4">
+          <v-btn-toggle v-model="type" mandatory class="flex-wrap" color="primary">
+            <v-btn v-for="(i, index) in types" :key="index" :value="index">
+              {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
+            </v-btn>
+          </v-btn-toggle>
+          <div class="d-flex mt-10">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.Lv下限')" type="number" :max="levelRange[1]" min="1" dense v-model.trim="levelRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.Lv上限')" type="number" max="200" :min="levelRange[0]" dense v-model.trim="levelRange[1]" hide-details />
+            </div>
+          </div>
+          <div class="d-flex mt-10">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.運下限')" type="number" :max="luckRange[1]" min="1" dense v-model.trim="luckRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="luckRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.運上限')" type="number" max="200" :min="luckRange[0]" dense v-model.trim="luckRange[1]" hide-details />
+            </div>
+          </div>
+          <div class="d-flex mt-3">
+            <v-checkbox v-model="isFinalOnly" :label="$t('Fleet.最終改造')" />
+          </div>
+          <div class="d-flex">
+            <v-checkbox v-model="enabledOnly" :label="$t('Database.成長限界に到達した艦娘を省略')" />
+          </div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="secondary" @click.stop="closeFilterDialog()">{{ $t("Common.閉じる") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -285,6 +319,13 @@
   top: -2px;
   opacity: 0.6;
 }
+
+.text-field {
+  width: 240px;
+}
+.range-input {
+  width: 80px;
+}
 </style>
 
 <script lang="ts">
@@ -317,6 +358,7 @@ export default Vue.extend({
   data: () => ({
     all: [] as ShipMaster[],
     readOnly: false,
+    filterDialog: false,
     keyword: '',
     isFinalOnly: true,
     headers: [
@@ -386,6 +428,8 @@ export default Vue.extend({
     showEXP: false,
     unsubscribe: undefined as unknown,
     maxLevel: Const.MAX_LEVEL,
+    levelRange: [1, Const.MAX_LEVEL],
+    luckRange: [1, 200],
   }),
   mounted() {
     for (let i = 0; i < Const.SHIP_TYPES_ALT2.length; i += 1) {
@@ -470,7 +514,13 @@ export default Vue.extend({
 
       const isLuckMode = this.enabledLuckMode && this.luckMode;
 
+      const maxLevel = this.levelRange[1];
+      const minLevel = this.levelRange[0];
+      const maxLuck = this.luckRange[1];
+      const minLuck = this.luckRange[0];
+
       const searchWord = (this.keyword ?? '').trim().toUpperCase();
+      const searchWords = searchWord.split(/\s+/);
 
       const manual = Math.min(Math.max(manualValue ?? 0, 1), 200);
       for (let i = 0; i < shipStock.length; i += 1) {
@@ -480,9 +530,26 @@ export default Vue.extend({
         if (!master) {
           continue;
         }
+
+        const luck = master.luck + stock.improvement.luck;
         if (searchWord) {
-          if (master.name.toUpperCase().indexOf(searchWord) < 0) {
+          if (searchWords.length <= 1 && master.name.toUpperCase().indexOf(searchWord) < 0) {
             continue;
+          } else if (searchWords.length) {
+            // 空白による複数検索
+            let result = false;
+            for (let j = 0; j < searchWords.length; j += 1) {
+              const word = searchWords[j].trim();
+              if (word && master.name.toUpperCase().indexOf(word) >= 0) {
+                // 見つかった場合はここで検索終了
+                result = true;
+                break;
+              }
+            }
+
+            if (!result) {
+              continue;
+            }
           }
         } else {
           if (!viewTypes.includes(master.type)) {
@@ -493,12 +560,20 @@ export default Vue.extend({
             // 最終改造フィルタ
             continue;
           }
+          if (maxLevel < stock.level || minLevel > stock.level) {
+            // レベルフィルタ
+            continue;
+          }
+          if (maxLuck < luck || minLuck > luck) {
+            // 運フィルタ
+            continue;
+          }
         }
 
         const row = {
           stock,
           master,
-          luck: master.luck + stock.improvement.luck,
+          luck,
           diffBase: stock.level,
           target: 0,
           target1: 0,
@@ -616,6 +691,15 @@ export default Vue.extend({
       }
 
       return name;
+    },
+    closeFilterDialog() {
+      this.filterDialog = false;
+      this.toggleFilterDialog();
+    },
+    toggleFilterDialog() {
+      if (!this.filterDialog) {
+        this.setShipList();
+      }
     },
   },
 });
