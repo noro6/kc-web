@@ -25,6 +25,7 @@
       <div v-for="header in data.headers" :key="`type_${header.text}`">
         <div class="type-divider mt-1">
           <div class="caption">{{ header.text }}</div>
+          <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
           <div class="type-divider-border" />
         </div>
         <div class="d-flex flex-wrap">
@@ -46,17 +47,18 @@
               <div>
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
               </div>
-              <div class="ship-area-banner">
-                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}_min.webp`" height="33" width="30" />
-              </div>
               <div class="slot-ex-img" v-if="ship.expand">
                 <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
               </div>
             </div>
             <div class="caption" v-if="visibleShipName">
               <div class="ship-status">
-                <div class="align-self-center primary--text">Lv:{{ ship.level }}</div>
-                <div class="ml-1 align-self-center">{{ $t("Common.運") }} {{ ship.luck }}</div>
+                <div class="align-self-center primary--text">
+                  Lv <span class="font-weight-bold">{{ ship.level }}</span>
+                </div>
+                <div class="ml-1 align-self-center">
+                  {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
+                </div>
               </div>
               <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
             </div>
@@ -145,7 +147,7 @@
 .ship-area-banner {
   position: absolute;
   bottom: 0px;
-  left: 20px;
+  left: 18px;
 }
 .slot-ex-img {
   position: absolute;
@@ -207,7 +209,7 @@ export default Vue.extend({
   },
   data: () => ({
     searchWord: '',
-    visibleShipName: false,
+    visibleShipName: true,
     existStock: false,
     areaShipList: [] as { area: number; headers: Header[] }[],
     unsubscribe: undefined as unknown,
@@ -326,7 +328,10 @@ export default Vue.extend({
       for (let i = 0; i < this.areaShipList.length; i += 1) {
         const headers = this.areaShipList[i].headers.filter((v) => v.ships.length);
         for (let j = 0; j < headers.length; j += 1) {
-          headers[j].ships.sort((a, b) => a.data.sort - b.data.sort);
+          headers[j].ships.sort((a, b) => {
+            if (a.level !== b.level) return b.level - a.level;
+            return a.data.sort - b.data.sort;
+          });
         }
         this.areaShipList[i].headers = headers;
       }

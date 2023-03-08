@@ -1182,6 +1182,7 @@ export default Vue.extend({
         luck: viewShip.luck,
         asw: viewShip.asw + Ship.getStatusFromLevel(viewShip.level, ship.maxAsw, ship.minAsw),
         area: viewShip.area,
+        uniqueId: viewShip.uniqueId,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新

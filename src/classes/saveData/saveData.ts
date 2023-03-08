@@ -49,6 +49,8 @@ interface SavedShip {
   es?: boolean,
   /** 札 */
   ar?: number,
+  /** 所持情報用ユニークid */
+  un?: number,
 }
 
 export default class SaveData {
@@ -552,10 +554,12 @@ export default class SaveData {
 
   /**
    * セーブデータ保存用の文字列を返却
+   * @private
+   * @param {boolean} [isURLData=false] URL公開で外に出す場合にtrue
    * @return {*}  {string}
    * @memberof SaveData
    */
-  private createSaveDataString(): string {
+  private createSaveDataString(isURLData = false): string {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof Item) {
         const data = { i: v.data.id } as SavedItem;
@@ -581,9 +585,13 @@ export default class SaveData {
         if (v.asw) data.as = v.asw;
         if (v.luck) data.lu = v.luck;
         if (v.level) data.lv = v.level;
-        if (v.area > 0) data.ar = v.area;
         if (v.exItem) data.ex = v.exItem;
         if (v.antiAir) data.aa = v.antiAir;
+        if (!isURLData) {
+          // URLでの出力情報には載せないもの
+          if (v.area > 0) data.ar = v.area;
+          if (v.uniqueId) data.un = v.uniqueId;
+        }
         return data;
       }
       if (v instanceof EnemyFleet) {
@@ -636,7 +644,8 @@ export default class SaveData {
    * @memberof SaveData
    */
   public createURLSaveDataString(): string {
-    return LZString.compressToEncodedURIComponent(this.createSaveDataString());
+    const isURLData = true;
+    return LZString.compressToEncodedURIComponent(this.createSaveDataString(isURLData));
   }
 
   /**
@@ -805,14 +814,15 @@ export default class SaveData {
         // 現行マスタから艦娘情報を取得
         const shipMaster = shipMasters.find((v) => v.id === ship.i);
         const area = ship.ar && ship.ar > 0 ? ship.ar : undefined;
+        const uniqueId = ship.un ?? undefined;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…
           ships.push(new Ship({
-            items, exItem: expandItem, level: ship.lv, isEscort: ship.es, area,
+            items, exItem: expandItem, level: ship.lv, isEscort: ship.es, area, uniqueId,
           }));
         }
       }

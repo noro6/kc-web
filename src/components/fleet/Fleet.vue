@@ -47,6 +47,16 @@
             <span>{{ $t("Fleet.艦隊クリップボード") }}</span>
           </v-tooltip>
         </div>
+        <div class="operation-button" v-if="!readOnlyMode">
+          <v-tooltip bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon :disabled="!updateAreaTagEnabled" @click="showAreaTagDialog()" v-bind="attrs" v-on="on">
+                <v-icon color="light-green">mdi-cards</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Database.お札一括更新") }}</span>
+          </v-tooltip>
+        </div>
         <div class="d-capture-none ship-line-setting ml-2">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
             <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
@@ -78,6 +88,41 @@
       ></ship-input>
     </div>
     <air-status-result-bar v-if="!hideResultBar" :result="actualFleet.mainResult" class="mt-3" />
+    <v-dialog v-model="updateAreaTagDialog" transition="scroll-x-transition" width="600">
+      <v-card>
+        <div class="d-flex pb-1 px-2 pt-2">
+          <div class="align-self-center ml-3">{{ $t("Database.お札一括更新") }}</div>
+          <v-spacer />
+          <v-btn icon @click="updateAreaTagDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider class="mx-3" />
+        <div class="pa-3">
+          <div class="mx-3 mt-3 mb-6 body-2">{{ $t("Fleet.この艦隊に属する全ての艦娘が対象です。") }}</div>
+          <div class="d-flex justify-space-around">
+            <div
+              v-for="i in maxAreas"
+              :key="`area${i}`"
+              class="selected-area-btn"
+              :class="{ selected: selectedArea === i }"
+              @click="selectedArea = i"
+              @keypress="selectedArea = i"
+            >
+              <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="50" />
+            </div>
+          </div>
+          <v-divider class="mb-2 mt-6" />
+          <div class="d-flex">
+            <div class="ml-3">
+              <v-checkbox v-model="overwriteTag" dense hide-details :label="$t('Fleet.既に札がついている艦娘も上書きする')" />
+            </div>
+            <v-btn class="ml-auto" color="primary" :disabled="selectedArea < 0 || !updateAreaTagDialog" @click="updateAreaTag()">{{ $t("Common.更新") }}</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="updateAreaTagDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -115,6 +160,18 @@
 .captured .d-capture-none {
   display: none !important;
 }
+
+.selected-area-btn {
+  opacity: 0.4;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.selected-area-btn:hover {
+  opacity: 0.6;
+}
+.selected-area-btn.selected {
+  opacity: 1;
+}
 </style>
 
 <script lang="ts">
@@ -125,6 +182,7 @@ import FleetInfoHeader from '@/components/fleet/FleetInfoHeader.vue';
 import Fleet from '@/classes/fleet/fleet';
 import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
+import ShipStock from '@/classes/fleet/shipStock';
 
 export default Vue.extend({
   name: 'FleetComponent',
@@ -184,10 +242,17 @@ export default Vue.extend({
   },
   data: () => ({
     isShipView2Line: false,
+    updateAreaTagDialog: false,
+    maxAreas: 0,
+    selectedArea: -1,
+    readOnlyMode: false,
+    overwriteTag: false,
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
     this.isShipView2Line = setting.isShipView2Line;
+
+    this.maxAreas = this.$store.state.areaCount as number;
   },
   computed: {
     fleet() {
@@ -199,6 +264,9 @@ export default Vue.extend({
     shipRemoveEnabled() {
       return this.value.ships.length > 1;
     },
+    updateAreaTagEnabled() {
+      return this.value.ships.some((v) => v.uniqueId);
+    },
     actualFleet(): Fleet {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {
         return this.unionFleet;
@@ -207,6 +275,15 @@ export default Vue.extend({
     },
     is2line(): boolean {
       return this.isShipView2Line;
+    },
+    isTempStockMode(): boolean {
+      // 一時所持情報データがあるなら
+      return this.$store.getters.getExistsTempStock;
+    },
+  },
+  watch: {
+    isTempStockMode(value) {
+      this.readOnlyMode = !!value;
     },
   },
   methods: {
@@ -225,6 +302,47 @@ export default Vue.extend({
     },
     showItemPreset(shipIndex: number) {
       this.handleShowItemPreset(this.index, shipIndex);
+    },
+    showAreaTagDialog() {
+      this.updateAreaTagDialog = true;
+    },
+    updateAreaTag() {
+      this.updateAreaTagDialog = false;
+      const ships = [];
+      const shipStock = this.$store.state.shipStock as ShipStock[];
+
+      for (let i = 0; i < this.fleet.ships.length; i += 1) {
+        const ship = this.fleet.ships[i];
+        if (ship.uniqueId && (!ship.area || ship.area < 0 || (ship.area && this.overwriteTag))) {
+          ships.push(new Ship({ ship, area: this.selectedArea }));
+          const stock = shipStock.find((v) => v.uniqueId === ship.uniqueId && v.id === ship.data.id);
+          if (stock) {
+            // ユニークidとマスタidが一致した場合は、そのまま札を設定する
+            stock.area = this.selectedArea;
+          } else {
+            // みつからなかった => 同マスタidの艦で代用したい
+            // なぜこのケースがおきる？ => 一覧から配備したあと、再度反映を行い、かつidがズレた場合の稀ケース
+            const altStock = shipStock.find((v) => v.id === ship.data.id);
+            if (altStock) {
+              // 最初に見つかったこれを代用
+              altStock.area = this.selectedArea;
+            }
+          }
+        } else if (ship.uniqueId) {
+          // 札を同期
+          const stock = shipStock.find((v) => v.uniqueId === ship.uniqueId && v.id === ship.data.id);
+          if (stock) {
+            ships.push(new Ship({ ship, area: stock.area }));
+          } else {
+            ships.push(ship);
+          }
+        } else {
+          ships.push(ship);
+        }
+      }
+
+      this.$store.dispatch('updateShipStock', shipStock);
+      this.setFleet(new Fleet({ fleet: this.fleet, ships }));
     },
     updateShip() {
       if (document.getElementById('dragging-item')) {

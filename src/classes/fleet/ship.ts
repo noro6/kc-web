@@ -33,6 +33,8 @@ export interface ShipBuilder {
   isActive?: boolean;
   /** 出撃海域 */
   area?: number;
+  /** 所持管理ユニークid */
+  uniqueId?: number
 }
 
 /** 表示ステータス */
@@ -124,6 +126,9 @@ export default class Ship implements ShipBase {
   /** 出撃海域 */
   public readonly area: number;
 
+  /** 所持数登録ユニークid */
+  public readonly uniqueId: number;
+
   /** 噴進弾幕率 */
   public readonly hunshinRate: number;
 
@@ -214,7 +219,8 @@ export default class Ship implements ShipBase {
       this.isActive = builder.isActive !== undefined ? builder.isActive : builder.ship.isActive;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : builder.ship.isEscort;
       this.hp = builder.hp !== undefined ? builder.hp : builder.ship.hp;
-      this.area = builder.area !== undefined ? Math.max(builder.area) : Math.max(builder.ship.area);
+      this.area = builder.area !== undefined ? builder.area : builder.ship.area;
+      this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : builder.ship.uniqueId;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -226,7 +232,8 @@ export default class Ship implements ShipBase {
       this.isActive = builder.isActive !== undefined ? builder.isActive : true;
       this.isEscort = builder.isEscort !== undefined ? builder.isEscort : false;
       this.hp = builder.hp !== undefined ? builder.hp : this.data.hp;
-      this.area = builder.area !== undefined ? Math.max(builder.area) : 0;
+      this.area = builder.area !== undefined ? builder.area : 0;
+      this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : 0;
     }
 
     // 装備数をマスタのスロット数に合わせる

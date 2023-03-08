@@ -476,6 +476,8 @@ export interface ViewShip {
   expanded: boolean;
   /** ソート用ステータス */
   sortValue: number;
+  /** 所持情報ユニークid */
+  uniqueId: number;
 }
 
 export default Vue.extend({
@@ -858,6 +860,7 @@ export default Vue.extend({
               area: shipData.area <= this.maxAreas ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
               sortValue: 0,
+              uniqueId: shipData.uniqueId,
             };
 
             // 補強増設開放済み検索
@@ -875,12 +878,13 @@ export default Vue.extend({
 
             // id 練度 運 対潜 耐久 海域を見て配備済みかどうか判定
             const usedIndex = usedShips.findIndex(
-              (v) => v.data.id === master.id
-                && v.level === viewShip.level
-                && v.hp === viewShip.hp
-                && v.luck === viewShip.luck
-                && v.area === viewShip.area
-                && v.improveAsw === viewShip.asw,
+              (v) => (v.data.id === master.id
+                  && v.level === viewShip.level
+                  && v.hp === viewShip.hp
+                  && v.luck === viewShip.luck
+                  && v.area === viewShip.area
+                  && v.improveAsw === viewShip.asw)
+                || (v.uniqueId === viewShip.uniqueId && v.data.id === master.id),
             );
             if (usedIndex >= 0) {
               // 配備済みなら減らす
@@ -925,6 +929,7 @@ export default Vue.extend({
             asw: 0,
             expanded: false,
             sortValue: 0,
+            uniqueId: 0,
           });
         }
       }

@@ -484,6 +484,8 @@ export default {
       'クリップボードへ追加': 'Add to Clipboard',
       '艦隊に艦娘が設定されていません。': 'No Ships',
       '索敵値が不足している可能性があります。': 'Line of Sight (LoS) value may be insufficient. Need LoS: {LoS}, Cn: {num}',
+      'この艦隊に属する全ての艦娘が対象です。': 'This applies to all ships belonging to this fleet.',
+      '既に札がついている艦娘も上書きする': 'Overwrite all',
     },
     Enemies: {
       '海域': 'World',
@@ -750,6 +752,7 @@ export default {
       '現在閲覧中の艦隊': 'Viewing Data',
       '差': 'Diff',
       '艦娘名表示': 'Show ship name',
+      'お札一括更新': 'Set Area Tag',
       'お札一斉解除': 'Clear all tags',
       '解除': 'Clear Tag',
       '札を解除します。よろしいですか？': 'Are you sure you want to clear the tag?',
