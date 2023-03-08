@@ -470,6 +470,7 @@ export default Vue.extend({
     totalActionReports: 0,
     totalCatapults: 0,
     detailDialog: false,
+    onlyBlueprint: false,
     onlyActionReport: false,
     onlyCatapult: false,
     reportPlans: [] as {
@@ -771,16 +772,19 @@ export default Vue.extend({
       return ship.name ? ship.name : '';
     },
     showBlueprintPlanDialog() {
+      this.onlyBlueprint = true;
       this.onlyActionReport = false;
       this.onlyCatapult = false;
       this.setDetailDialogData();
     },
     showActionReportPlanDialog() {
-      this.onlyCatapult = false;
+      this.onlyBlueprint = false;
       this.onlyActionReport = true;
+      this.onlyCatapult = false;
       this.setDetailDialogData();
     },
     showCatapultPlanDialog() {
+      this.onlyBlueprint = false;
       this.onlyActionReport = false;
       this.onlyCatapult = true;
       this.setDetailDialogData();
@@ -824,6 +828,9 @@ export default Vue.extend({
           // 設計図とか
           if (next && (ship.blueprints || ship.actionReports || ship.catapults)) {
             // フィルタ
+            if (this.onlyBlueprint && !ship.blueprints) {
+              continue;
+            }
             if (this.onlyActionReport && !ship.actionReports) {
               continue;
             }
