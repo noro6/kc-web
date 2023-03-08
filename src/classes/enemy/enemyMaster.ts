@@ -92,8 +92,9 @@ export default class EnemyMaster {
       return resultNames;
     }
     // 姫級
+    const remodel = targetString.split('改装');
     const kai = targetString.split('改');
-    if (kai.length >= 2) {
+    if (remodel.length === 1 && kai.length >= 2) {
       resultNames.push(kai[0]);
       resultNames.push('改');
       targetString = `${kai[1]}`;

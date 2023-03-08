@@ -659,7 +659,7 @@ export default Vue.extend({
               });
           })
           .catch((error) => {
-            console.log(error);
+            console.error(error);
             this.$emit('inform', '共有URLの生成に失敗しました。', true);
           });
       } catch (error) {

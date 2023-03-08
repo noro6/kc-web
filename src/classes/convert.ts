@@ -370,12 +370,11 @@ export default class Convert {
 
       // 拡張情報 -補強増設解放
       if ('api_slot_ex' in data) {
-        shipStock.releaseExpand = data.api_slot_ex !== undefined && data.api_slot_ex !== 0;
+        shipStock.releaseExpand = !!data.api_slot_ex;
       } else if ('ex' in data) {
-        shipStock.releaseExpand = data.ex !== undefined && data.ex !== 0;
+        shipStock.releaseExpand = !!data.ex;
       }
 
-      // 拡張情報 -補強増設解放
       // 参考：近代化改修状態 [0]=火力, [1]=雷装, [2]=対空, [3]=装甲, [4]=運, [5]=耐久, [6]=対潜
       if ('api_kyouka' in data && data.api_kyouka.length >= 7) {
         shipStock.improvement.fire = +data.api_kyouka[0];
@@ -986,7 +985,7 @@ export default class Convert {
    * @memberof Convert
    */
   public static getShipTypeNameArray(name: string): string[] {
-    if (name === '潜高型' || name === '特種船丙型' || name === 'UボートIXC型') {
+    if (name === '潜高型' || name === '特種船丙型' || name === '特種船M丙型' || name === 'UボートIXC型') {
       return [name];
     }
 

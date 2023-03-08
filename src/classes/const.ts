@@ -381,7 +381,7 @@ export default class Const {
     { id: 97, name: '陸軍特種船(R1)' },
     { id: 45, name: '特種船丙型' },
     { id: 115, name: '特2TL型' },
-    { id: 119, name: 'M丙型特種船' },
+    { id: 119, name: '特種船M丙型' },
 
     { id: 47, name: 'Bismarck級' },
     { id: 55, name: 'Admiral Hipper級' },
