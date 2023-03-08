@@ -856,7 +856,7 @@ export default class Ship implements ShipBase {
         }
       } else if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV || [45, 49, 60].includes(this.data.type2)) {
         // 潜水艦, 潜水空母, 特種船丙型, 工作艦, 改風早型
-        if (newModelBoilerCount || (hasTurbine && totalBoilerCount)) {
+        if (hasTurbine && totalBoilerCount) {
           // タービン + いずれかの缶 => 高速
           return 10;
         }
