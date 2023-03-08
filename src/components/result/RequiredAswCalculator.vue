@@ -27,7 +27,7 @@
             @input="statusChanged"
             :append-icon="appendIcon"
             :readonly="ship.isEmpty"
-           />
+          />
         </div>
         <div>
           <v-text-field
@@ -39,7 +39,7 @@
             @input="statusChanged"
             :append-icon="appendIcon"
             :readonly="ship.isEmpty"
-           />
+          />
         </div>
         <div>
           <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly />
@@ -237,7 +237,7 @@ export default Vue.extend({
     },
     async showShipList() {
       await (this.shipListDialog = true);
-      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(false);
     },
     async showItemList(x: number, slotIndex: number) {
       this.itemDialogTargetIndex = slotIndex;
