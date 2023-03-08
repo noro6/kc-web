@@ -69,7 +69,9 @@
                   </div>
                 </div>
                 <div class="d-flex">
-                  <div class="enemy-name text-truncate">{{ getEnemyName(enemy.name) }}</div>
+                  <div class="enemy-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.isUnknown }">
+                    {{ getEnemyName(enemy.name) }}
+                  </div>
                 </div>
               </div>
             </div>

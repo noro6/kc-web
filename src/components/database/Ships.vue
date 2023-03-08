@@ -14,7 +14,7 @@
           <v-expansion-panel>
             <v-expansion-panel-header class="px-4">
               <div>
-                <v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}
+                <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }}
                 <span class="caption">({{ viewShips.length }}{{ isNotJapanese ? "" : "隻" }} / {{ allCount }}{{ isNotJapanese ? "" : "隻" }})</span>
               </div>
             </v-expansion-panel-header>
@@ -1195,7 +1195,7 @@ export default Vue.extend({
     isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
-    translatedShipTypes(): { text: string }[] {
+    translatedShipTypes(): { text: string; value: number }[] {
       const array = [];
       for (let i = 0; i < this.types.length; i += 1) {
         const data = this.types[i];

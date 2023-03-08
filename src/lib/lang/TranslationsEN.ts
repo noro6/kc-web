@@ -162,6 +162,7 @@ export default {
       '運改修': 'Luck Improvement',
       '遠征': 'Expedition',
       '艦隊に艦載機が含まれています。遠征における艦載機の性能に対する補正の計算式が不明なため、遠征のステータス調整に利用する際は十分注意してください。': 'The fleet includes aircraft. The formula for the correction to the status of aircraft in an expedition is unknown, so please use caution when adjusting the status of an expedition.',
+      '絞り込み': 'Filter',
     },
     Difficulty: {
       '難易度': 'Difficulty',

@@ -3,7 +3,7 @@
     <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header class="px-4">
-          <div><v-icon>mdi-filter</v-icon>{{ $t("Database.フィルタ") }}</div>
+          <div><v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }}</div>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-divider class="mb-3" />
