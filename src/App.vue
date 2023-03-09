@@ -1459,11 +1459,11 @@ export default Vue.extend({
 <style scoped>
 .router-enter {
   /** 表示されようとした最初の状態 */
-  transform: translate(-20px, -8px);
+  transform: translate(-5px, 0);
   opacity: 0;
 }
 .router-enter-active {
-  transition: all 0.4s;
+  transition: all 0.1s;
 }
 .router-enter-to {
   /* 完全に表示された状態 */
@@ -1474,11 +1474,11 @@ export default Vue.extend({
   opacity: 1;
 }
 .router-leave-active {
-  transition: all 0.4s;
+  transition: all 0.1s;
 }
 .router-leave-to {
   /* 消え終わる直前状態  */
-  transform: translate(20px, 8px);
+  transform: translate(5px, 0);
   opacity: 0;
 }
 
