@@ -707,11 +707,8 @@ export default Vue.extend({
       return this.enabledFixDrawer && this.setting.fixedDrawer;
     },
     routerViewClass(): string {
-      if (this.showFooterBtn && this.drawerFixed) {
-        return 'pl-2 pl-md-4 pr-12 pr-xl-4';
-      }
-      if (this.showFooterBtn && !this.drawerFixed) {
-        return 'pl-2 pl-md-4 pr-12 pr-lg-4';
+      if (this.setting.visibleAirCalcMenuButton) {
+        return 'px-12';
       }
       return 'px-2 px-md-4';
     },
