@@ -513,13 +513,13 @@
         <div class="mx-2 mt-2">
           <div class="d-flex">
             <div class="align-self-center edit-stock-img">
-              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="50" width="200" />
+              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="40" width="160" />
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
-                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${editRow.stockData.area}.webp`" height="68" width="50" />
+                <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${editRow.stockData.area}.webp`" height="58" width="42" />
               </div>
             </div>
             <div class="align-self-center ml-2">
-              <v-btn-toggle dense v-model="version" borderless mandatory class="flex-wrap">
+              <v-btn-toggle dense v-model="version" mandatory class="flex-wrap">
                 <v-btn v-for="(ship, i) in versionButtons" :key="`ver${i}`" :value="i" @click.stop="changeVersion(i)">
                   <span>{{ getShipName(ship) }}</span>
                 </v-btn>
@@ -531,8 +531,9 @@
             <div class="range-input">
               <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details />
             </div>
-            <v-slider class="mx-5 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
-            <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">LV99</v-btn>
+            <v-slider class="ml-5 mr-3 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
+            <v-btn color="teal" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">Lv99</v-btn>
+            <v-btn color="red lighten-2" dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = maxLevel">Lv{{ maxLevel }}</v-btn>
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">

@@ -92,7 +92,9 @@
         </v-alert>
       </div>
       <div :class="routerViewClass">
-        <router-view @inform="inform" @openSidebar="drawer = true" />
+        <transition name="router" mode="out-in">
+          <router-view @inform="inform" @openSidebar="drawer = true" />
+        </transition>
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" top>
         {{ readInformText ? $t(`Home.${readInformText}`) : readInformText }}
@@ -1458,6 +1460,31 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.router-enter {
+  /** 表示されようとした最初の状態 */
+  transform: translate(-20px, -8px);
+  opacity: 0;
+}
+.router-enter-active {
+  transition: all 0.4s;
+}
+.router-enter-to {
+  /* 完全に表示された状態 */
+  opacity: 1;
+}
+.router-leave {
+  /* 消え始め状態 */
+  opacity: 1;
+}
+.router-leave-active {
+  transition: all 0.4s;
+}
+.router-leave-to {
+  /* 消え終わる直前状態  */
+  transform: translate(20px, 8px);
+  opacity: 0;
+}
+
 .header-btn {
   font-size: 0.8em;
   padding-right: 0.2rem !important;
@@ -1587,4 +1614,4 @@ export default Vue.extend({
 }
 </style>
 
-<style src="./css/common.css">
+<style src="./css/common.css" />

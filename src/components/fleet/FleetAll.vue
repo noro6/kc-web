@@ -987,6 +987,13 @@ export default Vue.extend({
               if (nodeList.includes('I') && score < 69) LoS = 69;
             }
             break;
+          case 74:
+            coefficient = 4;
+            score = scores[coefficient - 1];
+            if (lastBattle.nodeName === 'M' || lastBattle.nodeName === 'P') {
+              if (nodeList.includes('M') && score < 47) LoS = 47;
+            }
+            break;
           default:
             break;
         }

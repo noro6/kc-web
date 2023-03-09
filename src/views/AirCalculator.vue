@@ -8,14 +8,18 @@
       </v-radio-group>
     </v-card>
     <div class="general-container d-flex">
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedDescription" @click="toggleMinimizeDescription(false)">{{ $t("Home.補足情報") }}</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">{{ $t("Airbase.基地航空隊") }}</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">{{ $t("Fleet.自艦隊") }}</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">{{ $t("Enemies.敵艦隊") }}</v-btn>
-      <v-btn class="mr-2" small v-if="!sortMode && setting.isMinimizedResult" @click="toggleMinimizeResult(false)">{{ $t("Result.計算結果") }}</v-btn>
-      <v-btn class="ml-auto" small v-if="!sortMode" @click="startContentOrder" color="primary">{{ $t("Common.順序入替") }}</v-btn>
-      <v-btn class="ml-auto" small v-if="sortMode" @click="commitContentOrder" color="primary">{{ $t("Common.入替完了") }}</v-btn>
-      <v-btn class="ml-2" dark small v-if="sortMode" @click="cancelContentOrder" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
+      <template v-if="!sortMode">
+        <v-btn class="mr-2" small v-if="setting.isMinimizedDescription" @click="toggleMinimizeDescription(false)">{{ $t("Home.補足情報") }}</v-btn>
+        <v-btn class="mr-2" small v-if="setting.isMinimizedAirbase" @click="toggleMinimizeAirbase(false)">{{ $t("Airbase.基地航空隊") }}</v-btn>
+        <v-btn class="mr-2" small v-if="setting.isMinimizedFleet" @click="toggleMinimizeFleet(false)">{{ $t("Fleet.自艦隊") }}</v-btn>
+        <v-btn class="mr-2" small v-if="setting.isMinimizedEnemy" @click="toggleMinimizeEnemy(false)">{{ $t("Enemies.敵艦隊") }}</v-btn>
+        <v-btn class="mr-2" small v-if="setting.isMinimizedResult" @click="toggleMinimizeResult(false)">{{ $t("Result.計算結果") }}</v-btn>
+        <v-btn class="ml-auto" small @click="startContentOrder" color="primary">{{ $t("Common.順序入替") }}</v-btn>
+      </template>
+      <template v-else>
+        <v-btn class="ml-auto" small @click="commitContentOrder" color="primary">{{ $t("Common.入替完了") }}</v-btn>
+        <v-btn class="ml-2" dark small @click="cancelContentOrder" color="secondary">{{ $t("Common.キャンセル") }}</v-btn>
+      </template>
     </div>
     <draggable handle=".content-frame" animation="150" :disabled="!sortMode" id="content-container" :class="{ 'sort-mode': sortMode }">
       <div id="description-content" class="content-frame" v-show="sortMode || !setting.isMinimizedDescription">
