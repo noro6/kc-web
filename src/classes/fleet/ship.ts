@@ -1418,17 +1418,6 @@ export default class Ship implements ShipBase {
       }
     }
 
-    // 汎用CI判定
-    if (mainGunCount >= 3) {
-      specialAttacks.push({ text: '主主主CI', value: 140 });
-    } else if (mainGunCount >= 2 && subGunCount) {
-      specialAttacks.push({ text: '主主副CI', value: 130 });
-    } else if (torpCount >= 2) {
-      specialAttacks.push({ text: '魚雷CI', value: 122 });
-    } else if (mainGunCount && torpCount) {
-      specialAttacks.push({ text: '砲雷CI', value: 115 });
-    }
-
     if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV) {
       // 潜水カットイン判定
       const lateModelTorpCount = items.filter((v) => [213, 214, 383, 441, 443, 457, 461].includes(v.data.id)).length;
@@ -1437,6 +1426,23 @@ export default class Ship implements ShipBase {
       } else if (lateModelTorpCount >= 2) {
         specialAttacks.push({ text: '潜魚雷CI', value: 110 });
       }
+    }
+
+    // 汎用CI判定
+    if (mainGunCount >= 3) {
+      specialAttacks.push({ text: '主主主CI', value: 140 });
+    } else if (mainGunCount >= 2 && subGunCount) {
+      specialAttacks.push({ text: '主主副CI', value: 130 });
+    } else if (torpCount >= 2) {
+      if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV) {
+        if (!specialAttacks.length) {
+          specialAttacks.push({ text: '魚雷CI', value: 122 });
+        }
+      } else {
+        specialAttacks.push({ text: '魚雷CI', value: 122 });
+      }
+    } else if (mainGunCount && torpCount) {
+      specialAttacks.push({ text: '砲雷CI', value: 115 });
     }
 
     // 連撃
