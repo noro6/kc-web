@@ -1334,9 +1334,9 @@ export default Vue.extend({
         }
       }
 
-      if (this.filterStatus && this.filterStatusValue) {
+      const filterValue = this.filterStatusValue ? +this.filterStatusValue : 0;
+      if (this.filterStatus && filterValue) {
         const filterKey = this.filterStatus;
-        const value = this.filterStatusValue;
         const isActualFilterKey = filterKey.indexOf('actual') >= 0
           || filterKey === 'tp'
           || filterKey === 'airPower'
@@ -1345,9 +1345,9 @@ export default Vue.extend({
           || filterKey === 'antiAirBonus';
         this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
           if (isActualFilterKey) {
-            return v.item[filterKey] >= value;
+            return v.item[filterKey] >= filterValue;
           }
-          return (v.item.data as { [key: string]: number })[filterKey] >= value;
+          return (v.item.data as { [key: string]: number })[filterKey] >= filterValue;
         });
       }
 
