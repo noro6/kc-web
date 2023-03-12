@@ -1016,10 +1016,7 @@ export default Vue.extend({
           // なんか変だったら陸攻を初期位置に
           this.type = 47;
         }
-        if (!this.slot) {
-          // 搭載数を18に
-          this.slot = 18;
-        }
+        this.slot = 18;
 
         const filterData = this.setting.savedItemListFilter.find((v) => v.parent === 'airbase');
         if (filterData && filterData.key) {
