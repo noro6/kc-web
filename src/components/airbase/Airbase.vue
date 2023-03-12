@@ -215,13 +215,13 @@ export default Vue.extend({
       return this.value;
     },
     airPower() {
-      if (this.isDefense && this.value.mode === AB_MODE.DEFENSE) {
+      if (this.value.mode === AB_MODE.DEFENSE) {
         return this.value.defenseAirPower;
       }
       return this.value.fullAirPower;
     },
     airPowerDetail() {
-      if (this.isDefense && this.value.mode === AB_MODE.DEFENSE) {
+      if (this.value.mode === AB_MODE.DEFENSE) {
         const airPowers = this.value.items.map((v) => v.defenseAirPower);
         return airPowers.filter((v) => v > 0).length ? `( ${airPowers.join(' | ')} )` : '';
       }
