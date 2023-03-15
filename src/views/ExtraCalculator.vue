@@ -81,13 +81,13 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import ShipMasterList from '@/components/fleet/ShipMasterList.vue';
-import ShipStatusCompare from '@/components/fleet/ShipStatusCompare.vue';
-import ItemMasterList from '@/components/item/ItemMasterList.vue';
-import RequiredAswCalculator from '@/components/result/RequiredAswCalculator.vue';
-import EnemySearcher from '@/components/map/EnemySearcher.vue';
-import QuestManager from '@/components/result/QuestManager.vue';
-import EnemyAaRanking from '@/components/enemy/EnemyAARanking.vue';
+import ShipMasterList from '@/components/extra/ShipMasterList.vue';
+import ShipStatusCompare from '@/components/extra/ShipStatusCompare.vue';
+import ItemMasterList from '@/components/extra/ItemMasterList.vue';
+import RequiredAswCalculator from '@/components/extra/RequiredAswCalculator.vue';
+import EnemySearcher from '@/components/extra/EnemySearcher.vue';
+import QuestManager from '@/components/extra/QuestManager.vue';
+import EnemyAaRanking from '@/components/extra/EnemyAARanking.vue';
 
 export default Vue.extend({
   name: 'ExtraCalculator',
