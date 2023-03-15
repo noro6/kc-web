@@ -59,15 +59,25 @@
       </div>
       <v-tooltip left>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn :disabled="isManagerPage" icon @click="$router.push({ path: '/manager' })" v-bind="attrs" v-on="on">
-            <v-icon>mdi-database-cog</v-icon>
+          <v-btn class="d-none d-sm-block" :disabled="isManagerPage" icon @click="$router.push({ path: '/manager' })" v-bind="attrs" v-on="on">
+            <v-icon color="blue lighten-2">mdi-database-cog</v-icon>
           </v-btn>
         </template>
         <span>{{ $t("Home.艦娘 / 装備管理") }}</span>
       </v-tooltip>
       <v-tooltip left>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="configDialog = true" v-bind="attrs" v-on="on"><v-icon>mdi-cog</v-icon></v-btn>
+          <v-btn class="d-none d-sm-block" :disabled="isExtraPage" icon @click="$router.push({ path: '/extra' })" v-bind="attrs" v-on="on">
+            <v-icon color="pink lighten-2">mdi-gift-open</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("Home.おまけ") }}</span>
+      </v-tooltip>
+      <v-tooltip left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="configDialog = true" v-bind="attrs" v-on="on">
+            <v-icon color="grey lighten-2">mdi-cog</v-icon>
+          </v-btn>
         </template>
         <span>{{ $t("Common.サイト設定") }}</span>
       </v-tooltip>
@@ -672,6 +682,9 @@ export default Vue.extend({
     },
     isAirCalcPage(): boolean {
       return this.$route.path.endsWith('/aircalc');
+    },
+    isExtraPage(): boolean {
+      return this.$route.path.endsWith('/extra');
     },
     isLight(): boolean {
       return this.setting.themeDetail === 'light';
