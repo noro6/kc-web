@@ -60,25 +60,25 @@
         </v-btn>
         <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()" tabindex="0">{{ $t("ItemList.対地攻撃") }}</span>
       </div>
+      <div class="ml-3 d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
+        <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
+      </div>
+      <div class="ml-3 d-flex manual-checkbox" v-if="enabledAAResistFilter">
+        <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避あり')" />
+      </div>
       <template v-if="type === 14">
         <div class="ml-3 align-self-center my-3">
-          <v-checkbox v-model="includeSonar" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.ソナー') : 'ソナー'" />
+          <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
         </div>
         <div class="ml-3 align-self-center my-3">
-          <v-checkbox v-model="includeDepthCharge" @click="clickedStockOnly" hide-details dense :label="isNotJapanese ? $t('EType.爆雷') : '爆雷'" />
+          <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
         </div>
         <div class="ml-3 align-self-center my-3">
-          <v-checkbox
-            v-model="includeDepthChargeLauncher"
-            @click="clickedStockOnly"
-            hide-details
-            dense
-            :label="isNotJapanese ? $t('EType.爆雷投射機') : '爆雷投射機'"
-          />
+          <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
         </div>
       </template>
       <div class="ml-3 align-self-center my-3" v-if="!isEnemyMode && setting.displayBonusKey">
-        <v-checkbox v-model="isSpecialOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.特効装備')" />
+        <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
       </div>
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')" />
@@ -180,7 +180,7 @@
       </div>
       <div v-for="(data, i) in itemListData" :key="i">
         <div class="type-divider" v-if="multiLine">
-          <div class="caption text--secondary">{{ isNotJapanese ? $t(`EType.${data.typeName}`) : data.typeName }}</div>
+          <div class="caption text--secondary">{{ $t(`EType.${data.typeName}`) }}</div>
           <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine }">
@@ -677,6 +677,8 @@ export default Vue.extend({
     onlyDisabledLandBaseAttack: false,
     onlyAffectingRange: false,
     onlyNotAffectingRange: false,
+    onlyNightAircraft: false,
+    onlyAAResistAircraft: false,
     isSpecialOnly: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
@@ -888,12 +890,15 @@ export default Vue.extend({
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
     },
-    isNotJapanese() {
-      return this.$i18n.locale !== 'ja';
-    },
     needTrans() {
       const setting = this.$store.state.siteSetting as SiteSetting;
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    enabledNightAircraftFilter() {
+      return this.type === -1 || this.type === 6 || this.type === 7 || this.type === 8;
+    },
+    enabledAAResistFilter() {
+      return Const.ATTACKERS.includes(this.type) || this.type === -1 || this.type === 1100;
     },
   },
   methods: {
@@ -1106,21 +1111,36 @@ export default Vue.extend({
       } else {
         result = result.filter((v) => !v.isEnemyItem);
       }
-      if (this.type === 7 && this.onlyEnabledLandBaseAttack) {
-        result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
-      } else if (this.type === 7 && this.onlyDisabledLandBaseAttack) {
-        result = result.filter((v) => !Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+      if (this.type === 7) {
+        if (this.onlyEnabledLandBaseAttack) {
+          result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+        } else if (this.onlyDisabledLandBaseAttack) {
+          result = result.filter((v) => !Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+        }
       }
-      if (this.type === 14 && !this.includeSonar) {
-        result = result.filter((v) => v.apiTypeId !== 14);
+
+      if (this.type === 14) {
+        // ソ爆投フィルタ
+        if (!this.includeSonar) {
+          result = result.filter((v) => v.apiTypeId !== 14);
+        }
+        if (!this.includeDepthCharge) {
+          result = result.filter((v) => v.iconTypeId !== 1700);
+        }
+        if (!this.includeDepthChargeLauncher) {
+          result = result.filter((v) => v.iconTypeId !== 17);
+        }
       }
-      if (this.type === 14 && !this.includeDepthCharge) {
-        result = result.filter((v) => v.iconTypeId !== 1700);
+      if (this.enabledNightAircraftFilter && this.onlyNightAircraft) {
+        // 夜間機フィルタ
+        result = result.filter((v) => v.isNightAircraftItem);
       }
-      if (this.type === 14 && !this.includeDepthChargeLauncher) {
-        result = result.filter((v) => v.iconTypeId !== 17);
+      if (this.enabledAAResistFilter && this.onlyAAResistAircraft) {
+        // 射撃回避フィルタ
+        result = result.filter((v) => v.avoidId);
       }
       if (this.isSpecialOnly && bonusKey) {
+        // 特効フィルタ
         result = result.filter((v) => v.bonuses.find((x) => x.key === bonusKey));
       }
 

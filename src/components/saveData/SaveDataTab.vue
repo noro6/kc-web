@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="tab-add-button">
-        <v-btn icon small @click.stop="addNewFile">
+        <v-btn icon small @click.stop="addNewFile()">
           <v-icon small>mdi-plus</v-icon>
         </v-btn>
       </div>

@@ -44,7 +44,7 @@
         <div class="w-100" v-if="enabledDist" />
         <div class="form-control lg" v-show="isAirbase">
           <v-select
-            :label="isNotJapanese ? $t('EType.陸上偵察機') : '陸上偵察機'"
+            :label="$t('EType.陸上偵察機')"
             v-model="calcArgs.rikuteiBonus"
             :items="rikuteis"
             hide-details
