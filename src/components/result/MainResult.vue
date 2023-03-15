@@ -345,7 +345,7 @@
           :parent="detailParent"
           :index="detailIndex"
           :fleetIndex="detailFleetIndex"
-          :manager="value"
+          :manager="managerForDialog"
         />
       </v-card>
     </v-dialog>
@@ -728,7 +728,7 @@ export default Vue.extend({
       }
       return enemies;
     },
-    supportsTableRow(): { number: number }[] {
+    supportsTableRow(): { number: number; typeName: string; airPower: number; enemyAirPower: string; rates: number[]; isMainFleet: boolean }[] {
       const rows = [];
       const fleets = this.value.fleetInfo.fleets.concat();
       const mainIndex = this.value.fleetInfo.mainFleetIndex;
