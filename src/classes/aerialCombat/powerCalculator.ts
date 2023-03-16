@@ -198,9 +198,8 @@ export default class AerialFirePowerCalculator {
           // 基地じゃない場合はなぜか0
           actualTorpedo = 0;
         } else if (item.data.id === 491 && shipType === SHIP_TYPE.DD) {
-          // 20戦隊熟練 VS 駆逐の場合、雷装値19として計算
-          typeMultipliers[0] = 0.8;
-          actualTorpedo = 19 + item.bonusTorpedo;
+          // 20戦隊熟練 VS 駆逐の場合、爆装30として計算
+          actualTorpedo = 30 + item.bonusTorpedo;
         }
         break;
       case 47:
@@ -331,7 +330,7 @@ export default class AerialFirePowerCalculator {
     // 陸偵補正
     const preCapFirePower = power * args.rikuteiBonus;
     // キャップ適用
-    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS);
+    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS);
 
     let finalFirePower = postCapFirePower;
     let LBASModifiers = 0;
@@ -353,18 +352,14 @@ export default class AerialFirePowerCalculator {
         bomberMultiplier = isBomber ? 2.1 : 1;
         LBASModifiers = 100;
         // a5 b5補正のため計算しなおし
-        finalFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS, bomberMultiplier, LBASModifiers);
+        finalFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS, bomberMultiplier, LBASModifiers);
       } else {
         finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
       }
     }
 
     // 陸攻補正
-    let airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
-    if (item.data.id === 491 && defense.data.type === SHIP_TYPE.DD) {
-      // 20戦隊熟練
-      airBaseBonus = 1.8;
-    }
+    const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
     // 空母棲姫特効
     let aircraftCarrierPrincessMultiplier = 1;
     if (item.data.isABAttacker && (defense.data.id === 1586 || defense.data.id === 1620)) {
@@ -487,7 +482,7 @@ export default class AerialFirePowerCalculator {
   public static getAirbasePostCapAswAttackPower(args: FirePowerCalcArgs, baseFirePower: number, typeMultiplier: number): PostCapTerm {
     // 基本攻撃力 = {対潜 × √(1.8 × 搭載数) + 25} × {A + (0 ~ Bの乱数)}（再掲）
     const preCapFirePower = baseFirePower * typeMultiplier * args.rikuteiBonus;
-    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.AS);
+    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS);
 
     let finalFirePower = postCapFirePower;
     // 陸攻補正
