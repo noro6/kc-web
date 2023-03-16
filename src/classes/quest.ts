@@ -14,7 +14,7 @@ export default class Quest {
   public name = '';
 
   /** 任務対応 */
-  public type: 'Once' | 'Quarterly' | 'Yearly' = 'Once';
+  public type: 'Once' | 'Monthly' | 'Quarterly' | 'Yearly' = 'Once';
 
   /** 報酬 燃料 */
   public fuel = 0;
@@ -100,6 +100,16 @@ export default class Quest {
       } else {
         // 直近の [3,6,9,12]月 1日 05:00:00
         const nextResetMonth = month + (3 - (month % 3));
+        resetDateTime = new Date(`${today.getFullYear()}-${padStart(`${nextResetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
+      }
+    } else if (quest.type === 'Monthly') {
+      // 12月の更新日を超えているなら
+      if (month > 11 && (today.getDate() >= 2 || (today.getDate() >= 1 && today.getHours() >= 5))) {
+        // 来年の1月1日05:00:00
+        resetDateTime = new Date(`${today.getFullYear() + 1}-01-01T05:00:00+0900`).getTime();
+      } else {
+        // 来月1日 05:00:00
+        const nextResetMonth = month + 1;
         resetDateTime = new Date(`${today.getFullYear()}-${padStart(`${nextResetMonth}`, 2, '0')}-01T05:00:00+0900`).getTime();
       }
     } else if (quest.type === 'Yearly') {

@@ -21,7 +21,7 @@
               :item-text="(item) => `${$t(`Extra.${item.text}`)}`"
               hide-details
               dense
-             />
+            />
           </div>
           <div class="ml-auto mr-12">
             <div class="d-flex justify-end">
@@ -100,12 +100,7 @@
                 <v-divider />
                 <div class="d-flex flex-wrap">
                   <div v-for="(check, j) in quest.requires" :key="`req${j}`" class="check-container">
-                    <v-checkbox
-                      v-model="check.isComplete"
-                      @change="updateState"
-                      hide-details
-                      :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"
-                     />
+                    <v-checkbox v-model="check.isComplete" @change="updateState" hide-details :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`" />
                   </div>
                 </div>
                 <div class="mt-6 d-flex align-center">
@@ -381,8 +376,22 @@ export default Vue.extend({
           // 締日を設定
           quest.closingDateTime = closingDateTime;
         }
-        if (!quest.resetDateTime || resetDateTime !== quest.resetDateTime) {
-          // リセット日を設定
+
+        console.log(quest, quest.resetDateTime, resetDateTime);
+
+        if (quest.type !== 'Once' && (!quest.resetDateTime || resetDateTime !== quest.resetDateTime)) {
+          // 現在日時より解決されるリセット日が、保存データのリセット日と違う場合
+          // 達成状態を戻す
+          quest.requires = [];
+          for (let j = 0; j < master.requires.length; j += 1) {
+            quest.requires.push({
+              area: master.requires[j].area,
+              rank: master.requires[j].rank,
+              isComplete: false,
+            });
+          }
+          quest.isCompleted = false;
+          // リセット日を再設定
           quest.resetDateTime = resetDateTime;
         }
 
@@ -390,6 +399,8 @@ export default Vue.extend({
       }
 
       this.allQuests = quests;
+      this.$store.dispatch('updateQuests', this.allQuests);
+
       this.setTimeRemaining();
 
       this.intervalId = window.setInterval(() => {
