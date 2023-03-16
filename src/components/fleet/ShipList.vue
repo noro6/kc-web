@@ -772,7 +772,7 @@ export default Vue.extend({
           // 大発搭載可能
           const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
           if (daihatsu) {
-            result = result.filter((v) => isValid(v, daihatsu));
+            result = result.filter((v) => v.slotCount && isValid(v, daihatsu));
           }
         } else if (this.daihatsuNG) {
           // 大発搭載不可
@@ -785,7 +785,7 @@ export default Vue.extend({
           // 内火艇搭載可能
           const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
           if (tank) {
-            result = result.filter((v) => isValid(v, tank));
+            result = result.filter((v) => v.slotCount && isValid(v, tank));
           }
         } else if (this.tankNG) {
           // 内火艇搭載不可
