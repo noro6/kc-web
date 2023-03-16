@@ -377,8 +377,6 @@ export default Vue.extend({
           quest.closingDateTime = closingDateTime;
         }
 
-        console.log(quest, quest.resetDateTime, resetDateTime);
-
         if (quest.type !== 'Once' && (!quest.resetDateTime || resetDateTime !== quest.resetDateTime)) {
           // 現在日時より解決されるリセット日が、保存データのリセット日と違う場合
           // 達成状態を戻す
