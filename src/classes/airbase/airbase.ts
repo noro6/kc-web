@@ -1,7 +1,7 @@
 import AirCalcResult from '../airCalcResult';
 import { AB_MODE } from '../const';
 import { ContactRate } from '../interfaces/contactRate';
-import Item from '../item/item';
+import Item, { ItemBuilder } from '../item/item';
 
 export interface AirbaseBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -175,16 +175,6 @@ export default class Airbase {
   }
 
   /**
-   * 有効な装備のみ取得
-   * @readonly
-   * @type {Item[]}
-   * @memberof Airbase
-   */
-  public get enabledItems(): Item[] {
-    return this.items.filter((v) => v.data.id > 0);
-  }
-
-  /**
    * 航空隊の半径を返却
    * @readonly
    * @type {number}
@@ -236,5 +226,128 @@ export default class Airbase {
    */
   public getContactRates(): ContactRate[] {
     return Item.getContactRates(this.items);
+  }
+
+  /**
+   * 装備をセット
+   * @param {Item} item セット対象の装備データ
+   * @param {number} slot セット先のスロット番号
+   * @param {{ id: number, level: number }[]} initialLevels 初期熟練度情報
+   * @param {boolean} [isDefense=false] 防空モード
+   * @param {number} [lastBattle=0] 最終戦闘インデックス
+   * @return {*}  {Airbase} 装備を更新した新しいAirbaseインスタンス
+   * @memberof Airbase
+   */
+  public putItem(item: Item, slot: number, initialLevels: { id: number, level: number }[], isDefense = false, lastBattle = 0): Airbase {
+    if (slot < this.items.length) {
+      // インスタンス化用のいろいろ用意
+      let level = 0;
+      if (initialLevels) {
+        // 設定情報より初期熟練度を解決
+        const initData = initialLevels.find((v) => v.id === item.data.apiTypeId);
+        if (initData) {
+          level = initData.level;
+        }
+      }
+
+      const builder: ItemBuilder = {
+        master: item.data,
+        slot: item.data.airbaseMaxSlot,
+        level,
+        remodel: item.remodel,
+      };
+      this.items[slot] = new Item(builder);
+    }
+
+    const builder: AirbaseBuilder = { airbase: this };
+    if (this.mode === AB_MODE.WAIT && this.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
+      // 待機札だった場合
+      // 出撃か防空札に変更
+      builder.mode = isDefense ? AB_MODE.DEFENSE : AB_MODE.BATTLE;
+      // 派遣先を最終戦闘にオート設定
+      builder.battleTarget = [lastBattle, lastBattle];
+    }
+
+    return new Airbase(builder);
+  }
+
+  /**
+   * 基本的に装備プリセットを展開
+   * @param {Item[]} items プリセット内容
+   * @param {{ id: number, level: number }[]} initialLevels 初期熟練度情報
+   * @param {boolean} [isDefense=false] 防空モード
+   * @param {number} [lastBattle=0] 最終戦闘インデックス
+   * @return {*}  {Airbase} 装備を更新した新しいAirbaseインスタンス
+   * @memberof Airbase
+   */
+  public expandPreset(items: Item[], initialLevels: { id: number, level: number }[], isDefense = false, lastBattle = 0): Airbase {
+    // もともとここに配備されていた装備情報を抜き取る
+    const newItems = this.items.concat();
+    // 装備搭載可否情報マスタ
+    for (let slotIndex = 0; slotIndex < this.items.length; slotIndex += 1) {
+      if (slotIndex < items.length) {
+        const newItem = items[slotIndex];
+        if (newItem && newItem.data.isPlane) {
+          // 初期熟練度設定
+          let level = 0;
+          // 設定情報より初期熟練度を解決
+          const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
+          if (initData) {
+            level = initData.level;
+          }
+
+          newItems[slotIndex] = new Item({
+            master: newItem.data,
+            item: newItems[slotIndex],
+            slot: newItem.data.airbaseMaxSlot,
+            level,
+            remodel: newItem.remodel,
+          });
+        } else {
+          // 不適合、外す
+          newItems[slotIndex] = new Item();
+        }
+      }
+    }
+    const builder: AirbaseBuilder = { airbase: this, items: newItems };
+    if (this.mode === AB_MODE.WAIT && newItems.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
+      // 待機札だった場合
+      // 出撃か防空札に変更
+      builder.mode = isDefense ? AB_MODE.DEFENSE : AB_MODE.BATTLE;
+      // 派遣先を最終戦闘にオート設定
+      builder.battleTarget = [lastBattle, lastBattle];
+    }
+
+    // 再インスタンス化し更新
+    return new Airbase(builder);
+  }
+
+  /**
+   * 全装備を一括更新した新しいAirbaseインスタンスを返却
+   * @param {ItemBuilder} builder 更新用ビルダー
+   * @param {boolean} [onlyFighter=false] 艦戦系のみを対象にする場合true
+   * @return {*}  {Airbase}
+   * @memberof Airbase
+   */
+  public bulkUpdateAllItem(builder: ItemBuilder, onlyFighter = false): Airbase {
+    const { items } = this;
+    for (let j = 0; j < items.length; j += 1) {
+      const item = items[j];
+      if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
+        let { slot } = item;
+        const { level } = builder;
+        if (item.data.isPlane && builder.slot !== undefined) {
+          slot = Math.min(item.data.airbaseMaxSlot, builder.slot);
+        }
+        items[j] = new Item({
+          item,
+          slot,
+          remodel: item.data.canRemodel ? builder.remodel : undefined,
+          level,
+        });
+      }
+    }
+
+    return new Airbase({ airbase: this });
   }
 }

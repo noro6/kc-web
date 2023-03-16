@@ -56,8 +56,8 @@
       </v-tooltip>
     </div>
     <v-divider class="mb-3" />
-    <div :class="{ 'has-error-space': !airbaseInfo.isDefense && needErrorSpace }">
-      <div v-if="!airbaseInfo.isDefense && needAirRaid" class="w-100">
+    <div :class="{ 'has-error-space': !isDefenseMode && needErrorSpace }">
+      <div v-if="!isDefenseMode && needAirRaid" class="w-100">
         <v-alert outlined type="error"
           >{{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
           <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
@@ -65,14 +65,14 @@
       </div>
       <div class="d-flex w-100">
         <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo" />
-        <div class="align-self-center ml-3" v-show="!airbaseInfo.isDefense && battleInfo.battleCount > 1 && existsBattleAirbase">
+        <div class="align-self-center ml-3" v-show="!isDefenseMode && battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t("Airbase.基地派遣先設定") }}</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
           <v-alert dense outlined type="warning">{{ rangeError }}</v-alert>
         </div>
       </div>
-      <div class="d-flex ml-2 mb-2" v-if="airbaseInfo.isDefense">
+      <div class="d-flex ml-2 mb-2" v-if="isDefenseMode">
         <template v-if="isNormalAirRaidMode">
           <div class="d-flex align-center align-self-end">
             <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
@@ -143,7 +143,7 @@
           :index="i"
           :handle-show-item-list="showItemList"
           @input="setInfo"
-          :is-defense="airbaseInfo.isDefense"
+          :is-defense="isDefenseMode"
           :handle-show-item-presets="showItemPresets"
         />
       </v-tab-item>
@@ -163,7 +163,7 @@
         :class="{ unMatch: unMatchModes[i] }"
         v-model="airbaseInfo.airbases[i]"
         :index="i"
-        :is-defense="airbaseInfo.isDefense"
+        :is-defense="isDefenseMode"
         :handle-show-item-list="showItemList"
         :handle-show-item-presets="showItemPresets"
         @input="setInfo"
@@ -173,7 +173,7 @@
       <!-- 通常防空時の計算結果 -->
       <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
     </div>
-    <div v-else-if="airbaseInfo.isDefense" class="mx-2 mb-1">
+    <div v-else-if="isDefenseMode" class="mx-2 mb-1">
       <!-- 超重爆時の計算結果 -->
       <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4 d-flex">
         <div class="mr-1 align-self-center caption">{{ $t("Airbase.第x波", { number: i + 1 }) }}</div>
@@ -456,7 +456,7 @@ import AirbaseComp from '@/components/airbase/Airbase.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
-import Airbase, { AirbaseBuilder } from '@/classes/airbase/airbase';
+import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE, CELL_TYPE } from '@/classes/const';
 import Item, { ItemBuilder } from '@/classes/item/item';
 import BattleInfo from '@/classes/enemy/battleInfo';
@@ -523,9 +523,12 @@ export default Vue.extend({
       }
       return Const.DIFFICULTY_LEVELS;
     },
+    isDefenseMode(): boolean {
+      return this.airbaseInfo.isDefense;
+    },
     unMatchModes(): boolean[] {
       const modes = this.airbaseInfo.airbases.map((v) => v.mode);
-      if (this.airbaseInfo.isDefense) {
+      if (this.isDefenseMode) {
         return modes.map((v) => v !== AB_MODE.DEFENSE);
       }
 
@@ -589,7 +592,10 @@ export default Vue.extend({
       return !this.bulkUpdateTarget.some((v) => !v);
     },
     isNormalAirRaidMode(): boolean {
-      return this.airbaseInfo.isDefense && this.battleInfo.airRaidFleet.cellType !== CELL_TYPE.SUPER_HIGH_AIR_RAID;
+      return this.isDefenseMode && this.battleInfo.airRaidFleet.cellType !== CELL_TYPE.SUPER_HIGH_AIR_RAID;
+    },
+    lastBattleIndex(): number {
+      return this.battleInfo.battleCount - 1;
     },
   },
   mounted() {
@@ -606,48 +612,15 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base);
     },
-    equipItem(argItem: Item) {
-      const item = argItem.data;
+    equipItem(item: Item) {
       const index = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
       const base = this.airbaseInfo.airbases[index];
-
-      if (!base) {
-        return;
-      }
-
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
-      if (slot < base.items.length) {
-        // インスタンス化用のいろいろ用意
-        let initialLevel = 0;
-        if (initialLevels) {
-          // 設定情報より初期熟練度を解決
-          const initData = initialLevels.find((v) => v.id === item.apiTypeId);
-          if (initData) {
-            initialLevel = initData.level;
-          }
-        }
+      if (!base) return;
 
-        const builder: ItemBuilder = {
-          master: item,
-          slot: item.airbaseMaxSlot,
-          level: initialLevel,
-          remodel: argItem.remodel,
-        };
-        base.items[slot] = new Item(builder);
-        this.itemListDialog = false;
-      }
-
-      const builder: AirbaseBuilder = { airbase: base };
-      if (base.mode === AB_MODE.WAIT && base.items.some((v) => v.data.id > 0 && v.fullSlot > 0)) {
-        // 待機札だった場合は出撃か防空札に変更
-        builder.mode = this.airbaseInfo.isDefense ? AB_MODE.DEFENSE : AB_MODE.BATTLE;
-        // 派遣先を最終戦闘にオート設定
-        const lastBattle = this.battleInfo.battleCount - 1;
-        builder.battleTarget = [lastBattle, lastBattle];
-      }
-      // リアクティブ再登録
-      this.airbaseInfo.airbases[index] = new Airbase(builder);
+      this.airbaseInfo.airbases[index] = base.putItem(item, slot, initialLevels, this.isDefenseMode, this.lastBattleIndex);
+      this.itemListDialog = false;
       this.setInfo();
     },
     supply() {
@@ -732,27 +705,8 @@ export default Vue.extend({
       // 指定ビルダーで装備情報一括更新
       const { airbases } = this.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
-        if (!this.bulkUpdateTarget[i]) {
-          continue;
-        }
-        const { items } = airbases[i];
-        for (let j = 0; j < items.length; j += 1) {
-          const item = items[j];
-          if (!onlyFighter || (onlyFighter && item.data.isFighter)) {
-            let { slot } = item;
-            const { level } = itemBuilder;
-            if (item.data.isPlane && itemBuilder.slot !== undefined) {
-              slot = Math.min(item.data.airbaseMaxSlot, itemBuilder.slot);
-            }
-            items[j] = new Item({
-              item,
-              slot,
-              remodel: item.data.canRemodel ? itemBuilder.remodel : undefined,
-              level,
-            });
-          }
-        }
-        airbases[i] = new Airbase({ airbase: airbases[i] });
+        if (!this.bulkUpdateTarget[i]) continue;
+        airbases[i] = airbases[i].bulkUpdateAllItem(itemBuilder, onlyFighter);
       }
 
       const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
@@ -792,47 +746,10 @@ export default Vue.extend({
       }
       const index = this.dialogTarget[0];
       const airbase = this.airbaseInfo.airbases[index];
-      // もともとここに配備されていた装備情報を抜き取る
-      const newItems = airbase.items.concat();
-      // 装備搭載可否情報マスタ
-      for (let slotIndex = 0; slotIndex < airbase.items.length; slotIndex += 1) {
-        if (slotIndex < items.length) {
-          const newItem = items[slotIndex];
-          if (newItem && Const.PLANE_TYPES.includes(newItem.data.apiTypeId)) {
-            // マスタ情報があり、装備条件を満たしている場合は装備引継ぎOK！
-            let slot = 18;
-            if (Const.RECONNAISSANCES.includes(newItem.data.apiTypeId)) {
-              slot = 4;
-            } else if (Const.AB_ATTACKERS_LARGE.includes(newItem.data.apiTypeId)) {
-              slot = 9;
-            }
-
-            // 初期熟練度設定
-            const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
-            let level = 0;
-            if (initialLevels) {
-              // 設定情報より初期熟練度を解決
-              const initData = initialLevels.find((v) => v.id === newItem.data.apiTypeId);
-              if (initData) {
-                level = initData.level;
-              }
-            }
-            newItems[slotIndex] = new Item({
-              master: newItem.data,
-              item: newItems[slotIndex],
-              slot,
-              level,
-              remodel: newItem.remodel,
-            });
-          } else {
-            // 不適合、外す
-            newItems[slotIndex] = new Item();
-          }
-        }
-      }
+      const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
 
       // 再インスタンス化し更新
-      this.airbaseInfo.airbases[index] = new Airbase({ airbase, items: newItems });
+      this.airbaseInfo.airbases[index] = airbase.expandPreset(items, initialLevels, this.isDefenseMode, this.lastBattleIndex);
       const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
       this.$emit('input', newInfo);
     },

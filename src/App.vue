@@ -812,6 +812,9 @@ export default Vue.extend({
         if (this.urlParameters.data) {
           // 編成データ解析
           const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
+          if (!this.isJapanese) {
+            urlData.name = 'Imported Data';
+          }
           urlData.isMain = true;
           urlData.isActive = true;
           this.saveData.childItems.push(urlData);
@@ -871,6 +874,9 @@ export default Vue.extend({
           informText.push('編成の読み込み');
         } else if (this.urlFragments.saveData) {
           const urlData = SaveData.decodeURLSaveData(this.urlFragments.saveData);
+          if (!this.isJapanese) {
+            urlData.name = 'Imported Data';
+          }
           urlData.isMain = true;
           urlData.isActive = true;
           this.saveData.childItems.push(urlData);
@@ -1016,7 +1022,11 @@ export default Vue.extend({
         mainData.tempIndex += 1;
       } else {
         mainData = new SaveData();
-        mainData.name = '外部データ';
+        if (this.isJapanese) {
+          mainData.name = '外部データ';
+        } else {
+          mainData.name = 'Imported Data';
+        }
         mainData.isActive = true;
         mainData.isMain = true;
         mainData.tempData = [manager];
@@ -1465,6 +1475,12 @@ export default Vue.extend({
   destroyed() {
     document.removeEventListener('keyup', this.keyupHandler);
     document.removeEventListener('keydown', this.keydownHandler);
+  },
+  errorCaptured(error) {
+    const message = error.toString();
+    console.error(message);
+    // window.location.reload();
+    return false;
   },
 });
 </script>

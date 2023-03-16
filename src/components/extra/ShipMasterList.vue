@@ -274,7 +274,7 @@ export default Vue.extend({
     selectedSomeType(): boolean {
       return this.selectedTypes.length > 0 && !this.selectedAllType;
     },
-    translatedShipTypes(): { text: string }[] {
+    translatedShipTypes(): { text: string, value: number }[] {
       const array = [];
       for (let i = 0; i < this.types.length; i += 1) {
         const data = this.types[i];

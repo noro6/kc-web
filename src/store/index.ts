@@ -1,9 +1,10 @@
-import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import axios from 'axios';
+import Quest from '@/classes/quest';
 import Ship from '@/classes/fleet/ship';
 import KcWebDatabase from '@/classes/db';
+import Fleet from '@/classes/fleet/fleet';
 import CalcManager from '@/classes/calcManager';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
@@ -13,54 +14,83 @@ import SaveData from '@/classes/saveData/saveData';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
-import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
-import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
-import {
-  Master, MasterEnemy, MasterEquipmentExSlot, MasterEquipmentShip, MasterItem, MasterMap, MasterShip, MasterWorld,
-} from '@/classes/interfaces/master';
+import * as Master from '@/classes/interfaces/master';
 import OutputHistory from '@/classes/saveData/outputHistory';
-import Quest from '@/classes/quest';
-import Fleet from '@/classes/fleet/fleet';
+import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    /** サイトバージョン */
     siteVersion: '2.36.16',
+    /** 装備マスタデータ */
     items: [] as ItemMaster[],
+    /** 艦船マスタデータ */
     ships: [] as ShipMaster[],
+    /** 海域マスタデータ */
+    worlds: [] as Master.MasterWorld[],
+    /** マップマスタデータ */
+    maps: [] as Master.MasterMap[],
+    /** 海域セルマスタデータ */
     cells: [] as CellMaster[],
-    itemStock: [] as ItemStock[],
-    shipStock: [] as ShipStock[],
-    tempItemStock: [] as ItemStock[],
-    tempShipStock: [] as ShipStock[],
-    tempShipList: [] as Ship[],
-    tempFleetList: [] as Fleet[],
-    itemPresets: [] as ItemPreset[],
-    manualEnemies: [] as EnemyMaster[],
+    /** 敵艦マスタデータ */
     defaultEnemies: [] as EnemyMaster[],
+    /** 所持装備マスタ */
+    itemStock: [] as ItemStock[],
+    /** 所持艦隊マスタ */
+    shipStock: [] as ShipStock[],
+    /** 一時展開中装備マスタ */
+    tempItemStock: [] as ItemStock[],
+    /** 一時展開中艦隊マスタ */
+    tempShipStock: [] as ShipStock[],
+    /** 艦娘クリップボード */
+    tempShipList: [] as Ship[],
+    /** 艦隊クリップボード */
+    tempFleetList: [] as Fleet[],
+    /** 装備プリセット */
+    itemPresets: [] as ItemPreset[],
+    /** 手動設定敵艦隊 */
+    manualEnemies: [] as EnemyMaster[],
+    /** 共有URL出力履歴 */
     outputHistories: [] as OutputHistory[],
+    /** 任務達成状況 */
     quests: [] as Quest[],
+    /** 編成セーブデータルート */
     saveData: new SaveData(),
-    equipShips: [] as MasterEquipmentShip[],
-    exSlotEquipShips: [] as MasterEquipmentExSlot[],
-    worlds: [] as MasterWorld[],
-    maps: [] as MasterMap[],
+    /** 特定艦娘が装備可能な装備カテゴリ */
+    equipShips: [] as Master.MasterEquipmentShip[],
+    /** 特定艦娘が補強増設に装備可能な装備id */
+    exSlotEquipShips: [] as Master.MasterEquipmentExSlot[],
+    /** 現在展開中の計算データ */
     calcManager: undefined as CalcManager | undefined,
+    /** 現在展開中のセーブデータ */
     mainSaveData: new SaveData(),
+    /** ドラッグ中艦娘 */
     draggingShipData: new Ship(),
+    /** ドラッグ中セーブデータ */
     draggingSaveData: new SaveData(),
+    /** サイト設定データ */
     siteSetting: new SiteSetting(),
+    /** indexedDB用インスタンス */
     kcWebDatabase: new KcWebDatabase(),
+    /** みんなの編成検索結果 */
     searchedList: [] as UploadedPreset[],
+    /** 全データ読み込み終了フラグ */
     completed: false,
+    /** 設定ファイル読み込み終了フラグ */
     settingLoadCompleted: false,
+    /** セーブデータ読み込み終了フラグ */
     saveDataLoadCompleted: false,
+    /** indexedDB使用不能フラグ */
     disabledDatabase: false,
+    /** 海域札数 */
     areaCount: 0,
   },
   mutations: {
-    setShips: (state, values: MasterShip[]) => {
+    setShips: (state, values: Master.MasterShip[]) => {
       const ships: ShipMaster[] = [];
       for (let i = 0; i < values.length; i += 1) {
         const ship = new ShipMaster(values[i]);
@@ -70,7 +100,7 @@ export default new Vuex.Store({
       }
       state.ships = ships;
     },
-    setEnemies: (state, values: MasterEnemy[]) => {
+    setEnemies: (state, values: Master.MasterEnemy[]) => {
       const enemies: EnemyMaster[] = [];
       for (let i = 0; i < values.length; i += 1) {
         const enemy = new EnemyMaster(values[i]);
@@ -80,7 +110,7 @@ export default new Vuex.Store({
       }
       state.defaultEnemies = enemies;
     },
-    setItems: (state, values: MasterItem[]) => {
+    setItems: (state, values: Master.MasterItem[]) => {
       const items: ItemMaster[] = [];
       for (let i = 0; i < values.length; i += 1) {
         const item = new ItemMaster(values[i]);
@@ -90,16 +120,16 @@ export default new Vuex.Store({
       }
       state.items = items;
     },
-    setExSlotEquipShips: (state, values: MasterEquipmentExSlot[]) => {
+    setExSlotEquipShips: (state, values: Master.MasterEquipmentExSlot[]) => {
       state.exSlotEquipShips = values;
     },
-    setEquipShips: (state, values: MasterEquipmentShip[]) => {
+    setEquipShips: (state, values: Master.MasterEquipmentShip[]) => {
       state.equipShips = values;
     },
-    setWorlds: (state, values: MasterWorld[]) => {
+    setWorlds: (state, values: Master.MasterWorld[]) => {
       state.worlds = values;
     },
-    setMaps: (state, values: MasterMap[]) => {
+    setMaps: (state, values: Master.MasterMap[]) => {
       state.maps = values;
     },
     setAreaCount: (state, value: number) => {
@@ -298,7 +328,7 @@ export default new Vuex.Store({
           if (response.status !== 200 || !response.data) {
             return;
           }
-          const master = response.data as Master;
+          const master = response.data as Master.Master;
           context.commit('setItems', master.items);
           context.commit('setShips', master.ships);
           context.commit('setEnemies', master.enemies);

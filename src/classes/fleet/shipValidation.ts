@@ -29,6 +29,7 @@ export default class ShipValidation {
     // 艦種
     const { type } = ship;
 
+    // 装備可能条件マスタ
     const itemLink = store.state.equipShips;
 
     if (!isExpandSlot) {
