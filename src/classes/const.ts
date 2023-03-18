@@ -272,6 +272,7 @@ export default class Const {
     { id: 46, name: '特型内火艇' },
     { id: 50, name: '輸送機材' },
     { id: 51, name: '潜水艦装備' },
+    { id: 52, name: '陸戦部隊' },
   ];
 
   /**
@@ -646,7 +647,7 @@ export default class Const {
       id: 21, text: '機銃', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
     },
     {
-      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'armor', 'tp'], types: [24, 30, 46],
+      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'armor', 'tp'], types: [24, 30, 46, 52],
     },
     {
       id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'cost'], types: [47, 53],
