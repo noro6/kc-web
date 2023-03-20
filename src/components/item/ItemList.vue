@@ -83,7 +83,7 @@
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')" />
       </div>
-      <div class="ml-3 align-self-center my-3" v-if="isStockOnly">
+      <div class="ml-3 align-self-center my-3" v-if="isStockOnly && !multiLine">
         <v-checkbox v-model="sortRawStatus" @click="filter()" hide-details dense :label="$t('ItemList.素ステでソート')" />
       </div>
       <v-spacer />
