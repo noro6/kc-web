@@ -1451,7 +1451,7 @@ export default Vue.extend({
             if (this.withoutReleaseExSlot && stockData.releaseExpand) continue;
             // 出撃海域で絞る
             if (!this.visibleNoArea && stockData.area < 1) continue;
-            if (!this.selectedArea.includes(stockData.area)) continue;
+            else if (stockData.area && !this.selectedArea.includes(stockData.area)) continue;
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
             pushedData.push({
               count: 1,
