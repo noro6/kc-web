@@ -652,6 +652,7 @@ export default {
       '複数列': 'Multi',
       '以上': 'or over',
       '所持装備反映': 'Reflects registered equipment',
+      '素ステでソート': 'Sort by excluding bonus',
       '熟練度成長': 'Growth speed',
       '戦': ' battles',
       '装備プリセット': 'Equipment Preset',

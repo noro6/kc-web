@@ -83,6 +83,9 @@
       <div class="ml-3 align-self-center my-3" v-if="itemStock.length && !isEnemyMode">
         <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')" />
       </div>
+      <div class="ml-3 align-self-center my-3" v-if="isStockOnly">
+        <v-checkbox v-model="sortRawStatus" @click="filter()" hide-details dense :label="$t('ItemList.素ステでソート')" />
+      </div>
       <v-spacer />
       <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
         <v-icon>mdi-eye-off</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
@@ -218,9 +221,9 @@
               <v-icon v-else-if="v.sumBonus <= 5" color="light-blue">mdi-chevron-double-up</v-icon>
               <v-icon v-else color="light-blue">mdi-chevron-triple-up</v-icon>
             </div>
-            <div class="item-remodel caption mr-1" v-if="isStockOnly && v.item.remodel > 0">
+            <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
-              <span class="teal--text text--accent-4">{{ v.item.remodel }}</span>
+              <span class="teal--text text--accent-4">{{ v.remodel }}</span>
             </div>
             <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
               <span>&times;</span>
@@ -633,6 +636,7 @@ type sortItem = { [key: string]: number | { [key: string]: number } };
 type viewItem = {
   item: Item;
   count: number;
+  remodel: number;
   sumBonus: number;
   bonus: ItemBonusStatus;
   text: string;
@@ -680,6 +684,7 @@ export default Vue.extend({
     onlyNightAircraft: false,
     onlyAAResistAircraft: false,
     isSpecialOnly: false,
+    sortRawStatus: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
     viewStatus: Const.ITEM_TYPES_ALT[0].viewStatus,
@@ -1185,6 +1190,7 @@ export default Vue.extend({
       }
 
       let usedItem = this.usedItems.concat();
+      const withoutRemodel = this.sortRawStatus && this.isStockOnly;
       const viewItems = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
@@ -1211,7 +1217,7 @@ export default Vue.extend({
             const item = new Item({
               master,
               slot,
-              remodel,
+              remodel: withoutRemodel ? 0 : remodel,
               level,
             });
 
@@ -1223,6 +1229,7 @@ export default Vue.extend({
             viewItems.push({
               item,
               count: Math.max(count, 0),
+              remodel,
               sumBonus: 0,
               bonus: {},
               text: bonus ? bonus.text : '',
@@ -1247,6 +1254,7 @@ export default Vue.extend({
             item,
             count: 1,
             sumBonus: 0,
+            remodel: 0,
             bonus: {},
             text: bonus ? bonus.text : '',
             dayBattleFirePower: item.dayBattleFirePower,
@@ -1326,21 +1334,23 @@ export default Vue.extend({
             item.sumBonus = sumBonus;
             item.bonus = totalBonus;
 
-            // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
-            item.item.actualFire += totalBonus.firePower ?? 0;
-            item.item.actualTorpedo += totalBonus.torpedo ?? 0;
-            item.item.actualAsw += totalBonus.asw ?? 0;
-            item.item.actualAccuracy += totalBonus.accuracy ?? 0;
-            item.item.actualScout += totalBonus.scout ?? 0;
-            item.item.actualAvoid += totalBonus.avoid ?? 0;
+            if (!withoutRemodel) {
+              // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
+              item.item.actualFire += totalBonus.firePower ?? 0;
+              item.item.actualTorpedo += totalBonus.torpedo ?? 0;
+              item.item.actualAsw += totalBonus.asw ?? 0;
+              item.item.actualAccuracy += totalBonus.accuracy ?? 0;
+              item.item.actualScout += totalBonus.scout ?? 0;
+              item.item.actualAvoid += totalBonus.avoid ?? 0;
 
-            // 砲戦火力に加算
-            if (item.item.data.isPlane && !item.item.data.isSPPlane) {
-              item.dayBattleFirePower += totalBonus.firePower ?? 0;
-              item.aircraftDayBattleFirePower += ((totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0) + (totalBonus.bomber ?? 0)) * 1.5;
-            } else {
-              item.dayBattleFirePower += totalBonus.firePower ?? 0;
-              item.aircraftDayBattleFirePower += totalBonus.firePower ?? 0;
+              // 砲戦火力に加算
+              if (item.item.data.isPlane && !item.item.data.isSPPlane) {
+                item.dayBattleFirePower += totalBonus.firePower ?? 0;
+                item.aircraftDayBattleFirePower += ((totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0) + (totalBonus.bomber ?? 0)) * 1.5;
+              } else {
+                item.dayBattleFirePower += totalBonus.firePower ?? 0;
+                item.aircraftDayBattleFirePower += totalBonus.firePower ?? 0;
+              }
             }
           }
         }
@@ -1356,7 +1366,10 @@ export default Vue.extend({
 
       const filterValue = this.filterStatusValue ? +this.filterStatusValue : 0;
       if (this.filterStatus && filterValue) {
-        const filterKey = this.filterStatus;
+        let filterKey = this.filterStatus;
+        if (withoutRemodel && filterKey.startsWith('actual')) {
+          filterKey = filterKey.replace('actual', '');
+        }
         const isActualFilterKey = filterKey.indexOf('actual') >= 0
           || filterKey === 'tp'
           || filterKey === 'airPower'
