@@ -265,12 +265,15 @@
                 >
                   {{ $t("Database.札なし") }}
                 </div>
+                <v-btn class="align-self-center ml-3" @click="toggleAllArea()" color="primary" icon x-large>
+                  <v-icon>mdi-sync</v-icon>
+                </v-btn>
               </div>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
         <div>
-          <v-card v-if="!viewShips.length" class="text-center my-10">
+          <v-card v-if="!viewShips.length" class="text-center my-10 py-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
           </v-card>
           <div class="d-flex align-center mt-3" v-else>
@@ -1281,7 +1284,7 @@ export default Vue.extend({
 
       // 海域札セレクト初期化
       this.selectedArea = [];
-      for (let i = 0; i <= this.maxAreas; i += 1) {
+      for (let i = 1; i <= this.maxAreas; i += 1) {
         this.selectedArea.push(i);
       }
       this.masterFilter();
@@ -1448,7 +1451,7 @@ export default Vue.extend({
             if (this.withoutReleaseExSlot && stockData.releaseExpand) continue;
             // 出撃海域で絞る
             if (!this.visibleNoArea && stockData.area < 1) continue;
-            if (this.selectedArea.length && !this.selectedArea.includes(stockData.area)) continue;
+            if (!this.selectedArea.includes(stockData.area)) continue;
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
             pushedData.push({
               count: 1,
@@ -1548,6 +1551,23 @@ export default Vue.extend({
         this.selectedArea = this.selectedArea.filter((v) => v !== i);
       } else {
         this.selectedArea.push(i);
+      }
+
+      this.filter();
+    },
+    toggleAllArea() {
+      // 選択札の全切り替え
+      if (this.selectedArea.length === this.maxAreas && this.visibleNoArea) {
+        // 全部ついてたら消す
+        this.selectedArea = [];
+        this.visibleNoArea = false;
+      } else {
+        // 全部ついてなかったらいったん全部付ける
+        this.selectedArea = [];
+        for (let area = 1; area <= this.maxAreas; area += 1) {
+          this.selectedArea.push(area);
+        }
+        this.visibleNoArea = true;
       }
 
       this.filter();
