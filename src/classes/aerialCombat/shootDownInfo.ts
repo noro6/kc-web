@@ -310,7 +310,7 @@ export default class ShootDownInfo {
         // 26種 (大和型改二, 10cm改+増設, 対空電探)
         if ((shipId === 546 || shipId === 911 || shipId === 916) && antiAirRadarCount && items.some((v) => v.data.id === 275)) cutInIds.push(26);
         // 28種 (噴進砲改二, 対空電探)
-        if (antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
+        if (!(shipId === 911 || shipId === 916) && antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
       } else if ([82, 88, 553, 554].includes(shipId)) {
         // 伊勢型改 / 改二
         // 28種 (噴進砲改二, 対空電探)
