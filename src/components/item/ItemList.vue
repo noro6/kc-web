@@ -1389,7 +1389,7 @@ export default Vue.extend({
         this.sortItems();
       }
     },
-    clickedItem(data: { item: Item; count: number }) {
+    clickedItem(data: viewItem) {
       if (this.decidedItem) {
         return;
       }
@@ -1397,7 +1397,7 @@ export default Vue.extend({
       if (data.count || this.confirmDialog) {
         this.decidedItem = true;
         this.confirmDialog = false;
-        this.handleEquipItem(data.item);
+        this.handleEquipItem(new Item({ item: data.item, remodel: data.remodel }));
       } else {
         this.confirmItem = data;
         this.confirmDialog = true;
