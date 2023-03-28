@@ -194,6 +194,9 @@ export default class Const {
   /** 対潜支援可能艦種 */
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
+  /** 潜水艦後期型魚雷 */
+  public static readonly LATE_MODEL_TORPEDO = [213, 214, 383, 441, 443, 457, 461];
+
   /** 特効情報 */
   public static readonly SPECIAL_GROUP: { key: string, text: string, items: number[] }[] = [
     // { key: '55-3', text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254] },

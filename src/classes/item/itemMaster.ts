@@ -128,6 +128,9 @@ export default class ItemMaster {
   /** 水上機かどうか */
   public readonly isSPPlane: boolean;
 
+  /** 潜水か後期型魚雷かどうか */
+  public readonly isLateModelTorpedo: boolean;
+
   /** 敵装備かどうか */
   public readonly isEnemyItem: boolean;
 
@@ -204,6 +207,7 @@ export default class ItemMaster {
     this.isABAttacker = Const.AB_ATTACKERS.includes(this.apiTypeId);
     this.isBakusen = Const.BAKUSEN.includes(this.id);
     this.isRocket = Const.ROCKET.includes(this.id);
+    this.isLateModelTorpedo = Const.LATE_MODEL_TORPEDO.includes(this.id);
     this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
     this.isJet = this.apiTypeId === 57;
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
@@ -229,7 +233,7 @@ export default class ItemMaster {
     this.defenseAntiAir = this.antiAir + this.interception + 2 * this.antiBomber;
 
     if (!this.isSpecial) {
-      this.isSpecial = this.isRocket || this.enabledAttackLandBase;
+      this.isSpecial = this.isRocket || this.enabledAttackLandBase || this.isLateModelTorpedo;
     }
 
     if (this.isStrictDepthCharge) {

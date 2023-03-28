@@ -1420,7 +1420,7 @@ export default class Ship implements ShipBase {
 
     if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV) {
       // 潜水カットイン判定
-      const lateModelTorpCount = items.filter((v) => [213, 214, 383, 441, 443, 457, 461].includes(v.data.id)).length;
+      const lateModelTorpCount = items.filter((v) => v.data.isLateModelTorpedo).length;
       if (lateModelTorpCount && items.some((v) => v.data.apiTypeId === 51)) {
         specialAttacks.push({ text: '潜電魚CI', value: 105 });
       } else if (lateModelTorpCount >= 2) {
