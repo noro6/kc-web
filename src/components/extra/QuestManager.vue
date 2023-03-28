@@ -43,7 +43,7 @@
         <div class="pa-2">
           <v-expansion-panels multiple>
             <v-expansion-panel v-for="(quest, i) in uncompletedQuests" :key="i" v-show="questType === 'All' || quest.type === questType">
-              <v-expansion-panel-header>
+              <v-expansion-panel-header class="py-3">
                 <div class="mr-3">
                   <div class="d-flex align-center">
                     <div class="quest-icon">
