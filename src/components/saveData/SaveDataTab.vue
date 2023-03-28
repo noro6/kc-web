@@ -172,6 +172,7 @@ import draggable from 'vuedraggable';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
 import Const from '@/classes/const';
+import max from 'lodash/max';
 
 export default Vue.extend({
   name: 'SaveDataView',
@@ -210,6 +211,8 @@ export default Vue.extend({
         }
       }
       activeData.sort((a, b) => a.activeOrder - b.activeOrder);
+      console.log(activeData.map((v) => ({ name: v.name, order: v.activeOrder })));
+
       return activeData;
     },
     isNameEmpty(): boolean {
@@ -347,6 +350,8 @@ export default Vue.extend({
         data.name = data.name.replace('新規データ', `${this.$t('SaveData.新規データ')} `);
       }
       data.isActive = true;
+      // 最大のソート番号を取得
+      data.activeOrder = max(this.viewData.map((v) => v.activeOrder)) ?? 1;
       // 追加先はルート直下
       this.saveData.childItems.push(data);
 
