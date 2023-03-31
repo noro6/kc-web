@@ -516,6 +516,7 @@ export default {
       '詳細設定': 'Detail Setting',
       '基地航空隊フェーズで撃沈しない': 'Not calculate as if sunk in LBAS phase',
       '基地航空隊フェーズで撃沈する': 'Calculate as if sunk in LBAS phase',
+      '耐久装甲表示': 'Show Armor',
     },
     Result: {
       '計算結果': 'Result',

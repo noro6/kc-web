@@ -132,6 +132,9 @@
                   <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
+              <div class="ml-auto">
+                <v-checkbox class="pt-0 mt-0" :label="$t('Enemies.耐久装甲表示')" v-model="showHP" dense hide-details />
+              </div>
             </div>
             <div class="mt-1 px-1" :class="{ 'enemies-container': fleet.isUnion }">
               <div class="mx-1" v-if="fleet.isUnion">
@@ -149,17 +152,29 @@
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
-                      <div class="primary--text">
-                        id <span class="font-weight-bold">{{ enemy.data.id }}</span>
-                      </div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">
-                        {{ $t("Common.制空") }} <span class="font-weight-bold">{{ enemy.fullAirPower }}</span>
-                      </div>
-                      <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
-                        {{ $t("Common.制空") }} (<span class="font-weight-bold">{{ enemy.fullLBAirPower }}</span
-                        >)
-                      </div>
+                      <template v-if="fleet.isUnion && showHP">
+                        <div>
+                          <span class="text--secondary mr-1">{{ $t("Common.耐久") }}</span>
+                          <span class="font-weight-bold">{{ enemy.data.hp }}</span>
+                        </div>
+                        <div class="ml-2">
+                          <span class="text--secondary mr-1">{{ $t("Common.装甲") }}</span>
+                          <span class="font-weight-bold">{{ enemy.actualArmor }}</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="primary--text">
+                          id <span class="font-weight-bold">{{ enemy.data.id }}</span>
+                        </div>
+                        <div class="ml-2" v-if="enemy.fullAirPower">
+                          {{ $t("Common.制空") }} <span class="font-weight-bold">{{ enemy.fullAirPower }}</span>
+                        </div>
+                        <div v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
+                        <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
+                          {{ $t("Common.制空") }} (<span class="font-weight-bold">{{ enemy.fullLBAirPower }}</span
+                          >)
+                        </div>
+                      </template>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
@@ -184,25 +199,37 @@
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
-                      <div class="primary--text">
-                        id <span class="font-weight-bold">{{ enemy.data.id }}</span>
-                      </div>
-                      <div class="ml-2" v-if="enemy.fullAirPower">
-                        {{ $t("Common.制空") }} <span class="font-weight-bold">{{ enemy.fullAirPower }}</span>
-                      </div>
-                      <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
-                        {{ $t("Common.制空") }} (<span class="font-weight-bold">{{ enemy.fullLBAirPower }}</span
-                        >)
-                      </div>
-                      <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
-                      <div class="ml-2" v-if="!fleet.isUnion">
-                        <span class="text--secondary mr-1">{{ $t("Common.耐久") }}</span>
-                        <span class="font-weight-bold">{{ enemy.data.hp }}</span>
-                      </div>
-                      <div class="ml-2" v-if="!fleet.isUnion">
-                        <span class="text--secondary mr-1">{{ $t("Common.装甲") }}</span>
-                        <span class="font-weight-bold">{{ enemy.actualArmor }}</span>
-                      </div>
+                      <template v-if="fleet.isUnion && showHP">
+                        <div>
+                          <span class="text--secondary mr-1">{{ $t("Common.耐久") }}</span>
+                          <span class="font-weight-bold">{{ enemy.data.hp }}</span>
+                        </div>
+                        <div class="ml-2">
+                          <span class="text--secondary mr-1">{{ $t("Common.装甲") }}</span>
+                          <span class="font-weight-bold">{{ enemy.actualArmor }}</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="primary--text">
+                          id <span class="font-weight-bold">{{ enemy.data.id }}</span>
+                        </div>
+                        <div class="ml-2" v-if="enemy.fullAirPower">
+                          {{ $t("Common.制空") }} <span class="font-weight-bold">{{ enemy.fullAirPower }}</span>
+                        </div>
+                        <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
+                          {{ $t("Common.制空") }} (<span class="font-weight-bold">{{ enemy.fullLBAirPower }}</span
+                          >)
+                        </div>
+                        <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
+                        <div class="ml-2" v-if="!fleet.isUnion">
+                          <span class="text--secondary mr-1">{{ $t("Common.耐久") }}</span>
+                          <span class="font-weight-bold">{{ enemy.data.hp }}</span>
+                        </div>
+                        <div class="ml-2" v-if="!fleet.isUnion">
+                          <span class="text--secondary mr-1">{{ $t("Common.装甲") }}</span>
+                          <span class="font-weight-bold">{{ enemy.actualArmor }}</span>
+                        </div>
+                      </template>
                     </div>
                     <div class="d-flex">
                       <div class="text-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
@@ -421,6 +448,7 @@ export default Vue.extend({
     selectedNodeNames: [] as string[],
     expandMapDialog: false,
     hasBigMap: false,
+    showHP: false,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipEnemy: new Enemy(),
