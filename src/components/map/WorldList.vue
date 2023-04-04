@@ -71,9 +71,9 @@
                 </v-btn>
               </div>
             </div>
-            <div v-if="isAirRaid" class="d-flex align-center flex-wrap px-2 body-2">
-              <div class="text--secondary mr-2 caption">{{ $t("Common.制空") }}</div>
-              <div class="mr-2">{{ fleet.fullAirbaseAirPower }}</div>
+            <div v-if="isAirRaid || fleet.fullAirPower" class="d-flex align-center flex-wrap px-2 body-2">
+              <div class="text--secondary mr-1 caption">{{ $t("Common.制空") }}</div>
+              <div class="mr-1">{{ isAirRaid ? fleet.fullAirbaseAirPower : fleet.fullAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
                 <v-tooltip bottom color="black">
                   <template v-slot:activator="{ on, attrs }">
@@ -83,53 +83,22 @@
                   <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
                 </v-tooltip>
               </div>
-              <div class="ml-2">
-                <v-chip class="mr-1" color="green" label outlined>
+              <div class="ml-1">
+                <v-chip class="mr-1 px-2" color="green" label outlined>
                   <span>{{ $t("Common.確保") }}</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[0] }}</span>
+                  <span class="chip-value">{{ isAirRaid ? fleet.fullAirbaseBorders[0] : fleet.fullBorders[0] }}</span>
                 </v-chip>
-                <v-chip class="mr-1" color="light-green" label outlined>
+                <v-chip class="mr-1 px-2" color="light-green" label outlined>
                   <span>{{ $t("Common.優勢") }}</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[1] }}</span>
+                  <span class="chip-value">{{ isAirRaid ? fleet.fullAirbaseBorders[1] : fleet.fullBorders[1] }}</span>
                 </v-chip>
-                <v-chip class="mr-1" color="orange" label outlined>
+                <v-chip class="mr-1 px-2" color="orange" label outlined>
                   <span>{{ $t("Common.拮抗") }}</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[2] }}</span>
+                  <span class="chip-value">{{ isAirRaid ? fleet.fullAirbaseBorders[2] : fleet.fullBorders[2] }}</span>
                 </v-chip>
-                <v-chip class="mr-1" color="deep-orange" label outlined>
+                <v-chip class="mr-1 px-2" color="deep-orange" label outlined>
                   <span>{{ $t("Common.劣勢") }}</span>
-                  <span class="chip-value">{{ fleet.fullAirbaseBorders[3] }}</span>
-                </v-chip>
-              </div>
-            </div>
-            <div v-else-if="fleet.fullAirPower" class="d-flex align-center flex-wrap px-2 body-2">
-              <div class="text--secondary mr-2 caption">{{ $t("Common.制空") }}</div>
-              <div class="mr-2">{{ fleet.fullAirPower }}</div>
-              <div v-if="fleet.existUnknownEnemy">
-                <v-tooltip bottom color="black">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon color="warning" v-bind="attrs" v-on="on">mdi-alert</v-icon>
-                  </template>
-                  <div>{{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}</div>
-                  <div>{{ $t("Enemies.表示制空値は目安のもので、正確な制空値ではありません。") }}</div>
-                </v-tooltip>
-              </div>
-              <div class="ml-2">
-                <v-chip class="mr-1" color="green" label outlined>
-                  <span>{{ $t("Common.確保") }}</span>
-                  <span class="chip-value">{{ fleet.fullBorders[0] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="light-green" label outlined>
-                  <span>{{ $t("Common.優勢") }}</span>
-                  <span class="chip-value">{{ fleet.fullBorders[1] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="orange" label outlined>
-                  <span>{{ $t("Common.拮抗") }}</span>
-                  <span class="chip-value">{{ fleet.fullBorders[2] }}</span>
-                </v-chip>
-                <v-chip class="mr-1" color="deep-orange" label outlined>
-                  <span>{{ $t("Common.劣勢") }}</span>
-                  <span class="chip-value">{{ fleet.fullBorders[3] }}</span>
+                  <span class="chip-value">{{ isAirRaid ? fleet.fullAirbaseBorders[3] : fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
               <div class="ml-auto">
@@ -138,6 +107,7 @@
             </div>
             <div class="mt-1 px-1" :class="{ 'enemies-container': fleet.isUnion }">
               <div class="mx-1" v-if="fleet.isUnion">
+                <!-- 連合の時 随伴 -->
                 <div
                   v-for="(enemy, j) in fleet.escortEnemies"
                   :key="j"
@@ -288,9 +258,6 @@
 .v-tab {
   text-transform: none;
 }
-.world-select {
-  max-width: 35%;
-}
 .world-select-all {
   max-width: 70%;
 }
@@ -311,10 +278,6 @@
 }
 .node {
   cursor: pointer;
-}
-
-.opacity0 {
-  opacity: 0;
 }
 
 .patterns-container {
@@ -341,18 +304,6 @@
   flex-grow: 1;
   font-size: 12px;
   width: 10px;
-}
-.enemy-status {
-  font-size: 12px;
-  height: 16px;
-  width: 200px;
-}
-.enemy-status > div {
-  width: 64px;
-}
-
-.formation-select {
-  width: 94px;
 }
 
 .item-preview {
