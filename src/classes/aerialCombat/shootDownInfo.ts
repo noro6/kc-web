@@ -253,7 +253,7 @@ export default class ShootDownInfo {
         // 16種 (高角砲, 対空機銃, 対空電探)
         if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(16);
         // 17種 (高角砲, 対空機銃)
-        if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
+        if (shipId === 470 && hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
       } else if (shipId === 487) {
         // 鬼怒改二
         // 19種 (よわ高角砲, 特殊機銃)
