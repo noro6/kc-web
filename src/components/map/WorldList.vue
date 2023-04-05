@@ -63,7 +63,7 @@
               <div class="ml-2 text--secondary d-none d-sm-block caption">{{ $t("Common.艦隊防空値") }}</div>
               <div class="ml-1 d-none d-sm-block">{{ fleet.fleetAntiAir }}</div>
               <div class="ml-2 text--secondary caption" v-if="fleet.radius[0]">{{ $t("Common.半径") }}</div>
-              <div class="ml-1" v-if="fleet.radius[0]">{{ fleet.radius.join(" or ") }}</div>
+              <div class="ml-1" v-if="fleet.radius[0]">{{ fleet.radius.join(" → ") }}</div>
               <div class="ml-auto d-flex">
                 <div class="text--secondary align-self-center">{{ $t("Enemies.詳細") }}</div>
                 <v-btn v-show="selectedFleet" color="primary" icon @click.stop="showEnemyFleetDetail">

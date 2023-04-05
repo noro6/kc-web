@@ -276,6 +276,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-15,
 .item-input.type-16,
 .item-input.type-21,
+.item-input.type-38,
 .item-input.type-44,
 .item-input.type-45 {
     box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
@@ -287,6 +288,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-15:hover,
 .item-input.type-16:hover,
 .item-input.type-21:hover,
+.item-input.type-38:hover,
 .item-input.type-44:hover,
 .item-input.type-45:hover {
     box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4) !important;
@@ -450,7 +452,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .item-input.type-37,
-.item-input.type-38,
 .item-input.type-41,
 .item-input.type-48,
 .item-input.type-49 {
@@ -459,7 +460,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .item-input.type-37:hover,
-.item-input.type-38:hover,
 .item-input.type-41:hover,
 .item-input.type-48:hover,
 .item-input.type-49:hover {
@@ -515,6 +515,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-15,
 .captured .item-input.type-16,
 .captured .item-input.type-21,
+.captured .item-input.type-38,
 .captured .item-input.type-44,
 .captured .item-input.type-45 {
     background: rgba(0, 255, 100, 0.075) !important;
@@ -592,7 +593,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .captured .item-input.type-37,
-.captured .item-input.type-38,
 .captured .item-input.type-41,
 .captured .item-input.type-48,
 .captured .item-input.type-49 {
