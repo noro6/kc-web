@@ -211,8 +211,6 @@ export default Vue.extend({
         }
       }
       activeData.sort((a, b) => a.activeOrder - b.activeOrder);
-      console.log(activeData.map((v) => ({ name: v.name, order: v.activeOrder })));
-
       return activeData;
     },
     isNameEmpty(): boolean {

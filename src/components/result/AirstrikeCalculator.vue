@@ -43,15 +43,7 @@
         </div>
         <div class="w-100" v-if="enabledDist" />
         <div class="form-control lg" v-show="isAirbase">
-          <v-select
-            :label="$t('EType.陸上偵察機')"
-            v-model="calcArgs.rikuteiBonus"
-            :items="rikuteis"
-            hide-details
-            outlined
-            dense
-            @change="calculateFire"
-          />
+          <v-select :label="$t('EType.陸上偵察機')" v-model="calcArgs.rikuteiBonus" :items="rikuteis" hide-details outlined dense @change="calculateFire" />
         </div>
         <div class="form-control">
           <v-select :label="$t('Fleet.触接')" v-model="calcArgs.contactBonus" :items="contacts" hide-details outlined dense @change="calculateFire" />
@@ -387,7 +379,7 @@ import Calculator, {
   FirePowerCalcArgs, PostCapTerm, PowerDist, PreCapTerm, SlotDist,
 } from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
-import { SHIP_TYPE } from '@/classes/const';
+import Const, { SHIP_TYPE } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 
 interface DamageRowData {
@@ -457,7 +449,7 @@ export default Vue.extend({
     rowData: [] as DamageRowData[],
     isAirbase: false,
     defenseIndex: 0,
-    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean }[],
+    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean; area: number; node: string }[],
     enabledDamageDetailTooltip: false,
     slotRateTableText: '',
     tooltipTimer: undefined as undefined | number,
@@ -488,6 +480,8 @@ export default Vue.extend({
           value: 0,
           ships: enabledShips,
           isUnion: true,
+          area: 0,
+          node: '',
         });
       }
       for (let i = 0; i < fleets.length - 1; i += 1) {
@@ -497,6 +491,8 @@ export default Vue.extend({
           value: this.defenseFleets.length,
           ships: enabledShips,
           isUnion: false,
+          area: 0,
+          node: '',
         });
       }
     } else {
@@ -509,6 +505,8 @@ export default Vue.extend({
           value: i,
           ships: enabledShips,
           isUnion: fleets[i].isUnion,
+          area: fleets[i].area,
+          node: fleets[i].nodeName,
         });
       }
 
@@ -521,6 +519,31 @@ export default Vue.extend({
           this.calcArgs.rikuteiBonus = 1.15;
         } else if (this.parent.items.some((v) => v.data.id === 311 || v.data.id === 480)) {
           this.calcArgs.rikuteiBonus = 1.12;
+        }
+
+        const defense = this.defenseFleets[this.defenseIndex];
+        if (defense && defense.area) {
+          // 基地特効設定
+          this.calcArgs.manualAfterCapBonus = 1;
+          const mapBonuses = Const.AIRBASE_MAP_BONUSES;
+          for (let i = 0; i < mapBonuses.length; i += 1) {
+            const d = mapBonuses[i];
+            if (d.area === defense.area) {
+              const count = this.parent.items.filter((v) => d.items.includes(v.data.id)).length;
+              if (!count) continue;
+              if (d.multi) {
+                // 乗算モード
+                this.calcArgs.manualAfterCapBonus *= d.bonus ** count;
+              } else {
+                // 加算モード
+                this.calcArgs.manualAfterCapBonus += d.bonus * count;
+              }
+            }
+          }
+
+          if (this.calcArgs.manualAfterCapBonus !== 1) {
+            this.calcArgs.manualAfterCapBonus = Math.floor(10000 * this.calcArgs.manualAfterCapBonus) / 10000;
+          }
         }
       } else {
         // 通常艦隊 最終戦闘をセット

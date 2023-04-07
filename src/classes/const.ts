@@ -224,6 +224,34 @@ export default class Const {
     // { key: 'Saury', text: 'Saury', items: [44, 45, 47, 69, 70, 74, 129, 138, 140, 178, 242, 243, 244, 258, 259, 260, 261, 262, 412, 438, 25, 59, 102, 115, 118, 163, 171, 238, 239, 304, 370, 371, 414, 415, 469, 471, 26, 62, 79, 80, 81, 194, 207, 208, 237, 322, 323, 367, 368, 369] },
   ];
 
+  /** 海域特効装備 */
+  public static readonly AIRBASE_MAP_BONUSES = [
+    {
+      area: 563, node: '', items: [273, 263, 264, 265, 452], bonus: 1.14, multi: true,
+    },
+    {
+      area: 563, node: '', items: [342, 343, 170, 388, 453, 454], bonus: 1.11, multi: true,
+    },
+    {
+      area: 565, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486], bonus: 1.05, multi: true,
+    },
+    {
+      area: 565, node: '', items: [342, 343, 170, 388, 453, 454, 404], bonus: 1.11, multi: true,
+    },
+    {
+      area: 565, node: '', items: [493, 492], bonus: 1.175, multi: true,
+    },
+    {
+      area: 566, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486, 447, 487], bonus: 1.05, multi: true,
+    },
+    {
+      area: 566, node: '', items: [342, 343, 170, 453, 454, 404, 489, 491], bonus: 1.11, multi: true,
+    },
+    {
+      area: 566, node: '', items: [493, 492], bonus: 1.175, multi: true,
+    },
+  ];
+
   public static readonly ITEM_API_TYPE = [
     { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
     { id: 7, name: '艦上爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },

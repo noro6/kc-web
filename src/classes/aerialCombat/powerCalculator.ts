@@ -360,9 +360,9 @@ export default class AerialFirePowerCalculator {
 
     // 陸攻補正
     const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
-    // 空母棲姫特効
+    // 空母棲姫 / ダイソン特効
     let aircraftCarrierPrincessMultiplier = 1;
-    if (item.data.isABAttacker && (defense.data.id === 1586 || defense.data.id === 1620)) {
+    if (item.data.isABAttacker && (defense.data.id === 1557 || defense.data.id === 1586 || defense.data.id === 1620)) {
       aircraftCarrierPrincessMultiplier = 3.2;
     }
 
