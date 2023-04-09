@@ -233,19 +233,19 @@ export default class Const {
       area: 563, node: '', items: [342, 343, 170, 388, 453, 454], bonus: 1.11, multi: true,
     },
     {
-      area: 565, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486], bonus: 1.05, multi: true,
+      area: 565, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486, 223], bonus: 1.05, multi: true,
     },
     {
-      area: 565, node: '', items: [342, 343, 170, 388, 453, 454, 404], bonus: 1.11, multi: true,
+      area: 565, node: '', items: [342, 343, 170, 388, 453, 454, 404, 374], bonus: 1.11, multi: true,
     },
     {
       area: 565, node: '', items: [493, 492], bonus: 1.175, multi: true,
     },
     {
-      area: 566, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486, 447, 487], bonus: 1.05, multi: true,
+      area: 566, node: '', items: [273, 263, 264, 265, 452, 177, 224, 486, 447, 487, 223], bonus: 1.05, multi: true,
     },
     {
-      area: 566, node: '', items: [342, 343, 170, 453, 454, 404, 489, 491], bonus: 1.11, multi: true,
+      area: 566, node: '', items: [342, 343, 170, 453, 454, 404, 489, 491, 374], bonus: 1.11, multi: true,
     },
     {
       area: 566, node: '', items: [493, 492], bonus: 1.175, multi: true,
