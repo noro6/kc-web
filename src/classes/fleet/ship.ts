@@ -999,11 +999,15 @@ export default class Ship implements ShipBase {
           }
           // 装備固有id判定
           if (bonus.requiresId) {
-            const count = items.filter((v) => bonus.requiresId?.includes(v.data.id)).length;
+            const requiredItems = bonus.requiresId;
+            const requireRemodel = bonus.requiresIdLevel ?? 0;
+            const targetItems = items.filter((v) => requiredItems.includes(v.data.id));
             // 個数判定
-            if (bonus.requiresIdNum && count < bonus.requiresIdNum) {
+            if (bonus.requiresIdNum && targetItems.length < bonus.requiresIdNum) {
               continue;
-            } else if (!count) {
+            } else if (requireRemodel && !targetItems.some((v) => v.remodel >= requireRemodel)) {
+              continue;
+            } else if (!targetItems.length) {
               continue;
             }
           }

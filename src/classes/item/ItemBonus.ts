@@ -16,6 +16,7 @@ type Bonus = {
   requiresSR?: number
   requiresAR?: number
   requiresIdNum?: number
+  requiresIdLevel?: number
   num?: number
   remodel?: number
 }
@@ -4407,7 +4408,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, scout: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
         },
         {
@@ -4418,19 +4419,19 @@ export default class ItemBonus {
         },
         {
           bonus: { scout: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
           remodel: 3,
         },
         {
           bonus: { avoid: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
           remodel: 8,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
           remodel: 10,
         },
@@ -4452,18 +4453,18 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
         },
         {
           bonus: { avoid: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
           remodel: 3,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [95, 99, 106, 110],
+          shipClass: [95, 99, 106, 110, 121],
           num: 1,
           remodel: 8,
         },
@@ -5275,6 +5276,46 @@ export default class ItemBonus {
       ],
     },
     {
+      ids: [461],
+      bonuses: [
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [109],
+          remodel: 2,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [71, 103, 109],
+          remodel: 3,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 4,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [109],
+          remodel: 5,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 6,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 10,
+        },
+      ],
+    },
+    {
       ids: [458],
       bonuses: [
         {
@@ -5290,6 +5331,44 @@ export default class ItemBonus {
         {
           bonus: { torpedo: 3, avoid: 3 },
           shipClass: [44],
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 4,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 6,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [44, 71, 103, 109],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [13, 14],
+          remodel: 3,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipType: [13, 14],
+          remodel: 5,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [13, 14],
+          remodel: 10,
+        },
+        {
+          bonus: { torpedo: 7, accuracy: 5 },
+          shipType: [13, 14],
+          remodel: 2,
+          requiresId: [461],
+          requiresIdLevel: 4,
           num: 1,
         },
       ],

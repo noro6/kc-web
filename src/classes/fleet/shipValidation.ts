@@ -65,6 +65,24 @@ export default class ShipValidation {
         }
         return false;
       }
+
+      if (ship.id === 945) {
+        // 第百一号輸送艦
+        if (item.apiTypeId === 1) {
+          // 小口径主砲は単装砲系のみ
+          return [229, 379, 382].includes(item.id);
+        }
+      } else if (ship.id === 727) {
+        // 第百一号輸送艦改
+        if (item.apiTypeId === 1) {
+          // 小口径主砲は単装砲系のみ
+          return [229, 379, 382].includes(item.id);
+        }
+        if (item.apiTypeId === 4) {
+          // 副砲は8cm系のみ
+          return [66, 220].includes(item.id);
+        }
+      }
     }
 
     // 特定艦娘判定

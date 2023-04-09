@@ -65,13 +65,6 @@
         <span class="item-status-text">{{ $t("Common.防空対空") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.actualDefenseAntiAir < 0 }">{{ formatStatus2(value.actualDefenseAntiAir) }}</span>
       </div>
-      <div v-if="value.data.armor || itemBonus.armor">
-        <span class="item-status-text">{{ $t("Common.装甲") }}</span>
-        <span class="item-status-value" :class="{ 'bad-status': value.data.armor < 0 }">{{ value.data.armor }}</span>
-        <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.armor < 0 }">
-          <template v-if="itemBonus.armor">{{ formatBonus(itemBonus.armor) }}</template>
-        </span>
-      </div>
       <div v-if="value.data.asw || value.bonusAsw || itemBonus.asw">
         <span class="item-status-text">{{ $t("Common.対潜") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.asw < 0 }">{{ value.data.asw }}</span>
@@ -79,6 +72,14 @@
           <template v-if="itemBonus.asw">{{ formatBonus(itemBonus.asw) }}</template>
         </span>
         <span v-if="value.bonusAsw" class="remodel-bonus">&plus; {{ formatStatus(value.bonusAsw) }}</span>
+      </div>
+      <div v-if="value.data.accuracy || value.bonusAccuracy || itemBonus.accuracy">
+        <span class="item-status-text">{{ $t("Common.命中") }}</span>
+        <span class="item-status-value" :class="{ 'bad-status': value.data.accuracy < 0 }">{{ value.data.accuracy }}</span>
+        <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.accuracy < 0 }">
+          <template v-if="itemBonus.accuracy">{{ formatBonus(itemBonus.accuracy) }}</template>
+        </span>
+        <span v-if="value.bonusAccuracy" class="remodel-bonus">&plus; {{ formatStatus(value.bonusAccuracy) }}</span>
       </div>
       <div v-if="value.data.avoid || itemBonus.avoid">
         <span class="item-status-text">{{ $t("Common.回避") }}</span>
@@ -95,14 +96,6 @@
         </span>
         <span v-if="value.bonusScout" class="remodel-bonus">&plus; {{ formatStatus(value.bonusScout) }}</span>
       </div>
-      <div v-if="value.data.accuracy || value.bonusAccuracy || itemBonus.accuracy">
-        <span class="item-status-text">{{ $t("Common.命中") }}</span>
-        <span class="item-status-value" :class="{ 'bad-status': value.data.accuracy < 0 }">{{ value.data.accuracy }}</span>
-        <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.accuracy < 0 }">
-          <template v-if="itemBonus.accuracy">{{ formatBonus(itemBonus.accuracy) }}</template>
-        </span>
-        <span v-if="value.bonusAccuracy" class="remodel-bonus">&plus; {{ formatStatus(value.bonusAccuracy) }}</span>
-      </div>
       <div v-if="value.data.antiBomber">
         <span class="item-status-text">{{ $t("Common.対爆") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.antiBomber < 0 }">{{ value.data.antiBomber }}</span>
@@ -110,6 +103,13 @@
       <div v-if="value.data.interception">
         <span class="item-status-text">{{ $t("Common.迎撃") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.interception < 0 }">{{ value.data.interception }}</span>
+      </div>
+      <div v-if="value.data.armor || itemBonus.armor">
+        <span class="item-status-text">{{ $t("Common.装甲") }}</span>
+        <span class="item-status-value" :class="{ 'bad-status': value.data.armor < 0 }">{{ value.data.armor }}</span>
+        <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.armor < 0 }">
+          <template v-if="itemBonus.armor">{{ formatBonus(itemBonus.armor) }}</template>
+        </span>
       </div>
       <div v-if="value.data.range || itemBonus.range">
         <span class="item-status-text">{{ $t("Common.射程") }}</span>
