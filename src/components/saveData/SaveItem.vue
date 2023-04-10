@@ -490,6 +490,9 @@ export default Vue.extend({
         // 対象の直後に挿入
         moveData.order = this.value.order + 1;
         this.parentDirectory.childItems.push(moveData);
+      } else {
+        // 謎の判定 ここで返さないとデータが消えるので返す
+        return;
       }
 
       draggingDiv.classList.add('move-ok');
