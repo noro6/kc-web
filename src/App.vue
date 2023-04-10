@@ -990,19 +990,20 @@ export default Vue.extend({
     expandCalcManager(manager: CalcManager): void {
       let mainData = this.saveData.getMainData();
       if (mainData) {
+        const currentManager = mainData.tempData[mainData.tempIndex];
         // 敵情報はないので元の情報を使う
-        manager.battleInfo = mainData.tempData[mainData.tempIndex].battleInfo;
+        manager.battleInfo = currentManager.battleInfo;
         if (!manager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
           // 基地が空のデータなら元の情報を使う
-          manager.airbaseInfo = mainData.tempData[mainData.tempIndex].airbaseInfo;
+          manager.airbaseInfo = currentManager.airbaseInfo;
         }
         if (!manager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
           // 編成が空のデータなら元の情報を使う
-          manager.fleetInfo = mainData.tempData[mainData.tempIndex].fleetInfo;
+          manager.fleetInfo = currentManager.fleetInfo;
         } else {
           // 元の艦隊をなるべく消したくないのでいろいろやる
           /** 今現在開いているデータの艦隊 */
-          const baseFleets = mainData.tempData[mainData.tempIndex].fleetInfo.fleets;
+          const baseFleets = currentManager.fleetInfo.fleets;
           /** デッキビルダーから復元された艦隊データ */
           const newFleets = manager.fleetInfo.fleets;
           for (let i = 0; i < baseFleets.length; i += 1) {
@@ -1010,6 +1011,11 @@ export default Vue.extend({
               // デッキビルダーは第5艦隊以降はないためおおむねそれを復元するための処理
               newFleets.push(baseFleets[i]);
             }
+          }
+
+          // 今開いているデータが連合かどうか
+          if (currentManager.fleetInfo.isUnion) {
+            manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, isUnion: true, fleetType: currentManager.fleetInfo.fleetType });
           }
         }
 
