@@ -9,7 +9,7 @@
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t("Common.装備一括設定") }}</span>
+        <span>{{ $t("Common.一括設定") }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -191,7 +191,7 @@
     <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="640" @input="onBulkUpdateDialogToggle">
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
-          <div class="align-self-center ml-3">{{ $t("Common.装備一括設定") }}</div>
+          <div class="align-self-center ml-3">{{ $t("Common.一括設定") }}</div>
           <v-spacer />
           <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>

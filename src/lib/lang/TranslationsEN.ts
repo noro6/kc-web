@@ -138,7 +138,7 @@ export default {
       '順序入替': 'Reordering',
       '入替完了': 'Done',
       '一括変更': 'Batch operation',
-      '装備一括設定': 'Batch operation',
+      '一括設定': 'Batch operation',
       'スクリーンショットを保存': 'Save screenshot',
       '最小化': 'Minimize',
       '探したけど見つからなかったよ': 'No matching data found',
