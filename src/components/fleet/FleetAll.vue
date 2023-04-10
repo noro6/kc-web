@@ -17,7 +17,7 @@
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
         </template>
-        <span>{{ $t("Common.装備一括設定") }}</span>
+        <span>{{ $t("Common.一括設定") }}</span>
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
@@ -410,7 +410,7 @@
     <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="640" @input="onBulkUpdateDialogToggle">
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
-          <div class="align-self-center ml-3">{{ $t("Common.装備一括設定") }}</div>
+          <div class="align-self-center ml-3">{{ $t("Common.一括設定") }}</div>
           <v-spacer />
           <v-btn icon @click="closeBulkUpdateDialog()">
             <v-icon>mdi-close</v-icon>
@@ -435,6 +435,23 @@
                 v-model="bulkUpdateTarget[i]"
                 class="mx-2"
               />
+            </div>
+          </div>
+          <div class="d-flex mt-6">
+            <div class="caption">Lv</div>
+            <div class="header-divider" />
+          </div>
+          <div class="d-flex align-end justify-space-between">
+            <v-btn outlined @click.stop="setShipLevel(1)" color="grey">Lv1</v-btn>
+            <v-btn outlined @click.stop="setShipLevel(50)" color="primary">Lv50</v-btn>
+            <v-btn outlined @click.stop="setShipLevel(80)" color="teal">Lv80</v-btn>
+            <v-btn outlined @click.stop="setShipLevel(99)" color="teal">Lv99</v-btn>
+            <v-btn outlined @click.stop="setShipLevel(maxLevel)" color="red lighten-2">Lv{{ maxLevel }}</v-btn>
+            <div class="d-flex align-end ml-6">
+              <div class="ship-level-input">
+                <v-text-field v-model.number="allShipLevel" :max="maxLevel" min="1" hide-details type="number" />
+              </div>
+              <v-btn @click.stop="setShipLevel(allShipLevel)" color="success">{{ $t("Common.適用") }} </v-btn>
             </div>
           </div>
           <div class="d-flex mt-6">
@@ -676,6 +693,10 @@
 .theme--dark .btn-create-feet {
   color: rgba(255, 255, 255, 0.6);
 }
+
+.ship-level-input {
+  width: 72px;
+}
 </style>
 
 <style>
@@ -797,6 +818,8 @@ export default Vue.extend({
     enabledOutput: true,
     generatingImage: false,
     generateError: '',
+    allShipLevel: 99,
+    maxLevel: Const.MAX_LEVEL,
   }),
   mounted() {
     if (this.$i18n.locale === 'en') {
@@ -1527,6 +1550,29 @@ export default Vue.extend({
       }
 
       this.bulkUpdateTarget = newArray;
+    },
+    setShipLevel(level: number) {
+      this.allShipLevel = level;
+      this.bulkUpdateAllShip({ level });
+    },
+    bulkUpdateAllShip(shipBuilder: ShipBuilder) {
+      // 指定ビルダーで装備情報一括更新
+      const { fleets } = this.fleetInfo;
+      for (let i = 0; i < fleets.length; i += 1) {
+        if (!this.bulkUpdateTarget[i]) {
+          continue;
+        }
+        const { ships } = fleets[i];
+        for (let j = 0; j < ships.length; j += 1) {
+          ships[j] = new Ship({ ship: ships[j], level: shipBuilder.level });
+        }
+        fleets[i] = new Fleet({ fleet: fleets[i] });
+      }
+
+      const newInfo = new FleetInfo({ info: this.fleetInfo });
+      // 閉じるまで計算はさせない
+      newInfo.calculated = true;
+      this.setInfo(newInfo);
     },
     getLevelValue(value: number) {
       return Const.PROF_LEVEL_BORDER[value];
