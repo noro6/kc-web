@@ -308,6 +308,7 @@ export default Vue.extend({
       const index = this.calcManager.mainBattle;
       const fleet = this.calcManager.battleInfo.fleets[index];
       this.calcManager.battleInfo.fleets[index] = new EnemyFleet({ fleet, mainFleetFormation: formation });
+      this.calcManager.battleInfo = new BattleInfo({ info: this.calcManager.battleInfo });
 
       // 陣形を整える
       this.calcManager.fleetInfo = FleetInfo.getInfoWithChangedFormation(this.calcManager.fleetInfo, formation);

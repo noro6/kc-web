@@ -564,10 +564,21 @@ export default Vue.extend({
           enemies.push(Enemy.createEnemyFromMasterId(id, isUnion && i >= 6, enemiesMaster, items));
         }
 
-        // 味方陣形 => 空襲のとき輪形
         const isAirRaid = cell.cellType === CELL_TYPE.AIR_RAID || cell.cellType === CELL_TYPE.HIGH_AIR_RAID || cell.cellType === CELL_TYPE.SUPER_HIGH_AIR_RAID;
         this.isAirRaid = isAirRaid;
-        const mainFleetFormation = isAirRaid ? FORMATION.DIAMOND : FORMATION.LINE_AHEAD;
+
+        // 味方陣形の自動設定
+        let mainFleetFormation: number = FORMATION.LINE_AHEAD;
+        if (isAirRaid) {
+          // 空襲系のとき輪形
+          mainFleetFormation = FORMATION.DIAMOND;
+        } else if (cell.cellType === CELL_TYPE.NIGHT && cell.area > 400) {
+          // 夜戦のときかつイベント警戒
+          mainFleetFormation = FORMATION.VANGUARD;
+        } else if (enemies[0].isSubmarine) {
+          // 旗艦が潜水艦のとき単横
+          mainFleetFormation = FORMATION.LINE_ABREAST;
+        }
 
         enemyFleets.push(
           new EnemyFleet({

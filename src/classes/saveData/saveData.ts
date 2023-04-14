@@ -777,6 +777,37 @@ export default class SaveData {
     }
     manager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo, airbases });
 
+    // 敵艦隊復元
+    const enemyFleet: EnemyFleet[] = [];
+    const rawEnemyFleets = manager.battleInfo.fleets;
+    let lastFormation = 1;
+    for (let i = 0; i < rawEnemyFleets.length; i += 1) {
+      const fleet = rawEnemyFleets[i];
+      const rawShips = fleet.enemies;
+      const enemies: Enemy[] = [];
+      for (let j = 0; j < rawShips.length; j += 1) {
+        // IDよりマスタから復元する
+        const enemy = rawShips[j] as unknown as SavedShip;
+        enemies.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
+      }
+      enemyFleet.push(new EnemyFleet({ fleet, enemies }));
+
+      lastFormation = fleet.mainFleetFormation;
+    }
+    // 空襲敵艦隊復元
+    if (manager.battleInfo.airRaidFleet) {
+      const ships = [];
+      const { enemies, formation, cellType } = manager.battleInfo.airRaidFleet;
+      for (let i = 0; i < enemies.length; i += 1) {
+        const enemy = enemies[i] as unknown as SavedShip;
+        ships.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
+      }
+      const airRaidFleet = new EnemyFleet({ enemies: ships, formation, cellType });
+      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet });
+    } else {
+      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet: new EnemyFleet() });
+    }
+
     // 艦隊復元
     const fleets: Fleet[] = [];
     const rawFleets = manager.fleetInfo.fleets;
@@ -826,37 +857,9 @@ export default class SaveData {
           }));
         }
       }
-      fleets.push(new Fleet({ fleet, ships, formation: 1 }));
+      fleets.push(new Fleet({ fleet, ships, formation: lastFormation }));
     }
     manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets, mainFleetIndex: 0 });
-
-    // 敵艦隊復元
-    const enemyFleet: EnemyFleet[] = [];
-    const rawEnemyFleets = manager.battleInfo.fleets;
-    for (let i = 0; i < rawEnemyFleets.length; i += 1) {
-      const fleet = rawEnemyFleets[i];
-      const rawShips = fleet.enemies;
-      const enemies: Enemy[] = [];
-      for (let j = 0; j < rawShips.length; j += 1) {
-        // IDよりマスタから復元する
-        const enemy = rawShips[j] as unknown as SavedShip;
-        enemies.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
-      }
-      enemyFleet.push(new EnemyFleet({ fleet, enemies }));
-    }
-    // 空襲敵艦隊復元
-    if (manager.battleInfo.airRaidFleet) {
-      const ships = [];
-      const { enemies, formation, cellType } = manager.battleInfo.airRaidFleet;
-      for (let i = 0; i < enemies.length; i += 1) {
-        const enemy = enemies[i] as unknown as SavedShip;
-        ships.push(Enemy.createEnemyFromMasterId(enemy.i, !!enemy.es, enemyMasters, itemMasters));
-      }
-      const airRaidFleet = new EnemyFleet({ enemies: ships, formation, cellType });
-      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet });
-    } else {
-      manager.battleInfo = new BattleInfo({ info: manager.battleInfo, fleets: enemyFleet, airRaidFleet: new EnemyFleet() });
-    }
 
     const resultData = new CalcManager();
     resultData.airbaseInfo = manager.airbaseInfo;

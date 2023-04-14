@@ -94,16 +94,10 @@
                 {{ result.isUnknownEnemyAirPower ? "?" : "" }}
               </span>
             </td>
-            <td colspan="2" rowspan="2">
-              <div class="flex-grow-1 d-flex flex-column">
-                <div class="d-flex mx-auto">
-                  <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20" /></div>
-                  <div class="ml-1">{{ calcBauxite }}</div>
-                </div>
-                <div class="d-flex mx-auto" v-if="calcSteel !== '0'">
-                  <div><v-img :src="`./img/util/steel.png`" height="20" width="20" /></div>
-                  <div class="ml-1">{{ calcSteel }}</div>
-                </div>
+            <td colspan="2">
+              <div class="d-flex justify-center">
+                <div><v-img :src="`./img/util/fuel.png`" height="20" width="20" /></div>
+                <div class="resource-value">{{ sumFuelAndAmmo[0] }}</div>
               </div>
             </td>
           </tr>
@@ -111,6 +105,22 @@
             <td class="text-center" colspan="2">{{ $t("Result.制空") }}</td>
             <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">
               <span :class="`state-label state-${result.airState.value}`">{{ $t(`Common.${result.airState.text}`) }}</span>
+            </td>
+            <td colspan="2" class="border-top-none">
+              <div class="d-flex justify-center">
+                <div><v-img :src="`./img/util/ammo.png`" height="20" width="20" /></div>
+                <div class="resource-value">{{ sumFuelAndAmmo[1] }}</div>
+              </div>
+            </td>
+          </tr>
+          <tr class="tr-status">
+            <td class="text-center" colspan="2">{{ $t("Common.陣形") }}</td>
+            <td v-for="(formation, i) in formationNames" :key="i" :class="`td-battle${i}`">{{ formation }}</td>
+            <td colspan="2" class="border-top-none">
+              <div class="d-flex justify-center">
+                <div><v-img :src="`./img/util/steel.png`" height="20" width="20" /></div>
+                <div class="resource-value">{{ calcSteel }}</div>
+              </div>
             </td>
           </tr>
           <tr class="tr-status tr-fuel-ammo">
@@ -134,15 +144,9 @@
               </div>
             </td>
             <td colspan="2" class="border-top-none">
-              <div class="d-flex flex-wrap justify-center">
-                <div class="d-flex">
-                  <v-img :src="`./img/util/fuel.png`" height="20" width="20" />
-                  <div class="align-self-center ml-1">{{ sumFuelAndAmmo[0] }}</div>
-                </div>
-                <div class="d-flex">
-                  <v-img :src="`./img/util/ammo.png`" height="20" width="20" />
-                  <div class="align-self-center ml-1">{{ sumFuelAndAmmo[1] }}</div>
-                </div>
+              <div class="d-flex justify-center">
+                <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20" /></div>
+                <div class="resource-value">{{ calcBauxite }}</div>
               </div>
             </td>
           </tr>
@@ -154,6 +158,27 @@
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ $t("Enemies.x戦目", { number: i + 1 }) }}</v-tab>
     </v-tabs>
     <v-divider class="mx-3" />
+    <div class="d-flex px-3 mt-6">
+      <div>
+        <v-select
+          class="form-input"
+          v-model="fleet.formation"
+          :items="formations"
+          :label="$t('Common.陣形')"
+          hide-details
+          dense
+          @change="changedFormation(fleet.formation)"
+        />
+      </div>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon class="align-self-center ml-3" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+        </template>
+        <div class="caption">
+          <div>{{ $t("Result.このマスで選択する味方艦隊の陣形") }}</div>
+        </div>
+      </v-tooltip>
+    </div>
     <v-card class="ma-3 py-3 pr-4 pl-2">
       <div class="d-flex mt-1">
         <div class="bar-label" />
@@ -240,19 +265,8 @@
       <v-divider />
     </v-card>
     <v-card class="ma-3 pb-3 px-2">
-      <div class="d-flex mb-1">
-        <div class="body-2 px-2 align-self-end">{{ $t("Result.敵機残数") }}</div>
-        <div class="ml-auto">
-          <v-select class="form-input" v-model="fleet.formation" :items="formations" hide-details dense @change="changedFormation(fleet.formation)" />
-        </div>
-        <v-tooltip bottom color="black">
-          <template v-slot:activator="{ on, attrs }">
-            <v-icon class="align-self-center pt-2 mr-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
-          </template>
-          <div class="caption">
-            <div>{{ $t("Result.このマスで選択する味方艦隊の陣形") }}</div>
-          </div>
-        </v-tooltip>
+      <div class="mb-1">
+        <div class="body-2 px-2">{{ $t("Result.敵機残数") }}</div>
       </div>
       <table>
         <thead>
@@ -472,6 +486,12 @@ td.item-input {
   color: rgb(255, 0, 0);
 }
 
+.resource-value {
+  text-align: right;
+  width: 28px;
+  white-space: nowrap;
+}
+
 .state-label {
   position: absolute;
   text-align: center;
@@ -536,7 +556,7 @@ td.item-input {
 }
 
 .form-input {
-  width: 120px;
+  width: 160px;
 }
 
 #result-container.captured {
@@ -848,6 +868,20 @@ export default Vue.extend({
         }
       }
       return [sumFuel, sumAmmo];
+    },
+    formationNames(): string[] {
+      const formationNames = [];
+      for (let index = 0; index < this.value.battleInfo.fleets.length; index += 1) {
+        const formationIds = this.value.battleInfo.fleets[index].mainFleetFormation;
+        const form = Const.FORMATIONS.find((v) => v.value === formationIds);
+        if (form) {
+          formationNames.push(`${this.$t(`Common.${form.text}`)}`);
+        } else {
+          formationNames.push('-');
+        }
+      }
+
+      return formationNames;
     },
     existUnknownEnemy(): boolean {
       return this.value.battleInfo.fleets.some((v) => v.existUnknownEnemy);

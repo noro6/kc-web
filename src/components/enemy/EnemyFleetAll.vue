@@ -144,10 +144,11 @@ import ItemMaster from '@/classes/item/itemMaster';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyFleet, { EnemyFleetBuilder } from '@/classes/enemy/enemyFleet';
 import CommonCalc from '@/classes/commonCalc';
-import { AB_MODE } from '@/classes/const';
+import { AB_MODE, FORMATION } from '@/classes/const';
 import Convert from '@/classes/convert';
 import Airbase from '@/classes/airbase/airbase';
 import CalcManager from '@/classes/calcManager';
+import FleetInfo from '../../classes/fleet/fleetInfo';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -190,6 +191,9 @@ export default Vue.extend({
     },
     airbaseInfo(): AirbaseInfo {
       return this.value.airbaseInfo;
+    },
+    fleetInfo(): FleetInfo {
+      return this.value.fleetInfo;
     },
     nodeString(): string {
       const nodeList = this.value.battleInfo.fleets.map((v) => v.nodeName);
@@ -329,7 +333,16 @@ export default Vue.extend({
         this.closeWorldList();
       } else {
         const index = this.dialogTarget[0];
-        this.battleInfo.fleets[index] = new EnemyFleet({ fleet });
+        if (this.fleetInfo.mainFleet.isUnion) {
+          // 連合艦隊なら陣形を置き換え
+          let formation = fleet.mainFleetFormation;
+          if (formation === FORMATION.DIAMOND) formation = FORMATION.FORMATION3;
+          else if (formation === FORMATION.LINE_AHEAD) formation = FORMATION.FORMATION4;
+          else if (formation === FORMATION.LINE_ABREAST) formation = FORMATION.FORMATION1;
+          this.battleInfo.fleets[index] = new EnemyFleet({ fleet, mainFleetFormation: formation });
+        } else {
+          this.battleInfo.fleets[index] = new EnemyFleet({ fleet });
+        }
         this.setInfo();
         this.worldListDialog = false;
       }
@@ -345,6 +358,18 @@ export default Vue.extend({
       if (!this.worldListDialog && this.fleetStock.length) {
         // 連続入力モード データがあればそれを登録
         const battleCount = this.fleetStock.length;
+        if (this.fleetInfo.mainFleet.isUnion) {
+          for (let i = 0; i < this.fleetStock.length; i += 1) {
+            const fleet = this.fleetStock[i];
+            // 連合艦隊なら陣形を置き換え
+            let formation = fleet.mainFleetFormation;
+            if (formation === FORMATION.DIAMOND) formation = FORMATION.FORMATION3;
+            else if (formation === FORMATION.LINE_AHEAD) formation = FORMATION.FORMATION4;
+            else if (formation === FORMATION.LINE_ABREAST) formation = FORMATION.FORMATION1;
+            this.fleetStock[i] = new EnemyFleet({ fleet, mainFleetFormation: formation });
+          }
+        }
+
         const builder: BattleInfoBuilder = {
           info: this.battleInfo,
           fleets: this.fleetStock,
