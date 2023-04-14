@@ -57,6 +57,9 @@
       <div class="mr-3 align-self-center" v-if="visibleFighterFilter">
         <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')" />
       </div>
+      <div class="mr-3 align-self-center" v-if="visibleMidgetSubmarineFilter">
+        <v-checkbox v-model="midgetSubmarineOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.甲標的搭載可')" />
+      </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
           <v-icon class="manual-icon" color="primary" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
@@ -534,6 +537,7 @@ export default Vue.extend({
     tankOK: false,
     tankNG: false,
     fighterOK: false,
+    midgetSubmarineOK: false,
     commanderOK: false,
     commanderNG: false,
     armorOK: false,
@@ -596,6 +600,16 @@ export default Vue.extend({
         return t.types;
       }
       return [];
+    },
+    visibleMidgetSubmarineFilter(): boolean {
+      // 甲標的搭載可フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.CL, SHIP_TYPE.CAV, SHIP_TYPE.AV].includes(type)) {
+          return true;
+        }
+      }
+      return false;
     },
     visibleFighterFilter(): boolean {
       // 戦闘機搭載可フィルタ表示制御
@@ -830,6 +844,14 @@ export default Vue.extend({
           const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
           if (fighter && fighter2) {
             result = result.filter((v) => isValid(v, fighter) || isValid(v, fighter2));
+          }
+        }
+
+        if (this.midgetSubmarineOK && this.visibleMidgetSubmarineFilter) {
+          // 甲標的搭載可
+          const midgetSubmarine = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 41);
+          if (midgetSubmarine) {
+            result = result.filter((v) => isValid(v, midgetSubmarine));
           }
         }
       }
