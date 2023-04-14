@@ -505,7 +505,7 @@ export default Vue.extend({
     async showShipList(index: number) {
       this.putShipIndex = index;
       await (this.shipListDialog = true);
-      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(false);
     },
     putShip(viewShip: ViewShip) {
       this.shipListDialog = false;
