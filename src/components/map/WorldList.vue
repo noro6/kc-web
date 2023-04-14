@@ -353,6 +353,8 @@ import Enemy from '@/classes/enemy/enemy';
 import ItemMaster from '@/classes/item/itemMaster';
 import { MasterMap, MasterWorld } from '@/classes/interfaces/master';
 import SiteSetting from '@/classes/siteSetting';
+import SaveData from '@/classes/saveData/saveData';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 export default Vue.extend({
   name: 'WorldList',
@@ -411,12 +413,23 @@ export default Vue.extend({
     const cells = this.$store.state.cells as CellMaster[];
 
     // 海域セレクトボックス初期化
-    const items = [];
+    const areaItems = [];
     const worlds = this.$store.state.worlds as MasterWorld[];
 
+    const saveData = this.$store.state.mainSaveData as SaveData;
+    const items = this.$store.state.items as ItemMaster[];
+    const ships = this.$store.state.ships as ShipMaster[];
+    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
+    const calcManager = saveData.loadManagerData(items, ships, enemies);
+
     // 初期map
-    this.selectedArea = worlds[0].world * 10 + 1;
-    this.area = worlds[0].world * 10 + 1;
+    if (calcManager.battleInfo.fleets.length && calcManager.battleInfo.fleets[calcManager.battleInfo.fleets.length - 1].area) {
+      this.selectedArea = calcManager.battleInfo.fleets[calcManager.battleInfo.fleets.length - 1].area;
+      this.area = calcManager.battleInfo.fleets[calcManager.battleInfo.fleets.length - 1].area;
+    } else {
+      this.selectedArea = worlds[0].world * 10 + 1;
+      this.area = worlds[0].world * 10 + 1;
+    }
 
     const masterMaps = this.$store.state.maps as MasterMap[];
     for (let i = 0; i < worlds.length; i += 1) {
@@ -426,17 +439,17 @@ export default Vue.extend({
         continue;
       }
       if (i > 0) {
-        items.push({ divider: true });
+        areaItems.push({ divider: true });
       }
 
-      items.push({ header: world.name });
+      areaItems.push({ header: world.name });
       for (let j = 0; j < maps.length; j += 1) {
         const map = maps[j];
         const worldText = world.world > 40 ? 'E' : `${world.world}`;
-        items.push({ value: map.area, text: `${worldText}-${map.area % 10}：${map.name}`, group: world.name });
+        areaItems.push({ value: map.area, text: `${worldText}-${map.area % 10}：${map.name}`, group: world.name });
       }
     }
-    this.areaItems = items;
+    this.areaItems = areaItems;
 
     if (cells.length) {
       // マスタデータがあるならそれでOK
