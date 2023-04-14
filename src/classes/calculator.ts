@@ -38,7 +38,7 @@ export default class Calculator {
       if (wave1 === battle) {
         /** ======= 基地噴式強襲 ======= */
         if (airbase.hasJet) {
-          Calculator.ShootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
+          Calculator.shootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
         }
 
         const state = CommonCalc.getAirState(airbase.airPower, enemyFleet.airbaseAirPower);
@@ -51,7 +51,7 @@ export default class Calculator {
         Calculator.shootDownEnemy(state, enemyFleet, [], true);
         if (airbase.isSeparate) {
           // 基地撃墜処理
-          Calculator.ShootDownAirbase(state, airbase, enemyFleet);
+          Calculator.shootDownAirbase(state, airbase, enemyFleet);
         }
       }
 
@@ -60,7 +60,7 @@ export default class Calculator {
         /** ======= 基地噴式強襲 ======= */
         if (airbase.hasJet && airbase.isSeparate) {
           // 分散のときだけ
-          Calculator.ShootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
+          Calculator.shootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
         }
 
         const state = CommonCalc.getAirState(airbase.airPower, enemyFleet.airbaseAirPower);
@@ -72,7 +72,7 @@ export default class Calculator {
         // 敵機撃墜処理
         Calculator.shootDownEnemy(state, enemyFleet, [], true);
         // 基地撃墜処理
-        Calculator.ShootDownAirbase(state, airbase, enemyFleet);
+        Calculator.shootDownAirbase(state, airbase, enemyFleet);
       }
     }
   }
@@ -178,7 +178,7 @@ export default class Calculator {
    * @param {ShootDownStatus[]} stage2List
    * @memberof Calculator
    */
-  private static ShootDownAirbaseJet(airbase: Airbase, stage2List: ShootDownStatus[]) {
+  private static shootDownAirbaseJet(airbase: Airbase, stage2List: ShootDownStatus[]) {
     const jetPhaseResult = Calculator.shootDownJetPhase(airbase.items, stage2List);
     // 基地噴式強襲フェーズ経過による制空値更新
     airbase.airPower = Math.floor(jetPhaseResult.sumAirPower * airbase.reconCorr);
@@ -194,7 +194,7 @@ export default class Calculator {
    * @param {ShootDownInfo[]} shootDownList
    * @memberof Calculator
    */
-  private static ShootDownAirbase(state: number, airbase: Airbase, enemyFleet: EnemyFleet) {
+  private static shootDownAirbase(state: number, airbase: Airbase, enemyFleet: EnemyFleet) {
     let sumAirPower = 0;
     const st2List = enemyFleet.noCutInStage2;
     const randomRange = st2List[0].fixDownList.length;
@@ -395,7 +395,7 @@ export default class Calculator {
     let sumAirbaseAirPower = 0;
 
     for (let i = 0; i < itemLength; i += 1) {
-      const item = items[i];
+      const { item } = items[i];
       // 基地は全て。通常航空戦は攻撃機かつ陸攻でない
       if (isAirbase || (!isAirbase && !item.data.isABAttacker && !item.data.isRecon)) {
         // ====== STAGE1 ======

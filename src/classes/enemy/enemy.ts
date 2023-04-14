@@ -74,6 +74,9 @@ export default class Enemy implements ShipBase {
   /** 本隊航空戦に参加しないフラグ */
   public disabledMainAerialPhase = false;
 
+  /** 棒立ち率 */
+  public allPlaneDeathRate = 0;
+
   constructor(enemy = new EnemyMaster(), items: Item[] = [], isEscort = false) {
     this.data = enemy;
     this.items = items;

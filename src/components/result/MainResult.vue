@@ -710,18 +710,14 @@ export default Vue.extend({
         const enemy = fleet.enemies[i];
         const planes = enemy.items.filter((v) => v.data.isPlane && !v.data.isRecon);
         if (planes.length) {
-          let allDeathRate = 1;
           for (let j = 0; j < planes.length; j += 1) {
             const plane = planes[j];
-            if (plane.data.isAttacker) {
-              allDeathRate *= plane.deathRate / 100;
-            }
             plane.deathRate = Math.round(plane.deathRate);
           }
           enemies.push({
             enemy,
             items: planes,
-            allDeathRate: Math.floor(1000 * allDeathRate) / 10,
+            allDeathRate: enemy.allPlaneDeathRate,
             index: i,
           });
         }

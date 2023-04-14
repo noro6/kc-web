@@ -134,7 +134,7 @@ export default class EnemyFleet {
   public needSupply = false;
 
   /** 敵の装備艦載機一覧 計算用 */
-  public readonly allPlanes: Item[];
+  public readonly allPlanes: { enemyIndex: number, item: Item }[];
 
   constructor(builder: EnemyFleetBuilder = {}) {
     if (builder.fleet) {
@@ -240,8 +240,8 @@ export default class EnemyFleet {
         for (let j = 0; j < planes.length; j += 1) {
           planes[j].isEscortItem = this.isUnion && enemy.isEscort;
           planes[j].disabledItem = enemy.disabledMainAerialPhase;
+          this.allPlanes.push({ enemyIndex: i, item: planes[j] });
         }
-        this.allPlanes = this.allPlanes.concat(planes);
         if (!this.hasPlane && planes.find((v) => !v.data.isRecon)) {
           this.hasPlane = true;
         }
@@ -353,7 +353,7 @@ export default class EnemyFleet {
    * @memberof Fleet
    */
   public getContactRates(isUnion = false): ContactRate[] {
-    const items = isUnion ? this.allPlanes : this.allPlanes.filter((v) => !v.isEscortItem);
+    const items = isUnion ? this.allPlanes.map((v) => v.item) : this.allPlanes.map((v) => v.item).filter((v) => !v.isEscortItem);
     return Item.getContactRates(items);
   }
 }

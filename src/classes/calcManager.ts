@@ -126,8 +126,8 @@ export default class CalcManager {
       const items = battles[i].allPlanes;
       for (let j = 0; j < items.length; j += 1) {
         const item = items[j];
-        item.slotResult = 0;
-        item.deathRate = 0;
+        item.item.slotResult = 0;
+        item.item.deathRate = 0;
       }
     }
     for (let count = 0; count < maxCount; count += 1) {
@@ -160,12 +160,22 @@ export default class CalcManager {
 
         // 減ったフラグがたってるなら
         if (enemyFleet.needSupply) {
+          // 全滅(棒立ち)艦の特定と記録
+          const enemies = enemyFleet.enemies.filter((v) => v.data.id);
+          for (let i = 0; i < enemies.length; i += 1) {
+            const enemy = enemies[i];
+            const items = enemyFleet.allPlanes.filter((v) => v.enemyIndex === i && v.item.data.isAttacker);
+            if (items.length && items.every((v) => !v.item.slot)) {
+              enemy.allPlaneDeathRate += 1;
+            }
+          }
+
           // 敵艦隊の補給
           for (let i = 0; i < enemyFleet.allPlanes.length; i += 1) {
             const item = enemyFleet.allPlanes[i];
-            item.slotResult += item.slot;
-            item.deathRate += item.slot ? 0 : 1;
-            Item.supply(enemyFleet.allPlanes[i]);
+            item.item.slotResult += item.item.slot;
+            item.item.deathRate += item.item.slot ? 0 : 1;
+            Item.supply(enemyFleet.allPlanes[i].item);
           }
           enemyFleet.airPower = enemyFleet.fullAirPower;
           enemyFleet.airbaseAirPower = enemyFleet.fullAirbaseAirPower;
@@ -251,11 +261,15 @@ export default class CalcManager {
       const item = calculatedEnemyItems[i];
       const mainItem = enemyItems[i];
       // 残数、全滅率を記録したやつを受け渡す
-      mainItem.slotResult = Math.round(item.slotResult / maxCount);
-      mainItem.deathRate = (100 * item.deathRate) / maxCount;
-      if (mainItem.needRecord) {
-        mainItem.dist = item.dist;
+      mainItem.item.slotResult = Math.round(item.item.slotResult / maxCount);
+      mainItem.item.deathRate = (100 * item.item.deathRate) / maxCount;
+      if (mainItem.item.needRecord) {
+        mainItem.item.dist = item.item.dist;
       }
+    }
+
+    for (let i = 0; i < battles[mainBattle].enemies.length; i += 1) {
+      this.battleInfo.fleets[mainBattle].enemies[i].allPlaneDeathRate = Math.floor(((1000 * battles[mainBattle].enemies[i].allPlaneDeathRate) / maxCount) / 10);
     }
 
     // 支援艦隊の結果格納
