@@ -71,7 +71,7 @@
                 </v-btn>
               </div>
             </div>
-            <div v-if="isAirRaid || fleet.fullAirPower" class="d-flex align-center flex-wrap px-2 body-2">
+            <div v-if="isAirRaid || fleet.fullAirPower || fleet.isUnion" class="d-flex align-center flex-wrap px-2 body-2">
               <div class="text--secondary mr-1 caption">{{ $t("Common.制空") }}</div>
               <div class="mr-1">{{ isAirRaid ? fleet.fullAirbaseAirPower : fleet.fullAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
@@ -101,8 +101,8 @@
                   <span class="chip-value">{{ isAirRaid ? fleet.fullAirbaseBorders[3] : fleet.fullBorders[3] }}</span>
                 </v-chip>
               </div>
-              <div class="ml-auto">
-                <v-checkbox class="pt-0 mt-0" :label="$t('Enemies.耐久装甲表示')" v-model="showHP" dense hide-details />
+              <div class="ml-auto" v-if="fleet.isUnion">
+                <v-checkbox class="pt-0 mt-0" :label="$t('Enemies.耐久装甲表示')" v-model="showHP" @click="clickedShowHP" dense hide-details />
               </div>
             </div>
             <div class="mt-1 px-1" :class="{ 'enemies-container': fleet.isUnion }">
@@ -409,6 +409,9 @@ export default Vue.extend({
     tooltipY: 0,
   }),
   mounted() {
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.showHP = setting.showHPandArmor;
+
     // 敵編成読み込み
     const cells = this.$store.state.cells as CellMaster[];
 
@@ -689,6 +692,11 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    clickedShowHP() {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.showHPandArmor = this.showHP;
+      this.$store.dispatch('updateSetting', setting);
     },
   },
 });

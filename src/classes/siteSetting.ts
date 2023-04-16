@@ -130,6 +130,9 @@ export default class SiteSetting {
   /** 全滅率インジケーター図形表示 */
   public isGraphicModeDeathRateIndicator: boolean;
 
+  /** 海域マップ画面HP表示 */
+  public showHPandArmor: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -171,6 +174,7 @@ export default class SiteSetting {
       this.requiredAswTargets = setting.requiredAswTargets ? setting.requiredAswTargets : [];
       this.showDeathRateIndicator = setting.showDeathRateIndicator ?? true;
       this.isGraphicModeDeathRateIndicator = !!setting.isGraphicModeDeathRateIndicator;
+      this.showHPandArmor = !!setting.showHPandArmor;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -262,6 +266,7 @@ export default class SiteSetting {
       this.requiredAswTargets = [];
       this.showDeathRateIndicator = true;
       this.isGraphicModeDeathRateIndicator = false;
+      this.showHPandArmor = false;
     }
   }
 }
