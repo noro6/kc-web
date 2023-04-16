@@ -84,6 +84,9 @@ export default class BattleInfo {
       } else if (cellType === CELL_TYPE.NIGHT) {
         // 開幕夜戦マス
         consumptions.push([10, 10]);
+      } else if (cellType === CELL_TYPE.RADAR) {
+        // レーダー射撃マス
+        consumptions.push([4, 0]);
       } else if (isAllSubmarine && !isBoss && area !== 41 && area !== 43) {
         // 全員潜水艦(第4海域以外、ボス戦闘以外)
         consumptions.push([8, 0]);
