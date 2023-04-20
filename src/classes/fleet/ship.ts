@@ -489,7 +489,7 @@ export default class Ship implements ShipBase {
     }
 
     // 航空戦雷装ボーナス適用装備抽出 & セット
-    if (this.itemBonuses.length && maximumAttacker.data && maximumAttacker.data.isAttacker) {
+    if (this.itemBonuses.length && maximumAttacker.data.isAttacker) {
       const torpBomberTorpedoBonuses = [];
       const seaplaneBomberTorpedoBonuses = [];
 
@@ -586,7 +586,7 @@ export default class Ship implements ShipBase {
     } else {
       dayBattleFirePower = ship.displayStatus.firePower + sumRemodelBonusFirePower + correct + 5;
     }
-    return CommonCalc.softCap(dayBattleFirePower, CAP.BATTLE);
+    return dayBattleFirePower;
   }
 
   /**

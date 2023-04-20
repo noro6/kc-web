@@ -75,7 +75,7 @@ export interface PostCapTerm {
   /** 陸攻特効 */
   airbaseAttackerMultiplier: number;
   /** 空母棲姫特効 */
-  aircraftCarrierPrincessMultiplier: number;
+  princessMultiplier: number;
   /** 基地航空隊補正 */
   LBASModifiers: number;
   /** 爆撃補正 */
@@ -361,16 +361,16 @@ export default class AerialFirePowerCalculator {
     // 陸攻補正
     const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
     // 空母棲姫 / ダイソン特効
-    let aircraftCarrierPrincessMultiplier = 1;
+    let princessMultiplier = 1;
     if (item.data.isABAttacker && (defense.data.id === 1557 || defense.data.id === 1586 || defense.data.id === 1620)) {
-      aircraftCarrierPrincessMultiplier = 3.2;
+      princessMultiplier = 3.2;
     }
 
     if (isAirbaseMode) {
       // 基地キャップ後処理
       // 触接補正 * 対連合補正 * キャップ後特殊補正
       const multiplier = args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
-      finalFirePower = finalFirePower * airBaseBonus * aircraftCarrierPrincessMultiplier * multiplier;
+      finalFirePower = finalFirePower * airBaseBonus * princessMultiplier * multiplier;
     } else {
       // 通常航空戦キャップ後処理
       // 触接補正 * キャップ後特殊補正
@@ -384,7 +384,7 @@ export default class AerialFirePowerCalculator {
 
     return {
       airbaseAttackerMultiplier: airBaseBonus,
-      aircraftCarrierPrincessMultiplier,
+      princessMultiplier,
       bomberMultiplier,
       finalFirePower,
       LBASModifiers,
@@ -505,7 +505,7 @@ export default class AerialFirePowerCalculator {
 
     return {
       airbaseAttackerMultiplier,
-      aircraftCarrierPrincessMultiplier: 1,
+      princessMultiplier: 1,
       bomberMultiplier: 1,
       finalFirePower,
       LBASModifiers: 0,

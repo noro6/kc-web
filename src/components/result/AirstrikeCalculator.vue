@@ -248,9 +248,9 @@
             <div>{{ $t("Result.敵連合補正") }}</div>
             <div>&times; {{ calcArgs.unionBonus.toFixed(2) }}</div>
           </template>
-          <template v-if="postCapTerms[i].aircraftCarrierPrincessMultiplier && postCapTerms[i].aircraftCarrierPrincessMultiplier !== 1">
-            <div>{{ $t("Result.空母棲姫補正") }}</div>
-            <div>&times; {{ postCapTerms[i].aircraftCarrierPrincessMultiplier.toFixed(2) }}</div>
+          <template v-if="postCapTerms[i].princessMultiplier && postCapTerms[i].princessMultiplier !== 1">
+            <div>{{ $t("Result.姫級補正") }}</div>
+            <div>&times; {{ postCapTerms[i].princessMultiplier.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.manualAfterCapBonus !== 1">
             <div>{{ $t("Result.特効") }}</div>
