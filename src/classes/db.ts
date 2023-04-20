@@ -66,7 +66,7 @@ export default class KcWebDatabase extends Dexie {
       outputHistories: 'id',
     });
 
-    // v4 共有URL発行履歴追加
+    // v5 任務進捗機能追加
     this.version(5).stores({
       savedata: 'id',
       items: 'id',

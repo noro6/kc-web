@@ -414,7 +414,7 @@ export default class Ship implements ShipBase {
         const temp = Math.max(maximumAttacker.data.torpedo, maximumAttacker.data.bomber);
         const value = Math.max(item.data.torpedo, item.data.bomber);
         if (temp < value) {
-          // 最も雷装 or 爆装の高い機体を更新
+          // 最も雷装 or 爆装の高い機体を一時保持
           maximumAttacker = item;
         }
       }
