@@ -464,6 +464,7 @@ import Ship from '@/classes/fleet/ship';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Convert from '@/classes/convert';
+import { sum } from 'lodash';
 
 export interface ViewShip {
   ship: ShipMaster;
@@ -523,6 +524,7 @@ export default Vue.extend({
       { text: '弾薬', value: 'ammo' },
       { text: '射程', value: 'range' },
       { text: '運改修', value: 'luckRemodel' },
+      { text: '搭載数', value: 'slotSize' },
     ],
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     multiLine: true,
@@ -984,6 +986,8 @@ export default Vue.extend({
             v.sortValue = v.luck;
           } else if (key === 'luckRemodel') {
             v.sortValue = v.luck - v.ship.luck;
+          } else if (key === 'slotSize') {
+            v.sortValue = sum(v.ship.slots);
           } else if (key === 'scout') {
             v.sortValue = Ship.getStatusFromLevel(v.level, v.ship.maxScout, v.ship.minScout);
           } else if (key === 'avoid') {
