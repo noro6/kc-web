@@ -86,9 +86,8 @@
       <div class="ml-3 align-self-center my-3" v-if="isStockOnly && !multiLine">
         <v-checkbox v-model="sortRawStatus" @click="filter()" hide-details dense :label="$t('ItemList.素ステでソート')" />
       </div>
-      <v-spacer />
-      <v-btn class="align-self-center" color="secondary" @click="showBlacklist()">
-        <v-icon>mdi-eye-off</v-icon>Blacklist ({{ setting.blacklistItemIds.length }})
+      <v-btn class="ml-auto align-self-center" color="secondary" @click="showBlacklist()">
+        <v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})
       </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
