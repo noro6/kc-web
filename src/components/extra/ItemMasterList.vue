@@ -18,8 +18,11 @@
           </template>
           <v-btn v-else color="primary" @click="showShipList()">{{ $t("Extra.搭載可能な装備で絞り込み") }}</v-btn>
         </div>
-        <div class="ml-auto mr-3 my-3">
-          <v-checkbox v-model="isEnemyMode" :disabled="!!keyword" @change="setItems" dense hide-details :label="$t('ItemList.敵装備')" />
+        <div class="ml-auto my-3" v-if="itemStock.length">
+          <v-checkbox v-model="isStockOnly" :disabled="isEnemyMode" @click="setItems" hide-details dense :label="$t('ItemList.所持装備反映')" />
+        </div>
+        <div class="ml-3 mr-3 my-3">
+          <v-checkbox v-model="isEnemyMode" :disabled="!!keyword || isStockOnly" @change="setItems" dense hide-details :label="$t('ItemList.敵装備')" />
         </div>
       </div>
       <div class="d-flex flex-wrap">
@@ -220,6 +223,7 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ItemMaster from '@/classes/item/itemMaster';
 import SiteSetting from '@/classes/siteSetting';
+import ItemStock from '@/classes/item/itemStock';
 
 export default Vue.extend({
   name: 'ItemMasterList',
@@ -228,6 +232,7 @@ export default Vue.extend({
     rangeText: ['', '短', '中', '長', '超長', '超長+'],
     keyword: '',
     ship: new ShipMaster(),
+    isStockOnly: false,
     isEnemyMode: false,
     types: [] as { id: number; text: string; types: number[] }[],
     selectedTypes: [] as number[],
@@ -333,6 +338,7 @@ export default Vue.extend({
     avoidC2: Const.AVOID_TYPE.map((v) => v.c2),
     shipListDialog: false,
     shipDialogWidth: 1200,
+    itemStock: [] as ItemStock[],
   }),
   mounted() {
     const all = this.$store.state.items as ItemMaster[];
@@ -357,6 +363,18 @@ export default Vue.extend({
 
       this.selectedTypes.push(type.id);
     }
+
+    // 現行の所持装備情報を更新
+    this.itemStock = this.$store.state.itemStock as ItemStock[];
+    const setting = this.$store.state.siteSetting as SiteSetting;
+    this.isStockOnly = setting.isStockOnlyForItemList;
+
+    // 一時所持情報データがあるなら
+    if (this.$store.getters.getExistsTempStock) {
+      this.itemStock = this.$store.state.tempItemStock as ItemStock[];
+      this.isStockOnly = true;
+    }
+
     this.avoidTexts[0] = '';
     this.setItems();
   },
@@ -432,6 +450,10 @@ export default Vue.extend({
 
         if ((!this.isEnemyMode && item.isEnemyItem) || (this.isEnemyMode && !item.isEnemyItem)) {
           // 敵装備フィルタ
+          continue;
+        }
+        if (this.isStockOnly && !this.itemStock.find((v) => v.id === item.id)) {
+          // 所持装備フィルタ
           continue;
         }
         items.push(item);
