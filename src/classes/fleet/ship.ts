@@ -1161,8 +1161,8 @@ export default class Ship implements ShipBase {
 
     if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
       // 陸軍と航空戦艦
-      // => 表示対潜値100 + ソナー + (水上爆撃機 or 対潜哨戒機 or 回転翼機)
-      if (hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.isAswPlane)) {
+      // => 表示対潜値100 + ソナー + (攻撃機 or 対潜哨戒機 or 回転翼機)
+      if (hasSonar && items.some((v) => v.data.isAttacker || v.data.isAswPlane)) {
         if (this.displayStatus.asw >= 100) {
           return true;
         }
