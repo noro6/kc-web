@@ -62,6 +62,8 @@ export default new Vuex.Store({
     saveData: new SaveData(),
     /** 特定艦娘が装備可能な装備カテゴリ */
     equipShips: [] as Master.MasterEquipmentShip[],
+    /** 艦種マスタ */
+    shipTypes: [] as Master.MasterShipType[],
     /** 特定艦娘が補強増設に装備可能な装備id */
     exSlotEquipShips: [] as Master.MasterEquipmentExSlot[],
     /** 現在展開中の計算データ */
@@ -125,6 +127,9 @@ export default new Vuex.Store({
     },
     setEquipShips: (state, values: Master.MasterEquipmentShip[]) => {
       state.equipShips = values;
+    },
+    setShipTypes: (state, values: Master.MasterShipType[]) => {
+      state.shipTypes = values;
     },
     setWorlds: (state, values: Master.MasterWorld[]) => {
       state.worlds = values;
@@ -334,6 +339,7 @@ export default new Vuex.Store({
           context.commit('setEnemies', master.enemies);
           context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
           context.commit('setEquipShips', master.api_mst_equip_ship);
+          context.commit('setShipTypes', master.api_mst_stype);
           context.commit('setWorlds', master.worlds);
           context.commit('setMaps', master.maps);
           context.commit('setAreaCount', master.area_count);

@@ -92,9 +92,9 @@ export default class ShipValidation {
       types = special.api_equip_type;
     } else {
       // 通常艦種装備可能から取得
-      const normal = Const.SHIP_TYPES_INFO.find((v) => v.id === type);
+      const normal = store.state.shipTypes.find((v) => v.api_id === type);
       if (normal) {
-        types = normal.itemType;
+        types = normal.api_equip_type;
       }
     }
 

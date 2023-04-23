@@ -308,36 +308,6 @@ export default class Const {
     { id: 54, name: '艦載発煙装置' },
   ];
 
-  /**
-   * 艦種一覧
-   * @static
-   * @memberof Const
-   */
-  public static readonly SHIP_TYPES_INFO = [
-    { id: SHIP_TYPE.DE, name: '海防艦', itemType: [1, 12, 14, 15, 21, 23, 36, 37, 39, 43] },
-    { id: SHIP_TYPE.DD, name: '駆逐艦', itemType: [1, 5, 12, 14, 15, 17, 21, 23, 29, 30, 33, 36, 37, 39, 43] },
-    { id: SHIP_TYPE.CL, name: '軽巡洋艦', itemType: [1, 2, 4, 5, 10, 12, 13, 14, 15, 17, 21, 23, 29, 30, 33, 34, 36, 37, 39, 43] },
-    { id: SHIP_TYPE.CLT, name: '重雷装巡洋艦', itemType: [1, 2, 4, 5, 12, 13, 14, 15, 17, 21, 22, 23, 33, 34, 36, 39, 43] },
-    { id: SHIP_TYPE.CA, name: '重巡洋艦', itemType: [2, 4, 5, 10, 12, 13, 17, 18, 21, 23, 27, 29, 33, 34, 36, 39, 40, 43] },
-    { id: SHIP_TYPE.CAV, name: '航空巡洋艦', itemType: [2, 4, 5, 10, 11, 12, 13, 17, 18, 21, 23, 25, 27, 29, 30, 33, 34, 35, 36, 37, 39, 40, 43, 45, 50] },
-    { id: SHIP_TYPE.CVL, name: '軽空母', itemType: [4, 6, 7, 8, 9, 12, 13, 17, 21, 23, 25, 26, 27, 34, 35, 36, 40, 43, 50] },
-    { id: SHIP_TYPE.FBB, name: '高速戦艦', itemType: [3, 4, 10, 12, 13, 17, 18, 19, 21, 23, 28, 29, 33, 34, 36, 39, 40, 42, 43] },
-    { id: SHIP_TYPE.BB, name: '戦艦', itemType: [2, 3, 4, 10, 12, 13, 17, 18, 19, 21, 23, 28, 29, 33, 34, 36, 39, 40, 42, 43] },
-    { id: SHIP_TYPE.BBV, name: '航空戦艦', itemType: [2, 3, 4, 10, 11, 12, 13, 17, 18, 19, 21, 23, 25, 28, 29, 33, 34, 35, 36, 37, 39, 40, 42, 43, 45, 50] },
-    { id: SHIP_TYPE.CV, name: '正規空母', itemType: [4, 6, 7, 8, 9, 12, 13, 17, 21, 23, 28, 34, 35, 36, 40, 43, 50] },
-    { id: SHIP_TYPE.BBB, name: '超弩級戦艦', itemType: [2, 3, 4, 10, 12, 13, 17, 18, 19, 21, 23, 28, 29, 33, 34, 36, 39, 40, 42, 43] },
-    { id: SHIP_TYPE.SS, name: '潜水艦', itemType: [5, 14, 17, 22, 23, 32, 37, 43, 46, 51] },
-    { id: SHIP_TYPE.SSV, name: '潜水空母', itemType: [5, 10, 11, 14, 17, 22, 23, 32, 37, 43, 45, 46, 51] },
-    { id: SHIP_TYPE.AO_2, name: '補給艦', itemType: [0] },
-    { id: SHIP_TYPE.AV, name: '水上機母艦', itemType: [1, 4, 10, 11, 12, 13, 15, 17, 21, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 43, 45, 46, 50] },
-    { id: SHIP_TYPE.LHA, name: '揚陸艦', itemType: [1, 4, 12, 15, 17, 21, 23, 24, 25, 26, 30, 34, 36, 37, 40, 43, 46, 50] },
-    { id: SHIP_TYPE.CVB, name: '装甲空母', itemType: [4, 6, 7, 8, 9, 12, 13, 17, 21, 23, 28, 34, 35, 36, 40, 43, 50] },
-    { id: SHIP_TYPE.AR, name: '工作艦', itemType: [1, 4, 12, 17, 21, 23, 25, 27, 31, 33, 36, 43, 50] },
-    { id: SHIP_TYPE.AS, name: '潜水母艦', itemType: [1, 4, 10, 12, 17, 21, 23, 25, 27, 33, 34, 36, 37, 39, 40, 43, 45] },
-    { id: SHIP_TYPE.CT, name: '練習巡洋艦', itemType: [1, 2, 4, 5, 10, 12, 13, 14, 15, 17, 21, 23, 27, 34, 36, 39, 43] },
-    { id: SHIP_TYPE.AO, name: '補給艦', itemType: [1, 10, 11, 12, 17, 21, 23, 25, 30, 35, 36, 43, 44, 45] },
-  ];
-
   public static readonly SHIP_TYPES_ALT_INFO = [
     { id: 6, name: '金剛型' },
     { id: 26, name: '扶桑型' },
