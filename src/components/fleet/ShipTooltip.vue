@@ -351,13 +351,13 @@ export default Vue.extend({
         if (manager) {
           const lastBattle = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1];
           if (lastBattle) {
-            return Ship.getDayBattleFirePower(this.value, manager.fleetInfo.fleetType, lastBattle.isUnion);
+            return Math.floor(Ship.getDayBattleFirePower(this.value, manager.fleetInfo.fleetType, lastBattle.isUnion));
           }
         }
       }
 
       // なければデフォルトで。
-      return Ship.getDayBattleFirePower(this.value, FLEET_TYPE.SINGLE, false);
+      return Math.floor(Ship.getDayBattleFirePower(this.value, FLEET_TYPE.SINGLE, false));
     },
     supportFirePower(): number {
       return Ship.getSupportFirePower(this.value);

@@ -305,6 +305,7 @@ export default class Const {
     { id: 50, name: '輸送機材' },
     { id: 51, name: '潜水艦装備' },
     { id: 52, name: '陸戦部隊' },
+    { id: 54, name: '艦載発煙装置' },
   ];
 
   /**
@@ -693,7 +694,7 @@ export default class Const {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['radius', 'antiAir', 'actualAccuracy', 'actualScout', 'asw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51],
+      id: 17, text: 'その他', viewStatus: ['radius', 'antiAir', 'actualAccuracy', 'actualScout', 'asw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54],
     },
   ]
 
