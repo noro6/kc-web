@@ -958,6 +958,8 @@ export default {
       '陸攻': 'LB Attack Aircraft',
       '局戦': 'Interceptor/LB Fighter',
       '陸偵': 'LB Recon Aircraft',
+      '陸戦部隊': 'Tank',
+      '艦載発煙装置': 'Smoke',
       'その他': 'Others',
     },
     SType: {
