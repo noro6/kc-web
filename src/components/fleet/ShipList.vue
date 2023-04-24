@@ -60,6 +60,9 @@
       <div class="mr-3 align-self-center" v-if="visibleMidgetSubmarineFilter">
         <v-checkbox v-model="midgetSubmarineOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.甲標的搭載可')" />
       </div>
+      <div class="mr-3 align-self-center" v-if="visibleEscortCarrierFilter">
+        <v-checkbox v-model="escortCarrierOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.護衛空母')" />
+      </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
           <v-icon class="manual-icon" color="primary" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
@@ -540,6 +543,7 @@ export default Vue.extend({
     tankNG: false,
     fighterOK: false,
     midgetSubmarineOK: false,
+    escortCarrierOnly: false,
     commanderOK: false,
     commanderNG: false,
     armorOK: false,
@@ -638,6 +642,16 @@ export default Vue.extend({
       for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
         const type = this.selectedShipTypes[i];
         if ([+SHIP_TYPE.DD, SHIP_TYPE.AO_2].includes(type)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    visibleEscortCarrierFilter(): boolean {
+      // 護衛空母フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.CVL, SHIP_TYPE.CV].includes(type)) {
           return true;
         }
       }
@@ -855,6 +869,11 @@ export default Vue.extend({
           if (midgetSubmarine) {
             result = result.filter((v) => isValid(v, midgetSubmarine));
           }
+        }
+
+        if (this.escortCarrierOnly && this.visibleEscortCarrierFilter) {
+          // 護衛空母のみ
+          result = result.filter((v) => v.minAsw);
         }
       }
 
