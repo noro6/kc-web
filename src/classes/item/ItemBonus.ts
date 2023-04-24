@@ -6216,13 +6216,13 @@ export default class ItemBonus {
           bonus: {
             firePower: 1, antiAir: 2, avoid: 1, asw: 1, accuracy: 1,
           },
-          shipBase: [161, 900],
+          shipBase: [161, 900, 943],
         },
         {
           bonus: {
             firePower: 2, antiAir: 2, avoid: 2, asw: 1, accuracy: 1,
           },
-          shipId: [717],
+          shipId: [717, 948],
         },
         {
           bonus: { avoid: 1 },

@@ -65,6 +65,7 @@ export default class ShipStock {
             stock.improvement.asw ? stock.improvement.asw : 0,
           ],
           exp: [stock.exp, nextExp, 0],
+          area: stock.area,
         };
         shipJSONRows.push(data);
       }
