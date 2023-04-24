@@ -1,15 +1,23 @@
 <template>
   <div class="area-manager-container mt-3">
     <div class="align-self-center pl-2 d-flex">
-      <v-checkbox v-model="visibleShipName" dense :label="$t('Database.艦娘名表示')" />
-      <v-text-field class="search-input ml-5" :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
+      <v-text-field class="search-input" :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
     </div>
     <div>
       <div class="d-flex my-2" v-if="!readonly">
         <v-btn class="ml-auto" color="secondary" @click="resetAreaTag()">{{ $t("Database.お札一斉解除") }}</v-btn>
       </div>
     </div>
-    <v-card v-for="data in filteredAreaShipList" :key="`area_${data.area}`" class="mb-2 px-2 py-3 area-card">
+    <v-card
+      v-for="data in filteredAreaShipList"
+      :key="`area_${data.area}`"
+      class="mb-2 px-2 py-3 area-card"
+      :data-area="data.area"
+      @dragenter="dragEnter($event)"
+      @dragleave="dragLeave($event)"
+      @drop.stop="dropShip($event)"
+      @dragover.prevent
+    >
       <div class="d-flex">
         <div class="area-banner">
           <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="40" />
@@ -24,7 +32,7 @@
       <div v-if="data.headers.length > 0" class="py-1" />
       <div v-for="header in data.headers" :key="`type_${header.text}`">
         <div class="type-divider mt-1">
-          <div class="caption">{{ header.text }}</div>
+          <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
           <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
           <div class="type-divider-border" />
         </div>
@@ -33,17 +41,14 @@
             v-for="(ship, i) in header.ships"
             :key="`area_${data.area}_ship${i}`"
             class="ship-container"
-            :class="{ clickable: !disabledEdit }"
-            v-ripple="{ class: 'info--text' }"
+            :class="{ draggable: !disabledEdit }"
+            :draggable="!disabledEdit"
+            @dragstart="dragStart(ship, $event)"
+            @dragend="dragEnd($event)"
             @click.stop="clickedShip(data.area, ship)"
             @keypress.enter="clickedShip(data.area, ship)"
-            tabindex="0"
-            @mouseenter="bootTooltip(ship, $event)"
-            @mouseleave="clearTooltip"
-            @focus="bootTooltip(ship, $event)"
-            @blur="clearTooltip"
           >
-            <div class="ship-img">
+            <div class="ship-img" @mouseenter="bootTooltip(ship, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(ship, $event)" @blur="clearTooltip">
               <div>
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
               </div>
@@ -51,7 +56,7 @@
                 <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
               </div>
             </div>
-            <div class="caption" v-if="visibleShipName">
+            <div class="caption">
               <div class="ship-status">
                 <div class="align-self-center primary--text">
                   Lv <span class="font-weight-bold">{{ ship.level }}</span>
@@ -110,6 +115,10 @@
 .area-card {
   position: relative;
 }
+.area-card.dragging:not(.dragging-parent) * {
+  pointer-events: none;
+}
+
 .area-banner {
   position: absolute;
   left: 10px;
@@ -132,8 +141,8 @@
   transition: 0.1s;
   border-radius: 0.2rem;
 }
-.ship-container.clickable {
-  cursor: pointer;
+.ship-container.draggable {
+  cursor: move;
 }
 .ship-container:hover {
   background-color: rgba(128, 128, 128, 0.1);
@@ -188,6 +197,7 @@ interface GroupShip {
   impASW: number;
   impLuck: number;
   expand: boolean;
+  unique: number;
 }
 interface Header {
   text: string;
@@ -209,7 +219,6 @@ export default Vue.extend({
   },
   data: () => ({
     searchWord: '',
-    visibleShipName: true,
     existStock: false,
     areaShipList: [] as { area: number; headers: Header[] }[],
     unsubscribe: undefined as unknown,
@@ -223,6 +232,7 @@ export default Vue.extend({
     tooltipShip: new Ship(),
     tooltipX: 0,
     tooltipY: 0,
+    draggingShipId: 0,
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation) => {
@@ -318,6 +328,7 @@ export default Vue.extend({
               impHP: stock.improvement.hp,
               impASW: stock.improvement.asw,
               impLuck: stock.improvement.luck,
+              unique: stock.uniqueId,
             };
             header.ships.push(shipData);
           }
@@ -462,6 +473,85 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    dragStart(ship: GroupShip, e: DragEvent) {
+      const target = e.target as HTMLDivElement;
+      if (!target || !target.classList || !target.classList.contains('ship-container') || !target.draggable) {
+        return;
+      }
+      target.style.opacity = '0.4';
+      target.id = 'dragging-item';
+
+      // 親要素area-cardは例外
+      const parentCard = target.closest('.area-card');
+      if (parentCard) {
+        parentCard.classList.add('dragging-parent');
+      }
+
+      // 一時的に全てのarea-cardの子要素マウスイベントを消す => enterイベントが子要素に食われるため
+      const shipContainerList = document.getElementsByClassName('area-card');
+      for (let i = 0; i < shipContainerList.length; i += 1) {
+        shipContainerList[i].classList.add('dragging');
+      }
+
+      this.clearTooltip();
+      this.draggingShipId = ship.unique;
+    },
+    dragLeave(e: DragEvent) {
+      (e.target as HTMLDivElement).style.boxShadow = '';
+    },
+    dragEnter(e: DragEvent): void {
+      const d = document.getElementById('dragging-item');
+      const t = e.target as HTMLDivElement;
+      if (!d || !d.classList.contains('ship-container') || !t || !t.classList.contains('area-card') || t.classList.contains('dragging-parent')) {
+        return;
+      }
+      // 受け入れ可能 背景色を青っぽく
+      t.style.boxShadow = 'inset 0 0 80px rgba(20, 160, 255, 0.6)';
+    },
+    dropShip(e: DragEvent) {
+      e.preventDefault();
+      // 受け渡されたデータ
+      const draggingDiv = document.getElementById('dragging-item');
+      // そもそもドラッグ開始が正常になされているか
+      if (!draggingDiv || !draggingDiv.classList.contains('ship-container')) {
+        return;
+      }
+
+      // ドロップされる要素
+      const target = e.target as HTMLDivElement;
+      target.style.boxShadow = '';
+
+      const stocks = this.$store.state.shipStock as ShipStock[];
+      const ships = stocks.filter((v) => v.uniqueId === this.draggingShipId);
+      if (ships.length && target.dataset.area && ships[0].area !== +target.dataset.area) {
+        ships.sort((a, b) => a.area - b.area);
+        ships[0].area = +target.dataset.area;
+
+        this.$store.dispatch('updateShipStock', stocks);
+      }
+    },
+    dragEnd(e: DragEvent) {
+      // まずは一時的に消していた全てのarea-cardの子要素マウスイベントを復活
+      const shipContainerList = document.getElementsByClassName('area-card');
+      for (let i = 0; i < shipContainerList.length; i += 1) {
+        shipContainerList[i].classList.remove('dragging', 'dragging-parent');
+      }
+
+      const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
+      if (!draggingDiv || !draggingDiv.draggable || !draggingDiv.classList.contains('ship-container')) {
+        // FireFox なんかおかしくなるので再チェック
+        const target = e.target as HTMLDivElement;
+        if (target && target.classList.contains('ship-container')) {
+          target.style.opacity = '1';
+          target.id = '';
+        }
+        return;
+      }
+
+      const target = e.target as HTMLDivElement;
+      target.style.opacity = '1';
+      target.id = '';
     },
   },
 });
