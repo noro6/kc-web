@@ -1093,7 +1093,23 @@ export default class Ship implements ShipBase {
       }
     }
 
-    if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.AO || type === SHIP_TYPE.AO_2) {
+    if (this.data.id === 717) {
+      // 山汐丸改
+      if (items.some((v) => v.data.isAttacker)) {
+        // 攻撃機があるなら => 表示対潜値100 + ソナー + (攻撃機 or 対潜哨戒機 or 回転翼機)
+        if (hasSonar && items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.isAswPlane)) {
+          if (this.displayStatus.asw >= 100) {
+            return true;
+          }
+          this.missingAsw = 100 - this.displayStatus.asw;
+        }
+      } else if (hasSonar) {
+        if (this.displayStatus.asw >= 100) {
+          return true;
+        }
+        this.missingAsw = 100 - this.displayStatus.asw;
+      }
+    } else if (type === SHIP_TYPE.DD || type === SHIP_TYPE.CL || type === SHIP_TYPE.CLT || type === SHIP_TYPE.CT || type === SHIP_TYPE.AO || type === SHIP_TYPE.AO_2) {
       // 駆逐 軽巡 練巡 雷巡 補給
       // => 表示対潜値100 + ソナー
       if (hasSonar) {
@@ -1162,7 +1178,7 @@ export default class Ship implements ShipBase {
     if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
       // 陸軍と航空戦艦
       // => 表示対潜値100 + ソナー + (攻撃機 or 対潜哨戒機 or 回転翼機)
-      if (hasSonar && items.some((v) => v.data.isAttacker || v.data.isAswPlane)) {
+      if (hasSonar && items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.isAswPlane)) {
         if (this.displayStatus.asw >= 100) {
           return true;
         }
