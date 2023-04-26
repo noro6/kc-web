@@ -209,12 +209,19 @@ export default class EnemyFleet {
     this.allAntiAirCutIn = [];
     this.existUnknownEnemy = false;
 
+    // stage2に計上する敵一覧
+    const enabledStage2Enemies = [];
+
     for (let i = 0; i < enabledEnemies.length; i += 1) {
       const enemy = enabledEnemies[i];
       this.fullAirPower += enemy.fullAirPower;
       this.fullAirbaseAirPower += enemy.fullLBAirPower;
 
-      this.allAntiAirCutIn = this.allAntiAirCutIn.concat(enemy.antiAirCutIn);
+      // 非対潜空襲マス or 対潜空襲マスかつ潜水艦
+      if (this.cellType !== CELL_TYPE.AIR_SUPPORTED_ASW || enemy.isSubmarine) {
+        enabledStage2Enemies.push(enemy);
+        this.allAntiAirCutIn = this.allAntiAirCutIn.concat(enemy.antiAirCutIn);
+      }
 
       if (!enemy.isEscort) {
         this.mainAirPower += enemy.fullAirPower;
@@ -281,9 +288,9 @@ export default class EnemyFleet {
       sum -= rate;
       border += rate;
 
-      this.shootDownList.push(new ShootDownInfo(enabledEnemies, true, this.isUnion, cutIn, border, formation));
+      this.shootDownList.push(new ShootDownInfo(enabledStage2Enemies, true, this.isUnion, cutIn, border, formation));
 
-      const mainPhase = new ShootDownInfo(enabledEnemies, true, this.isUnion, cutIn, border, formation);
+      const mainPhase = new ShootDownInfo(enabledStage2Enemies, true, this.isUnion, cutIn, border, formation);
       if (disabledIndex.length) {
         // 間引く対象indexが存在しているなら撃墜テーブルから間引く
         mainPhase.maxRange -= disabledIndex.length;
@@ -298,12 +305,12 @@ export default class EnemyFleet {
       this.mainPhaseShootDownList.push(mainPhase);
     }
     // 対空CI不発データを挿入
-    const noCutInStage2 = new ShootDownInfo(enabledEnemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
+    const noCutInStage2 = new ShootDownInfo(enabledStage2Enemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
     this.shootDownList.push(noCutInStage2);
     this.noCutInStage2 = noCutInStage2.shootDownStatusList;
 
     // 間引いた分も作る
-    const mainPhaseNoCutInStage2 = new ShootDownInfo(enabledEnemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
+    const mainPhaseNoCutInStage2 = new ShootDownInfo(enabledStage2Enemies, true, this.isUnion, new AntiAirCutIn(), 1, formation);
     if (disabledIndex.length) {
       // 間引く対象indexが存在しているなら撃墜テーブルから間引く
       mainPhaseNoCutInStage2.maxRange -= disabledIndex.length;
