@@ -299,8 +299,8 @@ export default class AerialFirePowerCalculator {
     for (let i = 0; i < typeMultipliers.length; i += 1) {
       // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 航空戦定数}
       const baseFirePower = typeMultipliers[i] * (actualTorpedo * Math.sqrt(adj * args.slot) + airstrikeModifiers);
-      // キャップ前攻撃力 = 基本攻撃力 * B-25補正 * 基地航空隊補正(離島・砲台)
-      const preCapFirePower = baseFirePower * B25Modifiers * LBASModifiers;
+      // キャップ前攻撃力 = 基本攻撃力 * B-25補正 * 基地航空隊補正(離島・砲台) * 陸偵補正
+      const preCapFirePower = baseFirePower * B25Modifiers * LBASModifiers * args.rikuteiBonus;
 
       terms.push({
         airstrikeModifiers,
@@ -325,10 +325,8 @@ export default class AerialFirePowerCalculator {
    * @return {*}  {PostCapTerm}
    * @memberof AerialFirePowerCalculator
    */
-  public static getPostCapAttackPower(args: FirePowerCalcArgs, power: number): PostCapTerm {
+  public static getPostCapAttackPower(args: FirePowerCalcArgs, preCapFirePower: number): PostCapTerm {
     const { item, isAirbaseMode, defense } = args;
-    // 陸偵補正
-    const preCapFirePower = power * args.rikuteiBonus;
     // キャップ適用
     const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS);
 

@@ -218,14 +218,14 @@
             <div>{{ $t("Result.基地航空隊補正") }}</div>
             <div>&times; {{ preCapTerm.LBASModifiers.toFixed(2) }}</div>
           </template>
+          <template v-if="calcArgs.rikuteiBonus !== 1">
+            <div>{{ $t("Result.陸偵補正") }}</div>
+            <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
+          </template>
           <div>{{ $t("Result.キャップ前攻撃力") }}</div>
           <div>{{ preCapTerm.preCapFirePower ? Math.floor(100 * preCapTerm.preCapFirePower) / 100 : 0 }}</div>
           <div class="divider my-1"><v-divider /></div>
           <div class="divider my-1"><v-divider /></div>
-          <template v-if="!postCapTerms[i].isSubmarine && calcArgs.rikuteiBonus !== 1">
-            <div>{{ $t("Result.陸偵補正") }}</div>
-            <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
-          </template>
           <div>{{ $t("Result.キャップ後攻撃力") }}</div>
           <div>{{ postCapTerms[i].postCapFirePower ? postCapTerms[i].postCapFirePower : 0 }}</div>
           <template v-if="postCapTerms[i].LBASModifiers && postCapTerms[i].LBASModifiers !== 1">
