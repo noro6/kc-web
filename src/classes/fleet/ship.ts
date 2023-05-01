@@ -935,6 +935,7 @@ export default class Ship implements ShipBase {
 
     let antiAirRadarCount = 0;
     let surfaceRadarCount = 0;
+    let accuracyRadarCount = 0;
 
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
@@ -945,6 +946,10 @@ export default class Ship implements ShipBase {
       // 水上電探カウント
       if (item.data.iconTypeId === 11 && item.data.scout > 4) {
         surfaceRadarCount += 1;
+      }
+      // 命中付き電探カウント
+      if (item.data.iconTypeId === 11 && item.data.accuracy > 1) {
+        accuracyRadarCount += 1;
       }
     }
     const {
@@ -995,6 +1000,10 @@ export default class Ship implements ShipBase {
           }
           // 水上電探判定
           if (bonus.requiresSR && !surfaceRadarCount) {
+            continue;
+          }
+          // 命中付き電探判定
+          if (bonus.requiresAccR && !accuracyRadarCount) {
             continue;
           }
           // 装備固有id判定
