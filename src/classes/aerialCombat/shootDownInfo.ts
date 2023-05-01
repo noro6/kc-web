@@ -288,6 +288,10 @@ export default class ShootDownInfo {
             cutInIds.push(45);
           }
         }
+      } else if ([593].includes(shipId)) {
+        // 榛名改二乙
+        // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
+        if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
       }
 
       // 汎用
