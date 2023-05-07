@@ -434,7 +434,7 @@ export default class Item {
       return Math.sqrt(this.remodel);
     }
     // ソナー 爆雷
-    if ([14, 15].includes(this.data.apiTypeId)) {
+    if ([14, 15].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return 0.75 * Math.sqrt(this.remodel);
     }
     // 艦攻 艦爆
@@ -445,7 +445,7 @@ export default class Item {
   }
 
   /**
-   * 改修値によるボーナス火力を返却
+   * 改修値によるボーナス夜戦火力を返却
    * @private
    * @return {*}  {number}
    * @memberof Item
@@ -492,6 +492,10 @@ export default class Item {
     // 魚雷 / 機銃
     if (this.data.apiTypeId === 5 || this.data.apiTypeId === 21) {
       return 1.2 * Math.sqrt(this.remodel);
+    }
+    // 潜水艦魚雷
+    if (this.data.apiTypeId === 32) {
+      return 0.2 * this.remodel;
     }
     return 0;
   }
