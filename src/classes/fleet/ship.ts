@@ -790,8 +790,8 @@ export default class Ship implements ShipBase {
           // いずれかの缶 => 高速+
           return 15;
         }
-      } else if ([3, 34].includes(this.data.type2) || this.data.type === SHIP_TYPE.AV) {
-        // 加賀型, 夕張型, 水母
+      } else if ([3, 34, 87].includes(this.data.type2) || this.data.type === SHIP_TYPE.AV) {
+        // 加賀型, 夕張型, 水母, Samuel
         if (totalBoilerCount) {
           // いずれかの缶 => 高速+
           return 15;
