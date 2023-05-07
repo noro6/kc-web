@@ -16,9 +16,9 @@
               :class="{ selected: i === selectedShipIndex }"
               @click="clickedShip(i)"
               @keypress.enter="clickedShip(i)"
-              @mouseenter="bootShipTooltip($event)"
+              @mouseenter="bootShipTooltip($event, ship)"
               @mouseleave="clearTooltip"
-              @focus="bootShipTooltip($event)"
+              @focus="bootShipTooltip($event, ship)"
               @blur="clearTooltip"
               tabindex="0"
             >
@@ -747,7 +747,7 @@ export default Vue.extend({
       }
       return name || '';
     },
-    bootShipTooltip(e: MouseEvent) {
+    bootShipTooltip(e: MouseEvent, ship: Ship) {
       const setting = this.$store.state.siteSetting as SiteSetting;
       if (setting.disabledShipTooltip) {
         return;
@@ -756,7 +756,7 @@ export default Vue.extend({
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
         this.enabledShipTooltip = true;
-        this.tooltipShip = this.selectedShip;
+        this.tooltipShip = ship;
       }, Math.max(setting.popUpCount, 10));
     },
     bootItemTooltip(item: Item, index: number, e: MouseEvent) {
