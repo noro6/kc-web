@@ -1453,7 +1453,7 @@ export default Vue.extend({
           html2canvas(div, { scale: 2, width: this.is2Line ? 860 : 1200 }).then((canvas) => {
             const link = document.createElement('a');
             link.href = canvas.toDataURL();
-            link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
+            link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
             link.click();
             this.capturing = false;
           });
@@ -1741,7 +1741,7 @@ export default Vue.extend({
         const base64 = canvas.toDataURL('image/jpeg');
         const download = document.getElementById('gkcoi-download') as HTMLAnchorElement;
         download.href = base64;
-        download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
+        download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
         download.click();
       }
     },

@@ -417,7 +417,7 @@ export default Vue.extend({
         html2canvas(div, { scale: 2, width: 1160 }).then((canvas) => {
           const link = document.createElement('a');
           link.href = canvas.toDataURL();
-          link.download = `enemy_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.jpg`;
+          link.download = `enemy_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
           link.click();
           this.capturing = false;
         });
