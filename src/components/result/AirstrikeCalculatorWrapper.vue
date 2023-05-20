@@ -87,7 +87,7 @@
       <div class="header-divider" />
     </div>
     <v-card class="mt-2 fire-calc-container" v-if="selectedShip">
-      <airstrike-calculator ref="airstrikeCalculator" :parent="selectedShip" :tableHeight="''" />
+      <airstrike-calculator ref="airstrikeCalculator" :arg-parent="selectedShip" :tableHeight="''" />
     </v-card>
   </div>
 </template>

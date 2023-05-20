@@ -252,6 +252,7 @@ export default class CalcManager {
       mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
       if (mainItem.needRecord) {
         mainItem.dist = item.dist;
+        mainItem.needRecord = false;
       }
     }
 
@@ -265,6 +266,7 @@ export default class CalcManager {
       mainItem.item.deathRate = (100 * item.item.deathRate) / maxCount;
       if (mainItem.item.needRecord) {
         mainItem.item.dist = item.item.dist;
+        mainItem.item.needRecord = false;
       }
     }
 

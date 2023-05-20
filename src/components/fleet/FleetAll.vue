@@ -1220,57 +1220,14 @@ export default Vue.extend({
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     equipItem(item: Item) {
-      const master = item.data;
       this.itemListDialog = false;
       const fleetIndex = this.itemDialogTarget[0];
       const shipIndex = this.itemDialogTarget[1];
       const slotIndex = this.itemDialogTarget[2];
       const fleet = this.fleetInfo.fleets[fleetIndex];
       const ship = fleet.ships[shipIndex];
-      let newShip: Ship;
-
-      // 新しい装備配列を生成
-      const items = ship.items.concat();
-      // 初期熟練度設定
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
-      let level = 0;
-      if (initialLevels) {
-        // 設定情報より初期熟練度を解決
-        const initData = initialLevels.find((v) => v.id === master.apiTypeId);
-        if (initData) {
-          level = initData.level;
-        }
-      }
-
-      if (slotIndex < items.length) {
-        if (item.data.apiTypeId === 41 && ship.data.type2 === 90) {
-          // 日進 & 大型飛行艇
-          items[slotIndex] = new Item({
-            item: items[slotIndex],
-            master,
-            remodel: item.remodel,
-            level,
-            slot: 1,
-          });
-        } else {
-          // 装備を置き換え
-          items[slotIndex] = new Item({
-            item: items[slotIndex],
-            master,
-            remodel: item.remodel,
-            level,
-          });
-        }
-        // 装備を変更した艦娘インスタンス再生成
-        newShip = new Ship({ ship, items });
-      } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
-        // 補強増設を変更した艦娘インスタンス再生成
-        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master, remodel: item.remodel }) };
-        newShip = new Ship(builder);
-      } else {
-        // 搭載失敗
-        return;
-      }
+      const newShip = ship.putItem(item, slotIndex, initialLevels);
 
       if (shipIndex < fleet.ships.length) {
         fleet.ships[shipIndex] = newShip;

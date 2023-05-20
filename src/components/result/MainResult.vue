@@ -356,10 +356,10 @@
         <v-divider />
         <plane-detail-result
           v-if="!destroyDialog && detailParent"
-          :parent="detailParent"
+          :arg-parent="detailParent"
           :index="detailIndex"
           :fleetIndex="detailFleetIndex"
-          :manager="managerForDialog"
+          :handle-change-items="updateDetailFormItems"
         />
       </v-card>
     </v-dialog>
@@ -600,7 +600,8 @@ import Convert from '@/classes/convert';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
-import { cloneDeep } from 'lodash';
+import FleetInfo from '../../classes/fleet/fleetInfo';
+import AirbaseInfo from '../../classes/airbase/airbaseInfo';
 
 export default Vue.extend({
   name: 'MainResult',
@@ -629,6 +630,14 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleChangeAirbase: {
+      type: Function,
+      required: true,
+    },
+    handleChangeFleet: {
+      type: Function,
+      required: true,
+    },
     calculateCount: {
       type: Number,
       default: 5000,
@@ -650,7 +659,7 @@ export default Vue.extend({
     tooltipY: 0,
     fuelCorr: '',
     ammoCorr: '',
-    managerForDialog: new CalcManager(),
+    detailEditableItems: [] as Item[],
   }),
   computed: {
     formations(): Formation[] {
@@ -930,8 +939,6 @@ export default Vue.extend({
       }
     },
     viewDetail(parent: Enemy | Ship | Airbase, index: number): void {
-      this.managerForDialog = cloneDeep(this.value);
-
       this.detailParent = parent;
       this.detailIndex = index;
       if (parent instanceof Enemy) {
@@ -940,7 +947,37 @@ export default Vue.extend({
       this.destroyDialog = false;
       this.detailDialog = true;
     },
+    updateDetailFormItems(items: Item[]) {
+      // 詳細計算画面にて装備の変更があったときに発火
+      this.detailEditableItems = items;
+    },
     closeDetail() {
+      // 詳細計算画面にて変更された装備を適用する
+      const items = [];
+      for (let i = 0; i < this.detailEditableItems.length; i += 1) {
+        const editedItem = this.detailEditableItems[i];
+        items.push(new Item({ item: editedItem }));
+      }
+
+      if (this.detailParent instanceof Ship) {
+        // 詳細計算画面による変更を適用
+        const baseShip = this.value.fleetInfo.fleets[this.detailFleetIndex].ships[this.detailIndex];
+        const ship = new Ship({ ship: baseShip, items });
+        const baseFleet = this.value.fleetInfo.fleets[this.detailFleetIndex];
+        baseFleet.ships[this.detailIndex] = ship;
+        const fleet = new Fleet({ fleet: baseFleet });
+        const baseInfo = this.value.fleetInfo;
+        baseInfo.fleets[this.detailFleetIndex] = fleet;
+        // 親画面に通知し、履歴の追加と計算を発火
+        this.handleChangeFleet(new FleetInfo({ info: this.value.fleetInfo }));
+      } else if (this.detailParent instanceof Airbase) {
+        // 詳細計算画面による変更を適用
+        const airbase = new Airbase({ airbase: this.value.airbaseInfo.airbases[this.detailIndex], items });
+        this.value.airbaseInfo.airbases[this.detailIndex] = airbase;
+        // 親画面に通知し、履歴の追加と計算を発火
+        this.handleChangeAirbase(new AirbaseInfo({ info: this.value.airbaseInfo }));
+      }
+
       this.detailDialog = false;
       setTimeout(() => {
         this.detailParent = undefined;

@@ -16,63 +16,49 @@
       <div class="slot-rate-container mt-2" :class="{ show: visibleSlotRate }">
         <div class="border-window pa-2">
           <div class="header-content">
-            <div v-if="parent.data" class="d-flex px-2">
+            <div v-if="!isAirbase && editableParent" class="d-flex px-2">
               <div class="align-self-center">
-                <v-img :src="`./img/ship/${parent.data.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/${editableParent.data.id}.png`" height="30" width="120" />
               </div>
               <div class="px-2 align-self-center">
-                <div v-if="parent.data.id > 1500" class="parent-id">id {{ parent.data.id }}</div>
-                <div class="caption">{{ getShipName(parent.data) }}</div>
+                <div v-if="editableParent.data.id > 1500" class="parent-id">id {{ editableParent.data.id }}</div>
+                <div class="caption">{{ getShipName(editableParent.data) }}</div>
               </div>
             </div>
             <div v-else class="px-2 body-2">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
           </div>
-          <div class="mt-2" :class="{ 'pt-2': parent.data }">
-            <template v-for="(item, i) in parent.items">
-              <div
-                :key="`item_${i}`"
-                v-ripple="{ class: 'info--text' }"
-                class="calc-item"
-                :class="{ selected: selectedIndex === i, 'no-item': !item.data.isPlane }"
-                @click="selectItem(item.data.isPlane ? i : -1)"
-                @keypress.enter="selectItem(item.data.isPlane ? i : -1)"
-                tabindex="0"
-              >
-                <div class="align-self-center caption slot-area">{{ item.fullSlot }}</div>
-                <div>
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="24" width="24" />
-                </div>
-                <div class="item-name text-truncate">{{ needTrans && item.data.name ? $t(`${item.data.name}`) : item.data.name }}</div>
-                <div v-if="item.remodel" class="item-remodel">
-                  <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
-                  <span class="teal--text text--accent-4 body-2">{{ item.remodel }}</span>
-                </div>
-                <div class="item-level">
-                  <template v-if="item.data.isPlane">
-                    <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18" />
-                    <span class="level-value">{{ item.level }}</span>
-                  </template>
-                </div>
-                <div class="item-simple-status d-flex ml-3">
-                  <template v-if="item.data.isTorpedoAttacker">
-                    <div class="mx-1" v-if="item.actualTorpedo">{{ $t("Common.雷装") }} {{ item.actualTorpedo.toFixed(1) }}</div>
-                    <template v-if="item.crewTorpedoBonus || item.attackerTorpedoBonus">
-                      <div class="ml-auto">(</div>
-                      <div class="mx-1 info--text">&plus; {{ item.crewTorpedoBonus + item.attackerTorpedoBonus }}</div>
-                      <div>)</div>
-                    </template>
-                  </template>
-                  <template v-else-if="item.data.isAttacker">
-                    <div class="mx-1" v-if="item.actualBomber">{{ $t("Common.爆装") }} {{ item.actualBomber.toFixed(1) }}</div>
-                    <template v-if="item.crewBomberBonus || item.attackerTorpedoBonus">
-                      <div class="ml-auto">(</div>
-                      <div class="mx-1 info--text">&plus; {{ item.crewBomberBonus + item.attackerTorpedoBonus }}</div>
-                      <div>)</div>
-                    </template>
-                  </template>
-                </div>
-              </div>
-            </template>
+          <div v-if="editableParent" class="mt-2" :class="{ 'pt-2': editableParent.data }">
+            <div v-for="(item, i) in editableParent.items" :key="i" class="d-flex align-center">
+              <v-btn v-if="!item.data.isPlane" icon small class="mr-3" color="grey" disabled>
+                <v-icon small>mdi-minus</v-icon>
+              </v-btn>
+              <v-btn v-else-if="selectedIndex === i" icon small class="mr-3" color="blue" @click="selectItem(i)">
+                <v-icon>mdi-radiobox-marked</v-icon>
+              </v-btn>
+              <v-btn v-else-if="item.data.isPlane" icon small class="mr-3" color="grey" @click="selectItem(i)">
+                <v-icon>mdi-radiobox-blank</v-icon>
+              </v-btn>
+              <item-input
+                class="flex-grow-1"
+                v-model="editableParent.items[i]"
+                :index="i"
+                :item-parent="editableParent"
+                :drag-slot="isAirbase"
+                :handle-show-item-list="showItemList"
+                :max="item.data.airbaseMaxSlot"
+                :init="item.data.airbaseMaxSlot"
+                :handle-drag-start="dummyMethod"
+                :readonly="!isAirbase && !isShip"
+                @input="updateItem"
+              />
+            </div>
+          </div>
+          <div v-if="isAirbase && editableParent">
+            <air-status-result-bar :result="editableParent.resultWave1" :dense="true" class="mt-3" />
+            <air-status-result-bar :result="editableParent.resultWave2" :dense="true" class="mt-3" />
+          </div>
+          <div v-if="isShip && fleetResult">
+            <air-status-result-bar :result="fleetResult" class="mt-3" />
           </div>
         </div>
         <div class="bar-area">
@@ -85,10 +71,13 @@
           </v-btn>
         </div>
       </div>
-      <v-card class="fire-calc-container mt-4" :class="{ show: !visibleSlotRate }">
-        <airstrike-calculator ref="airstrikeCalculator" :parent="parent" :changed-defense-fleet="changeDefenseIndex" />
+      <v-card class="fire-calc-container mt-4" :class="{ show: !visibleSlotRate }" v-if="editableParent">
+        <airstrike-calculator ref="airstrikeCalculator" :arg-parent="editableParent" :changed-defense-fleet="changeDefenseIndex" />
       </v-card>
     </div>
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
+      <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
+    </v-dialog>
   </div>
 </template>
 
@@ -223,6 +212,9 @@ import Vue from 'vue';
 import max from 'lodash/max';
 import groupBy from 'lodash/groupBy';
 import cloneDeep from 'lodash/cloneDeep';
+import ItemList from '@/components/item/ItemList.vue';
+import ItemInput from '@/components/item/ItemInput.vue';
+import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import AirstrikeCalculator from '@/components/result/AirstrikeCalculator.vue';
 import BarChart, { BarGraphData, LabelCallbackArg } from '@/components/graph/Bar.vue';
 import CalcManager from '@/classes/calcManager';
@@ -236,13 +228,22 @@ import Ship from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import BattleInfo from '@/classes/enemy/battleInfo';
 import SiteSetting from '@/classes/siteSetting';
+import Fleet from '@/classes/fleet/fleet';
+import AirCalcResult from '../../classes/airCalcResult';
+import FleetInfo from '../../classes/fleet/fleetInfo';
 
 const labelCallback = (c: LabelCallbackArg) => `${c.formattedValue} %`;
 export default Vue.extend({
   name: 'PlaneDetailResult',
-  components: { BarChart, AirstrikeCalculator },
+  components: {
+    BarChart,
+    AirstrikeCalculator,
+    ItemInput,
+    ItemList,
+    AirStatusResultBar,
+  },
   props: {
-    parent: {
+    argParent: {
       type: [Ship, Airbase, Enemy],
       required: true,
     },
@@ -254,9 +255,8 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
-    manager: {
-      type: CalcManager,
-      required: true,
+    handleChangeItems: {
+      type: Function,
     },
   },
   data: () => ({
@@ -320,18 +320,39 @@ export default Vue.extend({
       },
     },
     slotRateTableText: '',
+    itemListDialog: false,
+    targetDialog: false,
+    dialogSlot: -1,
+    itemDialogWidth: 1200,
+    manager: new CalcManager(),
+    editableParent: null as Airbase | Ship | Enemy | null,
+    fleetResult: null as AirCalcResult | null,
   }),
   mounted() {
+    const saveData = this.$store.state.mainSaveData as SaveData;
+    const items = this.$store.state.items as ItemMaster[];
+    const ships = this.$store.state.ships as ShipMaster[];
+    const enemies = this.$store.getters.getEnemies as EnemyMaster[];
+    // 現在展開中のデータから情報を持ってくる もうここでいくら何をしても影響ない
+    this.manager = saveData.loadManagerData(items, ships, enemies);
+    if (this.isShip) {
+      // まずは最終戦闘をターゲットとする(この値はコピーしてきたときに保持していないため)
+      this.manager.mainBattle = this.manager.battleInfo.fleets.length - 1;
+    }
+    this.setEditableParent();
+
     // ないとバグる 意味不明！！！！！！！！！！！！！！！
     setTimeout(() => {
-      // 最初の攻撃機
-      const attackerIndex = this.parent.items.findIndex((v) => v.data.isAttacker);
-      if (attackerIndex >= 0) {
-        this.selectItem(attackerIndex);
-      } else {
-        // なければ艦載機
-        const index = this.parent.items.findIndex((v) => v.data.isPlane);
-        this.selectItem(Math.max(0, index));
+      if (this.editableParent) {
+        // 最初の攻撃機
+        const attackerIndex = this.editableParent.items.findIndex((v) => v.data.isAttacker);
+        if (attackerIndex >= 0) {
+          this.selectItem(attackerIndex);
+        } else {
+          // なければ艦載機
+          const index = this.editableParent.items.findIndex((v) => v.data.isPlane);
+          this.selectItem(Math.max(0, index));
+        }
       }
     }, 50);
   },
@@ -343,8 +364,33 @@ export default Vue.extend({
     isNotJapanese(): boolean {
       return this.$i18n.locale !== 'ja';
     },
+    isAirbase(): boolean {
+      return this.argParent instanceof Airbase;
+    },
+    isShip(): boolean {
+      return this.argParent instanceof Ship;
+    },
   },
   methods: {
+    setEditableParent() {
+      // 表示、編集する親の対象を更新
+      if (this.isShip) {
+        // 艦隊
+        this.editableParent = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
+        this.fleetResult = this.manager.fleetInfo.mainFleet.mainResult;
+      } else if (this.isAirbase) {
+        // 基地
+        this.editableParent = this.manager.airbaseInfo.airbases[this.index];
+      } else {
+        // 敵
+        this.editableParent = this.manager.battleInfo.fleets[this.fleetIndex].enemies[this.index];
+      }
+
+      // 更新を通知
+      if (this.editableParent && this.handleChangeItems) {
+        this.handleChangeItems(this.editableParent.items);
+      }
+    },
     selectItem(index: number) {
       if (index < 0 || this.selectedIndex === index) {
         return;
@@ -356,10 +402,10 @@ export default Vue.extend({
       const index = this.selectedIndex;
       let item: Item;
       // この艦載機情報の詳細計算フラグを立て、計算を行う
-      if (this.parent instanceof Ship) {
+      if (this.isShip) {
         // 艦隊
-        item = this.manager.fleetInfo.mainFleet.ships[this.index].items[index];
-      } else if (this.parent instanceof Airbase) {
+        item = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index].items[index];
+      } else if (this.isAirbase) {
         // 基地
         this.manager.airbaseInfo.airbases[this.index].needShootDown = true;
         item = this.manager.airbaseInfo.airbases[this.index].items[index];
@@ -367,6 +413,12 @@ export default Vue.extend({
         // 敵
         this.manager.mainBattle = this.fleetIndex;
         item = this.manager.battleInfo.fleets[this.fleetIndex].enemies[this.index].items[index];
+      }
+
+      // ドラッグ完了までは計算を実行しない
+      if (document.getElementById('dragging-item')) {
+        this.setEditableParent();
+        return;
       }
 
       if (item) {
@@ -423,15 +475,16 @@ export default Vue.extend({
       // 火力計算画面を更新
       const { fullSlot } = this.selectedItem;
       (this.$refs.airstrikeCalculator as InstanceType<typeof AirstrikeCalculator>).calculateFire(this.selectedItem, fullSlot);
+      this.setEditableParent();
     },
     changeDefenseIndex(index: number) {
       // 火力計算画面より、防御艦隊を変更した際のイベント
-      if (this.parent instanceof Ship && this.manager) {
-        // 展開している敵艦隊までの計算に変更
+      if (this.isShip) {
         const saveData = this.$store.state.mainSaveData as SaveData;
         const items = this.$store.state.items as ItemMaster[];
         const ships = this.$store.state.ships as ShipMaster[];
         const enemies = this.$store.getters.getEnemies as EnemyMaster[];
+        // 展開している敵艦隊までの計算に変更 => managerの敵艦隊データをまるっと置き換えるため、いったんセーブデータの方から引き直す
         const baseInfo = saveData.loadManagerData(items, ships, enemies).battleInfo;
 
         this.manager.mainBattle = index;
@@ -458,6 +511,74 @@ export default Vue.extend({
         return shipName.map((v) => trans(v)).join('');
       }
       return ship.name || '';
+    },
+    async showItemList(slot: number) {
+      this.dialogSlot = slot;
+
+      // 現在計算中のデータから、使用装備を抽出
+      let allItems: Item[] = [];
+      // 艦隊データから装備全取得
+      for (let i = 0; i < this.manager.fleetInfo.fleets.length; i += 1) {
+        const { ships } = this.manager.fleetInfo.fleets[i];
+        for (let j = 0; j < ships.length; j += 1) {
+          allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+          if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+        }
+      }
+      // 基地航空隊データから装備全取得
+      const { airbases } = this.manager.airbaseInfo;
+      for (let i = 0; i < airbases.length; i += 1) {
+        allItems = allItems.concat(airbases[i].items.filter((v) => v.data.id > 0));
+      }
+
+      const usedItems = allItems;
+
+      if (this.isAirbase) {
+        const original = this.manager.airbaseInfo.airbases[this.index];
+        await (this.itemListDialog = true);
+        (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, 0, usedItems);
+      } else if (this.isShip) {
+        const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
+        await (this.itemListDialog = true);
+        (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, slot, usedItems);
+      }
+    },
+    equipItem(item: Item) {
+      const slot = this.dialogSlot;
+      const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+      if (this.isAirbase) {
+        const original = this.manager.airbaseInfo.airbases[this.index];
+        this.manager.airbaseInfo.airbases[this.index] = original.putItem(item, slot, initialLevels);
+      } else if (this.isShip) {
+        const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
+        this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index] = original.putItem(item, slot, initialLevels);
+        this.manager.fleetInfo.fleets[this.fleetIndex] = new Fleet({ fleet: this.manager.fleetInfo.fleets[this.fleetIndex] });
+        this.manager.fleetInfo = new FleetInfo({ fleets: this.manager.fleetInfo.fleets });
+      }
+
+      this.itemListDialog = false;
+      this.setGraphData();
+    },
+    updateItem() {
+      if (this.isAirbase) {
+        const original = this.manager.airbaseInfo.airbases[this.index];
+        this.manager.airbaseInfo.airbases[this.index] = new Airbase({ airbase: original });
+      } else if (this.isShip) {
+        const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
+        this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index] = new Ship({ ship: original });
+        this.manager.fleetInfo.fleets[this.fleetIndex] = new Fleet({ fleet: this.manager.fleetInfo.fleets[this.fleetIndex] });
+        this.manager.fleetInfo = new FleetInfo({ fleets: this.manager.fleetInfo.fleets });
+      }
+      this.setGraphData();
+    },
+    closeItemList() {
+      this.itemListDialog = false;
+    },
+    changeWidth(width: number) {
+      this.itemDialogWidth = width;
+    },
+    dummyMethod() {
+      //
     },
   },
 });

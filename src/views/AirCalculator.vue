@@ -80,6 +80,8 @@
           v-show="!calcManager.isDefense"
           :handle-change-main-battle="changeMainBattle"
           :handle-change-formation="changeFormation"
+          :handle-change-airbase="changeAirbase"
+          :handle-change-fleet="changeFleet"
           :handle-more-calculate="calculateMore"
           :handle-minimize="toggleMinimizeResult"
           :sort-mode="sortMode"
@@ -145,6 +147,7 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import SiteSetting from '@/classes/siteSetting';
+import AirbaseInfo from '../classes/airbase/airbaseInfo';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -312,6 +315,14 @@ export default Vue.extend({
 
       // 陣形を整える
       this.calcManager.fleetInfo = FleetInfo.getInfoWithChangedFormation(this.calcManager.fleetInfo, formation);
+    },
+    changeAirbase(info: AirbaseInfo) {
+      // 詳細画面によって編成が更新された
+      this.calcManager.airbaseInfo = info;
+    },
+    changeFleet(info: FleetInfo) {
+      // 詳細画面によって編成が更新された
+      this.calcManager.fleetInfo = info;
     },
     calculateMore() {
       this.calculate(100000);

@@ -90,6 +90,7 @@
       <v-card class="px-2 pb-2" v-if="!destroyDialog">
         <div class="d-flex pt-2 pb-1">
           <div class="align-self-center ml-3">{{ $t("Airbase.基地航空隊詳細") }}</div>
+          <div class="align-self-center ml-3 body-2">-{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
           <v-spacer />
           <v-btn icon @click="closeDetail">
             <v-icon>mdi-close</v-icon>
@@ -106,7 +107,7 @@
             <contact-rates :fleet="value" />
           </v-tab-item>
           <v-tab-item value="detail">
-            <plane-detail-result :parent="value" :index="index" :manager="manager" />
+            <plane-detail-result :arg-parent="value" :index="index" :handle-change-items="updateDetailFormItems" />
           </v-tab-item>
         </v-tabs-items>
       </v-card>
@@ -146,11 +147,6 @@ import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
-import SaveData from '@/classes/saveData/saveData';
-import ItemMaster from '@/classes/item/itemMaster';
-import ShipMaster from '@/classes/fleet/shipMaster';
-import EnemyMaster from '@/classes/enemy/enemyMaster';
-import CalcManager from '@/classes/calcManager';
 import AirCalcResult from '../../classes/airCalcResult';
 
 export default Vue.extend({
@@ -196,8 +192,8 @@ export default Vue.extend({
     destroyDialog: false,
     detailDialog: false,
     visibleResource: false,
-    manager: new CalcManager(),
     emptyResult: new AirCalcResult(),
+    detailEditableItems: [] as Item[],
   }),
   computed: {
     modes(): { text: string; value: number }[] {
@@ -264,12 +260,12 @@ export default Vue.extend({
     updateItem() {
       this.setAirbase();
     },
-    setAirbase(value?: Airbase) {
+    setAirbase(arg?: Airbase) {
       this.clearTooltip();
-      if (value === undefined) {
+      if (arg === undefined) {
         this.$emit('input', new Airbase({ airbase: this.airbase }));
       } else {
-        this.$emit('input', value);
+        this.$emit('input', arg);
       }
     },
     showItemList(index: number) {
@@ -280,17 +276,20 @@ export default Vue.extend({
       this.setAirbase(new Airbase());
     },
     viewDetail(): void {
-      const saveData = this.$store.state.mainSaveData as SaveData;
-      const items = this.$store.state.items as ItemMaster[];
-      const ships = this.$store.state.ships as ShipMaster[];
-      const enemies = this.$store.getters.getEnemies as EnemyMaster[];
-
-      this.manager = saveData.loadManagerData(items, ships, enemies);
       this.destroyDialog = false;
       this.detailDialog = true;
     },
     closeDetail() {
       this.detailDialog = false;
+
+      // 詳細計算画面にて変更された装備を適用する
+      const items = [];
+      for (let i = 0; i < this.detailEditableItems.length; i += 1) {
+        const editedItem = this.detailEditableItems[i];
+        items.push(new Item({ item: editedItem }));
+      }
+      this.$emit('input', new Airbase({ airbase: this.airbase, items }));
+
       setTimeout(() => {
         this.destroyDialog = true;
       }, 100);
@@ -304,6 +303,10 @@ export default Vue.extend({
     },
     showItemPresets() {
       this.handleShowItemPresets(this.index);
+    },
+    updateDetailFormItems(items: Item[]) {
+      // 詳細計算画面にて装備の変更があったときに発火
+      this.detailEditableItems = items;
     },
     bootTooltip(item: Item, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;

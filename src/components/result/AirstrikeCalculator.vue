@@ -48,7 +48,7 @@
         <div class="form-control">
           <v-select :label="$t('Fleet.触接')" v-model="calcArgs.contactBonus" :items="contacts" hide-details outlined dense @change="calculateFire" />
         </div>
-        <div class="form-control">
+        <div class="form-control md">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
@@ -64,9 +64,14 @@
                 dense
                 step="0.01"
                 @input="calculateFire"
+                append-icon="mdi-sync"
+                @click:append="setAirbaseMapBonus"
               />
             </template>
-            <div class="caption">{{ $t("Result.キャップ後火力に適用される倍率です。") }}</div>
+            <div>
+              <div class="caption">{{ $t("Result.キャップ後火力に適用される倍率です。") }}</div>
+              <div class="caption"><v-icon small>mdi-sync</v-icon>{{ $t("Result.をクリックすると特効値をリセットします。") }}</div>
+            </div>
           </v-tooltip>
         </div>
         <div class="form-control" v-show="!isAirbase">
@@ -93,12 +98,14 @@
       </div>
       <v-divider class="mt-2" />
       <div class="d-flex align-center">
-        <div class="body-2">{{ $t("Result.ダメージ計算結果") }}</div>
+        <div class="body-2 py-1">{{ $t("Result.ダメージ計算結果") }}</div>
         <v-spacer />
-        <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
-        <div class="form-control lg mt-0 pt-0">
-          <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex" />
-        </div>
+        <template v-if="!isAirbase">
+          <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
+          <div class="form-control lg mt-0 pt-0">
+            <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex" />
+          </div>
+        </template>
       </div>
       <v-divider />
       <v-simple-table fixed-header :height="tableHeight">
@@ -296,6 +303,9 @@
   margin-right: 0.5rem;
   align-self: center;
 }
+.form-control.md {
+  width: 120px;
+}
 .form-control.lg {
   width: 160px;
 }
@@ -394,7 +404,7 @@ interface DamageRowData {
 export default Vue.extend({
   name: 'AirstrikeCalculator',
   props: {
-    parent: {
+    argParent: {
       type: [Ship, Airbase, Enemy],
       required: true,
     },
@@ -469,7 +479,7 @@ export default Vue.extend({
     const calcManager = saveData.loadManagerData(items, ships, enemies);
 
     this.defenseFleets = [];
-    if (this.parent instanceof Enemy) {
+    if (this.argParent instanceof Enemy) {
       // 防御側セレクトに味方艦隊をセット
       this.defenseFleets = [];
       const { fleets } = calcManager.fleetInfo;
@@ -484,6 +494,7 @@ export default Vue.extend({
           node: '',
         });
       }
+
       for (let i = 0; i < fleets.length - 1; i += 1) {
         const enabledShips = fleets[i].ships.filter((v) => !v.isEmpty);
         this.defenseFleets.push({
@@ -510,46 +521,24 @@ export default Vue.extend({
         });
       }
 
-      if (this.parent instanceof Airbase) {
+      if (this.argParent instanceof Airbase) {
         this.isAirbase = true;
-        const target = Math.min(this.parent.battleTarget[1], calcManager.battleInfo.fleets.length - 1);
+        const target = Math.min(this.argParent.battleTarget[1], calcManager.battleInfo.fleets.length - 1);
         this.defenseIndex = target;
         // 陸上偵察機初期値設定
-        if (this.parent.items.some((v) => v.data.id === 312)) {
+        if (this.argParent.items.some((v) => v.data.id === 312)) {
           this.calcArgs.rikuteiBonus = 1.15;
-        } else if (this.parent.items.some((v) => v.data.id === 311 || v.data.id === 480)) {
+        } else if (this.argParent.items.some((v) => v.data.id === 311 || v.data.id === 480)) {
           this.calcArgs.rikuteiBonus = 1.12;
         }
 
-        const defense = this.defenseFleets[this.defenseIndex];
-        if (defense && defense.area) {
-          // 基地特効設定
-          this.calcArgs.manualAfterCapBonus = 1;
-          const mapBonuses = Const.AIRBASE_MAP_BONUSES;
-          for (let i = 0; i < mapBonuses.length; i += 1) {
-            const d = mapBonuses[i];
-            if (d.area === defense.area) {
-              const count = this.parent.items.filter((v) => d.items.includes(v.data.id)).length;
-              if (!count) continue;
-              if (d.multi) {
-                // 乗算モード
-                this.calcArgs.manualAfterCapBonus *= d.bonus ** count;
-              } else {
-                // 加算モード
-                this.calcArgs.manualAfterCapBonus += d.bonus * count;
-              }
-            }
-          }
-
-          if (this.calcArgs.manualAfterCapBonus !== 1) {
-            this.calcArgs.manualAfterCapBonus = Math.floor(10000 * this.calcArgs.manualAfterCapBonus) / 10000;
-          }
-        }
-      } else {
+        // 基地特効再設定
+        this.setAirbaseMapBonus();
+      } else if (this.argParent instanceof Ship) {
         // 通常艦隊 最終戦闘をセット
         this.defenseIndex = calcManager.battleInfo.fleets.length - 1;
         // 熟練度クリティカルボーナス算出
-        this.calcArgs.criticalBonus = this.parent.getProfCriticalBonus();
+        this.calcArgs.criticalBonus = this.argParent.getProfCriticalBonus();
       }
     }
 
@@ -604,6 +593,36 @@ export default Vue.extend({
     },
   },
   methods: {
+    setAirbaseMapBonus() {
+      if (!this.isAirbase) {
+        return;
+      }
+
+      const defense = this.defenseFleets[this.defenseIndex];
+      if (defense && defense.area) {
+        // 基地特効設定
+        this.calcArgs.manualAfterCapBonus = 1;
+        const mapBonuses = Const.AIRBASE_MAP_BONUSES;
+        for (let i = 0; i < mapBonuses.length; i += 1) {
+          const d = mapBonuses[i];
+          if (d.area === defense.area) {
+            const count = this.argParent.items.filter((v) => d.items.includes(v.data.id)).length;
+            if (!count) continue;
+            if (d.multi) {
+              // 乗算モード
+              this.calcArgs.manualAfterCapBonus *= d.bonus ** count;
+            } else {
+              // 加算モード
+              this.calcArgs.manualAfterCapBonus += d.bonus * count;
+            }
+          }
+        }
+
+        if (this.calcArgs.manualAfterCapBonus !== 1) {
+          this.calcArgs.manualAfterCapBonus = Math.floor(10000 * this.calcArgs.manualAfterCapBonus) / 10000;
+        }
+      }
+    },
     changeDefenseIndex() {
       const fleet = this.defenseFleets[this.defenseIndex];
       if (!fleet) {
@@ -674,14 +693,15 @@ export default Vue.extend({
         this.calcArgs.defense = ship;
         // 火力分布
         let powers: PowerDist[] = [];
-        if (this.parent instanceof Airbase) {
+
+        if (this.argParent instanceof Airbase) {
           // 基地航空隊火力計算
           this.calcArgs.isAirbaseMode = true;
           // 熟練度クリティカルボーナス算出
           this.calcArgs.criticalBonus = item.getProfCriticalBonus();
           powers = Calculator.getAirbaseFirePowers(this.calcArgs, slotDist);
           enableAsw = item.data.asw >= 7;
-        } else if (this.parent instanceof Ship || this.parent instanceof Enemy) {
+        } else if (this.argParent instanceof Ship || this.argParent instanceof Enemy) {
           // 通常航空戦火力計算
           this.calcArgs.isAirbaseMode = false;
           powers = Calculator.getAerialFirePowers(this.calcArgs, slotDist);
@@ -780,7 +800,7 @@ export default Vue.extend({
         args.slot = this.useResult ? Math.floor((this.maxSlot + this.minSlot) / 2) : this.attackerSlot;
         args.defense = row.ship;
 
-        if (this.parent instanceof Airbase) {
+        if (this.argParent instanceof Airbase) {
           // 基地の場合
           args.isAirbaseMode = true;
           if (isSubmarine) {

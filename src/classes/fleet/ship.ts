@@ -1570,4 +1570,54 @@ export default class Ship implements ShipBase {
 
     return sumCorr;
   }
+
+  /**
+   * 装備をセットしなおした新しいShipクラスを返却
+   * @param {Item} item セット対象の装備データ
+   * @param {number} slot セット先のスロット番号
+   * @param {{ id: number, level: number }[]} initialLevels 初期熟練度情報
+   * @return {Ship} {Ship} 装備を更新した新しいShipインスタンス
+   * @memberof Ship
+   */
+  public putItem(item: Item, slot: number, initialLevels: { id: number, level: number }[]) {
+    // 新しい装備配列を生成
+    const items = this.items.concat();
+    let level = 0;
+    if (initialLevels) {
+      // 設定情報より初期熟練度を解決
+      const initData = initialLevels.find((v) => v.id === item.data.apiTypeId);
+      if (initData) {
+        level = initData.level;
+      }
+    }
+
+    if (slot < items.length) {
+      if (item.data.apiTypeId === 41 && this.data.type2 === 90) {
+        // 日進 & 大型飛行艇
+        items[slot] = new Item({
+          item: items[slot],
+          master: item.data,
+          remodel: item.remodel,
+          level,
+          slot: 1,
+        });
+      } else {
+        // 装備を置き換え
+        items[slot] = new Item({
+          item: items[slot],
+          master: item.data,
+          remodel: item.remodel,
+          level,
+        });
+      }
+      // 装備を変更した艦娘インスタンス再生成
+      return new Ship({ ship: this, items });
+    } if (slot === Const.EXPAND_SLOT_INDEX) {
+      // 補強増設を変更した艦娘インスタンス再生成
+      const builder: ShipBuilder = { ship: this, exItem: new Item({ item: this.exItem, master: item.data, remodel: item.remodel }) };
+      return new Ship(builder);
+    }
+    // 搭載失敗
+    return this;
+  }
 }
