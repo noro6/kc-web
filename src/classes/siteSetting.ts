@@ -1,3 +1,5 @@
+import ShipFilter from './fleet/shipFilter';
+
 export type SiteTheme = 'light' | 'ice' | 'pink' | 'green' | 'dark' | 'deep-sea' | '';
 
 /** 装備UI設定 */
@@ -98,7 +100,7 @@ export default class SiteSetting {
   public savedItemListFilter: { parent: 'ship' | 'airbase', key: string, value: number }[];
 
   /** 艦娘一覧 検索条件保存値 */
-  public savedShipListFilter: { isFinalOnly: boolean }
+  public savedShipListFilter: ShipFilter;
 
   /** 艦娘一覧 検索条件保存値 */
   public savedShipListSortKey: string;
@@ -133,6 +135,9 @@ export default class SiteSetting {
   /** 海域マップ画面HP表示 */
   public showHPandArmor: boolean;
 
+  /** お気に入り艦娘id一覧 */
+  public bookmarkedShipIds: number[];
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -163,7 +168,7 @@ export default class SiteSetting {
       this.locale = setting.locale ? setting.locale : 'ja';
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
-      this.savedShipListFilter = setting.savedShipListFilter ? setting.savedShipListFilter : { isFinalOnly: true };
+      this.savedShipListFilter = setting.savedShipListFilter && setting.savedShipListFilter.enabled ? setting.savedShipListFilter : new ShipFilter();
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
       this.displayBonusKey = '';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
@@ -175,6 +180,7 @@ export default class SiteSetting {
       this.showDeathRateIndicator = setting.showDeathRateIndicator ?? true;
       this.isGraphicModeDeathRateIndicator = !!setting.isGraphicModeDeathRateIndicator;
       this.showHPandArmor = !!setting.showHPandArmor;
+      this.bookmarkedShipIds = setting.bookmarkedShipIds ? setting.bookmarkedShipIds : [];
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -236,7 +242,7 @@ export default class SiteSetting {
       this.locale = 'ja';
       this.nameIsNotTranslate = false;
       this.savedItemListFilter = [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
-      this.savedShipListFilter = { isFinalOnly: true };
+      this.savedShipListFilter = new ShipFilter();
       this.savedShipListSortKey = '';
 
       this.planeInitialLevels = [
@@ -267,6 +273,7 @@ export default class SiteSetting {
       this.showDeathRateIndicator = true;
       this.isGraphicModeDeathRateIndicator = false;
       this.showHPandArmor = false;
+      this.bookmarkedShipIds = [];
     }
   }
 }

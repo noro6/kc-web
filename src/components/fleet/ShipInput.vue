@@ -708,12 +708,22 @@ export default Vue.extend({
       const newHP = (this.value.level > 99 ? newVersion.hp2 : newVersion.hp) + bonusHP;
       const newAsw = Ship.getStatusFromLevel(this.value.level, newVersion.maxAsw, newVersion.minAsw) + this.value.improveAsw;
 
+      let { luck } = this.value;
+      const originalLuck = master.luck;
+      const improvementLuck = luck - originalLuck;
+      if (!improvementLuck) {
+        // 運改修なしなら次改装の運に合わせる
+        luck = newVersion.luck;
+      } else {
+        // ありなら次改装の運に、改修分を加算
+        luck = newVersion.luck + improvementLuck;
+      }
       this.setShip(
         new Ship({
           master: newVersion,
           level: this.value.level,
           hp: newHP,
-          luck: this.value.luck,
+          luck,
           asw: newAsw,
           items: newItems,
           exItem: newExItem,

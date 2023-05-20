@@ -588,6 +588,12 @@
           </div>
           <v-divider class="my-2" />
           <div class="d-flex">
+            <v-btn v-if="isFav" color="pink lighten-2" icon @click="toggleFav(editRow.ship.id)">
+              <v-icon>mdi-heart</v-icon>
+            </v-btn>
+            <v-btn v-else color="grey" icon @click="toggleFav(editRow.ship.id)">
+              <v-icon>mdi-heart</v-icon>
+            </v-btn>
             <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="primary" @click.stop="commitStock">
               {{ $t("Database.着任") }}
             </v-btn>
@@ -1223,6 +1229,10 @@ export default Vue.extend({
 
       return '';
     },
+    isFav(): boolean {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      return this.editRow && this.editRow.ship && setting.bookmarkedShipIds.includes(this.editRow.ship.id);
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
@@ -1666,6 +1676,15 @@ export default Vue.extend({
       }
 
       return name;
+    },
+    toggleFav(id: number) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.bookmarkedShipIds.includes(id)) {
+        setting.bookmarkedShipIds = setting.bookmarkedShipIds.filter((v) => v !== id);
+      } else {
+        setting.bookmarkedShipIds.push(id);
+      }
+      this.$store.dispatch('updateSetting', setting);
     },
     bootTooltip(ship: ShipRowData, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;

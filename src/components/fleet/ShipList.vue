@@ -39,88 +39,13 @@
           </v-btn>
         </v-btn-toggle>
       </div>
-      <v-btn icon @click="close">
+      <v-btn icon @click="handleClose()">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
     <v-divider />
-    <div class="d-flex pl-4 pt-1 pb-2 flex-wrap">
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="isFinalOnly" :disabled="!!keyword" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')" />
-      </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeFast" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.高速')" />
-      </div>
-      <div class="mr-3 align-self-center">
-        <v-checkbox v-model="includeSlow" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.低速')" />
-      </div>
-      <div class="mr-3 align-self-center" v-if="visibleFighterFilter">
-        <v-checkbox v-model="fighterOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.戦闘機搭載可')" />
-      </div>
-      <div class="mr-3 align-self-center" v-if="visibleMidgetSubmarineFilter">
-        <v-checkbox v-model="midgetSubmarineOK" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.甲標的搭載可')" />
-      </div>
-      <div class="mr-3 align-self-center" v-if="visibleEscortCarrierFilter">
-        <v-checkbox v-model="escortCarrierOnly" :disabled="!!keyword" @click="filter()" dense hide-details :label="$t('Fleet.護衛空母')" />
-      </div>
-      <div class="mr-3 d-flex manual-checkbox">
-        <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="daihatsuOK">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
-      </div>
-      <div class="mr-3 d-flex manual-checkbox">
-        <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="tankOK">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
-      </div>
-      <div class="mr-1 d-flex manual-checkbox min" v-if="visibleCommanderFilter">
-        <v-btn icon @click="toggleCommanderFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="commanderOK">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="commanderNG">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <img
-          @click="toggleCommanderFilter()"
-          @keypress="toggleCommanderFilter()"
-          tabindex="0"
-          :src="`./img/type/type34.png`"
-          alt="type-34"
-          width="35"
-          height="35"
-        />
-      </div>
-      <div class="mr-2 d-flex manual-checkbox min" v-if="visibleArmorFilter">
-        <v-btn icon @click="toggleArmorFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="armorOK">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="armorNG">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <img @click="toggleArmorFilter()" @keypress="toggleArmorFilter()" tabindex="0" :src="`./img/type/type27.png`" alt="type-27" width="35" height="35" />
-      </div>
-      <div class="mr-3 d-flex manual-checkbox text" v-if="isStockOnly">
-        <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="isReleaseExSlotOnly">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="isNotReleaseExSlotOnly">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
-      </div>
-      <div class="mr-3 align-self-center" v-if="shipStock.length">
-        <v-checkbox
-          v-model="isStockOnly"
-          @click="clickedStockOnly()"
-          dense
-          hide-details
-          :label="$t('Fleet.在籍艦娘反映')"
-          :disabled="disabledStockOnlyChange"
-        />
-      </div>
+    <div class="d-flex py-2" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+      <v-btn @click="filterDialog = true" :disabled="!!keyword" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
@@ -137,7 +62,7 @@
       </div>
       <div class="ml-auto mr-3" v-if="isStockOnly">
         <img
-          v-show="hasAreaOnly"
+          v-show="shipFilter.hasAreaOnly"
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
@@ -146,7 +71,7 @@
           alt="area-img-1"
         />
         <img
-          v-show="hasNotAreaOnly"
+          v-show="shipFilter.hasNotAreaOnly"
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
@@ -155,7 +80,7 @@
           alt="area-img-2"
         />
         <img
-          v-show="!hasAreaOnly && !hasNotAreaOnly"
+          v-show="!shipFilter.hasAreaOnly && !shipFilter.hasNotAreaOnly"
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
@@ -204,6 +129,7 @@
               <div class="slot-ex-img" v-if="data.expanded">
                 <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
               </div>
+              <div class="bookmarked-icon" v-if="data.isBookmarked"><v-icon small color="pink lighten-2">mdi-heart</v-icon></div>
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
@@ -232,7 +158,17 @@
           </div>
         </div>
       </div>
-      <div v-show="ships.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
+      <div v-show="ships.length === 0" class="body-2 text-center mt-10">
+        <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
+        <div class="d-flex align-center justify-center mt-2">
+          <div class="mt-0_5">
+            {{ $t("Common.もしかして") }}
+          </div>
+          <div>
+            <v-btn text color="primary" @click="filterDialog = true">{{ $t("Common.検索条件") }}</v-btn>
+          </div>
+        </div>
+      </div>
     </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip v-model="tooltipShip" />
@@ -249,6 +185,435 @@
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
+    </v-dialog>
+    <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="760" @input="toggleFilterDialog">
+      <v-card>
+        <div class="filter-dialog-body">
+          <div class="d-flex">
+            <div class="caption">{{ $t("Fleet.改造状態") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox v-model="shipFilter.includeInitial" @change="filter()" dense hide-details :label="$t('Fleet.未改造')" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.includeIntermediate" @change="filter()" dense hide-details :label="$t('Fleet.中間改造')" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.includeFinal" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')" />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Fleet.装備搭載可否") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox
+                v-model="shipFilter.midgetSubmarineOK"
+                :disabled="!visibleMidgetSubmarineFilter"
+                @click="filter()"
+                dense
+                hide-details
+                :label="$t('Fleet.甲標的')"
+              />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.largeSearchlightOK" @click="filter()" dense hide-details :label="$t('Fleet.大型探照灯')" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" @click="filter()" dense hide-details :label="$t('Fleet.増設副砲')" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.canEquipExRadarOnly" @click="filter()" dense hide-details :label="$t('Fleet.増設電探')" />
+            </div>
+          </div>
+          <div class="filter-input-container mt-1">
+            <div class="d-flex manual-checkbox">
+              <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.landingCraftOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.landingCraftNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
+            </div>
+            <div class="d-flex manual-checkbox">
+              <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.tankOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.tankNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+            </div>
+            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleSpBomberFilter }">
+              <v-btn icon @click="toggleSpBomberFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.spBomberOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.spBomberNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img
+                @click="toggleSpBomberFilter()"
+                @keypress="toggleSpBomberFilter()"
+                tabindex="0"
+                :src="`./img/type/type1100.png`"
+                alt="type-11"
+                width="35"
+                height="35"
+              />
+            </div>
+            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleFighterFilter }">
+              <v-btn icon @click="toggleFighterFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.fighterOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.fighterNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img
+                @click="toggleFighterFilter()"
+                @keypress="toggleFighterFilter()"
+                tabindex="0"
+                :src="`./img/type/type4500.png`"
+                alt="type-45"
+                width="35"
+                height="35"
+              />
+            </div>
+            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleCommanderFilter }">
+              <v-btn icon @click="toggleCommanderFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.commanderOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.commanderNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img
+                @click="toggleCommanderFilter()"
+                @keypress="toggleCommanderFilter()"
+                tabindex="0"
+                :src="`./img/type/type34.png`"
+                alt="type-34"
+                width="35"
+                height="35"
+              />
+            </div>
+            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleArmorFilter }">
+              <v-btn icon @click="toggleArmorFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.armorOK">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.armorNG">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <img
+                @click="toggleArmorFilter()"
+                @keypress="toggleArmorFilter()"
+                tabindex="0"
+                :src="`./img/type/type27.png`"
+                alt="type-27"
+                width="35"
+                height="35"
+              />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Common.耐久") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox v-model="shipFilter.HPIs4n1" @click="filter()" dense hide-details label="4n - 1" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.HPIs4n2" @click="filter()" dense hide-details label="4n - 2" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.HPIs4n3" @click="filter()" dense hide-details label="4n - 3" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.HPIs4n" @click="filter()" dense hide-details label="4n" />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Common.速力") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox v-model="shipFilter.includeFast" @click="filter()" dense hide-details :label="$t('Fleet.高速')" />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.includeSlow" @click="filter()" dense hide-details :label="$t('Fleet.低速')" />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Fleet.装備スロット数") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox
+                v-model="shipFilter.slotCount3"
+                @click="filter()"
+                dense
+                hide-details
+                :label="$t('Fleet.3スロ以上')"
+                :disabled="shipFilter.slotCount4 || shipFilter.slotCount5"
+              />
+            </div>
+            <div>
+              <v-checkbox
+                v-model="shipFilter.slotCount4"
+                @click="filter()"
+                dense
+                hide-details
+                :label="$t('Fleet.4スロ以上')"
+                :disabled="shipFilter.slotCount5"
+              />
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.slotCount5" @click="filter()" dense hide-details :label="$t('Fleet.5スロ以上')" />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption align-self-center">{{ $t("Common.その他") }}</div>
+            <div class="header-divider" />
+            <div class="pr-1 pl-3">
+              <v-btn small @click="showBookmarkDialog()" color="pink lighten-2" outlined>
+                <v-icon small>mdi-heart-cog</v-icon> {{ $t("Fleet.お気に入り編集") }}
+              </v-btn>
+            </div>
+          </div>
+          <div class="filter-input-container">
+            <div>
+              <v-checkbox
+                v-model="shipFilter.escortCarrierOnly"
+                @click="filter()"
+                dense
+                hide-details
+                :label="$t('Fleet.護衛空母')"
+                :disabled="!visibleEscortCarrierFilter"
+              />
+            </div>
+            <div class="d-flex manual-checkbox text" :class="{ disabled: !isStockOnly }">
+              <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
+                <v-icon class="manual-icon" color="primary" v-if="shipFilter.isReleaseExSlotOnly">mdi-checkbox-marked</v-icon>
+                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.isNotReleaseExSlotOnly">mdi-close-box</v-icon>
+                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+              </v-btn>
+              <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
+            </div>
+            <div>
+              <v-checkbox v-model="shipFilter.onlyBookmarked" @click="filter()" dense hide-details :label="$t('Fleet.お気に入り')" />
+            </div>
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Fleet.ステータス") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.Lv下限')"
+                type="number"
+                :max="shipFilter.levelRange[1]"
+                min="1"
+                dense
+                v-model.trim="shipFilter.levelRange[0]"
+                hide-details
+                :disabled="!isStockOnly"
+              />
+            </div>
+            <v-range-slider
+              v-model="shipFilter.levelRange"
+              dense
+              thumb-label
+              min="1"
+              :max="maxLevel"
+              hide-details
+              :disabled="!isStockOnly"
+              class="pt-2 align-center mx-2"
+            >
+            </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.Lv上限')"
+                type="number"
+                max="200"
+                :min="shipFilter.levelRange[0]"
+                dense
+                v-model.trim="shipFilter.levelRange[1]"
+                hide-details
+                :disabled="!isStockOnly"
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.運下限')"
+                type="number"
+                :max="shipFilter.luckRange[1]"
+                min="1"
+                dense
+                v-model.trim="shipFilter.luckRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.luckRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.運上限')"
+                type="number"
+                max="200"
+                :min="shipFilter.luckRange[0]"
+                dense
+                v-model.trim="shipFilter.luckRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.対潜下限')"
+                type="number"
+                :max="shipFilter.aswRange[1]"
+                min="0"
+                dense
+                v-model.trim="shipFilter.aswRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.aswRange" dense thumb-label min="0" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.対潜上限')"
+                type="number"
+                max="150"
+                :min="shipFilter.aswRange[0]"
+                dense
+                v-model.trim="shipFilter.aswRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.耐久下限')"
+                type="number"
+                :max="shipFilter.HPRange[1]"
+                min="1"
+                dense
+                v-model.trim="shipFilter.HPRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.HPRange" dense thumb-label min="1" max="120" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.耐久上限')"
+                type="number"
+                max="120"
+                :min="shipFilter.HPRange[0]"
+                dense
+                v-model.trim="shipFilter.HPRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.火力下限')"
+                type="number"
+                :max="shipFilter.fireRange[1]"
+                min="1"
+                dense
+                v-model.trim="shipFilter.fireRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.fireRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.火力下限')"
+                type="number"
+                max="200"
+                :min="shipFilter.fireRange[0]"
+                dense
+                v-model.trim="shipFilter.fireRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.雷装下限')"
+                type="number"
+                :max="shipFilter.torpedoRange[1]"
+                min="0"
+                dense
+                v-model.trim="shipFilter.torpedoRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.torpedoRange" dense thumb-label min="0" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.雷装下限')"
+                type="number"
+                max="150"
+                :min="shipFilter.torpedoRange[0]"
+                dense
+                v-model.trim="shipFilter.torpedoRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+          <div class="d-flex pt-5 px-3">
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.夜戦火力下限')"
+                type="number"
+                :max="shipFilter.nightRange[1]"
+                min="1"
+                dense
+                v-model.trim="shipFilter.nightRange[0]"
+                hide-details
+              />
+            </div>
+            <v-range-slider v-model="shipFilter.nightRange" dense thumb-label min="1" max="300" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input" :class="{ english: isNotJapanese }">
+              <v-text-field
+                :label="$t('Database.夜戦火力下限')"
+                type="number"
+                max="300"
+                :min="shipFilter.nightRange[0]"
+                dense
+                v-model.trim="shipFilter.nightRange[1]"
+                hide-details
+              />
+            </div>
+          </div>
+        </div>
+        <v-divider />
+        <div class="d-flex pa-3">
+          <div v-if="shipStock.length">
+            <v-switch
+              class="mt-1"
+              v-model="isStockOnly"
+              :label="$t('Fleet.在籍艦娘反映')"
+              @click="clickedStockOnly()"
+              :disabled="disabledStockOnlyChange"
+              dense
+              hide-details
+            />
+          </div>
+          <v-btn class="ml-auto" color="error" dark @click.stop="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="closeFilterDialog()">{{ $t("Common.閉じる") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog">
+      <ship-bookmark-edit :handle-close="closeBookmarkDialog" />
     </v-dialog>
   </v-card>
 </template>
@@ -337,6 +702,11 @@
 .ship-img {
   position: relative;
 }
+.bookmarked-icon {
+  position: absolute;
+  left: -10px;
+  top: -14px;
+}
 .area-banner {
   position: absolute;
   top: -6px;
@@ -416,20 +786,33 @@
 .ship-status-header .ship-status {
   font-size: 11px;
 }
-
 .filter_img {
   cursor: pointer;
 }
 
+.filter-dialog-body {
+  padding-top: 20px;
+  padding-left: 20px;
+  overflow-y: auto;
+  height: 70vh;
+  overscroll-behavior: contain;
+}
+
 .manual-checkbox {
   position: relative;
-  height: 32px;
+  height: 36px;
   width: 64px;
   cursor: pointer;
+  user-select: none;
+}
+.manual-checkbox.disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }
 .manual-checkbox-button {
   position: absolute;
-  bottom: -6px;
+  left: -6px;
+  bottom: -4px;
 }
 .manual-icon {
   font-size: 20px !important;
@@ -449,21 +832,41 @@
   position: absolute;
   font-size: 0.85em;
   opacity: 0.7;
-  left: 32px;
-  bottom: 1px;
+  left: 28px;
+  bottom: 3px;
   margin-left: 4px;
+}
+.header-divider {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+.range-input {
+  width: 80px;
+}
+.range-input.english {
+  width: 100px;
+}
+.filter-input-container {
+  margin-left: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
+import ShipBookmarkEdit from '@/components/fleet/ShipBookmarkEdit.vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import Const, { SHIP_TYPE } from '@/classes/const';
+import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
 import ShipStock from '@/classes/fleet/shipStock';
 import SaveData from '@/classes/saveData/saveData';
-import Ship from '@/classes/fleet/ship';
+import ShipFilter from '@/classes/fleet/shipFilter';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Convert from '@/classes/convert';
@@ -485,11 +888,13 @@ export interface ViewShip {
   sortValue: number;
   /** 所持情報ユニークid */
   uniqueId: number;
+  /** お気に入りかどうか */
+  isBookmarked: boolean;
 }
 
 export default Vue.extend({
   name: 'ShipList',
-  components: { ShipTooltip },
+  components: { ShipTooltip, ShipBookmarkEdit },
   props: {
     handleDecideShip: {
       type: Function,
@@ -509,7 +914,6 @@ export default Vue.extend({
     ships: [] as { typeName: string; ships: ViewShip[]; needOrOver: boolean }[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
-    isFinalOnly: true,
     keyword: '' as string | undefined,
     sortKey: '',
     sortKeys: [
@@ -531,29 +935,12 @@ export default Vue.extend({
     ],
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     multiLine: true,
+    shipFilter: new ShipFilter(),
     isStockOnly: false,
     shipStock: [] as ShipStock[],
     usedShips: [] as Ship[],
     confirmDialog: false,
     confirmShip: {} as ViewShip,
-    setting: new SiteSetting(),
-    daihatsuOK: false,
-    daihatsuNG: false,
-    tankOK: false,
-    tankNG: false,
-    fighterOK: false,
-    midgetSubmarineOK: false,
-    escortCarrierOnly: false,
-    commanderOK: false,
-    commanderNG: false,
-    armorOK: false,
-    armorNG: false,
-    hasAreaOnly: false,
-    hasNotAreaOnly: false,
-    includeFast: true,
-    includeSlow: true,
-    isReleaseExSlotOnly: false,
-    isNotReleaseExSlotOnly: false,
     maxAreas: 0,
     disabledStockOnlyChange: false,
     enabledTooltip: false,
@@ -562,6 +949,9 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     decidedShip: false,
+    filterDialog: false,
+    maxLevel: Const.MAX_LEVEL,
+    bookmarksDialog: false,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -617,6 +1007,16 @@ export default Vue.extend({
       }
       return false;
     },
+    visibleSpBomberFilter(): boolean {
+      // 水爆系フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.CL, SHIP_TYPE.CA, SHIP_TYPE.FBB, SHIP_TYPE.BB, SHIP_TYPE.BBB].includes(type)) {
+          return true;
+        }
+      }
+      return false;
+    },
     visibleFighterFilter(): boolean {
       // 戦闘機搭載可フィルタ表示制御
       for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
@@ -664,73 +1064,96 @@ export default Vue.extend({
       this.filter();
     },
     clickedStockOnly() {
-      this.setting.isStockOnlyForShipList = this.isStockOnly;
-      this.$store.dispatch('updateSetting', this.setting);
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.isStockOnlyForShipList = this.isStockOnly;
+      this.$store.dispatch('updateSetting', setting);
       this.filter();
     },
     toggleAreaFilter() {
-      if (this.hasAreaOnly) {
-        this.hasAreaOnly = false;
-        this.hasNotAreaOnly = true;
-      } else if (this.hasNotAreaOnly) {
-        this.hasNotAreaOnly = false;
+      if (this.shipFilter.hasAreaOnly) {
+        this.shipFilter.hasAreaOnly = false;
+        this.shipFilter.hasNotAreaOnly = true;
+      } else if (this.shipFilter.hasNotAreaOnly) {
+        this.shipFilter.hasNotAreaOnly = false;
       } else {
-        this.hasAreaOnly = true;
+        this.shipFilter.hasAreaOnly = true;
       }
       this.filter();
     },
     toggleDaihatsuFilter() {
-      if (this.daihatsuOK) {
-        this.daihatsuOK = false;
-        this.daihatsuNG = true;
-      } else if (this.daihatsuNG) {
-        this.daihatsuNG = false;
+      if (this.shipFilter.landingCraftOK) {
+        this.shipFilter.landingCraftOK = false;
+        this.shipFilter.landingCraftNG = true;
+      } else if (this.shipFilter.landingCraftNG) {
+        this.shipFilter.landingCraftNG = false;
       } else {
-        this.daihatsuOK = true;
+        this.shipFilter.landingCraftOK = true;
       }
       this.filter();
     },
     toggleTankFilter() {
-      if (this.tankOK) {
-        this.tankOK = false;
-        this.tankNG = true;
-      } else if (this.tankNG) {
-        this.tankNG = false;
+      if (this.shipFilter.tankOK) {
+        this.shipFilter.tankOK = false;
+        this.shipFilter.tankNG = true;
+      } else if (this.shipFilter.tankNG) {
+        this.shipFilter.tankNG = false;
       } else {
-        this.tankOK = true;
+        this.shipFilter.tankOK = true;
+      }
+      this.filter();
+    },
+    toggleSpBomberFilter() {
+      if (this.shipFilter.spBomberOK) {
+        this.shipFilter.spBomberOK = false;
+        this.shipFilter.spBomberNG = true;
+      } else if (this.shipFilter.spBomberNG) {
+        this.shipFilter.spBomberNG = false;
+      } else {
+        this.shipFilter.spBomberOK = true;
+      }
+      this.filter();
+    },
+    toggleFighterFilter() {
+      if (this.shipFilter.fighterOK) {
+        this.shipFilter.fighterOK = false;
+        this.shipFilter.fighterNG = true;
+      } else if (this.shipFilter.fighterNG) {
+        this.shipFilter.fighterNG = false;
+      } else {
+        this.shipFilter.fighterOK = true;
       }
       this.filter();
     },
     toggleCommanderFilter() {
-      if (this.commanderOK) {
-        this.commanderOK = false;
-        this.commanderNG = true;
-      } else if (this.commanderNG) {
-        this.commanderNG = false;
+      if (this.shipFilter.commanderOK) {
+        this.shipFilter.commanderOK = false;
+        this.shipFilter.commanderNG = true;
+      } else if (this.shipFilter.commanderNG) {
+        this.shipFilter.commanderNG = false;
       } else {
-        this.commanderOK = true;
+        this.shipFilter.commanderOK = true;
       }
       this.filter();
     },
     toggleArmorFilter() {
-      if (this.armorOK) {
-        this.armorOK = false;
-        this.armorNG = true;
-      } else if (this.armorNG) {
-        this.armorNG = false;
+      if (this.shipFilter.armorOK) {
+        this.shipFilter.armorOK = false;
+        this.shipFilter.armorNG = true;
+      } else if (this.shipFilter.armorNG) {
+        this.shipFilter.armorNG = false;
       } else {
-        this.armorOK = true;
+        this.shipFilter.armorOK = true;
       }
       this.filter();
     },
     toggleExSlotFilter() {
-      if (this.isReleaseExSlotOnly) {
-        this.isReleaseExSlotOnly = false;
-        this.isNotReleaseExSlotOnly = true;
-      } else if (this.isNotReleaseExSlotOnly) {
-        this.isNotReleaseExSlotOnly = false;
+      if (this.shipFilter.isReleaseExSlotOnly) {
+        this.shipFilter.isReleaseExSlotOnly = false;
+        this.shipFilter.isNotReleaseExSlotOnly = true;
+      } else if (this.shipFilter.isNotReleaseExSlotOnly) {
+        this.shipFilter.isNotReleaseExSlotOnly = false;
       } else {
-        this.isReleaseExSlotOnly = true;
+        this.shipFilter.isReleaseExSlotOnly = true;
       }
       this.filter();
     },
@@ -738,12 +1161,12 @@ export default Vue.extend({
       this.decidedShip = false;
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
-      this.setting = this.$store.state.siteSetting as SiteSetting;
-      this.isStockOnly = this.setting.isStockOnlyForShipList || this.disabledStockOnlyChange;
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      this.isStockOnly = setting.isStockOnlyForShipList || this.disabledStockOnlyChange;
 
       // 設置値復元
-      this.isFinalOnly = this.setting.savedShipListFilter.isFinalOnly;
-      this.sortKey = this.setting.savedShipListSortKey ?? '';
+      this.shipFilter = setting.savedShipListFilter;
+      this.sortKey = setting.savedShipListSortKey ?? '';
 
       // 一時所持情報データがあるなら
       if (this.$store.getters.getExistsTempStock) {
@@ -767,7 +1190,7 @@ export default Vue.extend({
         }
       }
 
-      this.changeMultiLine(this.setting.isMultiLineForShipList);
+      this.changeMultiLine(setting.isMultiLineForShipList);
       this.filter();
     },
     filter() {
@@ -775,9 +1198,10 @@ export default Vue.extend({
       let result = this.all.concat();
       const t = this.types[this.type];
 
-      this.setting.savedShipListFilter.isFinalOnly = this.isFinalOnly;
-      this.setting.savedShipListSortKey = this.sortKey;
-      this.$store.dispatch('updateSetting', this.setting);
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.savedShipListFilter = this.shipFilter;
+      setting.savedShipListSortKey = this.sortKey;
+      this.$store.dispatch('updateSetting', setting);
 
       // 検索語句あればこれ以外の検索はしない
       if (word) {
@@ -786,38 +1210,46 @@ export default Vue.extend({
         // カテゴリ検索
         result = result.filter((v) => t.types.includes(v.type));
         const isValid = ShipValidation.isValidItem;
-        if (this.isFinalOnly) {
-          // 最終改造状態ONLY
-          result = result.filter((v) => v.isFinal);
+        if (!this.shipFilter.includeInitial) {
+          // 初期改造状態を含めず
+          result = result.filter((v) => v.version > 0);
         }
-        if (!this.includeFast) {
+        if (!this.shipFilter.includeIntermediate) {
+          // 中間改造状態を含めず
+          result = result.filter((v) => v.version === 0 || v.isFinal);
+        }
+        if (!this.shipFilter.includeFinal) {
+          // 最終改造状態を含めず
+          result = result.filter((v) => !v.isFinal);
+        }
+        if (!this.shipFilter.includeFast) {
           // 速力高速
           result = result.filter((v) => v.speed !== 10);
         }
-        if (!this.includeSlow) {
+        if (!this.shipFilter.includeSlow) {
           // 速力低速
           result = result.filter((v) => v.speed !== 5);
         }
-        if (this.daihatsuOK) {
+        if (this.shipFilter.landingCraftOK) {
           // 大発搭載可能
           const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
           if (daihatsu) {
             result = result.filter((v) => v.slotCount && isValid(v, daihatsu));
           }
-        } else if (this.daihatsuNG) {
+        } else if (this.shipFilter.landingCraftNG) {
           // 大発搭載不可
           const daihatsu = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 68);
           if (daihatsu) {
             result = result.filter((v) => !isValid(v, daihatsu));
           }
         }
-        if (this.tankOK) {
+        if (this.shipFilter.tankOK) {
           // 内火艇搭載可能
           const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
           if (tank) {
             result = result.filter((v) => v.slotCount && isValid(v, tank));
           }
-        } else if (this.tankNG) {
+        } else if (this.shipFilter.tankNG) {
           // 内火艇搭載不可
           const tank = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 167);
           if (tank) {
@@ -825,13 +1257,13 @@ export default Vue.extend({
           }
         }
         if (this.visibleCommanderFilter) {
-          if (this.commanderOK) {
+          if (this.shipFilter.commanderOK) {
             // 司令部搭載可能
             const commander = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 107);
             if (commander) {
               result = result.filter((v) => isValid(v, commander));
             }
-          } else if (this.commanderNG) {
+          } else if (this.shipFilter.commanderNG) {
             // 司令部搭載不可
             const commander = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 107);
             if (commander) {
@@ -840,13 +1272,13 @@ export default Vue.extend({
           }
         }
         if (this.visibleArmorFilter) {
-          if (this.armorOK) {
+          if (this.shipFilter.armorOK) {
             // バルジ搭載可能
             const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
             if (armor) {
               result = result.filter((v) => isValid(v, armor));
             }
-          } else if (this.armorNG) {
+          } else if (this.shipFilter.armorNG) {
             // バルジ搭載不可
             const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
             if (armor) {
@@ -854,28 +1286,122 @@ export default Vue.extend({
             }
           }
         }
-        if (this.fighterOK && this.visibleFighterFilter) {
-          // 戦闘機搭載可
-          const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
-          const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
-          if (fighter && fighter2) {
-            result = result.filter((v) => isValid(v, fighter) || isValid(v, fighter2));
+        if (this.visibleSpBomberFilter) {
+          if (this.shipFilter.spBomberOK) {
+            // 水爆搭載可(Lateでテスト)
+            const bomber = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 194);
+            if (bomber) {
+              result = result.filter((v) => isValid(v, bomber));
+            }
+          } else if (this.shipFilter.spBomberNG) {
+            // 水爆搭載不可(Lateでテスト)
+            const bomber = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 194);
+            if (bomber) {
+              result = result.filter((v) => !isValid(v, bomber));
+            }
           }
         }
-
-        if (this.midgetSubmarineOK && this.visibleMidgetSubmarineFilter) {
+        if (this.visibleFighterFilter) {
+          if (this.shipFilter.fighterOK) {
+            // 戦闘機搭載可
+            const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
+            const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
+            if (fighter && fighter2) {
+              result = result.filter((v) => isValid(v, fighter) || isValid(v, fighter2));
+            }
+          } else if (this.shipFilter.fighterNG) {
+            // 戦闘機搭載不可
+            const fighter = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 19);
+            const fighter2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 165);
+            if (fighter && fighter2) {
+              result = result.filter((v) => !isValid(v, fighter) && !isValid(v, fighter2));
+            }
+          }
+        }
+        if (this.shipFilter.midgetSubmarineOK && this.visibleMidgetSubmarineFilter) {
           // 甲標的搭載可
           const midgetSubmarine = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 41);
           if (midgetSubmarine) {
             result = result.filter((v) => isValid(v, midgetSubmarine));
           }
         }
-
-        if (this.escortCarrierOnly && this.visibleEscortCarrierFilter) {
+        if (this.shipFilter.largeSearchlightOK) {
+          // 大型探照灯搭載可
+          const light = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 140);
+          if (light) {
+            result = result.filter((v) => isValid(v, light));
+          }
+        }
+        if (this.shipFilter.canEquipExRadarOnly) {
+          // 増設電探
+          const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 28);
+          const radar2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 142);
+          if (radar1 && radar2) {
+            result = result.filter((v) => isValid(v, radar1, Const.EXPAND_SLOT_INDEX) || isValid(v, radar2, Const.EXPAND_SLOT_INDEX));
+          }
+        }
+        if (this.shipFilter.canEquipExSubGunOnly) {
+          // 増設副砲
+          const subGun1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 220);
+          const subGun2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 275);
+          if (subGun1 && subGun2) {
+            result = result.filter((v) => isValid(v, subGun1, Const.EXPAND_SLOT_INDEX) || isValid(v, subGun2, Const.EXPAND_SLOT_INDEX));
+          }
+        }
+        if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {
           // 護衛空母のみ
           result = result.filter((v) => v.minAsw);
         }
+        if (this.shipFilter.onlyBookmarked) {
+          // お気に入りのみ
+          const bookmarks = setting.bookmarkedShipIds;
+          result = result.filter((v) => bookmarks.includes(v.id));
+        }
+        if (this.shipFilter.slotCount5) {
+          // 5スロ
+          result = result.filter((v) => v.slotCount >= 5);
+        } else if (this.shipFilter.slotCount4) {
+          // 4スロ
+          result = result.filter((v) => v.slotCount >= 4);
+        } else if (this.shipFilter.slotCount3) {
+          // 3スロ
+          result = result.filter((v) => v.slotCount >= 3);
+        }
+
+        // 運フィルタ
+        const minLuck = this.shipFilter.luckRange[0];
+        const maxLuck = this.shipFilter.luckRange[1];
+        // 火力フィルタ
+        const minFire = this.shipFilter.fireRange[0];
+        const maxFire = this.shipFilter.fireRange[1];
+        // 雷装フィルタ
+        const minTorpedo = this.shipFilter.torpedoRange[0];
+        const maxTorpedo = this.shipFilter.torpedoRange[1];
+        // 夜戦火力フィルタ
+        const minNight = this.shipFilter.nightRange[0];
+        const maxNight = this.shipFilter.nightRange[1];
+        result = result.filter((v) => {
+          const night = v.fire + v.torpedo;
+          return (
+            minLuck <= v.luck
+            && v.luck <= maxLuck
+            && minFire <= v.fire
+            && v.fire <= maxFire
+            && minTorpedo <= v.torpedo
+            && v.torpedo <= maxTorpedo
+            && minNight <= night
+            && night <= maxNight
+          );
+        });
       }
+
+      // 検索用一時変数
+      const minAsw = this.shipFilter.aswRange[0];
+      const maxAsw = this.shipFilter.aswRange[1];
+      const minHP = this.shipFilter.HPRange[0];
+      const maxHP = this.shipFilter.HPRange[1];
+
+      const bookmarks = setting.bookmarkedShipIds;
 
       let usedShips = this.usedShips.concat();
       let viewShips: ViewShip[] = [];
@@ -904,19 +1430,59 @@ export default Vue.extend({
               expanded: shipData.releaseExpand,
               sortValue: 0,
               uniqueId: shipData.uniqueId,
+              isBookmarked: bookmarks.includes(master.id),
             };
 
             // 補強増設開放済み検索
-            if (this.isReleaseExSlotOnly && !viewShip.expanded) {
+            if (this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) {
               continue;
-            } else if (this.isNotReleaseExSlotOnly && viewShip.expanded) {
+            } else if (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded) {
               continue;
             }
             // 札付き検索
-            if (this.hasAreaOnly && viewShip.area <= 0) {
+            if (this.shipFilter.hasAreaOnly && viewShip.area <= 0) {
               continue;
-            } else if (this.hasNotAreaOnly && viewShip.area > 0) {
+            } else if (this.shipFilter.hasNotAreaOnly && viewShip.area > 0) {
               continue;
+            }
+            // Lv検索
+            if (viewShip.level < this.shipFilter.levelRange[0] || viewShip.level > this.shipFilter.levelRange[1]) {
+              continue;
+            }
+            // 運検索 => 素ステの方のフィルタリングは終わっているため、上限のみチェック
+            if (viewShip.luck > this.shipFilter.luckRange[1]) {
+              continue;
+            }
+            // 耐久検索
+            if (viewShip.hp < minHP || viewShip.hp > maxHP) {
+              continue;
+            }
+            if (!this.shipFilter.HPIs4n && viewShip.hp % 4 === 0) {
+              // 耐久4nフィルタ
+              continue;
+            }
+            if (!this.shipFilter.HPIs4n1 && viewShip.hp % 4 === 3) {
+              // 耐久4n-1フィルタ
+              continue;
+            }
+            if (!this.shipFilter.HPIs4n2 && viewShip.hp % 4 === 2) {
+              // 耐久4n-2フィルタ
+              continue;
+            }
+            if (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1) {
+              // 耐久4n-3フィルタ
+              continue;
+            }
+
+            // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
+            if (minAsw > 0 || maxAsw < 150) {
+              if (!master.maxAsw) {
+                continue;
+              }
+              const asw = Ship.getStatusFromLevel(viewShip.level, master.maxAsw, master.minAsw) + viewShip.asw;
+              if (asw < minAsw || maxAsw < asw) {
+                continue;
+              }
             }
 
             // id 練度 運 対潜 耐久 海域を見て配備済みかどうか判定
@@ -959,9 +1525,41 @@ export default Vue.extend({
           }
         }
       } else {
-        // 所持装備考慮なし 愚直に追加
+        // 所持装備考慮なしの場合
         for (let i = 0; i < result.length; i += 1) {
           const master = result[i];
+
+          // 耐久検索
+          if (master.hp < minHP || master.hp > maxHP) {
+            continue;
+          }
+          if (!this.shipFilter.HPIs4n && master.hp % 4 === 0) {
+            // 耐久4nフィルタ
+            continue;
+          }
+          if (!this.shipFilter.HPIs4n1 && master.hp % 4 === 3) {
+            // 耐久4n-1フィルタ
+            continue;
+          }
+          if (!this.shipFilter.HPIs4n2 && master.hp % 4 === 2) {
+            // 耐久4n-2フィルタ
+            continue;
+          }
+          if (!this.shipFilter.HPIs4n3 && master.hp % 4 === 1) {
+            // 耐久4n-3フィルタ
+            continue;
+          }
+          // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
+          if (minAsw > 0 || maxAsw < 150) {
+            if (master.minAsw === 0 && master.maxAsw === 0) {
+              continue;
+            }
+            const asw = Ship.getStatusFromLevel(99, master.maxAsw, master.minAsw);
+            if (asw < minAsw || maxAsw < asw) {
+              continue;
+            }
+          }
+
           viewShips.push({
             ship: master,
             count: 1,
@@ -973,6 +1571,7 @@ export default Vue.extend({
             expanded: false,
             sortValue: 0,
             uniqueId: 0,
+            isBookmarked: bookmarks.includes(master.id),
           });
         }
       }
@@ -1083,18 +1682,18 @@ export default Vue.extend({
         this.confirmDialog = true;
       }
     },
-    close() {
-      this.handleClose();
-    },
     changeMultiLine(isMulti: boolean) {
       this.handleChangeWidth(isMulti ? 1200 : 660);
       this.multiLine = isMulti;
-      // 設定書き換え
-      this.setting.isMultiLineForShipList = isMulti;
-      this.$store.dispatch('updateSetting', this.setting);
+
+      // 設置値復元
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.isMultiLineForShipList = isMulti;
+      this.$store.dispatch('updateSetting', setting);
     },
     bootTooltip(viewShip: ViewShip, e: MouseEvent | FocusEvent) {
-      if (this.setting.disabledShipTooltip) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.disabledShipTooltip) {
         return;
       }
       window.clearTimeout(this.tooltipTimer);
@@ -1118,7 +1717,7 @@ export default Vue.extend({
         });
         this.tooltipShip = ship;
         this.enabledTooltip = true;
-      }, Math.max(this.setting.popUpCount, 10));
+      }, Math.max(setting.popUpCount, 10));
     },
     clearTooltip() {
       this.enabledTooltip = false;
@@ -1141,6 +1740,32 @@ export default Vue.extend({
       }
 
       return name;
+    },
+    resetFilter() {
+      this.shipFilter = new ShipFilter();
+      this.filter();
+    },
+    toggleFilterDialog() {
+      if (!this.filterDialog) {
+        // 検索かける
+        this.filter();
+      }
+    },
+    closeFilterDialog() {
+      this.filterDialog = false;
+      this.filter();
+    },
+    showBookmarkDialog() {
+      this.bookmarksDialog = true;
+    },
+    closeBookmarkDialog() {
+      this.bookmarksDialog = false;
+      this.toggleBookmarkDialog();
+    },
+    toggleBookmarkDialog() {
+      if (!this.bookmarksDialog) {
+        this.filter();
+      }
     },
   },
 });
