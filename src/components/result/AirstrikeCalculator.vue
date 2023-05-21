@@ -158,7 +158,7 @@
       </v-simple-table>
     </div>
     <v-tooltip v-model="enabledDamageDetailTooltip" color="black" top :position-x="tooltipX" :position-y="tooltipY">
-      <div v-if="selectedItem" class="d-flex py-2" :class="{ 'multi-container': preCapTerms.length >= 2 }">
+      <div v-if="selectedItem" class="py-2" :class="{ 'multi-container': preCapTerms.length >= 2 }">
         <div class="damage-detail-container caption" v-for="(preCapTerm, i) in preCapTerms" :key="`term${i}`">
           <template v-if="postCapTerms[i].isSubmarine">
             <div>{{ $t("Common.対潜") }}</div>
@@ -225,10 +225,6 @@
             <div>{{ $t("Result.B-25補正") }}</div>
             <div>&times; {{ preCapTerm.B25Modifiers.toFixed(2) }}</div>
           </template>
-          <template v-if="preCapTerm.LBASModifiers && preCapTerm.LBASModifiers !== 1">
-            <div>{{ $t("Result.基地航空隊補正") }}</div>
-            <div>&times; {{ preCapTerm.LBASModifiers.toFixed(2) }}</div>
-          </template>
           <template v-if="calcArgs.rikuteiBonus !== 1">
             <div>{{ $t("Result.陸偵補正") }}</div>
             <div>&times; {{ calcArgs.rikuteiBonus.toFixed(2) }}</div>
@@ -243,10 +239,6 @@
             <div>{{ $t("Result.基地航空隊補正") }}</div>
             <div>&plus; {{ postCapTerms[i].LBASModifiers }}</div>
           </template>
-          <template v-if="postCapTerms[i].bomberMultiplier && postCapTerms[i].bomberMultiplier !== 1">
-            <div>{{ $t("Result.爆撃機補正") }}</div>
-            <div>&times; {{ postCapTerms[i].bomberMultiplier.toFixed(2) }}</div>
-          </template>
           <template v-if="calcArgs.contactBonus !== 1">
             <div>{{ $t("Result.触接補正") }}</div>
             <div>&times; {{ calcArgs.contactBonus.toFixed(2) }}</div>
@@ -259,9 +251,9 @@
             <div>{{ $t("Result.敵連合補正") }}</div>
             <div>&times; {{ calcArgs.unionBonus.toFixed(2) }}</div>
           </template>
-          <template v-if="postCapTerms[i].princessMultiplier && postCapTerms[i].princessMultiplier !== 1">
-            <div>{{ $t("Result.姫級補正") }}</div>
-            <div>&times; {{ postCapTerms[i].princessMultiplier.toFixed(2) }}</div>
+          <template v-if="postCapTerms[i].specialEnemyMultiplier && postCapTerms[i].specialEnemyMultiplier !== 1">
+            <div>{{ $t("Result.特殊敵補正") }}</div>
+            <div>&times; {{ postCapTerms[i].specialEnemyMultiplier.toFixed(2) }}</div>
           </template>
           <template v-if="calcArgs.manualAfterCapBonus !== 1">
             <div>{{ $t("Result.特効") }}</div>
@@ -360,6 +352,12 @@
   display: grid;
   grid-template-columns: auto auto;
 }
+.multi-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 12px;
+}
+
 .multi-container .damage-detail-container {
   border: 1px solid #444;
   border-radius: 4px;
@@ -463,7 +461,8 @@ export default Vue.extend({
     rowData: [] as DamageRowData[],
     isAirbase: false,
     defenseIndex: 0,
-    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean; area: number; node: string }[],
+    defenseFleets: [] as { text: string; value: number; ships: Ship[] | Enemy[]; isUnion: boolean; area: number; node: string; radius: number }[],
+    defenseRadius: 0,
     enabledDamageDetailTooltip: false,
     slotRateTableText: '',
     tooltipTimer: undefined as undefined | number,
@@ -496,6 +495,7 @@ export default Vue.extend({
           isUnion: true,
           area: 0,
           node: '',
+          radius: 0,
         });
       }
 
@@ -508,6 +508,7 @@ export default Vue.extend({
           isUnion: false,
           area: 0,
           node: '',
+          radius: 0,
         });
       }
     } else {
@@ -522,6 +523,7 @@ export default Vue.extend({
           isUnion: fleets[i].isUnion,
           area: fleets[i].area,
           node: fleets[i].nodeName,
+          radius: max(fleets[i].radius) ?? 0,
         });
       }
 
@@ -548,6 +550,7 @@ export default Vue.extend({
 
     const fleet = this.defenseFleets[this.defenseIndex];
     this.calcArgs.isUnion = fleet.isUnion;
+    this.defenseRadius = fleet.radius;
   },
   computed: {
     defenseShipRows(): DamageRowData[] {
@@ -632,6 +635,7 @@ export default Vue.extend({
       if (!fleet) {
         return;
       }
+      this.defenseRadius = fleet.radius;
       this.calcArgs.isUnion = fleet.isUnion;
       if (this.changedDefenseFleet) {
         this.changedDefenseFleet(this.defenseIndex);
@@ -815,18 +819,28 @@ export default Vue.extend({
               this.postCapTerms.push(Calculator.getAirbasePostCapAswAttackPower(args, preCapTerm.baseFirePower, preCapTerm.typeMultiplier));
             }
           } else {
-            this.preCapTerms = Calculator.getPreCapTerms(args);
-            for (let i = 0; i < this.preCapTerms.length; i += 1) {
-              const preCapTerm = this.preCapTerms[i];
-              this.postCapTerms.push(Calculator.getPostCapAttackPower(args, preCapTerm.preCapFirePower));
+            // 通常の基地の場合
+            const preCapTerms = Calculator.getPreCapTerms(args);
+            for (let i = 0; i < preCapTerms.length; i += 1) {
+              const preCapTerm = preCapTerms[i];
+              const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower);
+              for (let j = 0; j < postCapTerms.length; j += 1) {
+                this.preCapTerms.push(preCapTerm);
+                this.postCapTerms.push(postCapTerms[j]);
+              }
             }
           }
         } else {
+          // 通常航空戦
           args.isAirbaseMode = false;
-          this.preCapTerms = Calculator.getPreCapTerms(args);
-          for (let i = 0; i < this.preCapTerms.length; i += 1) {
-            const preCapTerm = this.preCapTerms[i];
-            this.postCapTerms.push(Calculator.getPostCapAttackPower(args, preCapTerm.preCapFirePower));
+          const preCapTerms = Calculator.getPreCapTerms(args);
+          for (let i = 0; i < preCapTerms.length; i += 1) {
+            const preCapTerm = preCapTerms[i];
+            const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower);
+            for (let j = 0; j < postCapTerms.length; j += 1) {
+              this.preCapTerms.push(preCapTerm);
+              this.postCapTerms.push(postCapTerms[j]);
+            }
           }
         }
 

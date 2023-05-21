@@ -61,8 +61,6 @@ export interface PreCapTerm {
   torpedoMultiplier: number;
   /** 基本攻撃力 */
   baseFirePower: number;
-  /** 砲台・離島基地航空隊特効 */
-  LBASModifiers: number;
   /** 地上施設が防御側である計算かどうか */
   isLandBase: boolean;
 }
@@ -74,12 +72,10 @@ export interface PostCapTerm {
   finalFirePower: number;
   /** 陸攻特効 */
   airbaseAttackerMultiplier: number;
-  /** 空母棲姫特効 */
-  princessMultiplier: number;
+  /** 特定敵補正 */
+  specialEnemyMultiplier: number;
   /** 基地航空隊補正 */
   LBASModifiers: number;
-  /** 爆撃補正 */
-  bomberMultiplier: number;
   /** 対潜計算かどうか */
   isSubmarine: boolean;
 }
@@ -136,8 +132,11 @@ export default class AerialFirePowerCalculator {
     const preCapTerms = AerialFirePowerCalculator.getPreCapTerms(args);
     const retPowers = [];
     for (let i = 0; i < preCapTerms.length; i += 1) {
-      const power = AerialFirePowerCalculator.getPostCapAttackPower(args, preCapTerms[i].preCapFirePower).finalFirePower;
-      retPowers.push({ power, rate: rate / preCapTerms.length });
+      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower);
+      for (let j = 0; j < powers.length; j += 1) {
+        const power = powers[j].finalFirePower;
+        retPowers.push({ power, rate: rate / preCapTerms.length });
+      }
     }
     return retPowers;
   }
@@ -209,6 +208,9 @@ export default class AerialFirePowerCalculator {
         if (isLandBase) {
           // 対陸上型 => 爆装値で計算
           actualTorpedo = item.actualBomber;
+          if (item.data.id === 459) {
+            B25Modifiers = 0.9;
+          }
         } else if (item.data.id === 224 && shipType === SHIP_TYPE.DD) {
           // 65戦隊 VS 駆逐の場合、雷装値25として計算
           actualTorpedo = 25 + item.bonusTorpedo;
@@ -216,7 +218,7 @@ export default class AerialFirePowerCalculator {
           // Do 217 E-5+Hs293 VS 駆逐の場合 雷装1.1倍
           torpedoMultiplier = 1.1;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
-        } else if (item.data.id === 406 && (SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.BBB === shipType)) {
+        } else if (item.data.id === 406 && (SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.FBB === shipType)) {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.35倍
           torpedoMultiplier = 1.35;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
@@ -227,6 +229,10 @@ export default class AerialFirePowerCalculator {
         } else if (item.data.id === 454 && (shipType === SHIP_TYPE.DD || shipType === SHIP_TYPE.CL || shipType === SHIP_TYPE.CA || shipType === SHIP_TYPE.CVL)) {
           // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 or 軽空母 の場合 雷装1.16倍
           torpedoMultiplier = 1.16;
+          actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
+        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.CVL || SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.FBB === shipType)) {
+          // キ102乙改＋イ号一型乙 誘導弾 VS 戦艦 or 軽空母 の場合 雷装1.14倍
+          torpedoMultiplier = 1.14;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
         } else if (item.data.id === 459) {
           // B-25
@@ -267,15 +273,6 @@ export default class AerialFirePowerCalculator {
         break;
     }
 
-    let LBASModifiers = 1;
-    if (isAirbaseMode && [1665, 1666, 1667].includes(defense.data.id)) {
-      // 砲台小鬼 基地航空特効1.6
-      LBASModifiers = 1.6;
-    } else if (isAirbaseMode && [1668, 1669, 1671, 1672].includes(defense.data.id)) {
-      // 離島棲姫 基地航空特効1.18
-      LBASModifiers = 1.18;
-    }
-
     if (!isAirbaseMode) {
       // 航空戦雷装ボーナス適用
       actualTorpedo += item.attackerTorpedoBonus;
@@ -299,8 +296,8 @@ export default class AerialFirePowerCalculator {
     for (let i = 0; i < typeMultipliers.length; i += 1) {
       // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 航空戦定数}
       const baseFirePower = typeMultipliers[i] * (actualTorpedo * Math.sqrt(adj * args.slot) + airstrikeModifiers);
-      // キャップ前攻撃力 = 基本攻撃力 * B-25補正 * 基地航空隊補正(離島・砲台) * 陸偵補正
-      const preCapFirePower = baseFirePower * B25Modifiers * LBASModifiers * args.rikuteiBonus;
+      // キャップ前攻撃力 = 基本攻撃力 * B-25補正 * 陸偵補正
+      const preCapFirePower = baseFirePower * B25Modifiers * args.rikuteiBonus;
 
       terms.push({
         airstrikeModifiers,
@@ -311,7 +308,6 @@ export default class AerialFirePowerCalculator {
         B25Modifiers,
         torpedoMultiplier,
         isLandBase,
-        LBASModifiers,
       });
     }
     return terms;
@@ -325,70 +321,87 @@ export default class AerialFirePowerCalculator {
    * @return {*}  {PostCapTerm}
    * @memberof AerialFirePowerCalculator
    */
-  public static getPostCapAttackPower(args: FirePowerCalcArgs, preCapFirePower: number): PostCapTerm {
+  public static getPostCapAttackPowers(args: FirePowerCalcArgs, preCapFirePower: number): PostCapTerm[] {
     const { item, isAirbaseMode, defense } = args;
     // キャップ適用
     const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS);
 
-    let finalFirePower = postCapFirePower;
-    let LBASModifiers = 0;
-    let bomberMultiplier = 1;
-
-    if (isAirbaseMode) {
-      // 爆撃特効適用対象機体か 艦爆 水爆 陸攻 噴式
-      const isBomber = [7, 11, 47, 53, 57].includes(item.data.apiTypeId);
-      if (isBomber && [1665, 1666, 1667].includes(defense.data.id)) {
-        // 砲台小鬼 爆撃特効1.55
-        bomberMultiplier = 1.55;
-        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
-      } else if (isBomber && [1668, 1669, 1671, 1672].includes(defense.data.id)) {
-        // 離島棲姫 爆撃特効1.7
-        bomberMultiplier = 1.7;
-        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
-      } else if (defense.data.name.indexOf('集積地') >= 0) {
-        // 集積地姫 爆撃特効2.1 基地航空特効 +100
-        bomberMultiplier = isBomber ? 2.1 : 1;
-        LBASModifiers = 100;
-        // a5 b5補正のため計算しなおし
-        finalFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS, bomberMultiplier, LBASModifiers);
-      } else {
-        finalFirePower = Math.floor(finalFirePower * bomberMultiplier);
-      }
-    }
-
     // 陸攻補正
     const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
-    // 空母棲姫 / ダイソン特効
-    let princessMultiplier = 1;
-    if (item.data.isABAttacker && (defense.data.id === 1557 || defense.data.id === 1586 || defense.data.id === 1620)) {
-      princessMultiplier = 3.2;
-    }
 
-    if (isAirbaseMode) {
-      // 基地キャップ後処理
-      // 触接補正 * 対連合補正 * キャップ後特殊補正
-      const multiplier = args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
-      finalFirePower = finalFirePower * airBaseBonus * princessMultiplier * multiplier;
+    // 特殊敵補正 (2023/05/21 https://twitter.com/Divinity_123/status/1659942254671216642?s=20)
+    const specialEnemyMultipliers = [];
+    if ([1637, 1638, 1639, 1640].includes(defense.data.id)) {
+      // PT小鬼
+      specialEnemyMultipliers.push(isAirbaseMode ? 0.4 : 0.5);
+      specialEnemyMultipliers.push(isAirbaseMode ? 0.7 : 0.8);
+    } else if (defense.data.id === 1557) {
+      // 旧ダイソン
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.7 : 1.4);
+      specialEnemyMultipliers.push(isAirbaseMode ? 3 : 2.2);
+    } else if ([1696, 1697, 1698].includes(defense.data.id) && isAirbaseMode) {
+      // 夏ダイソン
+      specialEnemyMultipliers.push(1);
+      specialEnemyMultipliers.push(2.2);
+    } else if (defense.data.id === 1586) {
+      // 旧空母棲姫
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.7 : 1.7);
+      specialEnemyMultipliers.push(isAirbaseMode ? 3 : 2.2);
+    } else if ([2105, 2106, 2107, 2108].includes(defense.data.id) && !isAirbaseMode) {
+      // 空母棲姫II
+      specialEnemyMultipliers.push(1.7);
+      specialEnemyMultipliers.push(2.2);
+    } else if ([1665, 1666, 1667].includes(defense.data.id)) {
+      // 砲台小鬼
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.6 : 1);
+      specialEnemyMultipliers.push(isAirbaseMode ? 2.5 : 1.7);
+    } else if ([1653, 1654, 1655, 1656, 1657, 1658].includes(defense.data.id)) {
+      // 集積地棲姫
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.7 : 1.5);
+      specialEnemyMultipliers.push(isAirbaseMode ? 3.4 : 2.4);
+    } else if (!isAirbaseMode && defense.data.name.indexOf('集積地') >= 0) {
+      // 上記以外の集積地棲姫
+      specialEnemyMultipliers.push(1.5);
+      specialEnemyMultipliers.push(2.4);
+    } else if ([1668, 1669, 1671, 1672].includes(defense.data.id) && isAirbaseMode) {
+      // 離島棲姫
+      specialEnemyMultipliers.push(1.7);
     } else {
-      // 通常航空戦キャップ後処理
-      // 触接補正 * キャップ後特殊補正
-      finalFirePower = finalFirePower * args.contactBonus * args.manualAfterCapBonus;
+      specialEnemyMultipliers.push(1);
     }
 
-    if (args.isCritical) {
-      // クリティカル時
-      finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
+    const terms: PostCapTerm[] = [];
+    for (let i = 0; i < specialEnemyMultipliers.length; i += 1) {
+      let finalFirePower = postCapFirePower;
+      const specialEnemyMultiplier = specialEnemyMultipliers[i];
+
+      if (isAirbaseMode) {
+        // 基地キャップ後処理
+        // 触接補正 * 対連合補正 * キャップ後特殊補正
+        const multiplier = args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
+        finalFirePower = finalFirePower * airBaseBonus * specialEnemyMultiplier * multiplier;
+      } else {
+        // 通常航空戦キャップ後処理
+        // 触接補正 * キャップ後特殊補正
+        finalFirePower = finalFirePower * args.contactBonus * specialEnemyMultiplier * args.manualAfterCapBonus;
+      }
+
+      if (args.isCritical) {
+        // クリティカル時
+        finalFirePower = Math.floor(finalFirePower * 1.5 * args.criticalBonus);
+      }
+
+      terms.push({
+        airbaseAttackerMultiplier: airBaseBonus,
+        specialEnemyMultiplier: specialEnemyMultipliers[i],
+        finalFirePower,
+        LBASModifiers: 0,
+        postCapFirePower,
+        isSubmarine: false,
+      });
     }
 
-    return {
-      airbaseAttackerMultiplier: airBaseBonus,
-      princessMultiplier,
-      bomberMultiplier,
-      finalFirePower,
-      LBASModifiers,
-      postCapFirePower,
-      isSubmarine: false,
-    };
+    return terms;
   }
 
   /**
@@ -404,12 +417,21 @@ export default class AerialFirePowerCalculator {
     if (args.slot <= 0) return [{ power: 0, rate }];
 
     args.isAirbaseMode = true;
-    const terms = AerialFirePowerCalculator.getPreCapTerms(args);
-    // キャップ前攻撃力
-    const power = terms[0].preCapFirePower;
-    // 最終攻撃力
-    const finalPower = AerialFirePowerCalculator.getPostCapAttackPower(args, power).finalFirePower;
-    return [{ power: finalPower, rate }];
+    const preCapTerms = AerialFirePowerCalculator.getPreCapTerms(args);
+    const retPowers = [];
+    for (let i = 0; i < preCapTerms.length; i += 1) {
+      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower);
+      for (let j = 0; j < powers.length; j += 1) {
+        const power = powers[j].finalFirePower;
+        retPowers.push({ power, rate });
+      }
+    }
+
+    // 起き得る確率を再計算
+    for (let i = 0; i < retPowers.length; i += 1) {
+      retPowers[i].rate /= retPowers.length;
+    }
+    return retPowers;
   }
 
   /**
@@ -446,7 +468,6 @@ export default class AerialFirePowerCalculator {
       typeMultiplier: minTypeMultiplier,
       B25Modifiers: 1,
       torpedoMultiplier: 1,
-      LBASModifiers: 1,
       isLandBase: false,
     });
 
@@ -460,7 +481,6 @@ export default class AerialFirePowerCalculator {
       typeMultiplier,
       B25Modifiers: 1,
       torpedoMultiplier: 1,
-      LBASModifiers: 1,
       isLandBase: false,
     });
 
@@ -503,8 +523,7 @@ export default class AerialFirePowerCalculator {
 
     return {
       airbaseAttackerMultiplier,
-      princessMultiplier: 1,
-      bomberMultiplier: 1,
+      specialEnemyMultiplier: 1,
       finalFirePower,
       LBASModifiers: 0,
       postCapFirePower,
