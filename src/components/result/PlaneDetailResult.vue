@@ -25,7 +25,10 @@
                 <div class="caption">{{ getShipName(editableParent.data) }}</div>
               </div>
             </div>
-            <div v-else class="px-2 body-2">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
+            <template v-else>
+              <div class="px-2 body-2">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
+              <div class="pl-3 body-2">( {{ $t("Common.半径") }} {{ editableParent.radius }} )</div>
+            </template>
           </div>
           <div v-if="editableParent" class="mt-2" :class="{ 'pt-2': editableParent.data }">
             <div v-for="(item, i) in editableParent.items" :key="i" class="d-flex align-center">

@@ -65,7 +65,10 @@
                 step="0.01"
                 @input="calculateFire"
                 append-icon="mdi-sync"
-                @click:append="setAirbaseMapBonus"
+                @click:append="
+                  setAirbaseMapBonus();
+                  calculateFire();
+                "
               />
             </template>
             <div>
@@ -98,7 +101,7 @@
       </div>
       <v-divider class="mt-2" />
       <div class="d-flex align-center">
-        <div class="body-2 py-1">{{ $t("Result.ダメージ計算結果") }}</div>
+        <div class="body-2 py-2">{{ $t("Result.ダメージ計算結果") }}</div>
         <v-spacer />
         <template v-if="!isAirbase">
           <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
@@ -106,6 +109,7 @@
             <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex" />
           </div>
         </template>
+        <div class="body-2 mr-2" v-else-if="defenseRadius">{{ $t("Common.半径") }} {{ defenseRadius }}</div>
       </div>
       <v-divider />
       <v-simple-table fixed-header :height="tableHeight">
