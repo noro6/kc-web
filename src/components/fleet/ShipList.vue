@@ -406,193 +406,188 @@
             <div class="caption">{{ $t("Fleet.ステータス") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.levelRange" dense thumb-label min="1" :max="maxLevel" hide-details :disabled="!isStockOnly">
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.Lv下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.levelRange[1]"
                 min="1"
-                dense
-                v-model.trim="shipFilter.levelRange[0]"
+                v-model="shipFilter.levelRange[0]"
                 hide-details
-                :disabled="!isStockOnly"
               />
-            </div>
-            <v-range-slider
-              v-model="shipFilter.levelRange"
-              dense
-              thumb-label
-              min="1"
-              :max="maxLevel"
-              hide-details
-              :disabled="!isStockOnly"
-              class="pt-2 align-center mx-2"
-            >
-            </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
                 :label="$t('Database.Lv上限')"
                 type="number"
-                max="200"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
+                :max="maxLevel"
                 :min="shipFilter.levelRange[0]"
-                dense
-                v-model.trim="shipFilter.levelRange[1]"
+                v-model="shipFilter.levelRange[1]"
                 hide-details
-                :disabled="!isStockOnly"
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.luckRange" dense thumb-label min="1" max="200" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.運下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.luckRange[1]"
                 min="1"
-                dense
-                v-model.trim="shipFilter.luckRange[0]"
+                v-model="shipFilter.luckRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.luckRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
                 :label="$t('Database.運上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="200"
                 :min="shipFilter.luckRange[0]"
-                dense
-                v-model.trim="shipFilter.luckRange[1]"
+                v-model="shipFilter.luckRange[1]"
                 hide-details
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.aswRange" dense thumb-label min="0" max="150" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.対潜下限')"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 type="number"
                 :max="shipFilter.aswRange[1]"
                 min="0"
-                dense
-                v-model.trim="shipFilter.aswRange[0]"
+                v-model="shipFilter.aswRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.aswRange" dense thumb-label min="0" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
                 :label="$t('Database.対潜上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="150"
                 :min="shipFilter.aswRange[0]"
-                dense
-                v-model.trim="shipFilter.aswRange[1]"
+                v-model="shipFilter.aswRange[1]"
                 hide-details
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.HPRange" dense thumb-label min="1" max="120" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.耐久下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.HPRange[1]"
                 min="1"
-                dense
-                v-model.trim="shipFilter.HPRange[0]"
+                v-model="shipFilter.HPRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.HPRange" dense thumb-label min="1" max="120" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
                 :label="$t('Database.耐久上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="120"
                 :min="shipFilter.HPRange[0]"
-                dense
-                v-model.trim="shipFilter.HPRange[1]"
+                v-model="shipFilter.HPRange[1]"
                 hide-details
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.fireRange" dense thumb-label min="1" max="200" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.火力下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.fireRange[1]"
                 min="1"
-                dense
-                v-model.trim="shipFilter.fireRange[0]"
+                v-model="shipFilter.fireRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.fireRange" dense thumb-label min="1" max="200" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
-                :label="$t('Database.火力下限')"
+                :label="$t('Database.火力上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="200"
                 :min="shipFilter.fireRange[0]"
-                dense
-                v-model.trim="shipFilter.fireRange[1]"
+                v-model="shipFilter.fireRange[1]"
                 hide-details
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.torpedoRange" dense thumb-label min="0" max="150" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.雷装下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.torpedoRange[1]"
                 min="0"
-                dense
-                v-model.trim="shipFilter.torpedoRange[0]"
+                v-model="shipFilter.torpedoRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.torpedoRange" dense thumb-label min="0" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
-                :label="$t('Database.雷装下限')"
+                :label="$t('Database.雷装上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="150"
                 :min="shipFilter.torpedoRange[0]"
-                dense
-                v-model.trim="shipFilter.torpedoRange[1]"
+                v-model="shipFilter.torpedoRange[1]"
                 hide-details
               />
-            </div>
-          </div>
-          <div class="d-flex pt-5 px-3">
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+          </v-range-slider>
+          <v-range-slider class="mt-4 px-3" v-model="shipFilter.nightRange" dense thumb-label min="1" max="300" hide-details>
+            <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.夜戦火力下限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 :max="shipFilter.nightRange[1]"
                 min="1"
-                dense
-                v-model.trim="shipFilter.nightRange[0]"
+                v-model="shipFilter.nightRange[0]"
                 hide-details
               />
-            </div>
-            <v-range-slider v-model="shipFilter.nightRange" dense thumb-label min="1" max="300" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
-            <div class="range-input" :class="{ english: isNotJapanese }">
+            </template>
+            <template v-slot:append>
               <v-text-field
-                :label="$t('Database.夜戦火力下限')"
+                :label="$t('Database.夜戦火力上限')"
                 type="number"
+                class="range-input"
+                :class="{ english: isNotJapanese }"
                 max="300"
                 :min="shipFilter.nightRange[0]"
-                dense
-                v-model.trim="shipFilter.nightRange[1]"
+                v-model="shipFilter.nightRange[1]"
                 hide-details
               />
-            </div>
-          </div>
+            </template>
+          </v-range-slider>
         </div>
         <v-divider />
         <div class="d-flex pa-3">
@@ -843,10 +838,12 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 .range-input {
-  width: 80px;
+  margin-top: 0px;
+  padding-top: 0px;
+  width: 80px !important;
 }
 .range-input.english {
-  width: 100px;
+  width: 100px !important;
 }
 .filter-input-container {
   margin-left: 12px;
