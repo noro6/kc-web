@@ -72,7 +72,7 @@
             maxlength="100"
             counter
             :label="$t('SaveData.フォルダー名')"
-            @keydown.enter="addNewDirectory"
+            @keypress.enter="addNewDirectory"
             :disabled="!editDialog"
           />
           <div class="d-flex mt-3">

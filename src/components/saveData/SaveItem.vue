@@ -112,7 +112,7 @@
             maxlength="100"
             counter
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
-            @keydown.enter="commitName"
+            @keypress.enter="commitName"
             :disabled="!editDialog"
           />
           <v-textarea

@@ -500,7 +500,7 @@
                 maxlength="100"
                 counter
                 :label="$t('Home.編成データ名')"
-                @keydown.enter="saveAndRenameCurrentData"
+                @keypress.enter="saveAndRenameCurrentData"
                 :disabled="!editDialog"
               />
               <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input" />
