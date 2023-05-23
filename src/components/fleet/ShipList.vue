@@ -390,6 +390,9 @@
                 :disabled="!visibleEscortCarrierFilter"
               />
             </div>
+            <div>
+              <v-checkbox v-model="shipFilter.onlyAutoOASW" @click="filter()" dense hide-details :label="$t('Fleet.自動先制対潜')" />
+            </div>
             <div class="d-flex manual-checkbox text" :class="{ disabled: !isStockOnly }">
               <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
                 <v-icon class="manual-icon" color="primary" v-if="shipFilter.isReleaseExSlotOnly">mdi-checkbox-marked</v-icon>
@@ -1348,6 +1351,10 @@ export default Vue.extend({
         if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {
           // 護衛空母のみ
           result = result.filter((v) => v.minAsw);
+        }
+        if (this.shipFilter.onlyAutoOASW) {
+          // 自動先制対潜のみ
+          result = result.filter((v) => [141, 478, 624, 394, 893, 681, 920].includes(v.id) || (v.type2 === 91 && v.id !== 941));
         }
         if (this.shipFilter.onlyBookmarked) {
           // お気に入りのみ

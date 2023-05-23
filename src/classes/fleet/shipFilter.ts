@@ -87,6 +87,9 @@ export default class ShipFilter {
   /** 補強増設なし限定 */
   public isNotReleaseExSlotOnly = false;
 
+  /** 自動先制対潜のみ */
+  public onlyAutoOASW = false;
+
   /** お気に入りのみ */
   public onlyBookmarked = false;
 

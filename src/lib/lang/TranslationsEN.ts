@@ -475,6 +475,7 @@ export default {
       '増設電探': 'Ex Slot Radar',
       '増設副砲': 'Ex Slot Secondary Gun',
       '在籍艦娘反映': 'Reflect ship data',
+      '自動先制対潜': 'Auto OASW',
       'お気に入り': 'Favorites Only',
       'お気に入り編集': 'Edit Favorites',
       '全解除': 'Reset all favorite ship',
