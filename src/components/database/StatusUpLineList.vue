@@ -231,6 +231,9 @@
           <div class="d-flex">
             <v-checkbox v-model="enabledOnly" :label="$t('Database.成長限界に到達した艦娘を省略')" />
           </div>
+          <div>
+            <v-checkbox v-model="onlyBookmarked" :label="$t('Fleet.お気に入り')" />
+          </div>
         </div>
         <v-divider class="my-2" />
         <div class="d-flex">
@@ -419,6 +422,7 @@ export default Vue.extend({
       { text: 'CI項', value: 'ci', manual: 40 },
     ],
     enabledOnly: false,
+    onlyBookmarked: false,
     listData: [] as listRow[],
     type: 5,
     page: 1,
@@ -522,6 +526,9 @@ export default Vue.extend({
       const searchWord = (this.keyword ?? '').trim().toUpperCase();
       const searchWords = searchWord.split(/\s+/);
 
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      const favorites = setting.bookmarkedShipIds;
+
       const manual = Math.min(Math.max(manualValue ?? 0, 1), 200);
       for (let i = 0; i < shipStock.length; i += 1) {
         const stock = shipStock[i];
@@ -566,6 +573,10 @@ export default Vue.extend({
           }
           if (maxLuck < luck || minLuck > luck) {
             // 運フィルタ
+            continue;
+          }
+          if (this.onlyBookmarked && !favorites.includes(master.id)) {
+            // お気に入りフィルタ
             continue;
           }
         }

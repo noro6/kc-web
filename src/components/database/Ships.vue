@@ -34,6 +34,7 @@
                 <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')" />
                 <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')" />
                 <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')" />
+                <v-checkbox class="mx-2" dense v-model="onlyBookmarked" @click="filter"  :label="$t('Fleet.お気に入り')" />
                 <div class="mx-3 d-flex manual-checkbox">
                   <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
                     <v-icon class="manual-icon" color="primary" v-if="isDaihatsu">mdi-checkbox-marked</v-icon>
@@ -970,6 +971,7 @@ export default Vue.extend({
     isNotDaihatsu: false,
     isKamisha: false,
     isNotKamisha: false,
+    onlyBookmarked: false,
     luckRange: [1, 200],
     levelRange: [1, Const.MAX_LEVEL],
     luckImpRange: [0, 100],
@@ -1368,6 +1370,9 @@ export default Vue.extend({
       // ベースのループは未改造艦娘のみ
       const baseShips = masters.filter((v) => v.version === 0);
 
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      const favorites = setting.bookmarkedShipIds;
+
       for (let i = 0; i < baseShips.length; i += 1) {
         const base = baseShips[i];
         // 改造先を含めて全て取得
@@ -1462,6 +1467,8 @@ export default Vue.extend({
             // 出撃海域で絞る
             if (!this.visibleNoArea && stockData.area < 1) continue;
             else if (stockData.area && !this.selectedArea.includes(stockData.area)) continue;
+            // お気に入りフィルタ
+            if (this.onlyBookmarked && !favorites.includes(stockData.id)) continue;
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
             pushedData.push({
               count: 1,
@@ -1528,7 +1535,6 @@ export default Vue.extend({
     },
     masterFilter() {
       // マスターの条件でフィルタリング可能なものはここでフィルタリング
-      // なくなっちゃった！
       this.filteredShips = this.all.filter((v) => v.id > 0);
       this.filter();
     },
