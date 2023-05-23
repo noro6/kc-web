@@ -65,7 +65,7 @@
             maxlength="100"
             counter
             :label="$t('SaveData.編成データ名')"
-            @keyup.enter="commitName"
+            @keypress.enter="commitName"
             :disabled="!editDialog"
           />
           <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input" />
