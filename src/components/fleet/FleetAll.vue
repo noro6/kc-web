@@ -203,7 +203,7 @@
         </div>
       </v-tab-item>
     </v-tabs-items>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" @input="toggleShipListDialog">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
     <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
@@ -1160,6 +1160,7 @@ export default Vue.extend({
     putShip(viewShip: ViewShip) {
       const { ship } = viewShip;
       this.shipListDialog = false;
+      this.toggleShipListDialog();
       const fleetIndex = this.shipDialogTarget[0];
       const index = this.shipDialogTarget[1];
       const fleet = this.fleetInfo.fleets[fleetIndex];
@@ -1390,6 +1391,21 @@ export default Vue.extend({
       this.itemListDialog = false;
       this.shipListDialog = false;
       this.itemPresetDialog = false;
+
+      this.toggleShipListDialog();
+    },
+    toggleShipListDialog() {
+      // v-rippleが消えない問題の対処
+      if (!this.shipListDialog) {
+        const ripples = document.querySelectorAll('.ship-input .v-ripple__container');
+        console.log(ripples);
+
+        if (ripples) {
+          for (let i = 0; i < ripples.length; i += 1) {
+            ripples[i].remove();
+          }
+        }
+      }
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
