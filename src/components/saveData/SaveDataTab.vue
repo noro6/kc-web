@@ -81,8 +81,10 @@
               </div>
             </div>
           </div>
-          <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+          <div class="d-flex mt-3 align-center">
+            <div class="text--secondary caption ml-auto">最終更新日時</div>
+            <div class="text--secondary caption ml-3">{{ lastModified }}</div>
+            <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -191,6 +193,7 @@ export default Vue.extend({
     editedIsUnsaved: false,
     editedIsDirectory: false,
     selectedColor: '',
+    lastModified: '',
     editedFile: undefined as SaveData | undefined,
     deleteConfirmData: undefined as SaveData | undefined,
     disabledConfirm: false,
@@ -248,6 +251,7 @@ export default Vue.extend({
       this.editedIsUnsaved = data.isUnsaved;
       this.editedIsDirectory = data.isDirectory;
       this.selectedColor = data.color;
+      this.lastModified = new Date(data.editedDate).toLocaleString(this.$vuetify.lang.current);
       this.editDialog = true;
     },
     handleCloseTab(data: SaveData, event: MouseEvent) {

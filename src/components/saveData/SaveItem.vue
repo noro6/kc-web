@@ -137,8 +137,15 @@
               </div>
             </div>
           </div>
-          <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+          <div class="d-flex mt-3 align-center">
+            <template v-if="value.isDirectory">
+              <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+            </template>
+            <template v-else>
+              <div class="text--secondary caption ml-auto">最終更新日時</div>
+              <div class="text--secondary caption ml-3">{{ lastModified }}</div>
+              <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+            </template>
           </div>
         </div>
       </v-card>
@@ -273,6 +280,7 @@ export default Vue.extend({
     editedName: '',
     editedRemarks: '',
     selectedColor: '',
+    lastModified: '',
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipData: new SaveData(),
@@ -377,6 +385,7 @@ export default Vue.extend({
       this.editedName = this.value.name;
       this.editedRemarks = this.value.remarks ? this.value.remarks : '';
       this.selectedColor = this.value.color;
+      this.lastModified = new Date(this.value.editedDate).toLocaleString(this.$vuetify.lang.current);
       this.editDialog = true;
     },
     commitName() {

@@ -550,6 +550,7 @@ export default class SaveData {
     this.manager = this.createSaveDataString();
     // 最終セーブIndexを更新
     this.tempSavedIndex = this.tempIndex;
+    this.editedDate = Date.now();
   }
 
   /**
