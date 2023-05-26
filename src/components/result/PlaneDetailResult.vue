@@ -54,6 +54,18 @@
                 :readonly="!isAirbase && !isShip"
                 @input="updateItem"
               />
+              <template v-if="isEnemy">
+                <div class="status-label">
+                  <template v-if="item.data.isTorpedoAttacker">
+                    <div>{{ $t("Common.雷装") }}</div>
+                    <div class="ml-2 font-weight-bold">{{ item.data.torpedo }}</div>
+                  </template>
+                  <template v-else-if="item.data.isAttacker">
+                    <div>{{ $t("Common.爆装") }}</div>
+                    <div class="ml-2 font-weight-bold">{{ item.data.bomber }}</div>
+                  </template>
+                </div>
+              </template>
             </div>
           </div>
           <div v-if="isAirbase && editableParent">
@@ -372,6 +384,9 @@ export default Vue.extend({
     },
     isShip(): boolean {
       return this.argParent instanceof Ship;
+    },
+    isEnemy(): boolean {
+      return this.argParent instanceof Enemy;
     },
   },
   methods: {
