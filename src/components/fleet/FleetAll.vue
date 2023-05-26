@@ -1398,8 +1398,6 @@ export default Vue.extend({
       // v-rippleが消えない問題の対処
       if (!this.shipListDialog) {
         const ripples = document.querySelectorAll('.ship-input .v-ripple__container');
-        console.log(ripples);
-
         if (ripples) {
           for (let i = 0; i < ripples.length; i += 1) {
             ripples[i].remove();

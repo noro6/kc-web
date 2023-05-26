@@ -31,7 +31,7 @@
             </template>
           </div>
           <div v-if="editableParent" class="mt-2" :class="{ 'pt-2': editableParent.data }">
-            <div v-for="(item, i) in editableParent.items" :key="i" class="d-flex align-center">
+            <div v-for="(item, i) in editableParent.items" :key="i" class="item-area">
               <v-btn v-if="!item.data.isPlane" icon small class="mr-3" color="grey" disabled>
                 <v-icon small>mdi-minus</v-icon>
               </v-btn>
@@ -131,74 +131,18 @@
   height: 11px;
 }
 
-.calc-item {
-  cursor: pointer;
+.item-area {
   display: flex;
-  padding: 0.25rem 0.5rem;
-  transition: 0.2s;
-  border: 1px solid transparent;
-}
-.no-item {
-  cursor: default;
-}
-.calc-item:not(.no-item):hover {
-  box-shadow: inset 0 0 20px rgba(60, 192, 255, 0.2);
-  border-color: rgba(60, 192, 255, 0.6);
-}
-.calc-item.selected,
-.calc-item.selected:hover {
-  box-shadow: inset 0 0 20px rgba(60, 192, 255, 0.4);
-  border-color: rgba(60, 192, 255, 0.6);
-}
-
-.slot-area {
-  text-align: right;
-  width: 24px;
-  margin-right: 0.5rem;
-}
-
-.item-name {
-  align-self: center;
-  font-size: 0.8em;
-  flex-grow: 1;
-  width: 100px;
-}
-.item-remodel {
-  width: 46px;
-}
-.item-level {
+  align-items: center;
   position: relative;
 }
-.level-value {
-  display: inline-block;
+.status-label {
   position: absolute;
-  font-size: 0.7em;
-  text-align: right;
-  font-weight: 600;
-  bottom: -4px;
-  width: 30px;
-  right: 0;
-  z-index: 1;
-  opacity: 0;
-  transition: 0.3s;
-  text-shadow: 1px 1px 1px #fff, -1px -1px 1px #fff, -1px 1px 1px #fff, 1px -1px 1px #fff, 1px 0px 1px #fff, -1px -0px 1px #fff, 0px 1px 1px #fff,
-    0px -1px 1px #fff;
-}
-.theme--dark .level-value {
-  text-shadow: 1px 1px 1px #000, -1px -1px 1px #000, -1px 1px 1px #000, 1px -1px 1px #000, 1px 0px 1px #000, -1px -0px 1px #000, 0px 1px 1px #000,
-    0px -1px 1px #000;
-}
-.calc-item.selected .level-value,
-.calc-item:hover .level-value {
-  opacity: 1;
-}
-.item-simple-status {
-  font-size: 0.7em;
-  width: 160px;
-}
-.item-simple-status > div {
-  align-self: center;
-  white-space: nowrap;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.8em;
+  right: 8px;
 }
 
 .border-window {

@@ -58,8 +58,8 @@
     <v-divider class="mb-3" />
     <div :class="{ 'has-error-space': !isDefenseMode && needErrorSpace }">
       <div v-if="!isDefenseMode && needAirRaid" class="w-100">
-        <v-alert outlined type="error"
-          >{{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
+        <v-alert outlined type="error" border="left">
+          {{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
           <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
         </v-alert>
       </div>
@@ -69,7 +69,7 @@
           <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t("Airbase.基地派遣先設定") }}</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
-          <v-alert dense outlined type="warning">{{ rangeError }}</v-alert>
+          <v-alert border="left" dense outlined type="warning" icon="mdi-alert">{{ rangeError }}</v-alert>
         </div>
       </div>
       <div class="d-flex ml-2 mb-2" v-if="isDefenseMode">
