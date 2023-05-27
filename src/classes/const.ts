@@ -903,10 +903,10 @@ export default class Const {
    * @memberof Const
    */
   public static readonly LEVEL_BORDERS = [
-    { lv: 180, req: 11500000 },
-    { lv: 179, req: 11400000 },
-    { lv: 178, req: 11300000 },
-    { lv: 177, req: 11200000 },
+    { lv: 180, req: 13000000 },
+    { lv: 179, req: 12100000 },
+    { lv: 178, req: 11600000 },
+    { lv: 177, req: 11300000 },
     { lv: 176, req: 11100000 },
     { lv: 175, req: 10950000 },
     { lv: 174, req: 10266000 },
