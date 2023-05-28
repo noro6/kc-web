@@ -69,7 +69,9 @@ export default class ShootDownInfo {
     // 艦隊防空ボーナス合計
     let sumAntiAirBonus = 0;
     for (let i = 0; i < shipCount; i += 1) {
-      sumAntiAirBonus += ships[i].antiAirBonus;
+      // 装備フィットボーナス(対空)
+      const itemBonusAntiAir = ships[i].itemBonusStatus.antiAir ?? 0;
+      sumAntiAirBonus += ships[i].antiAirBonus + itemBonusAntiAir;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
     // 艦隊防空 => 陣形補正 * 各艦の艦隊対空ボーナス合計
@@ -138,16 +140,16 @@ export default class ShootDownInfo {
           // 艦船加重対空値(敵側式) => int((int(sqrt(素対空 + 装備対空)) + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
           antiAirWeight = Math.floor((Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1);
         } else {
-          // 艦船加重対空値(味方側式) => int((素対空 / 2 + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正 + 装備対空ボーナス * 0.8?)
-          antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) * avoid1 + itemBonusAntiAir * 0.8);
+          // 艦船加重対空値(味方側式) => int(((素対空 / 2 + Σ(装備対空値 * 装備倍率)) + 装備対空ボーナス * 0.75?) * 対空射撃回避補正)
+          antiAirWeight = Math.floor((Math.floor(ship.antiAir / 2 + sumAntiAirWeight + itemBonusAntiAir * 0.75)) * avoid1);
         }
         // 加重対空格納
         stage2[j].antiAirWeightList.push(antiAirWeight);
 
         // 艦隊防空補正 => int(艦隊防空 * 対空射撃回避補正(艦隊防空ボーナス))
         const fleetAA = Math.floor(fleetAntiAir * avoid2);
-        // 最終艦隊防空 => int(int(艦隊防空 + 装備ボーナス補正 * 0.75?) / ブラウザ版補正(味方:1.3 敵1.0))
-        const fleetAABonus = Math.floor(fleetAA + itemBonusAntiAir * 0.75) / (isEnemy ? 1 : 1.3);
+        // 最終艦隊防空 => int(int(艦隊防空) / ブラウザ版補正(味方:1.3 敵1.0))
+        const fleetAABonus = Math.floor(fleetAA) / (isEnemy ? 1 : 1.3);
 
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);

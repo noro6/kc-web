@@ -681,7 +681,7 @@ export default class Item {
       total = this.data.antiAir * 1.5;
     }
 
-    // 艦船対空改修補正 = 装備倍率(ブラウザ版採用[2倍]) * √★
+    // 艦船対空改修補正 = 装備倍率 * √★
     if ((this.data.iconTypeId === 16 || this.data.apiTypeId === 36) && this.data.antiAir <= 7) {
       // 対空値7以下の高角砲 高射装置
       total += 1 * Math.sqrt(this.remodel);
