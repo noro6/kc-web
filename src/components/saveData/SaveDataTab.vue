@@ -29,6 +29,55 @@
           </v-btn>
         </div>
       </div>
+      <div
+        v-if="externalData && externalData.length"
+        class="tab-item"
+        :class="{ active: isExternalMain }"
+        :id="saveData.id"
+        @click="showExternalMenu($event)"
+        @keypress.enter="showExternalMenu($event)"
+        tabindex="0"
+      >
+        <div class="tab-item-icon">
+          <v-icon color="yellow lighten-1" small>{{ showExternals ? 'mdi-folder-open' : 'mdi-folder' }}</v-icon>
+        </div>
+        <div class="tab-item-name text-truncate">外部データ...</div>
+        <v-menu
+          v-model="showExternals"
+          absolute
+          :position-x="externalsX"
+          :position-y="externalsY"
+          :close-on-content-click="false"
+          dark
+          transition="slide-y-transition"
+        >
+          <v-card>
+            <div class="external-tabs">
+              <div
+                v-for="(saveData, i) in externalData"
+                :key="`ex_${i}`"
+                class="external-tab-item"
+                :class="{ active: saveData.isMain }"
+                @click="clickSaveData(saveData)"
+                @mousedown.middle="handleCloseTab(saveData, $event)"
+                @keypress.enter="clickSaveData(saveData)"
+                @keypress.delete="handleCloseTab(saveData)"
+                tabindex="0"
+              >
+                <div class="tab-item-icon">
+                  <v-icon small>mdi-file-question</v-icon>
+                </div>
+                <div class="tab-item-name text-truncate">{{ saveData.name }} {{ i + 1 }}</div>
+                <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
+                  <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
+                    <v-icon small>mdi-close</v-icon>
+                  </v-btn>
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </v-menu>
+      </div>
       <div class="tab-add-button">
         <v-btn icon small @click.stop="addNewFile()">
           <v-icon small>mdi-plus</v-icon>
@@ -97,8 +146,10 @@
   font-size: 12px;
   width: 100%;
 }
-.tab-item {
+.tab-item,
+.external-tab-item {
   display: flex;
+  align-items: center;
   flex: 1 1 auto;
   overflow: hidden;
   max-width: 200px;
@@ -107,17 +158,16 @@
   border-right: 1px solid rgb(64, 64, 64);
   border-left: 1px solid transparent;
 }
-.tab-item:hover {
+.tab-item:hover,
+.external-tab-item:hover {
   opacity: 0.8;
   background-color: rgba(128, 128, 128, 0.4);
 }
-.tab-item.active {
+.tab-item.active,
+.external-tab-item.active {
   background-color: rgb(64, 64, 64);
   border-left: 1px solid rgb(64, 64, 64);
   opacity: 1;
-}
-.tab-item > div {
-  align-self: center;
 }
 
 .drag-tab-handle {
@@ -166,6 +216,22 @@
   text-align: center;
   align-self: center;
 }
+
+.external-tabs {
+  background-color: #0a0a0c !important;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.external-tab-item {
+  width: 200px;
+  border-left: unset;
+  border-right: unset;
+  border-top: 1px solid rgb(64, 64, 64);
+  font-size: 12px;
+}
+.external-tab-item.active {
+  border-left: unset !important;
+}
 </style>
 
 <script lang="ts">
@@ -199,6 +265,9 @@ export default Vue.extend({
     disabledConfirm: false,
     fileColors: Const.FILE_COLORS,
     reload: false,
+    showExternals: false,
+    externalsX: 0,
+    externalsY: 0,
   }),
   computed: {
     viewData(): SaveData[] {
@@ -208,13 +277,31 @@ export default Vue.extend({
       let activeData: SaveData[] = [];
       const data = this.saveData.childItems;
       for (let i = 0; i < data.length; i += 1) {
-        const actives = data[i].fetchActiveData();
+        const actives = data[i].fetchActiveData().filter((v) => !v.isUnsaved || v.name !== '外部データ');
         if (actives) {
           activeData = activeData.concat(actives);
         }
       }
       activeData.sort((a, b) => a.activeOrder - b.activeOrder);
       return activeData;
+    },
+    externalData(): SaveData[] {
+      if (this.reload) {
+        return [];
+      }
+      let activeData: SaveData[] = [];
+      const data = this.saveData.childItems;
+      for (let i = 0; i < data.length; i += 1) {
+        const actives = data[i].fetchActiveData().filter((v) => v.isUnsaved && v.name === '外部データ');
+        if (actives) {
+          activeData = activeData.concat(actives);
+        }
+      }
+      activeData.sort((a, b) => a.activeOrder - b.activeOrder);
+      return activeData;
+    },
+    isExternalMain(): boolean {
+      return this.externalData.some((v) => v.isMain);
     },
     isNameEmpty(): boolean {
       return this.editedName.length <= 0;
@@ -342,6 +429,14 @@ export default Vue.extend({
         }
       } else {
         this.showNameEditDialog(data);
+      }
+    },
+    showExternalMenu(e: MouseEvent) {
+      if (e && e.target && e.target instanceof HTMLElement && e.target.closest('.tab-item')) {
+        const rect = (e.target.closest('.tab-item') as HTMLElement).getBoundingClientRect();
+        this.showExternals = true;
+        this.externalsX = rect.left;
+        this.externalsY = rect.bottom;
       }
     },
     addNewFile() {

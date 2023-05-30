@@ -249,7 +249,9 @@ export default class Fleet {
     const ships = this.ships.filter((v) => v.isActive && !v.isEmpty);
     const shipCount = ships.length;
     for (let i = 0; i < shipCount; i += 1) {
-      sumAntiAirBonus += ships[i].antiAirBonus;
+      // 装備フィットボーナス(対空)
+      const itemBonusAntiAir = ships[i].itemBonusStatus.antiAir ?? 0;
+      sumAntiAirBonus += ships[i].antiAirBonus + itemBonusAntiAir;
     }
     sumAntiAirBonus = Math.floor(sumAntiAirBonus);
 
