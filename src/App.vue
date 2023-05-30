@@ -15,8 +15,8 @@
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
-        <v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}</v-btn
-      >
+        <v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}
+      </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData">
         <v-icon small>mdi-content-duplicate</v-icon>{{ $t("Common.別名保存") }}
       </v-btn>
@@ -116,8 +116,7 @@
     <v-footer app class="d-flex justify-center">
       <v-fab-transition>
         <v-btn color="grey darken-3" class="footer-btn" v-show="isAirCalcPage" fab small dark @click="toggleMenuButton()">
-          <v-icon small v-if="showFooterBtn">mdi-close</v-icon>
-          <v-icon small v-else>mdi-menu</v-icon>
+          <v-icon small>{{ showFooterBtn ? "mdi-close" : "mdi-menu" }}</v-icon>
         </v-btn>
       </v-fab-transition>
       <v-tooltip left color="black">
@@ -360,21 +359,15 @@
               <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
               <div class="header-divider" />
             </div>
-            <div class="ml-3">
-              <div class="d-flex">
-                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')" />
-                <v-spacer />
-              </div>
+            <div class="ml-3 d-flex">
+              <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')" />
             </div>
             <div class="d-flex mt-5">
               <div class="body-2">{{ $t("Setting.編成データのオートセーブ") }}</div>
               <div class="header-divider" />
             </div>
-            <div class="ml-3">
-              <div class="d-flex">
-                <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
-                <v-spacer />
-              </div>
+            <div class="ml-3 d-flex">
+              <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
             </div>
           </div>
           <div class="pt-5">
