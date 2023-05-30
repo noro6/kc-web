@@ -192,8 +192,8 @@
             v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
             class="list-item"
             :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.sumBonus, 'has-bad-bonus': v.sumBonus < 0 }"
-            @click="clickedItem(v)"
-            @keypress.enter="clickedItem(v)"
+            @click="clickedItem(v, $event)"
+            @keypress.enter="clickedItem(v, $event)"
             tabindex="0"
             @mouseenter="bootTooltip(v.item, v.bonus, $event)"
             @mouseleave="clearTooltip"
@@ -262,6 +262,9 @@
       </div>
       <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
+    <div class="d-flex" v-if="!isEnemyMode">
+      <div class="ml-auto caption d-none d-md-block" v-if="isJapanese">ctrlキー + 装備をクリックでwikiを展開します。</div>
+    </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
@@ -273,7 +276,7 @@
         </div>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem)">{{ $t("Common.配備") }}</v-btn>
+          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem, $event)">{{ $t("Common.配備") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -732,6 +735,7 @@ export default Vue.extend({
     blacklistItems: [] as number[],
     sortDialog: false,
     decidedItem: false,
+    wikiDialog: false,
   }),
   mounted() {
     this.types = [];
@@ -893,6 +897,9 @@ export default Vue.extend({
     },
     formatStatus() {
       return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
+    },
+    isJapanese() {
+      return this.$i18n.locale === 'ja';
     },
     needTrans() {
       const setting = this.$store.state.siteSetting as SiteSetting;
@@ -1388,7 +1395,15 @@ export default Vue.extend({
         this.sortItems();
       }
     },
-    clickedItem(data: viewItem) {
+    clickedItem(data: viewItem, event: MouseEvent) {
+      if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
+        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(data.item.data.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+        if (data.item.data.id === 144) {
+          wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
+        }
+        window.open(wikiURL);
+        return;
+      }
       if (this.decidedItem) {
         return;
       }
