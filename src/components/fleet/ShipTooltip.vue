@@ -5,9 +5,9 @@
         <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120" />
       </div>
       <div class="ml-3 align-self-center">
-        <div class="caption">Lv {{ value.level }}</div>
+        <div class="caption font-weight-bold primary--text">Lv {{ value.level }}</div>
         <div class="body-2">
-          <span>{{ shipName }}</span>
+          <span>{{ getShipName(value.data) }}</span>
         </div>
       </div>
     </div>
@@ -182,6 +182,37 @@
           <td>{{ chuhaRate }}</td>
         </tr>
       </table>
+      <v-divider class="my-2" />
+      <table>
+        <tr v-if="prevShip">
+          <td class="text-left caption grey--text text--lighten-1 pr-2">Prev</td>
+          <td>
+            <v-img :src="`./img/ship/${prevShip.id}.png`" height="30" width="120" />
+          </td>
+          <td>
+            <div class="text-left ml-1 caption">
+              <div class="primary--text level-text">{{ prevLv ? `Lv ${prevLv}` : '-' }}</div>
+              <div>
+                {{ getShipName(prevShip) }}
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="nextShip">
+          <td class="text-left caption grey--text text--lighten-1 pr-2">Next</td>
+          <td>
+            <v-img :src="`./img/ship/${nextShip.id}.png`" height="30" width="120" />
+          </td>
+          <td>
+            <div class="text-left ml-1 caption">
+              <div class="primary--text level-text">Lv {{ value.data.nextLv }}</div>
+              <div>
+                {{ getShipName(nextShip) }}
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -217,6 +248,11 @@ table {
   margin-left: 4px;
   margin-right: 4px;
   color: #fff460;
+}
+
+.level-text {
+  font-weight: bold;
+  height: 16px;
 }
 </style>
 
@@ -319,15 +355,6 @@ export default Vue.extend({
       });
       return array;
     },
-    shipName(): string {
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      if (this.$i18n.locale === 'en' && !setting.nameIsNotTranslate) {
-        const shipName = ShipMaster.getSuffix(this.value.data);
-        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
-        return shipName.map((v) => trans(v)).join('');
-      }
-      return this.value.data.name || '';
-    },
     speedText(): string {
       if (this.value.speed <= 5) {
         return `${this.$t('Fleet.低速')}`;
@@ -361,6 +388,41 @@ export default Vue.extend({
     },
     supportFirePower(): number {
       return Ship.getSupportFirePower(this.value);
+    },
+    prevShip(): ShipMaster | undefined {
+      const ships = this.$store.state.ships as ShipMaster[];
+      const prev = ships.find((v) => v.id === this.value.data.beforeId);
+      return prev;
+    },
+    prevLv(): number {
+      if (this.prevShip && this.prevShip.version) {
+        const ship = this.prevShip;
+        const ships = this.$store.state.ships as ShipMaster[];
+        const prev = ships.find((v) => v.id === ship.beforeId);
+        return prev ? prev.nextLv : 0;
+      }
+      return 0;
+    },
+    nextShip(): ShipMaster | null {
+      const ships = this.$store.state.ships as ShipMaster[];
+      const master = this.value.data;
+      // 候補取得
+      const versions = ships.filter((v) => v.originalId === master.originalId).sort((a, b) => a.version - b.version);
+      // 現在のver
+      const index = versions.findIndex((v) => v.id === master.id);
+      const next = versions[index + 1];
+      return next;
+    },
+  },
+  methods: {
+    getShipName(ship: ShipMaster): string {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (this.$i18n.locale === 'en' && !setting.nameIsNotTranslate) {
+        const shipName = ShipMaster.getSuffix(ship);
+        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
+        return shipName.map((v) => trans(v)).join('');
+      }
+      return ship.name || '';
     },
   },
 });
