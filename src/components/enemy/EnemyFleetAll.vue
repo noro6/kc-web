@@ -148,6 +148,7 @@ import { AB_MODE, FORMATION } from '@/classes/const';
 import Convert from '@/classes/convert';
 import Airbase from '@/classes/airbase/airbase';
 import CalcManager from '@/classes/calcManager';
+import SiteSetting from '@/classes/siteSetting';
 import FleetInfo from '../../classes/fleet/fleetInfo';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -416,8 +417,9 @@ export default Vue.extend({
       setTimeout(() => {
         html2canvas(div, { scale: 2, width: 1160 }).then((canvas) => {
           const link = document.createElement('a');
-          link.href = canvas.toDataURL();
-          link.download = `enemy_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
+          const setting = this.$store.state.siteSetting as SiteSetting;
+          link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
+          link.download = `enemy_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.${setting.imageType}`;
           link.click();
           this.capturing = false;
         });

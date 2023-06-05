@@ -369,6 +369,16 @@
             <div class="ml-3 d-flex">
               <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
             </div>
+            <div class="d-flex mt-5">
+              <div class="body-2">{{ $t("Setting.画像保存形式") }}</div>
+              <div class="header-divider" />
+            </div>
+            <div class="ml-3">
+              <v-radio-group v-model="setting.imageType" row hide-details dense class="mt-1 mb-2">
+                <v-radio label="png" :value="'png'" />
+                <v-radio label="jpg" :value="'jpg'" />
+              </v-radio-group>
+            </div>
           </div>
           <div class="pt-5">
             <div class="d-flex">
@@ -428,10 +438,10 @@
                   type="number"
                   max="100000"
                   min="100"
+                  :suffix="$t('Setting.回')"
                   v-model.number="setting.simulationCount"
                   :rules="[rules.simulationCountRange]"
                 />
-                <div class="ml-3 align-self-center">{{ $t("Setting.回") }}</div>
               </div>
             </div>
           </div>
@@ -1023,7 +1033,7 @@ export default Vue.extend({
         mainData.tempIndex += 1;
       } else {
         mainData = new SaveData();
-          mainData.name = '外部データ';
+        mainData.name = '外部データ';
         mainData.isActive = true;
         mainData.isMain = true;
         mainData.tempData = [manager];

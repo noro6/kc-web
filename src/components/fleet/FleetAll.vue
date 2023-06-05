@@ -1423,8 +1423,9 @@ export default Vue.extend({
         setTimeout(() => {
           html2canvas(div, { scale: 2, width: this.is2Line ? 860 : 1200 }).then((canvas) => {
             const link = document.createElement('a');
-            link.href = canvas.toDataURL();
-            link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
+            const setting = this.$store.state.siteSetting as SiteSetting;
+            link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
+            link.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.${setting.imageType}`;
             link.click();
             this.capturing = false;
           });
@@ -1709,10 +1710,11 @@ export default Vue.extend({
     saveImage() {
       const canvas = this.generatedCanvas;
       if (canvas) {
-        const base64 = canvas.toDataURL('image/jpeg');
+        const setting = this.$store.state.siteSetting as SiteSetting;
+        const base64 = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
         const download = document.getElementById('gkcoi-download') as HTMLAnchorElement;
         download.href = base64;
-        download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
+        download.download = `fleet_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.${setting.imageType}`;
         download.click();
       }
     },

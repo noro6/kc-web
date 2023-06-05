@@ -138,6 +138,9 @@ export default class SiteSetting {
   /** お気に入り艦娘id一覧 */
   public bookmarkedShipIds: number[];
 
+  /** 画像保存形式 */
+  public imageType: 'png' | 'jpg';
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -181,6 +184,7 @@ export default class SiteSetting {
       this.isGraphicModeDeathRateIndicator = !!setting.isGraphicModeDeathRateIndicator;
       this.showHPandArmor = !!setting.showHPandArmor;
       this.bookmarkedShipIds = setting.bookmarkedShipIds ? setting.bookmarkedShipIds : [];
+      this.imageType = setting.imageType ?? 'png';
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -274,6 +278,7 @@ export default class SiteSetting {
       this.isGraphicModeDeathRateIndicator = false;
       this.showHPandArmor = false;
       this.bookmarkedShipIds = [];
+      this.imageType = 'png';
     }
   }
 }

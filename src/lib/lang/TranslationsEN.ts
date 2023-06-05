@@ -196,6 +196,7 @@ export default {
       '確認ダイアログを表示する': 'Display confirmation dialog',
       '編成データのオートセーブ': 'Auto-save Setting',
       'オートセーブを有効にする': 'Enable Auto-save',
+      '画像保存形式': 'Format for downloading images',
       'マウスホバー時の詳細情報表示': 'Information displayed on mouse hover',
       '無効(装備)': 'Disabled (Equipment)',
       '無効(艦娘)': 'Disabled (Ship)',

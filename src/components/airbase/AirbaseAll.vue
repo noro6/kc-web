@@ -665,8 +665,9 @@ export default Vue.extend({
       setTimeout(() => {
         html2canvas(div, { scale: 2 }).then((canvas) => {
           const link = document.createElement('a');
-          link.href = canvas.toDataURL();
-          link.download = `airbase_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.png`;
+          const setting = this.$store.state.siteSetting as SiteSetting;
+          link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
+          link.download = `airbase_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.${setting.imageType}`;
           link.click();
           this.capturing = false;
         });
