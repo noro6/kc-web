@@ -292,16 +292,6 @@
   }
 }
 
-.v-data-table thead th {
-  background-color: #eee !important;
-}
-.theme--dark .v-data-table thead th {
-  background-color: rgb(49, 49, 53) !important;
-}
-.deep-sea .theme--dark .v-data-table thead th {
-  background-color: rgb(36, 42, 53) !important;
-}
-
 .detail-content {
   height: 70vh;
   overflow-y: auto;
