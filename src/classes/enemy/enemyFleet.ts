@@ -58,7 +58,7 @@ export default class EnemyFleet {
   /** 半径 */
   public readonly radius: number[];
 
-  /** 海域 */
+  /** 海域 xxy形式(x:海域 y:マップ) 一応400以上がイベント海域 (例: 1-1 => 11, E-7 => 407) */
   public readonly area: number;
 
   /** セル名称 */
@@ -265,8 +265,12 @@ export default class EnemyFleet {
     this.fullAirbaseBorders = CommonCalc.getAirStatusBorder(this.fullAirbaseAirPower);
 
     // 対空砲火情報を更新
-    // 通常CIソート => (種別の降順)
-    this.allAntiAirCutIn.sort((a, b) => b.id - a.id);
+    const priorities = Const.ANTI_AIR_CUT_IN_PRIORITIES;
+    this.allAntiAirCutIn.sort((a, b) => {
+      const indexA = priorities.indexOf(a.id);
+      const indexB = priorities.indexOf(b.id);
+      return (indexA >= 0 ? indexA : 99) - (indexB >= 0 ? indexB : 99);
+    });
 
     // 対空砲火情報更新
     this.shootDownList = [];

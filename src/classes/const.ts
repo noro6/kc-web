@@ -752,6 +752,14 @@ export default class Const {
   ];
 
   /**
+   * 対空CI優先度配列
+   * 調査お疲れ様です
+   * @static
+   * @memberof Const
+   */
+  public static readonly ANTI_AIR_CUT_IN_PRIORITIES = [38, 39, 40, 42, 41, 10, 43, 46, 11, 25, 1, 34, 44, 26, 4, 2, 35, 36, 27, 45, 19, 21, 29, 16, 14, 3, 5, 6, 28, 37, 33, 30, 8, 13, 15, 7, 20, 24, 32, 12, 31, 17, 18, 22, 9, 23];
+
+  /**
    * 対空CI
    * @static
    * @memberof Const
@@ -795,6 +803,9 @@ export default class Const {
     },
     {
       id: 12, text: '12種', rateBonus: 1.25, c1: 1, c2: 3, rate: 45, remarks: '汎用',
+    },
+    {
+      id: 13, text: '13種', rateBonus: 1.35, c1: 4, c2: 1, rate: 45, remarks: '汎用',
     },
     {
       id: 14, text: '14種', rateBonus: 1.45, c1: 4, c2: 1, rate: 63, remarks: '五十鈴改二',

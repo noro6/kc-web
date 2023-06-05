@@ -113,8 +113,7 @@ export default class Fleet {
     this.hasPlane = false;
     this.allPlanes = [];
 
-    const generalCutin: AntiAirCutIn[] = [];
-    const specialCutin: AntiAirCutIn[] = [];
+    this.allAntiAirCutIn = [];
     const enabledShips = this.ships.filter((v) => v.isActive && !v.isEmpty);
 
     let sumShipRos = 0;
@@ -133,13 +132,7 @@ export default class Fleet {
         if (!this.isUnion || (this.isUnion && ship.isEscort)) {
           nightContactFailureRate -= nightContactFailureRate * ship.nightContactRate;
         }
-
-        for (let j = 0; j < ship.antiAirCutIn.length; j += 1) {
-          const cutIn = ship.antiAirCutIn[j];
-          // 対空カットインを振り分け
-          if (cutIn.id >= 34 && cutIn.id !== 36) specialCutin.push(cutIn);
-          else generalCutin.push(cutIn);
-        }
+        this.allAntiAirCutIn = this.allAntiAirCutIn.concat(ship.antiAirCutIn);
 
         const shipPlanes = ship.items.filter((v) => v.data.isPlane && v.fullSlot > 0);
         if (shipPlanes.length) {
@@ -190,23 +183,12 @@ export default class Fleet {
     }
 
     // 対空砲火情報を更新
-    // 特殊CIソート
-    specialCutin.sort((a, b) => {
-      if (a.id > 41 && b.id <= 41) {
-        return -1;
-      }
-      if (a.id <= 41 && b.id > 41) {
-        return 1;
-      }
-      if (a.id <= 41 && b.id <= 41) {
-        return a.rateCorr !== b.rateCorr ? b.rateCorr - a.rateCorr : b.fixCorrA - a.fixCorrA;
-      }
-      return a.id - b.id;
+    const priorities = Const.ANTI_AIR_CUT_IN_PRIORITIES;
+    this.allAntiAirCutIn.sort((a, b) => {
+      const indexA = priorities.indexOf(a.id);
+      const indexB = priorities.indexOf(b.id);
+      return (indexA >= 0 ? indexA : 99) - (indexB >= 0 ? indexB : 99);
     });
-    // 通常CIソート => (種別の降順)
-    generalCutin.sort((a, b) => b.id - a.id);
-    // 特殊CIを最優先とし、後続に通常CIを格納した対空CI配列 これで対空CI確定
-    this.allAntiAirCutIn = specialCutin.concat(generalCutin);
 
     // 対空砲火情報更新
     this.shootDownList = [];

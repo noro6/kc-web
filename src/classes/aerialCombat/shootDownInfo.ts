@@ -197,9 +197,9 @@ export default class ShootDownInfo {
       // 1種 (高角砲2, 電探)
       if (allKokaku >= 2 && hasRadar) cutInIds.push(1);
       // 2種 (高角砲, 電探)
-      else if (hasKokaku && hasRadar) cutInIds.push(2);
+      if (hasKokaku && hasRadar) cutInIds.push(2);
       // 3種 (高角砲2) 共存なし
-      else if (allKokaku >= 2) cutInIds.push(3);
+      if (allKokaku >= 2) cutInIds.push(3);
     } else {
       // Atlanta級
       if (type2 === 99) {
@@ -341,6 +341,8 @@ export default class ShootDownInfo {
 
       // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
       if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
+      // 13種 (特殊機銃, 特殊高角砲, 対空電探)
+      if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
 
       // 皐月改二
       if (shipId === 418) {
@@ -388,21 +390,13 @@ export default class ShootDownInfo {
     // マスタより、対空CIオブジェクトを格納
     const antiAirCutIns: AntiAirCutIn[] = [];
     // 優先度順により、先に格納された対空CIの発生率より低いものは、格納すらしない
-    let maxRate = 0;
     for (let i = 0; i < cutInIds.length; i += 1) {
       const cutinId = cutInIds[i];
       const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === cutinId);
       if (!cutIn) continue;
 
       const rate = cutIn.rate / 101;
-      if (cutIn.id >= 34 && cutIn.id <= 41) {
-        // 34種～41種の対空CIは通常発動率でOK
-        antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, rate));
-      } else if (rate > maxRate) {
-        // 通常CI 既に格納済みのCIより発動率が高いなら格納OK ただし発動率は差っ引かれる
-        antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, (rate - maxRate)));
-        maxRate = rate;
-      }
+      antiAirCutIns.push(new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, rate));
     }
     return antiAirCutIns;
   }
