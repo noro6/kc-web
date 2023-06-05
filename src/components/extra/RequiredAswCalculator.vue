@@ -1,109 +1,134 @@
 <template>
-  <v-card class="d-flex flex-wrap justify-center py-3">
-    <div class="input-container mx-3">
-      <div class="ship-input-container">
-        <ship-input
-          v-model="fleet.ships[0]"
-          :index="0"
-          :handle-show-ship-list="showShipList"
-          :handle-show-item-list="showItemList"
-          :handle-close-ship="removeShip"
-          :handle-show-item-preset="showItemPreset"
-          :fix-down="ship.fixDown"
-          :rate-down="ship.rateDown"
-          :fleet-ros-corr="fleet.fleetRosCorr"
-          :hide-active-button="true"
-          @input="updateShip"
-        />
+  <v-card class="pa-3">
+    <div class="d-flex flex-wrap justify-center">
+      <div class="input-container">
+        <div class="ship-input-container">
+          <ship-input
+            v-model="fleet.ships[0]"
+            :index="0"
+            :handle-show-ship-list="showShipList"
+            :handle-show-item-list="showItemList"
+            :handle-close-ship="removeShip"
+            :handle-show-item-preset="showItemPreset"
+            :fix-down="ship.fixDown"
+            :rate-down="ship.rateDown"
+            :fleet-ros-corr="fleet.fleetRosCorr"
+            :hide-active-button="true"
+            @input="updateShip"
+          />
+        </div>
+        <div class="pa-2 status-input-container">
+          <div>
+            <v-text-field
+              label="Lv"
+              v-model.number="level"
+              :max="maxLevel"
+              min="1"
+              type="number"
+              @input="statusChanged"
+              :append-icon="appendIcon"
+              :readonly="ship.isEmpty"
+            />
+          </div>
+          <div>
+            <v-text-field
+              :label="$t('Database.対潜改修')"
+              v-model.number="improveAsw"
+              max="9"
+              min="0"
+              type="number"
+              @input="statusChanged"
+              :append-icon="appendIcon"
+              :readonly="ship.isEmpty"
+            />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly />
+          </div>
+          <div>
+            <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly />
+          </div>
+        </div>
       </div>
-      <div class="pa-2 status-input-container">
-        <div>
-          <v-text-field
-            label="Lv"
-            v-model.number="level"
-            :max="maxLevel"
-            min="1"
-            type="number"
-            @input="statusChanged"
-            :append-icon="appendIcon"
-            :readonly="ship.isEmpty"
-          />
-        </div>
-        <div>
-          <v-text-field
-            :label="$t('Database.対潜改修')"
-            v-model.number="improveAsw"
-            max="9"
-            min="0"
-            type="number"
-            @input="statusChanged"
-            :append-icon="appendIcon"
-            :readonly="ship.isEmpty"
-          />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly />
-        </div>
-        <div>
-          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly />
+      <div class="pa-1 flex-grow-1">
+        <v-card class="mb-3" v-if="!ship.isEmpty">
+          <v-simple-table>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th>{{ $t("Extra.目標対潜値") }} ( 0 ~ 200 )</th>
+                  <th class="text-right">{{ $t("Fleet.不足対潜値") }}</th>
+                  <th class="text-right">{{ $t("Fleet.必要艦娘Lv") }}</th>
+                  <th class="text-right">{{ $t("Extra.必要Exp") }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(result, i) in results" :key="`result_${i}`" :class="{ ok: !result.missingAsw }">
+                  <td class="py-2" width="180px">
+                    <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate" />
+                  </td>
+                  <td class="text-right">{{ result.missingAsw }}</td>
+                  <template v-if="result.targetAsw <= 0">
+                    <td class="text-right">-</td>
+                    <td class="text-right">-</td>
+                  </template>
+                  <template v-else-if="minAsw || maxAsw">
+                    <td class="text-right" :class="{ 'red--text': result.requiredLevel > maxLevel }">{{ result.requiredLevel }}</td>
+                    <td class="text-right" v-if="result.requiredLevel > maxLevel">-</td>
+                    <td class="text-right" v-else>{{ result.requiredExp ? result.requiredExp.toLocaleString() : "0" }}</td>
+                  </template>
+                  <template v-else>
+                    <td class="text-center red--text" colspan="2">{{ $t("Extra.到達不可") }}</td>
+                  </template>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-card>
+        <div class="d-flex justify-end body-2">
+          <div>{{ $t("Extra.参考") }}:</div>
+          <div class="ml-3">
+            <a href="https://wikiwiki.jp/kancolle/%E5%AF%BE%E6%BD%9C%E6%94%BB%E6%92%83#oasw" target="_blank">
+              {{ $t("Extra.先制対潜発動条件について") }} ( wiki )
+            </a>
+          </div>
         </div>
       </div>
     </div>
-    <div class="mx-3 pa-1 flex-grow-1">
-      <v-card class="mb-3" v-if="!ship.isEmpty">
-        <v-simple-table>
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th>{{ $t("Extra.目標対潜値") }} ( 0 ~ 200 )</th>
-                <th class="text-right">{{ $t("Fleet.不足対潜値") }}</th>
-                <th class="text-right">{{ $t("Fleet.必要艦娘Lv") }}</th>
-                <th class="text-right">{{ $t("Extra.必要Exp") }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(result, i) in results" :key="`result_${i}`" :class="{ ok: !result.missingAsw }">
-                <td class="py-2" width="180px">
-                  <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate" />
-                </td>
-                <td class="text-right">{{ result.missingAsw }}</td>
-                <template v-if="result.targetAsw <= 0">
-                  <td class="text-right">-</td>
-                  <td class="text-right">-</td>
-                </template>
-                <template v-else-if="minAsw || maxAsw">
-                  <td class="text-right" :class="{ 'red--text': result.requiredLevel > maxLevel }">{{ result.requiredLevel }}</td>
-                  <td class="text-right" v-if="result.requiredLevel > maxLevel">-</td>
-                  <td class="text-right" v-else>{{ result.requiredExp ? result.requiredExp.toLocaleString() : "0" }}</td>
-                </template>
-                <template v-else>
-                  <td class="text-center red--text" colspan="2">{{ $t("Extra.到達不可") }}</td>
-                </template>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-card>
-      <div class="d-flex justify-end body-2">
-        <div>{{ $t("Extra.参考") }}:</div>
-        <div class="ml-3">
-          <a href="https://wikiwiki.jp/kancolle/%E5%AF%BE%E6%BD%9C%E6%94%BB%E6%92%83#oasw" target="_blank">
-            {{ $t("Extra.先制対潜発動条件について") }} ( wiki )
-          </a>
-        </div>
-      </div>
+    <div v-if="ship && ship.data.id">
+      <v-divider class="mt-3" />
+      <v-simple-table dense fixed-header height="64vh" class="text-right">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-right">Lv</th>
+              <th class="text-right">{{ $t("Common.対潜") }}</th>
+              <th class="text-right">{{ $t("Common.索敵") }}</th>
+              <th class="text-right">{{ $t("Common.回避") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="level in maxLevel" :key="`all_level_${level}`" class="level-status-list" :class="{ last: level === maxLevel}">
+              <td class="level-td">{{ maxLevel + 1 - level }}</td>
+              <td :class="{ increase: aswResults[level] && aswResults[level - 1] - aswResults[level] }">{{ aswResults[level - 1] }}</td>
+              <td :class="{ increase: scoutResults[level] && scoutResults[level - 1] - scoutResults[level] }">{{ scoutResults[level - 1] }}</td>
+              <td :class="{ increase: avoidResults[level] && avoidResults[level - 1] - avoidResults[level] }">{{ avoidResults[level - 1] }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </div>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
@@ -138,6 +163,18 @@
 }
 .v-data-table tbody tr.ok:hover {
   background-color: rgba(0, 255, 64, 0.15) !important;
+}
+
+.level-status-list:not(.last) td {
+  opacity: 0.6;
+}
+.level-status-list td.level-td {
+  opacity: 1;
+}
+.level-status-list.last td:not(.level-td),
+.level-status-list td.increase {
+  opacity: 1;
+  font-weight: bold;
 }
 </style>
 
@@ -182,6 +219,9 @@ export default Vue.extend({
     maxAsw: 0,
     results: [] as { targetAsw: number; missingAsw: number; requiredLevel: number; requiredExp: number }[],
     maxLevel: Const.MAX_LEVEL,
+    aswResults: [] as number[],
+    scoutResults: [] as number[],
+    avoidResults: [] as number[],
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -471,6 +511,16 @@ export default Vue.extend({
       }
 
       this.results = results;
+
+      this.aswResults = [];
+      this.scoutResults = [];
+      this.avoidResults = [];
+      const base = this.ship.data;
+      for (let level = this.maxLevel; level > 0; level -= 1) {
+        this.aswResults.push(Ship.getStatusFromLevel(level, base.maxAsw, base.minAsw));
+        this.scoutResults.push(Ship.getStatusFromLevel(level, base.maxScout, base.minScout));
+        this.avoidResults.push(Ship.getStatusFromLevel(level, base.maxAvoid, base.minAvoid));
+      }
 
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.requiredAswTargets = results.map((v) => v.targetAsw);
