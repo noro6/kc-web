@@ -871,6 +871,22 @@ export default class SaveData {
   }
 
   /**
+   * セーブデータ文字列より、出撃海域のみ取得
+   * @return {*}  {number}
+   * @memberof SaveData
+   */
+  public getLastBattleArea(): number {
+    const manager = JSON.parse(this.manager) as CalcManager;
+
+    const lastBattle = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1];
+    if (lastBattle) {
+      return lastBattle.area;
+    }
+
+    return 0;
+  }
+
+  /**
    * 全一時保存セーブデータ内の敵艦を新しい敵艦で更新
    * 専ら敵艦手動設定完了時に呼び出す
    * @param {EnemyMaster} enemyMaster 新敵艦情報

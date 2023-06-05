@@ -115,6 +115,7 @@
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
             @keypress.enter="commitName"
             :disabled="!editDialog"
+            ref="nameInput"
           />
           <v-textarea
             v-if="!value.isDirectory"
@@ -303,6 +304,15 @@ export default Vue.extend({
         this.$store.dispatch('updateSaveData', saveData);
       }, 1600);
     }
+  },
+  watch: {
+    editDialog(value) {
+      if (value) {
+        setTimeout(() => {
+          (this.$refs.nameInput as HTMLInputElement).focus();
+        }, 150);
+      }
+    },
   },
   methods: {
     handleUpdateSaveData(): void {

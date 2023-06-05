@@ -495,6 +495,7 @@
                 :label="$t('Home.編成データ名')"
                 @keypress.enter="saveAndRenameCurrentData"
                 :disabled="!editDialog"
+                ref="saveDataNameInput"
               />
               <v-textarea v-model.trim="editedRemarks" rows="10" dense outlined hide-details :label="$t('Home.補足情報')" class="remarks-input" />
               <div class="mt-4 d-flex">
@@ -741,6 +742,13 @@ export default Vue.extend({
     },
     isTempStockMode(value) {
       this.readOnlyMode = !!value;
+    },
+    editDialog(value) {
+      if (value) {
+        setTimeout(() => {
+          (this.$refs.saveDataNameInput as HTMLInputElement).focus();
+        }, 150);
+      }
     },
   },
   created() {

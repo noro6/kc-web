@@ -118,6 +118,7 @@
             :label="$t('SaveData.編成データ名')"
             @keypress.enter="commitName"
             :disabled="!editDialog"
+            ref="nameInput"
           />
           <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input" />
           <div class="mt-4 d-flex" v-if="!editedIsUnsaved">
@@ -133,7 +134,7 @@
             </div>
           </div>
           <div class="d-flex mt-3 align-center">
-            <div class="text--secondary caption ml-auto">最終更新日時</div>
+            <div class="text--secondary caption ml-auto">{{ $t("Common.最終更新日時") }}</div>
             <div class="text--secondary caption ml-3">{{ lastModified }}</div>
             <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
@@ -314,6 +315,15 @@ export default Vue.extend({
     },
     mainData(): SaveData | undefined {
       return this.saveData.getMainData();
+    },
+  },
+  watch: {
+    editDialog(value) {
+      if (value) {
+        setTimeout(() => {
+          (this.$refs.nameInput as HTMLInputElement).focus();
+        }, 150);
+      }
     },
   },
   methods: {
