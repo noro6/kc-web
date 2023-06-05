@@ -34,7 +34,7 @@
                 <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未着任艦非表示')" />
                 <v-checkbox class="mx-2" dense v-model="onlyNoStock" @change="filter" :label="$t('Database.未着任艦のみ')" />
                 <v-checkbox class="mx-2" dense v-model="is4n" @change="filter" :label="$t('Database.耐久値4n')" />
-                <v-checkbox class="mx-2" dense v-model="onlyBookmarked" @click="filter"  :label="$t('Fleet.お気に入り')" />
+                <v-checkbox class="mx-2" dense v-model="onlyBookmarked" @click="filter" :label="$t('Fleet.お気に入り')" />
                 <div class="mx-3 d-flex manual-checkbox">
                   <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
                     <v-icon class="manual-icon" color="primary" v-if="isDaihatsu">mdi-checkbox-marked</v-icon>
@@ -595,6 +595,9 @@
             <v-btn v-else color="grey" icon @click="toggleFav(editRow.ship.id)">
               <v-icon>mdi-heart</v-icon>
             </v-btn>
+            <div class="align-self-center ml-3" v-if="versionButtons[version]">
+              <a :href="`https://wikiwiki.jp/kancolle/${encodeURI(versionButtons[version].name)}`">wiki</a>
+            </div>
             <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="primary" @click.stop="commitStock">
               {{ $t("Database.着任") }}
             </v-btn>

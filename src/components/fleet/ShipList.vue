@@ -44,8 +44,9 @@
       </v-btn>
     </div>
     <v-divider />
-    <div class="d-flex py-2" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+    <div class="d-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <v-btn @click="filterDialog = true" :disabled="!!keyword" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
+      <div v-if="!isNotJapanese" class="ml-3 caption d-none d-md-block text--secondary">Ctrlキー + 艦娘をクリックでwikiを展開します。</div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
@@ -111,8 +112,8 @@
             class="ship-list"
             :class="{ 'pr-3': !multiLine, 'no-stock': !data.count }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
-            @click="clickedShip(data)"
-            @keypress.enter="clickedShip(data)"
+            @click="clickedShip(data, $event)"
+            @keypress.enter="clickedShip(data, $event)"
             tabindex="0"
             @mouseenter="bootTooltip(data, $event)"
             @mouseleave="clearTooltip"
@@ -1672,7 +1673,13 @@ export default Vue.extend({
 
       this.ships = resultShips;
     },
-    clickedShip(ship: ViewShip) {
+    clickedShip(ship: ViewShip, event?: MouseEvent) {
+      if (event && event.ctrlKey && ship && ship.ship) {
+        const wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(ship.ship.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+        window.open(wikiURL);
+        return;
+      }
+
       if (this.decidedShip) {
         return;
       }

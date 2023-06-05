@@ -83,7 +83,8 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-    <div class="d-flex mt-3">
+    <div class="d-flex align-center mt-3">
+      <div class="ml-2 caption d-none d-md-block text--secondary" v-if="!isNotJapanese">Ctrlキー + 装備をクリックでwikiを展開します。</div>
       <v-btn class="ml-auto" color="secondary" @click="showBlacklist()">
         <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ $store.state.siteSetting.blacklistItemIds.length }})
       </v-btn>
@@ -141,8 +142,8 @@
             class="item-container"
             :class="{ 'no-item': !itemRow.allCount }"
             v-ripple="{ class: 'info--text' }"
-            @click="clickItem(itemRow.master)"
-            @keypress.enter="clickItem(itemRow.master)"
+            @click="clickItem(itemRow.master, $event)"
+            @keypress.enter="clickItem(itemRow.master, $event)"
             tabindex="0"
             @mouseenter="bootTooltip(itemRow.master, $event)"
             @mouseleave="clearTooltip"
@@ -610,8 +611,18 @@ export default Vue.extend({
         items.sort((a, b) => b.master[key] - a.master[key]);
       }
     },
-    clickItem(master: ItemMaster) {
+    clickItem(master: ItemMaster, event?: MouseEvent) {
       this.clearTooltip();
+
+      if (event && event.ctrlKey && master && !master.isEnemyItem) {
+        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(master.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+        if (master.id === 144) {
+          wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
+        }
+        window.open(wikiURL);
+        return;
+      }
+
       this.editDialog = true;
       this.editedItem = master;
 

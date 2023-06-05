@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="list-card">
     <div class="d-flex py-2 pr-2">
       <div class="align-self-center item-search-text ml-5">
         <v-text-field
@@ -262,9 +262,6 @@
       </div>
       <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
-    <div class="d-flex" v-if="!isEnemyMode">
-      <div class="ml-auto caption d-none d-md-block" v-if="isJapanese">ctrlキー + 装備をクリックでwikiを展開します。</div>
-    </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
@@ -312,10 +309,17 @@
         </div>
       </v-card>
     </v-dialog>
+    <div class="hint-footer" v-if="!isEnemyMode && isJapanese">
+      <div class="caption d-none d-md-block text--secondary">Ctrlキー + 装備をクリックでwikiを展開します。</div>
+    </div>
   </v-card>
 </template>
 
 <style scoped>
+.list-card {
+  position: relative;
+}
+
 #item-table-body {
   overflow-y: auto;
   height: 64vh;
@@ -614,6 +618,12 @@
   font-size: 0.85em;
   opacity: 0.7;
   user-select: none;
+}
+
+.hint-footer {
+  position: absolute;
+  right: 8px;
+  bottom: 0;
 }
 </style>
 
@@ -1404,6 +1414,7 @@ export default Vue.extend({
         window.open(wikiURL);
         return;
       }
+
       if (this.decidedItem) {
         return;
       }
