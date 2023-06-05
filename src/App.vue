@@ -805,9 +805,6 @@ export default Vue.extend({
         if (this.urlParameters.data) {
           // 編成データ解析
           const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
-          if (!this.isJapanese) {
-            urlData.name = 'Imported Data';
-          }
           urlData.isMain = true;
           urlData.isActive = true;
           this.saveData.childItems.push(urlData);
@@ -867,9 +864,6 @@ export default Vue.extend({
           informText.push('編成の読み込み');
         } else if (this.urlFragments.saveData) {
           const urlData = SaveData.decodeURLSaveData(this.urlFragments.saveData);
-          if (!this.isJapanese) {
-            urlData.name = 'Imported Data';
-          }
           urlData.isMain = true;
           urlData.isActive = true;
           this.saveData.childItems.push(urlData);
@@ -1021,11 +1015,7 @@ export default Vue.extend({
         mainData.tempIndex += 1;
       } else {
         mainData = new SaveData();
-        if (this.isJapanese) {
           mainData.name = '外部データ';
-        } else {
-          mainData.name = 'Imported Data';
-        }
         mainData.isActive = true;
         mainData.isMain = true;
         mainData.tempData = [manager];
@@ -1105,6 +1095,9 @@ export default Vue.extend({
       const data = this.saveData.getMainData();
       if (data) {
         this.editedName = data.name;
+        if (data.isUnsaved && data.name === '外部データ') {
+          this.editedName = '';
+        }
         this.editedRemarks = data.remarks;
         this.isDirectory = data.isDirectory;
         this.selectedColor = data.color;

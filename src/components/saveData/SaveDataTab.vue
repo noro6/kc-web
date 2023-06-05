@@ -31,17 +31,17 @@
       </div>
       <div
         v-if="externalData && externalData.length"
-        class="tab-item"
-        :class="{ active: isExternalMain }"
+        class="tab-item cursor-pointer"
+        :class="{ active: isExternalMain || showExternals }"
         :id="saveData.id"
         @click="showExternalMenu($event)"
         @keypress.enter="showExternalMenu($event)"
         tabindex="0"
       >
         <div class="tab-item-icon">
-          <v-icon color="yellow lighten-1" small>{{ showExternals ? 'mdi-folder-open' : 'mdi-folder' }}</v-icon>
+          <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
         </div>
-        <div class="tab-item-name text-truncate">外部データ...</div>
+        <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }}</div>
         <v-menu
           v-model="showExternals"
           absolute
@@ -65,10 +65,11 @@
                 tabindex="0"
               >
                 <div class="tab-item-icon">
-                  <v-icon small>mdi-file-question</v-icon>
+                  <v-icon small>mdi-file-import</v-icon>
                 </div>
-                <div class="tab-item-name text-truncate">{{ saveData.name }} {{ i + 1 }}</div>
-                <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
+                <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
+                <div class="ml-auto caption font-weight-bold">{{ externalWorlds[i] }}</div>
+                <div class="ml-1 btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
                   <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
                     <v-icon small>mdi-close</v-icon>
                   </v-btn>
@@ -77,6 +78,7 @@
             </div>
           </v-card>
         </v-menu>
+        <div class="ml-auto mr-2 text--secondary align-self-center">... {{ externalData.length }}</div>
       </div>
       <div class="tab-add-button">
         <v-btn icon small @click.stop="addNewFile()">
@@ -224,13 +226,16 @@
 }
 .external-tab-item {
   width: 200px;
-  border-left: unset;
-  border-right: unset;
+  opacity: 0.7;
+  border-right-color: transparent;
   border-top: 1px solid rgb(64, 64, 64);
   font-size: 12px;
 }
 .external-tab-item.active {
   border-left: unset !important;
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
 
@@ -268,6 +273,7 @@ export default Vue.extend({
     showExternals: false,
     externalsX: 0,
     externalsY: 0,
+    externalWorlds: [] as string[],
   }),
   computed: {
     viewData(): SaveData[] {
@@ -334,6 +340,9 @@ export default Vue.extend({
     showNameEditDialog(data: SaveData) {
       this.editedFile = data;
       this.editedName = data.name;
+      if (data.isUnsaved && data.name === '外部データ') {
+        this.editedName = '';
+      }
       this.editedRemarks = data.remarks;
       this.editedIsUnsaved = data.isUnsaved;
       this.editedIsDirectory = data.isDirectory;
@@ -393,6 +402,11 @@ export default Vue.extend({
         this.$store.dispatch('updateSetting', setting);
       }
 
+      // 外部データ表示されているなら、海域情報の更新だけ
+      if (this.showExternals) {
+        this.setExternalWorlds();
+      }
+
       // 閉じたということでDB更新を促す
       this.$store.dispatch('updateSaveData', this.saveData);
 
@@ -434,9 +448,28 @@ export default Vue.extend({
     showExternalMenu(e: MouseEvent) {
       if (e && e.target && e.target instanceof HTMLElement && e.target.closest('.tab-item')) {
         const rect = (e.target.closest('.tab-item') as HTMLElement).getBoundingClientRect();
-        this.showExternals = true;
         this.externalsX = rect.left;
         this.externalsY = rect.bottom;
+
+        this.setExternalWorlds();
+        this.showExternals = true;
+      }
+    },
+    setExternalWorlds() {
+      // 海域の情報だけぶっこ抜く処理
+      this.externalWorlds = [];
+
+      for (let i = 0; i < this.externalData.length; i += 1) {
+        const data = this.externalData[i];
+        const area = data.getLastBattleArea();
+        const world = Math.floor(area / 10);
+
+        let areaText = '';
+        if (area) {
+          areaText = `#${world > 40 ? 'E' : world}-${area % 10}`;
+        }
+
+        this.externalWorlds.push(areaText);
       }
     },
     addNewFile() {

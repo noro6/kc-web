@@ -168,6 +168,7 @@ export default {
       '絞り込み': 'Filter',
       'その他': 'Others',
       '最終更新日時': 'Last Modified',
+      '外部データ': 'Imported Data',
     },
     Difficulty: {
       '難易度': 'Difficulty',
