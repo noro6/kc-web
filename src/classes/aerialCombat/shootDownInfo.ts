@@ -370,7 +370,7 @@ export default class ShootDownInfo {
         if (allKokaku >= 3) cutInIds.push(30);
         // 31種 (高角砲2)
         if (allKokaku >= 2) cutInIds.push(31);
-      } else if (shipId === 539 || shipId === 630) {
+      } else if (shipId === 579 || shipId === 630) {
         // Gotland改以降
         // 30種 (高角砲3)
         if (allKokaku >= 3) cutInIds.push(30);
