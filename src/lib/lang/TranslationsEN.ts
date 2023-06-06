@@ -655,7 +655,7 @@ export default {
       '二式陸偵(熟練)': 'Type 2 (Skilled)',
       '素火力': 'Ship FP',
       '夜襲CI': 'Cut-In',
-      '対空CIチェック': 'Check AA Cut-In',
+      '対空CI一覧': 'Check AA Cut-In',
       '種別id': 'id',
       '固定': 'fix',
       '変動': 'variable',

@@ -60,7 +60,7 @@
         <span>{{ fleetAntiAir }}</span>
       </div>
       <div class="align-self-end">
-        <v-switch class="mt-2 mb-0 ml-4" v-model="showAntiAirMode" dense hide-details :label="$t('Result.対空CIチェック')" @change="setAntiAirCutInTable" />
+        <v-switch class="mt-2 mb-0 ml-4" v-model="showAntiAirMode" dense hide-details :label="$t('Result.対空CI一覧')" @change="setAntiAirCutInTable" />
       </div>
       <div class="ml-auto d-flex" v-if="!showAntiAirMode">
         <v-checkbox class="mr-3" :label="$t('Fleet.空襲マス')" v-model="isAirRaid" dense hide-details @change="updateTable" />
@@ -121,35 +121,33 @@
                 <th class="pr-1 text-right">{{ $t("Result.固定") }}</th>
                 <th class="pr-1 text-right">{{ $t("Result.変動") }}</th>
                 <th class="pr-1 text-right">{{ $t("Result.発動率") }}</th>
+                <th class="pr-1 text-right"></th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, i) in antiAirCutIns" :key="i" class="stage2-row pl-1">
-                <td class="d-flex pl-1">
-                  <div class="align-self-center mr-2">
-                    <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
-                  </div>
-                  <div class="align-self-center d-none d-sm-block flex-grow-1">
-                    <div class="stage2-id primary--text" v-if="item.isEnemy">id {{ item.id }}</div>
-                    <div class="d-flex">
-                      <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
-                    </div>
-                  </div>
+                <td class="px-2">
+                  <v-img v-if="item.id" :src="`./img/ship/${item.id}.png`" height="30" width="120" />
+                  <span v-else class="no-cutin-span caption">{{ $t('Result.不発') }}</span>
                 </td>
-                <td class="pr-1 text-right">{{ item.cutInId }}</td>
+                <td class="pr-1 text-right">{{ item.cutInId ? item.cutInId : '-' }}</td>
                 <td class="pr-1 text-right">{{ item.fix }}</td>
-                <td class="pr-1 text-right">&times; {{ item.variable }}</td>
+                <td class="pr-1 text-right">{{ item.variable }}</td>
                 <td class="pr-1 text-right">{{ item.rate }} %</td>
+                <td class="pr-1 text-right">
+                  <v-icon :color="item.color">mdi-square-rounded</v-icon>
+                </td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
+        <v-divider />
       </div>
       <div class="graph-area" v-if="showAntiAirMode">
         <div class="contact-graph">
-          <doughnut-chart :data="graphData" :options="options" :title-text="$t('Fleet.対空CI')" />
+          <doughnut-chart :data="graphData" :options="options" title-text="" />
         </div>
-        <div class="total-failed">
+        <div class="total-rate">
           <div>{{ $t("Result.合計発動率") }}</div>
           <div>{{ totalCutInRate }} %</div>
         </div>
@@ -206,12 +204,18 @@
 .contact-graph {
   z-index: 1;
 }
-.total-failed {
+.total-rate {
   text-align: center;
   position: absolute;
   top: 50%;
   width: 200px;
   left: calc(50% - 100px);
+}
+.no-cutin-span {
+  display: inline-block;
+  text-align: center;
+  width: 120px;
+  opacity: 0.8;
 }
 </style>
 
@@ -243,11 +247,11 @@ interface Stage2Row {
 
 interface AntiAirCutInRow {
   id: number;
-  data: ShipMaster | EnemyMaster;
   cutInId: number;
   fix: number;
   variable: number;
   rate: number;
+  color: string;
 }
 
 const labelCallback = (c: LabelCallbackArg) => `${c.dataset.labels[c.dataIndex]}: ${c.parsed.toFixed(1)} %`;
@@ -336,7 +340,7 @@ export default Vue.extend({
     antiAirItems(): { text: string; value: number }[] {
       const items = [
         {
-          text: '不発',
+          text: `${this.$t('Result.不発')}`,
           value: 0,
           rate: 0,
           detail: '',
@@ -470,11 +474,11 @@ export default Vue.extend({
           const cutIn = ship.antiAirCutIn[j];
           this.antiAirCutIns.push({
             id: ship.data.id,
-            data: ship.data,
             cutInId: cutIn.id,
             fix: cutIn.fixCorrA + cutIn.fixCorrB,
             variable: cutIn.rateCorr,
             rate: 0,
+            color: '#000',
           });
         }
       }
@@ -500,10 +504,10 @@ export default Vue.extend({
         }
       }
 
-      // 必要な色の個数 => 種別の数
+      // 必要な色の個数 => 発動する種別の数
       const colorCount = this.antiAirItems.length;
       // 対空CI種別ごとに色をランダム作成
-      const colors: string[] = [];
+      const colors: string[] = ['rgba(164,164,164,0.7)'];
       // 有効色(0 ～ 360)のなかから使う分だけ按分
       const colorCorr = Math.floor(360 / colorCount);
       // とりあえず44種分用意
@@ -516,24 +520,44 @@ export default Vue.extend({
         const id = this.antiAirCutIns[i].cutInId;
         if (!doneColorIds.includes(id)) {
           // この色を書き換え！
-          colors[id - 1] = `hsla(${225 - colorCorr * i},90%,70%,0.7)`;
+          colors[id] = `hsla(${218 - colorCorr * doneColorIds.length},85%,70%,0.7)`;
           doneColorIds.push(id);
         }
       }
 
-      const labels = this.antiAirCutIns.map((v) => `${v.cutInId}種`).concat('不発');
+      // 不発の行を追加
+      const noneRate = 100 - sumRate;
+      this.antiAirCutIns.push({
+        id: 0,
+        cutInId: 0,
+        fix: 1,
+        rate: Math.floor(10 * noneRate) / 10 || Math.floor(100 * noneRate) / 100 || Math.floor(1000 * noneRate) / 1000,
+        variable: 1,
+        color: '',
+      });
+
+      // テーブルの凡例行のための色設定
+      for (let i = 0; i < this.antiAirCutIns.length; i += 1) {
+        const row = this.antiAirCutIns[i];
+        if (colors[row.cutInId]) {
+          row.color = colors[row.cutInId];
+        }
+      }
+
+      const labels = this.antiAirCutIns.map((v) => (v.cutInId ? `${v.cutInId}種` : this.$t('Result.不発')));
       const data = {
         labels,
         datasets: [
           {
             data: [0, 0, 0, 100],
-            backgroundColor: this.antiAirCutIns.map((v) => colors[v.cutInId - 1]).concat('rgba(128,128,128,0.5)'),
+            backgroundColor: this.antiAirCutIns.map((v) => colors[v.cutInId]),
             borderColor: '#fff',
             labels,
           },
         ],
       };
-      data.datasets[0].data = this.antiAirCutIns.map((v) => +v.rate).concat(100 - sumRate);
+
+      data.datasets[0].data = this.antiAirCutIns.map((v) => +v.rate);
       this.totalCutInRate = Math.floor(10 * sumRate) / 10;
       this.graphData = data;
     },

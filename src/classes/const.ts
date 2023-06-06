@@ -904,7 +904,7 @@ export default class Const {
       id: 45, text: '45種', rateBonus: 1.55, c1: 5, c2: 1, rate: 50, remarks: '大和型改二',
     },
     {
-      id: 46, text: '46種', rateBonus: 1.55, c1: 3, c2: 6, rate: 50, remarks: '榛名改二乙',
+      id: 46, text: '46種', rateBonus: 1.55, c1: 8, c2: 1, rate: 50, remarks: '榛名改二乙',
     },
   ];
 
