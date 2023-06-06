@@ -329,65 +329,65 @@ export default class ShootDownInfo {
         // 27種 (10cm改+増設 対空電探)
         if (antiAirRadarCount && items.some((v) => v.data.id === 274) && items.some((v) => v.data.id === 275)) cutInIds.push(27);
       }
+    }
 
-      // 9種 (高角砲, 高射装置)
-      if (hasKokaku && koshaCount) cutInIds.push(9);
+    // 9種 (高角砲, 高射装置)
+    if (hasKokaku && koshaCount) cutInIds.push(9);
 
+    // Gotland改以降
+    if (shipId === 579 || shipId === 630) {
+      // 33種 (高角砲, 素対空値4以上の機銃)
+      if (hasKokaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
+    }
+
+    // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
+    if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
+    if (shipId !== 428) {
+      // 摩耶改二以外
+      // 13種 (特殊機銃, 特殊高角砲, 対空電探)
+      if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
+    }
+
+    // 皐月改二
+    if (shipId === 418) {
+      // 18種 (特殊機銃)
+      if (specialKijuCount) cutInIds.push(18);
+    } else if (shipId === 487) {
+      // 鬼怒改二
+      // 20種 (特殊機銃)
+      if (specialKijuCount) cutInIds.push(20);
+    } else if (shipId === 548) {
+      // 文月改二
+      // 22種 (特殊機銃)
+      if (specialKijuCount) cutInIds.push(22);
+    } else if (shipId === 329 || shipId === 530) {
+      // UIT-25 伊504
+      // 23種 (通常機銃)
+      if (kijuCount) cutInIds.push(23);
+    } else if (shipId === 478) {
+      // 龍田改二
+      // 24種 (高角砲, 通常機銃)
+      if (allKokaku && kijuCount) cutInIds.push(24);
+    } else if (shipId === 477) {
+      // 天龍改二
+      // 24種 (高角砲, 通常機銃)
+      if (allKokaku && kijuCount) cutInIds.push(24);
+      // 30種 (高角砲3)
+      if (allKokaku >= 3) cutInIds.push(30);
+      // 31種 (高角砲2)
+      if (allKokaku >= 2) cutInIds.push(31);
+    } else if (shipId === 579 || shipId === 630) {
       // Gotland改以降
-      if (shipId === 579 || shipId === 630) {
-        // 33種 (高角砲, 素対空値4以上の機銃)
-        if (hasKokaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
-      }
-
-      // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
-      if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
-      if (shipId !== 428) {
-        // 摩耶改二以外
-        // 13種 (特殊機銃, 特殊高角砲, 対空電探)
-        if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
-      }
-
-      // 皐月改二
-      if (shipId === 418) {
-        // 18種 (特殊機銃)
-        if (specialKijuCount) cutInIds.push(18);
-      } else if (shipId === 487) {
-        // 鬼怒改二
-        // 20種 (特殊機銃)
-        if (specialKijuCount) cutInIds.push(20);
-      } else if (shipId === 548) {
-        // 文月改二
-        // 22種 (特殊機銃)
-        if (specialKijuCount) cutInIds.push(22);
-      } else if (shipId === 329 || shipId === 530) {
-        // UIT-25 伊504
-        // 23種 (通常機銃)
-        if (kijuCount) cutInIds.push(23);
-      } else if (shipId === 478) {
-        // 龍田改二
-        // 24種 (高角砲, 通常機銃)
-        if (allKokaku && kijuCount) cutInIds.push(24);
-      } else if (shipId === 477) {
-        // 天龍改二
-        // 24種 (高角砲, 通常機銃)
-        if (allKokaku && kijuCount) cutInIds.push(24);
-        // 30種 (高角砲3)
-        if (allKokaku >= 3) cutInIds.push(30);
-        // 31種 (高角砲2)
-        if (allKokaku >= 2) cutInIds.push(31);
-      } else if (shipId === 579 || shipId === 630) {
-        // Gotland改以降
-        // 30種 (高角砲3)
-        if (allKokaku >= 3) cutInIds.push(30);
-      } else if (Const.GBR.includes(type2) || (type2 === 6 && ship.data.version >= 2)) {
-        // 英国艦艇 / 金剛型改二以降
-        // 32種 (16inch Mk.I三連装砲改+FCR type284, QF 2ポンド8連装ポンポン砲)
-        if (items.some((v) => v.data.id === 300) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
-        // 32種 (20連装7inch UP Rocket Launchers, QF 2ポンド8連装ポンポン砲)
-        else if (items.some((v) => v.data.id === 301) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
-        // 32種 (20連装7inch UP Rocket Launchers, 20連装7inch UP Rocket Launchers)
-        else if (items.filter((v) => v.data.id === 301).length >= 2) cutInIds.push(32);
-      }
+      // 30種 (高角砲3)
+      if (allKokaku >= 3) cutInIds.push(30);
+    } else if (Const.GBR.includes(type2) || (type2 === 6 && ship.data.version >= 2)) {
+      // 英国艦艇 / 金剛型改二以降
+      // 32種 (16inch Mk.I三連装砲改+FCR type284, QF 2ポンド8連装ポンポン砲)
+      if (items.some((v) => v.data.id === 300) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
+      // 32種 (20連装7inch UP Rocket Launchers, QF 2ポンド8連装ポンポン砲)
+      else if (items.some((v) => v.data.id === 301) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
+      // 32種 (20連装7inch UP Rocket Launchers, 20連装7inch UP Rocket Launchers)
+      else if (items.filter((v) => v.data.id === 301).length >= 2) cutInIds.push(32);
     }
 
     // マスタより、対空CIオブジェクトを格納
