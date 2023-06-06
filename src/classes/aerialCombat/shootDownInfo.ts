@@ -341,8 +341,11 @@ export default class ShootDownInfo {
 
       // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
       if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
-      // 13種 (特殊機銃, 特殊高角砲, 対空電探)
-      if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
+      if (shipId !== 428) {
+        // 摩耶改二以外
+        // 13種 (特殊機銃, 特殊高角砲, 対空電探)
+        if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
+      }
 
       // 皐月改二
       if (shipId === 418) {

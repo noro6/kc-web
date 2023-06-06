@@ -805,7 +805,7 @@ export default class Const {
       id: 12, text: '12種', rateBonus: 1.25, c1: 1, c2: 3, rate: 45, remarks: '汎用',
     },
     {
-      id: 13, text: '13種', rateBonus: 1.35, c1: 4, c2: 1, rate: 45, remarks: '汎用',
+      id: 13, text: '13種', rateBonus: 1.35, c1: 4, c2: 1, rate: 35, remarks: '汎用',
     },
     {
       id: 14, text: '14種', rateBonus: 1.45, c1: 4, c2: 1, rate: 63, remarks: '五十鈴改二',
