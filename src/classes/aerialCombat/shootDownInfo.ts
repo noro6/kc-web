@@ -182,7 +182,6 @@ export default class ShootDownInfo {
     const { type2 } = ship.data;
     // 艦娘id
     const shipId = ship.data.id;
-
     // 高角砲の数
     const allKokaku = kokakuCount + specialKokakuCount;
     // 高角砲の有無
@@ -192,7 +191,7 @@ export default class ShootDownInfo {
 
     if (type2 === 54) {
       // 秋月型
-      // 電探があるか？ (対空値関係なし)
+      // 電探
       const hasRadar = items.some((v) => v.data.iconTypeId === 11);
       // 1種 (高角砲2, 電探)
       if (allKokaku >= 2 && hasRadar) cutInIds.push(1);
@@ -200,162 +199,38 @@ export default class ShootDownInfo {
       if (hasKokaku && hasRadar) cutInIds.push(2);
       // 3種 (高角砲2) 共存なし
       if (allKokaku >= 2) cutInIds.push(3);
-    } else {
-      // Atlanta級
-      if (type2 === 99) {
-        const hasGFCSMk37 = items.some((v) => v.data.id === 307);
-        // GFCS Mk.37+5inch連装両用砲(集中配備) × 2
-        if (items.filter((v) => v.data.id === 363).length >= 2) {
-          // 38種
-          cutInIds.push(38);
-          if (hasGFCSMk37) cutInIds.push(40);
-          cutInIds.push(41);
-        }
-        // GFCS Mk.37+5inch連装両用砲(集中配備), 5inch連装両用砲(集中配備)
-        if (items.some((v) => v.data.id === 363) && items.some((v) => v.data.id === 362)) {
-          // 39種
-          cutInIds.push(39);
-          // 40種 (GFCS Mk.37)
-          if (hasGFCSMk37 && !cutInIds.includes(40)) cutInIds.push(40);
-          // 41種
-          if (!cutInIds.includes(41)) cutInIds.push(41);
-        }
-        // 5inch連装両用砲(集中配備) * 2
-        if (items.filter((v) => v.data.id === 362).length >= 2) {
-          // 40種 (GFCS Mk.37)
-          if (hasGFCSMk37 && !cutInIds.includes(40)) cutInIds.push(40);
-          // 41種
-          if (!cutInIds.includes(41)) cutInIds.push(41);
-        }
-      } else if (type2 === 91) {
-        // Fletcher級
-        const hasGFCSMk37 = items.some((v) => v.data.id === 307);
-        // 34種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30改+GFCS Mk.37)
-        if (items.filter((v) => v.data.id === 308).length >= 2) cutInIds.push(34);
-        // 35種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30 / 改)
-        if (items.some((v) => v.data.id === 308) && items.some((v) => v.data.id === 284 || v.data.id === 313)) cutInIds.push(35);
-        // 36種 (5inch単装砲 Mk.30 / 改 2種, GFCS Mk.37)
-        if (items.filter((v) => v.data.id === 284 || v.data.id === 313).length >= 2 && hasGFCSMk37) cutInIds.push(36);
-        // 37種 (5inch単装砲 Mk.30改 2種)
-        if (items.filter((v) => v.data.id === 313).length >= 2) cutInIds.push(37);
-      } else if (shipId === 428) {
-        // 摩耶様改二
-        // 10種 (高角砲, 特殊機銃, 対空電探)
-        if (hasKokaku && specialKijuCount && antiAirRadarCount) cutInIds.push(10);
-        // 11種 (高角砲, 特殊機銃)
-        if (hasKokaku && specialKijuCount) cutInIds.push(11);
-      } else if (shipId === 141) {
-        // 五十鈴改二
-        // 14種 (高角砲, 対空機銃, 対空電探)
-        if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(14);
-        // 15種 (高角砲, 対空機銃)
-        if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(15);
-      } else if (shipId === 470 || shipId === 622) {
-        // 霞改二乙 夕張改二
-        // 16種 (高角砲, 対空機銃, 対空電探)
-        if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(16);
-        // 17種 (高角砲, 対空機銃)
-        if (shipId === 470 && hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
-      } else if (shipId === 487) {
-        // 鬼怒改二
-        // 19種 (よわ高角砲, 特殊機銃)
-        if (kokakuCount > 0 && specialKijuCount) cutInIds.push(19);
-      } else if (shipId === 488) {
-        // 由良改二
-        // 21種 (高角砲, 対空電探)
-        if (hasKokaku && antiAirRadarCount) cutInIds.push(21);
-      } else if ([82, 88, 553, 554].includes(shipId)) {
-        // 伊勢型改 / 改二
-        // 25種 (噴進砲改二, 対空電探, 三式弾)
-        if (antiAirRadarCount && hasSanshiki && items.some((v) => v.data.id === 274)) cutInIds.push(25);
-      } else if ([911, 916, 546].includes(shipId)) {
-        // 大和型改二
-        if (items.some((v) => v.data.id === 142 || v.data.id === 460)) {
-          const syuchu10cmCount = items.filter((v) => v.data.id === 464).length;
-          const hasMore6AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 6);
-          if (syuchu10cmCount >= 2 && hasMore6AAKiju) {
-            // 42種（大和電探 + 10cm高角砲集中配備 * 2 + 素対空6以上の機銃）
-            cutInIds.push(42);
-          }
-          if (syuchu10cmCount >= 2) {
-            // 43種（大和電探 + 10cm高角砲集中配備 * 2）
-            cutInIds.push(43);
-          }
-          if (syuchu10cmCount && hasMore6AAKiju) {
-            // 44種（大和電探 + 10cm高角砲集中配備 + 素対空6以上の機銃）
-            cutInIds.push(44);
-          }
-          if (syuchu10cmCount) {
-            // 45種（大和電探 + 10cm高角砲集中配備）
-            cutInIds.push(45);
-          }
-        }
-      } else if ([593].includes(shipId)) {
-        // 榛名改二乙
-        // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
-        if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
-      }
-
-      // 汎用
-      // 全ての水上艦 => 判定できないが必須装備が潜水艦を弾ける
-      // 戦艦 航空戦艦 => 判定できないが大口径主砲を積めるのが戦艦だけ
-
-      // 4種 (大口径, 三式弾, 高射装置, 対空電探)
-      if (items.some((v) => v.data.apiTypeId === 3) && hasSanshiki && koshaCount && antiAirRadarCount) cutInIds.push(4);
-      // 5種 (特殊高角砲2, 対空電探)
-      if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(5);
-      // 6種 (大口径, 三式弾, 高射装置)
-      if (items.some((v) => v.data.apiTypeId === 3) && hasSanshiki && koshaCount) cutInIds.push(6);
-      // 8種 (特殊高角砲, 対空電探)
-      if (specialKokakuCount && antiAirRadarCount) cutInIds.push(8);
-      // 7種 (高角砲, 高射装置, 対空電探)
-      if (hasKokaku && koshaCount && antiAirRadarCount) cutInIds.push(7);
-
-      if (shipId === 148 || shipId === 546 || shipId === 911 || shipId === 916) {
-        // 武蔵改 / 大和型改二
-        // 26種 (大和型改二, 10cm改+増設, 対空電探)
-        if ((shipId === 546 || shipId === 911 || shipId === 916) && antiAirRadarCount && items.some((v) => v.data.id === 275)) cutInIds.push(26);
-        // 28種 (噴進砲改二, 対空電探)
-        if (!(shipId === 911 || shipId === 916) && antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
-      } else if ([82, 88, 553, 554].includes(shipId)) {
-        // 伊勢型改 / 改二
-        // 28種 (噴進砲改二, 対空電探)
-        if (antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
-      } else if (shipId === 557 || shipId === 558) {
-        // 磯風乙改 / 浜風乙改
-        // 29種 (高角砲, 対空電探)
-        if (hasKokaku && antiAirRadarCount) cutInIds.push(29);
-      } else if (type2 === 52) {
-        // 27種 (10cm改+増設 対空電探)
-        if (antiAirRadarCount && items.some((v) => v.data.id === 274) && items.some((v) => v.data.id === 275)) cutInIds.push(27);
-      }
-    }
-
-    // 9種 (高角砲, 高射装置)
-    if (hasKokaku && koshaCount) cutInIds.push(9);
-
-    // Gotland改以降
-    if (shipId === 579 || shipId === 630) {
-      // 33種 (高角砲, 素対空値4以上の機銃)
-      if (hasKokaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
-    }
-
-    // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
-    if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
-    if (shipId !== 428) {
-      // 摩耶改二以外
-      // 13種 (特殊機銃, 特殊高角砲, 対空電探)
-      if (specialKijuCount && specialKokakuCount && antiAirRadarCount) cutInIds.push(13);
-    }
-
-    // 皐月改二
-    if (shipId === 418) {
+    } else if (shipId === 428) {
+      // 摩耶様改二
+      // 10種 (高角砲, 特殊機銃, 対空電探)
+      if (hasKokaku && specialKijuCount && antiAirRadarCount) cutInIds.push(10);
+      // 11種 (高角砲, 特殊機銃)
+      if (hasKokaku && specialKijuCount) cutInIds.push(11);
+    } else if (shipId === 141) {
+      // 五十鈴改二
+      // 14種 (高角砲, 対空機銃, 対空電探)
+      if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(14);
+      // 15種 (高角砲, 対空機銃)
+      if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(15);
+    } else if (shipId === 470 || shipId === 622) {
+      // 霞改二乙 夕張改二
+      // 16種 (高角砲, 対空機銃, 対空電探)
+      if (hasKokaku && (kijuCount || specialKijuCount) && antiAirRadarCount) cutInIds.push(16);
+      // 17種 (高角砲, 対空機銃)
+      if (shipId === 470 && hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
+    } else if (shipId === 418) {
+      // 皐月改二
       // 18種 (特殊機銃)
       if (specialKijuCount) cutInIds.push(18);
     } else if (shipId === 487) {
       // 鬼怒改二
+      // 19種 (よわ高角砲, 特殊機銃)
+      if (kokakuCount > 0 && specialKijuCount) cutInIds.push(19);
       // 20種 (特殊機銃)
       if (specialKijuCount) cutInIds.push(20);
+    } else if (shipId === 488) {
+      // 由良改二
+      // 21種 (高角砲, 対空電探)
+      if (hasKokaku && antiAirRadarCount) cutInIds.push(21);
     } else if (shipId === 548) {
       // 文月改二
       // 22種 (特殊機銃)
@@ -368,6 +243,24 @@ export default class ShootDownInfo {
       // 龍田改二
       // 24種 (高角砲, 通常機銃)
       if (allKokaku && kijuCount) cutInIds.push(24);
+    } else if ([82, 88, 553, 554].includes(shipId)) {
+      // 伊勢型改 / 改二
+      // 25種 (噴進砲改二, 対空電探, 三式弾)
+      if (antiAirRadarCount && hasSanshiki && items.some((v) => v.data.id === 274)) cutInIds.push(25);
+      // 28種 (噴進砲改二, 対空電探)
+      if (antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
+    } else if (shipId === 148) {
+      // 武蔵改
+      // 28種 (噴進砲改二, 対空電探)
+      if (antiAirRadarCount && items.some((v) => v.data.id === 274)) cutInIds.push(28);
+    } else if (type2 === 52) {
+      // 大淀
+      // 27種 (10cm改+増設 対空電探)
+      if (antiAirRadarCount && items.some((v) => v.data.id === 274) && items.some((v) => v.data.id === 275)) cutInIds.push(27);
+    } else if (shipId === 557 || shipId === 558) {
+      // 磯風乙改 / 浜風乙改
+      // 29種 (高角砲, 対空電探)
+      if (hasKokaku && antiAirRadarCount) cutInIds.push(29);
     } else if (shipId === 477) {
       // 天龍改二
       // 24種 (高角砲, 通常機銃)
@@ -380,6 +273,8 @@ export default class ShootDownInfo {
       // Gotland改以降
       // 30種 (高角砲3)
       if (allKokaku >= 3) cutInIds.push(30);
+      // 33種 (高角砲, 素対空値4以上の機銃)
+      if (hasKokaku && items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 4)) cutInIds.push(33);
     } else if (Const.GBR.includes(type2) || (type2 === 6 && ship.data.version >= 2)) {
       // 英国艦艇 / 金剛型改二以降
       // 32種 (16inch Mk.I三連装砲改+FCR type284, QF 2ポンド8連装ポンポン砲)
@@ -388,11 +283,73 @@ export default class ShootDownInfo {
       else if (items.some((v) => v.data.id === 301) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
       // 32種 (20連装7inch UP Rocket Launchers, 20連装7inch UP Rocket Launchers)
       else if (items.filter((v) => v.data.id === 301).length >= 2) cutInIds.push(32);
+    } else if (type2 === 91) {
+      // Fletcher級
+      const hasGFCSMk37 = items.some((v) => v.data.id === 307);
+      // 34種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30改+GFCS Mk.37)
+      if (items.filter((v) => v.data.id === 308).length >= 2) cutInIds.push(34);
+      // 35種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30 / 改)
+      if (items.some((v) => v.data.id === 308) && items.some((v) => v.data.id === 284 || v.data.id === 313)) cutInIds.push(35);
+      // 36種 (5inch単装砲 Mk.30 / 改 2種, GFCS Mk.37)
+      if (items.filter((v) => v.data.id === 284 || v.data.id === 313).length >= 2 && hasGFCSMk37) cutInIds.push(36);
+      // 37種 (5inch単装砲 Mk.30改 2種)
+      if (items.filter((v) => v.data.id === 313).length >= 2) cutInIds.push(37);
+    } else if (type2 === 99) {
+      // Atlanta級
+      const GFCS5inchCount = items.filter((v) => v.data.id === 363).length;
+      const normal5inchCount = items.filter((v) => v.data.id === 362).length;
+      // 38種 (GFCS Mk.37+5inch連装両用砲(集中配備) x2)
+      if (GFCS5inchCount >= 2) cutInIds.push(38);
+      // 39種 (GFCS Mk.37+5inch連装両用砲(集中配備) と 5inch連装両用砲(集中配備) の両方が存在)
+      if (GFCS5inchCount && normal5inchCount) cutInIds.push(39);
+      // 40種 (GFCS Mk.37+5inch連装両用砲(集中配備) or 5inch連装両用砲(集中配備) の合計が2 + GFCS Mk.37)
+      if (GFCS5inchCount + normal5inchCount >= 2 && items.some((v) => v.data.id === 307)) cutInIds.push(40);
+      // 41種 (GFCS Mk.37+5inch連装両用砲(集中配備) or 5inch連装両用砲(集中配備) の合計が2)
+      if (GFCS5inchCount + normal5inchCount >= 2) cutInIds.push(41);
+    } else if ((shipId === 546 || shipId === 911 || shipId === 916)) {
+      // 大和型改二
+      const hasYamatoRadar = items.some((v) => v.data.id === 142 || v.data.id === 460);
+      const hasMore6AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 6);
+      const syuchu10cmCount = items.filter((v) => v.data.id === 464).length;
+      // 26種 (大和型改二, 10cm改+増設, 対空電探)
+      if (antiAirRadarCount && items.some((v) => v.data.id === 275)) cutInIds.push(26);
+      // 42種（大和電探 + 10cm高角砲集中配備 * 2 + 素対空値6以上の機銃）
+      if (hasYamatoRadar && syuchu10cmCount >= 2 && hasMore6AAKiju) cutInIds.push(42);
+      // 43種（大和電探 + 10cm高角砲集中配備 * 2）
+      if (hasYamatoRadar && syuchu10cmCount >= 2) cutInIds.push(43);
+      // 44種（大和電探 + 10cm高角砲集中配備 + 素対空値6以上の機銃）
+      if (hasYamatoRadar && syuchu10cmCount && hasMore6AAKiju) cutInIds.push(44);
+      // 45種（大和電探 + 10cm高角砲集中配備）
+      if (hasYamatoRadar && syuchu10cmCount) cutInIds.push(45);
+    } else if ([593].includes(shipId)) {
+      // 榛名改二乙
+      // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
+      if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
     }
+
+    // 汎用
+    // 全ての水上艦 => 判定できないが必須装備が潜水艦を弾ける
+    // 戦艦 航空戦艦 => 判定できないが大口径主砲を積めるのが戦艦だけ
+
+    // 4種 (大口径, 三式弾, 高射装置, 対空電探)
+    if (items.some((v) => v.data.apiTypeId === 3) && hasSanshiki && koshaCount && antiAirRadarCount) cutInIds.push(4);
+    // 5種 (特殊高角砲2, 対空電探, 秋月型以外)
+    if (specialKokakuCount >= 2 && antiAirRadarCount && type2 !== 54) cutInIds.push(5);
+    // 6種 (大口径, 三式弾, 高射装置)
+    if (items.some((v) => v.data.apiTypeId === 3) && hasSanshiki && koshaCount) cutInIds.push(6);
+    // 7種 (高角砲, 高射装置, 対空電探, 秋月型以外)
+    if (hasKokaku && koshaCount && antiAirRadarCount && type2 !== 54) cutInIds.push(7);
+    // 8種 (特殊高角砲, 対空電探, 秋月型以外)
+    if (specialKokakuCount && antiAirRadarCount && type2 !== 54) cutInIds.push(8);
+    // 9種 (高角砲, 高射装置)
+    if (hasKokaku && koshaCount) cutInIds.push(9);
+    // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
+    if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
+    // 13種 (特殊機銃, 特殊高角砲, 対空電探, 摩耶改二以外)
+    if (specialKijuCount && specialKokakuCount && antiAirRadarCount && shipId !== 428) cutInIds.push(13);
 
     // マスタより、対空CIオブジェクトを格納
     const antiAirCutIns: AntiAirCutIn[] = [];
-    // 優先度順により、先に格納された対空CIの発生率より低いものは、格納すらしない
     for (let i = 0; i < cutInIds.length; i += 1) {
       const cutinId = cutInIds[i];
       const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === cutinId);

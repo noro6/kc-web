@@ -1,8 +1,8 @@
 <template>
-  <div class="site-top-container">
-    <div class="site-title content">
+  <div>
+    <div class="d-flex align-end content">
       <div>{{ $t("Common.制空権シミュレータ") }}</div>
-      <div class="ml-1 mt-1 body-1">v{{ $store.state.siteVersion }}</div>
+      <div class="ml-1 body-2">v{{ $store.state.siteVersion }}</div>
     </div>
     <v-card class="content">
       <div class="menu-buttons">
@@ -190,12 +190,6 @@
   margin: 0 auto;
   max-width: 1200px;
   padding: 1rem;
-}
-.site-title {
-  display: flex;
-  align-items: center;
-  margin-top: 1rem;
-  font-size: 1.2em;
 }
 .menu-buttons {
   display: grid;

@@ -1,13 +1,13 @@
 <template>
   <div class="mt-2">
-    <div class="d-flex flex-wrap">
-      <div class="form-control">
+    <div class="input-container">
+      <div>
         <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable" />
       </div>
-      <div class="form-control">
+      <div>
         <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable" />
       </div>
-      <div class="form-control">
+      <div>
         <v-text-field
           type="number"
           v-model.number="attackerSlot"
@@ -20,10 +20,10 @@
           @input="updateTable"
         />
       </div>
-      <div class="form-control">
+      <div>
         <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable" />
       </div>
-      <div class="form-control">
+      <div>
         <v-text-field
           type="number"
           min="0"
@@ -38,7 +38,7 @@
           @input="updateTable"
         />
       </div>
-      <div class="form-control">
+      <div>
         <v-text-field
           type="number"
           min="0"
@@ -73,37 +73,32 @@
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="pl-2">{{ $t("Fleet.艦娘") }}</th>
-              <th class="pr-1 text-right">{{ $t("Common.加重対空") }}</th>
-              <th class="pr-1 text-right">{{ $t("Fleet.割合撃墜") }}</th>
-              <th class="pr-1 text-right">{{ $t("Fleet.固定撃墜") }}</th>
-              <th class="pr-1 text-right">{{ $t("Fleet.最低保証") }}</th>
-              <th class="pr-1 text-right">{{ $t("Fleet.両成功") }}</th>
+              <th>{{ $t("Fleet.艦娘") }}</th>
+              <th class="text-right">{{ $t("Common.加重対空") }}</th>
+              <th class="text-right">{{ $t("Fleet.割合撃墜") }}</th>
+              <th class="text-right">{{ $t("Fleet.固定撃墜") }}</th>
+              <th class="text-right">{{ $t("Fleet.最低保証") }}</th>
+              <th class="text-right">{{ $t("Fleet.両成功") }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(item, i) in stage2Data"
-              :key="i"
-              class="stage2-row pl-1"
-              :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }"
-            >
-              <td class="d-flex pl-1">
-                <div class="align-self-center mr-2">
+            <tr v-for="(item, i) in stage2Data" :key="i" class="stage2-row" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
+              <td class="d-flex align-center text-left">
+                <div class="mr-2">
                   <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
                 </div>
-                <div class="align-self-center d-none d-sm-block flex-grow-1">
+                <div class="d-none d-sm-block flex-grow-1">
                   <div class="stage2-id primary--text" v-if="item.isEnemy">id {{ item.id }}</div>
                   <div class="d-flex">
                     <div class="stage2-name text-truncate">{{ getShipName(item.data) }}</div>
                   </div>
                 </div>
               </td>
-              <td class="pr-1 text-right">{{ item.antiAirWeight }}</td>
-              <td class="pr-1 text-right">{{ item.rate }} ( {{ $t("Common.x機", { number: item.rateDown }) }} )</td>
-              <td class="pr-1 text-right">{{ item.fix }}</td>
-              <td class="pr-1 text-right">{{ item.min }}</td>
-              <td class="pr-1 text-right">{{ item.sum }}</td>
+              <td>{{ item.antiAirWeight }}</td>
+              <td>{{ item.rate }} ( {{ $t("Common.x機", { number: item.rateDown }) }} )</td>
+              <td>{{ item.fix }}</td>
+              <td>{{ item.min }}</td>
+              <td>{{ item.sum }}</td>
             </tr>
           </tbody>
         </template>
@@ -116,25 +111,25 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="pl-2">{{ $t("Fleet.艦娘") }}</th>
-                <th class="pr-1 text-right">{{ $t("Result.種別id") }}</th>
-                <th class="pr-1 text-right">{{ $t("Result.固定") }}</th>
-                <th class="pr-1 text-right">{{ $t("Result.変動") }}</th>
-                <th class="pr-1 text-right">{{ $t("Result.発動率") }}</th>
-                <th class="pr-1 text-right"></th>
+                <th>{{ $t("Fleet.艦娘") }}</th>
+                <th class="text-right">{{ $t("Result.種別id") }}</th>
+                <th class="text-right">{{ $t("Result.固定") }}</th>
+                <th class="text-right">{{ $t("Result.変動") }}</th>
+                <th class="text-right">{{ $t("Result.発動率") }}</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, i) in antiAirCutIns" :key="i" class="stage2-row pl-1">
-                <td class="px-2">
+              <tr v-for="(item, i) in antiAirCutIns" :key="i" class="stage2-row">
+                <td class="px-2 text-left">
                   <v-img v-if="item.id" :src="`./img/ship/${item.id}.png`" height="30" width="120" />
-                  <span v-else class="no-cutin-span caption">{{ $t('Result.不発') }}</span>
+                  <span v-else class="no-cutin-span caption">{{ $t("Result.不発") }}</span>
                 </td>
-                <td class="pr-1 text-right">{{ item.cutInId ? item.cutInId : '-' }}</td>
-                <td class="pr-1 text-right">{{ item.fix }}</td>
-                <td class="pr-1 text-right">{{ item.variable }}</td>
-                <td class="pr-1 text-right">{{ item.rate }} %</td>
-                <td class="pr-1 text-right">
+                <td>{{ item.cutInId ? item.cutInId : "-" }}</td>
+                <td>{{ item.fix }}</td>
+                <td>{{ item.variable }}</td>
+                <td>{{ item.rate }} %</td>
+                <td>
                   <v-icon :color="item.color">mdi-square-rounded</v-icon>
                 </td>
               </tr>
@@ -157,7 +152,11 @@
 </template>
 
 <style scoped>
-.form-control {
+.input-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.input-container > div {
   width: 136px;
   align-self: center;
   margin-top: 0.5rem;
@@ -181,6 +180,9 @@
 .v-data-table tbody td > * {
   padding-top: 2px;
   padding-bottom: 2px;
+}
+.stage2-row {
+  text-align: right;
 }
 .stage2-row.warn {
   background-color: rgba(255, 255, 10, 0.1) !important;
@@ -510,7 +512,7 @@ export default Vue.extend({
       const colors: string[] = ['rgba(164,164,164,0.7)'];
       // 有効色(0 ～ 360)のなかから使う分だけ按分
       const colorCorr = Math.floor(360 / colorCount);
-      // とりあえず44種分用意
+      // とりあえず全CI分用意
       for (let i = 0; i < Const.ANTI_AIR_CUTIN.length; i += 1) {
         colors.push('hsla(180,100%,60%,0.5)');
       }

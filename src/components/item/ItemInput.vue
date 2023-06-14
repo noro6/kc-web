@@ -124,6 +124,8 @@
 
 <style scoped>
 .item-input {
+  display: flex;
+  align-items: center;
   transition: 0.2s;
 }
 .item-input:hover {
@@ -131,10 +133,6 @@
 }
 .item-input > * {
   user-select: none;
-}
-
-.item-input > div {
-  align-self: center;
 }
 .item-input.dragging * {
   pointer-events: none;
@@ -438,7 +436,7 @@ export default Vue.extend({
       return 'red--text text--lighten-2';
     },
     itemClass() {
-      const classes = ['d-flex', 'item-input', `type-${this.value.data.iconTypeId}`];
+      const classes = ['item-input', `type-${this.value.data.iconTypeId}`];
       if (this.readonly) {
         classes.push('readonly');
       }

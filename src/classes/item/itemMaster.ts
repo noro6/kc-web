@@ -196,7 +196,7 @@ export default class ItemMaster {
     }
 
     // 特殊機銃(対空9以上) 特殊高角砲(対空8以上)判定
-    this.isSpecial = (this.apiTypeId === 21 && this.antiAir > 8) || (this.iconTypeId === 16 && this.antiAir > 7);
+    this.isSpecial = (this.apiTypeId === 21 && this.antiAir >= 9) || (this.iconTypeId === 16 && this.antiAir >= 8);
 
     // その他区分解決
     this.isPlane = Const.PLANE_TYPES.includes(this.apiTypeId);

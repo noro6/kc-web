@@ -1,12 +1,12 @@
 <template>
   <v-card class="mx-1 pt-1" @dragover.prevent @drop.stop>
-    <div class="d-flex mb-1">
-      <div class="ml-2 align-self-end airbase-title">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
+    <div class="d-flex mb-1 align-end">
+      <div class="ml-2 airbase-title">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
       <v-spacer />
       <div class="mr-1 mode-select">
         <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem" />
       </div>
-      <div class="mr-1 align-self-end operation-buttons">
+      <div class="mr-1 operation-buttons">
         <v-btn color="blue lighten-1" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon small>mdi-information-outline</v-icon>
         </v-btn>
@@ -147,7 +147,7 @@ import Airbase from '@/classes/airbase/airbase';
 import Const, { AB_MODE } from '@/classes/const';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
-import AirCalcResult from '../../classes/airCalcResult';
+import AirCalcResult from '@/classes/airCalcResult';
 
 export default Vue.extend({
   components: {
