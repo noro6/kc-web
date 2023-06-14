@@ -746,6 +746,7 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import CalcManager from '@/classes/calcManager';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import BattleInfo from '@/classes/enemy/battleInfo';
+import Optimizer from '@/classes/fleet/optimizer';
 
 export default Vue.extend({
   name: 'FleetAll',
@@ -1614,7 +1615,7 @@ export default Vue.extend({
     },
     optimizeFighterSlot() {
       const { ships } = this.value.fleets[this.value.mainFleetIndex];
-      const newShips = ShipValidation.getOptimizedFighterFleet(ships);
+      const newShips = Optimizer.getOptimizedFighterFleet(ships);
       this.value.fleets[this.value.mainFleetIndex] = new Fleet({ ships: newShips });
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },

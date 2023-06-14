@@ -8,11 +8,16 @@
       </v-btn>
     </div>
     <v-divider />
-    <div class="px-3 pt-3">
-      <v-btn color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()">
-        {{ $t("ItemList.現在の装備構成で新規登録") }}
-      </v-btn>
-      <v-divider class="mt-3" />
+    <div class="px-3">
+      <div class="d-flex flex-wrap">
+        <v-btn class="my-2 mr-2" color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()">
+          {{ $t("ItemList.現在の装備構成で新規登録") }}
+        </v-btn>
+        <v-btn class="my-2" color="primary" :disabled="disabledCommit || isPresetItemEmpty" @click="overwritePreset()">
+          {{ $t("ItemList.現在の装備構成で上書き") }}
+        </v-btn>
+      </div>
+      <v-divider />
       <div class="preset-container py-1">
         <div class="preset-list">
           <draggable handle=".preset-id" animation="150" @end="sortEnd()" v-model="presets">
@@ -22,9 +27,9 @@
               class="preset-item"
               :class="{ selected: i === selectedIndex }"
               v-ripple="{ class: 'info--text' }"
-              @click="clickedPreset(i)"
+              @click="clickedPreset(preset.id)"
               @dblclick="expandPreset()"
-              @keypress.enter="clickedPreset(i)"
+              @keypress.enter="clickedPreset(preset.id)"
               tabindex="0"
             >
               <div class="preset-id primary--text">{{ preset.id }}.</div>
@@ -33,46 +38,41 @@
           </draggable>
         </div>
         <div class="preset-view pl-2">
-          <div class="mt-5 d-flex" v-if="!isPresetItemEmpty">
-            <div>
-              <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" counter clearable dense maxlength="100" />
-            </div>
-            <div>
-              <v-btn class="ml-1" color="success" :disabled="!selectedPreset.name" @click="savePreset()">
-                {{ selectedIndex >= 0 ? $t("Common.更新") : $t("Common.保存") }}
-              </v-btn>
-            </div>
+          <div class="mt-5 d-flex align-center" v-if="!isPresetItemEmpty">
+            <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" clearable dense maxlength="100" hide-details />
+            <v-btn class="ml-2" color="success" :disabled="!selectedPreset.name" @click="savePreset()">
+              {{ selectedIndex >= 0 ? $t("Common.更新") : $t("Common.保存") }}
+            </v-btn>
           </div>
-          <div class="items-container pa-2" v-if="!isPresetItemEmpty">
-            <div v-for="(item, i) in itemView" :key="`view${i}`" class="view-item">
-              <div class="caption">{{ i + 1 }}.</div>
-              <div class="ml-1">
-                <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
+          <div class="items-container pa-2 mt-2" v-if="!isPresetItemEmpty">
+            <div v-for="(item, i) in itemView" :key="`view${i}`" class="d-flex align-center">
+              <div v-if="item.data.iconTypeId">
+                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
               </div>
-              <div class="ml-1 body-2 text-truncate preset-item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-              <div class="ml-1 body-2" v-if="item.remodel">
+              <div class="ml-1 text-truncate preset-item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
+              <div class="ml-1 d-flex align-center" v-if="item.remodel">
                 <v-icon small color="teal accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                <div class="remodel-text">{{ item.remodel }}</div>
               </div>
             </div>
-            <div v-if="exItemView.data.id" class="mt-4 d-flex ml-1">
+            <div v-if="exItemView.data.id" class="mt-2 d-flex ml-1">
               <div class="caption">{{ $t("ItemList.補強増設") }}</div>
               <div class="divider-line"></div>
             </div>
-            <div v-if="exItemView.data.id" class="view-item">
-              <div class="ml-2">
-                <v-img v-if="exItemView.data.iconTypeId > 0" :src="`./img/type/icon${exItemView.data.iconTypeId}.png`" width="24" height="24" />
+            <div v-if="exItemView.data.id" class="d-flex align-center">
+              <div v-if="exItemView.data.iconTypeId">
+                <v-img :src="`./img/type/icon${exItemView.data.iconTypeId}.png`" width="30" height="30" />
               </div>
-              <div class="ml-2 body-2 text-truncate preset-item-name">{{ needTrans ? $t(`${exItemView.data.name}`) : exItemView.data.name }}</div>
-              <div class="ml-1 body-2" v-if="exItemView.remodel">
+              <div class="ml-1 text-truncate preset-item-name">{{ needTrans ? $t(`${exItemView.data.name}`) : exItemView.data.name }}</div>
+              <div class="ml-1 d-flex align-center" v-if="exItemView.remodel">
                 <v-icon small color="teal accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4">{{ exItemView.remodel }}</span>
+                <div class="remodel-text">{{ exItemView.remodel }}</div>
               </div>
             </div>
           </div>
           <div class="d-flex my-3 justify-end" v-if="!isPresetItemEmpty">
             <v-btn v-if="selectedIndex >= 0" color="primary" @click="expandPreset()">{{ $t("Common.展開") }}</v-btn>
-            <v-btn class="ml-3" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">{{ $t("Common.削除") }}</v-btn>
+            <v-btn class="ml-2" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">{{ $t("Common.削除") }}</v-btn>
           </div>
         </div>
       </div>
@@ -99,7 +99,7 @@
 .preset-item {
   display: flex;
   cursor: pointer;
-  padding: 0.5rem 0.1rem;
+  padding: 0.4rem 0;
   border: 1px solid transparent;
   border-radius: 0.2rem;
 }
@@ -126,15 +126,6 @@
 .items-container {
   border: 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 0.25rem;
-  padding: 0.25rem;
-}
-.view-item {
-  display: flex;
-  margin: 0.5rem 0;
-  padding: 0.25rem;
-}
-.view-item > div {
-  align-self: center;
 }
 
 .divider-line {
@@ -147,6 +138,13 @@
 .preset-item-name {
   flex-grow: 1;
   width: 10px;
+  font-size: 0.8em;
+}
+.remodel-text {
+  color: #00bfa5;
+  font-size: 0.8em;
+  width: 16px;
+  white-space: nowrap;
 }
 </style>
 
@@ -158,9 +156,11 @@ import cloneDeep from 'lodash/cloneDeep';
 import Ship from '@/classes/fleet/ship';
 import ItemPreset, { OldItemPreset } from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
+import Optimizer from '@/classes/fleet/optimizer';
 import Airbase from '@/classes/airbase/airbase';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
+import ItemStock from '@/classes/item/itemStock';
 
 export default Vue.extend({
   name: 'ItemPreset',
@@ -188,10 +188,18 @@ export default Vue.extend({
     infoText: '',
   }),
   mounted() {
+    this.items = this.$store.state.items as ItemMaster[];
+
     this.presets = [];
     const savedPresets = this.$store.state.itemPresets as (ItemPreset | OldItemPreset)[];
     this.presets = ItemPreset.convertOldItemPresets(savedPresets);
-    this.items = this.$store.state.items as ItemMaster[];
+
+    this.getAACIPreset();
+  },
+  watch: {
+    value() {
+      this.getAACIPreset();
+    },
   },
   computed: {
     needTrans() {
@@ -199,19 +207,20 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     disabledCommit(): boolean {
+      // 装備が空の場合判定
       if (this.value instanceof Airbase) {
         return this.value.items.filter((v) => v.data.id > 0).length === 0;
       }
+      // 基地以外の時は補強増設まで見て判定
       return this.value.items.concat(this.value.exItem).filter((v) => v.data.id > 0).length === 0;
     },
     itemView(): Item[] {
       const itemMasters = [];
       for (let i = 0; i < this.selectedPreset.items.length; i += 1) {
-        const item = this.items.find((v) => v.id === this.selectedPreset.items[i].id);
+        const { id, remodel } = this.selectedPreset.items[i];
+        const item = this.items.find((v) => v.id === id);
         if (item) {
-          itemMasters.push(new Item({ master: item, remodel: this.selectedPreset.items[i].remodel }));
-        } else {
-          itemMasters.push(new Item());
+          itemMasters.push(new Item({ master: item, remodel }));
         }
       }
       return itemMasters;
@@ -226,8 +235,9 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickedPreset(index: number) {
-      if (index < this.presets.length) {
+    clickedPreset(id: number) {
+      const index = this.presets.findIndex((v) => v.id === id);
+      if (index >= 0) {
         this.selectedIndex = index;
         this.selectedPreset = cloneDeep(this.presets[index]);
       }
@@ -255,6 +265,18 @@ export default Vue.extend({
 
       this.selectedIndex = -1;
       this.selectedPreset = newPreset;
+    },
+    overwritePreset() {
+      const { name } = this.selectedPreset;
+      this.selectedPreset = new ItemPreset();
+      this.selectedPreset.name = name;
+      for (let i = 0; i < this.value.items.length; i += 1) {
+        const item = this.value.items[i];
+        this.selectedPreset.items.push({ id: item.data.id, remodel: item.remodel });
+      }
+      if (this.value instanceof Ship) {
+        this.selectedPreset.exItem = { id: this.value.exItem.data.id, remodel: this.value.exItem.remodel };
+      }
     },
     savePreset() {
       if (this.selectedIndex >= 0) {
@@ -287,10 +309,44 @@ export default Vue.extend({
       }
     },
     sortEnd() {
+      const baseIds = this.presets.map((v) => v.id);
       for (let i = 0; i < this.presets.length; i += 1) {
-        this.presets[i].id = i + 1;
+        this.presets[i].id = baseIds[i];
       }
       this.$store.dispatch('updateItemPresets', this.presets);
+    },
+    getAACIPreset() {
+      const parent = this.value;
+      if (!(parent instanceof Ship)) {
+        return;
+      }
+
+      // 今使える全装備を取得
+      const allItems = this.items.filter((v) => !v.isEnemyItem);
+      const stocks = this.$store.state.itemStock as ItemStock[];
+
+      const items: Item[] = [];
+
+      if (stocks.length && stocks.some((v) => v.num.some((remodel) => !!remodel))) {
+        // 所持装備情報がある場合
+        for (let i = 0; i < stocks.length; i += 1) {
+          const stock = stocks[i];
+          const master = allItems.find((v) => v.id === stock.id);
+
+          for (let remodel = 0; remodel <= 10; remodel += 1) {
+            for (let j = 0; j < stock.num[remodel]; j += 1) {
+              items.push(new Item({ master, remodel }));
+            }
+          }
+        }
+      } else {
+        for (let i = 0; i < allItems.length; i += 1) {
+          items.push(new Item({ master: allItems[i] }));
+        }
+      }
+
+      const aaciItems = Optimizer.getShipAACITriggerItems(parent, items);
+      console.log(aaciItems.map((v) => ({ id: v.id, item: v.items.map((x) => x.data.name).join(',') })));
     },
   },
 });
