@@ -1242,15 +1242,16 @@ export default Vue.extend({
       this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
-    expandItemPreset(preset: ItemPreset) {
+    expandItemPreset(preset: ItemPreset, isForce: boolean) {
       const itemMasters = this.$store.state.items as ItemMaster[];
       const items: Item[] = [];
       for (let i = 0; i < preset.items.length; i += 1) {
         const item = itemMasters.find((v) => v.id === preset.items[i].id);
         if (item) {
           items.push(new Item({ master: item, remodel: preset.items[i].remodel }));
-        } else {
-          items.push(new Item());
+        } else if (isForce && preset.items[i].assumedId) {
+          const assumedItem = itemMasters.find((v) => v.id === preset.items[i].assumedId);
+          items.push(new Item({ master: assumedItem }));
         }
       }
 
@@ -1309,6 +1310,11 @@ export default Vue.extend({
       if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
         // 搭載可能なら入れ替え
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
+      } else if (isForce && preset.exItem.assumedId) {
+        const assumedExItem = itemMasters.find((v) => v.id === preset.exItem.assumedId);
+        if (assumedExItem && ShipValidation.isValidItem(ship, assumedExItem, Const.EXPAND_SLOT_INDEX)) {
+          exItem = new Item({ master: assumedExItem });
+        }
       }
 
       // 元々いた艦娘を置き換える

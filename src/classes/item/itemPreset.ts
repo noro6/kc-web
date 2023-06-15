@@ -3,6 +3,8 @@ export interface PresetItem {
   id: number;
   /** 改修値 */
   remodel: number;
+  /** 理想id */
+  assumedId?: number;
 }
 
 /**

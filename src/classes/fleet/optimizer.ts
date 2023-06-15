@@ -2,6 +2,7 @@ import { sum } from 'lodash';
 import Item from '../item/item';
 import Ship from './ship';
 import ShipValidation from './shipValidation';
+import Const from '../const';
 
 interface SearchCond {
   apiTypeId?: number;
@@ -32,6 +33,8 @@ export default class Optimizer {
     const antiAirRadar = Optimizer.getBestAAItem(ship, items, { iconTypeId: 11, minAA: 1 });
     const specialMachineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, isSpecial: true });
     const shipId = ship.data.id;
+
+    const cutInPreset = [];
 
     if (ship.data.type2 === 54) {
       // 秋月型 => 1種, 2種, 3種
@@ -116,7 +119,111 @@ export default class Optimizer {
       // 磯風乙改 / 浜風乙改 => 29種
       return [{ id: 29, items: [gun, antiAirRadar] }];
     }
-    return [];
+    if (shipId === 477) {
+      // 天龍改二 => 24種, 30種, 31種
+      const gun1Index = items.findIndex((v) => v.data.id === gun.data.id && v.remodel === gun.remodel);
+      // 2本目の高角砲探索(1本目の高角砲を間引く)
+      const gun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16 });
+      const gun2Index = items.findIndex((v) => v.data.id === gun2.data.id && v.remodel === gun2.remodel);
+      // 3本目の高角砲探索(1, 2本目の高角砲を間引く)
+      const gun3 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index && i !== gun2Index) : items, { iconTypeId: 16 });
+      const weakMachineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, maxAA: 8 });
+      return [
+        { id: 24, items: [gun, weakMachineGun] },
+        { id: 30, items: [gun, gun2, gun3] },
+        { id: 31, items: [gun, gun2] },
+      ];
+    }
+    if (shipId === 579 || shipId === 630) {
+      // Gotland改以降 => 30種 (高角砲3), 33種 (高角砲, 素対空値4以上の機銃)
+      const gun1Index = items.findIndex((v) => v.data.id === gun.data.id && v.remodel === gun.remodel);
+      // 2本目の高角砲探索(1本目の高角砲を間引く)
+      const gun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16 });
+      const gun2Index = items.findIndex((v) => v.data.id === gun2.data.id && v.remodel === gun2.remodel);
+      // 3本目の高角砲探索(1, 2本目の高角砲を間引く)
+      const gun3 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index && i !== gun2Index) : items, { iconTypeId: 16 });
+      const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, minAA: 4 });
+      return [
+        { id: 30, items: [gun, gun2, gun3] },
+        { id: 33, items: [gun, machineGun] },
+      ];
+    }
+    if (Const.GBR.includes(ship.data.type2) || (ship.data.type2 === 6 && ship.data.version >= 2)) {
+      // 英国艦艇 / 金剛型改二以降 => 32種
+      const mainGun = items.find((v) => v.data.id === 300) ?? new Item();
+      const ponpon = items.find((v) => v.data.id === 191) ?? new Item();
+      const rocketIndex = items.findIndex((v) => v.data.id === 301);
+      const rocketLauncher = items[rocketIndex] ?? new Item();
+      const rocketLauncher2 = items.find((v, i) => v.data.id === 301 && (isStockMode ? i !== rocketIndex : true)) ?? new Item();
+
+      // のちの条件分岐で榛名改二乙があるため return しない
+      cutInPreset.push({ id: 32, items: [mainGun, ponpon] });
+      cutInPreset.push({ id: 32, items: [rocketLauncher, ponpon] });
+      cutInPreset.push({ id: 32, items: [rocketLauncher, rocketLauncher2] });
+    }
+    if (ship.data.type2 === 91) {
+      // Fletcher級 => 34種, 35種, 36種, 37種
+      const GFCSGunIndex = items.findIndex((v) => v.data.id === 308) ?? new Item();
+      const GFCSGun = items[GFCSGunIndex] ?? new Item();
+      const GFCSGun2 = items.find((v, i) => v.data.id === 308 && (isStockMode ? i !== GFCSGunIndex : true)) ?? new Item();
+      const gun5inchKai = items.find((v) => v.data.id === 313) ?? new Item();
+      const radarGFCSMk37 = items.find((v) => v.data.id === 307) ?? new Item();
+      return [
+        { id: 34, items: [GFCSGun, GFCSGun2] },
+        { id: 35, items: [GFCSGun, gun5inchKai] },
+        { id: 36, items: [gun5inchKai, gun5inchKai, radarGFCSMk37] },
+        { id: 37, items: [gun5inchKai, gun5inchKai] },
+      ];
+    }
+    if (ship.data.type2 === 99) {
+      // Atlanta級 => 38種, 39種, 40種, 41種
+      const GFCS5inchIndex = items.findIndex((v) => v.data.id === 363) ?? new Item();
+      const GFCS5inchGun = items[GFCS5inchIndex] ?? new Item();
+      const GFCS5inchGun2 = items.find((v, i) => v.data.id === 363 && (isStockMode ? i !== GFCS5inchIndex : true)) ?? new Item();
+      const gun5inchIndex = items.findIndex((v) => v.data.id === 362) ?? new Item();
+      const gun5inch = items[gun5inchIndex] ?? new Item();
+      const gun5inch2 = items.find((v, i) => v.data.id === 362 && (isStockMode ? i !== gun5inchIndex : true)) ?? new Item();
+      const radarGFCSMk37 = items.find((v) => v.data.id === 307) ?? new Item();
+
+      // あるやつから詰め込む
+      const ci4041Items = [];
+      if (GFCS5inchGun.data.id) ci4041Items.push(GFCS5inchGun);
+      if (GFCS5inchGun2.data.id) ci4041Items.push(GFCS5inchGun2);
+      if (ci4041Items.length < 2 && gun5inch.data.id) ci4041Items.push(gun5inch);
+      if (ci4041Items.length < 2) ci4041Items.push(gun5inch2);
+
+      return [
+        { id: 38, items: [GFCS5inchGun, GFCS5inchGun2] },
+        { id: 39, items: [GFCS5inchGun, gun5inch] },
+        { id: 40, items: ci4041Items.concat(radarGFCSMk37) },
+        { id: 41, items: ci4041Items },
+      ];
+    }
+    if (shipId === 546 || shipId === 911 || shipId === 916) {
+      // 大和型改二 => 26種, 42種, 43種, 44種, 45種
+      const syuchu10cmIndex = items.findIndex((v) => v.data.id === 464) ?? new Item();
+      const syuchu10cm = items[syuchu10cmIndex] ?? new Item();
+      const syuchu10cm2 = items.find((v, i) => v.data.id === 464 && (isStockMode ? i !== syuchu10cmIndex : true)) ?? new Item();
+      const yamatoRadar = items.find((v) => v.data.id === 460) ?? new Item();
+      const yamatoRadar2 = items.find((v) => v.data.id === 142) ?? new Item();
+      const ex10cmSecGun = items.find((v) => v.data.id === 275) ?? new Item();
+      const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, minAA: 6 });
+      const ciItems = [syuchu10cm, yamatoRadar.data.id ? yamatoRadar : yamatoRadar2];
+      return [
+        { id: 26, items: [antiAirRadar, ex10cmSecGun] },
+        { id: 42, items: ciItems.concat([machineGun, syuchu10cm2]) },
+        { id: 43, items: ciItems.concat(syuchu10cm2) },
+        { id: 44, items: ciItems.concat(machineGun) },
+        { id: 45, items: ciItems },
+      ];
+    }
+    if (shipId === 593) {
+      // 榛名改二乙 => 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
+      const gun356Kai4 = items.find((v) => v.data.id === 503) ?? new Item();
+      const gun356Kai3 = items.find((v) => v.data.id === 502) ?? new Item();
+      cutInPreset.push({ id: 46, items: [gun356Kai4.data.id ? gun356Kai4 : gun356Kai3, antiAirRadar, specialMachineGun] });
+    }
+    return cutInPreset;
   }
 
   private static getBestAAItem(ship: Ship, allItems: Item[], cond: SearchCond): Item {
