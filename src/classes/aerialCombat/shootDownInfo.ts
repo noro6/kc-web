@@ -321,10 +321,16 @@ export default class ShootDownInfo {
       if (hasYamatoRadar && syuchu10cmCount && hasMore6AAKiju) cutInIds.push(44);
       // 45種（大和電探 + 10cm高角砲集中配備）
       if (hasYamatoRadar && syuchu10cmCount) cutInIds.push(45);
-    } else if ([593].includes(shipId)) {
+    } else if (shipId === 593) {
       // 榛名改二乙
       // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
       if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
+      // 32種 (16inch Mk.I三連装砲改+FCR type284, QF 2ポンド8連装ポンポン砲)
+      if (items.some((v) => v.data.id === 300) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
+      // 32種 (20連装7inch UP Rocket Launchers, QF 2ポンド8連装ポンポン砲)
+      else if (items.some((v) => v.data.id === 301) && items.some((v) => v.data.id === 191)) cutInIds.push(32);
+      // 32種 (20連装7inch UP Rocket Launchers, 20連装7inch UP Rocket Launchers)
+      else if (items.filter((v) => v.data.id === 301).length >= 2) cutInIds.push(32);
     }
 
     // 汎用
