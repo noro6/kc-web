@@ -580,7 +580,7 @@ export default class Ship implements ShipBase {
       sumRemodelBonusFirePower += items[i].bonusFire;
     }
 
-    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker && v.data.apiTypeId !== 11))) {
+    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker && v.data.apiTypeId !== 11 && !v.data.isAswPlane))) {
       // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆)
       dayBattleFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) + sumRemodelBonusFirePower + correct)) + 55;
     } else {
@@ -598,7 +598,7 @@ export default class Ship implements ShipBase {
    */
   public static getSupportFirePower(ship: Ship): number {
     let supportFirePower = 0;
-    if (ship.data.isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker))) {
+    if (ship.data.isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker && !v.data.isAswPlane))) {
       // 空母系 山汐丸
       supportFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) - 1)) + 55;
     } else {
