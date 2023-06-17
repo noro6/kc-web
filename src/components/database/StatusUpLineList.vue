@@ -95,7 +95,7 @@
       <template v-slot:[`header.manual`]="{ header }">{{ $t(`Database.${header.text}`) }}({{ viewStatus ? viewStatus.manual : "" }})</template>
       <template v-slot:[`header.nextExp`]>Next EXP</template>
       <template v-slot:item="{ item }">
-        <tr :class="{ maximum: item.isMaximum }">
+        <tr :class="{ maximum: item.isMaximum }" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" @focus="clearTooltip" @blur="clearTooltip">
           <td class="px-0 py-1">
             <div class="d-none d-md-flex align-center">
               <div class="ship-img">
@@ -241,6 +241,9 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
+      <ship-tooltip :value="tooltipShip" />
+    </v-tooltip>
   </v-card>
 </template>
 
@@ -333,6 +336,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
 import SiteSetting from '@/classes/siteSetting';
@@ -343,7 +347,9 @@ import Const from '@/classes/const';
 type listRow = {
   stock: ShipStock;
   master: ShipMaster;
+  hp: number;
   luck: number;
+  asw: number;
   diffBase: number;
   target: number;
   target1: number;
@@ -357,7 +363,7 @@ type listRow = {
 
 export default Vue.extend({
   name: 'StatusUpLineList',
-  components: {},
+  components: { ShipTooltip },
   data: () => ({
     all: [] as ShipMaster[],
     readOnly: false,
@@ -434,6 +440,11 @@ export default Vue.extend({
     maxLevel: Const.MAX_LEVEL,
     levelRange: [1, Const.MAX_LEVEL],
     luckRange: [1, 200],
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipShip: new Ship(),
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     for (let i = 0; i < Const.SHIP_TYPES_ALT2.length; i += 1) {
@@ -539,6 +550,8 @@ export default Vue.extend({
         }
 
         const luck = master.luck + stock.improvement.luck;
+        const hp = stock.improvement.hp + (stock.level > 99 ? master.hp2 : master.hp);
+        const asw = Ship.getStatusFromLevel(stock.level, master.maxAsw, master.minAsw) + stock.improvement.asw;
         if (searchWord) {
           if (searchWords.length <= 1 && master.name.toUpperCase().indexOf(searchWord) < 0) {
             continue;
@@ -584,7 +597,9 @@ export default Vue.extend({
         const row = {
           stock,
           master,
+          hp,
           luck,
+          asw,
           diffBase: stock.level,
           target: 0,
           target1: 0,
@@ -711,6 +726,30 @@ export default Vue.extend({
       if (!this.filterDialog) {
         this.setShipList();
       }
+    },
+    bootTooltip(ship: listRow, e: MouseEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (setting.disabledShipTooltip) {
+        return;
+      }
+      window.clearTimeout(this.tooltipTimer);
+      this.tooltipTimer = window.setTimeout(() => {
+        this.tooltipX = e.clientX;
+        this.tooltipY = e.clientY;
+        const toolTipShip = new Ship({
+          master: ship.master,
+          level: ship.stock.level,
+          hp: ship.hp,
+          luck: ship.luck,
+          asw: ship.asw,
+        });
+        this.tooltipShip = toolTipShip;
+        this.enabledTooltip = true;
+      }, Math.max(setting.popUpCount, 10));
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });
