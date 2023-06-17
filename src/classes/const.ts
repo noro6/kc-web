@@ -473,7 +473,7 @@ export default class Const {
     },
     // 夕張改二 5スロットに いろいろ装備不可
     {
-      shipId: 622, index: [5], itemType: [1, 2, 5, 14, 15, 17, 20, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 46, 54], itemIDs: [0],
+      shipId: 622, index: [5], itemType: [1, 2, 5, 13, 14, 15, 17, 20, 22, 23, 24, 27, 29, 30, 33, 34, 36, 37, 39, 40, 46, 54], itemIDs: [0],
     },
     // 夕張改二特 5スロットに いろいろ装備不可
     {
@@ -601,16 +601,16 @@ export default class Const {
    */
   public static readonly ITEM_TYPES_ALT = [
     {
-      id: 1, text: '小口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [1],
+      id: 1, text: '小口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [1],
     },
     {
-      id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [2],
+      id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [2],
     },
     {
-      id: 3, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [3],
+      id: 3, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [3],
     },
     {
-      id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'actualAvoid', 'armor'], types: [5, 22, 32],
+      id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'actualAvoid', 'nightBattleFirePower', 'armor'], types: [5, 22, 32],
     },
     {
       id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'actualAvoid', 'airPower', 'radius'], types: [6],
@@ -640,13 +640,13 @@ export default class Const {
       id: 41, text: '大型飛行艇', viewStatus: ['actualScout', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [41],
     },
     {
-      id: 12, text: '電探', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'actualScout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
+      id: 12, text: '電探', viewStatus: ['nightBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
     },
     {
       id: 14, text: '対潜装備', viewStatus: ['actualAsw', 'actualAccuracy', 'armor', 'actualAvoid', 'actualScout'], types: [14, 15, 40],
     },
     {
-      id: 4, text: '副砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'armor', 'antiAirWeight', 'antiAirBonus'], types: [4],
+      id: 4, text: '副砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [4],
     },
     {
       id: 21, text: '機銃', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
@@ -664,7 +664,7 @@ export default class Const {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['radius', 'antiAir', 'actualAccuracy', 'actualScout', 'asw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54],
+      id: 17, text: 'その他', viewStatus: ['radius', 'nightBattleFirePower', 'actualAccuracy', 'actualScout', 'asw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54],
     },
   ]
 

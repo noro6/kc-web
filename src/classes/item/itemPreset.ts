@@ -3,6 +3,8 @@ export interface PresetItem {
   id: number;
   /** 改修値 */
   remodel: number;
+  /** 理想id */
+  assumedId?: number;
 }
 
 /**
@@ -56,7 +58,12 @@ export default class ItemPreset {
     for (let i = 0; i < oldPresets.length; i += 1) {
       const old = oldPresets[i];
       if ('items' in old && 'exItem' in old) {
-        presets.push(old);
+        const preset = new ItemPreset();
+        preset.id = old.id;
+        preset.name = old.name;
+        preset.items = old.items;
+        preset.exItem = old.exItem;
+        presets.push(preset);
       } else if ('itemIds' in old && 'exItemId' in old) {
         const newPreset = new ItemPreset();
         newPreset.id = old.id;

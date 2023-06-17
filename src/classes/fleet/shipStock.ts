@@ -66,6 +66,7 @@ export default class ShipStock {
           ],
           exp: [stock.exp, nextExp, 0],
           area: stock.area,
+          ex: stock.releaseExpand ? 1 : 0,
         };
         shipJSONRows.push(data);
       }

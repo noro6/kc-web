@@ -233,6 +233,7 @@
               <div class="item-status" v-if="isShowDayBattleFire && isAircraftMode">{{ formatStatus(v.aircraftDayBattleFirePower) }}</div>
               <div class="item-status" v-else-if="isShowDayBattleFire">{{ formatStatus(v.dayBattleFirePower) }}</div>
               <div class="item-status" v-if="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
+              <div class="item-status" v-if="isShowNightBattleFire">{{ formatStatus(v.item.nightBattleFirePower) }}</div>
               <div class="item-status" v-if="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
               <div class="item-status" v-if="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
               <div class="item-status" v-if="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
@@ -712,6 +713,7 @@ export default Vue.extend({
       { text: '火力', key: 'actualFire' },
       { text: '砲戦火力', key: 'dayBattleFirePower' },
       { text: '雷装', key: 'actualTorpedo' },
+      { text: '夜戦火力', key: 'nightBattleFirePower' },
       { text: '爆装', key: 'actualBomber' },
       { text: '対空', key: 'antiAir' },
       { text: '出撃対空', key: 'actualAntiAir' },
@@ -844,6 +846,9 @@ export default Vue.extend({
     },
     isShowDayBattleFire(): boolean {
       return this.viewStatus.includes('dayBattleFirePower');
+    },
+    isShowNightBattleFire(): boolean {
+      return this.viewStatus.includes('nightBattleFirePower');
     },
     isShowTorpedo(): boolean {
       return this.viewStatus.includes('actualTorpedo');
@@ -1182,21 +1187,25 @@ export default Vue.extend({
         this.viewStatus = t.viewStatus.concat();
 
         if (!this.isAirbaseMode) {
+          // 基地じゃない場合
           if (this.viewStatus.includes('radius')) {
-            // 基地じゃない場合に半径が含まれていたら、砲撃戦火力に置換
+            // 半径が含まれていたら、砲撃戦火力に置換
             this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
           }
           if (this.viewStatus.includes('cost')) {
-            // 基地じゃない場合にコストが含まれていたら、回避に置換
+            // コストが含まれていたら、回避に置換
             this.viewStatus[this.viewStatus.indexOf('cost')] = 'actualAvoid';
           }
+        } else if (this.viewStatus.includes('nightBattleFirePower')) {
+          // 基地の場合 夜戦火力が含まれていたら、対空に置換
+          this.viewStatus[this.viewStatus.indexOf('nightBattleFirePower')] = 'antiAir';
         }
         result = result.filter((v) => t.types.includes(v.apiTypeId));
       } else if (!word && this.type === -1) {
         // カテゴリ全て検索
         if (this.itemParent instanceof Ship) {
           // 艦娘 -全て
-          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'actualTorpedo', 'actualAsw'];
+          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'nightBattleFirePower', 'actualAsw'];
         } else if (this.isAirbaseMode) {
           // 基地 -全て
           this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
@@ -1358,6 +1367,7 @@ export default Vue.extend({
               item.item.actualAccuracy += totalBonus.accuracy ?? 0;
               item.item.actualScout += totalBonus.scout ?? 0;
               item.item.actualAvoid += totalBonus.avoid ?? 0;
+              item.item.nightBattleFirePower += (totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0);
 
               // 砲戦火力に加算
               if (item.item.data.isPlane && !item.item.data.isSPPlane) {
@@ -1508,7 +1518,13 @@ export default Vue.extend({
 
       const isNameSort = key === 'name';
       // 装備マスタの値でソートできないものたち
-      const isActualValue = key.indexOf('actual') >= 0 || key === 'tp' || key === 'airPower' || key === 'defenseAirPower' || key === 'antiAirWeight' || key === 'antiAirBonus';
+      const isActualValue = key.indexOf('actual') >= 0
+        || key === 'tp'
+        || key === 'airPower'
+        || key === 'defenseAirPower'
+        || key === 'antiAirWeight'
+        || key === 'antiAirBonus'
+        || key === 'nightBattleFirePower';
 
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {
