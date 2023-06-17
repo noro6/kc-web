@@ -1250,7 +1250,8 @@ export default Vue.extend({
         if (item) {
           items.push(new Item({ master: item, remodel: preset.items[i].remodel }));
         } else if (isForce && preset.items[i].assumedId) {
-          const assumedItem = itemMasters.find((v) => v.id === preset.items[i].assumedId);
+          const assumedItem = itemMasters.find((v) => v.id === preset.items[i].assumedId) ?? new ItemMaster();
+          // 理想装備idが存在するなら無理やり搭載
           items.push(new Item({ master: assumedItem }));
         }
       }
@@ -1312,6 +1313,7 @@ export default Vue.extend({
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       } else if (isForce && preset.exItem.assumedId) {
         const assumedExItem = itemMasters.find((v) => v.id === preset.exItem.assumedId);
+        // 理想装備idが存在するなら無理やり搭載
         if (assumedExItem && ShipValidation.isValidItem(ship, assumedExItem, Const.EXPAND_SLOT_INDEX)) {
           exItem = new Item({ master: assumedExItem });
         }

@@ -73,7 +73,7 @@ export default class Optimizer {
     }
     if (shipId === 418) {
       // 皐月改二 => 18種
-      return [{ id: 18, items: [specialMachineGun] }];
+      cutInPreset.push({ id: 18, items: [specialMachineGun] });
     }
     if (shipId === 487) {
       // 鬼怒改二 => 19種, 20種
@@ -85,11 +85,11 @@ export default class Optimizer {
     }
     if (shipId === 488) {
       // 由良改二 => 21種
-      return [{ id: 21, items: [gun, antiAirRadar] }];
+      cutInPreset.push({ id: 21, items: [gun, antiAirRadar] });
     }
     if (shipId === 548) {
       // 文月改二 => 22種
-      return [{ id: 22, items: [specialMachineGun] }];
+      cutInPreset.push({ id: 22, items: [specialMachineGun] });
     }
     if (shipId === 329 || shipId === 530) {
       // UIT-25 伊504 => 23種
@@ -99,7 +99,7 @@ export default class Optimizer {
     if (shipId === 478) {
       // 龍田改二 => 24種
       const weakMachineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, maxAA: 8 });
-      return [{ id: 22, items: [gun, weakMachineGun] }];
+      cutInPreset.push({ id: 22, items: [gun, weakMachineGun] });
     }
     if ([82, 88, 553, 554].includes(shipId)) {
       // 伊勢型改 / 改二 => 25種, 28種
@@ -113,18 +113,18 @@ export default class Optimizer {
     if (shipId === 148) {
       // 武蔵改 => 28種
       const hunshin = items.find((v) => v.data.id === 274) ?? new Item();
-      return [{ id: 28, items: [antiAirRadar, hunshin] }];
+      cutInPreset.push({ id: 28, items: [antiAirRadar, hunshin] });
     }
     if (shipId === 557 || shipId === 558) {
       // 磯風乙改 / 浜風乙改 => 29種
-      return [{ id: 29, items: [gun, antiAirRadar] }];
+      cutInPreset.push({ id: 29, items: [gun, antiAirRadar] });
     }
     if (shipId === 477) {
       // 天龍改二 => 24種, 30種, 31種
       const gun1Index = items.findIndex((v) => v.data.id === gun.data.id && v.remodel === gun.remodel);
       // 2本目の高角砲探索(1本目の高角砲を間引く)
       const gun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16 });
-      const gun2Index = items.findIndex((v) => v.data.id === gun2.data.id && v.remodel === gun2.remodel);
+      const gun2Index = items.findIndex((v, i) => i !== gun1Index && v.data.id === gun2.data.id && v.remodel === gun2.remodel);
       // 3本目の高角砲探索(1, 2本目の高角砲を間引く)
       const gun3 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index && i !== gun2Index) : items, { iconTypeId: 16 });
       const weakMachineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, maxAA: 8 });
@@ -139,7 +139,7 @@ export default class Optimizer {
       const gun1Index = items.findIndex((v) => v.data.id === gun.data.id && v.remodel === gun.remodel);
       // 2本目の高角砲探索(1本目の高角砲を間引く)
       const gun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16 });
-      const gun2Index = items.findIndex((v) => v.data.id === gun2.data.id && v.remodel === gun2.remodel);
+      const gun2Index = items.findIndex((v, i) => i !== gun1Index && v.data.id === gun2.data.id && v.remodel === gun2.remodel);
       // 3本目の高角砲探索(1, 2本目の高角砲を間引く)
       const gun3 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index && i !== gun2Index) : items, { iconTypeId: 16 });
       const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, minAA: 4 });
@@ -166,13 +166,27 @@ export default class Optimizer {
       const GFCSGunIndex = items.findIndex((v) => v.data.id === 308) ?? new Item();
       const GFCSGun = items[GFCSGunIndex] ?? new Item();
       const GFCSGun2 = items.find((v, i) => v.data.id === 308 && (isStockMode ? i !== GFCSGunIndex : true)) ?? new Item();
-      const gun5inchKai = items.find((v) => v.data.id === 313) ?? new Item();
+
+      const gun5inchKaiIndex = items.findIndex((v) => v.data.id === 313) ?? new Item();
+      const gun5inchKai = items[gun5inchKaiIndex] ?? new Item();
+      const gun5inchKai2 = items.find((v, i) => v.data.id === 313 && (isStockMode ? i !== gun5inchKaiIndex : true)) ?? new Item();
+      const gun5inchIndex = items.findIndex((v) => v.data.id === 284) ?? new Item();
+      const gun5inch = items[gun5inchIndex] ?? new Item();
+      const gun5inch2 = items.find((v, i) => v.data.id === 284 && (isStockMode ? i !== gun5inchIndex : true)) ?? new Item();
       const radarGFCSMk37 = items.find((v) => v.data.id === 307) ?? new Item();
+
+      // あるやつから詰め込む
+      const ci3637Items = [];
+      if (gun5inchKai.data.id) ci3637Items.push(gun5inchKai);
+      if (gun5inchKai2.data.id) ci3637Items.push(gun5inchKai2);
+      if (ci3637Items.length < 2 && gun5inch.data.id) ci3637Items.push(gun5inch);
+      if (ci3637Items.length < 2) ci3637Items.push(gun5inch2);
+
       return [
         { id: 34, items: [GFCSGun, GFCSGun2] },
         { id: 35, items: [GFCSGun, gun5inchKai] },
-        { id: 36, items: [gun5inchKai, gun5inchKai, radarGFCSMk37] },
-        { id: 37, items: [gun5inchKai, gun5inchKai] },
+        { id: 36, items: ci3637Items.concat(radarGFCSMk37) },
+        { id: 37, items: ci3637Items },
       ];
     }
     if (ship.data.type2 === 99) {
@@ -223,35 +237,77 @@ export default class Optimizer {
       const gun356Kai3 = items.find((v) => v.data.id === 502) ?? new Item();
       cutInPreset.push({ id: 46, items: [gun356Kai4.data.id ? gun356Kai4 : gun356Kai3, antiAirRadar, specialMachineGun] });
     }
-    return cutInPreset;
+
+    if (cutInPreset.length < 2) {
+      // 汎用
+      // 2本目の高角砲探索(1本目の高角砲を間引く)
+      const specialGun = Optimizer.getBestAAItem(ship, items, { iconTypeId: 16, isSpecial: true });
+      const gun1Index = items.findIndex((v) => v.data.id === specialGun.data.id && v.remodel === specialGun.remodel);
+      const specialGun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16, isSpecial: true });
+      cutInPreset.push({ id: 5, items: [specialGun, specialGun2, antiAirRadar] });
+      const kosha = Optimizer.getBestAAItem(ship, items, { apiTypeId: 36 });
+      cutInPreset.push({ id: 7, items: [gun, antiAirRadar, kosha] });
+      cutInPreset.push({ id: 8, items: [specialGun, antiAirRadar] });
+      cutInPreset.push({ id: 9, items: [gun, kosha] });
+      const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, minAA: 3 });
+      cutInPreset.push({ id: 12, items: [specialMachineGun, antiAirRadar, machineGun] });
+      cutInPreset.push({ id: 13, items: [specialGun, antiAirRadar, specialMachineGun] });
+    }
+
+    return cutInPreset.filter((x) => x.items.some((y) => y.data.id));
   }
 
+  /**
+   * 条件に一致する装備可能な最高対空の装備を取得
+   * @private
+   * @static
+   * @param {Ship} ship
+   * @param {Item[]} allItems
+   * @param {SearchCond} cond
+   * @return {*}  {Item}
+   * @memberof Optimizer
+   */
   private static getBestAAItem(ship: Ship, allItems: Item[], cond: SearchCond): Item {
     // 種別で制限取得
     const items = allItems.filter((v) => {
       let value = true;
-      if (cond.apiTypeId) value = value && v.data.apiTypeId === cond.apiTypeId;
-      if (cond.iconTypeId) value = value && v.data.iconTypeId === cond.iconTypeId;
-      if (cond.minAA) value = value && v.data.antiAir >= cond.minAA;
-      if (cond.maxAA) value = value && v.data.antiAir <= cond.maxAA;
-      if (cond.isSpecial) value = value && v.data.isSpecial;
+      if (cond.apiTypeId) value &&= v.data.apiTypeId === cond.apiTypeId;
+      if (cond.iconTypeId) value &&= v.data.iconTypeId === cond.iconTypeId;
+      if (cond.minAA) value &&= v.data.antiAir >= cond.minAA;
+      if (cond.maxAA) value &&= v.data.antiAir <= cond.maxAA;
+      if (cond.isSpecial) value &&= v.data.isSpecial;
       return value;
     });
 
     // このうち最も対空ボーナス合わせて性能が高いやつを取得
-    let maxScore = 0;
+    let maxAntiAirBonus = 0;
+    let maxAntiAirWeight = 0;
     let subMaxScore = 0;
     let returnItem = new Item();
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       const bonuses = Ship.getItemBonus(ship.data, [item]);
-      // 対空性能
-      const score = item.data.antiAir + sum(bonuses.map((v) => v.antiAir ?? 0));
       // サブ性能 対空性能が同じだった場合はこっちで比較する用の保険
-      const subScore = item.data.fire + sum(bonuses.map((v) => v.firePower ?? 0));
+      const sumAABonus = sum(bonuses.map((v) => v.antiAir ?? 0));
+      const score1 = item.antiAirBonus + (item.data.iconTypeId === 16 ? 50 : 10) * sumAABonus;
+      const score2 = item.antiAirWeight + sumAABonus;
+      const subScore = item.dayBattleFirePower + sum(bonuses.map((v) => v.firePower ?? 0));
+      let decideFlag = false;
 
-      if (score > maxScore || (score === maxScore && subScore > subMaxScore)) {
-        maxScore = score;
+      if (score1 > maxAntiAirBonus) {
+        // 艦隊防空ボーナスが高いなら
+        decideFlag = true;
+      } else if (score1 === maxAntiAirBonus && score2 > maxAntiAirWeight) {
+        // 艦隊防空ボーナスは同じだけど加重対空が高いなら
+        decideFlag = true;
+      } else if (score1 === maxAntiAirBonus && score2 === maxAntiAirWeight && subScore > subMaxScore) {
+        // 艦隊防空ボーナスも加重対空も同じなら火力
+        decideFlag = true;
+      }
+
+      if (decideFlag) {
+        maxAntiAirBonus = score1;
+        maxAntiAirWeight = score2;
         subMaxScore = subScore;
         returnItem = item;
       }

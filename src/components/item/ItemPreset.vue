@@ -36,19 +36,19 @@
               <div class="preset-name text-truncate">{{ preset.name }}</div>
             </div>
           </draggable>
-          <div v-if="AACIPresets.length" class="mt-2 d-flex ml-1">
+          <div v-if="uniquePresets.length" class="mt-2 d-flex ml-1">
             <div class="caption">{{ $t("ItemList.固有プリセット") }}</div>
             <div class="divider-line"></div>
           </div>
           <div
-            v-for="(preset, i) in AACIPresets"
+            v-for="(preset, i) in uniquePresets"
             :key="`preset${i}`"
             class="preset-item"
             :class="{ selected: isAACIMode && i === selectedIndex }"
             v-ripple="{ class: 'info--text' }"
-            @click="clickedAACIPreset(i)"
+            @click="clickedUniquePreset(i)"
             @dblclick="expandPreset()"
-            @keypress.enter="clickedAACIPreset(i)"
+            @keypress.enter="clickedUniquePreset(i)"
             tabindex="0"
           >
             <div class="aaci-preset-id success--text">AACI.</div>
@@ -60,7 +60,10 @@
               <div class="mx-1">{{ preset.spec2 }}</div>
               <div>)</div>
             </div>
-            <div v-if="preset.isLack"><v-icon color="warning" small class="mr-2">mdi-alert-outline</v-icon></div>
+            <div>
+              <v-icon v-if="preset.isLack" color="warning" small class="mr-2">mdi-alert-outline</v-icon>
+              <v-icon v-else color="transparent" small class="mr-2">mdi-alert-outline</v-icon>
+            </div>
           </div>
         </div>
         <div class="preset-view pl-2">
@@ -128,14 +131,14 @@
 }
 
 .preset-list {
-  height: 60vh;
+  height: 70vh;
   overflow-y: scroll;
 }
 .preset-item {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 0.4rem 0;
+  padding: 4px 0;
   border: 1px solid transparent;
   border-radius: 0.2rem;
 }
@@ -214,7 +217,7 @@ import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import Const from '@/classes/const';
 import SaveData from '@/classes/saveData/saveData';
-import ShipValidation from '../../classes/fleet/shipValidation';
+import ShipValidation from '@/classes/fleet/shipValidation';
 
 export default Vue.extend({
   name: 'ItemPreset',
@@ -236,7 +239,7 @@ export default Vue.extend({
   data: () => ({
     items: [] as ItemMaster[],
     presets: [] as ItemPreset[],
-    AACIPresets: [] as (ItemPreset & { isLack: boolean; spec1: string; spec2: string })[],
+    uniquePresets: [] as (ItemPreset & { isLack: boolean; spec1: string; spec2: string })[],
     isAACIMode: false,
     selectedIndex: -1,
     selectedPreset: new ItemPreset(),
@@ -308,10 +311,10 @@ export default Vue.extend({
         this.selectedPreset = cloneDeep(this.presets[index]);
       }
     },
-    clickedAACIPreset(index: number) {
+    clickedUniquePreset(index: number) {
       this.isAACIMode = true;
       this.selectedIndex = index;
-      this.selectedPreset = cloneDeep(this.AACIPresets[index]);
+      this.selectedPreset = cloneDeep(this.uniquePresets[index]);
     },
     readyPreset() {
       this.isAACIMode = false;
@@ -463,7 +466,7 @@ export default Vue.extend({
       // 全装備あり状態の対空CI装備取得
       const assumedItems = Optimizer.getShipAACITriggerItems(parent, allItems);
 
-      this.AACIPresets = [];
+      this.uniquePresets = [];
 
       for (let i = 0; i < aaciItems.length; i += 1) {
         const row = aaciItems[i];
@@ -501,7 +504,9 @@ export default Vue.extend({
           preset.items.splice(-1);
         }
 
-        this.AACIPresets.push(Object.assign(preset, { isLack, spec1: `${cutIn.c1 + cutIn.c2}`, spec2: `x${cutIn.rateBonus.toFixed(2)}` }));
+        if (preset.items.length <= parent.data.slotCount) {
+          this.uniquePresets.push(Object.assign(preset, { isLack, spec1: `${cutIn.c1 + cutIn.c2}`, spec2: `x${cutIn.rateBonus.toFixed(2)}` }));
+        }
       }
     },
   },

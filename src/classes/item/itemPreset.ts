@@ -43,9 +43,6 @@ export default class ItemPreset {
   /** プリセット補強増設装備 */
   public exItem: PresetItem = { id: 0, remodel: 0 };
 
-  /** 基地プリセット用 */
-  public isAirbase = false;
-
   /**
    * 旧プリセデータを変換
    * @static
@@ -66,7 +63,6 @@ export default class ItemPreset {
         preset.name = old.name;
         preset.items = old.items;
         preset.exItem = old.exItem;
-        preset.isAirbase = !!old.isAirbase;
         presets.push(preset);
       } else if ('itemIds' in old && 'exItemId' in old) {
         const newPreset = new ItemPreset();
