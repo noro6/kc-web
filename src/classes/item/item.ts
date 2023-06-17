@@ -74,6 +74,9 @@ export default class Item {
   /** 昼砲撃戦火力(空母) */
   public readonly aircraftDayBattleFirePower: number;
 
+  /** 夜戦火力 装備ボーナス分は後付け(艦娘が必要なため) */
+  public nightBattleFirePower: number;
+
   /** 改修効果込み実火力値 装備ボーナス分は後付け(艦娘が必要なため) */
   public actualFire: number;
 
@@ -234,6 +237,7 @@ export default class Item {
     this.actualAvoid = this.data.avoid;
     this.dayBattleFirePower = this.data.fire + this.bonusFire;
     this.aircraftDayBattleFirePower = this.data.fire + this.bonusFire;
+    this.nightBattleFirePower = this.data.fire + this.data.torpedo + this.bonusNightFire;
 
     this.calculatedAirPower = [];
     this.calculatedDefenseAirPower = [];

@@ -41,6 +41,14 @@
           &plus; {{ formatStatus(value.bonusTorpedo + value.attackerTorpedoBonus) }}
         </span>
       </div>
+      <div v-if="value.data.fire || value.data.torpedo || itemBonus.firePower || itemBonus.torpedo || value.bonusNightFire">
+        <span class="item-status-text">{{ $t("Common.夜戦火力") }}</span>
+        <span class="item-status-value">{{ value.data.fire + value.data.torpedo }}</span>
+        <span v-if="existsBonus" class="fit-bonus temp" :class="{ 'bad-status': itemBonus.firePower + itemBonus.torpedo < 0 }">
+          {{ itemBonus.firePower || itemBonus.torpedo ? formatBonus(itemBonus.firePower + itemBonus.torpedo) : "" }} )
+        </span>
+        <span v-if="value.bonusNightFire" class="remodel-bonus"> &plus; {{ formatStatus(value.bonusNightFire) }} </span>
+      </div>
       <div v-if="value.data.bomber || value.bonusBomber || itemBonus.bomber">
         <span class="item-status-text">{{ $t("Common.爆装") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.data.bomber < 0 }">{{ value.data.bomber }}</span>
@@ -213,6 +221,9 @@
   color: #60c5ff;
   position: absolute;
   left: -8px;
+}
+.fit-bonus.bad-status.temp::before {
+  color: #ff6767;
 }
 
 .grow-img {
