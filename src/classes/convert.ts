@@ -284,14 +284,36 @@ export default class Convert {
   /**
    * 所持装備情報JSONデータを解析して所持数配列を返却
    * @static
-   * @param {string} text
+   * @param {string} value
+   * @param {boolean} [isLockOnly=true] ロック済みのみならtrueを指定する
    * @returns {ItemStock[]}
    * @memberof Convert
    */
-  public static readItemStockJson(text: string): ItemStock[] {
-    if (!text) {
+  public static readItemStockJson(value: string, isLockOnly = false): ItemStock[] {
+    if (!value) {
       return [];
     }
+    let text = value;
+    if (value.startsWith('svdata=')) {
+      // eslint-disable-next-line camelcase
+      type apiItemSlot = { api_slotitem_id: number, api_level: number, api_locked: number };
+      // svdata=を消して一度パースしてみる
+      const json = JSON.parse(value.replace('svdata=', ''));
+      let items: apiItemSlot[] = [];
+      if (json.api_data && json.api_data.api_slot_item && json.api_data.api_slot_item.length) {
+        items = json.api_data.api_slot_item;
+      } else if (json.api_data && json.api_data.length) {
+        const row = json.api_data[0] as apiItemSlot;
+        if (row && row.api_slotitem_id && (row.api_level === 0 || row.api_level)) {
+          items = json.api_data;
+        }
+      }
+
+      if (items.length) {
+        text = JSON.stringify(items.map((v) => ({ id: v.api_slotitem_id, lv: v.api_level, locked: v.api_locked })).filter((v) => !isLockOnly || v.locked), ['id', 'lv']);
+      }
+    }
+
     const json = JSON.parse(text) as (itemStockJson | itemStockJson2)[];
     if (!json.length) {
       return [];
@@ -325,14 +347,29 @@ export default class Convert {
   /**
    * 在籍艦娘情報JSONデータを解析して在籍情報配列を返却
    * @static
-   * @param {string} text
+   * @param {string} value 読み込むデータ
+   * @param {boolean} [isLockOnly=true] ロック済みのみならtrueを指定する
    * @returns {ShipStock[]}
    * @memberof Convert
    */
-  public static readShipStockJson(text: string): ShipStock[] {
-    if (!text) {
+  public static readShipStockJson(value: string, isLockOnly = false): ShipStock[] {
+    if (!value) {
       return [];
     }
+
+    let text = value;
+    if (value.startsWith('svdata=')) {
+      // svdata=を消して一度パースしてみる
+      const json = JSON.parse(value.replace('svdata=', ''));
+      if (json.api_data && json.api_data.api_ship && json.api_data.api_ship.length) {
+        // eslint-disable-next-line camelcase
+        const ships = json.api_data.api_ship as { api_ship_id: number, api_lv: number, api_locked: number, api_kyouka: number[], api_exp: number, api_slot_ex: number, api_sally_area?: number }[];
+        text = JSON.stringify(ships.map((v) => ({
+          id: v.api_ship_id, lv: v.api_lv, locked: v.api_locked, st: v.api_kyouka, exp: v.api_exp, ex: v.api_slot_ex, area: v.api_sally_area,
+        })).filter((v) => !isLockOnly || v.locked), ['id', 'lv', 'st', 'exp', 'ex', 'area']);
+      }
+    }
+
     const json = JSON.parse(text) as (shipStockJson | shipStockJson2)[];
     if (!json.length) {
       return [];

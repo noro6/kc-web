@@ -29,8 +29,8 @@
             </v-card>
             <v-card v-if="$i18n.locale === 'ja'" elevation="0">
               <v-alert border="left" dense outlined type="info">
-                <div>以前の反映方法は主要ブラウザにおいてChromiumのアップデートにより使えなくなりました。</div>
-                <div>反映方法が面倒になった、以前の方法に戻してほしい等の要望については、申し訳ないですがどうしようもないですので我慢してください。</div>
+                <div>2023/06/22</div>
+                <div>反映方法を簡略化しました。また、FireFoxでの反映に対応しました。</div>
               </v-alert>
             </v-card>
             <v-btn class="mt-3" :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
@@ -41,7 +41,7 @@
           <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>
               1.
-              {{ $t("Database.ログイン後、ゲームスタート画面上で右クリックし、コンテキストメニューから「検証」または「開発者ツールで調査する」を選択する。") }}
+              {{ $t("Database.手順1") }}
             </div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step1.webp`" target="_blank">
@@ -49,7 +49,7 @@
                 <v-img :src="`./img/tutorial/step1.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
-            <div class="mt-15">※ {{ $t("Database.下記はGoogle Chromeの場合です。") }}</div>
+            <div class="mt-10">※ {{ $t("Database.下記はGoogle Chromeの場合です。") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step1-2.webp`" target="_blank">
                 <span class="d-none">step1-2</span>
@@ -58,7 +58,7 @@
             </div>
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>2. {{ $t("Database.「ネットワーク」タブを開き、赤枠の部分を確認したのち、ゲームスタートを押す。") }}</div>
+            <div>2. {{ $t("Database.手順2") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step2.webp`" target="_blank">
                 <span class="d-none">step2</span>
@@ -67,194 +67,51 @@
             </div>
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>3. {{ $t("Database.母港画面が表示されたら、左の一覧から「port」を探し、クリックする。（絶対にダブルクリックをしないこと!）") }}</div>
+            <div>3. {{ $t("Database.手順3") }}</div>
+            <div>※ {{ $t("Database.注意事項") }}</div>
             <div class="tutorial_img">
               <a :href="`./img/tutorial/step3.webp`" target="_blank">
                 <span class="d-none">step3</span>
                 <v-img :src="`./img/tutorial/step3.webp`" max-height="900" max-width="1300" />
               </a>
             </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>4. {{ $t("Database.「プレビュー」タブを選択し、「api_ship」の上で右クリックし、「objectをグローバル変数として格納する」を選択する。") }}</div>
+            <div class="mt-10">※ {{ $t("Database.ブラウザによって一部表記が変わります。") }}</div>
             <div class="tutorial_img">
-              <a :href="`./img/tutorial/step4.webp`" target="_blank">
-                <span class="d-none">step4</span>
-                <v-img :src="`./img/tutorial/step4.webp`" max-height="900" max-width="1300" />
+              <a :href="`./img/tutorial/step3-1.webp`" target="_blank">
+                <span class="d-none">step3-1</span>
+                <v-img :src="`./img/tutorial/step3-1.webp`" max-height="570" max-width="1250" />
               </a>
-            </div>
-          </v-card>
-          <v-card class="tutorial_box pt-2">
-            <div v-if="showHowToDoIt" class="pt-3">
-              <div>5. {{ $t("Database.下記のJavaScriptコードを貼り付けて、Enterを押下する。") }}</div>
-              <div>
-                ※
-                {{
-                  $t(
-                    "Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。",
-                    { step: 6 }
-                  )
-                }}
-              </div>
-            </div>
-            <div v-else>
-              <div class="mt-3">
-                {{ $t(`Fleet.艦娘`) }}
-              </div>
-              <v-divider class="mt-3 mb-6" />
-            </div>
-            <div class="d-flex mt-2">
-              <v-btn color="primary" @click="copyCode('ships-read-code')" :disabled="successCopy">
-                {{ $t(`Common.コードをコピー`) }}
-              </v-btn>
-              <v-radio-group v-model="includeUnLockedShip" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                <v-radio :label="$t('Database.未ロックも含める')" :value="true" />
-                <v-radio :label="$t('Database.ロック済みのみ')" :value="false" />
-              </v-radio-group>
-              <input
-                v-if="includeUnLockedShip"
-                id="ships-read-code"
-                type="text"
-                value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}),['id','lv','st','exp','ex','area']))"
-                aria-label="ship-code"
-              />
-              <input
-                v-else
-                id="ships-read-code"
-                type="text"
-                value="copy(JSON.stringify(temp1.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st': v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}}).filter(v=>v.locked),['id','lv','st','exp','ex','area']))"
-                aria-label="ship-code"
-              />
-            </div>
-            <v-sheet class="copy_code" outlined rounded>
-              <div>
-                copy(JSON.stringify(<span class="red--text">temp1</span>.map(v=>{return{'id': v.api_ship_id,'lv': v.api_lv,'locked': v.api_locked,'st':
-                v.api_kyouka,'exp':v.api_exp,'ex':v.api_slot_ex,'area':v.api_sally_area}})<span v-if="!includeUnLockedShip">.filter(v=>v.locked)</span
-                >,['id','lv','st','exp','ex','area']))
-              </div>
-            </v-sheet>
-            <div v-if="showHowToDoIt" class="tutorial_img">
-              <a :href="`./img/tutorial/step5.webp`" target="_blank">
-                <span class="d-none">step5</span>
-                <v-img :src="`./img/tutorial/step5.webp`" max-height="900" max-width="1300" />
-              </a>
-            </div>
-            <div v-if="showHowToDoIt" class="warning_box mt-3">
-              <div>{{ $t("Database.注意事項") }}</div>
-              <div class="mt-1">
-                {{ $t("Database.「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。") }}
-              </div>
-              <div>
-                {{ $t("Database.例えば「temp2」と出てきていたら、JavaScriptコードの「temp1」の部分を、自分で「temp2」と書き換えて実行してください。") }}
-              </div>
-              <div class="tutorial_img">
-                <a :href="`./img/tutorial/step5-2.webp`" target="_blank">
-                  <span class="d-none">step5-2</span>
-                  <v-img :src="`./img/tutorial/step5-2.webp`" max-height="900" max-width="1300" />
-                </a>
-              </div>
             </div>
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>6. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+            <div>4. {{ $t("Database.手順4") }}</div>
+            <v-radio-group v-model="includeUnLockedShip" row hide-details @change="toggleUnLocked()">
+              <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
+              <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
+            </v-radio-group>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>7. {{ $t("Database.コンソールのタブをいったん閉じる。") }}</div>
+            <div>5. {{ $t("Database.手順5") }}</div>
+            <div>※ {{ $t("Database.注意事項") }}</div>
             <div class="tutorial_img">
-              <a :href="`./img/tutorial/step7.webp`" target="_blank">
-                <span class="d-none">step7</span>
-                <v-img :src="`./img/tutorial/step7.webp`" max-height="900" max-width="1300" />
+              <a :href="`./img/tutorial/step5.webp`" target="_blank">
+                <span class="d-none">step3</span>
+                <v-img :src="`./img/tutorial/step5.webp`" max-height="900" max-width="1300" />
               </a>
-            </div>
-          </v-card>
-          <v-card class="tutorial_box" v-if="showHowToDoIt">
-            <div>8. {{ $t("Database.左の一覧から「require_info」を探し、クリックする。（絶対にダブルクリックをしないこと!）") }}</div>
-            <div>
-              {{ $t("Database.「プレビュー」タブを選択し、「api_slot_item」の上で右クリックし、「objectをグローバル変数として格納する」を選択する。") }}
-            </div>
-            <div class="tutorial_img">
-              <a :href="`./img/tutorial/step8.webp`" target="_blank">
-                <span class="d-none">step8</span>
-                <v-img :src="`./img/tutorial/step8.webp`" max-height="900" max-width="1300" />
-              </a>
-            </div>
-          </v-card>
-          <v-card class="tutorial_box pt-2">
-            <div v-if="showHowToDoIt" class="pt-3">
-              <div>9. {{ $t("Database.下記のJavaScriptコードを貼り付けて、Enterを押下する。") }}</div>
-              <div>
-                ※
-                {{
-                  $t(
-                    "Database.押下後、『undefined』と表示されれば、クリップボードに自動でコピーされており、そのまま手順xの入力欄に貼り付けることができます。",
-                    { step: 10 }
-                  )
-                }}
-              </div>
-            </div>
-            <div v-else>
-              <div class="mt-3">
-                {{ $t(`Fleet.装備`) }}
-              </div>
-              <v-divider class="mt-3 mb-6" />
-            </div>
-            <div class="d-flex mt-2">
-              <v-btn color="primary" @click="copyCode('item-read-code')" :disabled="successCopy">
-                {{ $t(`Common.コードをコピー`) }}
-              </v-btn>
-              <v-radio-group v-model="includeUnLockedItem" row hide-details class="align-self-center mt-0 ml-3" @change="toggleUnLocked()">
-                <v-radio :label="$t('Database.未ロックも含める')" :value="true" />
-                <v-radio :label="$t('Database.ロック済みのみ')" :value="false" />
-              </v-radio-group>
-              <input
-                v-if="includeUnLockedItem"
-                id="item-read-code"
-                type="text"
-                value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}),['id','lv']))"
-                aria-label="item-code"
-              />
-              <input
-                v-else
-                id="item-read-code"
-                type="text"
-                value="copy(JSON.stringify(temp2.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}}).filter(v=>v.locked),['id','lv']))"
-                aria-label="item-code"
-              />
-            </div>
-            <v-sheet class="copy_code" outlined rounded>
-              <div>
-                copy(JSON.stringify(<span class="red--text">temp2</span>.map(v=>{return{'id':v.api_slotitem_id,'lv': v.api_level,'locked':v.api_locked}})<span
-                  v-if="!includeUnLockedItem"
-                  >.filter(v=>v.locked)</span
-                >,['id','lv']))
-              </div>
-            </v-sheet>
-            <div v-if="showHowToDoIt" class="tutorial_img">
-              <a :href="`./img/tutorial/step9.webp`" target="_blank">
-                <span class="d-none">step9</span>
-                <v-img :src="`./img/tutorial/step9.webp`" max-height="900" max-width="1300" />
-              </a>
-            </div>
-            <div v-if="showHowToDoIt" class="warning_box mt-3">
-              <div>{{ $t("Database.注意事項") }}</div>
-              <div class="mt-1">
-                {{ $t("Database.「tempXX」と、上記のJavaScript内の「tempYY」は一致させる必要があります。") }}
-              </div>
-              <div>
-                {{ $t("Database.例えば「temp3」と出てきていたら、JavaScriptコードの「temp2」の部分を、自分で「temp3」と書き換えて実行してください。") }}
-              </div>
-              <div class="tutorial_img">
-                <a :href="`./img/tutorial/step9-2.webp`" target="_blank">
-                  <span class="d-none">step9-2</span>
-                  <v-img :src="`./img/tutorial/step9-2.webp`" max-height="900" max-width="1300" />
-                </a>
-              </div>
             </div>
           </v-card>
           <v-card class="tutorial_box">
-            <div v-if="showHowToDoIt">10. {{ $t("Database.下記の反映エリアに、コピーされた文字列を貼り付けて「反映」を押下する。") }}</div>
+            <div v-if="showHowToDoIt">6. {{ $t("Database.手順4") }}</div>
+            <v-radio-group v-if="!showHowToDoIt" v-model="includeUnLockedShip" row hide-details class="mt-0" @change="toggleUnLocked()">
+              <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
+              <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
+            </v-radio-group>
+            <v-radio-group v-model="includeUnLockedItem" row hide-details class="" @change="toggleUnLocked()">
+              <v-radio :label="$t('Database.未ロックの装備も含める')" :value="true" />
+              <v-radio :label="$t('Database.ロック済みの装備のみ')" :value="false" />
+            </v-radio-group>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
@@ -569,7 +426,7 @@ export default Vue.extend({
     setShipStock(): boolean {
       // 在籍艦娘情報を更新
       try {
-        const shipList = Convert.readShipStockJson(this.inputText);
+        const shipList = Convert.readShipStockJson(this.inputText, !this.includeUnLockedShip);
         if (shipList.length === 0) {
           // 何もない在籍データは無意味なので返す
           return false;
@@ -588,7 +445,7 @@ export default Vue.extend({
     setItemStock(): boolean {
       // 所持装備情報を更新
       try {
-        const itemList = Convert.readItemStockJson(this.inputText);
+        const itemList = Convert.readItemStockJson(this.inputText, !this.includeUnLockedItem);
         if (itemList.length === 0) {
           // 何もない所持装備データは無意味なので返す
           return false;
