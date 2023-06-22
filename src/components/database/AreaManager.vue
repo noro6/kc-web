@@ -540,7 +540,7 @@ export default Vue.extend({
 
       const draggingDiv = document.getElementById('dragging-item') as HTMLDivElement;
       if (!draggingDiv || !draggingDiv.draggable || !draggingDiv.classList.contains('ship-container')) {
-        // FireFox なんかおかしくなるので再チェック
+        // Firefox なんかおかしくなるので再チェック
         const target = e.target as HTMLDivElement;
         if (target && target.classList.contains('ship-container')) {
           target.style.opacity = '1';

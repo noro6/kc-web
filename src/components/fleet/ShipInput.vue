@@ -815,7 +815,7 @@ export default Vue.extend({
       if (!draggingDiv || !draggingDiv.draggable || !draggingDiv.classList.contains('ship-input')) {
         // ドラッグ不可だったり、そもそもship-inputじゃなかったら以降受け入れない
 
-        // FireFox なんかおかしくなるので再チェック
+        // Firefox なんかおかしくなるので再チェック
         const target = e.target as HTMLDivElement;
         if (target && target.classList.contains('ship-input')) {
           target.style.opacity = '1';

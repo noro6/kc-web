@@ -30,7 +30,7 @@
             <v-card v-if="$i18n.locale === 'ja'" elevation="0">
               <v-alert border="left" dense outlined type="info">
                 <div>2023/06/22</div>
-                <div>反映方法を簡略化しました。また、FireFoxでの反映に対応しました。</div>
+                <div>反映方法を簡略化しました。また、Firefoxでの反映に対応しました。</div>
               </v-alert>
             </v-card>
             <v-btn class="mt-3" :class="{ secondary: showHowToDoIt, primary: !showHowToDoIt }" @click="showHowToDoIt = !showHowToDoIt">
