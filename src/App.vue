@@ -6,12 +6,12 @@
         :handle-inform="inform"
         :enabled-fix-drawer="enabledFixDrawer"
         :fixed-drawer="setting.fixedDrawer"
-        :handle-close="closeSideBar"
+        :handle-close="() => (drawer = false)"
       />
     </v-navigation-drawer>
     <v-app-bar app dense dark>
       <v-app-bar-nav-icon v-if="!drawerFixed" @click="drawer = !drawer" />
-      <v-btn icon @click="$route.path !== '/' && $router.push({ path: '/' })" :disabled="$route.path === '/'">
+      <v-btn icon @click="pushPage('/')" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
@@ -86,17 +86,15 @@
       </template>
     </v-app-bar>
     <v-main>
-      <template v-if="false">
-        <div class="event-banner mb-3">
-          <v-img class="banner-normal" :src="`./img/util/bn_220826.png`" />
-          <v-img class="banner-on" :src="`./img/util/bn_220826_on.png`" />
-        </div>
-      </template>
+      <div class="event-banner mb-3" v-if="false">
+        <v-img class="banner-normal" :src="`./img/util/bn_220826.png`" />
+        <v-img class="banner-on" :src="`./img/util/bn_220826_on.png`" />
+      </div>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
-        <v-alert border="left" outlined type="info" :class="{ 'info-container': !isManagerPage }">
+        <v-alert border="left" class="mb-2" outlined type="info" :class="{ 'info-container': !isManagerPage }" dense>
           <div class="body-2">{{ $t("Home.URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。") }}</div>
-          <div class="d-flex body-2">
-            <div class="align-self-center">{{ $t("Home.自分の登録情報に戻す場合は次のボタンを押下してください。") }}</div>
+          <div class="d-flex body-2 align-center">
+            <div>{{ $t("Home.自分の登録情報に戻す場合は次のボタンを押下してください。") }}</div>
             <v-btn class="mx-1" color="primary" small dark @click="resetTempData()">{{ $t("Home.終了") }}</v-btn>
           </div>
         </v-alert>
@@ -115,26 +113,15 @@
     </v-main>
     <v-footer app class="d-flex justify-center">
       <v-fab-transition>
-        <v-btn color="grey darken-3" class="footer-btn" v-show="isAirCalcPage" fab small dark @click="toggleMenuButton()">
-          <v-icon small>{{ showFooterBtn ? "mdi-close" : "mdi-menu" }}</v-icon>
+        <v-btn color="grey darken-3" class="side-btn" v-show="isAirCalcPage" fab small dark @click="toggleMenuButton()">
+          <v-icon small>{{ showSideBtn ? "mdi-close" : "mdi-menu" }}</v-icon>
         </v-btn>
       </v-fab-transition>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              color="grey darken-2"
-              class="footer-btn no-2 white--text"
-              v-show="showFooterBtn"
-              fab
-              small
-              dark
-              v-bind="attrs"
-              v-on="on"
-              @click="$route.path !== '/' && $router.push({ path: '/' })"
-              :disabled="$route.path === '/'"
-            >
-              <v-icon small>mdi-home</v-icon>
+            <v-btn color="grey darken-2" class="side-btn no-2" v-show="showSideBtn" fab small dark v-bind="attrs" v-on="on" @click="pushPage('/')">
+              <v-icon small color="white">mdi-home</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
@@ -143,18 +130,8 @@
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn
-              color="blue-grey"
-              class="footer-btn no-3 white--text"
-              v-show="showFooterBtn"
-              fab
-              small
-              dark
-              v-bind="attrs"
-              v-on="on"
-              @click="$router.push('manager')"
-            >
-              <v-icon small>mdi-database-cog</v-icon>
+            <v-btn color="blue-grey" class="side-btn no-3" v-show="showSideBtn" fab small dark v-bind="attrs" v-on="on" @click="$router.push('manager')">
+              <v-icon small color="white">mdi-database-cog</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
@@ -165,8 +142,8 @@
           <v-fab-transition>
             <v-btn
               color="teal darken-1"
-              class="footer-btn no-4 white--text"
-              v-show="showFooterBtn"
+              class="side-btn no-4"
+              v-show="showSideBtn"
               fab
               small
               v-bind="attrs"
@@ -174,7 +151,7 @@
               :disabled="!isAirCalcPage || !enabledRedo"
               @click="redoClicked()"
             >
-              <v-icon small>mdi-redo-variant</v-icon>
+              <v-icon small color="white">mdi-redo-variant</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
@@ -185,8 +162,8 @@
           <v-fab-transition>
             <v-btn
               color="teal"
-              class="footer-btn no-5 white--text"
-              v-show="showFooterBtn"
+              class="side-btn no-5"
+              v-show="showSideBtn"
               fab
               small
               v-bind="attrs"
@@ -194,7 +171,7 @@
               :disabled="!isAirCalcPage || !enabledUndo"
               @click="undoClicked()"
             >
-              <v-icon small>mdi-undo-variant</v-icon>
+              <v-icon small color="white">mdi-undo-variant</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
@@ -203,7 +180,7 @@
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn color="green" class="footer-btn no-6" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="clickedShare()">
+            <v-btn color="green" class="side-btn no-6" v-show="showSideBtn" dark fab small v-bind="attrs" v-on="on" @click="clickedShare()">
               <v-icon small>mdi-share-variant</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -213,7 +190,7 @@
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn color="blue" class="footer-btn no-7" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="clickCommentButton()">
+            <v-btn color="blue" class="side-btn no-7" v-show="showSideBtn" dark fab small v-bind="attrs" v-on="on" @click="clickCommentButton()">
               <v-icon small>mdi-comment-processing</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -223,7 +200,7 @@
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
-            <v-btn color="indigo lighten-1" class="footer-btn no-8" v-show="showFooterBtn" dark fab small v-bind="attrs" v-on="on" @click="saveCurrentData()">
+            <v-btn color="indigo lighten-1" class="side-btn no-8" v-show="showSideBtn" dark fab small v-bind="attrs" v-on="on" @click="saveCurrentData()">
               <v-icon small>mdi-content-save</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -239,15 +216,18 @@
           <span class="ml-3 mr-2">カンパ:</span>
           <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>
         </template>
-        <template v-else> a </template>
+        <template v-else>
+          {{ $t("Home.翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。") }}
+          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">{{ $t("Home.お題箱") }}</a>
+          <a href="https://twitter.com/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">Twitter</a>
+        </template>
       </span>
       <span class="d-none d-md-inline text-caption">
         <template v-if="isJapanese">
-          本サイトに関する質問・要望・バグ報告・感想などは
-          <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
-          へ。その他、作者へのご連絡は
-          <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
-          までお願いします。
+          本サイトに関する質問・要望・バグ報告・感想などは<a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1 mx-1" target="_blank"
+            >お題箱</a
+          >へ。その他、作者へのご連絡は<a href="https://twitter.com/noro_006" class="blue--text text--accent-1 mx-1" target="_blank">Twitter</a
+          >までお願いします。
         </template>
         <template v-else>
           {{ $t("Home.翻訳がまだ不完全な状態です。よろしければ助けていただけると幸いです。") }}
@@ -289,17 +269,17 @@
               </v-btn>
               <div class="align-self-center flex-grow-1">
                 <v-divider v-if="!hasItemUIBorder" />
-                <div class="item-input my-0 type-6 d-flex">
-                  <div class="align-self-center body-2 ml-2">24</div>
-                  <div class="mx-1 item-icon">
+                <div class="item-input my-0 type-6 d-flex align-center">
+                  <div class="body-2 ml-2">24</div>
+                  <div class="mx-1">
                     <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
                   </div>
-                  <div class="align-self-center body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : "さんぷる" }}</div>
-                  <div class="align-self-center item-remodel">
+                  <div class="body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : "さんぷる" }}</div>
+                  <div class="item-remodel">
                     <v-icon small color="teal accent-4">mdi-star</v-icon>
                     <span class="teal--text text--accent-4">10</span>
                   </div>
-                  <div class="ml-1 align-self-center">
+                  <div class="ml-1">
                     <v-tooltip top color="black" :disabled="!setting.showDeathRateIndicator">
                       <template v-slot:activator="{ on, attrs }">
                         <v-hover v-slot="{ hover }">
@@ -535,14 +515,14 @@
               :dataName="editedName"
               :dataRemarks="editedRemarks"
               :saveData="saveData"
-              :cancelDialog="closeEditDialog"
+              :cancelDialog="() => (editDialog = false)"
             />
           </v-tab-item>
         </v-tabs-items>
       </v-card>
     </v-dialog>
     <v-dialog v-model="shareDialog" width="500">
-      <share-dialog :handle-close="closeShareDialog" ref="shareDialog" @inform="inform" />
+      <share-dialog :handle-close="() => (shareDialog = false)" ref="shareDialog" @inform="inform" />
     </v-dialog>
     <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
       <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
@@ -557,7 +537,6 @@
           :class="{ selected: row.selected }"
           @click.stop="row.selected = !row.selected"
           @keypress="row.selected = !row.selected"
-          tabindex="0"
         >
           <div class="d-flex mb-1">
             <div>
@@ -717,16 +696,14 @@ export default Vue.extend({
     isItemUIRadius(): boolean {
       return this.setting.itemUI.radius;
     },
-    showFooterBtn(): boolean {
+    showSideBtn(): boolean {
       return this.isAirCalcPage && this.setting.visibleAirCalcMenuButton;
     },
     drawerFixed(): boolean {
       return this.enabledFixDrawer && this.setting.fixedDrawer;
     },
     routerViewClass(): string {
-      if (this.setting.visibleAirCalcMenuButton) {
-        return 'px-12';
-      }
+      if (this.setting.visibleAirCalcMenuButton) return 'px-12';
       return 'px-2 px-md-4';
     },
     selectedAnyFleet(): boolean {
@@ -1192,9 +1169,6 @@ export default Vue.extend({
         }
       }
     },
-    closeEditDialog() {
-      this.editDialog = false;
-    },
     undoClicked() {
       // 元に戻す
       const data = this.mainSaveData;
@@ -1292,9 +1266,6 @@ export default Vue.extend({
     async clickedShare() {
       await (this.shareDialog = true);
       (this.$refs.shareDialog as InstanceType<typeof ShareDialog>).createdURL = '';
-    },
-    closeShareDialog() {
-      this.shareDialog = false;
     },
     getUrlParams(value: string) {
       this.urlParameters = {};
@@ -1552,30 +1523,30 @@ export default Vue.extend({
   background-color: rgb(39, 39, 39) !important;
   color: #fff !important;
 }
-.footer-btn {
+.side-btn {
   position: absolute;
   top: -48px;
   right: 2px;
 }
-.footer-btn.no-2 {
+.side-btn.no-2 {
   top: -92px;
 }
-.footer-btn.no-3 {
+.side-btn.no-3 {
   top: -136px;
 }
-.footer-btn.no-4 {
+.side-btn.no-4 {
   top: -180px;
 }
-.footer-btn.no-5 {
+.side-btn.no-5 {
   top: -224px;
 }
-.footer-btn.no-6 {
+.side-btn.no-6 {
   top: -268px;
 }
-.footer-btn.no-7 {
+.side-btn.no-7 {
   top: -312px;
 }
-.footer-btn.no-8 {
+.side-btn.no-8 {
   top: -356px;
 }
 
