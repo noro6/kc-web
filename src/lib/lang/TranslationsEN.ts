@@ -215,6 +215,11 @@ export default {
       '復元': 'restore',
       '保存した編成データのバックアップファイルを作成します': 'Create a backup file of saved data',
       '復元するバックアップファイルを選択': 'Select the backup file',
+      '復元するデータ選択': 'Select the backup data',
+      '編成データ': 'Saved files and folders',
+      '在籍艦娘データ': 'Ship Data',
+      '所持装備データ': 'Equipment Data',
+      '艦隊URL出力履歴': 'URL Output History',
     },
     Home: {
       '制空権シミュレータ': 'Simulator',
