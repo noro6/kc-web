@@ -50,7 +50,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()" tabindex="0">{{ $t("ItemList.射程増加") }}</span>
+        <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">{{ $t("ItemList.射程増加") }}</span>
       </div>
       <div class="ml-3 d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
         <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
@@ -58,7 +58,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()" tabindex="0">{{ $t("ItemList.対地攻撃") }}</span>
+        <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
       </div>
       <div class="ml-3 d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
         <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
@@ -97,7 +97,6 @@
         :class="{ active: type === -1, disabled: keyword }"
         @click="changeType(-1)"
         @keypress="changeType(-1)"
-        tabindex="0"
       >
         <div class="type-all-text">ALL</div>
       </div>
@@ -109,7 +108,6 @@
         :class="{ active: type === i.id, disabled: keyword }"
         @click="changeType(i.id)"
         @keypress="changeType(i.id)"
-        tabindex="0"
       >
         <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
       </div>
@@ -126,7 +124,6 @@
           class="item-status text-left flex-grow-1"
           @click="toggleSortKey('name')"
           @keypress="toggleSortKey('name')"
-          tabindex="0"
           :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }"
         >
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.装備名称`) }}</div>
@@ -137,7 +134,6 @@
           :key="`item${i}`"
           @click="toggleSortKey(data.key)"
           @keypress="toggleSortKey(data.key)"
-          tabindex="0"
           :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
           v-show="isShow(data.key, viewStatus)"
         >
@@ -147,7 +143,6 @@
           class="item-status"
           @click="toggleSortKey('airPower')"
           @keypress="toggleSortKey('airPower')"
-          tabindex="0"
           :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
           v-show="isShow('airPower', viewStatus)"
         >
@@ -165,7 +160,6 @@
           class="item-status"
           @click="toggleSortKey('defenseAirPower')"
           @keypress="toggleSortKey('defenseAirPower')"
-          tabindex="0"
           :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
           v-show="isShow('defenseAirPower', viewStatus)"
         >
@@ -194,7 +188,6 @@
             :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.sumBonus, 'has-bad-bonus': v.sumBonus < 0 }"
             @click="clickedItem(v, $event)"
             @keypress.enter="clickedItem(v, $event)"
-            tabindex="0"
             @mouseenter="bootTooltip(v.item, v.bonus, $event)"
             @mouseleave="clearTooltip"
             @focus="bootTooltip(v.item, v.bonus, $event)"

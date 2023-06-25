@@ -30,7 +30,6 @@
               @click="clickedPreset(preset.id)"
               @dblclick="expandPreset()"
               @keypress.enter="clickedPreset(preset.id)"
-              tabindex="0"
             >
               <div class="preset-id primary--text">{{ preset.id }}.</div>
               <div class="preset-name text-truncate">{{ preset.name }}</div>
@@ -49,7 +48,6 @@
             @click="clickedUniquePreset(i)"
             @dblclick="expandPreset()"
             @keypress.enter="clickedUniquePreset(i)"
-            tabindex="0"
           >
             <div class="aaci-preset-id success--text">AACI.</div>
             <div class="preset-name text-truncate">{{ preset.name }}</div>

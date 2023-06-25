@@ -41,7 +41,7 @@
                     <v-icon class="manual-icon" color="error" v-else-if="isNotDaihatsu">mdi-close-box</v-icon>
                     <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
                   </v-btn>
-                  <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
+                  <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
                 </div>
                 <div class="mx-3 d-flex manual-checkbox">
                   <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
@@ -49,7 +49,7 @@
                     <v-icon class="manual-icon" color="error" v-else-if="isNotKamisha">mdi-close-box</v-icon>
                     <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
                   </v-btn>
-                  <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+                  <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
                 </div>
                 <div class="mx-2 d-flex manual-checkbox text">
                   <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
@@ -57,7 +57,7 @@
                     <v-icon class="manual-icon" color="error" v-else-if="withoutReleaseExSlot">mdi-close-box</v-icon>
                     <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
                   </v-btn>
-                  <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
+                  <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()">{{ $t("Fleet.補強増設") }}</div>
                 </div>
               </div>
               <div class="range-inputs">
@@ -253,7 +253,6 @@
                   :class="{ selected: selectedArea.includes(i) }"
                   @click="clickedArea(i)"
                   @keypress="clickedArea(i)"
-                  tabindex="0"
                 >
                   <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="50" />
                 </div>
@@ -262,7 +261,6 @@
                   :class="{ selected: visibleNoArea }"
                   @click="clickedArea(-1)"
                   @keypress="clickedArea(-1)"
-                  tabindex="0"
                 >
                   {{ $t("Database.札なし") }}
                 </div>
@@ -341,7 +339,6 @@
                   }"
                   @click.stop="showEditDialog(item)"
                   @keypress.enter="showEditDialog(item)"
-                  tabindex="0"
                   @mouseenter="bootTooltip(item, $event)"
                   @mouseleave="clearTooltip"
                   @focus="clearTooltip"
@@ -443,7 +440,6 @@
                         }"
                         @click.stop="showEditDialog(data)"
                         @keypress.enter="showEditDialog(data)"
-                        tabindex="0"
                         @mouseenter="bootTooltip(data, $event)"
                         @mouseleave="clearTooltip"
                         @focus="clearTooltip"
@@ -582,7 +578,6 @@
               :class="{ selected: editRow.stockData.area === i }"
               @click.stop="toggleArea(i)"
               @keypress="toggleArea(i)"
-              tabindex="0"
             >
               <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="50" />
             </div>

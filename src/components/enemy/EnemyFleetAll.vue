@@ -316,9 +316,8 @@ export default Vue.extend({
         this.setInfo();
       }
     },
-    equipItem(item: ItemMaster) {
-      console.log(item);
-      console.log(this.itemDialogTarget);
+    equipItem() {
+      // 今は何もしない
     },
     setEnemyFleet(fleet: EnemyFleet, isContinue = false) {
       if (fleet.nodeName === '空襲' || this.isDefense) {

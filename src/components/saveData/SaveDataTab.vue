@@ -11,7 +11,6 @@
         @mousedown.middle="handleCloseTab(saveData, $event)"
         @keypress.enter="clickSaveData(saveData)"
         @keypress.delete="handleCloseTab(saveData)"
-        tabindex="0"
       >
         <div class="drag-tab-handle tab-item-icon">
           <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
@@ -36,7 +35,6 @@
         :id="saveData.id"
         @click="showExternalMenu($event)"
         @keypress.enter="showExternalMenu($event)"
-        tabindex="0"
       >
         <div class="tab-item-icon">
           <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
@@ -62,7 +60,6 @@
                 @mousedown.middle="handleCloseTab(saveData, $event)"
                 @keypress.enter="clickSaveData(saveData)"
                 @keypress.delete="handleCloseTab(saveData)"
-                tabindex="0"
               >
                 <div class="tab-item-icon">
                   <v-icon small>mdi-file-import</v-icon>

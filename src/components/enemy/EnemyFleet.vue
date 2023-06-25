@@ -70,7 +70,6 @@
             @mouseleave="clearTooltip"
             @focus="bootTooltip(enemy, $event)"
             @blur="clearTooltip"
-            tabindex="0"
           >
             <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
           </div>

@@ -26,7 +26,6 @@
           v-ripple="{ class: 'info--text' }"
           @click="showEditedEnemy(i)"
           @keypress.enter="showEditedEnemy(i)"
-          tabindex="0"
         >
           <div class="enemy-header">
             <div>

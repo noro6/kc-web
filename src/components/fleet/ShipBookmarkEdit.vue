@@ -28,7 +28,6 @@
         :class="{ active: index === type, disabled: keyword || bookmarkOnly }"
         @click="changeType(index)"
         @keypress="changeType(index)"
-        tabindex="0"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
@@ -49,7 +48,6 @@
             v-ripple="{ class: 'red--text' }"
             @click="toggleBookmark(ship)"
             @keypress.enter="toggleBookmark(ship)"
-            tabindex="0"
           >
             <div>
               <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />

@@ -16,7 +16,6 @@
       :class="{ selected: value.selected }"
       @click="itemClicked"
       @keypress.enter="itemClicked"
-      tabindex="0"
       v-click-outside="onClickOutside"
     >
       <v-icon v-if="value.isDirectory" :color="value.color" small> {{ value.isOpen ? "mdi-folder-open" : "mdi-folder" }}</v-icon>

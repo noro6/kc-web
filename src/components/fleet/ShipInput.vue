@@ -12,7 +12,7 @@
     @dragover.prevent
   >
     <template v-if="ship.isEmpty">
-      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList" tabindex="0">
+      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
         <div class="align-self-center">{{ shipName }}</div>
         <div class="empty-temp-list" v-if="handleShowTempShipList">
           <v-tooltip bottom color="black">
@@ -34,7 +34,6 @@
           v-ripple="{ class: 'info--text' }"
           @click.stop="showShipList"
           @keypress.enter="showShipList"
-          tabindex="0"
         >
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip" @focus="bootShipTooltip($event)" @blur="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
@@ -97,7 +96,7 @@
               </v-card>
             </v-menu>
           </div>
-          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList" tabindex="0">
+          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
             <div class="ship-name text-truncate">{{ shipName }}</div>
           </div>
         </div>

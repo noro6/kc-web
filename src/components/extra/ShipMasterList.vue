@@ -13,7 +13,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="daihatsuNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
+        <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
       </div>
       <div class="mr-3 d-flex manual-checkbox">
         <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
@@ -21,7 +21,7 @@
           <v-icon class="manual-icon" color="error" v-else-if="tankNG">mdi-close-box</v-icon>
           <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
         </v-btn>
-        <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+        <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
       </div>
       <div class="flex-grow-1 align-self-end">
         <v-select v-model="selectedTypes" :items="translatedShipTypes" hide-details dense attach chips deletable-chips multiple @change="initShips">
@@ -274,7 +274,7 @@ export default Vue.extend({
     selectedSomeType(): boolean {
       return this.selectedTypes.length > 0 && !this.selectedAllType;
     },
-    translatedShipTypes(): { text: string, value: number }[] {
+    translatedShipTypes(): { text: string; value: number }[] {
       const array = [];
       for (let i = 0; i < this.types.length; i += 1) {
         const data = this.types[i];

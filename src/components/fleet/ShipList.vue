@@ -57,7 +57,6 @@
         :class="{ active: index === type, disabled: keyword }"
         @click="changeType(index)"
         @keypress="changeType(index)"
-        tabindex="0"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
@@ -67,7 +66,6 @@
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
-          tabindex="0"
           :src="`./img/util/filtered1.png`"
           alt="area-img-1"
         />
@@ -76,7 +74,6 @@
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
-          tabindex="0"
           :src="`./img/util/filtered2.png`"
           alt="area-img-2"
         />
@@ -85,7 +82,6 @@
           class="filter_img"
           @click="toggleAreaFilter"
           @keypress="toggleAreaFilter"
-          tabindex="0"
           :src="`./img/util/filtered0.png`"
           alt="area-img-0"
         />
@@ -114,7 +110,6 @@
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data, $event)"
             @keypress.enter="clickedShip(data, $event)"
-            tabindex="0"
             @mouseenter="bootTooltip(data, $event)"
             @mouseleave="clearTooltip"
             @focus="bootTooltip(data, $event)"
@@ -237,7 +232,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.landingCraftNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" tabindex="0" :src="`./img/type/type24.png`" alt="type-24" />
+              <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
             </div>
             <div class="d-flex manual-checkbox">
               <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
@@ -245,7 +240,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.tankNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" tabindex="0" :src="`./img/type/type46.png`" alt="type-46" />
+              <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
             </div>
             <div class="d-flex manual-checkbox" :class="{ disabled: !visibleSpBomberFilter }">
               <v-btn icon @click="toggleSpBomberFilter()" class="manual-checkbox-button">
@@ -253,15 +248,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.spBomberNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img
-                @click="toggleSpBomberFilter()"
-                @keypress="toggleSpBomberFilter()"
-                tabindex="0"
-                :src="`./img/type/type1100.png`"
-                alt="type-11"
-                width="35"
-                height="35"
-              />
+              <img @click="toggleSpBomberFilter()" @keypress="toggleSpBomberFilter()" :src="`./img/type/type1100.png`" alt="type-11" width="35" height="35" />
             </div>
             <div class="d-flex manual-checkbox" :class="{ disabled: !visibleFighterFilter }">
               <v-btn icon @click="toggleFighterFilter()" class="manual-checkbox-button">
@@ -269,15 +256,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.fighterNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img
-                @click="toggleFighterFilter()"
-                @keypress="toggleFighterFilter()"
-                tabindex="0"
-                :src="`./img/type/type4500.png`"
-                alt="type-45"
-                width="35"
-                height="35"
-              />
+              <img @click="toggleFighterFilter()" @keypress="toggleFighterFilter()" :src="`./img/type/type4500.png`" alt="type-45" width="35" height="35" />
             </div>
             <div class="d-flex manual-checkbox" :class="{ disabled: !visibleCommanderFilter }">
               <v-btn icon @click="toggleCommanderFilter()" class="manual-checkbox-button">
@@ -285,15 +264,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.commanderNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img
-                @click="toggleCommanderFilter()"
-                @keypress="toggleCommanderFilter()"
-                tabindex="0"
-                :src="`./img/type/type34.png`"
-                alt="type-34"
-                width="35"
-                height="35"
-              />
+              <img @click="toggleCommanderFilter()" @keypress="toggleCommanderFilter()" :src="`./img/type/type34.png`" alt="type-34" width="35" height="35" />
             </div>
             <div class="d-flex manual-checkbox" :class="{ disabled: !visibleArmorFilter }">
               <v-btn icon @click="toggleArmorFilter()" class="manual-checkbox-button">
@@ -301,15 +272,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.armorNG">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <img
-                @click="toggleArmorFilter()"
-                @keypress="toggleArmorFilter()"
-                tabindex="0"
-                :src="`./img/type/type27.png`"
-                alt="type-27"
-                width="35"
-                height="35"
-              />
+              <img @click="toggleArmorFilter()" @keypress="toggleArmorFilter()" :src="`./img/type/type27.png`" alt="type-27" width="35" height="35" />
             </div>
           </div>
           <div class="d-flex mt-4">
@@ -400,7 +363,7 @@
                 <v-icon class="manual-icon" color="error" v-else-if="shipFilter.isNotReleaseExSlotOnly">mdi-close-box</v-icon>
                 <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
               </v-btn>
-              <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()" tabindex="0">{{ $t("Fleet.補強増設") }}</div>
+              <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()">{{ $t("Fleet.補強増設") }}</div>
             </div>
             <div>
               <v-checkbox v-model="shipFilter.onlyBookmarked" @click="filter()" dense hide-details :label="$t('Fleet.お気に入り')" />

@@ -29,7 +29,6 @@
         :class="{ active: index === type }"
         @click="changeType(index)"
         @keypress.enter="changeType(index)"
-        tabindex="0"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>

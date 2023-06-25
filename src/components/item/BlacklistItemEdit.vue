@@ -38,7 +38,6 @@
           :class="{ active: type === i.id, disabled: keyword || blacklistOnly }"
           @click="changeType(i.id)"
           @keypress="changeType(i.id)"
-          tabindex="0"
         >
           <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
         </div>
@@ -61,7 +60,6 @@
               :class="{ blacklisted: item.isBlacklisted }"
               @click="toggleBlacklisted(item)"
               @keypress="toggleBlacklisted(item)"
-              tabindex="0"
               @mouseenter="bootTooltip(item.data, $event)"
               @mouseleave="clearTooltip"
               @focus="bootTooltip(item.data, $event)"

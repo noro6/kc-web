@@ -16,7 +16,7 @@
             <th v-for="(ship, i) in ships" :key="`select${i}`" class="py-1 text-right">
               <v-btn v-if="ship.isEmpty" text @click="showShipList(i)"><v-icon>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}</v-btn>
               <div v-else class="d-flex justify-end">
-                <div class="ship-img" @click="showShipList(i)" @keypress.enter="showShipList(i)" tabindex="0" v-ripple="{ class: 'text-primary' }">
+                <div class="ship-img" @click="showShipList(i)" @keypress.enter="showShipList(i)" v-ripple="{ class: 'text-primary' }">
                   <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
                 </div>
               </div>

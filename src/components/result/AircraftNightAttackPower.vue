@@ -20,7 +20,6 @@
               @mouseleave="clearTooltip"
               @focus="bootShipTooltip($event, ship)"
               @blur="clearTooltip"
-              tabindex="0"
             >
               <div class="align-self-center">
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />

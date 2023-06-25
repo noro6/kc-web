@@ -38,7 +38,6 @@
               @click="cellClicked(i)"
               @dblclick="commitFleet"
               @keypress.enter="cellClicked(i)"
-              tabindex="0"
             />
           </map>
         </div>

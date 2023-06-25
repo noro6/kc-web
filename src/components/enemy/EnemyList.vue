@@ -27,7 +27,6 @@
           :class="{ active: index === type, disabled: keyword || isLandBase }"
           @click="changeType(index)"
           @keypress="changeType(index)"
-          tabindex="0"
         >
           {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
         </div>
@@ -47,7 +46,6 @@
               class="enemy-list"
               @click="clickedEnemy(enemy)"
               @keypress="clickedEnemy(enemy)"
-              tabindex="0"
               @mouseenter="bootTooltip(enemy, $event)"
               @mouseleave="clearTooltip"
               @focus="bootTooltip(enemy, $event)"

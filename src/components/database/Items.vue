@@ -116,7 +116,6 @@
                   @click="sortItems(header, 'id')"
                   :class="{ selected: header.selectedKey === 'id' }"
                   @keypress.enter="sortItems(header, 'id')"
-                  tabindex="0"
                 >
                   {{ $t("Database.図鑑ID") }}
                 </div>
@@ -128,7 +127,6 @@
                   v-ripple="{ class: 'info--text' }"
                   @click="sortItems(header, sortKey)"
                   @keypress.enter="sortItems(header, sortKey)"
-                  tabindex="0"
                 >
                   {{ convertStatusString(sortKey) }}
                 </div>
@@ -144,7 +142,6 @@
             v-ripple="{ class: 'info--text' }"
             @click="clickItem(itemRow.master, $event)"
             @keypress.enter="clickItem(itemRow.master, $event)"
-            tabindex="0"
             @mouseenter="bootTooltip(itemRow.master, $event)"
             @mouseleave="clearTooltip"
             @focus="clearTooltip"
