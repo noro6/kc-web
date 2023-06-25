@@ -485,7 +485,8 @@ export default Vue.extend({
       }
     });
 
-    for (let i = 17; i > 0; i -= 1) {
+    const iMax = Math.floor(this.maxLevel / 10);
+    for (let i = iMax; i > 0; i -= 1) {
       this.stackedBarData.labels.push(`${i * 10}～`);
     }
     this.stackedBarData.labels.push('1～');
@@ -565,10 +566,16 @@ export default Vue.extend({
         const newStackedData = {
           label: typeName,
           borderWidth: 0,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          data: [] as number[],
           stack: 'stack-1',
           datalabels: { display: false },
         };
+
+        // 積み重ね用10刻みの各Level隻数突っ込むための配列を用意1~ 10~ 20~ のやつ
+        const dataCount = Math.floor(this.maxLevel / 10);
+        for (let j = 0; j <= dataCount; j += 1) {
+          newStackedData.data.push(0);
+        }
 
         // 在籍情報から取得
         const stocks = shipStock.filter((v) => shipIds.includes(v.id) && v.level >= this.levelRange[0] && v.level <= this.levelRange[1]);
@@ -588,7 +595,7 @@ export default Vue.extend({
             totalLuckImprovement += stock.improvement.luck;
             maruyuCount += stock.id === 163 || stock.id === 402 ? 1 : 0;
 
-            newStackedData.data[17 - Math.floor(stock.level / 10)] += 1;
+            newStackedData.data[(newStackedData.data.length - 1) - Math.floor(stock.level / 10)] += 1;
 
             const master = all.find((v) => v.id === stock.id);
             if (!master) {
