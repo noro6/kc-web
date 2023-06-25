@@ -414,13 +414,13 @@
           <div v-else-if="viewShips.length" class="mt-3">
             <div class="d-flex flex-wrap">
               <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container">
-                <div class="ma-2">{{ getShipTypeName(typeData.typeName) }}</div>
+                <div class="mx-2 mt-1">{{ getShipTypeName(typeData.typeName) }}</div>
                 <div class="type-divider"></div>
                 <div class="d-flex flex-wrap">
-                  <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-1 px-2 pt-2">
+                  <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-1 px-2 pt-1">
                     <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
                       <div class="d-flex">
-                        <div>{{ getShipName(row.master) }}</div>
+                        <div class="body-2">{{ getShipName(row.master) }}</div>
                         <v-spacer />
                         <div class="caption align-self-end">{{ $t("Database.在籍") }} {{ row.count }}</div>
                       </div>
@@ -481,7 +481,7 @@
                           </div>
                         </template>
                         <template v-else>
-                          <div class="mx-auto text-center no_ship">{{ $t("Database.新規登録") }}</div>
+                          <div class="mx-auto text-center no_ship caption py-1">{{ $t("Database.新規登録") }}</div>
                         </template>
                       </div>
                     </div>

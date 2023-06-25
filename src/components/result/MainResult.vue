@@ -264,10 +264,8 @@
       </table>
       <v-divider />
     </v-card>
-    <v-card class="ma-3 pb-3 px-2">
-      <div class="mb-1">
-        <div class="body-2 px-2">{{ $t("Result.敵機残数") }}</div>
-      </div>
+    <v-card class="ma-3 py-3 px-2">
+      <div class="body-2 px-2">{{ $t("Result.敵機残数") }}</div>
       <table>
         <thead>
           <tr>
