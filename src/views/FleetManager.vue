@@ -319,7 +319,7 @@ export default Vue.extend({
   name: 'FleetManager',
   components: { Ships, Items },
   data: () => ({
-    tab: 'ship',
+    tab: 0,
     includeUnLockedShip: true,
     includeUnLockedItem: false,
     readResultColor: 'success',
@@ -369,6 +369,14 @@ export default Vue.extend({
     const setting = this.$store.state.siteSetting as SiteSetting;
     this.includeUnLockedShip = setting.isIncludeUnLockShip;
     this.includeUnLockedItem = setting.isIncludeUnLockItem;
+
+    // 何もデータがなかったら反映タブに飛ばす
+    const shipStock = this.$store.state.shipStock as ShipStock[];
+    const itemStock = this.$store.state.itemStock as ItemStock[];
+    if (!this.readOnlyMode && !shipStock.length && !itemStock.length) {
+      this.tab = 2;
+      this.showHowToDoIt = true;
+    }
   },
   computed: {
     completed() {

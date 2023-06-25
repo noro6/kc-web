@@ -114,6 +114,7 @@
             counter
             :label="$t('SaveData.編成データ名')"
             @keypress.enter="commitName"
+            @focus="textFieldFocused"
             :disabled="!editDialog"
             ref="nameInput"
           />
@@ -324,6 +325,9 @@ export default Vue.extend({
     },
   },
   methods: {
+    textFieldFocused(focusEvent: FocusEvent) {
+      if (focusEvent) (focusEvent.target as HTMLInputElement).select();
+    },
     sortEnd() {
       const base = document.getElementById('active-tab-list') as HTMLElement;
       const itemElements = base.getElementsByClassName('tab-item');

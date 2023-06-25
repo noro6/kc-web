@@ -73,10 +73,12 @@
             counter
             :label="$t('SaveData.フォルダー名')"
             @keypress.enter="addNewDirectory"
+            @focus="textFieldFocused"
             :disabled="!editDialog"
+            ref="nameInput"
           />
-          <div class="d-flex mt-3">
-            <v-btn class="ml-auto" color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+          <div class="text-right">
+            <v-btn color="success" @click.stop="addNewDirectory" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -150,12 +152,24 @@ export default Vue.extend({
     editDialog: false,
     editedName: '',
   }),
+  watch: {
+    editDialog(value) {
+      if (value) {
+        setTimeout(() => {
+          (this.$refs.nameInput as HTMLInputElement).focus();
+        }, 150);
+      }
+    },
+  },
   computed: {
     isNameEmpty(): boolean {
       return this.editedName.length <= 0;
     },
   },
   methods: {
+    textFieldFocused(focusEvent: FocusEvent) {
+      if (focusEvent) (focusEvent.target as HTMLInputElement).select();
+    },
     addNewFile() {
       // 新規データ
       const data = new SaveData();

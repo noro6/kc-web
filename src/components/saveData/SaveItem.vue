@@ -113,6 +113,7 @@
             counter
             :label="`${value.isDirectory ? $t('SaveData.フォルダー名') : $t('SaveData.編成データ名')}`"
             @keypress.enter="commitName"
+            @focus="textFieldFocused"
             :disabled="!editDialog"
             ref="nameInput"
           />
@@ -319,6 +320,9 @@ export default Vue.extend({
       const saveData = this.$store.state.saveData as SaveData;
       saveData.sortChild();
       this.$store.dispatch('updateSaveData', saveData);
+    },
+    textFieldFocused(focusEvent: FocusEvent) {
+      if (focusEvent) (focusEvent.target as HTMLInputElement).select();
     },
     itemClicked(): void {
       const data = this.value;
