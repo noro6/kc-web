@@ -489,16 +489,19 @@ export default Vue.extend({
       // 一時退避していたデータを取得
       const moveData = this.$store.state.draggingSaveData as SaveData;
 
-      if (this.value.isDirectory && target.classList.contains('on-item-directory')) {
-        // ディレクトリで、ディレクトリ内に突っ込む判定だった場合
+      // 動かそうとしているデータがディレクトリだった場合、自身の子要素へのドロップは再帰処理で死ぬのでキャンセルする
+      if (moveData.isDirectory) {
+        // 上のmoveData(動かそうとしているディレクトリ内)に入っている子要素のidをすべて列挙
         const childIds = moveData.getAllDataId();
         if (childIds.includes(this.value.id)) {
-          // 自身がファイルじゃなかったり、子孫データに対して自分を入れようとした場合は無理
-          target.classList.remove('on-item-directory');
+          // この子(ドロップ先)要素が、ディレクトリ内の子要素であったらキャンセル
+          target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
           return;
         }
+      }
 
-        // フォルダ内に挿入
+      if (this.value.isDirectory && target.classList.contains('on-item-directory')) {
+        // ディレクトリで、ディレクトリ内に突っ込む判定だった場合
         moveData.order = 999999;
         this.value.childItems.push(moveData);
       } else if (this.parentDirectory.isDirectory && target.classList.contains('on-item-before')) {
@@ -511,6 +514,7 @@ export default Vue.extend({
         this.parentDirectory.childItems.push(moveData);
       } else {
         // 謎の判定 ここで返さないとデータが消えるので返す
+        target.classList.remove('on-item-before', 'on-item-after', 'on-item-directory');
         return;
       }
 
