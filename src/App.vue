@@ -435,11 +435,8 @@
                 <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
                 <div class="caption align-self-center ml-4">… {{ $t("Setting.保存した編成データのバックアップファイルを作成します") }}</div>
               </div>
-              <div class="d-flex mt-3">
-                <v-btn class="align-self-center mr-2" color="success" :disabled="!backupString" @click="importBackupData()">{{ $t("Setting.復元") }}</v-btn>
-                <div class="flex-grow-1 align-self-center mt-3">
-                  <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" dense />
-                </div>
+              <div class="mt-4">
+                <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" />
               </div>
             </div>
           </div>
@@ -484,6 +481,7 @@
                 counter
                 :label="$t('Home.編成データ名')"
                 @keypress.enter="saveAndRenameCurrentData"
+                @focus="textFieldFocused"
                 :disabled="!editDialog"
                 ref="saveDataNameInput"
               />
@@ -565,6 +563,23 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="backupSelectDialog" width="600" persistent>
+      <v-card class="px-5 py-3">
+        <div>{{ $t("Setting.復元するデータ選択") }}</div>
+        <v-divider class="my-3" />
+        <div class="body-2">バックアップデータから取り込むデータを選択してください。</div>
+        <div class="body-2">現在のデータは、選択したバックアップのデータで上書きされます。</div>
+        <v-checkbox v-model="isImportSaveData" hide-details :label="$t('Setting.編成データ')" />
+        <v-checkbox v-model="isImportShipData" hide-details :label="$t('Setting.在籍艦娘データ')" />
+        <v-checkbox v-model="isImportItemData" hide-details :label="$t('Setting.所持装備データ')" />
+        <v-checkbox v-model="isImportURLData" hide-details :label="$t('Setting.艦隊URL出力履歴')" />
+        <v-divider class="my-3" />
+        <div class="d-flex">
+          <v-btn class="ml-auto mr-2" color="success" @click="importBackupData()">{{ $t("Setting.復元") }}</v-btn>
+          <v-btn class="mr-2" color="secondary" @click="cancelBackup()">{{ $t("Common.キャンセル") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -632,6 +647,11 @@ export default Vue.extend({
     enabledFixDrawer: false,
     backupString: undefined as undefined | string,
     fileValue: undefined as File | undefined,
+    backupSelectDialog: false,
+    isImportSaveData: true,
+    isImportShipData: true,
+    isImportItemData: true,
+    isImportURLData: true,
     disabledIndexedDB: false,
     fleetSelectDialog: false,
     selectableFleets: [] as { selected: boolean; fleet: Fleet; supportTypeName: string }[],
@@ -791,8 +811,11 @@ export default Vue.extend({
     document.addEventListener('keydown', this.keydownHandler);
   },
   methods: {
-    closeSideBar() {
-      this.drawer = false;
+    textFieldFocused(focusEvent: FocusEvent) {
+      if (focusEvent) (focusEvent.target as HTMLInputElement).select();
+    },
+    pushPage(path: string) {
+      if (this.$route.path !== path) this.$router.push({ path });
     },
     async loadURLInformation() {
       // 展開待ち中のデータがあれば読み込んで消す
@@ -1359,7 +1382,8 @@ export default Vue.extend({
         savedata: this.saveData.getMinifyData(),
         shipStock: ShipStock.createFleetAnalyticsCode(this.$store.state.shipStock as ShipStock[]),
         itemStock: ItemStock.createFleetAnalyticsCode(this.$store.state.itemStock as ItemStock[]),
-        ver: 2,
+        outputHistories: this.$store.state.outputHistories,
+        ver: 3,
       };
       const minify = LZString.compressToUTF16(JSON.stringify(backUpData));
       const blob = new Blob([minify], { type: 'application/octet-stream' });
@@ -1373,25 +1397,37 @@ export default Vue.extend({
       try {
         const minify = await file.text();
         const dataString = LZString.decompressFromUTF16(minify) ?? '{}';
-        const backUpData = JSON.parse(dataString);
-        if (backUpData.ver === 2 && SaveData.IsSaveData(backUpData.savedata as SaveData) && backUpData.shipStock && backUpData.itemStock) {
+        const data = JSON.parse(dataString);
+        if (data.ver === 3 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock && data.outputHistories) {
           // 艦隊 装備分析データチェック
           this.backupString = dataString;
-        } else if (SaveData.IsSaveData(backUpData as SaveData)) {
+        } else if (data.ver === 2 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock) {
+          // 艦隊 装備分析データチェック
+          this.backupString = dataString;
+        } else if (SaveData.IsSaveData(data as SaveData)) {
           // セーブデータとして復元できるかチェック
           this.backupString = dataString;
         } else {
           throw new Error('復号に失敗');
         }
+
+        this.backupSelectDialog = true;
       } catch (error) {
         console.error(error);
         this.inform('読み込み失敗 -バックアップデータが壊れてるか、なんか違うファイルです。', true);
       }
     },
+    cancelBackup() {
+      this.backupString = undefined;
+      this.backupSelectDialog = false;
+      this.fileValue = undefined;
+    },
     importBackupData() {
       const str = this.backupString;
       this.backupString = undefined;
+      this.backupSelectDialog = false;
       this.fileValue = undefined;
+
       if (str) {
         if (this.isAirCalcPage) {
           // ページ遷移
@@ -1399,36 +1435,44 @@ export default Vue.extend({
         }
 
         const backUpData = JSON.parse(str);
-        let saveData: SaveData;
+        let saveData: SaveData | undefined;
 
-        if (backUpData.ver === 2) {
-          saveData = SaveData.getInstance(backUpData.savedata as SaveData);
-          if (backUpData.shipStock) {
+        if (backUpData.ver === 2 || backUpData.ver === 3) {
+          if (this.isImportSaveData) {
+            saveData = SaveData.getInstance(backUpData.savedata as SaveData);
+          }
+          if (backUpData.shipStock && this.isImportShipData) {
             this.setShipStock(backUpData.shipStock);
           }
-          if (backUpData.itemStock) {
+          if (backUpData.itemStock && this.isImportItemData) {
             this.setItemStock(backUpData.itemStock);
           }
-        } else {
+          if (backUpData.outputHistories && this.isImportURLData) {
+            this.$store.dispatch('updateOutputHistories', backUpData.outputHistories);
+          }
+        } else if (this.isImportSaveData) {
           saveData = SaveData.getInstance(backUpData as SaveData);
         }
 
-        saveData.isReadonly = true;
+        if (saveData) {
+          saveData.isReadonly = true;
 
-        for (let i = 0; i < saveData.childItems.length; i += 1) {
-          const unsavedData = saveData.childItems[i];
-          // ディレクトリ以外は非保存データなので書き換え
-          if (!unsavedData.isDirectory) {
-            unsavedData.isUnsaved = true;
-            unsavedData.isActive = true;
-          } else {
-            unsavedData.isOpen = true;
-            unsavedData.isReadonly = true;
+          for (let i = 0; i < saveData.childItems.length; i += 1) {
+            const unsavedData = saveData.childItems[i];
+            // ディレクトリ以外は非保存データなので書き換え
+            if (!unsavedData.isDirectory) {
+              unsavedData.isUnsaved = true;
+              unsavedData.isActive = true;
+            } else {
+              unsavedData.isOpen = true;
+              unsavedData.isReadonly = true;
+            }
           }
+
+          saveData.sortChild();
+          this.$store.dispatch('updateSaveData', saveData);
         }
 
-        saveData.sortChild();
-        this.$store.dispatch('updateSaveData', saveData);
         this.inform('バックアップデータを復元しました。');
       }
     },
