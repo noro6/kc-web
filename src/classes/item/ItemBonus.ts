@@ -6752,5 +6752,68 @@ export default class ItemBonus {
         },
       ],
     },
+    {
+      ids: [507, 508],
+      bonuses: [
+        {
+          bonus: { firePower: 2, avoid: 1, accuracy: 1 },
+          shipCountry: Const.USA,
+          shipType: [8, 9, 10],
+        },
+        {
+          bonus: { firePower: 1, avoid: 1, accuracy: 2 },
+          shipCountry: Const.USA,
+          shipType: [8, 9, 10],
+          requiresId: [279, 307, 315, 456],
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          shipClass: [2, 6, 26],
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          shipCountry: Const.GBR,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 3,
+        },
+        {
+          bonus: { armor: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 9,
+        },
+      ],
+    },
+    {
+      ids: [508],
+      bonuses: [
+        {
+          bonus: { firePower: 1, avoid: 2, accuracy: 1 },
+          shipCountry: Const.USA,
+          shipType: [8, 9, 10],
+          requiresId: [507],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1, avoid: 1, accuracy: 1 },
+          shipClass: [2, 6, 26],
+          requiresId: [507],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1, avoid: 1, accuracy: 1 },
+          shipCountry: Const.GBR,
+          requiresId: [507],
+          num: 1,
+        },
+      ],
+    },
   ];
 }
