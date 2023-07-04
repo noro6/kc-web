@@ -712,6 +712,10 @@ export default Vue.extend({
         } else if (this.argParent instanceof Ship || this.argParent instanceof Enemy) {
           // 通常航空戦火力計算
           this.calcArgs.isAirbaseMode = false;
+          if (this.argParent instanceof Ship) {
+            // 熟練度クリティカルボーナス算出
+            this.calcArgs.criticalBonus = this.argParent.getProfCriticalBonus();
+          }
           powers = Calculator.getAerialFirePowers(this.calcArgs, slotDist);
         }
 
