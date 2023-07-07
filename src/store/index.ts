@@ -25,7 +25,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.40.4',
+    siteVersion: '2.40.5',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -65,7 +65,7 @@ export default new Vuex.Store({
     /** 艦種マスタ */
     shipTypes: [] as Master.MasterShipType[],
     /** 特定艦娘が補強増設に装備可能な装備id */
-    exSlotEquipShips: [] as Master.MasterEquipmentExSlot[],
+    exSlotEquipShips: [] as Master.FormattedMasterEquipmentExSlot[],
     /** 現在展開中の計算データ */
     calcManager: undefined as CalcManager | undefined,
     /** 現在展開中のセーブデータ */
@@ -122,8 +122,46 @@ export default new Vuex.Store({
       }
       state.items = items;
     },
-    setExSlotEquipShips: (state, values: Master.MasterEquipmentExSlot[]) => {
-      state.exSlotEquipShips = values;
+    setExSlotEquipShips: (state, values: Master.MasterEquipmentExSlot) => {
+      // あまりにもアレすぎるので変換する
+      const data: Master.FormattedMasterEquipmentExSlot[] = [];
+      Object.keys(values).forEach((v) => {
+        if (+v && values[v]) {
+          const row: Master.FormattedMasterEquipmentExSlot = {
+            api_slotitem_id: +v,
+            api_ship_ids: [],
+            api_stypes: [],
+            api_ctypes: [],
+          };
+
+          // eslint-disable-next-line camelcase
+          const { api_ship_ids, api_stypes, api_ctypes } = values[v];
+          // eslint-disable-next-line camelcase
+          if (api_ship_ids) {
+            Object.keys(api_ship_ids).forEach((x) => {
+              if (+x && api_ship_ids[x]) row.api_ship_ids.push(+x);
+            });
+          }
+          // eslint-disable-next-line camelcase
+          if (api_stypes) {
+            Object.keys(api_stypes).forEach((x) => {
+              if (+x && api_stypes[x]) row.api_stypes.push(+x);
+            });
+          }
+          // eslint-disable-next-line camelcase
+          if (api_ctypes) {
+            Object.keys(api_ctypes).forEach((x) => {
+              if (+x && api_ctypes[x]) row.api_ctypes.push(+x);
+            });
+          }
+
+          data.push(row);
+        }
+      });
+
+      console.log(data);
+
+      state.exSlotEquipShips = data;
     },
     setEquipShips: (state, values: Master.MasterEquipmentShip[]) => {
       state.equipShips = values;

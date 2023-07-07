@@ -6,7 +6,8 @@ export interface MasterShipType { api_id: number, api_name: string, api_equip_ty
 /** 特定艦娘が装備可能な装備カテゴリ */
 export interface MasterEquipmentShip { api_ship_id: number, api_equip_type: number[] }
 /** 特定艦娘が補強増設に装備可能な装備id */
-export interface MasterEquipmentExSlot { api_slotitem_id: number, api_ship_ids: number[] }
+export interface MasterEquipmentExSlot { [key: string]: { api_ship_ids: { [key: string]: number } | null, api_stypes: { [key: string]: number } | null, api_ctypes: { [key: string]: number } | null } }
+export interface FormattedMasterEquipmentExSlot { api_slotitem_id: number, api_ship_ids: number[], api_stypes: number[], api_ctypes: number[] }
 export interface MasterWorld { world: number, name: string }
 export interface MasterMap { area: number, name: string, boss: string[], has_detail: number, has_air_raid: number }
 

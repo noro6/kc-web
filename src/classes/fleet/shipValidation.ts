@@ -98,14 +98,12 @@ export default class ShipValidation {
 
     // 補強増設枠
     if (isExpandSlot) {
-      if (item.id === 34 || item.id === 87 || item.id === 534) {
-        // 缶を弾く => タービンはOKのため
-        return false;
-      }
       // 艦娘特別装備枠マスタより解決できた場合は搭載可能
-      const sp = store.state.exSlotEquipShips.find((v) => v.api_slotitem_id === item.id);
-      if (sp && sp.api_ship_ids.includes(ship.id)) {
-        return true;
+      if (store.state.exSlotEquipShips.find) {
+        const sp = store.state.exSlotEquipShips.find((v) => v.api_slotitem_id === item.id);
+        if (sp && (sp.api_ship_ids.includes(ship.id) || sp.api_stypes.includes(ship.type) || sp.api_ctypes.includes(ship.type2))) {
+          return true;
+        }
       }
 
       // 潜水艦後部魚雷対応
@@ -116,6 +114,11 @@ export default class ShipValidation {
       // 甲板 空母補強増設対応
       if ((item.id === 477 || item.id === 478) && ship.isCV) {
         return true;
+      }
+
+      if (item.id === 34 || item.id === 87) {
+        // 缶を弾く => タービンはOKのため
+        return false;
       }
 
       // 補強増設可能装備で絞る
