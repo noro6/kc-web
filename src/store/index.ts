@@ -158,9 +158,6 @@ export default new Vuex.Store({
           data.push(row);
         }
       });
-
-      console.log(data);
-
       state.exSlotEquipShips = data;
     },
     setEquipShips: (state, values: Master.MasterEquipmentShip[]) => {
