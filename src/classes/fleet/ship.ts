@@ -766,17 +766,19 @@ export default class Ship implements ShipBase {
     const boilerCount = items.filter((v) => v.data.id === 34).length;
     const newModelBoilerCount = items.filter((v) => v.data.id === 87).length;
     const totalBoilerCount = boilerCount + newModelBoilerCount;
+    // 改修★+7以上の新型缶個数
+    const remodeledNewModelBoilerCount = items.filter((v) => v.data.id === 87 && v.remodel >= 7).length;
 
-    if (this.data.speed === 10 && hasTurbine) {
-      // 高速 + タービン
-      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2)) {
-        // 島風型, Ташкент級, 大鳳型, 翔鶴型, 利根型, 最上型
-        if (hasTurbine && newModelBoilerCount) {
-          // 新型缶 => 最速
+    if (this.data.speed === 10) {
+      // 高速
+      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2) || this.data.id === 951) {
+        // 島風型, Ташкент級, 天津風改二, 大鳳型, 翔鶴型, 利根型, 最上型
+        if ((hasTurbine && newModelBoilerCount) || remodeledNewModelBoilerCount >= 2) {
+          // タービン + 新型缶 または 改修★+7以上の新型缶x2 => 最速
           return 20;
         }
-        if (hasTurbine && totalBoilerCount) {
-          // いずれかの缶
+        if ((hasTurbine && totalBoilerCount) || remodeledNewModelBoilerCount) {
+          // いずれかの缶 または 改修★+7以上の新型缶
           return 15;
         }
       } else if ([41, 17, 25, 6, 65, 37].includes(this.data.type2) || [181, 404, 331].includes(this.data.originalId)) {
@@ -792,17 +794,17 @@ export default class Ship implements ShipBase {
         }
       } else if ([3, 34, 87].includes(this.data.type2) || this.data.type === SHIP_TYPE.AV) {
         // 加賀型, 夕張型, 水母, Samuel
-        if (totalBoilerCount) {
+        if (hasTurbine && totalBoilerCount) {
           // いずれかの缶 => 高速+
           return 15;
         }
       } else {
         // それ以外の高速
-        if (newModelBoilerCount >= 2 || totalBoilerCount >= 3) {
+        if (hasTurbine && (newModelBoilerCount >= 2 || totalBoilerCount >= 3)) {
           // 新型缶x2 || いずれかの缶x3 => 最速
           return 20;
         }
-        if (totalBoilerCount) {
+        if (hasTurbine && totalBoilerCount) {
           // いずれかの缶 => 高速+
           return 15;
         }
@@ -815,8 +817,16 @@ export default class Ship implements ShipBase {
           // タービン + 新型缶含むいずれかの缶x3 => 最速
           return 20;
         }
+        if (hasTurbine && remodeledNewModelBoilerCount >= 2) {
+          // タービン + 改修★7新型缶x2 => 最速
+          return 20;
+        }
         if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 2) {
           // タービン + 新型缶含むいずれかの缶x2 => 高速+
+          return 15;
+        }
+        if (hasTurbine && remodeledNewModelBoilerCount) {
+          // タービン + 改修★7新型缶 => 高速+
           return 15;
         }
         if (hasTurbine && totalBoilerCount) {
