@@ -156,12 +156,12 @@
       </div>
       <div v-show="ships.length === 0" class="body-2 text-center mt-10">
         <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
-        <div class="d-flex align-center justify-center mt-2">
-          <div class="mt-0_5">
+        <div class="d-flex align-center justify-center">
+          <div class="mt-1">
             {{ $t("Common.もしかして") }}
           </div>
           <div>
-            <v-btn text color="primary" @click="filterDialog = true">{{ $t("Common.検索条件") }}</v-btn>
+            <v-btn class="pt-0" text color="primary" @click="filterDialog = true">{{ $t("Common.検索条件") }}</v-btn>
           </div>
         </div>
       </div>
@@ -756,6 +756,7 @@
   padding-top: 20px;
   padding-left: 20px;
   overflow-y: auto;
+  overflow-x: visible;
   height: 70vh;
   overscroll-behavior: contain;
 }

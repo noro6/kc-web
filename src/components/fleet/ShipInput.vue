@@ -107,7 +107,7 @@
           </v-btn>
         </div>
       </div>
-      <div class="align-self-center caption pl-2">
+      <div class="ship-status-container caption pl-2">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}</span>
         <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
@@ -365,6 +365,9 @@
   font-size: 0.8em;
   transition: 0.2s;
   cursor: pointer;
+}
+.ship-status-container {
+  height: 16px;
 }
 
 .btn-item-reset {

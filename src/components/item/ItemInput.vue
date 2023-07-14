@@ -162,8 +162,8 @@
 .item-icon,
 .item-icon img {
   text-align: center;
-  width: 29px;
-  height: 29px;
+  width: 27px;
+  height: 27px;
 }
 .item-icon i {
   font-size: 1.2em;

@@ -16,16 +16,16 @@
       <div class="slot-rate-container mt-2" :class="{ show: visibleSlotRate }">
         <div class="border-window pa-2">
           <div class="header-content">
-            <div v-if="!isAirbase && editableParent" class="d-flex px-2">
-              <div class="align-self-center">
+            <div v-if="!isAirbase && editableParent" class="d-flex px-2 align-center">
+              <div>
                 <v-img :src="`./img/ship/${editableParent.data.id}.png`" height="30" width="120" />
               </div>
-              <div class="px-2 align-self-center">
+              <div class="px-2">
                 <div v-if="editableParent.data.id > 1500" class="parent-id">id {{ editableParent.data.id }}</div>
                 <div class="caption">{{ getShipName(editableParent.data) }}</div>
               </div>
             </div>
-            <template v-else>
+            <template v-else-if="editableParent">
               <div class="px-2 body-2">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
               <div class="pl-3 body-2">( {{ $t("Common.半径") }} {{ editableParent.radius }} )</div>
             </template>
