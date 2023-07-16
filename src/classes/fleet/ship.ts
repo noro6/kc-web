@@ -1521,9 +1521,11 @@ export default class Ship implements ShipBase {
     const lightCorr = 7;
     // 味方照明弾補正 +4
     const starShellCorr = 4;
-    let personnelCorr = hasPersonnel || hasSkilledPersonnel ? 5 : 0;
-    if (this.data.type === SHIP_TYPE.DD || this.data.type === SHIP_TYPE.CL || this.data.type === SHIP_TYPE.CLT) {
-      personnelCorr = hasSkilledPersonnel ? 9 : personnelCorr;
+    // 見張員補正
+    let personnelCorr = hasPersonnel ? 5 : 0;
+    if (hasSkilledPersonnel && (this.data.type === SHIP_TYPE.DD || this.data.type === SHIP_TYPE.CL || this.data.type === SHIP_TYPE.CLT)) {
+      // 水雷見張員補正 => 駆逐 & 軽巡級 +8
+      personnelCorr = 8;
     }
 
     const results = [];
