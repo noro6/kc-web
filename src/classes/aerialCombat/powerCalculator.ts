@@ -150,20 +150,20 @@ export default class AerialFirePowerCalculator {
    */
   public static getPreCapTerms(args: FirePowerCalcArgs): PreCapTerm[] {
     const { item, defense, isAirbaseMode } = args;
-    // 種別倍率
+    /** 種別倍率 */
     const typeMultipliers = [0];
 
-    // 航空戦定数 基本は25だが…？
+    /** 航空戦定数 基本は25だが…？ */
     let airstrikeModifiers = 25;
-    // 実利用雷装(爆装)値
+    /** 実利用雷装(爆装)値 */
     let actualTorpedo = 0;
-    // 搭載数補正
+    /** 搭載数補正 */
     let adj = isAirbaseMode ? 1.8 : 1;
-    // B-25前補正
+    /** B25補正 */
     let B25Modifiers = 1;
-    // 誘導弾雷装補正
+    /** 誘導弾雷装補正 */
     let torpedoMultiplier = 1;
-    // 防御側が地上施設かどうか
+    /** 防御側が地上施設かどうか */
     const isLandBase = defense.data.speed === 0;
     const shipType = args.defense.data.type;
 

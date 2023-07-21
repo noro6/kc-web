@@ -47,6 +47,17 @@
     <div class="d-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <v-btn @click="filterDialog = true" :disabled="!!keyword" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
       <div v-if="!isNotJapanese" class="ml-3 caption d-none d-md-block text--secondary">Ctrlキー + 艦娘をクリックでwikiを展開します。</div>
+      <div class="ml-auto mr-4" v-if="shipStock.length">
+        <v-switch
+          class="mt-0"
+          v-model="isStockOnly"
+          :label="$t('Fleet.在籍艦娘反映')"
+          @click="clickedStockOnly()"
+          :disabled="disabledStockOnlyChange"
+          dense
+          hide-details
+        />
+      </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
@@ -184,190 +195,143 @@
     </v-dialog>
     <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="760" @input="toggleFilterDialog">
       <v-card>
-        <div class="filter-dialog-body">
+        <div class="d-flex pt-2 pb-1 px-2">
+          <div class="align-self-center ml-3 body-2">{{ $t("Common.絞り込み") }}</div>
+          <v-spacer />
+          <div v-if="shipStock.length">
+            <v-switch
+              class="mr-3 mt-1"
+              v-model="isStockOnly"
+              :label="$t('Fleet.在籍艦娘反映')"
+              @click="clickedStockOnly()"
+              :disabled="disabledStockOnlyChange"
+              dense
+              hide-details
+            />
+          </div>
+          <v-btn class="mr-3 align-self-center" small text @click.stop="resetFilter()">
+            {{ $t("Common.リセット") }}
+          </v-btn>
+          <v-btn icon @click="closeFilterDialog()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider class="mx-2" />
+        <div class="filter-dialog-body pr-1 pb-2">
           <div class="d-flex">
             <div class="caption">{{ $t("Fleet.改造状態") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox v-model="shipFilter.includeInitial" @change="filter()" dense hide-details :label="$t('Fleet.未改造')" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.includeIntermediate" @change="filter()" dense hide-details :label="$t('Fleet.中間改造')" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.includeFinal" @change="filter()" dense hide-details :label="$t('Fleet.最終改造')" />
-            </div>
+            <v-checkbox v-model="shipFilter.includeInitial" dense hide-details :label="$t('Fleet.未改造')" />
+            <v-checkbox v-model="shipFilter.includeIntermediate" dense hide-details :label="$t('Fleet.中間改造')" />
+            <v-checkbox v-model="shipFilter.includeFinal" dense hide-details :label="$t('Fleet.最終改造')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備搭載可否") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox
-                v-model="shipFilter.midgetSubmarineOK"
-                :disabled="!visibleMidgetSubmarineFilter"
-                @click="filter()"
-                dense
-                hide-details
-                :label="$t('Fleet.甲標的')"
-              />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.largeSearchlightOK" @click="filter()" dense hide-details :label="$t('Fleet.大型探照灯')" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" @click="filter()" dense hide-details :label="$t('Fleet.増設副砲')" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.canEquipExRadarOnly" @click="filter()" dense hide-details :label="$t('Fleet.増設電探')" />
-            </div>
+            <v-checkbox v-model="shipFilter.midgetSubmarineOK" :disabled="!visibleMidgetSubmarineFilter" dense hide-details :label="$t('Fleet.甲標的')" />
+            <v-checkbox v-model="shipFilter.largeSearchlightOK" dense hide-details :label="$t('Fleet.大型探照灯')" />
+            <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" dense hide-details :label="$t('Fleet.増設副砲')" />
+            <v-checkbox v-model="shipFilter.canEquipExRadarOnly" dense hide-details :label="$t('Fleet.増設電探')" />
           </div>
           <div class="filter-input-container mt-1">
-            <div class="d-flex manual-checkbox">
-              <v-btn icon @click="toggleDaihatsuFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.landingCraftOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.landingCraftNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleDaihatsuFilter()" @keypress="toggleDaihatsuFilter()" :src="`./img/type/type24.png`" alt="type-24" />
-            </div>
-            <div class="d-flex manual-checkbox">
-              <v-btn icon @click="toggleTankFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.tankOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.tankNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleTankFilter()" @keypress="toggleTankFilter()" :src="`./img/type/type46.png`" alt="type-46" />
-            </div>
-            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleSpBomberFilter }">
-              <v-btn icon @click="toggleSpBomberFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.spBomberOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.spBomberNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleSpBomberFilter()" @keypress="toggleSpBomberFilter()" :src="`./img/type/type1100.png`" alt="type-11" width="35" height="35" />
-            </div>
-            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleFighterFilter }">
-              <v-btn icon @click="toggleFighterFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.fighterOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.fighterNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleFighterFilter()" @keypress="toggleFighterFilter()" :src="`./img/type/type4500.png`" alt="type-45" width="35" height="35" />
-            </div>
-            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleCommanderFilter }">
-              <v-btn icon @click="toggleCommanderFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.commanderOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.commanderNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleCommanderFilter()" @keypress="toggleCommanderFilter()" :src="`./img/type/type34.png`" alt="type-34" width="35" height="35" />
-            </div>
-            <div class="d-flex manual-checkbox" :class="{ disabled: !visibleArmorFilter }">
-              <v-btn icon @click="toggleArmorFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.armorOK">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.armorNG">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <img @click="toggleArmorFilter()" @keypress="toggleArmorFilter()" :src="`./img/type/type27.png`" alt="type-27" width="35" height="35" />
-            </div>
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.landingCraftOK"
+              :ng="shipFilter.landingCraftNG"
+              :toggle="toggleDaihatsuFilter"
+              imgPath="./img/type/type24.png"
+            />
+            <manual-checkbox mode="img" :ok="shipFilter.tankOK" :ng="shipFilter.tankNG" :toggle="toggleTankFilter" imgPath="./img/type/type46.png" />
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.spBomberOK"
+              :ng="shipFilter.spBomberNG"
+              :toggle="toggleSpBomberFilter"
+              imgPath="./img/type/type1100.png"
+              :disabled="!visibleSpBomberFilter"
+            />
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.fighterOK"
+              :ng="shipFilter.fighterNG"
+              :toggle="toggleFighterFilter"
+              imgPath="./img/type/type4500.png"
+              :disabled="!visibleFighterFilter"
+            />
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.commanderOK"
+              :ng="shipFilter.commanderNG"
+              :toggle="toggleCommanderFilter"
+              imgPath="./img/type/type34.png"
+              :disabled="!visibleCommanderFilter"
+            />
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.armorOK"
+              :ng="shipFilter.armorNG"
+              :toggle="toggleArmorFilter"
+              imgPath="./img/type/type27.png"
+              :disabled="!visibleArmorFilter"
+            />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Common.耐久") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox v-model="shipFilter.HPIs4n1" @click="filter()" dense hide-details label="4n - 1" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.HPIs4n2" @click="filter()" dense hide-details label="4n - 2" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.HPIs4n3" @click="filter()" dense hide-details label="4n - 3" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.HPIs4n" @click="filter()" dense hide-details label="4n" />
-            </div>
+            <v-checkbox v-model="shipFilter.HPIs4n1" dense hide-details label="4n - 1" />
+            <v-checkbox v-model="shipFilter.HPIs4n2" dense hide-details label="4n - 2" />
+            <v-checkbox v-model="shipFilter.HPIs4n3" dense hide-details label="4n - 3" />
+            <v-checkbox v-model="shipFilter.HPIs4n" dense hide-details label="4n" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Common.速力") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox v-model="shipFilter.includeFast" @click="filter()" dense hide-details :label="$t('Fleet.高速')" />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.includeSlow" @click="filter()" dense hide-details :label="$t('Fleet.低速')" />
-            </div>
+            <v-checkbox v-model="shipFilter.includeFast" dense hide-details :label="$t('Fleet.高速')" />
+            <v-checkbox v-model="shipFilter.includeSlow" dense hide-details :label="$t('Fleet.低速')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備スロット数") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox
-                v-model="shipFilter.slotCount3"
-                @click="filter()"
-                dense
-                hide-details
-                :label="$t('Fleet.3スロ以上')"
-                :disabled="shipFilter.slotCount4 || shipFilter.slotCount5"
-              />
-            </div>
-            <div>
-              <v-checkbox
-                v-model="shipFilter.slotCount4"
-                @click="filter()"
-                dense
-                hide-details
-                :label="$t('Fleet.4スロ以上')"
-                :disabled="shipFilter.slotCount5"
-              />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.slotCount5" @click="filter()" dense hide-details :label="$t('Fleet.5スロ以上')" />
-            </div>
+            <v-checkbox
+              v-model="shipFilter.slotCount3"
+              dense
+              hide-details
+              :label="$t('Fleet.3スロ以上')"
+              :disabled="shipFilter.slotCount4 || shipFilter.slotCount5"
+            />
+            <v-checkbox v-model="shipFilter.slotCount4" dense hide-details :label="$t('Fleet.4スロ以上')" :disabled="shipFilter.slotCount5" />
+            <v-checkbox v-model="shipFilter.slotCount5" dense hide-details :label="$t('Fleet.5スロ以上')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption align-self-center">{{ $t("Common.その他") }}</div>
             <div class="header-divider" />
-            <div class="pr-1 pl-3">
+            <div class="pl-3">
               <v-btn small @click="showBookmarkDialog()" color="pink lighten-2" outlined>
                 <v-icon small>mdi-heart-cog</v-icon> {{ $t("Fleet.お気に入り編集") }}
               </v-btn>
             </div>
           </div>
           <div class="filter-input-container">
-            <div>
-              <v-checkbox
-                v-model="shipFilter.escortCarrierOnly"
-                @click="filter()"
-                dense
-                hide-details
-                :label="$t('Fleet.護衛空母')"
-                :disabled="!visibleEscortCarrierFilter"
-              />
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.onlyAutoOASW" @click="filter()" dense hide-details :label="$t('Fleet.自動先制対潜')" />
-            </div>
-            <div class="d-flex manual-checkbox text" :class="{ disabled: !isStockOnly }">
-              <v-btn icon @click="toggleExSlotFilter()" class="manual-checkbox-button">
-                <v-icon class="manual-icon" color="primary" v-if="shipFilter.isReleaseExSlotOnly">mdi-checkbox-marked</v-icon>
-                <v-icon class="manual-icon" color="error" v-else-if="shipFilter.isNotReleaseExSlotOnly">mdi-close-box</v-icon>
-                <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-              </v-btn>
-              <div class="label" @click="toggleExSlotFilter()" @keypress="toggleExSlotFilter()">{{ $t("Fleet.補強増設") }}</div>
-            </div>
-            <div>
-              <v-checkbox v-model="shipFilter.onlyBookmarked" @click="filter()" dense hide-details :label="$t('Fleet.お気に入り')" />
-            </div>
+            <v-checkbox v-model="shipFilter.escortCarrierOnly" dense hide-details :label="$t('Fleet.護衛空母')" :disabled="!visibleEscortCarrierFilter" />
+            <v-checkbox v-model="shipFilter.onlyAutoOASW" dense hide-details :label="$t('Fleet.自動先制対潜')" />
+            <manual-checkbox
+              :ok="shipFilter.isReleaseExSlotOnly"
+              :ng="shipFilter.isNotReleaseExSlotOnly"
+              :toggle="toggleExSlotFilter"
+              :disabled="!isStockOnly"
+              >{{ $t("Fleet.補強増設") }}</manual-checkbox
+            >
+            <v-checkbox v-model="shipFilter.onlyBookmarked" dense hide-details :label="$t('Fleet.お気に入り')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.ステータス") }}</div>
@@ -556,22 +520,6 @@
             </template>
           </v-range-slider>
         </div>
-        <v-divider />
-        <div class="d-flex pa-3">
-          <div v-if="shipStock.length">
-            <v-switch
-              class="mt-1"
-              v-model="isStockOnly"
-              :label="$t('Fleet.在籍艦娘反映')"
-              @click="clickedStockOnly()"
-              :disabled="disabledStockOnlyChange"
-              dense
-              hide-details
-            />
-          </div>
-          <v-btn class="ml-auto" color="error" dark @click.stop="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="closeFilterDialog()">{{ $t("Common.閉じる") }}</v-btn>
-        </div>
       </v-card>
     </v-dialog>
     <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog">
@@ -756,48 +704,8 @@
   padding-top: 20px;
   padding-left: 20px;
   overflow-y: auto;
-  overflow-x: visible;
   height: 70vh;
   overscroll-behavior: contain;
-}
-
-.manual-checkbox {
-  position: relative;
-  height: 36px;
-  width: 64px;
-  cursor: pointer;
-  user-select: none;
-}
-.manual-checkbox.disabled {
-  pointer-events: none;
-  opacity: 0.6;
-}
-.manual-checkbox-button {
-  position: absolute;
-  left: -6px;
-  bottom: -4px;
-}
-.manual-icon {
-  font-size: 20px !important;
-}
-.manual-checkbox img {
-  position: absolute;
-  left: 32px;
-  top: 50%;
-  transform: translateY(-45%);
-}
-.manual-checkbox.text {
-  width: 100px;
-  cursor: pointer;
-}
-.manual-checkbox .label {
-  user-select: none;
-  position: absolute;
-  font-size: 0.85em;
-  opacity: 0.7;
-  left: 28px;
-  bottom: 3px;
-  margin-left: 4px;
 }
 .header-divider {
   margin-left: 1rem;
@@ -824,6 +732,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ShipTooltip from '@/components/fleet/ShipTooltip.vue';
+import ManualCheckbox from '@/components/common/ManualCheckbox.vue';
 import ShipBookmarkEdit from '@/components/fleet/ShipBookmarkEdit.vue';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import Const, { SHIP_TYPE } from '@/classes/const';
@@ -859,7 +768,7 @@ export interface ViewShip {
 
 export default Vue.extend({
   name: 'ShipList',
-  components: { ShipTooltip, ShipBookmarkEdit },
+  components: { ShipTooltip, ShipBookmarkEdit, ManualCheckbox },
   props: {
     handleDecideShip: {
       type: Function,
@@ -1043,7 +952,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.hasAreaOnly = true;
       }
-      this.filter();
     },
     toggleDaihatsuFilter() {
       if (this.shipFilter.landingCraftOK) {
@@ -1054,7 +962,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.landingCraftOK = true;
       }
-      this.filter();
     },
     toggleTankFilter() {
       if (this.shipFilter.tankOK) {
@@ -1065,7 +972,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.tankOK = true;
       }
-      this.filter();
     },
     toggleSpBomberFilter() {
       if (this.shipFilter.spBomberOK) {
@@ -1076,7 +982,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.spBomberOK = true;
       }
-      this.filter();
     },
     toggleFighterFilter() {
       if (this.shipFilter.fighterOK) {
@@ -1098,7 +1003,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.commanderOK = true;
       }
-      this.filter();
     },
     toggleArmorFilter() {
       if (this.shipFilter.armorOK) {
@@ -1109,7 +1013,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.armorOK = true;
       }
-      this.filter();
     },
     toggleExSlotFilter() {
       if (this.shipFilter.isReleaseExSlotOnly) {
@@ -1120,7 +1023,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.isReleaseExSlotOnly = true;
       }
-      this.filter();
     },
     initialize(enabledUserShip = true) {
       this.decidedShip = false;

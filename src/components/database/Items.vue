@@ -91,7 +91,7 @@
     </div>
     <v-card class="my-3 pa-4" v-if="!viewItems.length">
       <div class="text-center my-10">
-        <div>{{ $t("Common.探したけど見つからなかったよ") }}</div>
+        <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
       </div>
     </v-card>
     <div v-else class="item-all-container mt-3">
