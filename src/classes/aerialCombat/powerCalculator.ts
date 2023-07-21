@@ -188,6 +188,14 @@ export default class AerialFirePowerCalculator {
         // 噴式機
         actualTorpedo = item.actualBomber;
         typeMultipliers[0] = 0.7071;
+        if (isAirbaseMode) {
+          // 噴式フェーズ(基地)
+          typeMultipliers.push(1);
+          adj = 1;
+        } else {
+          // 噴式フェーズ(通常)
+          typeMultipliers.push(1);
+        }
         break;
       case 26:
         // 対潜哨戒機
