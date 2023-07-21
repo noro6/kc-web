@@ -141,6 +141,9 @@ export default class SiteSetting {
   /** 画像保存形式 */
   public imageType: 'png' | 'jpg';
 
+  /** ネタバレ防止ON */
+  public isAvoidSpoiler: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -185,6 +188,7 @@ export default class SiteSetting {
       this.showHPandArmor = !!setting.showHPandArmor;
       this.bookmarkedShipIds = setting.bookmarkedShipIds ? setting.bookmarkedShipIds : [];
       this.imageType = setting.imageType ?? 'png';
+      this.isAvoidSpoiler = setting.isAvoidSpoiler ?? true;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -279,6 +283,7 @@ export default class SiteSetting {
       this.showHPandArmor = false;
       this.bookmarkedShipIds = [];
       this.imageType = 'png';
+      this.isAvoidSpoiler = true;
     }
   }
 }
