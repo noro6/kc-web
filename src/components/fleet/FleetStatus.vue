@@ -1,14 +1,7 @@
 <template>
   <div class="pa-2">
-    <v-alert v-if="includePlane" border="left" dense outlined type="warning">
-      {{
-        $t(
-          "Common.艦隊に艦載機が含まれています。遠征における艦載機の性能に対する補正の計算式が不明なため、遠征のステータス調整に利用する際は十分注意してください。"
-        )
-      }}
-    </v-alert>
     <v-divider />
-    <v-simple-table fixed-header height="64vh">
+    <v-simple-table dense>
       <template v-slot:default>
         <thead>
           <tr>
@@ -47,6 +40,60 @@
         </tbody>
       </template>
     </v-simple-table>
+    <v-divider class="mb-6"></v-divider>
+    <div>
+      <div>{{ $t("Common.遠征ステータスチェッカー") }}</div>
+    </div>
+    <v-alert v-if="includePlane" border="left" dense outlined type="warning" class="my-2">
+      {{
+        $t(
+          "Common.艦隊に艦載機が含まれています。遠征における艦載機の性能に対する補正の計算式が不明なため、遠征のステータス調整に利用する際は十分注意してください。"
+        )
+      }}
+    </v-alert>
+    <v-card class="pa-2">
+      <div class="d-flex flex-wrap align-center justify-md-space-between">
+        <v-checkbox
+          class="mr-3"
+          v-for="(item, i) in worlds"
+          :key="`world${i}`"
+          dense
+          v-model="item.isChecked"
+          :label="item.text"
+          hide-details
+          @change="setExpeditionRow"
+        />
+        <v-btn small @click="toggleAllWorld()" outlined color="primary"> <v-icon small>mdi-check-all</v-icon> {{ $t("Database.一括チェック") }} </v-btn>
+      </div>
+      <v-divider class="mt-2" />
+      <v-simple-table dense>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th>{{ $t("ItemList.名称") }}</th>
+              <th class="text-right">{{ $t("Common.旗艦Lv") }}</th>
+              <th class="text-right">{{ $t("Common.合計Lv") }}</th>
+              <th class="text-right">{{ $t("Common.火力") }}</th>
+              <th class="text-right">{{ $t("Common.対空") }}</th>
+              <th class="text-right">{{ $t("Common.対潜") }}</th>
+              <th class="text-right">{{ $t("Common.索敵") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in expeditionRows" :key="`expedition${i}`" :class="{ 'tr-lack': row.failed }">
+              <td>{{ row.id }} : {{ row.name }}</td>
+              <td class="text-right">{{ row.flagshipLevel ? row.flagshipLevel : "&#10004;" }}</td>
+              <td class="text-right">{{ row.level ? row.level : "&#10004;" }}</td>
+              <td class="text-right">{{ row.fire ? row.fire : "&#10004;" }}</td>
+              <td class="text-right">{{ row.antiAir ? row.antiAir : "&#10004;" }}</td>
+              <td class="text-right">{{ row.asw ? row.asw : "&#10004;" }}</td>
+              <td class="text-right">{{ row.scout ? row.scout : "&#10004;" }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+      <v-divider v-if="expeditionRows.length" />
+    </v-card>
   </div>
 </template>
 
@@ -56,6 +103,12 @@
 }
 .v-data-table tbody td {
   height: 42px !important;
+}
+.v-data-table tbody tr.tr-lack {
+  background-color: rgba(255, 10, 10, 0.1);
+}
+.v-data-table tbody tr.tr-lack:hover {
+  background-color: rgba(255, 10, 10, 0.2) !important;
 }
 .ship-name {
   flex-grow: 1;
@@ -70,6 +123,20 @@ import Fleet from '@/classes/fleet/fleet';
 import SiteSetting from '@/classes/siteSetting';
 import Ship from '@/classes/fleet/ship';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import { MasterWorld } from '@/classes/interfaces/master';
+import Const from '../../classes/const';
+
+type ExpeditionRow = {
+  id: string;
+  name: string;
+  flagshipLevel: string;
+  level: string;
+  fire: string;
+  antiAir: string;
+  asw: string;
+  scout: string;
+  failed: boolean;
+};
 
 export default Vue.extend({
   name: 'FleetStatus',
@@ -79,9 +146,24 @@ export default Vue.extend({
       required: true,
     },
   },
-  data: () => ({}),
+  data: () => ({
+    worlds: [] as { world: number; text: string; isChecked: boolean }[],
+    expeditionRows: [] as ExpeditionRow[],
+  }),
   mounted() {
-    //
+    const worlds = this.$store.state.worlds as MasterWorld[];
+    this.worlds = [];
+    for (let i = 0; i < worlds.length; i += 1) {
+      const data = worlds[i];
+      if (Const.EXPEDITIONS.some((v) => v.world === data.world)) {
+        this.worlds.push({
+          world: data.world,
+          text: data.name,
+          isChecked: true,
+        });
+      }
+    }
+    this.setExpeditionRow();
   },
   computed: {
     needTrans(): boolean {
@@ -89,22 +171,42 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     ships(): Ship[] {
-      return this.fleet.ships.filter((v) => v.data.id > 0);
+      return this.fleet.ships.filter((v) => v.data.id > 0 && v.isActive);
     },
     totalLevel(): number {
       return sum(this.ships.map((v) => v.level));
     },
     totalFirePower(): number {
-      return sum(this.ships.map((v) => v.displayStatus.firePower));
+      return sum(
+        this.ships.map((v) => {
+          const itemTotal = sum(v.items.map((w) => w.bonusExpeditionFire));
+          return v.displayStatus.firePower + Math.floor(itemTotal);
+        }),
+      );
     },
     totalAntiAir(): number {
-      return sum(this.ships.map((v) => v.displayStatus.antiAir));
+      return sum(
+        this.ships.map((v) => {
+          const itemTotal = sum(v.items.map((w) => w.bonusExpeditionAntiAir));
+          return v.displayStatus.antiAir + Math.floor(itemTotal);
+        }),
+      );
     },
     totalAsw(): number {
-      return sum(this.ships.map((v) => v.displayStatus.asw));
+      return sum(
+        this.ships.map((v) => {
+          const itemTotal = sum(v.items.map((w) => w.bonusExpeditionAsw));
+          return v.displayStatus.asw + Math.floor(itemTotal);
+        }),
+      );
     },
     totalLoS(): number {
-      return sum(this.ships.map((v) => v.displayStatus.LoS));
+      return sum(
+        this.ships.map((v) => {
+          const itemTotal = sum(v.items.map((w) => w.bonusExpeditionScout));
+          return v.displayStatus.LoS + Math.floor(itemTotal);
+        }),
+      );
     },
     includePlane(): boolean {
       return this.ships.some((v) => v.items.some((x) => x.data.isPlane));
@@ -118,6 +220,43 @@ export default Vue.extend({
         return shipName.map((v) => trans(v)).join('');
       }
       return ship.name ? ship.name : '';
+    },
+    setExpeditionRow() {
+      this.expeditionRows = [];
+      const expeditions = Const.EXPEDITIONS;
+      for (let i = 0; i < expeditions.length; i += 1) {
+        const expedition = expeditions[i];
+
+        if (this.worlds.some((v) => v.world === expedition.world && v.isChecked)) {
+          const flagshipLevel = this.ships[0].level - expedition.minFlagshipLv;
+          const level = this.totalLevel - expedition.totalLevel;
+          const fire = this.totalFirePower - (expedition.statuses.fire ?? 0);
+          const antiAir = this.totalAntiAir - (expedition.statuses.antiAir ?? 0);
+          const asw = this.totalAsw - (expedition.statuses.asw ?? 0);
+          const scout = this.totalLoS - (expedition.statuses.scout ?? 0);
+
+          this.expeditionRows.push({
+            id: expedition.id,
+            name: expedition.name,
+            flagshipLevel: flagshipLevel >= 0 ? '' : `${flagshipLevel}`,
+            level: level >= 0 ? '' : `${level}`,
+            fire: fire >= 0 ? '' : `${fire}`,
+            antiAir: antiAir >= 0 ? '' : `${antiAir}`,
+            asw: asw >= 0 ? '' : `${asw}`,
+            scout: scout >= 0 ? '' : `${scout}`,
+            failed: flagshipLevel < 0 || level < 0 || fire < 0 || antiAir < 0 || asw < 0 || scout < 0,
+          });
+        }
+      }
+    },
+    toggleAllWorld() {
+      // いずれか1つでも未チェックがあれば全チェック => 全チェック状態だった場合のみチェックを解除ということ。
+      const checked = this.worlds.some((v) => !v.isChecked);
+      for (let i = 0; i < this.worlds.length; i += 1) {
+        this.worlds[i].isChecked = checked;
+      }
+
+      this.setExpeditionRow();
     },
   },
 });

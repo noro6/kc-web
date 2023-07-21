@@ -38,6 +38,9 @@ export default class Item {
   /** 改修値による火力値増分(夜) */
   public readonly bonusNightFire: number;
 
+  /** 改修値による火力値増分(遠征) */
+  public readonly bonusExpeditionFire: number;
+
   /** 改修値による雷装値増分 */
   public readonly bonusTorpedo: number;
 
@@ -47,14 +50,23 @@ export default class Item {
   /** 改修値による対空値増分 */
   public readonly bonusAntiAir: number;
 
+  /** 改修値による対空値増分(遠征) */
+  public readonly bonusExpeditionAntiAir: number;
+
   /** 改修値による命中値増分 */
   public readonly bonusAccuracy: number;
 
   /** 改修値による対潜値増分 */
   public readonly bonusAsw: number;
 
+  /** 改修値による対空値増分(遠征) */
+  public readonly bonusExpeditionAsw: number;
+
   /** 改修値による索敵値増分 */
   public readonly bonusScout: number;
+
+  /** 改修値による対空値増分(遠征) */
+  public readonly bonusExpeditionScout: number;
 
   /** 熟練度による制空値増分 */
   public readonly bonusAirPower: number;
@@ -225,6 +237,10 @@ export default class Item {
     this.reconCorr = this.getReconCorr();
     this.reconCorrDefense = this.getReconCorrDefense();
     this.contactSelectRates = this.getContactSelectRates();
+    this.bonusExpeditionFire = this.getBonusFirePowerForExpedition();
+    this.bonusExpeditionAntiAir = this.getBonusAntiAirForExpedition();
+    this.bonusExpeditionAsw = this.getBonusAswForExpedition();
+    this.bonusExpeditionScout = this.getBonusScoutForExpedition();
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
@@ -475,6 +491,67 @@ export default class Item {
       return 0.2 * this.remodel;
     }
 
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス火力(遠征)を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusFirePowerForExpedition(): number {
+    // 小口径主砲 副砲 小型電探 対艦強化弾 対空機銃
+    if ([1, 4, 12, 19, 21].includes(this.data.apiTypeId)) {
+      return 0.5 * Math.sqrt(this.remodel);
+    }
+
+    // 中口径主砲 大口径主砲 大型電探
+    if ([2, 3, 13].includes(this.data.apiTypeId)) {
+      return Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス対空(遠征)を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusAntiAirForExpedition(): number {
+    // 高角砲 対空機銃
+    if (this.data.iconTypeId === 16 || this.data.apiTypeId === 21) {
+      return Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス対潜(遠征)を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusAswForExpedition(): number {
+    // ソナー 爆雷投射機 爆雷
+    if ([14, 15].includes(this.data.apiTypeId)) {
+      return Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス対潜(遠征)を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusScoutForExpedition(): number {
+    // 電探
+    if ([12, 13].includes(this.data.apiTypeId)) {
+      return Math.sqrt(this.remodel);
+    }
     return 0;
   }
 
