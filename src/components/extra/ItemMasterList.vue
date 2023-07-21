@@ -480,7 +480,7 @@ export default Vue.extend({
       if (item.id === 144) {
         return `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
       }
-      return `https://wikiwiki.jp/kancolle/${encodeURI(item.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+      return `https://wikiwiki.jp/kancolle/${encodeURI(item.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
     },
   },
 });

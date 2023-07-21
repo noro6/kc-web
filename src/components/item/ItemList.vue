@@ -1410,7 +1410,7 @@ export default Vue.extend({
     },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
-        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(data.item.data.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(data.item.data.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
         if (data.item.data.id === 144) {
           wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
         }

@@ -612,7 +612,7 @@ export default Vue.extend({
       this.clearTooltip();
 
       if (event && event.ctrlKey && master && !master.isEnemyItem) {
-        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(master.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
+        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(master.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
         if (master.id === 144) {
           wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
         }
