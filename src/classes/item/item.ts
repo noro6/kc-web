@@ -496,6 +496,7 @@ export default class Item {
 
   /**
    * 改修値によるボーナス火力(遠征)を返却
+   * 小数第1位まで
    * @private
    * @return {*}  {number}
    * @memberof Item
@@ -503,12 +504,12 @@ export default class Item {
   private getBonusFirePowerForExpedition(): number {
     // 小口径主砲 副砲 小型電探 対艦強化弾 対空機銃
     if ([1, 4, 12, 19, 21].includes(this.data.apiTypeId)) {
-      return 0.5 * Math.sqrt(this.remodel);
+      return Math.floor(10 * 0.5 * Math.sqrt(this.remodel)) / 10;
     }
 
     // 中口径主砲 大口径主砲 大型電探
     if ([2, 3, 13].includes(this.data.apiTypeId)) {
-      return Math.sqrt(this.remodel);
+      return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
     return 0;
   }
@@ -522,7 +523,7 @@ export default class Item {
   private getBonusAntiAirForExpedition(): number {
     // 高角砲 対空機銃
     if (this.data.iconTypeId === 16 || this.data.apiTypeId === 21) {
-      return Math.sqrt(this.remodel);
+      return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
     return 0;
   }
@@ -536,7 +537,7 @@ export default class Item {
   private getBonusAswForExpedition(): number {
     // ソナー 爆雷投射機 爆雷
     if ([14, 15].includes(this.data.apiTypeId)) {
-      return Math.sqrt(this.remodel);
+      return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
     return 0;
   }
@@ -550,7 +551,7 @@ export default class Item {
   private getBonusScoutForExpedition(): number {
     // 電探
     if ([12, 13].includes(this.data.apiTypeId)) {
-      return Math.sqrt(this.remodel);
+      return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
     return 0;
   }
