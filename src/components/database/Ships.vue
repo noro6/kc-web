@@ -1369,6 +1369,8 @@ export default Vue.extend({
       this.HPIs4n2 = true;
       this.HPIs4n3 = true;
       this.HPIs4n = true;
+      this.includeFast = true;
+      this.includeSlow = true;
 
       for (let i = 0; i < this.types.length; i += 1) {
         this.types[i].isChecked = true;
