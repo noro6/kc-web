@@ -93,6 +93,9 @@ export default class BattleInfo {
       } else if (cellType === CELL_TYPE.AIR_SUPPORTED_ASW) {
         // 対潜空襲マス
         consumptions.push([12, 6]);
+      } else if (area === 63 && nodeName === 'B') {
+        // 6-3-Bマスは潜水じゃなくても8%らしい
+        consumptions.push([8, 0]);
       } else {
         // その他のマス
         consumptions.push([20, 20]);
