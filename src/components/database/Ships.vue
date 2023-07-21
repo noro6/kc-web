@@ -50,7 +50,8 @@
                 <div class="keyword-input">
                   <v-text-field dense v-model.trim="searchWord" hide-details clearable prepend-inner-icon="mdi-magnify" :label="$t('Database.名称検索')" />
                 </div>
-                <v-checkbox dense v-model="onlyNoStock" hide-details :label="$t('Database.未着任艦のみ')" />
+                <v-checkbox dense v-model="onlyStock" hide-details :label="$t('Database.未着任艦非表示')" :disabled="onlyNoStock" />
+                <v-checkbox dense v-model="onlyNoStock" hide-details :label="$t('Database.未着任艦のみ')" :disabled="onlyStock" />
                 <v-checkbox dense v-model="onlyBookmarked" hide-details :label="$t('Fleet.お気に入り')" />
                 <manual-checkbox :ok="onlyReleaseExSlot" :ng="withoutReleaseExSlot" :toggle="toggleExSlotFilter">{{ $t("Fleet.補強増設") }}</manual-checkbox>
               </div>
@@ -642,7 +643,7 @@
   overscroll-behavior: contain;
 }
 .keyword-input {
-  width: 240px;
+  width: 180px;
 }
 .header-divider {
   margin-left: 1rem;
@@ -968,6 +969,7 @@ export default Vue.extend({
     isAvoidSpoiler: true,
     filterDialog: false,
     searchWord: '' as string | undefined,
+    onlyStock: false,
     onlyNoStock: false,
     onlyReleaseExSlot: false,
     withoutReleaseExSlot: false,
@@ -1349,6 +1351,7 @@ export default Vue.extend({
     resetFilterCondition() {
       // 検索条件リセット
       this.searchWord = '';
+      this.onlyStock = false;
       this.onlyNoStock = false;
       this.onlyBookmarked = false;
       this.onlyReleaseExSlot = false;
@@ -1418,6 +1421,8 @@ export default Vue.extend({
           if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {
             continue;
           }
+          // 未着任データを省く
+          if (this.onlyStock) continue;
           // 未着任データをstockListに放り込む
           pushedData.push({
             count: 0,

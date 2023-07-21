@@ -723,6 +723,7 @@ export default {
       '名称検索': 'Name Search',
       '空白区切りで複数指定可': '(e.g.) 春雨 大鯨',
       'ネタバレ防止': 'Hide unowned ship graphics',
+      '未着任艦非表示': 'Hide unowned ship',
       '未着任艦のみ': 'Only unowned ship',
       '補強増設開放済': 'Ex Slot open',
       'Lv上限': 'Max Lv',
