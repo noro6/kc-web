@@ -46,6 +46,9 @@
     <v-divider />
     <div class="d-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <v-btn @click="filterDialog = true" :disabled="!!keyword" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
+      <v-btn class="ml-1" text @click.stop="resetFilter()">
+        {{ $t("Common.リセット") }}
+      </v-btn>
       <div v-if="!isNotJapanese" class="ml-3 caption d-none d-md-block text--secondary">Ctrlキー + 艦娘をクリックでwikiを展開します。</div>
       <div class="ml-auto mr-4" v-if="shipStock.length">
         <v-switch
@@ -223,9 +226,9 @@
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <v-checkbox v-model="shipFilter.includeInitial" dense hide-details :label="$t('Fleet.未改造')" />
-            <v-checkbox v-model="shipFilter.includeIntermediate" dense hide-details :label="$t('Fleet.中間改造')" />
-            <v-checkbox v-model="shipFilter.includeFinal" dense hide-details :label="$t('Fleet.最終改造')" />
+            <v-checkbox v-model="shipFilter.includeInitial" dense hide-details :label="$t('Fleet.未改造')" :error="isAllUncheckedRemodeling" />
+            <v-checkbox v-model="shipFilter.includeIntermediate" dense hide-details :label="$t('Fleet.中間改造')" :error="isAllUncheckedRemodeling" />
+            <v-checkbox v-model="shipFilter.includeFinal" dense hide-details :label="$t('Fleet.最終改造')" :error="isAllUncheckedRemodeling" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備搭載可否") }}</div>
@@ -284,18 +287,18 @@
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <v-checkbox v-model="shipFilter.HPIs4n1" dense hide-details label="4n - 1" />
-            <v-checkbox v-model="shipFilter.HPIs4n2" dense hide-details label="4n - 2" />
-            <v-checkbox v-model="shipFilter.HPIs4n3" dense hide-details label="4n - 3" />
-            <v-checkbox v-model="shipFilter.HPIs4n" dense hide-details label="4n" />
+            <v-checkbox v-model="shipFilter.HPIs4n1" dense hide-details label="4n - 1" :error="isAllUncheckedHP" />
+            <v-checkbox v-model="shipFilter.HPIs4n2" dense hide-details label="4n - 2" :error="isAllUncheckedHP" />
+            <v-checkbox v-model="shipFilter.HPIs4n3" dense hide-details label="4n - 3" :error="isAllUncheckedHP" />
+            <v-checkbox v-model="shipFilter.HPIs4n" dense hide-details label="4n" :error="isAllUncheckedHP" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Common.速力") }}</div>
             <div class="header-divider" />
           </div>
           <div class="filter-input-container">
-            <v-checkbox v-model="shipFilter.includeFast" dense hide-details :label="$t('Fleet.高速')" />
-            <v-checkbox v-model="shipFilter.includeSlow" dense hide-details :label="$t('Fleet.低速')" />
+            <v-checkbox v-model="shipFilter.includeFast" dense hide-details :label="$t('Fleet.高速')" :error="isAllUncheckedSpeed" />
+            <v-checkbox v-model="shipFilter.includeSlow" dense hide-details :label="$t('Fleet.低速')" :error="isAllUncheckedSpeed" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備スロット数") }}</div>
@@ -930,6 +933,15 @@ export default Vue.extend({
         }
       }
       return false;
+    },
+    isAllUncheckedHP() {
+      return !this.shipFilter.HPIs4n && !this.shipFilter.HPIs4n1 && !this.shipFilter.HPIs4n2 && !this.shipFilter.HPIs4n3;
+    },
+    isAllUncheckedRemodeling() {
+      return !this.shipFilter.includeInitial && !this.shipFilter.includeIntermediate && !this.shipFilter.includeFinal;
+    },
+    isAllUncheckedSpeed() {
+      return !this.shipFilter.includeFast && !this.shipFilter.includeSlow;
     },
   },
   methods: {

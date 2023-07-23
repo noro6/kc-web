@@ -16,6 +16,16 @@
             {{ $t("Common.絞り込み") }}
             <span class="caption">({{ viewShips.length }}{{ isNotJapanese ? "" : "隻" }} / {{ allCount }}{{ isNotJapanese ? "" : "隻" }})</span>
           </v-btn>
+          <v-btn
+            v-if="viewShips.length !== allCount"
+            @click="
+              resetFilterCondition();
+            "
+            text
+            class="ml-1"
+          >
+            {{ $t("Common.リセット") }}
+          </v-btn>
           <v-checkbox dense class="mt-0 pt-0 ml-3" v-model="isAvoidSpoiler" @change="changeAvoidSpoiler()" hide-details :label="$t('Database.ネタバレ防止')" />
           <v-btn-toggle class="ml-auto" dense v-model="modeTable" borderless mandatory>
             <v-btn :value="true" :class="{ 'blue darken-2 white--text': modeTable }" @click.stop="changeViewMode(true)">
@@ -196,23 +206,23 @@
                 <div class="header-divider" />
               </div>
               <div class="filter-input-container">
-                <v-checkbox v-model="HPIs4n1" dense hide-details label="4n - 1" />
-                <v-checkbox v-model="HPIs4n2" dense hide-details label="4n - 2" />
-                <v-checkbox v-model="HPIs4n3" dense hide-details label="4n - 3" />
-                <v-checkbox v-model="HPIs4n" dense hide-details label="4n" />
+                <v-checkbox v-model="HPIs4n1" dense hide-details label="4n - 1" :error="!HPIs4n1 && !HPIs4n2 && !HPIs4n3 && !HPIs4n" />
+                <v-checkbox v-model="HPIs4n2" dense hide-details label="4n - 2" :error="!HPIs4n1 && !HPIs4n2 && !HPIs4n3 && !HPIs4n" />
+                <v-checkbox v-model="HPIs4n3" dense hide-details label="4n - 3" :error="!HPIs4n1 && !HPIs4n2 && !HPIs4n3 && !HPIs4n" />
+                <v-checkbox v-model="HPIs4n" dense hide-details label="4n" :error="!HPIs4n1 && !HPIs4n2 && !HPIs4n3 && !HPIs4n" />
               </div>
               <div class="filter-input-container">
-                <v-checkbox dense v-model="addHP0" hide-details :label="`${$t('Database.耐久改修2')} +0`" />
-                <v-checkbox dense v-model="addHP1" hide-details :label="`${$t('Database.耐久改修2')} +1`" />
-                <v-checkbox dense v-model="addHP2" hide-details :label="`${$t('Database.耐久改修2')} +2`" />
+                <v-checkbox dense v-model="addHP0" hide-details :label="`${$t('Database.耐久改修2')} +0`" :error="!addHP0 && !addHP1 && !addHP2" />
+                <v-checkbox dense v-model="addHP1" hide-details :label="`${$t('Database.耐久改修2')} +1`" :error="!addHP0 && !addHP1 && !addHP2" />
+                <v-checkbox dense v-model="addHP2" hide-details :label="`${$t('Database.耐久改修2')} +2`" :error="!addHP0 && !addHP1 && !addHP2" />
               </div>
               <div class="d-flex mt-4">
                 <div class="caption">{{ $t("Common.速力") }}</div>
                 <div class="header-divider" />
               </div>
               <div class="filter-input-container">
-                <v-checkbox v-model="includeFast" dense hide-details :label="$t('Fleet.高速')" />
-                <v-checkbox v-model="includeSlow" dense hide-details :label="$t('Fleet.低速')" />
+                <v-checkbox v-model="includeFast" dense hide-details :label="$t('Fleet.高速')" :error="!includeFast && !includeSlow" />
+                <v-checkbox v-model="includeSlow" dense hide-details :label="$t('Fleet.低速')" :error="!includeFast && !includeSlow" />
               </div>
               <div class="d-flex mt-4">
                 <div class="caption">{{ $t("Fleet.装備搭載可否") }}</div>
@@ -1387,6 +1397,8 @@ export default Vue.extend({
         this.selectedArea.push(area);
       }
       this.visibleNoArea = true;
+
+      this.filter();
     },
     filter() {
       const masters = this.filteredShips;
