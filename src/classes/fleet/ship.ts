@@ -958,7 +958,7 @@ export default class Ship implements ShipBase {
         surfaceRadarCount += 1;
       }
       // 命中付き電探カウント
-      if (item.data.iconTypeId === 11 && item.data.accuracy > 1) {
+      if (item.data.iconTypeId === 11 && item.data.accuracy >= 8) {
         accuracyRadarCount += 1;
       }
     }
