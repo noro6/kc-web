@@ -1414,6 +1414,9 @@ export default Vue.extend({
         if (data.item.data.id === 144) {
           wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
         }
+        if (data.item.data.id === 303) {
+          wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
+        }
         window.open(wikiURL);
         return;
       }
