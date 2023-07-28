@@ -1,214 +1,263 @@
 <template>
-  <div class="mt-3 ships-page">
-    <v-expansion-panels>
-      <v-expansion-panel>
-        <v-expansion-panel-header class="px-4">
-          <div><v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }}</div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-divider class="mb-3" />
-          <div class="range-inputs">
-            <div class="d-flex my-4">
-              <v-text-field
-                class="search-input"
-                :label="$t('ItemList.図鑑id 名称検索')"
-                dense
-                v-model.trim="searchWord"
-                @input="filter"
-                clearable
-                hide-details
-                prepend-inner-icon="mdi-magnify"
-              />
-              <v-checkbox class="mx-2" dense v-model="onlyStock" @change="filter" :label="$t('Database.未所持装備非表示')" />
+  <div class="mt-3">
+    <!-- <v-tabs v-model="tab">
+      <v-tab href="#list">{{ $t("Database.一覧") }}</v-tab>
+      <v-tab href="#analytics">{{ $t("Home.おまけ") }}</v-tab>
+    </v-tabs>
+    <v-divider class="mb-2" /> -->
+    <v-tabs-items v-model="tab" :touchless="true">
+      <v-tab-item value="list">
+        <div class="d-flex align-center flex-wrap mt-2">
+          <v-btn @click="filterDialog = true" color="info">
+            <v-icon>mdi-filter-variant</v-icon>
+            {{ $t("Common.絞り込み") }}
+          </v-btn>
+          <v-btn @click="resetFilterCondition()" text class="ml-1">
+            {{ $t("Common.リセット") }}
+          </v-btn>
+        </div>
+        <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="800" @input="toggleFilterDialog">
+          <v-card>
+            <div class="d-flex pt-2 pb-1 px-2">
+              <div class="align-self-center ml-3 body-2">{{ $t("Common.絞り込み") }}</div>
+              <v-spacer />
+              <v-btn class="mr-3 align-self-center" small text @click.stop="resetFilterCondition()">
+                {{ $t("Common.リセット") }}
+              </v-btn>
+              <v-btn icon @click="closeFilterDialog()">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
             </div>
-            <div class="d-flex my-4">
-              <div class="range-input">
+            <v-divider class="mx-2" />
+            <div class="filter-dialog-body pr-1">
+              <div class="d-flex">
+                <div class="caption">{{ $t("Database.基本条件") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="px-3 pt-2 d-flex align-center">
+                <div class="keyword-input mr-3">
+                  <v-text-field
+                    dense
+                    v-model.trim="searchWord"
+                    hide-details
+                    clearable
+                    prepend-inner-icon="mdi-magnify"
+                    :label="$t('ItemList.図鑑id 名称検索')"
+                  />
+                </div>
+                <v-checkbox class="mr-2" dense hide-details v-model="onlyStock" :label="$t('Database.未所持装備非表示')" />
+                <v-checkbox dense hide-details v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')" />
+              </div>
+              <div class="d-flex mt-6">
+                <div class="caption">{{ $t("Fleet.ステータス") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div>
+                <v-range-slider class="mt-4 px-3" v-model="remodelRange" dense thumb-label min="0" max="10" hide-details>
+                  <template v-slot:prepend>
+                    <v-text-field
+                      :label="$t('Database.改修下限')"
+                      type="number"
+                      class="range-input"
+                      :class="{ english: isNotJapanese }"
+                      :max="remodelRange[1]"
+                      min="0"
+                      v-model="remodelRange[0]"
+                      hide-details
+                    />
+                  </template>
+                  <template v-slot:append>
+                    <v-text-field
+                      :label="$t('Database.改修上限')"
+                      type="number"
+                      class="range-input"
+                      :class="{ english: isNotJapanese }"
+                      max="10"
+                      :min="remodelRange[0]"
+                      v-model="remodelRange[1]"
+                      hide-details
+                    />
+                  </template>
+                </v-range-slider>
+              </div>
+              <div class="d-flex mt-4 align-center">
+                <div class="caption">{{ $t("Database.カテゴリ") }}</div>
+                <div class="header-divider" />
+                <div class="pr-1 pl-3">
+                  <v-btn small @click="toggleAllType()" outlined color="primary">
+                    <v-icon small class="mr-1">mdi-check-all</v-icon> {{ $t("Database.一括チェック") }}
+                  </v-btn>
+                </div>
+              </div>
+              <div class="filter-input-container">
+                <v-checkbox v-for="(item, i) in types" :key="`item${i}`" dense v-model="item.isChecked" :label="$t(`EType.${item.text}`)" hide-details />
+              </div>
+            </div>
+          </v-card>
+        </v-dialog>
+        <div class="d-flex align-center mt-3">
+          <div class="ml-2 caption d-none d-md-block text--secondary" v-if="!isNotJapanese">Ctrlキー + 装備をクリックでwikiを展開します。</div>
+          <v-btn class="ml-auto" color="secondary" @click="showBlacklist()">
+            <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ $store.state.siteSetting.blacklistItemIds.length }})
+          </v-btn>
+        </div>
+        <v-card class="my-3 pa-4" v-if="!viewItems.length">
+          <div class="text-center my-10">
+            <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
+          </div>
+        </v-card>
+        <div v-else class="item-all-container mt-3">
+          <v-card class="py-1" v-for="(header, i) in viewItems" :key="i">
+            <div class="ma-1 d-flex">
+              <div class="type-img">
+                <img :src="`./img/type/type${header.type.id}.png`" :alt="`type-${header.type.id}`" />
+              </div>
+              <div class="ml-1 align-self-center">{{ $t(`EType.${header.type.name}`) }}</div>
+              <v-spacer />
+              <div v-if="header.type.sortKey">
+                <v-menu offset-y left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-sort</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <div
+                      class="sort-key"
+                      v-ripple="{ class: 'info--text' }"
+                      @click="sortItems(header, 'id')"
+                      :class="{ selected: header.selectedKey === 'id' }"
+                      @keypress.enter="sortItems(header, 'id')"
+                    >
+                      {{ $t("Database.図鑑ID") }}
+                    </div>
+                    <div
+                      v-for="(sortKey, j) in header.type.sortKey"
+                      :key="`type${i}Key${j}`"
+                      class="sort-key"
+                      :class="{ selected: header.selectedKey === sortKey }"
+                      v-ripple="{ class: 'info--text' }"
+                      @click="sortItems(header, sortKey)"
+                      @keypress.enter="sortItems(header, sortKey)"
+                    >
+                      {{ convertStatusString(sortKey) }}
+                    </div>
+                  </v-card>
+                </v-menu>
+              </div>
+            </div>
+            <v-divider />
+            <div v-for="(itemRow, j) in header.items" :key="`${i}${j}`">
+              <div
+                class="item-container"
+                :class="{ 'no-item': !itemRow.allCount }"
+                v-ripple="{ class: 'info--text' }"
+                @click="clickItem(itemRow.master, $event)"
+                @keypress.enter="clickItem(itemRow.master, $event)"
+                @mouseenter="bootTooltip(itemRow.master, $event)"
+                @mouseleave="clearTooltip"
+                @focus="clearTooltip"
+                @blur="clearTooltip"
+              >
+                <div class="d-flex align-self-start flex-grow-1">
+                  <div class="icon-img">
+                    <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" :alt="`icon-${itemRow.master.iconTypeId}`" />
+                  </div>
+                  <div class="item-name flex-grow-1">
+                    {{ needTrans ? $t(`${itemRow.master.name}`) : itemRow.master.name }}
+                  </div>
+                </div>
+                <div class="detail-container">
+                  <div v-if="visibleAllCount && !remodelRange[0]" class="primary--text count-text">{{ itemRow.allCount }}</div>
+                  <div class="d-flex remodel-container" v-for="(detail, k) in itemRow.details" :key="`${i}${j}${k}`">
+                    <div class="item-remodel teal--text text--accent-4" v-if="detail.remodel">★{{ detail.remodel }}</div>
+                    <div class="ml-auto">{{ detail.count }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </div>
+        <v-dialog v-model="editDialog" v-if="editedItem" transition="scroll-x-transition" width="600">
+          <v-card class="pa-3">
+            <div class="mx-2 mb-2">
+              <div class="d-flex align-center">
+                <div>
+                  <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40" />
+                </div>
+                <div class="ml-1">
+                  <div class="caption info--text">id {{ editedItem.id }}</div>
+                  <div class="body-2">{{ needTrans ? $t(`${editedItem.name}`) : editedItem.name }}</div>
+                </div>
+              </div>
+            </div>
+            <v-divider />
+            <div class="ma-3">
+              <div class="caption">{{ $t("Database.所持数") }}</div>
+              <div class="stock-inputs">
                 <v-text-field
-                  :label="$t('Database.改修下限')"
+                  v-for="(value, i) in editedStock"
+                  :key="`stock$${i}`"
+                  class="stock-input"
                   type="number"
-                  :max="remodelRange[1]"
+                  max="999"
                   min="0"
-                  dense
-                  v-model.trim="remodelRange[0]"
+                  :label="`★+${i}`"
                   hide-details
-                  @input="filter"
+                  :readonly="readOnly"
+                  v-model.number="editedStock[i]"
                 />
-              </div>
-              <v-range-slider v-model="remodelRange" dense thumb-label min="0" max="10" hide-details class="pt-2 align-center mx-2" @change="filter">
-              </v-range-slider>
-              <div class="range-input">
-                <v-text-field
-                  :label="$t('Database.改修上限')"
-                  type="number"
-                  max="10"
-                  :min="remodelRange[0]"
-                  dense
-                  v-model.trim="remodelRange[1]"
-                  hide-details
-                  @input="filter"
-                />
+                <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" :label="$t('Fleet.合計')" />
               </div>
             </div>
-          </div>
-          <v-select
-            class="my-10"
-            v-model="selectedTypes"
-            :items="types"
-            hide-details
-            dense
-            attach
-            chips
-            deletable-chips
-            :label="$t('Database.カテゴリ')"
-            multiple
-            @change="masterFilter"
-          >
-            <template v-slot:prepend-item>
-              <v-list-item ripple @mousedown.prevent @click="toggleAllType">
-                <v-list-item-action>
-                  <v-icon :color="selectedTypes.length > 0 ? 'blue' : ''">
-                    {{ icon }}
-                  </v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("Database.全選択") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider class="mt-2" />
-            </template>
-          </v-select>
-          <div>
-            <v-checkbox class="mx-2" dense v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')" />
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <div class="d-flex align-center mt-3">
-      <div class="ml-2 caption d-none d-md-block text--secondary" v-if="!isNotJapanese">Ctrlキー + 装備をクリックでwikiを展開します。</div>
-      <v-btn class="ml-auto" color="secondary" @click="showBlacklist()">
-        <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ $store.state.siteSetting.blacklistItemIds.length }})
-      </v-btn>
-    </div>
-    <v-card class="my-3 pa-4" v-if="!viewItems.length">
-      <div class="text-center my-10">
-        <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
-      </div>
-    </v-card>
-    <div v-else class="item-all-container mt-3">
-      <v-card class="py-1" v-for="(header, i) in viewItems" :key="i">
-        <div class="ma-1 d-flex">
-          <div class="type-img">
-            <img :src="`./img/type/type${header.type.id}.png`" :alt="`type-${header.type.id}`" />
-          </div>
-          <div class="ml-1 align-self-center">{{ $t(`EType.${header.type.name}`) }}</div>
-          <v-spacer />
-          <div v-if="header.type.sortKey">
-            <v-menu offset-y left>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on">
-                  <v-icon>mdi-sort</v-icon>
-                </v-btn>
-              </template>
-              <v-card>
-                <div
-                  class="sort-key"
-                  v-ripple="{ class: 'info--text' }"
-                  @click="sortItems(header, 'id')"
-                  :class="{ selected: header.selectedKey === 'id' }"
-                  @keypress.enter="sortItems(header, 'id')"
-                >
-                  {{ $t("Database.図鑑ID") }}
+            <v-divider class="mb-2" />
+            <div class="d-flex">
+              <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="commitStock">{{ $t("Common.更新") }}</v-btn>
+              <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">{{ $t("Database.全破棄") }}</v-btn>
+              <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
+            </div>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="blacklistDialog" width="660">
+          <blacklist-item-edit :handle-close="closeBlacklist" />
+        </v-dialog>
+      </v-tab-item>
+      <v-tab-item value="analytics">
+        <div class="analytics-card-container">
+          <v-card class="pa-2" v-for="(result, i) in analyticsResults" :key="`result${i}`">
+            <div class="ma-2">{{ result.label }}</div>
+            <v-divider />
+            <div class="d-flex py-3">
+              <v-progress-circular width="15" size="100" :rotate="270" :value="result.score" :color="result.color">
+                {{ result.score }}
+              </v-progress-circular>
+              <div class="score-detail-container">
+                <div class="score-detail" v-for="(detail, j) in result.details" :key="`detail${i}${j}`">
+                  <div class="score-detail-label">
+                    <div>{{ detail.label }}</div>
+                    <div>{{ detail.value }} / {{ detail.max }}</div>
+                  </div>
+                  <v-progress-linear :value="Math.min(100, Math.floor(100 * (detail.value / detail.max)))" :color="detail.color" rounded />
                 </div>
-                <div
-                  v-for="(sortKey, j) in header.type.sortKey"
-                  :key="`type${i}Key${j}`"
-                  class="sort-key"
-                  :class="{ selected: header.selectedKey === sortKey }"
-                  v-ripple="{ class: 'info--text' }"
-                  @click="sortItems(header, sortKey)"
-                  @keypress.enter="sortItems(header, sortKey)"
-                >
-                  {{ convertStatusString(sortKey) }}
+              </div>
+            </div>
+            <div class="analytics-items">
+              <div v-for="(item, i) in result.entries" :key="`item${i}`">
+                <div class="d-flex align-center">
+                  <div class="analytics-item-icon">
+                    <img :src="`./img/type/icon${item.data.iconTypeId}.png`" :alt="`icon-${item.data.iconTypeId}`" />
+                  </div>
+                  <div class="analytics-item-name">
+                    {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                  </div>
+                  <div class="item-remodel teal--text text--accent-4" v-if="item.remodel && !result.disabledRemodel">★{{ item.remodel }}</div>
                 </div>
-              </v-card>
-            </v-menu>
-          </div>
-        </div>
-        <v-divider />
-        <div v-for="(itemRow, j) in header.items" :key="`${i}${j}`">
-          <div
-            class="item-container"
-            :class="{ 'no-item': !itemRow.allCount }"
-            v-ripple="{ class: 'info--text' }"
-            @click="clickItem(itemRow.master, $event)"
-            @keypress.enter="clickItem(itemRow.master, $event)"
-            @mouseenter="bootTooltip(itemRow.master, $event)"
-            @mouseleave="clearTooltip"
-            @focus="clearTooltip"
-            @blur="clearTooltip"
-          >
-            <div class="d-flex align-self-start flex-grow-1">
-              <div class="icon-img">
-                <img :src="`./img/type/icon${itemRow.master.iconTypeId}.png`" :alt="`icon-${itemRow.master.iconTypeId}`" />
-              </div>
-              <div class="item-name flex-grow-1">
-                {{ needTrans ? $t(`${itemRow.master.name}`) : itemRow.master.name }}
               </div>
             </div>
-            <div class="detail-container">
-              <div v-if="visibleAllCount && !remodelRange[0]" class="primary--text count-text">{{ itemRow.allCount }}</div>
-              <div class="d-flex remodel-container" v-for="(detail, k) in itemRow.details" :key="`${i}${j}${k}`">
-                <div class="item-remodel teal--text text--accent-4" v-if="detail.remodel">★{{ detail.remodel }}</div>
-                <div class="ml-auto">{{ detail.count }}</div>
-              </div>
-            </div>
-          </div>
+          </v-card>
         </div>
-      </v-card>
-    </div>
-    <v-dialog v-model="editDialog" v-if="editedItem" transition="scroll-x-transition" width="600">
-      <v-card class="pa-3">
-        <div class="mx-2 mb-2">
-          <div class="d-flex">
-            <div class="align-self-center">
-              <v-img :src="`./img/type/icon${editedItem.iconTypeId}.png`" width="40" height="40" />
-            </div>
-            <div class="align-self-center ml-1">
-              <div class="caption info--text">id {{ editedItem.id }}</div>
-              <div class="body-2">{{ needTrans ? $t(`${editedItem.name}`) : editedItem.name }}</div>
-            </div>
-          </div>
-        </div>
-        <v-divider />
-        <div class="ma-3">
-          <div class="caption">{{ $t("Database.所持数") }}</div>
-          <div class="stock-inputs">
-            <v-text-field
-              v-for="(value, i) in editedStock"
-              :key="`stock$${i}`"
-              class="stock-input"
-              type="number"
-              max="999"
-              min="0"
-              :label="`★+${i}`"
-              hide-details
-              :readonly="readOnly"
-              v-model.number="editedStock[i]"
-            />
-            <v-text-field class="stock-input" type="number" readonly v-model.number="sumStock" :label="$t('Fleet.合計')" />
-          </div>
-        </div>
-        <v-divider class="mb-2" />
-        <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :disabled="readOnly" @click.stop="commitStock">{{ $t("Common.更新") }}</v-btn>
-          <v-btn class="ml-4" :disabled="!sumStock || readOnly" color="error" @click.stop="clearStock">{{ $t("Database.全破棄") }}</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="editDialog = false">{{ $t("Common.戻る") }}</v-btn>
-        </div>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="blacklistDialog" width="660">
-      <blacklist-item-edit :handle-close="closeBlacklist" />
-    </v-dialog>
+      </v-tab-item>
+    </v-tabs-items>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" />
     </v-tooltip>
@@ -216,25 +265,36 @@
 </template>
 
 <style scoped>
-.v-expansion-panels {
-  z-index: 2;
-}
-.search-input {
-  width: 130px;
-}
-.range-input {
-  width: 80px;
+.filter-dialog-body {
+  padding-top: 20px;
+  padding-left: 20px;
+  overflow-y: auto;
+  height: 70vh;
+  overscroll-behavior: contain;
 }
 
-.range-inputs {
-  display: grid;
-  grid-template-columns: 1fr;
+.keyword-input {
+  width: 240px;
 }
-@media (min-width: 1000px) {
-  .range-inputs {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 1rem;
-  }
+.header-divider {
+  margin-left: 1rem;
+  align-self: center;
+  flex-grow: 1;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+.range-input {
+  margin-top: 0px;
+  padding-top: 0px;
+  width: 80px !important;
+}
+.range-input.english {
+  width: 100px !important;
+}
+.filter-input-container {
+  margin-left: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
 }
 
 .item-all-container {
@@ -365,6 +425,60 @@
   column-gap: 1rem;
   row-gap: 1.5rem;
 }
+
+.analytics-card-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 1rem;
+  column-gap: 1rem;
+}
+.score-detail-container {
+  margin-left: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.score-detail {
+  position: relative;
+}
+.score-detail-label {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75em;
+}
+.analytics-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 0.2rem;
+  column-gap: 0.2rem;
+}
+.analytics-item-icon {
+  height: 24px;
+  width: 24px;
+  margin-right: 4px;
+}
+.analytics-item-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.analytics-item-name {
+  flex-grow: 1;
+  width: 10px;
+  font-size: 0.8em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.analytics-items .item-remodel {
+  margin-right: 0;
+  font-size: 0.75em;
+}
 </style>
 
 <script lang="ts">
@@ -375,6 +489,7 @@ import BlacklistItemEdit from '@/components/item/BlacklistItemEdit.vue';
 import Const from '@/classes/const';
 import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
+import ItemAnalyzer, { AnalyticsResult } from '@/classes/item/itemAnalyzer';
 import Item from '@/classes/item/item';
 import Convert from '@/classes/convert';
 import SiteSetting from '@/classes/siteSetting';
@@ -400,14 +515,15 @@ export default Vue.extend({
   name: 'ItemsComponent',
   components: { ItemTooltip, BlacklistItemEdit },
   data: () => ({
+    tab: 'list',
+    filterDialog: false,
     all: [] as ItemMaster[],
     itemStock: [] as ItemStock[],
     searchWord: '' as string | undefined,
     onlyStock: false,
-    visibleAllCount: true,
+    visibleAllCount: false,
     remodelRange: [0, 10],
-    selectedTypes: [] as number[],
-    types: [] as { text: string; value: number }[],
+    types: [] as { text: string; value: number; isChecked: boolean }[],
     baseViewItems: [] as ItemHeader[],
     viewItems: [] as ItemHeader[],
     editDialog: false,
@@ -421,6 +537,7 @@ export default Vue.extend({
     tooltipY: 0,
     readOnly: false,
     blacklistDialog: false,
+    analyticsResults: [] as AnalyticsResult[],
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -436,6 +553,10 @@ export default Vue.extend({
         this.itemStock = state.itemStock as ItemStock[];
         this.masterFilter();
         this.editDialog = false;
+
+        if (this.tab === 'analytics') {
+          this.analyze();
+        }
       }
     });
   },
@@ -443,11 +564,22 @@ export default Vue.extend({
     completed(value) {
       if (value && !this.all.length) {
         this.initialize();
+        if (this.tab === 'analytics') {
+          this.analyze();
+        }
       }
     },
     isTempStockMode(value) {
       this.readOnly = !!value;
       this.initialize();
+      if (this.tab === 'analytics') {
+        this.analyze();
+      }
+    },
+    tab(value) {
+      if (value === 'analytics') {
+        this.analyze();
+      }
     },
   },
   computed: {
@@ -456,17 +588,6 @@ export default Vue.extend({
     },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
-    },
-    selectedAllType(): boolean {
-      return this.selectedTypes.length === this.types.length;
-    },
-    selectedSomeType(): boolean {
-      return this.selectedTypes.length > 0 && !this.selectedAllType;
-    },
-    icon(): string {
-      if (this.selectedAllType) return 'mdi-close-box';
-      if (this.selectedSomeType) return 'mdi-minus-box';
-      return 'mdi-checkbox-blank-outline';
     },
     sumStock(): number {
       return sum(this.editedStock);
@@ -505,17 +626,16 @@ export default Vue.extend({
       // 種別セレクト初期化
       const masters = Const.ITEM_TYPES_ALT;
       this.types = [];
-      this.selectedTypes = [];
       for (let i = 0; i < masters.length; i += 1) {
-        this.types.push({ text: `${this.$t(`EType.${masters[i].text}`)}`, value: i });
-        this.selectedTypes.push(i);
+        this.types.push({ text: masters[i].text, value: i, isChecked: true });
       }
 
       this.masterFilter();
     },
     masterFilter() {
       // カテゴリ検索
-      const typeIndexes = this.selectedTypes;
+      const selectedTypes = this.types.filter((v) => v.isChecked).map((v) => v.value);
+      const typeIndexes = selectedTypes;
       const types = Const.ITEM_TYPES_ALT.filter((v, i) => typeIndexes.includes(i))
         .map((v) => v.types)
         .flat();
@@ -551,6 +671,25 @@ export default Vue.extend({
 
       this.baseViewItems = viewItems;
       this.filter();
+    },
+    closeFilterDialog() {
+      this.filterDialog = false;
+      this.masterFilter();
+    },
+    toggleFilterDialog() {
+      if (!this.filterDialog) {
+        // 検索かける
+        this.masterFilter();
+      }
+    },
+    resetFilterCondition() {
+      this.searchWord = '';
+      this.remodelRange = [0, 10];
+      this.onlyStock = false;
+
+      for (let i = 0; i < this.types.length; i += 1) {
+        this.types[i].isChecked = true;
+      }
     },
     filter() {
       const bases = this.baseViewItems;
@@ -589,15 +728,11 @@ export default Vue.extend({
       this.viewItems = result;
     },
     toggleAllType() {
-      this.$nextTick(() => {
-        if (this.selectedAllType) {
-          this.selectedTypes = [];
-          this.masterFilter();
-        } else {
-          this.selectedTypes = this.types.map((v) => v.value).slice();
-          this.masterFilter();
-        }
-      });
+      // いずれか1つでも未チェックがあれば全チェック => 全チェック状態だった場合のみチェックを解除ということ。
+      const checked = this.types.some((v) => !v.isChecked);
+      for (let i = 0; i < this.types.length; i += 1) {
+        this.types[i].isChecked = checked;
+      }
     },
     sortItems(header: ItemHeader, key: string) {
       header.selectedKey = key;
@@ -688,6 +823,32 @@ export default Vue.extend({
     },
     closeBlacklist() {
       this.blacklistDialog = false;
+    },
+    analyze() {
+      const items = [];
+
+      for (let i = 0; i < this.itemStock.length; i += 1) {
+        const stock = this.itemStock[i];
+        const master = this.all.find((v) => v.id === stock.id);
+        if (!master) continue;
+
+        for (let remodel = 0; remodel <= 10; remodel += 1) {
+          const count = stock.num[remodel];
+          for (let j = 0; j < count; j += 1) {
+            const slot = master.isPlane ? master.airbaseMaxSlot : 0;
+            items.push(
+              new Item({
+                master,
+                remodel,
+                slot,
+                level: 100,
+              }),
+            );
+          }
+        }
+      }
+
+      this.analyticsResults = ItemAnalyzer.getAllResult(items);
     },
   },
 });
