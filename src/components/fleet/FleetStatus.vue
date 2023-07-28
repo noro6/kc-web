@@ -228,7 +228,7 @@ export default Vue.extend({
         const expedition = expeditions[i];
 
         if (this.worlds.some((v) => v.world === expedition.world && v.isChecked)) {
-          const flagshipLevel = this.ships[0].level - expedition.minFlagshipLv;
+          const flagshipLevel = (this.ships[0] ? this.ships[0].level : 0) - expedition.minFlagshipLv;
           const level = this.totalLevel - expedition.totalLevel;
           const fire = this.totalFirePower - (expedition.statuses.fire ?? 0);
           const antiAir = this.totalAntiAir - (expedition.statuses.antiAir ?? 0);

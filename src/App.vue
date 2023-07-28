@@ -744,7 +744,10 @@ export default Vue.extend({
       if (value) {
         this.loadURLInformation();
       }
-      this.loading = !value;
+
+      if (!this.urlParameters || !this.urlParameters.stockid) {
+        this.loading = !value;
+      }
       this.disabledIndexedDB = this.$store.state.disabledDatabase;
     },
     isTempStockMode(value) {
@@ -836,9 +839,7 @@ export default Vue.extend({
           this.inform('編成の読み込みが完了しました。');
         } else if (this.urlParameters.stockid) {
           // 所持情報データ解析
-          this.loading = true;
           const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
-          this.loading = false;
 
           // 一時所持情報にセットして管理ページを展開
           let available = false;
@@ -859,6 +860,8 @@ export default Vue.extend({
           } else {
             this.inform('所持情報の読み取りに失敗しました。', true);
           }
+
+          this.loading = false;
         }
         // 処理完了後除去
         this.urlParameters = {};
