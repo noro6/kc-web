@@ -117,6 +117,11 @@
           <v-icon small>{{ showSideBtn ? "mdi-close" : "mdi-menu" }}</v-icon>
         </v-btn>
       </v-fab-transition>
+      <v-fab-transition>
+        <v-btn color="grey darken-2" class="side-btn" v-show="isManagerPage" fab small dark @click="scrollTop()">
+          <v-icon small>mdi-chevron-up</v-icon>
+        </v-btn>
+      </v-fab-transition>
       <v-tooltip left color="black">
         <template v-slot:activator="{ on, attrs }">
           <v-fab-transition>
@@ -1493,6 +1498,9 @@ export default Vue.extend({
         this.saveCurrentData();
         event.preventDefault();
       }
+    },
+    scrollTop() {
+      window.scroll({ top: 0, behavior: 'smooth' });
     },
   },
   beforeDestroy() {
