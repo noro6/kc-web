@@ -24,7 +24,7 @@
         </span>
         <span v-if="value.bonusFire" class="remodel-bonus">&plus; {{ formatStatus(value.bonusFire) }}</span>
       </div>
-      <div v-if="value.dayBattleFirePower !== value.aircraftDayBattleFirePower">
+      <div v-if="value.dayBattleFirePower !== value.aircraftDayBattleFirePower && !isAirbaseItem">
         <span class="item-status-text">{{ $t("Common.砲戦火力") }}</span>
         <span class="item-status-value" :class="{ 'bad-status': value.aircraftDayBattleFirePower < 0 }">
           {{ formatStatus2(value.aircraftDayBattleFirePower) }}
@@ -41,7 +41,7 @@
           &plus; {{ formatStatus(value.bonusTorpedo + value.attackerTorpedoBonus) }}
         </span>
       </div>
-      <div v-if="value.data.fire || value.data.torpedo || itemBonus.firePower || itemBonus.torpedo || value.bonusNightFire">
+      <div v-if="visibleNight">
         <span class="item-status-text">{{ $t("Common.夜戦火力") }}</span>
         <span class="item-status-value">{{ value.data.fire + value.data.torpedo }}</span>
         <span
@@ -316,6 +316,15 @@ export default Vue.extend({
       const value = (firePower + torpedo + bomber) * 1.5;
       if (!value) return '';
       return value >= 0 ? `+ ${value}` : `- ${Math.abs(value)}`;
+    },
+    isAirbaseItem(): boolean {
+      return [47, 48, 49, 53].includes(this.value.data.apiTypeId);
+    },
+    visibleNight(): boolean {
+      return (
+        (!!this.value.data.fire || !!this.value.data.torpedo || !!this.itemBonus.firePower || !!this.itemBonus.torpedo || !!this.value.bonusNightFire)
+        && !this.isAirbaseItem
+      );
     },
   },
 });

@@ -160,6 +160,13 @@ export default Vue.extend({
         }, 150);
       }
     },
+    fixedDrawer(value) {
+      if (value) {
+        document.body.classList.add('drawer-fixed');
+      } else {
+        document.body.classList.remove('drawer-fixed');
+      }
+    },
   },
   computed: {
     isNameEmpty(): boolean {
