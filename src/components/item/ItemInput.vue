@@ -617,7 +617,8 @@ export default Vue.extend({
         }
 
         if (this.itemParent instanceof Airbase && builder.item) {
-          // 基地航空隊の場合 => スルー
+          // 基地航空隊の場合 => 既定搭載数より大きかったら戻す
+          builder.slot = Math.min(builder.slot ?? builder.item.slot, builder.item.data.airbaseMaxSlot);
         }
         this.setItem(new Item(builder));
       }
