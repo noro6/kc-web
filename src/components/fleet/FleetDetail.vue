@@ -47,10 +47,11 @@
 <style scoped>
 .detail-card {
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .detail-fleet {
   overflow-y: auto;
-  height: 66vh;
+  height: 75vh;
 }
 .v-tab {
   text-transform: none;

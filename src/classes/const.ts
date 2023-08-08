@@ -1548,7 +1548,7 @@ export default class Const {
     {
       world: 4,
       id: 'D2',
-      name: '西方海域偵察作戦',
+      name: '西方潜水艦作戦',
       statuses: { fire: 60, antiAir: 80, asw: 50 },
       types: [{ AS: 1, SS: 3 }],
       minFlagshipLv: 55,
