@@ -1,5 +1,16 @@
 <template>
   <div class="pa-2">
+    <div class="d-flex mb-1 align-center justify-end">
+      <v-btn icon @click="setStructureText()">
+        <v-icon>mdi-sync</v-icon>
+      </v-btn>
+      <div class="ml-2 structure-text body-2">
+        <v-text-field class="mt-0 pt-0" v-model="structureText" dense hide-details readonly @focus="textFieldFocused" />
+      </div>
+      <div class="ml-2 structure-text sub body-2" v-if="structureText2">
+        <v-text-field class="mt-0 pt-0" v-model="structureText2" dense hide-details readonly @focus="textFieldFocused" />
+      </div>
+    </div>
     <v-divider />
     <v-simple-table dense>
       <template v-slot:default>
@@ -14,8 +25,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(ship, i) in ships" :key="`ship${i}`">
-            <td class="d-flex align-center">
+          <tr v-for="(ship, i) in ships" :key="`ship${i}`" :class="{ 'tr-escort': ship.isEscort }">
+            <td class="d-flex align-center pl-0">
               <div>
                 <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
               </div>
@@ -82,12 +93,12 @@
           <tbody>
             <tr v-for="(row, i) in expeditionRows" :key="`expedition${i}`" :class="{ 'tr-lack': row.failed }">
               <td>{{ row.id }} : {{ row.name }}</td>
-              <td class="text-right">{{ row.flagshipLevel ? row.flagshipLevel : "&#10004;" }}</td>
-              <td class="text-right">{{ row.level ? row.level : "&#10004;" }}</td>
-              <td class="text-right">{{ row.fire ? row.fire : "&#10004;" }}</td>
-              <td class="text-right">{{ row.antiAir ? row.antiAir : "&#10004;" }}</td>
-              <td class="text-right">{{ row.asw ? row.asw : "&#10004;" }}</td>
-              <td class="text-right">{{ row.scout ? row.scout : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.flagshipLevel }">{{ row.flagshipLevel ? row.flagshipLevel : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.level }">{{ row.level ? row.level : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.fire }">{{ row.fire ? row.fire : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.antiAir }">{{ row.antiAir ? row.antiAir : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.asw }">{{ row.asw ? row.asw : "&#10004;" }}</td>
+              <td class="text-right" :class="{ 'success--text': !row.scout }">{{ row.scout ? row.scout : "&#10004;" }}</td>
             </tr>
           </tbody>
         </template>
@@ -98,11 +109,17 @@
 </template>
 
 <style scoped>
-.v-data-table thead th {
-  height: 36px !important;
+.structure-text {
+  width: 220px;
 }
-.v-data-table tbody td {
-  height: 42px !important;
+.structure-text.sub {
+  width: 200px;
+}
+.v-data-table tbody tr.tr-escort {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.v-data-table tbody tr.tr-escort:hover {
+  background-color: rgba(128, 128, 128, 0.2) !important;
 }
 .v-data-table tbody tr.tr-lack {
   background-color: rgba(255, 10, 10, 0.1);
@@ -149,6 +166,9 @@ export default Vue.extend({
   data: () => ({
     worlds: [] as { world: number; text: string; isChecked: boolean }[],
     expeditionRows: [] as ExpeditionRow[],
+    structureText: '',
+    structureText2: '',
+    outputLang: 'ja',
   }),
   mounted() {
     const worlds = this.$store.state.worlds as MasterWorld[];
@@ -164,6 +184,7 @@ export default Vue.extend({
       }
     }
     this.setExpeditionRow();
+    this.setStructureText();
   },
   computed: {
     needTrans(): boolean {
@@ -213,6 +234,9 @@ export default Vue.extend({
     },
   },
   methods: {
+    textFieldFocused(focusEvent: FocusEvent) {
+      if (focusEvent) (focusEvent.target as HTMLInputElement).select();
+    },
     getShipName(ship: ShipMaster) {
       if (ship.name && this.needTrans) {
         const shipName = ShipMaster.getSuffix(ship);
@@ -257,6 +281,44 @@ export default Vue.extend({
       }
 
       this.setExpeditionRow();
+    },
+    setStructureText() {
+      const text: string[] = [];
+      const text2: string[] = [];
+
+      this.structureText = '';
+      this.structureText2 = '';
+
+      const ships1 = this.ships.filter((v) => !v.isEscort);
+      const ships2 = this.ships.filter((v) => v.isEscort);
+
+      for (let i = 0; i < Const.SHIP_TYPES_ALT3.length; i += 1) {
+        const type = Const.SHIP_TYPES_ALT3[i];
+        let count = ships1.filter((v) => type.types.includes(v.data.type)).length;
+        if (count) {
+          if (this.outputLang === 'ja') {
+            text.push(`${count > 1 ? count : ''}${this.$t(`SType.${type.text}`, 'en')}`);
+          } else {
+            text.push(`${type.text}${count > 1 ? count : ''}`);
+          }
+        }
+
+        count = ships2.filter((v) => type.types.includes(v.data.type)).length;
+        if (count) {
+          if (this.outputLang === 'ja') {
+            text2.push(`${count > 1 ? count : ''}${this.$t(`SType.${type.text}`, 'en')}`);
+          } else {
+            text2.push(`${type.text}${count > 1 ? count : ''}`);
+          }
+        }
+      }
+      if (this.outputLang === 'ja') {
+        this.outputLang = 'en';
+      } else {
+        this.outputLang = 'ja';
+      }
+      this.structureText = text.join(' ');
+      this.structureText2 = text2.join(' ');
     },
   },
 });
