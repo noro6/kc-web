@@ -88,7 +88,7 @@
       ></ship-input>
     </div>
     <air-status-result-bar v-if="!hideResultBar" :result="actualFleet.mainResult" class="mt-3" />
-    <v-dialog v-model="updateAreaTagDialog" transition="scroll-x-transition" width="600">
+    <v-dialog v-model="updateAreaTagDialog" transition="scroll-x-transition" width="680">
       <v-card>
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Database.お札一括更新") }}</div>
@@ -111,13 +111,23 @@
             >
               <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="50" />
             </div>
+            <div
+              class="selected-area-btn no-area align-self-center"
+              :class="{ selected: selectedArea === -1 }"
+              @click="selectedArea = -1"
+              @keypress="selectedArea = -1"
+            >
+              {{ $t("Database.札なし") }}
+            </div>
           </div>
           <v-divider class="mb-2 mt-6" />
           <div class="d-flex">
             <div class="ml-3">
               <v-checkbox v-model="overwriteTag" dense hide-details :label="$t('Fleet.既に札がついている艦娘も上書きする')" />
             </div>
-            <v-btn class="ml-auto" color="primary" :disabled="selectedArea < 0 || !updateAreaTagDialog" @click="updateAreaTag()">{{ $t("Common.更新") }}</v-btn>
+            <v-btn class="ml-auto" color="primary" :disabled="selectedArea === 0 || !updateAreaTagDialog" @click="updateAreaTag()">{{
+              $t("Common.更新")
+            }}</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="updateAreaTagDialog = false">{{ $t("Common.戻る") }}</v-btn>
           </div>
         </div>
@@ -171,6 +181,17 @@
 }
 .selected-area-btn.selected {
   opacity: 1;
+}
+.no-area {
+  font-size: 0.9em;
+  border: 3px solid rgba(128, 128, 128, 0.6);
+  -ms-writing-mode: tb-rl;
+  writing-mode: vertical-rl;
+  padding: 0.5rem 0.15rem;
+  border-radius: 0.25rem;
+  margin-left: 1rem;
+  transform: rotate(15deg);
+  text-align: center;
 }
 </style>
 
@@ -244,7 +265,7 @@ export default Vue.extend({
     isShipView2Line: false,
     updateAreaTagDialog: false,
     maxAreas: 0,
-    selectedArea: -1,
+    selectedArea: 0,
     readOnlyMode: false,
     overwriteTag: false,
   }),
@@ -312,21 +333,22 @@ export default Vue.extend({
       const ships = [];
       const shipStock = this.$store.state.shipStock as ShipStock[];
 
+      const area = Math.max(this.selectedArea, 0);
       for (let i = 0; i < this.fleet.ships.length; i += 1) {
         const ship = this.fleet.ships[i];
         if (ship.uniqueId && (!ship.area || ship.area < 0 || (ship.area && this.overwriteTag))) {
-          ships.push(new Ship({ ship, area: this.selectedArea }));
+          ships.push(new Ship({ ship, area }));
           const stock = shipStock.find((v) => v.uniqueId === ship.uniqueId && v.id === ship.data.id);
           if (stock) {
             // ユニークidとマスタidが一致した場合は、そのまま札を設定する
-            stock.area = this.selectedArea;
+            stock.area = area;
           } else {
             // みつからなかった => 同マスタidの艦で代用したい
             // なぜこのケースがおきる？ => 一覧から配備したあと、再度反映を行い、かつidがズレた場合の稀ケース
             const altStock = shipStock.find((v) => v.id === ship.data.id);
             if (altStock) {
               // 最初に見つかったこれを代用
-              altStock.area = this.selectedArea;
+              altStock.area = area;
             }
           }
         } else if (ship.uniqueId) {
