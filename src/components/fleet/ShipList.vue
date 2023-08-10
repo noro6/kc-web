@@ -964,6 +964,7 @@ export default Vue.extend({
       } else {
         this.shipFilter.hasAreaOnly = true;
       }
+      this.filter();
     },
     toggleDaihatsuFilter() {
       if (this.shipFilter.landingCraftOK) {
