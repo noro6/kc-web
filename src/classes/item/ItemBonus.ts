@@ -3976,7 +3976,7 @@ export default class ItemBonus {
       ],
     },
     {
-      ids: [382],
+      ids: [382, 509],
       bonuses: [
         {
           bonus: { antiAir: 2, asw: 1, avoid: 2 },
@@ -4047,6 +4047,161 @@ export default class ItemBonus {
         {
           bonus: { antiAir: 3, avoid: 2 },
           shipId: [656],
+          requiresAR: 1,
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [509],
+      bonuses: [
+        {
+          bonus: { antiAir: 1 },
+          remodel: 2,
+        },
+        {
+          bonus: { avoid: 2 },
+          remodel: 4,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { antiAir: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipType: [1],
+          remodel: 1,
+        },
+        {
+          bonus: { avoid: 2, antiAir: -1 },
+          shipType: [1],
+          remodel: 2,
+        },
+        {
+          bonus: { firePower: 1, avoid: -2 },
+          shipType: [1],
+          remodel: 4,
+        },
+        {
+          bonus: { antiAir: 1, firePower: -1 },
+          shipType: [1],
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1, antiAir: -1 },
+          shipType: [1],
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1, accuracy: -1 },
+          shipType: [1],
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipClass: [28, 66, 101],
+          remodel: 1,
+        },
+        {
+          bonus: { avoid: 2, antiAir: -1 },
+          shipClass: [28, 66, 101],
+          remodel: 2,
+        },
+        {
+          bonus: { firePower: 1, avoid: -2 },
+          shipClass: [28, 66, 101],
+          remodel: 4,
+        },
+        {
+          bonus: { antiAir: 1, firePower: -1 },
+          shipClass: [28, 66, 101],
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1, antiAir: -1 },
+          shipClass: [28, 66, 101],
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1, accuracy: -1 },
+          shipClass: [28, 66, 101],
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [145, 488, 656, 961],
+          remodel: 1,
+        },
+        {
+          bonus: { avoid: 2, antiAir: -1 },
+          shipId: [145, 488, 656, 961],
+          remodel: 2,
+        },
+        {
+          bonus: { firePower: 1, avoid: -2 },
+          shipId: [145, 488, 656, 961],
+          remodel: 4,
+        },
+        {
+          bonus: { antiAir: 1, firePower: -1 },
+          shipId: [145, 488, 656, 961],
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1, antiAir: -1 },
+          shipId: [145, 488, 656, 961],
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1, accuracy: -1 },
+          shipId: [145, 488, 656, 961],
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1, avoid: 1 },
+          shipType: [3, 4, 21],
+          remodel: 2,
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { antiAir: 2, avoid: 1 },
+          shipType: [3, 4, 21],
+          remodel: 2,
+          requiresAR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1, antiAir: 1, avoid: 2 },
+          shipId: [145],
+          remodel: 2,
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { antiAir: 4, avoid: 2 },
+          shipId: [145],
+          remodel: 2,
+          requiresAR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2, antiAir: 2, avoid: 3 },
+          shipId: [961],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1, antiAir: 5, avoid: 3 },
+          shipId: [961],
           requiresAR: 1,
           num: 1,
         },
@@ -5168,6 +5323,11 @@ export default class ItemBonus {
         {
           bonus: { torpedo: 2 },
           shipClass: [114],
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1, avoid: 2 },
+          shipClass: [122],
           num: 1,
         },
       ],
@@ -7008,6 +7168,41 @@ export default class ItemBonus {
           bonus: { firePower: 1, avoid: 1, accuracy: 1 },
           shipCountry: Const.GBR,
           requiresId: [507],
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [510],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 2, asw: 3, avoid: 2, scout: 2,
+          },
+          shipCountry: Const.GBR,
+        },
+        {
+          bonus: { scout: 3, accuracy: 2 },
+          shipClass: [88],
+        },
+        {
+          bonus: { firePower: 4, avoid: 2 },
+          shipClass: [88],
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [511, 512],
+      bonuses: [
+        {
+          bonus: { torpedo: 3, avoid: 4 },
+          shipClass: [122],
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1, avoid: 2 },
+          shipClass: [114],
           num: 1,
         },
       ],
