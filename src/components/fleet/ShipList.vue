@@ -1214,12 +1214,13 @@ export default Vue.extend({
         }
         if (this.shipFilter.canEquipExRadarOnly) {
           // 増設電探
+          const radar0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 27);
           const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 28);
           const radar2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 142);
           const radar3 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 506);
-          if (radar1 && radar2 && radar3) {
+          if (radar0 && radar1 && radar2 && radar3) {
             const ex = Const.EXPAND_SLOT_INDEX;
-            result = result.filter((v) => isValid(v, radar1, ex) || isValid(v, radar2, ex) || isValid(v, radar3, ex));
+            result = result.filter((v) => isValid(v, radar0, ex) || isValid(v, radar1, ex) || isValid(v, radar2, ex) || isValid(v, radar3, ex));
           }
         }
         if (this.shipFilter.canEquipExSubGunOnly) {
