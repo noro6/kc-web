@@ -104,7 +104,7 @@
           <router-view @inform="inform" @openSidebar="drawer = true" />
         </transition>
       </div>
-      <v-snackbar v-model="readInform" :color="readResultColor" top>
+      <v-snackbar v-model="readInform" :color="readResultColor" bottom>
         {{ readInformText ? $t(`Home.${readInformText}`) : readInformText }}
         <template v-slot:action="{ attrs }">
           <v-btn icon v-bind="attrs" @click="readInform = false"><v-icon>mdi-close</v-icon></v-btn>
