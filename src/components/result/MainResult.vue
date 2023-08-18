@@ -932,8 +932,14 @@ export default Vue.extend({
 
       const shipIndex = fleet.ships.findIndex((v) => v === ship);
       if (shipIndex >= 0) {
-        this.detailFleetIndex = this.value.fleetInfo.mainFleetIndex;
-        this.viewDetail(ship, shipIndex);
+        // 連合随伴の時
+        if (ship.isEscort) {
+          this.detailFleetIndex = 1;
+          this.viewDetail(ship, shipIndex - fleet.ships.filter((v) => !v.isEscort).length);
+        } else {
+          this.detailFleetIndex = this.value.fleetInfo.mainFleetIndex;
+          this.viewDetail(ship, shipIndex);
+        }
       }
     },
     viewDetail(parent: Enemy | Ship | Airbase, index: number): void {

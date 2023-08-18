@@ -515,7 +515,7 @@ export default Vue.extend({
         const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
         this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index] = original.putItem(item, slot, initialLevels);
         this.manager.fleetInfo.fleets[this.fleetIndex] = new Fleet({ fleet: this.manager.fleetInfo.fleets[this.fleetIndex] });
-        this.manager.fleetInfo = new FleetInfo({ fleets: this.manager.fleetInfo.fleets });
+        this.manager.fleetInfo = new FleetInfo({ info: this.manager.fleetInfo, fleets: this.manager.fleetInfo.fleets });
       }
 
       this.itemListDialog = false;
@@ -529,7 +529,7 @@ export default Vue.extend({
         const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
         this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index] = new Ship({ ship: original });
         this.manager.fleetInfo.fleets[this.fleetIndex] = new Fleet({ fleet: this.manager.fleetInfo.fleets[this.fleetIndex] });
-        this.manager.fleetInfo = new FleetInfo({ fleets: this.manager.fleetInfo.fleets });
+        this.manager.fleetInfo = new FleetInfo({ info: this.manager.fleetInfo, fleets: this.manager.fleetInfo.fleets });
       }
       this.setGraphData();
     },
