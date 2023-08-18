@@ -56,13 +56,13 @@
               </div>
               <div class="flex-grow-1 ml-1">
                 <div class="d-flex align-center enemy-caption">
-                  <div class="enemy-id primary--text">
+                  <div class="enemy-id primary--text text-no-wrap">
                     id <span class="font-weight-bold">{{ enemy.id }}</span>
                   </div>
-                  <div class="ml-1">
+                  <div class="ml-1 text-no-wrap">
                     {{ $t("Common.耐久") }} <span class="font-weight-bold">{{ enemy.hp }}</span>
                   </div>
-                  <div class="ml-1">
+                  <div class="ml-1 text-no-wrap">
                     {{ $t("Common.装甲") }} <span class="font-weight-bold">{{ enemy.armor }}</span>
                   </div>
                 </div>
@@ -103,7 +103,7 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
-@media (min-width: 1100px) {
+@media (min-width: 1180px) {
   .enemy-table-body {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
