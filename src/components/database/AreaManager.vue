@@ -20,7 +20,7 @@
     >
       <div class="d-flex">
         <div class="area-banner">
-          <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${data.area}.webp`" height="55" width="40" />
+          <v-img :src="`./img/tags/area${data.area}.webp`" height="55" width="40" />
         </div>
         <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
           {{ $t("Common.配備") }}

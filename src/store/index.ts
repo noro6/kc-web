@@ -25,7 +25,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.40.14',
+    siteVersion: '2.40.15',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */

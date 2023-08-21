@@ -109,7 +109,7 @@
               @click="selectedArea = i"
               @keypress="selectedArea = i"
             >
-              <v-img :src="`https://res.cloudinary.com/aircalc/kc-web/areas/area${i}.webp`" height="68" width="50" />
+              <v-img :src="`./img/tags/area${i}.webp`" height="68" width="50" />
             </div>
             <div
               class="selected-area-btn no-area align-self-center"
