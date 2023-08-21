@@ -585,6 +585,22 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="areaOverwriteConfirmDialog" transition="scroll-x-transition" width="700">
+      <v-card class="pa-3">
+        <div class="ma-4">
+          <div class="body-2">{{ $t("Database.札上書き注意") }}</div>
+          <div class="body-2 mt-1">{{ $t("Database.このまま取り込むと") }}</div>
+          <div class="d-flex flex-wrap justify-space-around">
+            <v-btn color="primary" class="mt-3" @click="overwriteAreaImport()">{{ $t("Database.札データを上書きして取り込む") }}</v-btn>
+            <v-btn color="success" class="mt-3" @click="ImportWithoutArea()">{{ $t("Database.札データを上書きせず取り込む") }}</v-btn>
+          </div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="secondary" @click.stop="areaOverwriteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -662,6 +678,8 @@ export default Vue.extend({
     selectableFleets: [] as { selected: boolean; fleet: Fleet; supportTypeName: string }[],
     tempManager: undefined as undefined | CalcManager,
     fileColors: Const.FILE_COLORS,
+    areaOverwriteConfirmDialog: false,
+    readyImportShipStock: [] as ShipStock[],
   }),
   computed: {
     getCompletedAll() {
@@ -873,11 +891,27 @@ export default Vue.extend({
       } else if (Object.keys(this.urlFragments).length) {
         const informText: string[] = [];
         if (this.urlFragments.ships && this.urlFragments.ships.length) {
+          const data = this.urlFragments.ships;
           // 艦隊反映
-          informText.push('在籍艦娘の更新');
           this.setting.isStockOnlyForShipList = true;
           this.$store.dispatch('updateSetting', this.setting);
-          this.$store.dispatch('updateShipStock', this.urlFragments.ships);
+
+          const shipStock = this.$store.state.shipStock as ShipStock[];
+          // 旧版かどうかチェック => uniqueIdが仕事しているなら札置き換え判定が出せる (今までは連番を振ってきたので、ユニークidの最大と登録隻数が一致しているかで判定できる)
+          if (shipStock.length && shipStock[shipStock.length - 1].uniqueId !== shipStock.length && data[data.length - 1].uniqueId !== data.length) {
+            // 札の置き換えが発生しそうか？
+            if (data.some((w) => shipStock.find((v) => v.uniqueId === w.uniqueId && v.area !== w.area))) {
+              // 札が置き換わりそうじゃ。
+              this.areaOverwriteConfirmDialog = true;
+              this.readyImportShipStock = data;
+            } else {
+              informText.push('在籍艦娘の更新');
+              this.$store.dispatch('updateShipStock', data);
+            }
+          } else {
+            informText.push('在籍艦娘の更新');
+            this.$store.dispatch('updateShipStock', data);
+          }
         }
         if (this.urlFragments.items && this.urlFragments.items.length) {
           // 装備反映
@@ -916,6 +950,11 @@ export default Vue.extend({
       if (this.loadAndConfirmDeckBuilder(this.somethingText)) {
         this.inform('デッキビルダー形式編成データを読み込みました。');
       } else if (this.setShipStock(this.somethingText)) {
+        if (this.areaOverwriteConfirmDialog) {
+          this.somethingText = '';
+          this.readState = false;
+          return;
+        }
         // 在籍艦娘データ読み込み試行
         this.inform('在籍艦娘データの更新が完了しました。');
       } else if (this.setItemStock(this.somethingText)) {
@@ -1068,11 +1107,50 @@ export default Vue.extend({
           this.setting.isStockOnlyForShipList = true;
           this.$store.dispatch('updateSetting', this.setting);
         }
+
+        const shipStock = this.$store.state.shipStock as ShipStock[];
+
+        // 旧版かどうかチェック => uniqueIdが仕事しているなら札置き換え判定が出せる (今までは連番を振ってきたので、ユニークidの最大と登録隻数が一致しているかで判定できる)
+        if (shipStock.length && shipStock[shipStock.length - 1].uniqueId !== shipStock.length && shipList[shipList.length - 1].uniqueId !== shipList.length) {
+          // 札の置き換えが発生しそうか？
+          if (shipList.some((w) => shipStock.find((v) => v.uniqueId === w.uniqueId && v.area !== w.area))) {
+            // 札が置き換わりそうじゃ。
+            this.areaOverwriteConfirmDialog = true;
+            this.readyImportShipStock = shipList;
+            return true;
+          }
+        }
+
         this.$store.dispatch('updateShipStock', shipList);
         return true;
       } catch (e) {
         console.error(e);
         return false;
+      }
+    },
+    overwriteAreaImport() {
+      // 上書きして取り込み
+      if (this.readyImportShipStock) {
+        this.$store.dispatch('updateShipStock', this.readyImportShipStock);
+        this.areaOverwriteConfirmDialog = false;
+        this.inform('在籍艦娘データの更新が完了しました。');
+      }
+    },
+    ImportWithoutArea() {
+      // 札情報を無視して取り込み
+      if (this.readyImportShipStock) {
+        const shipStock = this.$store.state.shipStock as ShipStock[];
+        for (let i = 0; i < this.readyImportShipStock.length; i += 1) {
+          const stock = this.readyImportShipStock[i];
+          // 過去の(現在登録されている)札を取得
+          const old = shipStock.find((v) => v.uniqueId === stock.uniqueId);
+          if (old) {
+            stock.area = old.area;
+          }
+        }
+        this.$store.dispatch('updateShipStock', this.readyImportShipStock);
+        this.areaOverwriteConfirmDialog = false;
+        this.inform('在籍艦娘データの更新が完了しました。');
       }
     },
     setItemStock(data: string): boolean {

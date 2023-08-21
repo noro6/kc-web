@@ -862,6 +862,10 @@ export default {
       'ロック済みの艦娘のみ': 'Exclude unlocked ship',
       '未ロックの装備も含める': 'Include unlocked equipment',
       'ロック済みの装備のみ': 'Exclude unlocked equipment',
+      '札上書き注意': 'The area tag data for the fleet currently registered does not match the area tag data for the fleet to be imported.',
+      'このまま取り込むと': 'If the fleet is imported as is, the currently registered area tag data may be overwritten.',
+      '札データを上書きして取り込む': 'Overwrite area tag data and import',
+      '札データを上書きせず取り込む': 'Import without overwriting area tag data',
     },
     Extra: {
       '艦娘性能一覧': 'Ships',

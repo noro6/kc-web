@@ -53,7 +53,8 @@ export default class ShipStock {
         const nextLvObj = Const.LEVEL_BORDERS.find((v) => v.lv === stock.level + 1);
         const nextExp = nextLvObj ? nextLvObj.req - stock.exp : 0;
         const data = {
-          id: stock.id,
+          id: stock.uniqueId,
+          ship_id: stock.id,
           lv: stock.level,
           st: [
             stock.improvement.fire ? stock.improvement.fire : 0,

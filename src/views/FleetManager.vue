@@ -249,6 +249,22 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="areaOverwriteConfirmDialog" transition="scroll-x-transition" width="700">
+      <v-card class="pa-3">
+        <div class="ma-4">
+          <div class="body-2">{{ $t("Database.札上書き注意") }}</div>
+          <div class="body-2 mt-1">{{ $t("Database.このまま取り込むと") }}</div>
+          <div class="d-flex flex-wrap justify-space-around">
+            <v-btn color="primary" class="mt-3" @click="overwriteAreaImport()">{{ $t("Database.札データを上書きして取り込む") }}</v-btn>
+            <v-btn color="success" class="mt-3" @click="ImportWithoutArea()">{{ $t("Database.札データを上書きせず取り込む") }}</v-btn>
+          </div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="secondary" @click.stop="areaOverwriteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -322,7 +338,6 @@ export default Vue.extend({
     tab: 0,
     includeUnLockedShip: true,
     includeUnLockedItem: false,
-    readResultColor: 'success',
     inputText: '',
     readOnlyMode: false,
     loadingURL: false,
@@ -341,6 +356,8 @@ export default Vue.extend({
     loading: false,
     successCopy: false,
     showHowToDoIt: false,
+    areaOverwriteConfirmDialog: false,
+    readyImportShipStock: [] as ShipStock[],
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -415,6 +432,10 @@ export default Vue.extend({
       // デッキビルダー形式データ読み込み試行
       if (this.setShipStock()) {
         // 在籍艦娘データ読み込み試行
+        if (this.areaOverwriteConfirmDialog) {
+          this.inputText = '';
+          return;
+        }
         this.$emit('inform', '在籍艦娘データの更新が完了しました。');
         this.loadingURL = false;
       } else if (this.setItemStock()) {
@@ -431,18 +452,67 @@ export default Vue.extend({
       this.generateKCAnalyticsCode();
       this.generateKantaiSarashiURL();
     },
+    overwriteAreaImport() {
+      // 上書きして取り込み
+      if (this.readyImportShipStock) {
+        this.$store.dispatch('updateShipStock', this.readyImportShipStock);
+        this.areaOverwriteConfirmDialog = false;
+        this.$emit('inform', '在籍艦娘データの更新が完了しました。');
+        // 後始末と通知
+        this.inputText = '';
+        this.generateKCAnalyticsCode();
+        this.generateKantaiSarashiURL();
+      }
+    },
+    ImportWithoutArea() {
+      // 札情報を無視して取り込み
+      if (this.readyImportShipStock) {
+        const shipStock = this.$store.state.shipStock as ShipStock[];
+        for (let i = 0; i < this.readyImportShipStock.length; i += 1) {
+          const stock = this.readyImportShipStock[i];
+          // 過去の(現在登録されている)札を取得
+          const old = shipStock.find((v) => v.uniqueId === stock.uniqueId);
+          if (old) {
+            stock.area = old.area;
+          }
+        }
+        this.$store.dispatch('updateShipStock', this.readyImportShipStock);
+        this.areaOverwriteConfirmDialog = false;
+        this.$emit('inform', '在籍艦娘データの更新が完了しました。');
+        // 後始末と通知
+        this.inputText = '';
+        this.generateKCAnalyticsCode();
+        this.generateKantaiSarashiURL();
+      }
+    },
     setShipStock(): boolean {
       // 在籍艦娘情報を更新
       try {
         const shipList = Convert.readShipStockJson(this.inputText, !this.includeUnLockedShip);
+        this.readyImportShipStock = [];
         if (shipList.length === 0) {
           // 何もない在籍データは無意味なので返す
           return false;
         }
+
         // 設定書き換え
         const setting = this.$store.state.siteSetting as SiteSetting;
         setting.isStockOnlyForShipList = true;
         this.$store.dispatch('updateSetting', setting);
+
+        const shipStock = this.$store.state.shipStock as ShipStock[];
+
+        // 旧版かどうかチェック => uniqueIdが仕事しているなら札置き換え判定が出せる (今までは連番を振ってきたので、ユニークidの最大と登録隻数が一致しているかで判定できる)
+        if (shipStock.length && shipStock[shipStock.length - 1].uniqueId !== shipStock.length && shipList[shipList.length - 1].uniqueId !== shipList.length) {
+          // 札の置き換えが発生しそうか？
+          if (shipList.some((w) => shipStock.find((v) => v.uniqueId === w.uniqueId && v.area !== w.area))) {
+            // 札が置き換わりそうじゃ。
+            this.areaOverwriteConfirmDialog = true;
+            this.readyImportShipStock = shipList;
+            return true;
+          }
+        }
+
         this.$store.dispatch('updateShipStock', shipList);
         return true;
       } catch (e) {

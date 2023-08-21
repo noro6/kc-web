@@ -79,8 +79,8 @@ interface DeckBuilder {
   a3?: DeckBuilderAirbase,
 }
 
-type shipStockJson = { 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
-type shipStockJson2 = { 'id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
+type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
+type shipStockJson2 = { 'id': number, 'ship_id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
 type itemStockJson = { 'api_slotitem_id': number, 'api_level': number };
 type itemStockJson2 = { 'id': number, 'lv': number };
 
@@ -363,10 +363,8 @@ export default class Convert {
       const json = JSON.parse(value.replace('svdata=', ''));
       if (json.api_data && json.api_data.api_ship && json.api_data.api_ship.length) {
         // eslint-disable-next-line camelcase
-        const ships = json.api_data.api_ship as { api_ship_id: number, api_lv: number, api_locked: number, api_kyouka: number[], api_exp: number, api_slot_ex: number, api_sally_area?: number }[];
-        text = JSON.stringify(ships.map((v) => ({
-          id: v.api_ship_id, lv: v.api_lv, locked: v.api_locked, st: v.api_kyouka, exp: v.api_exp, ex: v.api_slot_ex, area: v.api_sally_area,
-        })).filter((v) => !isLockOnly || v.locked), ['id', 'lv', 'st', 'exp', 'ex', 'area']);
+        const ships = json.api_data.api_ship as { api_locked: number }[];
+        text = JSON.stringify(ships.filter((v) => !isLockOnly || v.api_locked));
       }
     }
 
@@ -377,18 +375,27 @@ export default class Convert {
 
     const shipList: ShipStock[] = [];
     let uniqueId = 1;
+    const hasUniqueId = json.every((v) => ('api_id' in v && 'api_ship_id' in v && 'api_lv' in v && 'api_exp' in v) || ('id' in v && 'ship_id' in v && 'lv' in v && 'exp' in v));
+    console.log(hasUniqueId);
+
     for (let i = 0; i < json.length; i += 1) {
       const data = json[i];
       const shipStock = new ShipStock();
 
       // 基本の情報 どちらかに入らなければ飛ばす
-      if ('api_ship_id' in data && 'api_lv' in data && 'api_exp') {
+      if ('api_ship_id' in data && 'api_lv' in data && 'api_exp' in data) {
         shipStock.id = +data.api_ship_id;
         shipStock.level = +data.api_lv;
         // 参考：経験値 [0]=累積, [1]=次のレベルまで, [2]=経験値バー割合
         shipStock.exp = +data.api_exp[0];
       } else if ('id' in data && 'lv' in data && 'exp' in data) {
-        shipStock.id = +data.id;
+        if (hasUniqueId) {
+          // 短縮新版 idは固有id、ship_idに艦娘マスタidが入っているケース
+          shipStock.id = +data.ship_id;
+        } else {
+          // 短縮旧版 idに艦娘マスタidが入っているケース
+          shipStock.id = +data.id;
+        }
         shipStock.level = +data.lv;
         shipStock.exp = +data.exp[0];
       } else {
@@ -401,9 +408,17 @@ export default class Convert {
         continue;
       }
 
-      // 被りなしid付与
-      shipStock.uniqueId = uniqueId;
-      uniqueId += 1;
+      if (hasUniqueId) {
+        if ('api_id' in data) {
+          shipStock.uniqueId = +data.api_id;
+        } else if ('id' in data) {
+          shipStock.uniqueId = +data.id;
+        }
+      } else {
+        // 被りなしid付与
+        shipStock.uniqueId = uniqueId;
+        uniqueId += 1;
+      }
 
       // 拡張情報 -補強増設解放
       if ('api_slot_ex' in data) {
@@ -1140,7 +1155,7 @@ export default class Convert {
    */
   public static restoreShipStock(data: OldShipStockJson[], shipMasters: ShipMaster[]): ShipStock[] {
     const newStocks = [];
-    let uniqueId = 1;
+    let indexId = 1;
     for (let i = 0; i < data.length; i += 1) {
       const shipAlbumId = data[i].id;
       const oldDetails = data[i].details;
@@ -1153,7 +1168,7 @@ export default class Convert {
         const detail = oldDetails[j];
 
         const newStock = new ShipStock();
-        newStock.uniqueId = uniqueId;
+        newStock.uniqueId = indexId;
         newStock.id = shipMaster.id;
         newStock.area = detail.area && detail.area > 0 ? detail.area : 0;
         newStock.exp = detail.exp ? detail.exp : 0;
@@ -1171,7 +1186,7 @@ export default class Convert {
         }
 
         newStocks.push(newStock);
-        uniqueId += 1;
+        indexId += 1;
       }
     }
 
