@@ -101,19 +101,10 @@ export default class ShipValidation {
       // 艦娘特別装備枠マスタより解決できた場合は搭載可能
       if (store.state.exSlotEquipShips.find) {
         const sp = store.state.exSlotEquipShips.find((v) => v.api_slotitem_id === item.id);
-        if (sp && (sp.api_ship_ids.includes(ship.id) || sp.api_stypes.includes(ship.type) || sp.api_ctypes.includes(ship.type2))) {
+        const normalCheck = types.includes(item.apiTypeId);
+        if (sp && normalCheck && (sp.api_ship_ids.includes(ship.id) || sp.api_stypes.includes(ship.type) || sp.api_ctypes.includes(ship.type2))) {
           return true;
         }
-      }
-
-      // 潜水艦後部魚雷対応
-      if ((item.id === 442 || item.id === 443) && (ship.type === SHIP_TYPE.SS || ship.type === SHIP_TYPE.SSV)) {
-        return true;
-      }
-
-      // 甲板 空母補強増設対応
-      if ((item.id === 477 || item.id === 478) && ship.isCV) {
-        return true;
       }
 
       if (item.id === 34 || item.id === 87) {
