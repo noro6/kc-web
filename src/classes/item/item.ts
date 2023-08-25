@@ -511,6 +511,11 @@ export default class Item {
     if ([2, 3, 13].includes(this.data.apiTypeId)) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
+
+    // 搭載数0の飛行機 => 打消し
+    if (this.data.isPlane && this.slot === 0) {
+      return -this.data.fire;
+    }
     return 0;
   }
 
@@ -524,6 +529,11 @@ export default class Item {
     // 高角砲 対空機銃
     if (this.data.iconTypeId === 16 || this.data.apiTypeId === 21) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
+    }
+
+    // 搭載数0の飛行機 => 打消し
+    if (this.data.isPlane && this.slot === 0) {
+      return -this.data.antiAir;
     }
     return 0;
   }
@@ -539,11 +549,16 @@ export default class Item {
     if ([14, 15].includes(this.data.apiTypeId)) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
+
+    // 搭載数0の飛行機 => 打消し
+    if (this.data.isPlane && this.slot === 0) {
+      return -this.data.asw;
+    }
     return 0;
   }
 
   /**
-   * 改修値によるボーナス対潜(遠征)を返却
+   * 改修値によるボーナス索敵(遠征)を返却
    * @private
    * @return {*}  {number}
    * @memberof Item
@@ -552,6 +567,11 @@ export default class Item {
     // 電探
     if ([12, 13].includes(this.data.apiTypeId)) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
+    }
+
+    // 搭載数0の飛行機 => 打消し
+    if (this.data.isPlane && this.slot === 0) {
+      return -this.data.scout;
     }
     return 0;
   }
