@@ -1515,8 +1515,9 @@ export default class Ship implements ShipBase {
 
     // 旗艦補正 +15
     const flagshipCorr = isFlagship ? 15 : 0;
-    // 損傷補正 +18
-    // const damageCorr = isDamaged ? 18 : 0;
+    // 損傷補正 あるなら +18
+    const damageCorr = 0;
+    // const damageCorr = 18;
     // 味方探照灯補正 +7
     const lightCorr = 7;
     // 味方照明弾補正 +4
@@ -1524,8 +1525,8 @@ export default class Ship implements ShipBase {
     // 見張員補正
     let personnelCorr = hasPersonnel ? 5 : 0;
     if (hasSkilledPersonnel && (this.data.type === SHIP_TYPE.DD || this.data.type === SHIP_TYPE.CL || this.data.type === SHIP_TYPE.CLT)) {
-      // 水雷見張員補正 => 駆逐 & 軽巡級 +8
-      personnelCorr = 8;
+      // 水雷見張員補正 => 駆逐 & 軽巡級 +7
+      personnelCorr += 7;
     }
 
     const results = [];
@@ -1544,7 +1545,7 @@ export default class Ship implements ShipBase {
       } else {
         chip = Math.floor(15 + this.luck + 0.75 * Math.sqrt(this.level));
       }
-      chip += (flagshipCorr + personnelCorr);
+      chip += (flagshipCorr + personnelCorr + damageCorr);
       const rate = [
         sumRates[0] * (chip / attack.value),
         sumRates[1] * ((chip + lightCorr) / attack.value),
