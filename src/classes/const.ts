@@ -379,7 +379,6 @@ export default class Const {
     { id: 103, name: '巡潜丙型' },
     { id: 36, name: '巡潜乙型改二' },
     { id: 109, name: '潜高型' },
-    { id: 80, name: 'Guglielmo Marconi級' },
     { id: 57, name: 'UボートIXC型' },
     { id: 86, name: '呂号潜水艦' },
     { id: 46, name: '三式潜航輸送艇' },
@@ -401,6 +400,8 @@ export default class Const {
     { id: 92, name: 'L.d.S.D.d.Abruzzi級' },
     { id: 61, name: 'Maestrale級' },
     { id: 113, name: 'Conte di Cavour級' },
+    { id: 80, name: 'Guglielmo Marconi級' },
+    { id: 124, name: 'Marcello級' },
 
     { id: 93, name: 'Colorado級' },
     { id: 107, name: 'North Carolina級' },
@@ -421,6 +422,7 @@ export default class Const {
     { id: 118, name: 'Ranger級' },
     { id: 121, name: 'New Orleans級' },
     { id: 122, name: 'Salmon級' },
+    { id: 125, name: 'Nevada級' },
 
     { id: 67, name: 'Queen Elizabeth級' },
     { id: 88, name: 'Nelson級' },
@@ -574,9 +576,9 @@ export default class Const {
 
   public static readonly JPN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54, 56, 59, 60, 62, 66, 71, 72, 74, 75, 76, 77, 85, 86, 90, 94, 97, 100, 101, 103, 104, 109, 111, 115, 117, 119, 120, 123];
 
-  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116, 118, 121, 122];
+  public static readonly USA = [65, 69, 83, 84, 87, 91, 93, 95, 99, 102, 105, 106, 107, 110, 114, 116, 118, 121, 122, 125];
 
-  public static readonly ITA = [58, 61, 64, 68, 80, 92, 113];
+  public static readonly ITA = [58, 61, 64, 68, 80, 92, 113, 124];
 
   public static readonly GBR = [67, 78, 82, 88, 108, 112];
 
