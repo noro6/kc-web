@@ -211,16 +211,16 @@ export default class Const {
     // { key: '55-3', text: 'C3', items: [473, 474] },
     // { key: '55-3', text: 'C4', items: [252, 434, 435, 423, 479] },
 
-    // { key: '55-6', text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254, 255, 375, 389, 195, 419, 420] },
-    // { key: '55-6', text: 'A3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
-    // { key: '55-6', text: 'A4', items: [405, 433, 244, 424, 425] },
-    // { key: '55-6', text: 'B1', items: [178] },
-    // { key: '55-6', text: 'B2', items: [158, 159, 353, 354] },
-    // { key: '55-6', text: 'B3', items: [249, 184] },
-    // { key: '55-6', text: 'B4', items: [189, 406] },
-    // { key: '55-6', text: 'C1', items: [250, 251, 253] },
-    // { key: '55-6', text: 'C3', items: [473, 474, 475] },
-    // { key: '55-6', text: 'C4', items: [252, 434, 435, 423, 476, 479, 480, 481] },
+    { key: '57-5', text: 'A2', items: [459, 242, 256, 257, 233, 277, 197, 198, 205, 206, 254, 255, 375, 389, 195, 419, 420] },
+    { key: '57-5', text: 'A3', items: [431, 432, 243, 188, 316, 248, 64, 305, 306, 422] },
+    { key: '57-5', text: 'A4', items: [405, 433, 244, 424, 425] },
+    { key: '57-5', text: 'B1', items: [178] },
+    { key: '57-5', text: 'B2', items: [158, 159, 353, 354] },
+    { key: '57-5', text: 'B3', items: [249, 184] },
+    { key: '57-5', text: 'B4', items: [189, 406] },
+    { key: '57-5', text: 'C1', items: [250, 251, 253] },
+    { key: '57-5', text: 'C3', items: [473, 474, 475] },
+    { key: '57-5', text: 'C4', items: [252, 434, 435, 423, 476, 479, 480, 481] },
 
     // { key: 'Saury', text: 'Saury', items: [44, 45, 47, 69, 70, 74, 129, 138, 140, 178, 242, 243, 244, 258, 259, 260, 261, 262, 412, 438, 25, 59, 102, 115, 118, 163, 171, 238, 239, 304, 370, 371, 414, 415, 469, 471, 26, 62, 79, 80, 81, 194, 207, 208, 237, 322, 323, 367, 368, 369] },
   ];
@@ -802,7 +802,7 @@ export default class Const {
       id: 1, text: '1種', rateBonus: 1.7, c1: 3, c2: 5, rate: 65, remarks: '秋月型',
     },
     {
-      id: 2, text: '2種', rateBonus: 1.7, c1: 3, c2: 4, rate: 58, remarks: '秋月型',
+      id: 2, text: '2種', rateBonus: 1.7, c1: 3, c2: 4, rate: 55, remarks: '秋月型',
     },
     {
       id: 3, text: '3種', rateBonus: 1.6, c1: 2, c2: 3, rate: 50, remarks: '秋月型',
@@ -811,7 +811,7 @@ export default class Const {
       id: 4, text: '4種', rateBonus: 1.5, c1: 5, c2: 2, rate: 52, remarks: '戦艦',
     },
     {
-      id: 5, text: '5種', rateBonus: 1.5, c1: 2, c2: 3, rate: 55, remarks: '汎用',
+      id: 5, text: '5種', rateBonus: 1.5, c1: 2, c2: 3, rate: 50, remarks: '汎用',
     },
     {
       id: 6, text: '6種', rateBonus: 1.45, c1: 4, c2: 1, rate: 40, remarks: '戦艦',
@@ -898,7 +898,7 @@ export default class Const {
       id: 33, text: '33種', rateBonus: 1.35, c1: 3, c2: 1, rate: 42, remarks: 'Gotland',
     },
     {
-      id: 34, text: '34種', rateBonus: 1.6, c1: 7, c2: 1, rate: 60, remarks: 'Fletcher級',
+      id: 34, text: '34種', rateBonus: 1.6, c1: 7, c2: 1, rate: 56, remarks: 'Fletcher級',
     },
     {
       id: 35, text: '35種', rateBonus: 1.55, c1: 6, c2: 1, rate: 55, remarks: 'Fletcher級',
@@ -907,7 +907,7 @@ export default class Const {
       id: 36, text: '36種', rateBonus: 1.55, c1: 6, c2: 1, rate: 50, remarks: 'Fletcher級',
     },
     {
-      id: 37, text: '37種', rateBonus: 1.45, c1: 2, c2: 3, rate: 40, remarks: 'Fletcher級',
+      id: 37, text: '37種', rateBonus: 1.45, c1: 2, c2: 3, rate: 44, remarks: 'Fletcher級',
     },
     {
       id: 38, text: '38種', rateBonus: 1.85, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta',
