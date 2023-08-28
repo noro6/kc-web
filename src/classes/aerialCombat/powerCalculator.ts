@@ -374,6 +374,10 @@ export default class AerialFirePowerCalculator {
     } else if ([1668, 1669, 1671, 1672].includes(defense.data.id) && isAirbaseMode) {
       // 離島棲姫
       specialEnemyMultipliers.push(1.7);
+    } else if ([2178, 2179, 2180, 2181, 2196, 2197].includes(defense.data.id)) {
+      // トーチカ小鬼 対空小鬼
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.6 : 1);
+      specialEnemyMultipliers.push(isAirbaseMode ? 2.5 : 1.7);
     } else {
       specialEnemyMultipliers.push(1);
     }

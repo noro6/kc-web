@@ -1215,18 +1215,18 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, scout: 1 },
-          shipClass: [65, 93, 102, 107],
+          shipClass: [65, 93, 102, 107, 125],
           num: 1,
         },
         {
           bonus: { scout: 1 },
-          shipClass: [65, 93, 102, 107],
+          shipClass: [65, 93, 102, 107, 125],
           num: 1,
           remodel: 3,
         },
         {
           bonus: { scout: 1 },
-          shipClass: [65, 93, 102, 107],
+          shipClass: [65, 93, 102, 107, 125],
           num: 1,
           remodel: 8,
         },
@@ -5041,26 +5041,26 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 2, avoid: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
         },
         {
           bonus: { avoid: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 2,
         },
         {
           bonus: { antiAir: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 4,
         },
         {
           bonus: { avoid: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 7,
         },
         {
           bonus: { antiAir: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 10,
         },
       ],
@@ -5257,7 +5257,7 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { armor: 2, avoid: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           num: 1,
         },
         {
@@ -5267,17 +5267,17 @@ export default class ItemBonus {
         },
         {
           bonus: { armor: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 3,
         },
         {
           bonus: { armor: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 6,
         },
         {
           bonus: { armor: 1 },
-          shipClass: [58, 61, 64, 68, 80, 92, 113],
+          shipClass: [58, 61, 64, 68, 80, 92, 113, 124],
           remodel: 10,
         },
       ],
@@ -5922,7 +5922,7 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 2, avoid: 1 },
-          shipClass: [65, 93, 102, 107],
+          shipClass: [65, 93, 102, 107, 125],
         },
       ],
     },
@@ -7113,6 +7113,10 @@ export default class ItemBonus {
       ids: [507, 508],
       bonuses: [
         {
+          bonus: { firePower: 1, avoid: 1, accuracy: 1 },
+          shipClass: [125],
+        },
+        {
           bonus: { firePower: 2, avoid: 1, accuracy: 1 },
           shipCountry: Const.USA,
           shipType: [8, 9, 10],
@@ -7151,6 +7155,12 @@ export default class ItemBonus {
     {
       ids: [508],
       bonuses: [
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          shipClass: [125],
+          requiresId: [507],
+          num: 1,
+        },
         {
           bonus: { firePower: 1, avoid: 2, accuracy: 1 },
           shipCountry: Const.USA,
