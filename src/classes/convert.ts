@@ -247,7 +247,6 @@ export default class Convert {
     const luck = (s.luck && s.luck > 0) ? s.luck : master.luck;
     const baseHP = (shipLv > 99 ? master.hp2 : master.hp);
     const hp = (s.hp && s.hp > 0) ? s.hp : baseHP;
-    const asw = (s.asw && s.asw > 0) ? s.asw : Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
     const items: Item[] = [];
     let exItem = new Item();
 
@@ -276,8 +275,21 @@ export default class Convert {
       exItem = new Item({ master: itemMaster, remodel: item.rf, level });
     }
 
+    if (s.asw && s.asw > 0) {
+      // デッキビルダー形式に対潜値が含まれていた場合 => 装備 + 改修 + ボーナス分なので、切り分ける必要がある
+      const origAsw = Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
+      // 対潜なしで一度艦娘を生成
+      const ship = new Ship({
+        master, level: shipLv, luck, items, exItem, hp,
+      });
+      // 表示対潜の差分を見る => これが対潜改修分
+      const increasedAsw = s.asw - ship.displayStatus.asw;
+      // 改めて再生成して返却
+      return new Ship({ ship, asw: origAsw + increasedAsw });
+    }
+
     return new Ship({
-      master, level: shipLv, luck, items, exItem, asw, hp,
+      master, level: shipLv, luck, items, exItem, hp,
     });
   }
 
