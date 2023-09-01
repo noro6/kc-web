@@ -17,7 +17,7 @@
     "dexie": "^3.2.2",
     "file-saver": "^2.0.5",
     "firebase": "^9.9.0",
-    "gkcoi": "^1.4.9",
+    "gkcoi": "^1.5.1",
     "html2canvas": "^1.4.1",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
