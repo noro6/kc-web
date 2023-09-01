@@ -192,6 +192,7 @@
 }
 .item-special-text {
   display: flex;
+  justify-content: center;
   background-color: rgba(250, 250, 255, 0.9);
   border: 2px solid rgb(83, 158, 255);
   color: #000;
@@ -201,6 +202,7 @@
   font-weight: bold;
   padding-left: 4px;
   padding-right: 4px;
+  min-width: 26px;
   border-radius: 0.1rem;
   right: 0px;
   height: 24px;

@@ -486,6 +486,8 @@
   font-weight: bold;
   position: absolute;
   display: flex;
+  justify-content: center;
+  min-width: 22px;
   font-size: 12px;
   padding: 0px 3px;
   border-radius: 0.1rem;
