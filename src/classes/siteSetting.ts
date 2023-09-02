@@ -176,7 +176,7 @@ export default class SiteSetting {
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = setting.savedShipListFilter && setting.savedShipListFilter.enabled ? setting.savedShipListFilter : new ShipFilter();
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
-      this.displayBonusKey = '';
+      this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;

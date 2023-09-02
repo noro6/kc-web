@@ -455,7 +455,7 @@ export default Vue.extend({
       return classes.join(' ');
     },
     bonusText(): string {
-      if (!this.value.data.id) {
+      if (!this.value.data.id || !this.value.data.bonuses.length) {
         return '';
       }
       const key = this.setting.displayBonusKey;

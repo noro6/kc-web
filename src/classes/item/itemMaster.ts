@@ -241,11 +241,17 @@ export default class ItemMaster {
     }
 
     // 特効テキストを用意
-    this.bonuses = [{ key: '', text: '' }];
+    this.bonuses = [];
     const bonuses = Const.SPECIAL_GROUP.filter((v) => v.items.includes(this.id));
     for (let i = 0; i < bonuses.length; i += 1) {
       const bonus = bonuses[i];
-      this.bonuses.push({ key: bonus.key, text: bonus.text });
+      const already = this.bonuses.find((v) => v.key === bonus.key);
+      if (already) {
+        // 既に同じキーのものがあるなら特効文字列を結合
+        already.text += bonus.text;
+      } else {
+        this.bonuses.push({ key: bonus.key, text: bonus.text });
+      }
     }
 
     this.isNightAircraftItem = this.iconTypeId === 45 || this.iconTypeId === 46 || [154, 242, 243, 244, 320].includes(this.id);
