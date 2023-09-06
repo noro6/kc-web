@@ -2,16 +2,19 @@
   <div class="area-manager-container mt-3">
     <div class="align-self-center pl-2 d-flex">
       <v-text-field class="search-input" :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
-    </div>
-    <div>
-      <div class="d-flex my-2" v-if="!readonly">
-        <v-btn class="ml-auto" color="secondary" @click="resetAreaTag()">{{ $t("Database.お札一斉解除") }}</v-btn>
+      <div>
+        <v-btn class="ml-3" color="primary" @click="expandAll()">{{ $t("Database.全て展開") }}</v-btn>
+        <v-btn class="ml-1" color="secondary" @click="collapseAll()">{{ $t("Database.全て折りたたむ") }}</v-btn>
       </div>
+    </div>
+    <div class="d-flex my-2" v-if="!readonly">
+      <v-btn class="ml-auto" color="secondary" @click="resetAreaTag()">{{ $t("Database.お札一斉解除") }}</v-btn>
     </div>
     <v-card
       v-for="data in filteredAreaShipList"
       :key="`area_${data.area}`"
       class="mb-2 px-2 py-3 area-card"
+      :class="{ minimize: minimizeArea.includes(data.area) }"
       :data-area="data.area"
       @dragenter="dragEnter($event)"
       @dragleave="dragLeave($event)"
@@ -28,48 +31,54 @@
         <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit">
           {{ $t("Database.解散") }}
         </v-btn>
+        <v-btn class="ml-auto" icon @click="toggleMinimize(data.area)">
+          <v-icon v-if="minimizeArea.includes(data.area)">mdi-chevron-down</v-icon>
+          <v-icon v-else>mdi-chevron-up</v-icon>
+        </v-btn>
       </div>
-      <div v-if="data.headers.length > 0" class="py-1" />
-      <div v-for="header in data.headers" :key="`type_${header.text}`">
-        <div class="type-divider mt-1">
-          <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
-          <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
-          <div class="type-divider-border" />
-        </div>
-        <div class="d-flex flex-wrap">
-          <div
-            v-for="(ship, i) in header.ships"
-            :key="`area_${data.area}_ship${i}`"
-            class="ship-container"
-            :class="{ draggable: !disabledEdit }"
-            :draggable="!disabledEdit"
-            @dragstart="dragStart(ship, $event)"
-            @dragend="dragEnd($event)"
-            @click.stop="clickedShip(data.area, ship)"
-            @keypress.enter="clickedShip(data.area, ship)"
-          >
-            <div class="ship-img" @mouseenter="bootTooltip(ship, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(ship, $event)" @blur="clearTooltip">
-              <div>
-                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
-              </div>
-              <div class="slot-ex-img" v-if="ship.expand">
-                <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
-              </div>
-            </div>
-            <div class="caption">
-              <div class="ship-status">
-                <div class="align-self-center primary--text">
-                  Lv <span class="font-weight-bold">{{ ship.level }}</span>
+      <template v-if="!minimizeArea.includes(data.area)">
+        <div v-if="data.headers.length > 0" class="py-1" />
+        <div v-for="header in data.headers" :key="`type_${header.text}`">
+          <div class="type-divider mt-1">
+            <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
+            <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
+            <div class="type-divider-border" />
+          </div>
+          <div class="d-flex flex-wrap">
+            <div
+              v-for="(ship, i) in header.ships"
+              :key="`area_${data.area}_ship${i}`"
+              class="ship-container"
+              :class="{ draggable: !disabledEdit }"
+              :draggable="!disabledEdit"
+              @dragstart="dragStart(ship, $event)"
+              @dragend="dragEnd($event)"
+              @click.stop="clickedShip(data.area, ship)"
+              @keypress.enter="clickedShip(data.area, ship)"
+            >
+              <div class="ship-img" @mouseenter="bootTooltip(ship, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(ship, $event)" @blur="clearTooltip">
+                <div>
+                  <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
                 </div>
-                <div class="ml-1 align-self-center">
-                  {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
+                <div class="slot-ex-img" v-if="ship.expand">
+                  <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
                 </div>
               </div>
-              <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
+              <div class="caption">
+                <div class="ship-status">
+                  <div class="align-self-center primary--text">
+                    Lv <span class="font-weight-bold">{{ ship.level }}</span>
+                  </div>
+                  <div class="ml-1 align-self-center">
+                    {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
+                  </div>
+                </div>
+                <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </v-card>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
@@ -117,6 +126,10 @@
 }
 .area-card.dragging:not(.dragging-parent) * {
   pointer-events: none;
+}
+.area-card.minimize {
+  height: 60px;
+  overflow: hidden;
 }
 
 .area-banner {
@@ -233,6 +246,7 @@ export default Vue.extend({
     tooltipX: 0,
     tooltipY: 0,
     draggingShipId: 0,
+    minimizeArea: [] as number[],
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation) => {
@@ -240,7 +254,6 @@ export default Vue.extend({
         this.loadShipStock();
       }
     });
-
     this.loadShipStock();
   },
   watch: {
@@ -459,12 +472,14 @@ export default Vue.extend({
       this.tooltipTimer = window.setTimeout(() => {
         this.tooltipX = e.clientX;
         this.tooltipY = e.clientY;
+
+        const asw = Ship.getStatusFromLevel(ship.level, ship.data.maxAsw, ship.data.minAsw);
         const toolTipShip = new Ship({
           master: ship.data,
           level: ship.level,
           hp: ship.hp,
           luck: ship.luck,
-          asw: ship.impASW,
+          asw: asw + ship.impASW,
         });
         this.tooltipShip = toolTipShip;
         this.enabledTooltip = true;
@@ -473,6 +488,22 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    toggleMinimize(area: number) {
+      if (this.minimizeArea.includes(area)) {
+        this.minimizeArea = this.minimizeArea.filter((v) => area !== v);
+      } else {
+        this.minimizeArea.push(area);
+      }
+    },
+    expandAll() {
+      this.minimizeArea = [];
+    },
+    collapseAll() {
+      const maxArea = this.$store.state.areaCount as number;
+      for (let i = 1; i <= maxArea; i += 1) {
+        this.minimizeArea.push(i);
+      }
     },
     dragStart(ship: GroupShip, e: DragEvent) {
       const target = e.target as HTMLDivElement;
