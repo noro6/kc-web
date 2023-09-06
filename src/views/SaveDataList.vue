@@ -1,71 +1,69 @@
 <template>
   <div class="mb-5">
     <div class="general-container">
-      <v-card>
-        <div class="pa-3">
-          <div class="mt-2 search-inputs">
-            <div class="world-select-all">
-              <v-select
-                dense
-                v-model="selectedArea"
-                hide-details
-                :items="areaItems"
-                :label="$t('Enemies.海域')"
-                @change="changedWorld()"
-                :menu-props="{ maxHeight: '600px' }"
-              />
-            </div>
-            <div v-show="isEvent">
-              <v-select dense v-model="level" hide-details :items="levelItems" @change="changedWorld()" :label="$t('Difficulty.難易度')" />
-            </div>
-            <div class="ml-3">
-              <v-btn color="success" @click="searchPreset()" :disabled="isLoading || isSameSearchCondition">{{ $t("Common.検索") }}</v-btn>
-            </div>
-            <div class="ml-auto align-self-end caption" v-if="saveData && saveData.length">{{ saveData.length }}{{ $t("Common.件") }}</div>
+      <v-card class="pa-3">
+        <div class="mt-2 search-inputs">
+          <div class="world-select-all">
+            <v-select
+              dense
+              v-model="selectedArea"
+              hide-details
+              :items="areaItems"
+              :label="$t('Enemies.海域')"
+              @change="changedWorld()"
+              :menu-props="{ maxHeight: '600px' }"
+            />
           </div>
-        </div>
-        <div class="pa-3">
-          <v-card v-for="(preset, i) in saveData" :key="`data_${i}`" class="preset-item">
-            <div class="d-flex">
-              <div class="align-self-end">{{ preset.name }}</div>
-              <v-spacer />
-              <v-btn icon @click="expandPreset(preset)">
-                <v-icon>mdi-download</v-icon>
-              </v-btn>
-            </div>
-            <v-divider />
-            <div class="d-flex flex-wrap my-1">
-              <div v-for="(ship, j) in preset.ships" :key="`ship${i}_${j}`">
-                <v-img v-if="ship.data.id && ship.isActive" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
-              </div>
-            </div>
-            <div class="d-flex flex-wrap my-1" v-if="preset.ships2 && preset.ships2.length">
-              <div v-for="(ship, j) in preset.ships2" :key="`ship${i}_${j}`">
-                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
-              </div>
-            </div>
-            <div class="preset-memo" v-if="preset.memo">{{ preset.memo }}</div>
-            <div class="d-flex flex-wrap justify-end">
-              <div class="d-flex mx-2">
-                <div><v-icon small>mdi-account</v-icon></div>
-                <div class="caption align-self-center">{{ preset.user }}</div>
-              </div>
-              <div class="d-flex mx-2">
-                <div><v-icon small>mdi-clock-time-four-outline</v-icon></div>
-                <div class="caption align-self-center">{{ preset.createdAt }}</div>
-              </div>
-            </div>
-          </v-card>
-        </div>
-        <div v-if="enabledMoreLoad && !isLoading" class="pa-2">
-          <v-btn color="primary" block @click="searchPreset()">{{ $t("Common.さらに読み込む") }}</v-btn>
-        </div>
-        <div v-if="isLoading" class="py-5">
-          <div class="d-flex justify-center">
-            <v-progress-circular size="70" color="secondary" indeterminate />
+          <div v-show="isEvent">
+            <v-select dense v-model="level" hide-details :items="levelItems" @change="changedWorld()" :label="$t('Difficulty.難易度')" />
           </div>
+          <div class="ml-3">
+            <v-btn color="success" @click="searchPreset()" :disabled="isLoading || isSameSearchCondition">{{ $t("Common.検索") }}</v-btn>
+          </div>
+          <div class="ml-auto align-self-end caption" v-if="saveData && saveData.length">{{ saveData.length }}{{ $t("Common.件") }}</div>
         </div>
       </v-card>
+      <div>
+        <v-card v-for="(preset, i) in saveData" :key="`data_${i}`" class="preset-item">
+          <div class="d-flex">
+            <div class="align-self-end">{{ preset.name }}</div>
+            <v-spacer />
+            <v-btn icon @click="expandPreset(preset)">
+              <v-icon>mdi-download</v-icon>
+            </v-btn>
+          </div>
+          <v-divider />
+          <div class="d-flex flex-wrap my-1">
+            <div v-for="(ship, j) in preset.ships" :key="`ship${i}_${j}`">
+              <v-img v-if="ship.data.id && ship.isActive" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+            </div>
+          </div>
+          <div class="d-flex flex-wrap my-1" v-if="preset.ships2 && preset.ships2.length">
+            <div v-for="(ship, j) in preset.ships2" :key="`ship${i}_${j}`">
+              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+            </div>
+          </div>
+          <div class="preset-memo" v-if="preset.memo">{{ preset.memo }}</div>
+          <div class="d-flex flex-wrap justify-end">
+            <div class="d-flex mx-2">
+              <div><v-icon small>mdi-account</v-icon></div>
+              <div class="caption align-self-center">{{ preset.user }}</div>
+            </div>
+            <div class="d-flex mx-2">
+              <div><v-icon small>mdi-clock-time-four-outline</v-icon></div>
+              <div class="caption align-self-center">{{ preset.createdAt }}</div>
+            </div>
+          </div>
+        </v-card>
+      </div>
+      <div v-if="enabledMoreLoad && !isLoading" class="mt-3">
+        <v-btn color="primary" block @click="searchPreset()">{{ $t("Common.さらに読み込む") }}</v-btn>
+      </div>
+      <div v-if="isLoading" class="py-5">
+        <div class="d-flex justify-center">
+          <v-progress-circular size="70" color="secondary" indeterminate />
+        </div>
+      </div>
     </div>
     <div class="info-area">
       <v-divider class="mb-2" />

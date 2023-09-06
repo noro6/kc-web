@@ -592,7 +592,7 @@
           <div class="body-2 mt-1">{{ $t("Database.このまま取り込むと") }}</div>
           <div class="d-flex flex-wrap justify-space-around">
             <v-btn color="primary" class="mt-3" @click="overwriteAreaImport()">{{ $t("Database.札データを上書きして取り込む") }}</v-btn>
-            <v-btn color="success" class="mt-3" @click="ImportWithoutArea()">{{ $t("Database.札データを上書きせず取り込む") }}</v-btn>
+            <v-btn color="success" class="mt-3" @click="importWithoutArea()">{{ $t("Database.札データを上書きせず取り込む") }}</v-btn>
           </div>
         </div>
         <v-divider class="my-2" />
@@ -1136,7 +1136,7 @@ export default Vue.extend({
         this.inform('在籍艦娘データの更新が完了しました。');
       }
     },
-    ImportWithoutArea() {
+    importWithoutArea() {
       // 札情報を無視して取り込み
       if (this.readyImportShipStock) {
         const shipStock = this.$store.state.shipStock as ShipStock[];
