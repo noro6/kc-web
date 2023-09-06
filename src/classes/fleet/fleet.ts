@@ -41,8 +41,11 @@ export default class Fleet {
   /** 輸送量 */
   public readonly tp: number;
 
-  /** 航空戦が可能な機体ありなし */
+  /** 航空戦が可能な機体ありなし(主力 & 随伴) */
   public readonly hasPlane: boolean;
+
+  /** 航空戦が可能な機体ありなし(主力のみ) */
+  public readonly hasMainPlane: boolean;
 
   /** 噴式機ありなし */
   public readonly hasJet: boolean;
@@ -111,6 +114,7 @@ export default class Fleet {
     this.fleetRosCorr = 0;
     this.hasJet = false;
     this.hasPlane = false;
+    this.hasMainPlane = false;
     this.allPlanes = [];
 
     this.allAntiAirCutIn = [];
@@ -150,6 +154,9 @@ export default class Fleet {
           this.allPlanes = this.allPlanes.concat(shipPlanes);
           if (!this.hasPlane && this.allPlanes.find((v) => !v.data.isRecon)) {
             this.hasPlane = true;
+          }
+          if (!this.hasMainPlane && this.allPlanes.find((v) => !v.data.isRecon && !v.isEscortItem)) {
+            this.hasMainPlane = true;
           }
         }
         if (!this.hasJet && ship.hasJet) {

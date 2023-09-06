@@ -89,7 +89,17 @@ export default class Calculator {
   public static calculateMainPhase(fleet: Fleet, enemyFleet: EnemyFleet, battle: number, calcStage2 = false): void {
     const result = fleet.results[battle];
     const airPower = enemyFleet.isUnion ? (fleet.airPower + fleet.escortAirPower) : fleet.airPower;
-    const state = CommonCalc.getAirState(airPower, enemyFleet.airPower, fleet.hasPlane || enemyFleet.hasPlane);
+    let hasSomePlane = enemyFleet.hasPlane;
+    if (!hasSomePlane) {
+      if (enemyFleet.isUnion) {
+        // 敵連合なら、双方どちらかでもいいので艦載機があればtrue
+        hasSomePlane = fleet.hasPlane;
+      } else {
+        // 通常なら、味方の主力または敵に艦載機あればtrue
+        hasSomePlane = fleet.hasMainPlane;
+      }
+    }
+    const state = CommonCalc.getAirState(airPower, enemyFleet.airPower, hasSomePlane);
 
     // 戦闘開始時の結果記録
     result.addRates(state);
