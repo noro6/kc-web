@@ -417,19 +417,26 @@ export default Vue.extend({
               const { ships } = manager.fleetInfo.fleets[i];
               for (let j = 0; j < ships.length; j += 1) {
                 const ship = ships[j];
-                usedItems = usedItems.concat(ship.items.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+                const shipItems = ship.items.filter((v) => v.data.id);
+                if (shipItems.length) {
+                  usedItems = usedItems.concat(shipItems.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+                }
                 if (ship.exItem.data.id > 0) usedItems.push({ id: ship.exItem.data.id, remodel: ship.exItem.remodel, isChecked: false });
               }
             }
             // 基地航空隊データから装備全取得
             const { airbases } = manager.airbaseInfo;
             for (let i = 0; i < airbases.length; i += 1) {
-              usedItems = usedItems.concat(airbases[i].items.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+              const airbaseItems = airbases[i].items.filter((v) => v.data.id);
+              if (airbaseItems.length) {
+                usedItems = usedItems.concat(airbaseItems.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+              }
             }
 
-            for (let i = 0; i < parent.items.length; i += 1) {
+            const parentItems = parent.items.concat(parent.exItem).filter((v) => v.data.id);
+            for (let i = 0; i < parentItems.length; i += 1) {
               // 自分が装備しているやつは対象外なので抜く
-              const item = parent.items[i];
+              const item = parentItems[i];
               const index = usedItems.findIndex((v) => v.id === item.data.id && v.remodel === item.remodel);
               if (index >= 0) usedItems = usedItems.filter((v, idx) => idx !== index);
             }
