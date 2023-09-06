@@ -281,7 +281,7 @@ export default Vue.extend({
       return this.value;
     },
     shipAddEnabled() {
-      return this.value.ships.length < 7;
+      return this.value.ships.length < 11;
     },
     shipRemoveEnabled() {
       return this.value.ships.length > 1;
