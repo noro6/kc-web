@@ -5,8 +5,7 @@
       <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
         <v-radio :label="$t('Common.なし')" value="" />
         <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
-        <v-radio label="【参考】前回夏イベの特効" value="55-6" />
-        <v-radio label="2023夏イベント後段作戦" value="57-5" />
+        <v-radio label="2023夏イベ後段" value="57-5" />
       </v-radio-group>
     </v-card>
     <div class="general-container d-flex">
