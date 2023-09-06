@@ -361,6 +361,7 @@ export default Vue.extend({
         const newData = new SaveData();
         newData.name = `${data.name}_コピー`;
         newData.manager = data.manager;
+        newData.remarks = data.remarks;
         newData.isActive = true;
         newData.isMain = true;
 
