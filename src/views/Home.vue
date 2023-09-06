@@ -1,151 +1,158 @@
 <template>
   <div>
-    <div class="d-flex align-end content">
+    <div class="d-flex align-end content mt-4">
       <div>{{ $t("Common.制空権シミュレータ") }}</div>
       <div class="ml-1 body-2">v{{ $store.state.siteVersion }}</div>
     </div>
-    <v-card class="content">
-      <div class="menu-buttons">
-        <div class="my-2 mx-4">
-          <v-btn large color="green" dark @click="goAirCalcPage">
-            <v-icon>mdi-calculator</v-icon>
-            <span class="ml-1">{{ $t("Home.制空権シミュレータ") }}</span>
-          </v-btn>
-          <div class="mt-2 body-2">
-            <div>{{ $t("Home.本サイトの主要機能です。") }}</div>
-            <div class="mt-1">
-              {{
-                $t("Home.基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。")
-              }}
-            </div>
+    <div class="content py-4">
+      <div class="body-2">{{ $t("Home.メインメニュー") }}</div>
+      <v-divider></v-divider>
+      <div class="main-content-buttons">
+        <v-tooltip left bottom color="black" max-width="400px" open-delay="500" v-for="page in mainPages" :key="page.title" :disabled="!page.text">
+          <template v-slot:activator="{ on, attrs }">
+            <button class="content-button" v-bind="attrs" v-on="on" v-ripple="{ class: `${page.color}--text` }" @click="clickedButton(page.url)">
+              <div>
+                <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
+              </div>
+              <div class="content-button-title">{{ $t(`${page.title}`) }}</div>
+            </button>
+          </template>
+          <div v-if="page.text">
+            <div v-for="t in page.text" :key="t">{{ $t(`${t}`) }}</div>
           </div>
-        </div>
-        <div class="my-2 mx-4">
-          <v-btn large dark color="blue" @click="$router.push('manager')">
-            <v-icon>mdi-database-cog</v-icon>
-            <span class="ml-1">{{ $t("Home.艦娘 / 装備管理") }}</span>
-          </v-btn>
-          <div class="mt-2 body-2">
-            <div>{{ $t("Home.サブの機能です。") }}</div>
-            <div class="mt-1">
-              {{
-                $t(
-                  "Home.自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってた…？と悩む心配がなくなります。"
-                )
-              }}
-            </div>
-          </div>
-        </div>
-        <div class="my-2 mx-4">
-          <v-btn large dark color="blue darken-4" @click="$router.push('list')">
-            <v-icon>mdi-human-greeting-variant</v-icon>
-            <span class="ml-1">{{ $t("Home.みんなの編成") }}</span>
-          </v-btn>
-          <div class="mt-2 body-2">
-            <div>{{ $t("Home.他の人がアップロードした編成データを閲覧できます。") }}</div>
-          </div>
-        </div>
-        <div class="my-2 mx-4">
-          <v-btn large dark color="pink lighten-1" @click="$router.push('extra')">
-            <v-icon>mdi-gift-open</v-icon>
-            <span class="ml-1">{{ $t("Home.おまけ") }}</span>
-          </v-btn>
-          <div class="mt-2 body-2">
-            <div>{{ $t("Home.おまけのページです") }}</div>
-          </div>
-        </div>
+        </v-tooltip>
       </div>
-    </v-card>
-    <v-expansion-panels class="content pa-0 mt-4" multiple>
-      <v-expansion-panel>
-        <v-expansion-panel-header>
-          <div class="d-flex align-center">
-            <div>
-              <v-icon>mdi-database-arrow-down</v-icon>
+      <div class="mt-4 body-2">{{ $t("Home.おまけ") }}</div>
+      <v-divider></v-divider>
+      <div class="main-content-buttons">
+        <v-tooltip left bottom color="black" max-width="340px" open-delay="500" v-for="page in extraPages" :key="page.title">
+          <template v-slot:activator="{ on, attrs }">
+            <button class="content-button" v-bind="attrs" v-on="on" v-ripple="{ class: `${page.color}--text` }" @click="clickedButton(page.url)">
+              <div>
+                <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
+              </div>
+              <div class="content-button-title">{{ $t(`${page.title}`) }}</div>
+            </button>
+          </template>
+          <div>{{ $t(`${page.text}`) }}</div>
+        </v-tooltip>
+      </div>
+      <div class="mt-6">{{ $t("Database.その他") }}</div>
+      <v-divider></v-divider>
+      <v-expansion-panels class="pa-0 mt-3" multiple>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <div>
+                <v-icon>mdi-database-arrow-up</v-icon>
+              </div>
+              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} (v2 <v-icon>mdi-arrow-right-thin</v-icon> v2)</div>
             </div>
-            <div class="ml-3">{{ $t("Home.データ引き継ぎ") }}</div>
-          </div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-divider />
-          <div class="mt-4 ml-4 body-2">
-            <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
-            {{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
-          </div>
-          <div class="d-flex flex-wrap ml-4">
-            <v-btn class="ma-2" color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
-              {{ $t("Home.データ引継ぎ(編成)") }}
-            </v-btn>
-            <v-btn class="ma-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
-              {{ $t("Home.データ引継ぎ(装備/艦娘)") }}
-            </v-btn>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel>
-        <v-expansion-panel-header>
-          <div class="d-flex align-center">
-            <div>
-              <v-icon>mdi-link-variant</v-icon>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-divider />
+            <div class="mt-4 body-2">{{ $t("Home.本サイトで作成した編成データなどを他の端末やブラウザに引き継げます") }}</div>
+            <div class="body-2 mt-3">
+              1. <v-btn @click="createBackUp" color="primary" small :disabled="created" depressed>{{ $t("Home.バックアップファイルを作成する") }}</v-btn>
             </div>
-            <div class="ml-3">{{ $t("Home.サイト連携") }}</div>
-          </div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-divider />
-          <div class="mt-4 ml-4 body-2">
-            <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
-            <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
-          </div>
-          <div class="mt-6 ml-4 body-2">
-            <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
-            <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
-          </div>
-          <div class="mt-6 ml-4 body-2">
-            <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
-            <div class="text--secondary">
-              (e.g.)
-              https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
+            <div class="body-2 mt-2">2. {{ $t("Home.作成されたバックアップファイルを、引き継ぎ先のPCや端末に移動させる") }}</div>
+            <div class="body-2 mt-2">3. {{ $t("Home.引き継ぎ先で制空権シミュレータv2を開き、サイト設定を開く") }}</div>
+            <div class="body-2 mt-1">
+              4. 「{{ $t("Setting.編成データのバックアップ") }}」<v-icon>mdi-arrow-right-thin</v-icon>「{{ $t("Setting.復元するバックアップファイルを選択") }}」
             </div>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel>
-        <v-expansion-panel-header>
-          <div class="d-flex align-center">
-            <div>
-              <v-icon>mdi-party-popper</v-icon>
+            <div class="body-2 mt-1">5. {{ $t("Home.手順2で移動させてきたバックアップファイルを選択すれば引き継ぎは完了です") }}</div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <div>
+                <v-icon>mdi-database-arrow-down</v-icon>
+              </div>
+              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} (v1 <v-icon>mdi-arrow-right-thin</v-icon> v2)</div>
             </div>
-            <div class="ml-3">{{ $t("Home.ご支援") }}</div>
-          </div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-divider />
-          <div class="mt-4 ml-4 body-2">
-            <div>{{ $t("Home.本サイトは無料ですが、それでもご支援いただけるという方向けに支援の手段を用意しました。") }}</div>
-            <div>{{ $t("Home.いつも本当にありがとうございます。") }}</div>
-          </div>
-          <div class="mt-2 ml-4 support-buttons">
-            <div>
-              <v-btn color="teal darken-1" large dark target="_blank" href="https://ofuse.me/noro">
-                <span class="ofuse-label">OFUSEで応援する</span>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-divider />
+            <div class="mt-4 body-2">
+              <a href="https://noro6.github.io/kcTools" target="_blank">{{ $t("Home.旧制空権シミュレータ") }}</a>
+              (v1){{ $t("Home.で作成していた編成データや、登録されていた装備、艦娘情報を引き継ぎます。") }}
+            </div>
+            <div class="d-flex flex-wrap mt-2">
+              <v-btn color="teal" @click="checkOldData()" :dark="!imported" :disabled="imported">
+                {{ $t("Home.データ引継ぎ(編成)") }}
               </v-btn>
-              <div class="mt-2 body-2">
-                <div>{{ $t("Home.匿名でも利用可能な投げ銭サービスです。") }}</div>
+              <v-btn class="ml-2" color="teal" @click="checkOldStockData()" :dark="!importedStock" :disabled="importedStock">
+                {{ $t("Home.データ引継ぎ(装備/艦娘)") }}
+              </v-btn>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <div>
+                <v-icon>mdi-link-variant</v-icon>
+              </div>
+              <div class="ml-3">{{ $t("Home.サイト連携") }}</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-divider />
+            <div class="mt-4 ml-4 body-2">
+              <div>{{ $t("Home.デッキビルダー形式をURLに ?predeck=で埋め込めば編成を読み込めます。") }}</div>
+              <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web?predeck={"version":4,"hqlv":120,"f1":{"s1":...</div>
+            </div>
+            <div class="mt-6 ml-4 body-2">
+              <div>{{ $t("Home.URLが長すぎて上記の方法でエラーが出る場合は、URL fragmentsを利用した受け渡しも可能です。") }}</div>
+              <div class="text--secondary">(e.g.) https://noro6.github.io/kc-web#import:{"predeck":{"version":4,"hqlv":120,"f1":{"s1":...}</div>
+            </div>
+            <div class="mt-6 ml-4 body-2">
+              <div>{{ $t("Home.また、URL fragmentsを利用した形式では艦隊分析コード(艦娘、装備)形式の読み込みも同時に行うことができます。") }}</div>
+              <div class="text--secondary">
+                (e.g.)
+                https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
               </div>
             </div>
-            <div>
-              <v-btn color="orange darken-1" large dark target="_blank" href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share">
-                {{ $t("Home.Amazon ほしい物リスト") }}
-              </v-btn>
-              <div class="mt-2 body-2">
-                <div>{{ $t("Home.物資やギフト券といった形であればこちら。") }}</div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <div>
+                <v-icon>mdi-party-popper</v-icon>
+              </div>
+              <div class="ml-3">{{ $t("Home.ご支援") }}</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-divider />
+            <div class="mt-4 ml-4 body-2">
+              <div>{{ $t("Home.本サイトは無料ですが、それでもご支援いただけるという方向けに支援の手段を用意しました。") }}</div>
+              <div>{{ $t("Home.いつも本当にありがとうございます。") }}</div>
+            </div>
+            <div class="mt-2 ml-4 support-buttons">
+              <div>
+                <v-btn color="teal darken-1" large dark target="_blank" href="https://ofuse.me/noro">
+                  <span class="ofuse-label">OFUSEで応援する</span>
+                </v-btn>
+                <div class="mt-2 body-2">
+                  <div>{{ $t("Home.匿名でも利用可能な投げ銭サービスです。") }}</div>
+                </div>
+              </div>
+              <div>
+                <v-btn color="orange darken-1" large dark target="_blank" href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share">
+                  {{ $t("Home.Amazon ほしい物リスト") }}
+                </v-btn>
+                <div class="mt-2 body-2">
+                  <div>{{ $t("Home.物資やギフト券といった形であればこちら。") }}</div>
+                </div>
               </div>
             </div>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
     <div class="info-area">
       <v-divider class="mb-2" />
       <div class="caption">
@@ -189,11 +196,53 @@
 .content {
   margin: 0 auto;
   max-width: 1200px;
-  padding: 1rem;
 }
 .menu-buttons {
   display: grid;
   grid-template-columns: 1fr;
+}
+
+.main-content-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 5px;
+  row-gap: 5px;
+  margin-top: 16px;
+}
+.content-button {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 146px;
+  height: 124px;
+  box-shadow: 0 1px 2px rgba(220, 225, 232, 0.5), 0 1px 2px rgba(220, 225, 232, 0.5);
+  background-color: #fff;
+  transition: 0.12s ease-out;
+  border-radius: 3px;
+}
+.theme--dark .content-button {
+  background-color: rgb(40, 40, 45);
+  box-shadow: 0 1px 2px rgba(29, 32, 36, 0.5), 0 1px 2px rgba(29, 32, 36, 0.5);
+}
+.deep-sea .theme--dark .content-button {
+  background-color: rgba(36, 44, 54, 0.6);
+}
+.content-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 2rem rgb(216, 218, 222);
+}
+.theme--dark .content-button:hover {
+  box-shadow: 0 0.5rem 2.5rem rgb(19, 22, 24);
+}
+.content-button-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.85em;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  min-height: 40px;
 }
 @media (min-width: 800px) {
   .menu-buttons {
@@ -226,11 +275,91 @@ export default Vue.extend({
     saveData.disabledMain();
   },
   data: () => ({
+    created: false,
     imported: false,
     importConfirmDialog: false,
     importFileName: '引き継ぎデータ',
     confirmDialog: false,
     importedStock: false,
+    mainPages: [
+      {
+        title: 'Home.制空権シミュレータ',
+        icon: 'mdi-calculator',
+        color: 'green',
+        text: [
+          'Home.本サイトの主要機能です。',
+          'Home.基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。',
+        ],
+        url: 'aircalc',
+      },
+      {
+        title: 'Home.艦娘 / 装備管理',
+        icon: 'mdi-database-cog',
+        color: 'blue',
+        text: [
+          'Home.サブの機能です。',
+          'Home.自分のゲーム内の艦娘、装備情報を登録すると、シミュレータ内で選択できる艦娘や装備に反映され、あの装備持ってた…？と悩む心配がなくなります。',
+        ],
+        url: 'manager',
+      },
+      {
+        title: 'Home.みんなの編成',
+        icon: 'mdi-human-greeting-variant',
+        color: 'orange',
+        text: ['Home.他の人がアップロードした編成データを閲覧できます。'],
+        url: 'list',
+      },
+      {
+        title: 'Common.サイト設定',
+        icon: 'mdi-cog',
+        color: 'grey',
+        url: 'setting',
+      },
+    ],
+    extraPages: [
+      {
+        title: 'Extra.艦娘性能一覧',
+        icon: 'mdi-account-switch',
+        color: 'green',
+        text: 'Extra.艦娘の基本ステータスの確認と比較を行えます。',
+        url: 'extra',
+      },
+      {
+        title: 'Extra.装備性能一覧',
+        icon: 'mdi-compare-horizontal',
+        color: 'teal',
+        text: 'Extra.装備の基本ステータスの確認と比較を行えます。',
+        url: 'extra#items',
+      },
+      {
+        title: 'Extra.対潜値計算機',
+        icon: 'mdi-finance',
+        color: 'light-blue',
+        text: 'Extra.艦娘と装備から、指定した対潜値と必要なLvを計算します。',
+        url: 'extra#asw-calculator',
+      },
+      {
+        title: 'Extra.戦果砲管理',
+        icon: 'mdi-progress-check',
+        color: 'orange',
+        text: 'Extra.戦果に関係する任務の進捗を管理する機能です。',
+        url: 'extra#quest',
+      },
+      {
+        title: 'Extra.敵艦生息地検索',
+        icon: 'mdi-map-search',
+        color: 'red',
+        text: 'Extra.指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。',
+        url: 'extra#habitat',
+      },
+      {
+        title: 'Extra.敵対空おばけ',
+        icon: 'mdi-fire-alert',
+        color: 'pink',
+        text: 'Extra.敵艦の対空砲火ランキングです。見かけたら気を付けるか覚悟しましょう。',
+        url: 'extra#aa-ranking',
+      },
+    ],
   }),
   computed: {
     isNameEmpty(): boolean {
@@ -241,6 +370,19 @@ export default Vue.extend({
     },
   },
   methods: {
+    clickedButton(url: string) {
+      switch (url) {
+        case 'aircalc':
+          this.goAirCalcPage();
+          break;
+        case 'setting':
+          this.$emit('showSiteSetting');
+          break;
+        default:
+          this.$router.push(url);
+          break;
+      }
+    },
     goAirCalcPage() {
       const saveData = this.$store.state.saveData as SaveData;
       saveData.disabledMain();
@@ -406,6 +548,10 @@ export default Vue.extend({
       }
 
       this.importConfirmDialog = false;
+    },
+    createBackUp() {
+      this.created = true;
+      this.$emit('downloadBackupFile');
     },
   },
 });

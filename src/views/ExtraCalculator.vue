@@ -107,13 +107,19 @@ export default Vue.extend({
     const { hash } = document.location;
     if (hash.endsWith('asw-calculator')) {
       this.tab = 2;
-      this.$router.push({ path: '/extra' });
+      this.$router.replace({ path: '/extra' });
     } else if (hash.endsWith('items')) {
       this.tab = 1;
-      this.$router.push({ path: '/extra' });
+      this.$router.replace({ path: '/extra' });
     } else if (hash.endsWith('quest')) {
       this.tab = 3;
-      this.$router.push({ path: '/extra' });
+      this.$router.replace({ path: '/extra' });
+    } else if (hash.endsWith('habitat')) {
+      this.tab = 4;
+      this.$router.replace({ path: '/extra' });
+    } else if (hash.endsWith('aa-ranking')) {
+      this.tab = 5;
+      this.$router.replace({ path: '/extra' });
     }
   },
   computed: {

@@ -16,14 +16,7 @@
             {{ $t("Common.絞り込み") }}
             <span class="caption">({{ viewShips.length }}{{ isNotJapanese ? "" : "隻" }} / {{ allCount }}{{ isNotJapanese ? "" : "隻" }})</span>
           </v-btn>
-          <v-btn
-            v-if="viewShips.length !== allCount"
-            @click="
-              resetFilterCondition();
-            "
-            text
-            class="ml-1"
-          >
+          <v-btn v-if="viewShips.length !== allCount" @click="resetFilterCondition()" text class="ml-1">
             {{ $t("Common.リセット") }}
           </v-btn>
           <v-checkbox dense class="mt-0 pt-0 ml-3" v-model="isAvoidSpoiler" @change="changeAvoidSpoiler()" hide-details :label="$t('Database.ネタバレ防止')" />
@@ -272,7 +265,7 @@
                   </v-btn>
                 </div>
               </div>
-              <div class="d-flex flex-wrap pa-3">
+              <div class="d-flex flex-wrap align-center pa-3">
                 <div
                   v-for="i in maxAreas"
                   :key="`area${i}`"
@@ -354,14 +347,10 @@
                   }"
                   @click.stop="showEditDialog(item)"
                   @keypress.enter="showEditDialog(item)"
-                  @mouseenter="bootTooltip(item, $event)"
-                  @mouseleave="clearTooltip"
-                  @focus="clearTooltip"
-                  @blur="clearTooltip"
                 >
                   <td class="px-0">
                     <div class="d-none d-md-flex align-center">
-                      <div class="edit-stock-img">
+                      <div class="edit-stock-img" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" @focus="clearTooltip" @blur="clearTooltip">
                         <div class="ship-table-img-container" :class="{ no_ship: item.count === 0, 'avoid-spoiler': isAvoidSpoiler }">
                           <img :src="`./img/ship/${item.ship.id}.png`" :alt="`ship-${item.ship.id}`" height="40" width="160" />
                         </div>

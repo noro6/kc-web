@@ -40,11 +40,11 @@
       </v-btn>
     </div>
     <v-divider />
-    <div class="d-flex flex-wrap px-3 align-center">
-      <div class="my-3">
+    <div class="item-filter-container px-3">
+      <div>
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
       </div>
-      <div class="ml-3 d-flex manual-checkbox" v-if="!isAirbaseMode">
+      <div class="d-flex manual-checkbox" v-if="!isAirbaseMode">
         <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
           <v-icon class="manual-icon" color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
@@ -52,7 +52,7 @@
         </v-btn>
         <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">{{ $t("ItemList.射程増加") }}</span>
       </div>
-      <div class="ml-3 d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
+      <div class="d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
         <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
           <v-icon class="manual-icon" color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
           <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
@@ -60,33 +60,41 @@
         </v-btn>
         <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
       </div>
-      <div class="ml-3 d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
+      <div class="d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
         <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
       </div>
-      <div class="ml-3 d-flex manual-checkbox" v-if="enabledAAResistFilter">
-        <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避あり')" />
+      <div class="d-flex manual-checkbox" v-if="enabledAAResistFilter">
+        <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
       </div>
       <template v-if="type === 14">
-        <div class="ml-3 my-3">
+        <div>
           <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
         </div>
-        <div class="ml-3 my-3">
+        <div>
           <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
         </div>
-        <div class="ml-3 my-3">
+        <div>
           <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
         </div>
       </template>
-      <div class="ml-3 my-3" v-if="!isEnemyMode && setting.displayBonusKey">
+      <div v-if="!isEnemyMode && setting.displayBonusKey">
         <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
       </div>
-      <div class="ml-3 my-3" v-if="itemStock.length && !isEnemyMode">
-        <v-checkbox v-model="isStockOnly" @click="clickedStockOnly" hide-details dense :label="$t('ItemList.所持装備反映')" />
-      </div>
-      <div class="ml-3 my-3" v-if="isStockOnly && !multiLine">
+      <div v-if="isStockOnly && !multiLine">
         <v-checkbox v-model="sortRawStatus" @click="filter()" hide-details dense :label="$t('ItemList.素ステでソート')" />
       </div>
-      <v-btn class="ml-auto" color="secondary" @click="showBlacklist()"> <v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }}) </v-btn>
+      <div class="ml-auto mt-1 d-flex align-center">
+        <v-switch
+          v-if="itemStock.length && !isEnemyMode"
+          class="mt-0 mr-2"
+          :label="$t('ItemList.所持装備反映')"
+          v-model="isStockOnly"
+          @click="clickedStockOnly"
+          dense
+          hide-details
+        />
+        <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})</v-btn>
+      </div>
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
@@ -331,7 +339,7 @@
   text-align: right !important;
 }
 .filter-value-input {
-  width: 80px;
+  width: 60px;
 }
 
 .sort-selector {
@@ -342,6 +350,17 @@
   text-align: center;
   cursor: pointer;
   border: 1px solid transparent;
+}
+
+.item-filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 4px;
+}
+
+.item-filter-container >>> .v-input--checkbox label {
+  left: -5px !important;
 }
 
 .type-selector {
@@ -608,6 +627,7 @@
 }
 .manual-checkbox span {
   position: relative;
+  left: -3px;
   bottom: -10px;
   font-size: 0.85em;
   opacity: 0.7;

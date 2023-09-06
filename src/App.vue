@@ -101,7 +101,7 @@
       </div>
       <div :class="routerViewClass">
         <transition name="router" mode="out-in">
-          <router-view @inform="inform" @openSidebar="drawer = true" />
+          <router-view @inform="inform" @showSiteSetting="showSiteSetting" @downloadBackupFile="downloadBackupFile" @openSidebar="drawer = true" />
         </transition>
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" bottom>
@@ -842,6 +842,9 @@ export default Vue.extend({
     },
     pushPage(path: string) {
       if (this.$route.path !== path) this.$router.push({ path });
+    },
+    showSiteSetting() {
+      this.configDialog = true;
     },
     async loadURLInformation() {
       // 展開待ち中のデータがあれば読み込んで消す
