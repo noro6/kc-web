@@ -280,7 +280,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-16,
 .item-input.type-21,
 .item-input.type-38,
-.item-input.type-45 {
+.item-input.type-45,
+.item-input.type-56 {
     box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.15) !important;
     border-color: rgb(100, 200, 120) !important;
 }
@@ -291,7 +292,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-16:hover,
 .item-input.type-21:hover,
 .item-input.type-38:hover,
-.item-input.type-45:hover {
+.item-input.type-45:hover,
+.item-input.type-56:hover {
     box-shadow: inset 0 0 24px rgba(0, 255, 100, 0.4) !important;
 }
 
@@ -390,13 +392,15 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .item-input.type-25,
-.item-input.type-54 {
+.item-input.type-54,
+.item-input.type-55 {
     box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.25) !important;
     border-color: rgb(128, 128, 128) !important;
 }
 
 .item-input.type-25:hover,
-.item-input.type-54:hover {
+.item-input.type-54:hover,
+.item-input.type-55:hover {
     box-shadow: inset 0 0 20px rgba(128, 128, 128, 0.5) !important;
 }
 
@@ -521,7 +525,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-16,
 .captured .item-input.type-21,
 .captured .item-input.type-38,
-.captured .item-input.type-45 {
+.captured .item-input.type-45,
+.captured .item-input.type-56 {
     background: rgba(0, 255, 100, 0.075) !important;
 }
 
@@ -569,7 +574,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .captured .item-input.type-25,
-.captured .item-input.type-54 {
+.captured .item-input.type-54,
+.captured .item-input.type-55 {
     background: rgba(128, 128, 128, 0.1) !important;
 }
 
