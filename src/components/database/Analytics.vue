@@ -91,9 +91,24 @@
                   {{ $t("Database.カタパルト必要数") }}
                 </v-btn>
               </th>
-              <th class="text-right">{{ $t("Database.改装設計図消費数") }}</th>
-              <th class="text-right">{{ $t("Database.戦闘詳報消費数") }}</th>
-              <th class="text-right">{{ $t("Database.カタパルト消費数") }}</th>
+              <th class="text-right">
+                <v-btn small text @click.stop="showBlueprintUseDialog()" :disabled="!totalCatapultsPlan">
+                  <v-icon class="ml-1" small>mdi-magnify</v-icon>
+                  {{ $t("Database.改装設計図消費数") }}
+                </v-btn>
+              </th>
+              <th class="text-right">
+                <v-btn small text @click.stop="showActionReportUseDialog()" :disabled="!totalCatapultsPlan">
+                  <v-icon class="ml-1" small>mdi-magnify</v-icon>
+                  {{ $t("Database.戦闘詳報消費数") }}
+                </v-btn>
+              </th>
+              <th class="text-right">
+                <v-btn small text @click.stop="showCatapultUseDialog()" :disabled="!totalCatapultsPlan">
+                  <v-icon class="ml-1" small>mdi-magnify</v-icon>
+                  {{ $t("Database.カタパルト消費数") }}
+                </v-btn>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -101,9 +116,9 @@
               <td class="text-right pr-7">{{ totalBluePrintsPlan.toLocaleString() }}</td>
               <td class="text-right pr-7">{{ totalActionReportsPlan.toLocaleString() }}</td>
               <td class="text-right pr-7">{{ totalCatapultsPlan.toLocaleString() }}</td>
-              <td class="text-right">{{ totalBluePrints.toLocaleString() }}</td>
-              <td class="text-right">{{ totalActionReports.toLocaleString() }}</td>
-              <td class="text-right">{{ totalCatapults.toLocaleString() }}</td>
+              <td class="text-right pr-7">{{ totalBluePrints.toLocaleString() }}</td>
+              <td class="text-right pr-7">{{ totalActionReports.toLocaleString() }}</td>
+              <td class="text-right pr-7">{{ totalCatapults.toLocaleString() }}</td>
             </tr>
           </tbody>
         </template>
@@ -224,7 +239,7 @@
               <v-expansion-panel-content>
                 <v-divider />
                 <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-flex mt-2">
-                  <div class="next-arrow-container">
+                  <div class="next-arrow-container" v-if="!usedMode">
                     <div class="mr-3">
                       <v-icon v-if="detail.requireEXP" color="warning">mdi-arrow-right-bold</v-icon>
                       <v-icon v-else color="success">mdi-arrow-right-bold</v-icon>
@@ -237,8 +252,10 @@
                     <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160" />
                   </div>
                   <div class="ml-1 flex-grow-1 align-self-center">
-                    <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
-                    <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
+                    <template v-if="!usedMode">
+                      <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
+                      <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
+                    </template>
                     <div class="d-flex">
                       <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>
                     </div>
@@ -460,6 +477,7 @@ export default Vue.extend({
     totalActionReports: 0,
     totalCatapults: 0,
     detailDialog: false,
+    usedMode: false,
     onlyBlueprint: false,
     onlyActionReport: false,
     onlyCatapult: false,
@@ -595,7 +613,7 @@ export default Vue.extend({
             totalLuckImprovement += stock.improvement.luck;
             maruyuCount += stock.id === 163 || stock.id === 402 ? 1 : 0;
 
-            newStackedData.data[(newStackedData.data.length - 1) - Math.floor(stock.level / 10)] += 1;
+            newStackedData.data[newStackedData.data.length - 1 - Math.floor(stock.level / 10)] += 1;
 
             const master = all.find((v) => v.id === stock.id);
             if (!master) {
@@ -769,18 +787,42 @@ export default Vue.extend({
       return ship.name ? ship.name : '';
     },
     showBlueprintPlanDialog() {
+      this.usedMode = false;
       this.onlyBlueprint = true;
       this.onlyActionReport = false;
       this.onlyCatapult = false;
       this.setDetailDialogData();
     },
     showActionReportPlanDialog() {
+      this.usedMode = false;
       this.onlyBlueprint = false;
       this.onlyActionReport = true;
       this.onlyCatapult = false;
       this.setDetailDialogData();
     },
     showCatapultPlanDialog() {
+      this.usedMode = false;
+      this.onlyBlueprint = false;
+      this.onlyActionReport = false;
+      this.onlyCatapult = true;
+      this.setDetailDialogData();
+    },
+    showBlueprintUseDialog() {
+      this.usedMode = true;
+      this.onlyBlueprint = true;
+      this.onlyActionReport = false;
+      this.onlyCatapult = false;
+      this.setDetailDialogData();
+    },
+    showActionReportUseDialog() {
+      this.usedMode = true;
+      this.onlyBlueprint = false;
+      this.onlyActionReport = true;
+      this.onlyCatapult = false;
+      this.setDetailDialogData();
+    },
+    showCatapultUseDialog() {
+      this.usedMode = true;
       this.onlyBlueprint = false;
       this.onlyActionReport = false;
       this.onlyCatapult = true;
@@ -816,43 +858,80 @@ export default Vue.extend({
           open: -1,
         };
 
-        // 以降(自身を含む)の改装状態を取得
-        const news = all.filter((v) => v.originalId === master.originalId && v.version >= master.version);
-        for (let j = 0; j < news.length; j += 1) {
-          const ship = news[j];
-          // 次の改装艦
-          const next = news.find((v) => v.version === ship.version + 1);
-          // 設計図とか
-          if (next && (ship.blueprints || ship.actionReports || ship.catapults)) {
-            // フィルタ
-            if (this.onlyBlueprint && !ship.blueprints) {
-              continue;
-            }
-            if (this.onlyActionReport && !ship.actionReports) {
-              continue;
-            }
-            if (this.onlyCatapult && !ship.catapults) {
-              continue;
-            }
+        let bases: ShipMaster[];
+        if (this.usedMode) {
+          // 以前(自身を含む)の改装状態を取得
+          bases = all.filter((v) => v.originalId === master.originalId && v.version <= master.version);
+        } else {
+          // 以降(自身を含む)の改装状態を取得
+          bases = all.filter((v) => v.originalId === master.originalId && v.version >= master.version);
+        }
+        for (let j = 0; j < bases.length; j += 1) {
+          const ship = bases[j];
 
-            let requireEXP = 0;
-            if (stock.level < ship.nextLv) {
-              const requiredLevel = Const.LEVEL_BORDERS.find((v) => v.lv === ship.nextLv);
-              requireEXP = requiredLevel ? requiredLevel.req - stock.exp : 0;
+          let target: ShipMaster | undefined;
+          if (this.usedMode) {
+            target = bases.find((v) => v.version === ship.version - 1);
+            if (target && (target.blueprints || target.actionReports || target.catapults)) {
+              // フィルタ
+              if (this.onlyBlueprint && !target.blueprints) {
+                continue;
+              }
+              if (this.onlyActionReport && !target.actionReports) {
+                continue;
+              }
+              if (this.onlyCatapult && !target.catapults) {
+                continue;
+              }
+
+              row.details.push({
+                base: ship,
+                next: target,
+                requireEXP: 0,
+                blueprints: target.blueprints,
+                actionReports: target.actionReports,
+                catapults: target.catapults,
+              });
+
+              row.blueprints += target.blueprints;
+              row.actionReports += target.actionReports;
+              row.catapults += target.catapults;
             }
+          } else {
+            // 次の改装艦
+            target = bases.find((v) => v.version === ship.version + 1);
+            // 設計図とか
+            if (target && (ship.blueprints || ship.actionReports || ship.catapults)) {
+              // フィルタ
+              if (this.onlyBlueprint && !ship.blueprints) {
+                continue;
+              }
+              if (this.onlyActionReport && !ship.actionReports) {
+                continue;
+              }
+              if (this.onlyCatapult && !ship.catapults) {
+                continue;
+              }
 
-            row.details.push({
-              base: ship,
-              next,
-              requireEXP,
-              blueprints: ship.blueprints,
-              actionReports: ship.actionReports,
-              catapults: ship.catapults,
-            });
+              let requireEXP = 0;
+              if (stock.level < ship.nextLv) {
+                const requiredLevel = Const.LEVEL_BORDERS.find((v) => v.lv === ship.nextLv);
+                requireEXP = requiredLevel ? requiredLevel.req - stock.exp : 0;
+              }
 
-            row.blueprints += ship.blueprints;
-            row.actionReports += ship.actionReports;
-            row.catapults += ship.catapults;
+              row.details.push({
+                base: ship,
+                next: target,
+                requireEXP,
+                blueprints: ship.blueprints,
+                actionReports: ship.actionReports,
+                catapults: ship.catapults,
+              });
+
+              row.blueprints += ship.blueprints;
+              row.actionReports += ship.actionReports;
+              row.catapults += ship.catapults;
+            }
           }
         }
 
