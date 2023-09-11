@@ -221,7 +221,7 @@ export default class ShipMaster {
       name = name.slice(0, -1);
     }
 
-    const suffixes = ['改二', ' zwei', ' drei', ' due', ' andra', ' nuovo', ' два', ' Mod.2', ' Mk.II'];
+    const suffixes = ['改二', '改三', ' zwei', ' drei', ' due', ' andra', ' nuovo', ' два', ' Mod.2', ' Mk.II'];
     for (let i = 0; i < suffixes.length; i += 1) {
       let suffix = suffixes[i];
       if (name.endsWith(suffix)) {
