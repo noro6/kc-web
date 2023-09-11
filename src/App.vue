@@ -601,6 +601,9 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="shipStockDiffDialog" transition="scroll-x-transition" width="800">
+      <ship-import-diff v-if="shipStockDiffDialog" :handle-close="() => (shipStockDiffDialog = false)" />
+    </v-dialog>
   </v-app>
 </template>
 
@@ -615,6 +618,7 @@ import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
 import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
+import ShipImportDiff from '@/components/database/ShipImportDiff.vue';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting, { SiteTheme } from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
@@ -625,6 +629,7 @@ import Fleet from './classes/fleet/fleet';
 import CalcManager from './classes/calcManager';
 import FleetInfo from './classes/fleet/fleetInfo';
 import Const from './classes/const';
+import ShipStockDiff from './classes/fleet/shipStockDiff';
 
 export default Vue.extend({
   name: 'App',
@@ -632,6 +637,7 @@ export default Vue.extend({
     SaveDataView,
     SaveDataTab,
     ShareDialog,
+    ShipImportDiff,
     SettingInitialLevel,
     UploadSaveData,
   },
@@ -680,6 +686,7 @@ export default Vue.extend({
     fileColors: Const.FILE_COLORS,
     areaOverwriteConfirmDialog: false,
     readyImportShipStock: [] as ShipStock[],
+    shipStockDiffDialog: false,
   }),
   computed: {
     getCompletedAll() {
@@ -761,6 +768,9 @@ export default Vue.extend({
     needTrans(): boolean {
       return !this.isJapanese && !this.setting.nameIsNotTranslate;
     },
+    getShipStockDiff(): ShipStockDiff {
+      return this.$store.getters.getShipStockDiff;
+    },
   },
   watch: {
     getCompletedAll(value) {
@@ -781,6 +791,11 @@ export default Vue.extend({
         setTimeout(() => {
           (this.$refs.saveDataNameInput as HTMLInputElement).focus();
         }, 150);
+      }
+    },
+    getShipStockDiff(value: ShipStockDiff) {
+      if (value.diffs.length || value.newcomers.length || value.expulsionShips.length) {
+        this.shipStockDiffDialog = true;
       }
     },
   },

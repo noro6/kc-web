@@ -19,6 +19,7 @@ import OutputHistory from '@/classes/saveData/outputHistory';
 import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
+import ShipStockDiff from '@/classes/fleet/shipStockDiff';
 
 Vue.use(Vuex);
 
@@ -42,6 +43,10 @@ export default new Vuex.Store({
     itemStock: [] as ItemStock[],
     /** 所持艦隊マスタ */
     shipStock: [] as ShipStock[],
+    /** 所持艦隊マスタdiff */
+    shipStockDiff: new ShipStockDiff(),
+    /** 所持艦隊マスタdiffを作成するかどうか デフォルトtrue 管理画面での手動更新時はいちいち出てうざいのでfalse */
+    needShipStockDiff: true,
     /** 一時展開中装備マスタ */
     tempItemStock: [] as ItemStock[],
     /** 一時展開中艦隊マスタ */
@@ -185,7 +190,35 @@ export default new Vuex.Store({
       state.itemStock = values;
     },
     setShipStock: (state, values: ShipStock[]) => {
+      const olds = state.shipStock.concat();
       state.shipStock = values;
+
+      if (state.needShipStockDiff) {
+        const diff = new ShipStockDiff();
+        // 差分チェック => uniqueIdが仕事しているかチェック
+        if (olds.length && olds.length !== olds[olds.length - 1].uniqueId && values.length && values.length !== values[values.length - 1].uniqueId) {
+          for (let i = 0; i < values.length; i += 1) {
+            const current = values[i];
+            const old = olds.find((v) => v.uniqueId === current.uniqueId);
+            if (!old) {
+              // 過去データにいない
+              diff.newcomers.push(current);
+            } else if (old && (current.id !== old.id || current.exp !== old.exp || current.level !== old.level || current.releaseExpand !== old.releaseExpand || current.improvement.hp !== old.improvement.hp || current.improvement.asw !== old.improvement.asw || current.improvement.luck !== old.improvement.luck)) {
+              // 過去データと何か違っていたので差分あり
+              diff.diffs.push(old);
+            }
+          }
+
+          // 過去にはいて今はいないものをチェック
+          diff.expulsionShips = olds.filter((old) => !values.some((v) => old.uniqueId === v.uniqueId));
+        }
+        state.shipStockDiff = diff;
+      } else {
+        state.needShipStockDiff = true;
+      }
+    },
+    setNeedShipStockDiff: (state, value: boolean) => {
+      state.needShipStockDiff = value;
     },
     updateTempItemStock: (state, values: ItemStock[]) => {
       state.tempItemStock = values;
@@ -273,6 +306,9 @@ export default new Vuex.Store({
         });
       }
       context.commit('setShipStock', values);
+    },
+    setNeedShipStockDiff: (context, value: boolean) => {
+      context.commit('setNeedShipStockDiff', value);
     },
     updateTempItemStock: (context, values: ItemStock[]) => {
       context.commit('updateTempItemStock', values);
@@ -505,6 +541,7 @@ export default new Vuex.Store({
   modules: {
   },
   getters: {
+    getShipStockDiff: (state) => state.shipStockDiff,
     getCompletedAll: (state) => state.completed && state.saveDataLoadCompleted && state.settingLoadCompleted,
     getExistsTempStock: (state) => !!state.tempItemStock.length || !!state.tempShipStock.length,
     getEnemies: (state) => {
