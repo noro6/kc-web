@@ -59,6 +59,33 @@
                 <manual-checkbox :ok="onlyReleaseExSlot" :ng="withoutReleaseExSlot" :toggle="toggleExSlotFilter">{{ $t("Fleet.補強増設") }}</manual-checkbox>
               </div>
               <div class="d-flex mt-6">
+                <div class="caption">{{ $t("Fleet.改造状態") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="filter-input-container">
+                <v-checkbox
+                  v-model="includeInitial"
+                  dense
+                  hide-details
+                  :label="$t('Fleet.未改造')"
+                  :error="!includeInitial && !includeIntermediate && !includeFinal"
+                />
+                <v-checkbox
+                  v-model="includeIntermediate"
+                  dense
+                  hide-details
+                  :label="$t('Fleet.中間改造')"
+                  :error="!includeInitial && !includeIntermediate && !includeFinal"
+                />
+                <v-checkbox
+                  v-model="includeFinal"
+                  dense
+                  hide-details
+                  :label="$t('Fleet.最終改造')"
+                  :error="!includeInitial && !includeIntermediate && !includeFinal"
+                />
+              </div>
+              <div class="d-flex mt-6">
                 <div class="caption">{{ $t("Fleet.ステータス") }}</div>
                 <div class="header-divider" />
               </div>
@@ -883,13 +910,13 @@
 }
 .status-area-img {
   align-self: flex-end;
-  width: 35px;
+  width: 37px;
 }
 .status-area-img.exist-img {
   height: 40px;
 }
 .status-area-img img {
-  width: 35px;
+  width: 37px;
   height: 40px;
 }
 .status-ex-img {
@@ -972,6 +999,9 @@ export default Vue.extend({
     onlyNoStock: false,
     onlyReleaseExSlot: false,
     withoutReleaseExSlot: false,
+    includeInitial: true,
+    includeIntermediate: true,
+    includeFinal: true,
     isDaihatsu: false,
     isNotDaihatsu: false,
     isKamisha: false,
@@ -1359,6 +1389,9 @@ export default Vue.extend({
       this.isNotDaihatsu = false;
       this.isKamisha = false;
       this.isNotKamisha = false;
+      this.includeInitial = true;
+      this.includeIntermediate = true;
+      this.includeFinal = true;
       this.luckRange = [1, 200];
       this.levelRange = [1, Const.MAX_LEVEL];
       this.luckImpRange = [0, 100];
@@ -1524,6 +1557,12 @@ export default Vue.extend({
         const {
           stockData, ship, luck, hp, asw,
         } = row;
+        // 初期改造状態で絞る
+        if (!this.includeInitial && ship.version === 0) return false;
+        // 中間改造状態で絞る
+        if (!this.includeIntermediate && !(ship.version === 0 || ship.isFinal)) return false;
+        // 最終改造状態で絞る
+        if (!this.includeFinal && ship.isFinal) return false;
         // 練度で絞る
         if (stockData.level < minLevel || stockData.level > maxLevel) return false;
         // 対潜改修で絞る
@@ -1674,7 +1713,7 @@ export default Vue.extend({
     commitStock() {
       this.btnPushed = true;
       // 最新の艦娘在籍データ取得
-      const stockAll = this.$store.state.shipStock as ShipStock[];
+      const stockAll = this.$store.state.shipStock.concat() as ShipStock[];
       // 新規追加
       let maxId = max(stockAll.map((v) => v.uniqueId));
       if (maxId === undefined) {
@@ -1686,18 +1725,20 @@ export default Vue.extend({
       stockData.uniqueId = maxId + 1;
 
       stockAll.push(stockData);
+      this.$store.dispatch('setNeedShipStockDiff', false);
       this.$store.dispatch('updateShipStock', stockAll);
       this.shipStock = stockAll;
     },
     updateStock() {
       this.btnPushed = true;
       // 最新の艦娘在籍データ取得
-      const stockAll = this.$store.state.shipStock as ShipStock[];
+      const stockAll = this.$store.state.shipStock.concat() as ShipStock[];
       const stockData = this.getNewStock();
 
       const index = stockAll.findIndex((v) => v.uniqueId === stockData.uniqueId);
       if (index >= 0) {
         stockAll[index] = stockData;
+        this.$store.dispatch('setNeedShipStockDiff', false);
         this.$store.dispatch('updateShipStock', stockAll);
         this.shipStock = stockAll;
       }
@@ -1709,6 +1750,7 @@ export default Vue.extend({
       const id = this.editRow.stockData.uniqueId;
       const stockAll = this.$store.state.shipStock as ShipStock[];
       const deletedList = stockAll.filter((v) => v.uniqueId !== id);
+      this.$store.dispatch('setNeedShipStockDiff', false);
       this.$store.dispatch('updateShipStock', deletedList);
       this.shipStock = deletedList;
     },
