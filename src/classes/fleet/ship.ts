@@ -34,7 +34,9 @@ export interface ShipBuilder {
   /** 出撃海域 */
   area?: number;
   /** 所持管理ユニークid */
-  uniqueId?: number
+  uniqueId?: number;
+  /** 補強増設空いてるか */
+  releaseExpand?: boolean;
 }
 
 /** 表示ステータス */
@@ -195,6 +197,9 @@ export default class Ship implements ShipBase {
   /** 夜襲 熟練甲板要員爆装ボーナス */
   public readonly nightAttackCrewBomberBonus: number;
 
+  /** 補強増設空いてる？ */
+  public readonly releaseExpand: boolean;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -221,6 +226,7 @@ export default class Ship implements ShipBase {
       this.hp = builder.hp !== undefined ? builder.hp : builder.ship.hp;
       this.area = builder.area !== undefined ? builder.area : builder.ship.area;
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : builder.ship.uniqueId;
+      this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : builder.ship.releaseExpand;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -234,6 +240,7 @@ export default class Ship implements ShipBase {
       this.hp = builder.hp !== undefined ? builder.hp : this.data.hp;
       this.area = builder.area !== undefined ? builder.area : 0;
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : 0;
+      this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : true;
     }
 
     // 装備数をマスタのスロット数に合わせる

@@ -406,6 +406,7 @@ export default {
       '輸送護衛部隊': 'Transport Escort Force',
       '艦娘選択': 'Select Ship',
       '未装備': 'Empty',
+      '補強増設未開放': 'Not released',
       '艦娘': 'Ship',
       '装備': 'Equipment',
       '装備ボーナス': 'Equipment Bonus',

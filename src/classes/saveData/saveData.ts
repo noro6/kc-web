@@ -51,6 +51,8 @@ interface SavedShip {
   ar?: number,
   /** 所持情報用ユニークid */
   un?: number,
+  /** 補強増設の空き具合 */
+  re?: boolean,
 }
 
 export default class SaveData {
@@ -580,7 +582,7 @@ export default class SaveData {
       }
       if (v instanceof Ship) {
         const data = {
-          i: v.data.id, is: v.items, ac: v.isActive, es: v.isEscort,
+          i: v.data.id, is: v.items, ac: v.isActive, es: v.isEscort, re: v.releaseExpand,
         } as SavedShip;
         if (v.hp) data.hp = v.hp;
         if (v.asw) data.as = v.asw;
@@ -849,7 +851,7 @@ export default class SaveData {
         const uniqueId = ship.un ?? undefined;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId, releaseExpand: ship.re,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…

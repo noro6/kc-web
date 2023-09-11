@@ -273,6 +273,7 @@
             :handle-show-item-list="showItemList"
             :item-parent="ship"
             :handle-drag-start="clearTooltip"
+            :is-released="ship.releaseExpand"
             @input="updateItem"
           />
         </div>

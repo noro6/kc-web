@@ -24,6 +24,7 @@
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on" class="item-slot">
           <span v-if="!isExpandSlot">{{ item.fullSlot }}</span>
+          <v-icon v-else-if="!isReleased && isNoItem">mdi-cancel</v-icon>
           <v-icon v-else>mdi-wrench</v-icon>
         </div>
       </template>
@@ -152,7 +153,6 @@
   filter: drop-shadow(0 0 2px #fff);
 }
 .item-slot .v-icon {
-  margin-top: 2px;
   font-size: 18px;
 }
 
@@ -336,6 +336,9 @@
   cursor: default;
   opacity: 0;
 }
+.expand.disabled-expand.no-item * {
+  opacity: 0.4;
+}
 </style>
 
 <script lang="ts">
@@ -389,6 +392,10 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    isReleased: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     slotMenu: false,
@@ -414,6 +421,9 @@ export default Vue.extend({
     itemName() {
       if (this.needTrans && this.value.data.name) {
         return this.$t(`${this.value.data.name}`);
+      }
+      if (this.isExpandSlot && !this.isReleased && this.isNoItem) {
+        return this.$t('Fleet.補強増設未開放');
       }
       return this.value.data.name || this.$t('Fleet.未装備');
     },
@@ -442,6 +452,9 @@ export default Vue.extend({
       }
       if (this.isExpandSlot) {
         classes.push('expand');
+        if (!this.isReleased) {
+          classes.push('disabled-expand');
+        }
       }
       if (this.isNoItem) {
         classes.push('no-item');

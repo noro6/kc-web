@@ -1159,6 +1159,7 @@ export default Vue.extend({
       }
     },
     putShip(viewShip: ViewShip) {
+      /** 艦娘選択画面からの艦娘選択 */
       const { ship } = viewShip;
       this.shipListDialog = false;
       this.toggleShipListDialog();
@@ -1215,6 +1216,7 @@ export default Vue.extend({
         asw: viewShip.asw + Ship.getStatusFromLevel(viewShip.level, ship.maxAsw, ship.minAsw),
         area: viewShip.area,
         uniqueId: viewShip.uniqueId,
+        releaseExpand: viewShip.expanded,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新
