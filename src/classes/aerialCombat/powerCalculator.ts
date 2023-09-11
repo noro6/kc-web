@@ -339,8 +339,8 @@ export default class AerialFirePowerCalculator {
 
     // 特殊敵補正 (2023/05/21 https://twitter.com/Divinity_123/status/1659942254671216642?s=20)
     const specialEnemyMultipliers = [];
-    if ([1637, 1638, 1639, 1640].includes(defense.data.id)) {
-      // PT小鬼
+    if ([1637, 1638, 1639, 1640, 2192, 2193, 2194].includes(defense.data.id)) {
+      // PT小鬼 Sボート?
       specialEnemyMultipliers.push(isAirbaseMode ? 0.4 : 0.5);
       specialEnemyMultipliers.push(isAirbaseMode ? 0.7 : 0.8);
     } else if (defense.data.id === 1557) {
