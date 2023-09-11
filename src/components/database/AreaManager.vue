@@ -1,85 +1,124 @@
 <template>
-  <div class="area-manager-container mt-3">
-    <div class="align-self-center pl-2 d-flex">
-      <v-text-field class="search-input" :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
-      <div>
-        <v-btn class="ml-3" color="primary" @click="expandAll()">{{ $t("Database.全て展開") }}</v-btn>
-        <v-btn class="ml-1" color="secondary" @click="collapseAll()">{{ $t("Database.全て折りたたむ") }}</v-btn>
+  <div class="mt-3">
+    <div class="d-flex align-center flex-wrap">
+      <div class="search-input">
+        <v-text-field :label="$t('Database.名称検索')" dense v-model.trim="searchWord" clearable prepend-inner-icon="mdi-magnify" />
+      </div>
+      <div class="ml-auto d-flex">
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn fab text @click="expandAll()" v-bind="attrs" v-on="on">
+              <v-icon>mdi-expand-all</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Database.全て展開") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn fab text @click="collapseAll()" v-bind="attrs" v-on="on">
+              <v-icon>mdi-collapse-all</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Database.全て折りたたむ") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn fab text @click="captureTagManager()" v-bind="attrs" v-on="on">
+              <v-icon>mdi-camera</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Common.スクリーンショットを保存") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn fab text @click="confirmResetDialog = true" v-bind="attrs" v-on="on">
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Database.お札一斉解除") }}</span>
+        </v-tooltip>
       </div>
     </div>
-    <div class="d-flex my-2" v-if="!readonly">
-      <v-btn class="ml-auto" color="secondary" @click="resetAreaTag()">{{ $t("Database.お札一斉解除") }}</v-btn>
-    </div>
-    <v-card
-      v-for="data in filteredAreaShipList"
-      :key="`area_${data.area}`"
-      class="mb-2 px-2 py-3 area-card"
-      :class="{ minimize: minimizeArea.includes(data.area) }"
-      :data-area="data.area"
-      @dragenter="dragEnter($event)"
-      @dragleave="dragLeave($event)"
-      @drop.stop="dropShip($event)"
-      @dragover.prevent
-    >
-      <div class="d-flex">
-        <div class="area-banner">
-          <v-img :src="`./img/tags/area${data.area}.webp`" height="55" width="40" />
-        </div>
-        <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
-          {{ $t("Common.配備") }}
-        </v-btn>
-        <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit">
-          {{ $t("Database.解散") }}
-        </v-btn>
-        <v-btn class="ml-auto" icon @click="toggleMinimize(data.area)">
-          <v-icon v-if="minimizeArea.includes(data.area)">mdi-chevron-down</v-icon>
-          <v-icon v-else>mdi-chevron-up</v-icon>
-        </v-btn>
-      </div>
-      <template v-if="!minimizeArea.includes(data.area)">
-        <div v-if="data.headers.length > 0" class="py-1" />
-        <div v-for="header in data.headers" :key="`type_${header.text}`">
-          <div class="type-divider mt-1">
-            <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
-            <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
-            <div class="type-divider-border" />
+    <div class="area-manager-container mt-1" id="area-tag-manager" :class="{ captured: capturing }">
+      <v-card
+        v-for="data in filteredAreaShipList"
+        :key="`area_${data.area}`"
+        class="px-2 py-3 area-card"
+        :class="{ minimize: minimizeArea.includes(data.area) }"
+        :data-area="data.area"
+        @dragenter="dragEnter($event)"
+        @dragleave="dragLeave($event)"
+        @drop.stop="dropShip($event)"
+        @dragover.prevent
+      >
+        <div class="d-flex mb-2" v-if="!capturing">
+          <div class="area-banner">
+            <v-img :src="`./img/tags/area${data.area}.webp`" height="54" width="40" />
           </div>
-          <div class="d-flex flex-wrap">
-            <div
-              v-for="(ship, i) in header.ships"
-              :key="`area_${data.area}_ship${i}`"
-              class="ship-container"
-              :class="{ draggable: !disabledEdit }"
-              :draggable="!disabledEdit"
-              @dragstart="dragStart(ship, $event)"
-              @dragend="dragEnd($event)"
-              @click.stop="clickedShip(data.area, ship)"
-              @keypress.enter="clickedShip(data.area, ship)"
-            >
-              <div class="ship-img" @mouseenter="bootTooltip(ship, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(ship, $event)" @blur="clearTooltip">
-                <div>
-                  <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
-                </div>
-                <div class="slot-ex-img" v-if="ship.expand">
-                  <v-img :src="`./img/util/slot_ex.png`" height="27" width="27" />
-                </div>
-              </div>
-              <div class="caption">
-                <div class="ship-status">
-                  <div class="align-self-center primary--text">
-                    Lv <span class="font-weight-bold">{{ ship.level }}</span>
+          <v-btn class="ml-12" color="primary" @click.stop="showShipList(data.area)" :disabled="disabledEdit">
+            {{ $t("Common.配備") }}
+          </v-btn>
+          <v-btn class="ml-3" color="secondary" @click.stop="resetShipsClicked(data.area)" :disabled="disabledEdit">
+            {{ $t("Database.解散") }}
+          </v-btn>
+          <v-btn class="ml-auto" icon @click="toggleMinimize(data.area)">
+            <v-icon v-if="minimizeArea.includes(data.area)">mdi-chevron-down</v-icon>
+            <v-icon v-else>mdi-chevron-up</v-icon>
+          </v-btn>
+        </div>
+        <template v-if="!minimizeArea.includes(data.area)">
+          <div v-for="header in data.headers" :key="`type_${header.text}`">
+            <div class="type-divider" :class="{ 'mt-2 mb-1': capturing }" >
+              <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
+              <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
+              <div class="type-divider-border" />
+            </div>
+            <div class="d-flex flex-wrap">
+              <div
+                v-for="(ship, i) in header.ships"
+                :key="`area_${data.area}_ship${i}`"
+                class="ship-container"
+                :class="{ draggable: !disabledEdit }"
+                :draggable="!disabledEdit"
+                @dragstart="dragStart(ship, $event)"
+                @dragend="dragEnd($event)"
+                @click.stop="clickedShip(data.area, ship)"
+                @keypress.enter="clickedShip(data.area, ship)"
+              >
+                <div
+                  class="ship-img-container"
+                  @mouseenter="bootTooltip(ship, $event)"
+                  @mouseleave="clearTooltip"
+                  @focus="bootTooltip(ship, $event)"
+                  @blur="clearTooltip"
+                >
+                  <div class="ship-img">
+                    <img :src="`./img/ship/${ship.data.id}.png`" :alt="`ship${ship.data.id}`" />
                   </div>
-                  <div class="ml-1 align-self-center">
-                    {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
+                  <div class="slot-ex-img" v-if="ship.expand">
+                    <img :src="`./img/util/slot_ex.png`" alt="slot_ex" />
+                  </div>
+                  <div class="ship-area-banner" v-if="capturing">
+                    <img :src="`./img/tags/area${data.area}.webp`" alt="banner" />
                   </div>
                 </div>
-                <div class="ml-1 text-truncate ship-name">{{ getShipName(ship.data) }}</div>
+                <div class="ship-status-name">
+                  <div class="ship-status">
+                    <div class="align-self-center primary--text">
+                      Lv <span class="font-weight-bold">{{ ship.level }}</span>
+                    </div>
+                    <div class="ml-1 align-self-center">
+                      {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
+                    </div>
+                  </div>
+                  <div class="text-truncate ship-name">{{ getShipName(ship.data) }}</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </template>
-    </v-card>
+        </template>
+      </v-card>
+    </div>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
@@ -90,12 +129,12 @@
             <div>
               <v-img :src="`./img/ship/${confirmShip.data.id}.png`" height="30" width="120" />
             </div>
-            <div class="caption">
+            <div class="ship-status-name">
               <div class="ship-status">
                 <div class="align-self-center primary--text">Lv:{{ confirmShip.level }}</div>
                 <div class="ml-1 align-self-center">{{ $t("Common.運") }} {{ confirmShip.luck }}</div>
               </div>
-              <div class="ml-1 text-truncate">{{ getShipName(confirmShip.data) }}</div>
+              <div class="text-truncate">{{ getShipName(confirmShip.data) }}</div>
             </div>
           </div>
           <div v-if="confirmShip">{{ $t("Database.札を解除します。よろしいですか？") }}</div>
@@ -109,6 +148,18 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="confirmResetDialog" transition="scroll-x-transition" width="400">
+      <v-card class="pa-3">
+        <div class="ma-4">
+          <div>{{ $t("Database.札を解除します。よろしいですか？") }}</div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="red" dark @click.stop="resetAreaTag()">{{ $t("Database.解除") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmResetDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <ship-tooltip v-model="tooltipShip" />
     </v-tooltip>
@@ -118,9 +169,22 @@
 <style scoped>
 .area-manager-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   column-gap: 0.5rem;
+  row-gap: 0.5rem;
 }
+@media (min-width: 660px) {
+  .area-manager-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.search-input {
+  max-width: 400px;
+  min-width: 200px;
+  flex-grow: 1;
+}
+
 .area-card {
   position: relative;
 }
@@ -150,7 +214,7 @@
 .ship-container {
   display: flex;
   border: 1px solid transparent;
-  height: 38px;
+  height: 32px;
   transition: 0.1s;
   border-radius: 0.2rem;
 }
@@ -163,18 +227,37 @@
 .ship-container > div {
   align-self: center;
 }
-.ship-img {
+.ship-img-container {
   position: relative;
+}
+.ship-img {
+  height: 30px;
+}
+.ship-img img {
+  height: 30px;
+  width: 120px;
 }
 .ship-area-banner {
   position: absolute;
-  bottom: 0px;
-  left: 18px;
+  bottom: -4px;
+  left: 22px;
+  height: 40px;
+  width: 29px;
+}
+.ship-area-banner img {
+  height: 40px;
+  width: 29px;
 }
 .slot-ex-img {
   position: absolute;
-  bottom: -4px;
-  right: -2px;
+  height: 25px;
+  width: 25px;
+  bottom: 0px;
+  right: 0px;
+}
+.slot-ex-img img {
+  height: 25px;
+  width: 25px;
 }
 .ship-status {
   display: flex;
@@ -183,10 +266,39 @@
 }
 .ship-status > div {
   align-self: center;
-  margin-left: 4px;
+}
+.ship-status-name {
+  font-size: 0.75em;
+  margin-left: 2px;
 }
 .ship-name {
   width: 80px;
+}
+</style>
+
+<style>
+/** スクショ用調整  */
+.area-manager-container.captured {
+  width: 1720px !important;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
+.theme--dark .area-manager-container.captured {
+  background: rgb(40, 40, 45);
+  border: 1px solid #444;
+}
+.deep-sea .theme--dark .area-manager-container.captured {
+  background: rgb(8, 18, 42);
+}
+.captured .area-card {
+  padding: 0.25rem 0.75rem !important;
+  box-shadow: none !important;
+  border: 1px solid #bbb;
+}
+.theme--dark .captured .area-card {
+  border: 1px solid #444;
 }
 </style>
 
@@ -200,6 +312,8 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import ShipStock from '@/classes/fleet/shipStock';
 import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
+import html2canvas from 'html2canvas';
+import Convert from '../../classes/convert';
 
 interface GroupShip {
   data: ShipMaster;
@@ -247,6 +361,8 @@ export default Vue.extend({
     tooltipY: 0,
     draggingShipId: 0,
     minimizeArea: [] as number[],
+    capturing: false,
+    confirmResetDialog: false,
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation) => {
@@ -454,6 +570,7 @@ export default Vue.extend({
         stocks[i].area = 0;
       }
       this.$store.dispatch('updateShipStock', stocks);
+      this.confirmResetDialog = false;
     },
     getShipName(ship: ShipMaster) {
       if (this.needTrans) {
@@ -583,6 +700,21 @@ export default Vue.extend({
       const target = e.target as HTMLDivElement;
       target.style.opacity = '1';
       target.id = '';
+    },
+    captureTagManager() {
+      // 背景色とかを塗るフラグ立て
+      this.capturing = true;
+      const div = document.getElementById('area-tag-manager') as HTMLDivElement;
+      setTimeout(() => {
+        html2canvas(div, { scale: 1 }).then((canvas) => {
+          const link = document.createElement('a');
+          const setting = this.$store.state.siteSetting as SiteSetting;
+          link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
+          link.download = `area_tag_${Convert.formatDate(new Date(), 'yyyyMMdd-HHmmss')}.${setting.imageType}`;
+          link.click();
+          this.capturing = false;
+        });
+      }, 10);
     },
   },
 });
