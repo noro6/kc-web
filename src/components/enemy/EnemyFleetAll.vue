@@ -414,7 +414,7 @@ export default Vue.extend({
       this.capturing = true;
       const div = document.getElementById('enemies-container') as HTMLDivElement;
       setTimeout(() => {
-        html2canvas(div, { scale: 2, width: 1160 }).then((canvas) => {
+        html2canvas(div, { scale: 1, width: 1160 }).then((canvas) => {
           const link = document.createElement('a');
           const setting = this.$store.state.siteSetting as SiteSetting;
           link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');

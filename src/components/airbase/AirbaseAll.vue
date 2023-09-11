@@ -663,7 +663,7 @@ export default Vue.extend({
       this.capturing = true;
       const div = document.getElementById('airbase-container') as HTMLDivElement;
       setTimeout(() => {
-        html2canvas(div, { scale: 2 }).then((canvas) => {
+        html2canvas(div, { scale: 1 }).then((canvas) => {
           const link = document.createElement('a');
           const setting = this.$store.state.siteSetting as SiteSetting;
           link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');

@@ -1430,7 +1430,7 @@ export default Vue.extend({
       const div = document.querySelector('.fleet-container.v-window-item--active') as HTMLDivElement;
       if (div) {
         setTimeout(() => {
-          html2canvas(div, { scale: 2, width: this.is2Line ? 860 : 1200 }).then((canvas) => {
+          html2canvas(div, { scale: 1, width: this.is2Line ? 860 : 1200 }).then((canvas) => {
             const link = document.createElement('a');
             const setting = this.$store.state.siteSetting as SiteSetting;
             link.href = canvas.toDataURL(setting.imageType === 'png' ? 'image/png' : 'image/jpeg');
