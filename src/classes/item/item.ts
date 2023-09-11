@@ -13,6 +13,8 @@ export interface ItemBuilder {
   level?: number;
   /** 改修値 未指定ならitemの改修値で作成 */
   remodel?: number;
+  /** 改修値をステータスに反映しない 未指定ならitemの改修値で作成 */
+  ignoreRemodelBonus?: boolean;
 }
 
 /**
@@ -244,25 +246,37 @@ export default class Item {
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
-    this.actualFire = this.data.fire + this.bonusFire;
-    this.actualTorpedo = this.data.torpedo + this.bonusTorpedo;
-    this.actualBomber = this.data.bomber + this.bonusBomber;
-    this.actualAsw = this.data.asw + this.bonusAsw;
-    this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
-    this.actualScout = this.data.scout + this.bonusScout;
-    this.actualAvoid = this.data.avoid;
-    this.dayBattleFirePower = this.data.fire + this.bonusFire;
-    this.aircraftDayBattleFirePower = this.data.fire + this.bonusFire;
-    this.nightBattleFirePower = this.data.fire + this.data.torpedo + this.bonusNightFire;
+
+    if (builder.ignoreRemodelBonus) {
+      // 改修値をステータスに反映しないオプションがある場合
+      this.actualFire = this.data.fire;
+      this.actualTorpedo = this.data.torpedo;
+      this.actualBomber = this.data.bomber;
+      this.actualAsw = this.data.asw;
+      this.actualAccuracy = this.data.accuracy;
+      this.actualScout = this.data.scout;
+      this.actualAvoid = this.data.avoid;
+      this.dayBattleFirePower = this.data.fire;
+      this.aircraftDayBattleFirePower = this.data.fire;
+      this.nightBattleFirePower = this.data.fire + this.data.torpedo;
+    } else {
+      this.actualFire = this.data.fire + this.bonusFire;
+      this.actualTorpedo = this.data.torpedo + this.bonusTorpedo;
+      this.actualBomber = this.data.bomber + this.bonusBomber;
+      this.actualAsw = this.data.asw + this.bonusAsw;
+      this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
+      this.actualScout = this.data.scout + this.bonusScout;
+      this.actualAvoid = this.data.avoid;
+      this.dayBattleFirePower = this.data.fire + this.bonusFire;
+      this.aircraftDayBattleFirePower = this.data.fire + this.bonusFire;
+      this.nightBattleFirePower = this.data.fire + this.data.torpedo + this.bonusNightFire;
+    }
 
     this.calculatedAirPower = [];
     this.calculatedDefenseAirPower = [];
 
+    // 航空機の処理
     if (this.data.isPlane) {
-      // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
-      this.actualAntiAir = this.data.sortieAntiAir + this.bonusAntiAir;
-      // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
-      this.actualDefenseAntiAir = this.data.defenseAntiAir + this.bonusAntiAir;
       // 砲撃戦火力
       if (!this.data.isSPPlane) {
         this.aircraftDayBattleFirePower = (this.dayBattleFirePower + this.data.torpedo + Math.floor(1.3 * this.data.bomber)) * 1.5;
@@ -273,6 +287,7 @@ export default class Item {
       this.ammo = Math.ceil(this.fullSlot * 0.6);
       this.bauxite = this.data.cost * (this.data.isRecon ? 4 : 18);
       this.steel = this.data.isJet ? Math.round(this.fullSlot * this.data.cost * 0.2) : 0;
+
       if (this.data.isABAttacker) {
         // 陸攻補正
         this.fuel = Math.ceil(this.fullSlot * (this.data.isShinzan ? 2 : 1.5));
@@ -284,17 +299,26 @@ export default class Item {
         this.ammo = this.fullSlot;
       }
 
-      // 制空値更新
-      if (this.data.isPlane) {
+      if (builder.ignoreRemodelBonus) {
+        // 改修値をステータスに反映しないオプションがある場合
+        // 出撃対空値 = 対空値 + 1.5 * 迎撃
+        this.actualAntiAir = this.data.sortieAntiAir;
+        // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆
+        this.actualDefenseAntiAir = this.data.defenseAntiAir;
+        // 制空値更新
+        this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot));
+        this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot));
+      } else {
+        // 出撃対空値 = 対空値 + 1.5 * 迎撃 + ボーナス対空値(改修値による)
+        this.actualAntiAir = this.data.sortieAntiAir + this.bonusAntiAir;
+        // 防空対空値 = 対空値 + 迎撃 + 2 * 対爆 + ボーナス対空値(改修値による)
+        this.actualDefenseAntiAir = this.data.defenseAntiAir + this.bonusAntiAir;
+        // 制空値更新
         this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
         this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
-        this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
-      } else {
-        this.fullAirPower = 0;
-        this.fullDefenseAirPower = 0;
-        this.defenseAirPower = 0;
-        this.supportAirPower = 0;
       }
+
+      this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
 
       // 現在制空値の初期化
       this.airPower = this.fullAirPower;
@@ -317,9 +341,9 @@ export default class Item {
       this.steel = 0;
       this.fullAirPower = 0;
       this.fullDefenseAirPower = 0;
-      this.supportAirPower = 0;
       this.airPower = 0;
       this.defenseAirPower = 0;
+      this.supportAirPower = 0;
     }
     this.slotHistories = [];
   }

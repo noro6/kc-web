@@ -40,7 +40,7 @@
       </v-btn>
     </div>
     <v-divider />
-    <div class="item-filter-container px-3">
+    <div class="item-filter-container px-3 py-1">
       <div>
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
       </div>
@@ -81,7 +81,10 @@
         <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
       </div>
       <div v-if="isStockOnly && !multiLine">
-        <v-checkbox v-model="sortRawStatus" @click="filter()" hide-details dense :label="$t('ItemList.素ステでソート')" />
+        <v-checkbox v-model="sortExcludeRemodelStatus" @click="filter()" hide-details dense :label="$t('ItemList.改修値無効')" />
+      </div>
+      <div v-if="!multiLine && !isAirbaseMode">
+        <v-checkbox v-model="sortExcludeSynergyStatus" @click="filter()" hide-details dense :label="$t('ItemList.装備シナジー無効')" />
       </div>
       <div class="ml-auto mt-1 d-flex align-center">
         <v-switch
@@ -115,7 +118,7 @@
         @click="changeType(i.id)"
         @keypress="changeType(i.id)"
       >
-        <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
+        <v-img :src="`./img/type/type${isAirbaseMode && i.id === 17 ? 26 : i.id}.png`" height="32" width="32" />
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine }" />
@@ -191,7 +194,13 @@
             :key="i"
             v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
             class="list-item"
-            :class="{ single: !multiLine, 'no-stock': !v.count, 'has-bonus': v.sumBonus, 'has-bad-bonus': v.sumBonus < 0 }"
+            :class="{
+              single: !multiLine,
+              'no-stock': !v.count,
+              'has-bonus': v.sumBonus,
+              'has-bad-bonus': v.sumBonus < 0,
+              'ignore-bonus': sortExcludeSynergyStatus,
+            }"
             @click="clickedItem(v, $event)"
             @keypress.enter="clickedItem(v, $event)"
             @mouseenter="bootTooltip(v.item, v.bonus, $event)"
@@ -456,6 +465,12 @@
 .list-item.has-bonus.has-bad-bonus {
   border-color: rgba(239, 83, 80, 0.8);
 }
+.list-item.has-bonus.ignore-bonus {
+  border-color: rgba(3, 169, 244, 0.4);
+}
+.list-item.has-bonus.has-bad-bonus.ignore-bonus {
+  border-color: rgba(239, 83, 80, 0.4);
+}
 .bonus-icon {
   position: absolute;
   left: -4px;
@@ -465,6 +480,9 @@
 }
 .theme--dark .bonus-icon {
   filter: drop-shadow(0 0 2px #000);
+}
+.ignore-bonus .bonus-icon {
+  opacity: 0.4;
 }
 .list-item > div {
   align-self: center;
@@ -615,8 +633,6 @@
   position: relative;
   cursor: pointer;
   height: 32px;
-  margin-top: 12px;
-  margin-bottom: 12px;
 }
 .manual-checkbox-button {
   position: relative;
@@ -710,7 +726,8 @@ export default Vue.extend({
     onlyNightAircraft: false,
     onlyAAResistAircraft: false,
     isSpecialOnly: false,
-    sortRawStatus: false,
+    sortExcludeRemodelStatus: false,
+    sortExcludeSynergyStatus: false,
     slot: 0,
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
     viewStatus: Const.ITEM_TYPES_ALT[0].viewStatus,
@@ -1228,7 +1245,8 @@ export default Vue.extend({
       }
 
       let usedItem = this.usedItems.concat();
-      const withoutRemodel = this.sortRawStatus && this.isStockOnly;
+      const withoutRemodel = this.sortExcludeRemodelStatus && this.isStockOnly;
+      const withoutSynergy = this.sortExcludeSynergyStatus;
       const viewItems = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
@@ -1255,8 +1273,9 @@ export default Vue.extend({
             const item = new Item({
               master,
               slot,
-              remodel: withoutRemodel ? 0 : remodel,
+              remodel,
               level,
+              ignoreRemodelBonus: withoutRemodel,
             });
 
             // id 改修値を見て配備済みかどうか判定
@@ -1372,7 +1391,7 @@ export default Vue.extend({
             item.sumBonus = sumBonus;
             item.bonus = totalBonus;
 
-            if (!withoutRemodel) {
+            if (!withoutSynergy) {
               // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
               item.item.actualFire += totalBonus.firePower ?? 0;
               item.item.actualTorpedo += totalBonus.torpedo ?? 0;

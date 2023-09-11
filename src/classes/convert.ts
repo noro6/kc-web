@@ -388,7 +388,6 @@ export default class Convert {
     const shipList: ShipStock[] = [];
     let uniqueId = 1;
     const hasUniqueId = json.every((v) => ('api_id' in v && 'api_ship_id' in v && 'api_lv' in v && 'api_exp' in v) || ('id' in v && 'ship_id' in v && 'lv' in v && 'exp' in v));
-    console.log(hasUniqueId);
 
     for (let i = 0; i < json.length; i += 1) {
       const data = json[i];
