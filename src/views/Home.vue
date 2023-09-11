@@ -46,7 +46,7 @@
               <div>
                 <v-icon>mdi-database-arrow-up</v-icon>
               </div>
-              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} (v2 <v-icon>mdi-arrow-right-thin</v-icon> v2)</div>
+              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} ( v2 <v-icon>mdi-arrow-right-thin</v-icon> v2 )</div>
             </div>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
@@ -69,7 +69,7 @@
               <div>
                 <v-icon>mdi-database-arrow-down</v-icon>
               </div>
-              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} (v1 <v-icon>mdi-arrow-right-thin</v-icon> v2)</div>
+              <div class="ml-3">{{ $t("Home.データ引き継ぎ") }} ( v1 <v-icon>mdi-arrow-right-thin</v-icon> v2 )</div>
             </div>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
