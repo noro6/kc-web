@@ -81,6 +81,9 @@ export default class ShipFilter {
   /** 海域札なし限定 */
   public hasNotAreaOnly = false;
 
+  /** 海域札フィルタ */
+  public selectedArea = 0;
+
   /** 補強増設あり限定 */
   public isReleaseExSlotOnly = false;
 
@@ -134,4 +137,29 @@ export default class ShipFilter {
 
   /** 夜戦火力フィルタ */
   public nightRange = [1, 300];
+
+  /**
+   * 足りないプロパティが発生していたら初期化して返す。
+   * @param data
+   * @returns
+   */
+  public static restore(data: ShipFilter | undefined) {
+    if (!data) {
+      return new ShipFilter();
+    }
+
+    // 旧設定ファイルのプロパティ一覧
+    const keys = Object.keys(data);
+    // 最新設定ファイル
+    const filter = new ShipFilter();
+    let isLack = false;
+    // 最新設定ファイルのキーがすべて含まれているかチェック
+    Object.keys(filter).forEach((v) => {
+      if (!keys.includes(v)) {
+        isLack = true;
+      }
+    });
+
+    return isLack ? new ShipFilter() : data;
+  }
 }

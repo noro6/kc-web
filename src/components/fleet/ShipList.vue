@@ -74,31 +74,33 @@
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
       </div>
-      <div class="ml-auto mr-3" v-if="isStockOnly">
-        <img
-          v-show="shipFilter.hasAreaOnly"
-          class="filter_img"
-          @click="toggleAreaFilter"
-          @keypress="toggleAreaFilter"
-          :src="`./img/util/filtered1.png`"
-          alt="area-img-1"
-        />
-        <img
-          v-show="shipFilter.hasNotAreaOnly"
-          class="filter_img"
-          @click="toggleAreaFilter"
-          @keypress="toggleAreaFilter"
-          :src="`./img/util/filtered2.png`"
-          alt="area-img-2"
-        />
-        <img
-          v-show="!shipFilter.hasAreaOnly && !shipFilter.hasNotAreaOnly"
-          class="filter_img"
-          @click="toggleAreaFilter"
-          @keypress="toggleAreaFilter"
-          :src="`./img/util/filtered0.png`"
-          alt="area-img-0"
-        />
+      <div class="ml-auto mr-3 d-flex" v-if="isStockOnly">
+        <div v-if="shipFilter.hasAreaOnly" class="area-tags">
+          <div
+            v-for="area in maxAreas"
+            :key="`area${area}`"
+            class="area-area-img"
+            :class="{ selected: shipFilter.selectedArea === area || !shipFilter.selectedArea }"
+            @click="selectAreaTag(area)"
+            @keypress.enter="selectAreaTag(area)"
+          >
+            <img :src="`./img/tags/area${area}_min.webp`" :alt="`area-${area}`" />
+          </div>
+        </div>
+        <div class="filter-img">
+          <!-- 作戦参加中 -->
+          <img v-show="shipFilter.hasAreaOnly" @click="toggleAreaFilter" @keypress="toggleAreaFilter" :src="`./img/util/filtered1.png`" alt="area-img-1" />
+          <!-- 待機中 -->
+          <img v-show="shipFilter.hasNotAreaOnly" @click="toggleAreaFilter" @keypress="toggleAreaFilter" :src="`./img/util/filtered2.png`" alt="area-img-2" />
+          <!-- 全艦艇 -->
+          <img
+            v-show="!shipFilter.hasAreaOnly && !shipFilter.hasNotAreaOnly"
+            @click="toggleAreaFilter"
+            @keypress="toggleAreaFilter"
+            :src="`./img/util/filtered0.png`"
+            alt="area-img-0"
+          />
+        </div>
       </div>
     </div>
     <v-divider :class="{ 'ml-3': multiLine }" />
@@ -699,8 +701,37 @@
 .ship-status-header .ship-status {
   font-size: 11px;
 }
-.filter_img {
+.filter-img {
+  align-self: center;
   cursor: pointer;
+  height: 32px;
+  width: 56px;
+}
+.filter-img img {
+  height: 32px;
+  width: 56px;
+}
+/** 海域札 */
+.area-tags {
+  height: 40px;
+  display: flex;
+  margin-right: 4px;
+}
+.area-area-img {
+  cursor: pointer;
+  opacity: 0.4;
+  transition: 0.1s ease-out;
+  margin-left: -4px;
+}
+.area-area-img img {
+  width: 37px;
+  height: 40px;
+}
+.area-area-img:hover {
+  opacity: 0.5;
+}
+.area-area-img.selected {
+  opacity: 1;
 }
 
 .filter-dialog-body {
@@ -760,6 +791,7 @@ export interface ViewShip {
   luck: number;
   /** 対潜 改修値!! */
   asw: number;
+  /** 補強増設空いてるかどうか */
   expanded: boolean;
   /** ソート用ステータス */
   sortValue: number;
@@ -955,14 +987,23 @@ export default Vue.extend({
       this.$store.dispatch('updateSetting', setting);
       this.filter();
     },
+    selectAreaTag(area: number) {
+      this.shipFilter.selectedArea = area;
+      this.filter();
+    },
     toggleAreaFilter() {
       if (this.shipFilter.hasAreaOnly) {
+        // 作戦参加 => 全艦艇
         this.shipFilter.hasAreaOnly = false;
         this.shipFilter.hasNotAreaOnly = true;
       } else if (this.shipFilter.hasNotAreaOnly) {
+        // 待機中 => 全艦艇
         this.shipFilter.hasNotAreaOnly = false;
       } else {
+        // 全艦艇 => 作戦参加
         this.shipFilter.hasAreaOnly = true;
+        // 特定海域札フィルタを勝手に消す
+        this.shipFilter.selectedArea = 0;
       }
       this.filter();
     },
@@ -1327,8 +1368,14 @@ export default Vue.extend({
               continue;
             }
             // 札付き検索
-            if (this.shipFilter.hasAreaOnly && viewShip.area <= 0) {
-              continue;
+            if (this.shipFilter.hasAreaOnly) {
+              if (!this.shipFilter.selectedArea && viewShip.area <= 0) {
+                // 海域札個別指定なし
+                continue;
+              } else if (this.shipFilter.selectedArea && this.shipFilter.selectedArea !== viewShip.area) {
+                // 海域札個別指定あり
+                continue;
+              }
             } else if (this.shipFilter.hasNotAreaOnly && viewShip.area > 0) {
               continue;
             }

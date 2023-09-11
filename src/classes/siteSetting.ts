@@ -174,7 +174,7 @@ export default class SiteSetting {
       this.locale = setting.locale ? setting.locale : 'ja';
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
-      this.savedShipListFilter = setting.savedShipListFilter && setting.savedShipListFilter.enabled ? setting.savedShipListFilter : new ShipFilter();
+      this.savedShipListFilter = ShipFilter.restore(setting.savedShipListFilter);
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
       this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '57-5';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
