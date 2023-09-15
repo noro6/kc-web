@@ -75,6 +75,18 @@ export default class ShipFilter {
   /** 速力低速を含む */
   public includeSlow = true;
 
+  /** 射程短を含む */
+  public includeRange1 = true;
+
+  /** 射程中を含む */
+  public includeRange2 = true;
+
+  /** 射程長を含む */
+  public includeRange3 = true;
+
+  /** 射程超長を含む */
+  public includeRange4 = true;
+
   /** 海域札あり限定 */
   public hasAreaOnly = false;
 

@@ -64,6 +64,15 @@
     </div>
     <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector d-flex"
+        :class="{ active: type === -1, disabled: keyword }"
+        @click="changeType(-1)"
+        @keypress="changeType(-1)"
+      >
+        <div class="type-all-text">ALL</div>
+      </div>
+      <div
         v-for="(i, index) in types"
         :key="index"
         v-ripple="{ class: 'info--text' }"
@@ -301,6 +310,16 @@
           <div class="filter-input-container">
             <v-checkbox v-model="shipFilter.includeFast" dense hide-details :label="$t('Fleet.高速')" :error="isAllUncheckedSpeed" />
             <v-checkbox v-model="shipFilter.includeSlow" dense hide-details :label="$t('Fleet.低速')" :error="isAllUncheckedSpeed" />
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("Common.射程") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <v-checkbox v-model="shipFilter.includeRange1" dense hide-details :label="$t('Common.短')" :error="isAllUncheckedRange" />
+            <v-checkbox v-model="shipFilter.includeRange2" dense hide-details :label="$t('Common.中')" :error="isAllUncheckedRange" />
+            <v-checkbox v-model="shipFilter.includeRange3" dense hide-details :label="$t('Common.長')" :error="isAllUncheckedRange" />
+            <v-checkbox v-model="shipFilter.includeRange4" dense hide-details :label="$t('Common.超長')" :error="isAllUncheckedRange" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備スロット数") }}</div>
@@ -563,6 +582,13 @@
   opacity: 0.4;
   background-color: transparent;
   pointer-events: none;
+}
+.type-all-text {
+  width: 32px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  align-self: center;
 }
 
 .type-divider {
@@ -914,7 +940,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     visibleSpBomberFilter(): boolean {
       // 水爆系フィルタ表示制御
@@ -924,7 +950,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     visibleFighterFilter(): boolean {
       // 戦闘機搭載可フィルタ表示制御
@@ -934,7 +960,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     visibleArmorFilter(): boolean {
       // バルジ搭載可フィルタ表示制御
@@ -944,7 +970,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     visibleCommanderFilter(): boolean {
       // 司令部搭載可フィルタ表示制御
@@ -954,7 +980,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     visibleEscortCarrierFilter(): boolean {
       // 護衛空母フィルタ表示制御
@@ -964,7 +990,7 @@ export default Vue.extend({
           return true;
         }
       }
-      return false;
+      return this.type === -1;
     },
     isAllUncheckedHP() {
       return !this.shipFilter.HPIs4n && !this.shipFilter.HPIs4n1 && !this.shipFilter.HPIs4n2 && !this.shipFilter.HPIs4n3;
@@ -974,6 +1000,9 @@ export default Vue.extend({
     },
     isAllUncheckedSpeed() {
       return !this.shipFilter.includeFast && !this.shipFilter.includeSlow;
+    },
+    isAllUncheckedRange() {
+      return !this.shipFilter.includeRange1 && !this.shipFilter.includeRange2 && !this.shipFilter.includeRange3 && !this.shipFilter.includeRange4;
     },
   },
   methods: {
@@ -1046,7 +1075,6 @@ export default Vue.extend({
       } else {
         this.shipFilter.fighterOK = true;
       }
-      this.filter();
     },
     toggleCommanderFilter() {
       if (this.shipFilter.commanderOK) {
@@ -1129,7 +1157,9 @@ export default Vue.extend({
         result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
       } else {
         // カテゴリ検索
-        result = result.filter((v) => t.types.includes(v.type));
+        if (t) {
+          result = result.filter((v) => t.types.includes(v.type));
+        }
         const isValid = ShipValidation.isValidItem;
         if (!this.shipFilter.includeInitial) {
           // 初期改造状態を含めず
@@ -1150,6 +1180,19 @@ export default Vue.extend({
         if (!this.shipFilter.includeSlow) {
           // 速力低速
           result = result.filter((v) => v.speed !== 5);
+        }
+        if (!this.shipFilter.includeRange1) {
+          // 射程
+          result = result.filter((v) => v.range !== 1);
+        }
+        if (!this.shipFilter.includeRange2) {
+          result = result.filter((v) => v.range !== 2);
+        }
+        if (!this.shipFilter.includeRange3) {
+          result = result.filter((v) => v.range !== 3);
+        }
+        if (!this.shipFilter.includeRange4) {
+          result = result.filter((v) => v.range !== 4);
         }
         if (this.shipFilter.landingCraftOK) {
           // 大発搭載可能
@@ -1195,15 +1238,17 @@ export default Vue.extend({
         if (this.visibleArmorFilter) {
           if (this.shipFilter.armorOK) {
             // バルジ搭載可能
-            const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
-            if (armor) {
-              result = result.filter((v) => isValid(v, armor));
+            const armor1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
+            const armor2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 73);
+            if (armor1 && armor2) {
+              result = result.filter((v) => isValid(v, armor1) || isValid(v, armor2));
             }
           } else if (this.shipFilter.armorNG) {
             // バルジ搭載不可
-            const armor = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
-            if (armor) {
-              result = result.filter((v) => !isValid(v, armor));
+            const armor1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
+            const armor2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 73);
+            if (armor1 && armor2) {
+              result = result.filter((v) => !isValid(v, armor1) && !isValid(v, armor2));
             }
           }
         }
@@ -1274,7 +1319,7 @@ export default Vue.extend({
         }
         if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {
           // 護衛空母のみ
-          result = result.filter((v) => v.minAsw);
+          result = result.filter((v) => v.isCV && v.minAsw);
         }
         if (this.shipFilter.onlyAutoOASW) {
           // 自動先制対潜のみ
