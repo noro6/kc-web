@@ -74,7 +74,7 @@
             <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
-          <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
+          <div class="ml-1 caption text--secondary">{{ $t("Common.制空") }}</div>
           <div
             class="body-2 enemy-air-power"
             :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }"
@@ -139,7 +139,7 @@
   left: 122px;
 }
 .item-index-area {
-  width: 24px;
+  width: 20px;
 }
 .enemy-index {
   text-align: right;
@@ -169,6 +169,11 @@
 .formation-select,
 .cell-type-select {
   width: 94px;
+}
+
+.formation-select >>> .v-input--dense .v-select__selection,
+.cell-type-select >>> .v-input--dense .v-select__selection {
+  font-size: 0.75em !important;
 }
 </style>
 

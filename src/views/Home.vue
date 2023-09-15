@@ -236,6 +236,14 @@
 .theme--dark .content-button:hover {
   box-shadow: 0 0.5rem 2.5rem rgb(19, 22, 24);
 }
+.content-button:active {
+  transform: translateY(0);
+  box-shadow: 0 0.125rem 0.75rem rgb(220, 225, 232);
+}
+.theme--dark .content-button:active {
+  box-shadow: 0 0.375rem 0.55rem rgb(35, 40, 44);
+}
+
 .content-button-title {
   display: flex;
   align-items: center;

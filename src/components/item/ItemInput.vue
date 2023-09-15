@@ -180,7 +180,7 @@
   flex-grow: 1;
   cursor: pointer;
   width: 100px;
-  font-size: 0.9em;
+  font-size: 0.8em;
   line-height: 25px;
   position: relative;
 }

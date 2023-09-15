@@ -279,7 +279,7 @@
 <style>
 /** スクショ用調整  */
 .area-manager-container.captured {
-  width: 1720px !important;
+  width: 1780px !important;
   background: #fff;
   border: 1px solid #bbb;
   border-radius: 0.25rem;
