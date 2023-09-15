@@ -202,6 +202,9 @@ export default class Item {
   /** 補給前搭載数分布 */
   public dist: number[] = []
 
+  /** 棒立ち率特定のための親識別用index => FleetクラスのallPlaneに突っ込む際、装備者がわからなくなるため特定したい */
+  public parentIndex = -1;
+
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
