@@ -203,24 +203,32 @@
             }"
             @click="clickedItem(v, $event)"
             @keypress.enter="clickedItem(v, $event)"
-            @mouseenter="bootTooltip(v.item, v.bonus, $event)"
-            @mouseleave="clearTooltip"
-            @focus="bootTooltip(v.item, v.bonus, $event)"
-            @blur="clearTooltip"
+            @contextmenu="showItemMenu(v, $event)"
           >
             <div>
-              <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
+              <div>
+                <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
+              </div>
+              <!-- 秋刀魚特効表示特別対応 -->
+              <div class="saury-bonus" v-if="v.text === 'Saury'">
+                <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+                <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+              </div>
+              <div class="item-special-text" v-else-if="v.text">
+                <div class="align-self-center">{{ v.text }}</div>
+              </div>
             </div>
-            <div class="item-name text-truncate" :class="{ 'is-special': v.item.data.isSpecial }">
-              {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
-            </div>
-            <!-- 秋刀魚特効表示特別対応 -->
-            <div class="saury-bonus" v-if="v.text === 'Saury'">
-              <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
-              <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-            </div>
-            <div class="item-special-text" v-else-if="v.text">
-              <div class="align-self-center">{{ v.text }}</div>
+            <div
+              class="item-name-container"
+              :class="{ 'is-special': v.item.data.isSpecial }"
+              @mouseenter="bootTooltip(v.item, v.bonus, $event)"
+              @mouseleave="clearTooltip"
+              @focus="bootTooltip(v.item, v.bonus, $event)"
+              @blur="clearTooltip"
+            >
+              <div class="text-truncate">
+                {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
+              </div>
             </div>
             <div v-if="v.sumBonus" class="bonus-icon">
               <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
@@ -271,6 +279,28 @@
       </div>
       <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
+    <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
+      <v-list dense class="caption" v-if="menuItem">
+        <v-list-item link @click="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-list-item>
+        <v-menu v-model="remodelChangeMenu" offset-x max-width="72" v-if="isStockOnly && !isReadonlyMode">
+          <template v-slot:activator="{ on, attrs }">
+            <v-list-item link v-bind="attrs" v-on="on">{{ $t("ItemList.改修値変更") }}</v-list-item>
+          </template>
+          <v-list dense class="caption">
+            <v-list-item link v-for="remodel in 11" :key="`change-remodel-${remodel}`" @click="changeRemodel(menuItem.item, 11 - remodel)">
+              <v-icon small color="teal accent-4">mdi-star</v-icon>
+              <span class="teal--text text--accent-4">{{ 11 - remodel }}</span>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-list-item link @click="copyItemName()">
+          {{ $t("ItemList.装備名コピー") }}
+          <input id="item-name-box" readonly :value="menuItem.item.data.name" />
+        </v-list-item>
+        <v-list-item link @click="openWiki(menuItem.item.data)" :disabled="menuItem.item.data.isEnemyItem">{{ $t("ItemList.wikiを開く") }}</v-list-item>
+        <v-list-item link @click="showMenu = false">{{ $t("ItemList.メニューを閉じる") }}</v-list-item>
+      </v-list>
+    </v-menu>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
     </v-tooltip>
@@ -438,8 +468,6 @@
   margin-bottom: 1px;
   padding-left: 0.25rem;
   padding-right: 0.1rem;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
   transition: 0.1s;
   border-radius: 0.2rem;
   border: 1px solid transparent;
@@ -487,10 +515,13 @@
 .list-item > div {
   align-self: center;
 }
-.item-name {
+.item-name-container {
+  display: flex;
+  align-items: center;
   flex-grow: 1;
   font-size: 0.82em;
   width: 10px;
+  height: 34px;
   margin-left: 0.1rem;
 }
 .is-special {
@@ -655,6 +686,12 @@
   right: 8px;
   bottom: 0;
 }
+
+#item-name-box {
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+}
 </style>
 
 <script lang="ts">
@@ -715,6 +752,7 @@ export default Vue.extend({
     keyword: '' as string | undefined,
     isEnemyMode: false,
     isStockOnly: false,
+    isReadonlyMode: false,
     isEnabledLandBaseAttack: false,
     includeSonar: true,
     includeDepthCharge: true,
@@ -778,6 +816,11 @@ export default Vue.extend({
     sortDialog: false,
     decidedItem: false,
     wikiDialog: false,
+    showMenu: false,
+    remodelChangeMenu: false,
+    menuItem: null as viewItem | null,
+    menuX: 0,
+    menuY: 0,
   }),
   mounted() {
     this.types = [];
@@ -994,11 +1037,13 @@ export default Vue.extend({
       this.itemStock = this.$store.state.itemStock as ItemStock[];
       this.setting = this.$store.state.siteSetting as SiteSetting;
       this.isStockOnly = this.setting.isStockOnlyForItemList;
+      this.isReadonlyMode = false;
 
       // 一時所持情報データがあるなら
       if (this.$store.getters.getExistsTempStock) {
         this.itemStock = this.$store.state.tempItemStock as ItemStock[];
         this.isStockOnly = true;
+        this.isReadonlyMode = true;
       }
 
       // 搭載数情報を格納
@@ -1449,14 +1494,7 @@ export default Vue.extend({
     },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
-        let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(data.item.data.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
-        if (data.item.data.id === 144) {
-          wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
-        }
-        if (data.item.data.id === 303) {
-          wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
-        }
-        window.open(wikiURL);
+        this.openWiki(data.item.data);
         return;
       }
 
@@ -1579,10 +1617,10 @@ export default Vue.extend({
       if (setting.disabledItemTooltip) {
         return;
       }
-      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      const div = e.target as HTMLDivElement;
       window.clearTimeout(this.tooltipTimer);
       this.tooltipTimer = window.setTimeout(() => {
-        const rect = nameDiv.getBoundingClientRect();
+        const rect = div.getBoundingClientRect();
 
         if (e instanceof FocusEvent) {
           this.tooltipX = this.multiLine ? rect.x + rect.width / 3 : rect.left;
@@ -1609,6 +1647,46 @@ export default Vue.extend({
     },
     toggleBlacklistDialog() {
       if (!this.blacklistDialog) {
+        this.filter();
+      }
+    },
+    openWiki(item: ItemMaster) {
+      let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(
+        item.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆').replaceAll('Ⅲ', 'III'),
+      )}`;
+      if (item.id === 144) {
+        wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
+      } else if (item.id === 303) {
+        wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
+      }
+      window.open(wikiURL);
+    },
+    showItemMenu(item: viewItem, e: MouseEvent) {
+      e.preventDefault();
+      this.menuItem = item;
+      this.showMenu = false;
+      this.menuX = e.clientX;
+      this.menuY = e.clientY;
+      this.clearTooltip();
+      this.$nextTick(() => {
+        this.showMenu = true;
+      });
+    },
+    copyItemName() {
+      const textToCopy = document.getElementById('item-name-box') as HTMLInputElement;
+      textToCopy.select();
+      document.execCommand('copy');
+    },
+    changeRemodel(item: Item, remodel: number) {
+      // 改修値変更
+      const stock = this.itemStock.find((v) => v.id === item.data.id);
+
+      // 必ずあるはずだが、念のためチェックして書き換え
+      if (stock && stock.num[item.remodel] > 0) {
+        stock.num[item.remodel] -= 1;
+        stock.num[remodel] += 1;
+        this.$store.dispatch('updateItemStock', this.itemStock);
+        this.showMenu = false;
         this.filter();
       }
     },

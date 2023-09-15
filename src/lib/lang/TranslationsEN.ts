@@ -716,6 +716,10 @@ export default {
       'ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。': 'Equipment on the blacklist will no longer be viewable from the equipment list.',
       '全解除': 'Remove all blacklisted equipment',
       '射程増加': 'Increasing "Range"',
+      '改修値変更': 'Change Improvement',
+      '装備名コピー': 'Copy item name',
+      'wikiを開く': 'Open wiki',
+      'メニューを閉じる': 'Close Menu',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',

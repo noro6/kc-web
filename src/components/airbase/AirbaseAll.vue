@@ -610,7 +610,7 @@ export default Vue.extend({
       this.dialogTarget = [index, slot];
       const base = this.airbaseInfo.airbases[index];
       await (this.itemListDialog = true);
-      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base);
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base, slot);
     },
     equipItem(item: Item) {
       const index = this.dialogTarget[0];
