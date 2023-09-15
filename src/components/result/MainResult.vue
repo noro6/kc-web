@@ -56,7 +56,8 @@
             <th class="text-center">{{ $t("Fleet.装備") }}</th>
             <th v-for="i in battleCount" :key="i" :class="`td-battle${i - 1}`">{{ $t("Enemies.x戦目", { number: i }) }}</th>
             <th>{{ $t("Result.出撃後") }}</th>
-            <th class="pr-1">{{ $t("Result.全滅率") }}</th>
+            <th>{{ $t("Result.全滅率") }}</th>
+            <th class="pr-1">{{ $t("Result.棒立ち率") }}</th>
           </tr>
         </thead>
         <tbody>
@@ -75,16 +76,19 @@
                   </div>
                 </div>
               </td>
-              <td v-for="k in battleCount" :key="k" class="pr-md-1" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
-              <td class="pr-md-1">{{ item.slotResult }}</td>
-              <td class="pr-1">{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
+              <td v-for="k in battleCount" :key="k" :class="`td-battle${k - 1}`">{{ item.slotHistories[k - 1] }}</td>
+              <td>{{ item.slotResult }}</td>
+              <td>{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
+              <td class="pr-1" v-if="j === 0" :rowspan="ship.items.length" :class="{ 'is-not-cv': !ship.data.isCV }">
+                {{ ship.allDeathRate > 0 ? `${ship.allDeathRate} %` : "-" }}
+              </td>
             </tr>
           </template>
           <tr>
             <td class="text-center" rowspan="2">{{ $t("Common.制空値") }}({{ $t("Common.平均") }})</td>
             <td class="text-center py-1">{{ $t("Fleet.自艦隊") }}</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
-            <td class="text-center header-td" colspan="2">{{ $t("Result.消費予測") }}</td>
+            <td class="text-center header-td" colspan="3">{{ $t("Result.消費予測") }}</td>
           </tr>
           <tr>
             <td class="text-center py-1">{{ $t("Enemies.敵艦隊") }}</td>
@@ -94,7 +98,7 @@
                 {{ result.isUnknownEnemyAirPower ? "?" : "" }}
               </span>
             </td>
-            <td colspan="2">
+            <td colspan="3">
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/fuel.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ sumFuelAndAmmo[0] }}</div>
@@ -106,7 +110,7 @@
             <td v-for="(result, i) in results" :key="i" :class="`td-battle${i}`">
               <span :class="`state-label state-${result.airState.value}`">{{ $t(`Common.${result.airState.text}`) }}</span>
             </td>
-            <td colspan="2" class="border-top-none">
+            <td colspan="3" class="border-top-none">
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/ammo.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ sumFuelAndAmmo[1] }}</div>
@@ -116,7 +120,7 @@
           <tr class="tr-status">
             <td class="text-center" colspan="2">{{ $t("Common.陣形") }}</td>
             <td v-for="(formation, i) in formationNames" :key="i" :class="`td-battle${i}`">{{ formation }}</td>
-            <td colspan="2" class="border-top-none">
+            <td colspan="3" class="border-top-none">
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/steel.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ calcSteel }}</div>
@@ -143,7 +147,7 @@
                 </div>
               </div>
             </td>
-            <td colspan="2" class="border-top-none">
+            <td colspan="3" class="border-top-none">
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ calcBauxite }}</div>
@@ -284,11 +288,11 @@
               <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">
                 {{ getEnemyName(row.enemy.data.name) }}
               </td>
-              <td :class="`text-left d-flex item-input type-${item.data.iconTypeId}`">
+              <td :class="`text-left d-flex item-input py-1 type-${item.data.iconTypeId}`">
                 <div class="d-none d-sm-block px-0 px-md-1">
                   <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20" />
                 </div>
-                <div class="align-self-center item-name py-1 text-truncate">
+                <div class="align-self-center item-name text-truncate">
                   {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
                 </div>
               </td>
@@ -449,6 +453,10 @@ td.item-input {
   font-size: 0.9em;
   width: 85px;
   padding-top: 2px;
+}
+
+.is-not-cv {
+  opacity: 0.4;
 }
 
 .tr-status {
@@ -716,7 +724,7 @@ export default Vue.extend({
       }
       return airbases;
     },
-    tableData(): { data: ShipMaster; items: Item[]; index: number }[] {
+    tableData(): { data: ShipMaster; items: Item[]; allDeathRate: number; index: number }[] {
       const fleet = this.value.fleetInfo.mainFleet;
       const ships = [];
 
@@ -724,7 +732,12 @@ export default Vue.extend({
       for (let i = 0; i < activeShips.length; i += 1) {
         const planes = activeShips[i].items.filter((v) => v.data.isPlane);
         if (planes.length) {
-          ships.push({ data: activeShips[i].data, items: planes, index: i });
+          ships.push({
+            data: activeShips[i].data,
+            items: planes,
+            allDeathRate: activeShips[i].allPlaneDeathRate,
+            index: i,
+          });
         }
       }
       return ships;
@@ -739,7 +752,7 @@ export default Vue.extend({
         if (planes.length) {
           for (let j = 0; j < planes.length; j += 1) {
             const plane = planes[j];
-            plane.deathRate = Math.round(plane.deathRate);
+            plane.deathRate = Math.floor(plane.deathRate);
           }
           enemies.push({
             enemy,

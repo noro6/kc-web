@@ -140,17 +140,13 @@ export default class Fleet {
 
         const shipPlanes = ship.items.filter((v) => v.data.isPlane && v.fullSlot > 0);
         if (shipPlanes.length) {
-          // 連合かつ第2艦隊なら艦載機の随伴機フラグを挙げる
-          if (this.isUnion && ship.isEscort) {
-            for (let j = 0; j < shipPlanes.length; j += 1) {
-              shipPlanes[j].isEscortItem = true;
-            }
-          } else {
-            // そうでないなら随伴機フラグを解除
-            for (let j = 0; j < shipPlanes.length; j += 1) {
-              shipPlanes[j].isEscortItem = false;
-            }
+          for (let j = 0; j < shipPlanes.length; j += 1) {
+            // 親indexをセットして親を見つけられるようにする
+            shipPlanes[j].parentIndex = this.ships.findIndex((v) => v === ship);
+            // 連合かつ第2艦隊なら艦載機の随伴機フラグを挙げる => そうでないなら随伴機フラグを解除
+            shipPlanes[j].isEscortItem = this.isUnion && ship.isEscort;
           }
+
           this.allPlanes = this.allPlanes.concat(shipPlanes);
           if (!this.hasPlane && this.allPlanes.find((v) => !v.data.isRecon)) {
             this.hasPlane = true;

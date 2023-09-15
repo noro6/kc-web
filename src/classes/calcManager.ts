@@ -71,7 +71,7 @@ export default class CalcManager {
 
     // 計算対象の艦隊
     const { fleetInfo } = calcInfo;
-    let fleet = fleetInfo.fleets[calcInfo.fleetInfo.mainFleetIndex];
+    let fleet = fleetInfo.fleets[fleetInfo.mainFleetIndex];
     if (fleetInfo.isUnion && fleetInfo.mainFleetIndex <= 1) {
       // 連合艦隊にチェックが入っており、第1または第2艦隊が選択されている場合は連合艦隊をメイン計算艦隊にする
       fleet = fleetInfo.unionFleet as Fleet;
@@ -105,6 +105,12 @@ export default class CalcManager {
       for (let j = 0; j < battleCount; j += 1) {
         f.results.push(new AirCalcResult());
       }
+
+      // 棒立ち率をリセット
+      const ships = f.ships.filter((v) => v.allPlaneDeathRate);
+      for (let j = 0; j < ships.length; j += 1) {
+        ships[j].allPlaneDeathRate = 0;
+      }
     }
 
     fleet.results = [];
@@ -129,7 +135,15 @@ export default class CalcManager {
         item.item.slotResult = 0;
         item.item.deathRate = 0;
       }
+
+      // 棒立ち率をリセット
+      const enemies = battles[i].enemies.filter((v) => v.allPlaneDeathRate);
+      for (let j = 0; j < enemies.length; j += 1) {
+        enemies[j].allPlaneDeathRate = 0;
+      }
     }
+
+    // 本計算処理
     for (let count = 0; count < maxCount; count += 1) {
       // 設定された戦闘回数下記の各計算処理を行う
       for (let battle = 0; battle < battleCount; battle += 1) {
@@ -186,6 +200,15 @@ export default class CalcManager {
       // 次の計算に備え、減った艦載機や制空値を補給したり記録したりいろいろ
       for (let i = 0; i < airbases.length; i += 1) {
         Airbase.supply(airbases[i]);
+      }
+
+      // 自攻撃機が全滅しているか？
+      for (let i = 0; i < fleet.ships.length; i += 1) {
+        // 親indexをもとにして攻撃機を探索
+        const myPlanes = fleet.allPlanes.filter((v) => v.data.isAttacker && v.parentIndex === i);
+        if (myPlanes.length && myPlanes.every((v) => v.slot === 0)) {
+          fleet.ships[i].allPlaneDeathRate += 1;
+        }
       }
 
       for (let i = 0; i < fleet.allPlanes.length; i += 1) {
@@ -254,6 +277,12 @@ export default class CalcManager {
         mainItem.dist = item.dist;
         mainItem.needRecord = false;
       }
+    }
+
+    // 艦娘棒立ち率
+    for (let i = 0; i < mainFleet.ships.length; i += 1) {
+      const rate = (100 * fleet.ships[i].allPlaneDeathRate) / maxCount;
+      mainFleet.ships[i].allPlaneDeathRate = rate >= 1 ? Math.round(rate) : Math.ceil(rate);
     }
 
     const enemyItems = this.battleInfo.fleets[mainBattle].allPlanes;
