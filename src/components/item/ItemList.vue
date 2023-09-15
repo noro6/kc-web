@@ -530,7 +530,7 @@
 .theme--dark .is-special {
   color: #66bb6a;
 }
-.no-stock .item-name {
+.no-stock .item-name-container {
   color: rgb(255, 100, 100);
 }
 .item-remodel {
