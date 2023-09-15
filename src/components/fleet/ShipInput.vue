@@ -119,7 +119,7 @@
         <template v-if="ship.data.maxAsw || ship.enabledTSBK">
           <v-tooltip bottom color="black">
             <template v-slot:activator="{ on, attrs }">
-              <span class="asw-view" v-bind="attrs" v-on="on">
+              <span class="cursor-help" v-bind="attrs" v-on="on">
                 <span class="ml-2 text--secondary mr-1">{{ $t("Fleet.先制対潜") }}</span>
                 <span v-if="ship.enabledTSBK">
                   <template v-if="!isNotJapanese">{{ $t("Fleet.可") }}</template>
@@ -190,10 +190,38 @@
         </template>
       </div>
       <div class="d-flex pr-1 pl-2 flex-wrap">
-        <div class="align-self-center caption">
+        <div v-if="ship.fullAirPower" class="align-self-center caption">
           <span class="text--secondary">{{ $t("Common.制空") }}</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
           <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
+        </div>
+        <div
+          v-else
+          class="align-self-center caption cursor-help"
+          @mouseenter="bootShipTooltip($event)"
+          @mouseleave="clearTooltip"
+          @focus="bootShipTooltip($event)"
+          @blur="clearTooltip"
+        >
+          <!-- 制空以外のステータス せいぜい3つくらいまで -->
+          <span class="text--secondary">{{ $t("Common.火力") }}</span>
+          <span class="ml-1 font-weight-medium">{{ ship.displayStatus.firePower }}</span>
+          <template v-if="ship.data.torpedo">
+            <span class="ml-2 text--secondary">{{ $t("Common.雷装") }}</span>
+            <span class="ml-1 font-weight-medium">{{ ship.displayStatus.torpedo }}</span>
+          </template>
+          <template v-else>
+            <span class="ml-2 text--secondary">{{ $t("Common.装甲") }}</span>
+            <span class="ml-1 font-weight-medium">{{ ship.displayStatus.armor }}</span>
+          </template>
+          <template v-if="ship.data.maxAsw">
+            <span class="ml-2 text--secondary">{{ $t("Common.対潜") }}</span>
+            <span class="ml-1 font-weight-medium">{{ ship.displayStatus.asw }}</span>
+          </template>
+          <template v-else>
+            <span class="ml-2 text--secondary">{{ $t("Common.回避") }}</span>
+            <span class="ml-1 font-weight-medium">{{ ship.displayStatus.avoid }}</span>
+          </template>
         </div>
         <div class="ml-auto ship-buttons">
           <v-tooltip bottom color="black" v-if="enabledConvert">
@@ -426,7 +454,7 @@
   display: none;
 }
 
-.asw-view {
+.cursor-help {
   cursor: help;
 }
 .asw-table {
