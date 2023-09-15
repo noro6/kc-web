@@ -191,7 +191,7 @@
           </td>
           <td>
             <div class="text-left ml-1 caption">
-              <div class="primary--text level-text">{{ prevLv ? `Lv ${prevLv}` : '-' }}</div>
+              <div class="primary--text level-text">{{ prevLv ? `Lv ${prevLv}` : "-" }}</div>
               <div>
                 {{ getShipName(prevShip) }}
               </div>
@@ -264,6 +264,7 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
 import { FLEET_TYPE } from '@/classes/const';
 import SaveData from '@/classes/saveData/saveData';
+import SpecialAttack from '../../classes/specialAttack';
 
 export default Vue.extend({
   name: 'ShipTooltip',
@@ -330,7 +331,7 @@ export default Vue.extend({
     },
     specialAttacks(): { text: string; rate: number[] }[] {
       if (this.fleetRosCorr) {
-        const array = this.value.getDayBattleSpecialAttackRate(this.fleetRosCorr, this.isFlagship);
+        const array = SpecialAttack.getDayBattleSpecialAttackRate(this.value, this.fleetRosCorr, this.isFlagship);
         if (array.length) {
           array.push({ text: '合計', rate: [sum(array.map((v) => v.rate[0])), sum(array.map((v) => v.rate[1]))] });
         }
@@ -343,7 +344,7 @@ export default Vue.extend({
       return [];
     },
     nightSpecialAttacks(): { text: string; rate: number[] }[] {
-      const array = this.value.getNightBattleSpecialAttackRate(this.isFlagship);
+      const array = SpecialAttack.getNightBattleSpecialAttackRate(this.value, this.isFlagship);
       if (array.length) {
         array.push({
           text: '合計',

@@ -357,6 +357,7 @@ import sum from 'lodash/sum';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Fleet from '@/classes/fleet/fleet';
+import SpecialAttack from '@/classes/specialAttack';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import Item from '@/classes/item/item';
 import ItemMaster from '@/classes/item/itemMaster';
@@ -558,7 +559,7 @@ export default Vue.extend({
       // 装備の搭載数だけ置き換えたやつを設置
       const newShip = new Ship({ ship, items });
       this.enabledShips[this.selectedShipIndex] = newShip;
-      this.specials = newShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+      this.specials = SpecialAttack.getNightBattleSpecialAttackRate(newShip, this.selectedShipIndex === 0);
       this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
 
       this.calculate();
@@ -663,7 +664,7 @@ export default Vue.extend({
         this.clearTooltip();
         this.enabledShips[this.selectedShipIndex] = new Ship({ ship: this.selectedShip });
 
-        this.specials = this.selectedShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+        this.specials = SpecialAttack.getNightBattleSpecialAttackRate(this.selectedShip, this.selectedShipIndex === 0);
         this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
 
         this.calculate();
@@ -728,7 +729,7 @@ export default Vue.extend({
       }
 
       this.enabledShips[this.selectedShipIndex] = newShip;
-      this.specials = newShip.getNightBattleSpecialAttackRate(this.selectedShipIndex === 0);
+      this.specials = SpecialAttack.getNightBattleSpecialAttackRate(newShip, this.selectedShipIndex === 0);
       this.specials.push({ text: '通常', rate: [0], multiplier: 1 });
       this.calculate();
     },

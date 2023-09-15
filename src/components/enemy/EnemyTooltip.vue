@@ -13,10 +13,8 @@
             {{ $t("Common.装甲") }} <span class="font-weight-bold">{{ value.data.armor }} ({{ armor }})</span>
           </div>
         </div>
-        <div class="d-flex my-1">
+        <div class="my-1">
           <div>{{ getEnemyName(value.data.name) }}</div>
-          <v-spacer />
-          <div v-if="value.antiAirCutIn.length" class="ml-3 anti-air-cutin">対空CI発動可能</div>
         </div>
       </div>
     </div>
@@ -37,6 +35,17 @@
         </div>
       </div>
     </div>
+    <template v-if="hasOASW || hasOpeningTorpedo || nightSpecialAttacks.length || value.antiAirCutIn.length || specialAttacks.length">
+      <v-divider class="my-2" />
+      <div class="ml-1 caption grey--text text--lighten-1 text-left">{{ $t("Fleet.特殊攻撃") }}</div>
+      <div class="mx-1 d-flex flex-wrap mt-1 body-2">
+        <div v-if="value.antiAirCutIn.length" class="mr-3 anti-air-cutin">{{ $t("Fleet.対空CI") }}</div>
+        <div v-if="hasOASW" class="mr-3 light-blue--text text--lighten-2">{{ $t("Fleet.先制対潜") }}</div>
+        <div v-if="hasOpeningTorpedo" class="mr-3 blue--text text--lighten-1">先制雷撃</div>
+        <div v-for="text in specialAttacks" :key="text" class="orange--text text--lighten-2 mr-3">{{ $t(`Fleet.${text}`) }}</div>
+        <div v-for="text in nightSpecialAttacks" :key="text" class="indigo--text text--lighten-3 mr-3">{{ $t(`Fleet.${text}`) }}</div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -61,7 +70,6 @@
 }
 .anti-air-cutin {
   color: #55ff7a;
-  font-size: 12px;
 }
 </style>
 
@@ -70,6 +78,7 @@ import Vue from 'vue';
 import Enemy from '@/classes/enemy/enemy';
 import EnemyMaster from '@/classes/enemy/enemyMaster';
 import SiteSetting from '@/classes/siteSetting';
+import SpecialAttack from '@/classes/specialAttack';
 
 export default Vue.extend({
   name: 'EnemyTooltip',
@@ -91,6 +100,21 @@ export default Vue.extend({
     needTrans(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
+    },
+    hasOpeningTorpedo(): boolean {
+      return this.value.items.some((v) => v.data.apiTypeId === 22) || (this.value.isSubmarine && this.value.level >= 10);
+    },
+    hasOASW(): boolean {
+      return (
+        (this.value.data.type === 7 && this.value.items.some((v) => [1574, 1575, 1586].includes(v.data.id)))
+        || [1623, 1624, 1862, 1690, 1691, 1692, 1849, 1850, 1851, 1927, 1928, 1929, 1930, 1931, 1932, 1947].includes(this.value.data.id)
+      );
+    },
+    specialAttacks(): string[] {
+      return SpecialAttack.getDayBattleSpecialAttackRate(this.value, 1, false).map((v) => v.text);
+    },
+    nightSpecialAttacks(): string[] {
+      return SpecialAttack.getNightBattleSpecialAttackRate(this.value, false).map((v) => v.text);
     },
   },
   methods: {

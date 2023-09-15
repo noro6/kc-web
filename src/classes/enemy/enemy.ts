@@ -26,6 +26,12 @@ export default class Enemy implements ShipBase {
   /** 実耐久値 */
   public readonly hp: number;
 
+  /** 計算で適用する練度 */
+  public readonly level: number;
+
+  /** 計算で適用する運 */
+  public readonly luck: number;
+
   /** 実装甲値 */
   public readonly actualArmor: number;
 
@@ -65,11 +71,17 @@ export default class Enemy implements ShipBase {
   /** 対空電探所持数 */
   public readonly antiAirRadarCount: number;
 
+  /** 水上電探所持数 */
+  public readonly surfaceRadarCount: number;
+
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
   /** 装備ボーナス合計 まとめ */
   readonly itemBonusStatus: ItemBonusStatus = {};
+
+  /** 夜襲 発動可能判定 */
+  public readonly enabledAircraftNightAttack: boolean;
 
   /** 本隊航空戦に参加しないフラグ */
   public disabledMainAerialPhase = false;
@@ -84,6 +96,8 @@ export default class Enemy implements ShipBase {
 
     this.actualArmor = this.data.armor;
     this.hp = this.data.hp;
+    this.level = 1;
+    this.luck = 0;
     this.sumItemAccuracy = 0;
     this.fullLBAirPower = 0;
     this.fullAirPower = 0;
@@ -97,6 +111,7 @@ export default class Enemy implements ShipBase {
     this.kijuCount = 0;
     this.specialKijuCount = 0;
     this.antiAirRadarCount = 0;
+    this.surfaceRadarCount = 0;
     this.koshaCount = 0;
 
     // 計算により算出するステータス
@@ -140,8 +155,11 @@ export default class Enemy implements ShipBase {
         this.specialKijuCount += 1;
       }
       // 対空電探カウント
-      if (item.data.iconTypeId === 11 && item.data.antiAir > 0) {
-        this.antiAirRadarCount += 1;
+      if (item.data.iconTypeId === 11) {
+        // 対空電探
+        if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
+        // 水上電探
+        if (item.data.scout > 4) this.surfaceRadarCount += 1;
       }
       // 高射装置カウント
       if (item.data.apiTypeId === 36) {
@@ -149,6 +167,11 @@ export default class Enemy implements ShipBase {
       }
     }
     this.isSubmarine = this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV;
+    if (this.isSubmarine) {
+      this.level = [1530, 1531, 1570].includes(this.data.id) ? 1 : 50;
+    }
+    this.enabledAircraftNightAttack = this.data.isCV && ([1971, 1972, 1973, 1974, 1975, 1976, 2105, 2106, 2107, 2108].includes(this.data.id) || items.some((w) => w.data.id === 1608 || w.data.id === 1617));
+
     // 100倍されていたため戻す
     this.antiAirBonus = Math.floor(this.antiAirBonus / 100);
 

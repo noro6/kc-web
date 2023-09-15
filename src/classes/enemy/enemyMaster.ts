@@ -1,3 +1,4 @@
+import { SHIP_TYPE } from '../const';
 import { MasterEnemy } from '../interfaces/master';
 
 export default class EnemyMaster {
@@ -29,6 +30,8 @@ export default class EnemyMaster {
 
   public isUnknown = false;
 
+  public isCV = false;
+
   /**
    * Creates an instance of EnemyMaster.
    * @param {MasterEnemy} enemy
@@ -50,6 +53,8 @@ export default class EnemyMaster {
       this.items = enemy.items ? enemy.items : [];
 
       this.isLandBase = this.speed === 0;
+
+      this.isCV = this.type === SHIP_TYPE.CV || this.type === SHIP_TYPE.CVL || this.type === SHIP_TYPE.CVB;
     }
   }
 

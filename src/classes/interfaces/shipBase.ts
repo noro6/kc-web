@@ -41,6 +41,9 @@ export interface ShipBase {
   /** 対空電探所持数 */
   readonly antiAirRadarCount: number;
 
+  /** 水上電探所持数 */
+  readonly surfaceRadarCount: number;
+
   /** 高射装置所持数 */
   readonly koshaCount: number
 
@@ -49,4 +52,7 @@ export interface ShipBase {
 
   /** 装備ボーナス合計 まとめ */
   readonly itemBonusStatus: ItemBonusStatus;
+
+  /** 夜襲 発動可能判定 */
+  readonly enabledAircraftNightAttack: boolean;
 }
