@@ -97,7 +97,7 @@
             </v-menu>
           </div>
           <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
-            <div class="ship-name text-truncate">{{ shipName }}</div>
+            <div class="ship-name text-truncate" :class="{ 'no-stock': ship.noStock }">{{ shipName }}</div>
           </div>
         </div>
         <!-- 艦娘解除 -->
@@ -397,6 +397,9 @@
 }
 .ship-status-container {
   height: 16px;
+}
+.ship-name.no-stock {
+  color: rgb(255, 100, 100);
 }
 
 .btn-item-reset {

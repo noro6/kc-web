@@ -24,7 +24,7 @@
       <template v-slot:activator="{ on, attrs }">
         <div v-bind="attrs" v-on="on" class="item-slot">
           <span v-if="!isExpandSlot">{{ item.fullSlot }}</span>
-          <v-icon v-else-if="!isReleased && isNoItem">mdi-cancel</v-icon>
+          <v-icon v-else-if="!isReleased" :class="{ 'no-stock': item.noStock }">mdi-cancel</v-icon>
           <v-icon v-else>mdi-wrench</v-icon>
         </div>
       </template>
@@ -43,7 +43,7 @@
     <!-- 装備名称 -->
     <div
       class="item-name text-truncate"
-      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial }"
+      :class="{ 'text--secondary': isNoItem, 'is-special': item.data.isSpecial, 'no-stock': item.noStock }"
       @click.stop="showItemList()"
       @keypress.enter="showItemList()"
     >
@@ -317,6 +317,10 @@
 }
 .item-input:hover .level-value {
   opacity: 1;
+}
+
+.no-stock {
+  color: rgb(255, 100, 100) !important;
 }
 
 /** 読み取り専用など */

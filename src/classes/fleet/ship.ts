@@ -37,6 +37,8 @@ export interface ShipBuilder {
   uniqueId?: number;
   /** 補強増設空いてるか */
   releaseExpand?: boolean;
+  /** 在庫にないけど配備されている警告用 再装備時にはこの情報は引き継がない */
+  noStock?: boolean;
 }
 
 /** 表示ステータス */
@@ -152,8 +154,11 @@ export default class Ship implements ShipBase {
   /** 制空値(搭載数満タン) */
   public readonly fullAirPower: number;
 
-  /** 支援制空値 */
+  /** 航空支援制空値 */
   public readonly supportAirPower: number;
+
+  /** 対潜支援制空値 */
+  public readonly supportAswAirPower: number;
 
   /** 対潜支援参加可能 */
   public readonly enabledASWSupport: boolean;
@@ -200,6 +205,9 @@ export default class Ship implements ShipBase {
   /** 補強増設空いてる？ */
   public readonly releaseExpand: boolean;
 
+  /** 所持なしなのに配備されてる */
+  public readonly noStock: boolean;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -230,6 +238,7 @@ export default class Ship implements ShipBase {
       this.area = builder.area !== undefined ? builder.area : builder.ship.area;
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : builder.ship.uniqueId;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : builder.ship.releaseExpand;
+      this.noStock = builder.noStock ?? false;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -244,6 +253,7 @@ export default class Ship implements ShipBase {
       this.area = builder.area !== undefined ? builder.area : 0;
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : 0;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : true;
+      this.noStock = builder.noStock ?? false;
     }
 
     // 装備数をマスタのスロット数に合わせる
@@ -275,6 +285,7 @@ export default class Ship implements ShipBase {
 
     this.fullAirPower = 0;
     this.supportAirPower = 0;
+    this.supportAswAirPower = 0;
     this.antiAirBonus = 0;
     this.itemsScout = 0;
     this.itemAsw = 0;
@@ -405,6 +416,8 @@ export default class Ship implements ShipBase {
         this.fullAirPower += item.fullAirPower;
         this.supportAirPower += item.supportAirPower;
       }
+      this.supportAswAirPower += item.supportAswAirPower;
+
       // ジェット機所持
       if (!this.hasJet && item.data.isJet) {
         this.hasJet = true;

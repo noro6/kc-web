@@ -56,6 +56,7 @@
           :battle-info="calcManager.battleInfo"
           :handle-minimize="toggleMinimizeAirbase"
           :sort-mode="sortMode"
+          :handle-sync-current-data="() => (syncCurrentDataDialog = true)"
         />
       </div>
       <div id="fleet-content" class="content-frame" v-show="sortMode || (!calcManager.isDefense && !setting.isMinimizedFleet)">
@@ -67,6 +68,7 @@
           :handle-minimize="toggleMinimizeFleet"
           :sort-mode="sortMode"
           :battle-info="calcManager.battleInfo"
+          :handle-sync-current-data="() => (syncCurrentDataDialog = true)"
         />
       </div>
       <div id="enemy-content" class="content-frame" v-show="sortMode || !setting.isMinimizedEnemy">
@@ -103,6 +105,28 @@
         {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
       </div>
     </div>
+    <v-dialog v-model="syncCurrentDataDialog" transition="scroll-x-transition" width="520">
+      <v-card class="pa-6">
+        <div class="body-2">
+          <div>
+            {{ $t("Fleet.配備されているすべての艦娘と装備を、") }}<router-link to="manager">{{ $t("Home.艦娘 / 装備管理") }}</router-link
+            >{{ $t("Fleet.で登録されている在籍、所持情報をもとに、なるべくいい感じになるように置き換えます。") }}
+          </div>
+        </div>
+        <div class="mt-6 body-2">{{ $t("Fleet.存在しない艦娘、装備の置換方法を選択してください。") }}</div>
+        <div>
+          <v-radio-group v-model="altMode" dense class="mt-2">
+            <v-radio :label="$t('Fleet.そのままにする')" :value="0" />
+            <v-radio :label="$t('Fleet.はずす')" :value="1" />
+          </v-radio-group>
+        </div>
+        <v-alert v-if="disabledSync" dense type="error" class="body-2">{{ $t("Fleet.この機能を使う場合は、まず艦隊反映を行ってください。") }}</v-alert>
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="success" @click.stop="syncCurrentData" :disabled="disabledSync">{{ $t("Common.実行") }}</v-btn>
+          <v-btn class="ml-3" color="secondary" @click.stop="syncCurrentDataDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -148,7 +172,10 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import FleetInfo from '@/classes/fleet/fleetInfo';
 import EnemyFleet from '@/classes/enemy/enemyFleet';
 import SiteSetting from '@/classes/siteSetting';
-import AirbaseInfo from '../classes/airbase/airbaseInfo';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
+import Optimizer from '@/classes/fleet/optimizer';
+import ShipStock from '@/classes/fleet/shipStock';
+import ItemStock from '@/classes/item/itemStock';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -167,6 +194,8 @@ export default Vue.extend({
     setting: new SiteSetting(),
     sortMode: false,
     editedRemarks: '',
+    syncCurrentDataDialog: false,
+    altMode: 0,
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
@@ -253,6 +282,9 @@ export default Vue.extend({
         return (this.$store.state.mainSaveData as SaveData).remarks !== this.editedRemarks;
       }
       return false;
+    },
+    disabledSync(): boolean {
+      return !this.$store.state.itemStock.length || !this.$store.state.shipStock.length;
     },
   },
   watch: {
@@ -463,6 +495,30 @@ export default Vue.extend({
     },
     changeDisplayBonus() {
       this.$store.dispatch('updateSetting', this.setting);
+    },
+    syncCurrentData() {
+      // 現在配備中のデータを取得
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) return;
+      const manager = saveData.tempData[saveData.tempIndex];
+      if (!manager) return;
+
+      // 面倒なので直で在庫数を書き換えたいのでディープコピーしておく
+      const itemStock = JSON.parse(JSON.stringify(this.$store.state.itemStock)) as ItemStock[];
+      const shipStock = JSON.parse(JSON.stringify(this.$store.state.shipStock)) as ShipStock[];
+      // いなければ外すモードかどうか
+      const toEmpty = this.altMode === 1;
+      // 艦隊データの反映
+      const result = Optimizer.reflectStockData(manager, shipStock, itemStock, toEmpty);
+      // 2回計算が行われそうなので片方は再計算フラグを落としておく
+      result.airbaseInfo.calculated = true;
+
+      // 置き換えて終了！
+      this.calcManager.airbaseInfo = result.airbaseInfo;
+      this.calcManager.fleetInfo = result.fleetInfo;
+
+      // ダイアログ閉じる
+      this.syncCurrentDataDialog = false;
     },
   },
 });

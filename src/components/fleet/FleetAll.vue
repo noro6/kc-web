@@ -5,6 +5,14 @@
       <v-spacer />
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleSyncCurrentData" v-bind="attrs" v-on="on">
+            <v-icon>mdi-database-sync</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("Fleet.現在の登録情報に置き換え") }}</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="optimizeFighterSlot()" v-bind="attrs" v-on="on">
             <v-icon>mdi-refresh-auto</v-icon>
           </v-btn>
@@ -771,6 +779,10 @@ export default Vue.extend({
     },
     battleInfo: {
       type: BattleInfo,
+      required: true,
+    },
+    handleSyncCurrentData: {
+      type: Function,
       required: true,
     },
   },

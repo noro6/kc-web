@@ -524,6 +524,13 @@ export default {
       '索敵値が不足している可能性があります。': 'Line of Sight (LoS) value may be insufficient. Need LoS: {LoS}, Cn: {num}',
       'この艦隊に属する全ての艦娘が対象です。': 'This applies to all ships belonging to this fleet.',
       '既に札がついている艦娘も上書きする': 'Overwrite all',
+      '現在の登録情報に置き換え': 'Replaced by data of current registered ships and equipment',
+      '存在しない艦娘、装備の置換方法を選択してください。': 'Please select a replacement mode for non-existent ship or equipment.',
+      'この機能を使う場合は、まず艦隊反映を行ってください。': 'To use this function, please reflect the fleet data first.',
+      '配備されているすべての艦娘と装備を、': 'Replace all deployed ships and equipment with the enrollment and possession information registered in ',
+      'で登録されている在籍、所持情報をもとに、なるべくいい感じになるように置き換えます。': ' to make it as nice as possible.',
+      'はずす': 'Remove',
+      'そのままにする': 'Keep (Displayed in red if not in stock)',
     },
     Enemies: {
       '海域': 'World',

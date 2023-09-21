@@ -13,8 +13,10 @@ export interface ItemBuilder {
   level?: number;
   /** 改修値 未指定ならitemの改修値で作成 */
   remodel?: number;
-  /** 改修値をステータスに反映しない 未指定ならitemの改修値で作成 */
+  /** 改修値をステータスに反映しない 未指定ならitemの改修値で作成 装備一覧の改修値省きソートで使用 */
   ignoreRemodelBonus?: boolean;
+  /** 在庫にないけど配備されている警告用 再装備時にはこの情報は引き継がない */
+  noStock?: boolean;
 }
 
 /**
@@ -208,6 +210,9 @@ export default class Item {
   /** 棒立ち率特定のための親識別用index => FleetクラスのallPlaneに突っ込む際、装備者がわからなくなるため特定したい */
   public parentIndex = -1;
 
+  /** 所持なしなのに配備されてる */
+  public readonly noStock: boolean;
+
   constructor(builder: ItemBuilder = {}) {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
@@ -215,11 +220,13 @@ export default class Item {
       this.fullSlot = builder.slot !== undefined ? builder.slot : builder.item.fullSlot;
       this.remodel = builder.remodel !== undefined ? builder.remodel : builder.item.remodel;
       this.level = builder.level !== undefined ? builder.level : builder.item.level;
+      this.noStock = builder.noStock ?? false;
     } else {
       this.data = builder.master ? builder.master : new ItemMaster();
       this.fullSlot = builder.slot !== undefined ? builder.slot : 0;
       this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
       this.level = builder.level !== undefined ? builder.level : 0;
+      this.noStock = builder.noStock ?? false;
     }
 
     // 現在搭載数の初期化

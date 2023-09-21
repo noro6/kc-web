@@ -3,6 +3,13 @@ import Item from '../item/item';
 import Ship from './ship';
 import ShipValidation from './shipValidation';
 import Const from '../const';
+import Fleet from './fleet';
+import ShipStock from './shipStock';
+import ItemStock from '../item/itemStock';
+import CalcManager from '../calcManager';
+import AirbaseInfo from '../airbase/airbaseInfo';
+import FleetInfo from './fleetInfo';
+import Airbase from '../airbase/airbase';
 
 interface SearchCond {
   apiTypeId?: number;
@@ -375,5 +382,154 @@ export default class Optimizer {
     }
 
     return resultShips;
+  }
+
+  /**
+   * 与えられた計算に対して、所持データを反映させたFleetを返却する
+   * @static
+   * @param {Fleet[]} fleets ベースとなるFleet
+   * @param {ShipStock[]} ships 在籍艦娘リスト
+   * @param {ItemStock[]} items 所持装備リスト(副作用あり)
+   * @param {boolean} toEmpty 置換モード trueなら、在庫がなかった場合にはずす
+   * @return {*}  {Fleet[]}
+   * @memberof Optimizer
+   */
+  public static reflectStockData(manager: CalcManager, ships: ShipStock[], items: ItemStock[], toEmpty: boolean): { airbaseInfo: AirbaseInfo, fleetInfo: FleetInfo } {
+    /** ======= 基地データの反映 ======= */
+    const { airbases } = manager.airbaseInfo;
+    const newAirbases: Airbase[] = [];
+    for (let i = 0; i < airbases.length; i += 1) {
+      const airbase = airbases[i];
+      // 装備のチェックをする
+      const newItems: Item[] = [];
+      for (let j = 0; j < airbase.items.length; j += 1) {
+        newItems.push(Optimizer.getReflectedItem(airbase.items[j], items, toEmpty));
+      }
+      // 装備の精査が終わったので置き換え
+      newAirbases.push(new Airbase({ airbase, items: newItems }));
+    }
+
+    /** ======= 艦隊データの反映 ======= */
+
+    const { fleets } = manager.fleetInfo;
+    const newFleets: Fleet[] = [];
+
+    // 配備済み艦隊ユニークidリスト
+    const usedShipUniqueIds: number[] = [];
+    for (let i = 0; i < fleets.length; i += 1) {
+      const fleet = fleets[i];
+      const newShips: Ship[] = [];
+      for (let j = 0; j < fleet.ships.length; j += 1) {
+        const ship = fleet.ships[j];
+        if (!ship.data.id) {
+          // なんも中身がないならそのまま突っ込んで次
+          newShips.push(ship);
+          continue;
+        }
+
+        let newShip: Ship;
+        // 現在の所持登録データから検索かつ、まだ配備されていないかどうかチェック
+        const stockShips = ships.filter((v) => v.id === ship.data.id && !usedShipUniqueIds.includes(v.uniqueId));
+        if (stockShips.length) {
+          stockShips.sort((a, b) => {
+            // ベースに海域がある場合
+            if (ship.area) {
+              // 札がそれぞれ違う
+              if (a.area !== b.area) {
+                // 一致していたものを優先
+                if (a.area === ship.area) return -1;
+                if (b.area === ship.area) return 1;
+                // 札がついていないもの優先
+                if (a.area === 0) return -1;
+                if (b.area === 0) return 1;
+              }
+            }
+            // レベルが高い順 => 運が高い順 => 札が若い順
+            if (a.level !== b.level) return b.level - a.level;
+            if (a.improvement.luck !== b.improvement.luck) return b.level - a.level;
+            return a.area - b.area;
+          });
+          const stock = stockShips[0];
+          // いたのでいったんステータス系を反映
+          newShip = new Ship({
+            ship,
+            level: stock.level,
+            hp: (stock.level > 99 ? ship.data.hp2 : ship.data.hp) + stock.improvement.hp,
+            asw: Ship.getStatusFromLevel(stock.level, ship.data.maxAsw, ship.data.minAsw) + stock.improvement.asw,
+            luck: ship.data.luck + stock.improvement.luck,
+            area: stock.area,
+            uniqueId: stock.uniqueId,
+            releaseExpand: stock.releaseExpand,
+          });
+          // 配備済みとして記録
+          usedShipUniqueIds.push(stock.uniqueId);
+        } else if (toEmpty) {
+          // いなかったら外す設定なので空データを突っ込む
+          newShip = new Ship();
+        } else {
+          // いなかったら引き継ぐ設定だが、在庫なしプロパティを起動
+          newShip = new Ship({ ship, noStock: true });
+        }
+
+        // 装備のチェックをする
+        const newItems: Item[] = [];
+        for (let k = 0; k < newShip.items.length; k += 1) {
+          newItems.push(Optimizer.getReflectedItem(newShip.items[k], items, toEmpty));
+        }
+        // 補強増設
+        const exItem = Optimizer.getReflectedItem(newShip.exItem, items, toEmpty, !newShip.releaseExpand);
+
+        // 装備の精査も終わったのでやっと置き換えられる
+        newShips.push(new Ship({
+          ship: newShip, items: newItems, exItem, noStock: newShip.noStock,
+        }));
+      }
+
+      // 艦隊再配備
+      newFleets.push(new Fleet({ fleet, ships: newShips }));
+    }
+
+    return {
+      airbaseInfo: new AirbaseInfo({ info: manager.airbaseInfo, airbases: newAirbases }),
+      fleetInfo: new FleetInfo({ info: manager.fleetInfo, fleets: newFleets }),
+    };
+  }
+
+  /**
+   * 装備在庫より、装備を置換したものを返却する。
+   * 在庫に存在すれば最も改修値の高いものを置き換える
+   * 在庫に存在しなければ外すかそのまま
+   * @private
+   * @static
+   * @param {Item} item ベース装備
+   * @param {ItemStock[]} stock 装備在庫
+   * @param {boolean} toEmpty trueならば存在しなかったときに空の装備を返却する
+   * @param {boolean} noStock 手動エラー
+   * @return {*}  {Item}
+   * @memberof Optimizer
+   */
+  private static getReflectedItem(item: Item, stock: ItemStock[], toEmpty: boolean, noStock = false): Item {
+    if (!item.data.id) {
+      // 空の装備はそのまま
+      return item;
+    }
+    const stockItem = stock.find((v) => v.id === item.data.id && v.num.some((remodel) => remodel > 0));
+    if (stockItem) {
+      // 装備あった => 最も改修値が高いものをとってくる
+      for (let remodel = 10; remodel >= 0; remodel -= 1) {
+        if (stockItem.num[remodel]) {
+          // 装備置き換え
+          // 在庫から直で減らす concatしてるので大丈夫！
+          stockItem.num[remodel] -= 1;
+          return new Item({ item, remodel, noStock });
+        }
+      }
+    } else if (toEmpty) {
+      // なかったら外す設定なので空データ
+      return new Item();
+    }
+
+    // それ以外はそのままだけど在庫なしエラーだけ出す。ここだけの特別対応！
+    return new Item({ item, noStock: true });
   }
 }

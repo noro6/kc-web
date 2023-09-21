@@ -5,6 +5,14 @@
       <v-spacer />
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
+          <v-btn icon @click="handleSyncCurrentData" v-bind="attrs" v-on="on">
+            <v-icon>mdi-database-sync</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t("Fleet.現在の登録情報に置き換え") }}</span>
+      </v-tooltip>
+      <v-tooltip bottom color="black">
+        <template v-slot:activator="{ on, attrs }">
           <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
@@ -486,6 +494,10 @@ export default Vue.extend({
       required: true,
     },
     handleMinimize: {
+      type: Function,
+      required: true,
+    },
+    handleSyncCurrentData: {
       type: Function,
       required: true,
     },

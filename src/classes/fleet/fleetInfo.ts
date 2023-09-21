@@ -1,5 +1,5 @@
 import { FLEET_TYPE } from '../const';
-import Fleet, { FleetBuilder } from './fleet';
+import Fleet from './fleet';
 import Ship from './ship';
 
 export interface FleetInfoBuilder {
@@ -79,22 +79,21 @@ export default class FleetInfo {
       // 第1艦隊全艦をnot随伴としてインスタンス化
       for (let i = 0; i < mains.length; i += 1) {
         const ship = mains[i];
-        mains[i] = new Ship({ ship, isEscort: false });
+        mains[i] = new Ship({ ship, isEscort: false, noStock: ship.noStock });
       }
 
       const escorts = this.fleets[1].ships;
       // 第2艦隊全艦を随伴としてインスタンス化
       for (let i = 0; i < escorts.length; i += 1) {
         const ship = escorts[i];
-        escorts[i] = new Ship({ ship, isEscort: true });
+        escorts[i] = new Ship({ ship, isEscort: true, noStock: ship.noStock });
       }
 
-      const b: FleetBuilder = {
+      this.unionFleet = new Fleet({
         isUnion: true,
         ships: this.fleets[0].ships.concat(escorts),
         formation: this.fleets[0].formation,
-      };
-      this.unionFleet = new Fleet(b);
+      });
 
       // 艦隊別の制空値に初期化
       this.unionFleet.airPower = this.fleets[0].fullAirPower;
