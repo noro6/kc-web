@@ -17,6 +17,7 @@
       @click="itemClicked"
       @keypress.enter="itemClicked"
       v-click-outside="onClickOutside"
+      @contextmenu="showSaveDataMenu($event)"
     >
       <v-icon v-if="value.isDirectory" :color="value.color" small> {{ value.isOpen ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
       <v-icon v-else-if="value.isUnsaved" small>mdi-file-question</v-icon>
@@ -70,6 +71,15 @@
         </div>
       </div>
     </div>
+    <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
+      <v-list dense class="caption">
+        <v-list-item link @click="showEditDialog" :disabled="value.isReadonly || value.isUnsaved">{{ $t("SaveData.情報を変更") }}</v-list-item>
+        <v-list-item link @click="copyAndOpen" v-if="!value.isDirectory">{{ $t("SaveData.複製して開く") }}</v-list-item>
+        <v-list-item link @click="deleteConfirmDialog = true" :disabled="value.isReadonly">{{ $t("Common.削除") }}</v-list-item>
+        <v-list-item link @click="sortConfirmDialog = true" v-if="value.isDirectory">{{ $t("SaveData.名前順でソート") }}</v-list-item>
+        <v-list-item link @click="showMenu = false">{{ $t("ItemList.メニューを閉じる") }}</v-list-item>
+      </v-list>
+    </v-menu>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
         <div class="ma-4">
@@ -127,12 +137,12 @@
             :label="$t('SaveData.補足情報')"
             class="remarks-input"
           />
-          <div class="mt-4 d-flex">
-            <div class="align-self-center">
+          <div class="mt-4 d-flex align-center">
+            <div>
               <v-icon x-large :color="selectedColor">{{ value.isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
             </div>
-            <div class="ml-1 flex-grow-1 d-flex justify-space-around">
-              <div v-for="color in colors" :key="`color${color}`" class="my-1">
+            <div class="ml-auto d-flex flex-wrap justify-end">
+              <div v-for="color in colors" :key="`color${color}`" class="ma-1">
                 <v-btn fab light x-small :color="color" @click="selectedColor = color">
                   <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
                 </v-btn>
@@ -144,7 +154,7 @@
               <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
             </template>
             <template v-else>
-              <div class="text--secondary caption ml-auto">最終更新日時</div>
+              <div class="text--secondary caption ml-auto">{{ $t("Common.最終更新日時") }}</div>
               <div class="text--secondary caption ml-3">{{ lastModified }}</div>
               <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
             </template>
@@ -152,9 +162,6 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-tooltip v-if="enabledTooltip" v-model="enabledTooltip" color="black" bottom right :position-x="tooltipX" :position-y="tooltipY">
-      <save-data-tooltip v-model="tooltipData" />
-    </v-tooltip>
   </div>
 </template>
 
@@ -249,14 +256,11 @@
 <script lang="ts">
 import Vue from 'vue';
 import SaveData from '@/classes/saveData/saveData';
-import SaveDataTooltip from '@/components/saveData/SaveDataTooltip.vue';
 import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'SaveItem',
-  components: {
-    SaveDataTooltip,
-  },
+  components: {},
   props: {
     value: {
       type: SaveData,
@@ -283,16 +287,17 @@ export default Vue.extend({
     editedRemarks: '',
     selectedColor: '',
     lastModified: '',
-    enabledTooltip: false,
-    tooltipTimer: undefined as undefined | number,
-    tooltipData: new SaveData(),
-    tooltipX: 0,
-    tooltipY: 0,
     colors: Const.FILE_COLORS,
+    showMenu: false,
+    menuX: 0,
+    menuY: 0,
   }),
   computed: {
     isNameEmpty(): boolean {
       return this.editedName.length <= 0;
+    },
+    isNamedEmpty() {
+      return this.editedName.length === 0;
     },
   },
   updated() {
@@ -382,7 +387,9 @@ export default Vue.extend({
     },
     deleteData() {
       this.deleteConfirmDialog = false;
-      this.handleDelete(this.index);
+      if (!this.value.isReadonly) {
+        this.handleDelete(this.index);
+      }
     },
     deleteChild(index: number) {
       // データの削除は常にこのメソッドにより行われる
@@ -540,23 +547,14 @@ export default Vue.extend({
         itemList[i].classList.remove('dragging');
       }
     },
-    bootTooltip(data: SaveData, e: MouseEvent) {
-      if (data.isDirectory) {
-        return;
-      }
-      const nameDiv = (e.target as HTMLDivElement).closest('.save-list')?.getElementsByClassName('item-name')[0] as HTMLDivElement;
-      window.clearTimeout(this.tooltipTimer);
-      this.tooltipTimer = window.setTimeout(() => {
-        const rect = nameDiv.getBoundingClientRect();
-        this.tooltipX = rect.x;
-        this.tooltipY = rect.y + rect.height + 30;
-        this.tooltipData = data;
-        this.enabledTooltip = true;
-      }, 200);
-    },
-    clearTooltip() {
-      this.enabledTooltip = false;
-      window.clearTimeout(this.tooltipTimer);
+    showSaveDataMenu(e: MouseEvent) {
+      e.preventDefault();
+      this.showMenu = false;
+      this.menuX = e.clientX;
+      this.menuY = e.clientY;
+      this.$nextTick(() => {
+        this.showMenu = true;
+      });
     },
   },
 });
