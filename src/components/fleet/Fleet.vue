@@ -345,11 +345,12 @@ export default Vue.extend({
           } else {
             // みつからなかった => 同マスタidの艦で代用したい
             // なぜこのケースがおきる？ => 一覧から配備したあと、再度反映を行い、かつidがズレた場合の稀ケース
-            const altStock = shipStock.find((v) => v.id === ship.data.id);
-            if (altStock) {
-              // 最初に見つかったこれを代用
-              altStock.area = area;
-            }
+            // いろいろよくない気がしたのでスルーすることにする
+            // const altStock = shipStock.find((v) => v.id === ship.data.id);
+            // if (altStock) {
+            //   // 最初に見つかったこれを代用
+            //   altStock.area = area;
+            // }
           }
         } else if (ship.uniqueId) {
           // 札を同期

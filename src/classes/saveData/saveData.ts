@@ -748,10 +748,11 @@ export default class SaveData {
    * @param {ItemMaster[]} itemMasters
    * @param {ShipMaster[]} shipMasters
    * @param {EnemyMaster[]} enemyMasters
+   * @param {boolean} [clearUniqueId=false] ユニークidを引き継がない
    * @return {*}  {CalcManager}
    * @memberof SaveData
    */
-  public static loadSaveDataManagerString(managerString: string, itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[]): CalcManager {
+  public static loadSaveDataManagerString(managerString: string, itemMasters: ItemMaster[], shipMasters: ShipMaster[], enemyMasters: EnemyMaster[], clearUniqueId = false): CalcManager {
     if (!managerString || !managerString.length) {
       return new CalcManager();
     }
@@ -851,7 +852,7 @@ export default class SaveData {
         const uniqueId = ship.un ?? undefined;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId, releaseExpand: ship.re,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId: (clearUniqueId ? 0 : uniqueId), releaseExpand: ship.re,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…

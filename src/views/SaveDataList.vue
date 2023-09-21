@@ -282,7 +282,7 @@ export default Vue.extend({
           if (preset.ver === 2) {
             // 新版編成復元
             const managerString = LZString.decompressFromBase64(doc.data().data) || '';
-            const manager = SaveData.loadSaveDataManagerString(managerString, items, ships, enemies);
+            const manager = SaveData.loadSaveDataManagerString(managerString, items, ships, enemies, true);
             if (manager) {
               preset.ships = manager.fleetInfo.fleets[0].ships;
               if (manager.fleetInfo.isUnion) {
