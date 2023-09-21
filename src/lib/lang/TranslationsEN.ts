@@ -330,6 +330,7 @@ export default {
       '名前順でソート': 'Sort by name',
       'このフォルダー内の全データ、フォルダーを名前順にソートします。': 'Sort all data and folders in this folder by name.',
       '本当にこのフォルダーを削除しますか？': 'Are you sure you want to delete this folder?',
+      '外部データを全て削除します。よろしいですか？': 'Are you sure you want to delete all external data?',
       '本当にこのデータを削除しますか？': 'Are you sure you want to delete this file?',
       'フォルダー内の全データ、フォルダーが削除されます。': 'All files and folders in the folder will be deleted.',
       'フォルダー名': 'Title',

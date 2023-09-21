@@ -39,7 +39,7 @@
         <div class="tab-item-icon">
           <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
         </div>
-        <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }}</div>
+        <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} ( {{ externalData.length }} )</div>
         <v-menu
           v-model="showExternals"
           absolute
@@ -75,7 +75,11 @@
             </div>
           </v-card>
         </v-menu>
-        <div class="ml-auto mr-2 text--secondary align-self-center">... {{ externalData.length }}</div>
+        <div class="ml-auto btn-close text--secondary align-self-center">
+          <v-btn icon x-small @click.stop="closeExternalConfirmDialog = true">
+            <v-icon small>mdi-close</v-icon>
+          </v-btn>
+        </div>
       </div>
       <div class="tab-add-button">
         <v-btn icon small @click.stop="addNewFile()">
@@ -136,6 +140,16 @@
             <div class="text--secondary caption ml-3">{{ lastModified }}</div>
             <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="closeExternalConfirmDialog" transition="scroll-x-transition" width="400">
+      <v-card class="pa-3">
+        <div class="ma-4 body-2">{{ $t("SaveData.外部データを全て削除します。よろしいですか？") }}</div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="red" dark @click.stop="handleCloseExternalAll($event)">{{ $t("Common.OK") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="closeExternalConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -273,6 +287,7 @@ export default Vue.extend({
     externalsX: 0,
     externalsY: 0,
     externalWorlds: [] as string[],
+    closeExternalConfirmDialog: false,
   }),
   computed: {
     viewData(): SaveData[] {
@@ -360,6 +375,34 @@ export default Vue.extend({
       this.selectedColor = data.color;
       this.lastModified = new Date(data.editedDate).toLocaleString(this.$vuetify.lang.current);
       this.editDialog = true;
+    },
+    handleCloseExternalAll(event: MouseEvent) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      // 外部データがメイン計算画面かどうか取得
+      const isMain = this.externalData.some((v) => v.isMain);
+
+      // 外部データのみ消し飛ばす
+      this.saveData.childItems = this.saveData.childItems.filter((v) => v.name !== '外部データ' || !v.isUnsaved);
+
+      if (isMain) {
+        const actives = this.saveData.fetchActiveData();
+        if (actives.length) {
+          const nextData = actives[actives.length - 1];
+          nextData.isMain = true;
+          this.$store.dispatch('setMainSaveData', nextData);
+        }
+      }
+
+      // 閉じたということでDB更新を促す
+      this.$store.dispatch('updateSaveData', this.saveData);
+      this.closeExternalConfirmDialog = false;
+
+      // もう何もタブがなかったらトップページに戻す
+      if (!this.saveData.getMainData() && this.$route.path === '/aircalc') {
+        this.$router.push('/');
+      }
     },
     handleCloseTab(data: SaveData, event: MouseEvent) {
       event.stopPropagation();
