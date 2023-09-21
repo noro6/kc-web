@@ -124,8 +124,11 @@ export default class Item {
   /** 装備制空値(防空時) */
   public readonly fullDefenseAirPower: number;
 
-  /** 支援制空値 */
+  /** 航空支援制空値 */
   public readonly supportAirPower: number;
+
+  /** 対潜支援制空値 */
+  public readonly supportAswAirPower: number;
 
   /** 触接選択率 [確保時, 優勢時, 劣勢時] */
   public readonly contactSelectRates: number[];
@@ -246,6 +249,7 @@ export default class Item {
     this.bonusExpeditionAntiAir = this.getBonusAntiAirForExpedition();
     this.bonusExpeditionAsw = this.getBonusAswForExpedition();
     this.bonusExpeditionScout = this.getBonusScoutForExpedition();
+    this.supportAswAirPower = 0;
 
     // (装備の素の索敵値 + 改修係数×√★)×装備係数
     this.itemScout = (this.data.scout + this.bonusScout) * this.getItemScoutCoefficient();
@@ -322,6 +326,11 @@ export default class Item {
       }
 
       this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
+
+      // 対潜支援の制空値 => 対潜値があり、かつ艦戦、艦偵、噴式でない
+      if (this.data.asw && ![6, 9, 57].includes(this.data.apiTypeId)) {
+        this.supportAswAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
+      }
 
       // 現在制空値の初期化
       this.airPower = this.fullAirPower;

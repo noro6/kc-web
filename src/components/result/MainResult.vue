@@ -321,6 +321,7 @@
             <th class="text-left py-1 pl-3">{{ $t("Result.艦隊") }}</th>
             <th class="text-left">{{ $t("Result.種別") }}</th>
             <th>{{ $t("Common.制空値") }}</th>
+            <th>{{ $t("Result.対潜支援制空") }}</th>
             <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
             <th class="pr-2">{{ $t("Common.確保") }}</th>
             <th class="pr-2">{{ $t("Common.優勢") }}</th>
@@ -334,6 +335,7 @@
             <td class="text-left py-2 pl-3">{{ $t("Fleet.第x艦隊", { number: row.number }) }}</td>
             <td class="text-left">{{ row.typeName }}</td>
             <td>{{ row.airPower }}</td>
+            <td>{{ row.aswAirPower }}</td>
             <td>{{ row.enemyAirPower }}</td>
             <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
               <span v-if="rate">{{ rate }} %</span>
@@ -764,10 +766,20 @@ export default Vue.extend({
       }
       return enemies;
     },
-    supportsTableRow(): { number: number; typeName: string; airPower: number; enemyAirPower: string; rates: number[]; isMainFleet: boolean }[] {
+    supportsTableRow(): {
+      number: number;
+      typeName: string;
+      airPower: number;
+      aswAirPower: number;
+      enemyAirPower: string;
+      rates: number[];
+      isMainFleet: boolean;
+    }[] {
       const rows = [];
       const fleets = this.value.fleetInfo.fleets.concat();
       const mainIndex = this.value.fleetInfo.mainFleetIndex;
+      // 敵
+      const enemyFleet = this.value.battleInfo.fleets[this.value.mainBattle];
       for (let i = 0; i < fleets.length; i += 1) {
         // 出撃中のやつは出撃中フラグを建てる
         let isMainFleet = false;
@@ -781,9 +793,14 @@ export default Vue.extend({
         const needResult = types.includes(SUPPORT_TYPE.AIRSTRIKE) || types.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
         const result = fleet.results.find((v) => v.supportRates.some((w) => w > 0));
 
-        const rates = needResult && result ? result.supportRates.map((v) => Math.round(10 * v) / 10) : [0, 0, 0, 0, 0];
+        let rates = needResult && result ? result.supportRates.map((v) => Math.round(10 * v) / 10) : [0, 0, 0, 0, 0];
         const avg = needResult && result ? Math.round(result.avgEnemySupportAirPower) : 0;
-        const enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
+        let enemyAirPower = avg ? `${avg}（ ${CommonCalc.getAirStatusBorder(avg).slice(0, 4).join(' / ')} ）` : '';
+        if (!enemyFleet.isAswSupportCell && fleet.supportTypes.length === 1 && fleet.enabledAswSupport) {
+          // 敵が対潜支援不可マスで、かつこの艦隊が対潜支援しかできない場合
+          enemyAirPower = `${this.$t('Result.支援不可(攻撃機なし)')}`;
+          rates = [0, 0, 0, 0, 0];
+        }
         rows.push({
           number: i + 1,
           typeName: fleet
@@ -791,6 +808,7 @@ export default Vue.extend({
             .map((v) => this.$t(`Result.${v}`))
             .join(' / '),
           airPower: fleet.supportAirPower,
+          aswAirPower: fleet.supportAswAirPower,
           enemyAirPower,
           rates: rates.slice(0, 5),
           isMainFleet,

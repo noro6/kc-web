@@ -35,8 +35,14 @@ export default class Fleet {
   /** 支援タイプ Const.SUPPORT_TYPE参照 */
   public readonly supportTypes: number[];
 
-  /** 支援制空値 */
+  /** 航空支援制空値 */
   public readonly supportAirPower: number;
+
+  /** 対潜支援制空値 */
+  public readonly supportAswAirPower: number;
+
+  /** 対潜支援実行可能であるかどうか */
+  public readonly enabledAswSupport: boolean;
 
   /** 輸送量 */
   public readonly tp: number;
@@ -111,6 +117,7 @@ export default class Fleet {
     this.tp = 0;
     this.fullAirPower = 0;
     this.supportAirPower = 0;
+    this.supportAswAirPower = 0;
     this.fleetRosCorr = 0;
     this.hasJet = false;
     this.hasPlane = false;
@@ -128,6 +135,7 @@ export default class Fleet {
       if (ship.isActive && !ship.isEmpty) {
         this.fullAirPower += ship.fullAirPower;
         this.supportAirPower += ship.supportAirPower;
+        this.supportAswAirPower += ship.supportAswAirPower;
         this.tp += ship.tp;
         sumShipRos += ship.scout;
         sumSPRos += ship.sumSPRos;
@@ -219,6 +227,7 @@ export default class Fleet {
     }
 
     this.supportTypes = this.getSupportTypes();
+    this.enabledAswSupport = this.supportTypes.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
   }
 
   /**
@@ -333,9 +342,9 @@ export default class Fleet {
     // 航空支援系B(航戦 航巡 補給)
     const aerialBCount = types.filter((v) => v === SHIP_TYPE.BBV || v === SHIP_TYPE.CAV || v === SHIP_TYPE.AO || v === SHIP_TYPE.AO_2).length;
     // 砲撃支援系存在(戦艦 重巡)
-    const hasFIreType = types.some((v) => v === SHIP_TYPE.BB || v === SHIP_TYPE.FBB || v === SHIP_TYPE.BBB || v === SHIP_TYPE.CA);
+    const hasFireType = types.some((v) => v === SHIP_TYPE.BB || v === SHIP_TYPE.FBB || v === SHIP_TYPE.BBB || v === SHIP_TYPE.CA);
 
-    if (hasFIreType && (countCA + aerialACount < 2)) {
+    if (hasFireType && (countCA + aerialACount < 2)) {
       // 砲撃支援系存在し、空母系 + 航空支援系Aが2未満
       return [SUPPORT_TYPE.SHELLING];
     }
@@ -354,7 +363,7 @@ export default class Fleet {
       }
 
       // 航空支援
-      if (this.allPlanes.some((v) => v.data.isAttacker)) {
+      if (this.allPlanes.some((v) => v.data.isAttacker && !v.data.isAswPlane)) {
         supports.push(SUPPORT_TYPE.AIRSTRIKE);
       }
 

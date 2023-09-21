@@ -70,6 +70,9 @@ export default class EnemyFleet {
   /** 全員PTかどうか */
   public readonly isAllPT: boolean;
 
+  /** 対潜支援が実行できるマスであるかどうか */
+  public readonly isAswSupportCell: boolean;
+
   /** 艦載機を保持しているかどうか */
   public readonly hasPlane: boolean;
 
@@ -185,6 +188,7 @@ export default class EnemyFleet {
     this.isAirRaidCell = this.cellType === CELL_TYPE.AIR_RAID;
     this.isAerialCombatCell = this.cellType === CELL_TYPE.AERIAL_COMBAT;
     this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AIR_RAID || this.cellType === CELL_TYPE.AERIAL_COMBAT || this.cellType === CELL_TYPE.AIR_SUPPORTED_ASW;
+    this.isAswSupportCell = false;
 
     // 計算により算出するステータス
     this.isAllSubmarine = this.enemies.some((v) => v.data.id);
@@ -217,8 +221,9 @@ export default class EnemyFleet {
       this.fullAirPower += enemy.fullAirPower;
       this.fullAirbaseAirPower += enemy.fullLBAirPower;
 
-      // 非対潜空襲マス or 対潜空襲マスかつ潜水艦
+      // 非対潜空襲マスの場合 or 対潜空襲マスかつ潜水艦の場合 => いいかえれば、対潜空襲マスで潜水艦以外だったらダメ
       if (this.cellType !== CELL_TYPE.AIR_SUPPORTED_ASW || enemy.isSubmarine) {
+        // stage2撃墜が可能
         enabledStage2Enemies.push(enemy);
         this.allAntiAirCutIn = this.allAntiAirCutIn.concat(enemy.antiAirCutIn);
       }
@@ -235,6 +240,12 @@ export default class EnemyFleet {
 
       if (this.isAllSubmarine && !enemy.isSubmarine) {
         this.isAllSubmarine = false;
+      }
+
+      // 潜水艦が一隻でも含まれていれば
+      if (!this.isAswSupportCell && enemy.isSubmarine) {
+        // 対潜支援実行可能マスとする
+        this.isAswSupportCell = true;
       }
 
       if (this.isAllPT && enemy.data.name.indexOf('PT') < 0) {

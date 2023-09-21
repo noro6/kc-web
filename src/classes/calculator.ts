@@ -143,12 +143,21 @@ export default class Calculator {
   public static calculateAerialSupportPhase(fleets: Fleet[], enemyFleet: EnemyFleet, battle: number): void {
     for (let i = 0; i < fleets.length; i += 1) {
       const fleet = fleets[i];
-      if (fleet.hasPlane) {
-        const state = CommonCalc.getAirState(fleet.supportAirPower, enemyFleet.airPower);
-        const result = fleet.results[battle];
-        result.addSupportRates(state);
-        result.loopSumEnemySupportAirPower += enemyFleet.airPower;
+      if (!fleet.hasPlane) {
+        continue;
       }
+
+      // とりあえず航空支援制空値を取得
+      let airPower = fleet.supportAirPower;
+      if (enemyFleet.isAswSupportCell && fleet.enabledAswSupport) {
+        // 対潜支援実行可能マス かつ 自軍が対潜支援が可能な編成なら、対潜支援制空値を利用する
+        airPower = fleet.supportAswAirPower;
+      }
+
+      const state = CommonCalc.getAirState(airPower, enemyFleet.airPower);
+      const result = fleet.results[battle];
+      result.addSupportRates(state);
+      result.loopSumEnemySupportAirPower += enemyFleet.airPower;
     }
   }
 

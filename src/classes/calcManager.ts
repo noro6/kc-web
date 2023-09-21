@@ -167,7 +167,7 @@ export default class CalcManager {
           Calculator.calculateAerialCombatCellPhase(fleet, enemyFleet);
         }
 
-        /** ======= 支援艦隊 航空支援フェーズ ======= */
+        /** ======= 支援艦隊 支援フェーズ ======= */
         if (isMainBattle) {
           Calculator.calculateAerialSupportPhase(fleetInfo.fleets, enemyFleet, battle);
         }
