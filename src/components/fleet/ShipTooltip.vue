@@ -5,15 +5,15 @@
         <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120" />
       </div>
       <div class="ml-3 align-self-center">
-        <div class="caption font-weight-bold primary--text">Lv {{ value.level }}</div>
-        <div class="body-2">
+        <div class="primary--text level-text">Lv {{ value.level }}</div>
+        <div class="">
           <span>{{ getShipName(value.data) }}</span>
         </div>
       </div>
     </div>
     <div>
-      <div class="mt-2 status-container">
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.耐久") }}</div>
+      <div class="status-container">
+        <div class="grey--text text--lighten-1">{{ $t("Common.耐久") }}</div>
         <div>{{ value.hp }}</div>
         <div>
           <span v-if="buffHP" :class="{ 'bad-bonus': buffHP < 0 }">
@@ -24,7 +24,7 @@
         <div />
         <div />
         <div />
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
         <div>{{ value.displayStatus.firePower }}</div>
         <div>
           <span v-if="value.itemBonusStatus.firePower" :class="{ 'bad-bonus': value.itemBonusStatus.firePower < 0 }">
@@ -32,16 +32,16 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
         <div>{{ supportFirePower }}</div>
         <div />
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
         <div>{{ dayBattleFirePower }}</div>
         <div />
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.夜戦火力") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.夜戦火力") }}</div>
         <div>{{ Math.floor(value.nightBattleFirePower) }}</div>
         <div />
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.装甲") }}</div>
         <div>{{ value.displayStatus.armor }}</div>
         <div>
           <span v-if="value.itemBonusStatus.armor" :class="{ 'bad-bonus': value.itemBonusStatus.armor < 0 }">
@@ -49,7 +49,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.雷装") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.雷装") }}</div>
         <div>{{ value.displayStatus.torpedo }}</div>
         <div>
           <span v-if="value.itemBonusStatus.torpedo" :class="{ 'bad-bonus': value.itemBonusStatus.torpedo < 0 }">
@@ -57,7 +57,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.回避") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.回避") }}</div>
         <div>{{ value.displayStatus.avoid }}</div>
         <div>
           <span v-if="value.itemBonusStatus.avoid" :class="{ 'bad-bonus': value.itemBonusStatus.avoid < 0 }">
@@ -65,7 +65,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.対空") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.対空") }}</div>
         <div>{{ value.displayStatus.antiAir }}</div>
         <div>
           <span v-if="value.itemBonusStatus.antiAir" :class="{ 'bad-bonus': value.itemBonusStatus.antiAir < 0 }">
@@ -73,7 +73,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.命中") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.命中") }}</div>
         <div>{{ value.displayStatus.accuracy }}</div>
         <div>
           <span v-if="value.itemBonusStatus.accuracy" :class="{ 'bad-bonus': value.itemBonusStatus.accuracy < 0 }">
@@ -81,7 +81,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.対潜") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.対潜") }}</div>
         <div>{{ value.displayStatus.asw }}</div>
         <div>
           <span v-if="value.itemBonusStatus.asw || value.improveAsw" :class="{ 'bad-bonus': value.itemBonusStatus.asw < 0 }"
@@ -90,7 +90,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.速力") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.速力") }}</div>
         <div>{{ speedText }}</div>
         <div>
           <span v-if="buffSpeed" :class="{ 'bad-bonus': buffSpeed < 0 }">
@@ -98,7 +98,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.索敵") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.索敵") }}</div>
         <div>{{ value.displayStatus.LoS }}</div>
         <div>
           <span v-if="value.itemBonusStatus.scout" :class="{ 'bad-bonus': value.itemBonusStatus.scout < 0 }">
@@ -106,7 +106,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.射程") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.射程") }}</div>
         <div>{{ $t(`Common.${rangeText[value.displayStatus.range]}`) }}</div>
         <div>
           <span v-if="value.itemBonusStatus.range" :class="{ 'bad-bonus': value.itemBonusStatus.range < 0 }">
@@ -114,7 +114,7 @@
             >)
           </span>
         </div>
-        <div class="caption grey--text text--lighten-1">{{ $t("Common.運") }}</div>
+        <div class="grey--text text--lighten-1">{{ $t("Common.運") }}</div>
         <div>{{ value.luck }}</div>
         <div>
           <span v-if="buffLuck" :class="{ 'bad-bonus': buffLuck < 0 }">
@@ -124,103 +124,101 @@
         </div>
       </div>
       <template v-if="specialAttacks.length">
-        <v-divider class="my-2" />
-        <table>
-          <tr>
-            <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.特殊攻撃") }}</td>
-            <td class="caption grey--text text--lighten-1 px-8">{{ $t("Common.確保") }}</td>
-            <td class="caption grey--text text--lighten-1">{{ $t("Common.優勢") }}</td>
-          </tr>
-          <tr v-for="(row, i) in specialAttacks" :key="`sp${i}`">
-            <td class="text-left">
+        <v-divider class="my-1" />
+        <div class="special-attack-table">
+          <div class="grey--text text--lighten-1">{{ $t("Fleet.特殊攻撃") }}</div>
+          <div class="grey--text text--lighten-1">{{ $t("Common.確保") }}</div>
+          <div class="grey--text text--lighten-1">{{ $t("Common.優勢") }}</div>
+          <template v-for="(row, i) in specialAttacks">
+            <div class="text-left" :key="`sp_1${i}`">
               <span :class="{ 'orange--text text--lighten-2': row.text !== '合計' }" label outlined>{{ $t(`Fleet.${row.text}`) }}</span>
-            </td>
-            <td class="px-8">{{ row.rate[0] }} %</td>
-            <td>{{ row.rate[1] }} %</td>
-          </tr>
-        </table>
+            </div>
+            <div :key="`sp_2${i}`">{{ row.rate[0] }} %</div>
+            <div :key="`sp_3${i}`">{{ row.rate[1] }} %</div>
+          </template>
+        </div>
       </template>
       <template v-if="nightSpecialAttacks.length">
-        <v-divider class="my-2" />
-        <table>
-          <tr>
-            <td class="caption grey--text text--lighten-1 text-left">{{ $t("Fleet.夜間特殊攻撃") }}</td>
-            <td class="caption grey--text text--lighten-1 px-2">{{ $t("Fleet.通常") }}</td>
-            <td class="caption pl-6 pr-1">
-              <v-img :src="`./img/type/icon24.png`" height="27" width="27" />
-            </td>
-            <td class="caption pl-6 pr-1">
-              <v-img :src="`./img/type/icon27.png`" height="27" width="27" />
-            </td>
-            <td>
-              <div class="d-flex caption">
-                <v-img :src="`./img/type/icon24.png`" height="27" width="27" />
-                <div class="align-self-center grey--text text--lighten-3">&plus;</div>
-                <v-img :src="`./img/type/icon27.png`" height="27" width="27" />
-              </div>
-            </td>
-          </tr>
-          <tr v-for="(row, i) in nightSpecialAttacks" :key="`sp${i}`">
-            <td class="text-left">
+        <v-divider class="my-1" />
+        <div class="special-attack-table night">
+          <div class="grey--text text--lighten-1 caption">{{ $t("Fleet.夜間特殊攻撃") }}</div>
+          <div class="grey--text text--lighten-1">{{ $t("Fleet.通常") }}</div>
+          <div class="d-flex justify-end">
+            <div>
+              <v-img :src="`./img/type/icon24.png`" height="25" width="25" />
+            </div>
+          </div>
+          <div class="d-flex justify-end">
+            <div>
+              <v-img :src="`./img/type/icon27.png`" height="25" width="25" />
+            </div>
+          </div>
+          <div class="d-flex justify-end">
+            <div>
+              <v-img :src="`./img/type/icon24.png`" height="25" width="25" />
+            </div>
+            <div class="mx-n2">
+              <v-img :src="`./img/type/icon27.png`" height="25" width="25" />
+            </div>
+          </div>
+          <template v-for="(row, i) in nightSpecialAttacks">
+            <div class="text-left" :key="`spn_1${i}`">
               <span :class="{ 'indigo--text text--lighten-3': row.text !== '合計' }" label outlined>{{ $t(`Fleet.${row.text}`) }}</span>
-            </td>
-            <td class="px-2">{{ row.rate[0] }} %</td>
-            <td class="px-2">{{ row.rate[1] }} %</td>
-            <td class="px-2">{{ row.rate[2] }} %</td>
-            <td class="px-2">{{ row.rate[3] }} %</td>
-          </tr>
-        </table>
+            </div>
+            <div class="pl-3" :key="`spn_2${i}`">{{ row.rate[0] }} %</div>
+            <div class="pl-3" :key="`spn_3${i}`">{{ row.rate[1] }} %</div>
+            <div class="pl-3" :key="`spn_4${i}`">{{ row.rate[2] }} %</div>
+            <div class="pl-3" :key="`spn_5${i}`">{{ row.rate[3] }} %</div>
+          </template>
+        </div>
       </template>
-      <v-divider class="my-2" />
-      <table>
-        <tr>
-          <td class="text-left caption grey--text text--lighten-1">{{ $t("Fleet.一撃大破") }}</td>
-          <td>{{ taihaRate }}</td>
-        </tr>
-        <tr>
-          <td class="text-left caption grey--text text--lighten-1">{{ $t("Fleet.一撃中破") }}</td>
-          <td>{{ chuhaRate }}</td>
-        </tr>
-      </table>
-      <v-divider class="my-2" />
-      <table>
-        <tr v-if="prevShip">
-          <td class="text-left caption grey--text text--lighten-1 pr-2">Prev</td>
-          <td>
+      <v-divider class="my-1" />
+      <div class="damage-rate-table">
+        <div class="text-left grey--text text--lighten-1">{{ $t("Fleet.一撃大破") }}</div>
+        <div>{{ taihaRate }}</div>
+        <div class="text-left grey--text text--lighten-1">{{ $t("Fleet.一撃中破") }}</div>
+        <div>{{ chuhaRate }}</div>
+      </div>
+      <v-divider class="my-1" />
+      <div v-if="prevShip || nextShip" class="remodel-table">
+        <template v-if="prevShip">
+          <div class="text-left grey--text text--lighten-1">Prev</div>
+          <div>
             <v-img :src="`./img/ship/${prevShip.id}.png`" height="30" width="120" />
-          </td>
-          <td>
-            <div class="text-left ml-1 caption">
+          </div>
+          <div>
+            <div class="text-left caption">
               <div class="primary--text level-text">{{ prevLv ? `Lv ${prevLv}` : "-" }}</div>
               <div>
                 {{ getShipName(prevShip) }}
               </div>
             </div>
-          </td>
-        </tr>
-        <tr v-if="nextShip">
-          <td class="text-left caption grey--text text--lighten-1 pr-2">Next</td>
-          <td>
+          </div>
+        </template>
+        <template v-if="nextShip">
+          <div class="text-left grey--text text--lighten-1">Next</div>
+          <div>
             <v-img :src="`./img/ship/${nextShip.id}.png`" height="30" width="120" />
-          </td>
-          <td>
-            <div class="text-left ml-1 caption">
+          </div>
+          <div>
+            <div class="text-left caption">
               <div class="primary--text level-text">Lv {{ value.data.nextLv }}</div>
               <div>
                 {{ getShipName(nextShip) }}
               </div>
             </div>
-          </td>
-        </tr>
-      </table>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-table {
-  width: 100%;
-  text-align: right;
+.level-text {
+  font-size: 12px;
+  font-weight: bold;
+  height: 18px;
 }
 
 .status-container {
@@ -231,11 +229,10 @@ table {
 .status-container > div:nth-child(3n - 1) {
   text-align: right;
 }
+.status-container > div:nth-child(3n - 2),
 .status-container > div:nth-child(3n) {
   text-align: left;
-  font-size: 0.9em;
 }
-
 .bonus {
   margin-left: 4px;
   margin-right: 4px;
@@ -250,9 +247,37 @@ table {
   color: #fff460;
 }
 
-.level-text {
-  font-weight: bold;
-  height: 16px;
+.special-attack-table {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  align-items: center;
+}
+.special-attack-table > div {
+  text-align: right;
+}
+.special-attack-table > div:nth-child(1) {
+  text-align: left;
+}
+
+.special-attack-table.night {
+  grid-template-columns: repeat(5, auto);
+}
+
+.damage-rate-table {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+}
+.damage-rate-table > div {
+  text-align: right;
+}
+.damage-rate-table > div:nth-child(1) {
+  text-align: left;
+}
+
+.remodel-table {
+  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
 }
 </style>
 

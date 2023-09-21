@@ -575,6 +575,7 @@ export default class Convert {
         lv: ship.level,
         hp: ship.hp,
         luck: ship.luck,
+        asw: ship.displayStatus.asw,
         items,
       };
 
@@ -584,7 +585,6 @@ export default class Convert {
         data.tp = ship.displayStatus.torpedo;
         data.aa = ship.displayStatus.antiAir;
         data.ar = ship.displayStatus.armor;
-        data.asw = ship.displayStatus.asw;
         data.los = ship.displayStatus.LoS;
         data.ev = ship.displayStatus.avoid;
       }

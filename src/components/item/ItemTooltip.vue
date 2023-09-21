@@ -45,11 +45,13 @@
         <span class="item-status-text">{{ $t("Common.夜戦火力") }}</span>
         <span class="item-status-value">{{ value.data.fire + value.data.torpedo }}</span>
         <span
-          v-if="existsBonus && (itemBonus.firePower || itemBonus.torpedo)"
-          class="fit-bonus temp"
-          :class="{ 'bad-status': itemBonus.firePower + itemBonus.torpedo < 0 }"
+          v-if="existsBonus"
+          class="fit-bonus"
+          :class="{ temp: itemBonus.firePower + itemBonus.torpedo, 'bad-status': itemBonus.firePower + itemBonus.torpedo < 0 }"
         >
-          {{ itemBonus.firePower || itemBonus.torpedo ? formatBonus(itemBonus.firePower + itemBonus.torpedo) : "" }} )
+          <template v-if="itemBonus.firePower || itemBonus.torpedo">
+            {{ formatBonus(itemBonus.firePower + itemBonus.torpedo) }} )
+          </template>
         </span>
         <span v-if="value.bonusNightFire" class="remodel-bonus"> &plus; {{ formatStatus(value.bonusNightFire) }} </span>
       </div>

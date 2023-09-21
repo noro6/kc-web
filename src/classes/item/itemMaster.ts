@@ -141,7 +141,6 @@ export default class ItemMaster {
   public readonly airbaseMaxSlot: number;
 
   /**
-   * Creates an instance of ItemMaster.
    * API取得itemよりクラスにマッピング
    * @param {(...(number | string)[])} item
    * @memberof ItemMaster
