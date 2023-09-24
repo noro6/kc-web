@@ -1472,6 +1472,7 @@ export default Vue.extend({
         let filterKey = this.filterStatus;
         if (withoutRemodel && filterKey.startsWith('actual')) {
           filterKey = filterKey.replace('actual', '');
+          filterKey = filterKey[0].toLowerCase() + filterKey.slice(1);
         }
         const isActualFilterKey = filterKey.indexOf('actual') >= 0
           || filterKey === 'tp'
