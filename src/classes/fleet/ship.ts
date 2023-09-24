@@ -1107,7 +1107,7 @@ export default class Ship implements ShipBase {
       return false;
     }
 
-    if ([141, 478, 624, 394, 893, 681, 920].includes(this.data.id) || (this.data.type2 === 91 && this.data.id !== 941)) {
+    if ([141, 478, 624, 394, 893, 681, 906, 920].includes(this.data.id) || (this.data.type2 === 91 && this.data.id !== 941)) {
       // 無条件発動 順に五十鈴改二 龍田改二 夕張改二丁 J級改 Samuel B.Roberts(改 or MK.II) Fletcher級
       return true;
     }

@@ -1323,7 +1323,7 @@ export default Vue.extend({
         }
         if (this.shipFilter.onlyAutoOASW) {
           // 自動先制対潜のみ
-          result = result.filter((v) => [141, 478, 624, 394, 893, 681, 920].includes(v.id) || (v.type2 === 91 && v.id !== 941));
+          result = result.filter((v) => [141, 478, 624, 394, 893, 681, 906, 920].includes(v.id) || (v.type2 === 91 && v.id !== 941));
         }
         if (this.shipFilter.onlyBookmarked) {
           // お気に入りのみ
