@@ -247,7 +247,7 @@
             <div>{{ $t("Result.陸攻補正") }}</div>
             <div>&times; {{ postCapTerms[i].airbaseAttackerMultiplier.toFixed(2) }}</div>
           </template>
-          <template v-if="calcArgs.isAirbaseMode && calcArgs.unionBonus !== 1">
+          <template v-if="calcArgs.isAirbaseMode && calcArgs.unionBonus !== 1 && !postCapTerms[i].isSubmarine">
             <div>{{ $t("Result.敵連合補正") }}</div>
             <div>&times; {{ calcArgs.unionBonus.toFixed(2) }}</div>
           </template>
