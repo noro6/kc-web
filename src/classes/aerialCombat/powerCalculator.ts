@@ -1,5 +1,5 @@
 import CommonCalc from '../commonCalc';
-import Const, { SHIP_TYPE, CAP } from '../const';
+import Const, { SHIP_TYPE, CAP, FLEET_TYPE } from '../const';
 import Enemy from '../enemy/enemy';
 import Ship from '../fleet/ship';
 import Item from '../item/item';
@@ -18,6 +18,8 @@ export interface FirePowerCalcArgs {
   defense: Ship | Enemy,
   /** 防御側が連合かどうか */
   isUnion: boolean;
+  /** 艦隊形式 */
+  fleetType: number;
   /** 基地計算式かどうか */
   isAirbaseMode: boolean;
   /** クリティカルかどうか */
@@ -294,9 +296,18 @@ export default class AerialFirePowerCalculator {
       }
 
       // 連合艦隊の場合航空戦定数に補正
-      // 対連合艦隊時補正(主力: -10, 随伴: -20)
-      if (args.isUnion && defense.isEscort) airstrikeModifiers -= 20;
-      else if (args.isUnion) airstrikeModifiers -= 10;
+      if (args.isUnion) {
+        if (args.fleetType === FLEET_TYPE.TCF) {
+          // 対輸送連合艦隊時補正(主力: -20, 随伴: -20)
+          airstrikeModifiers -= 20;
+        } else if (defense.isEscort) {
+          // 対連合艦隊時補正(随伴: -20)
+          airstrikeModifiers -= 20;
+        } else {
+          // 対連合艦隊時補正(主力: -10)
+          airstrikeModifiers -= 10;
+        }
+      }
     }
 
     const terms = [];
