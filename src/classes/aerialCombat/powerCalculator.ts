@@ -531,8 +531,8 @@ export default class AerialFirePowerCalculator {
     if (args.item.data.apiTypeId === 47) {
       airbaseAttackerMultiplier = 1.8;
     }
-    // 触接 特効を付与
-    finalFirePower = finalFirePower * airbaseAttackerMultiplier * args.contactBonus * args.manualAfterCapBonus;
+    // 触接 特効 連合補正を付与
+    finalFirePower = finalFirePower * airbaseAttackerMultiplier * args.contactBonus * args.unionBonus * args.manualAfterCapBonus;
 
     // クリティカル補正
     if (args.isCritical) {
