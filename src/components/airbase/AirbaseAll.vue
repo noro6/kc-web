@@ -153,6 +153,7 @@
           @input="setInfo"
           :is-defense="isDefenseMode"
           :handle-show-item-presets="showItemPresets"
+          :handle-show-temp-airbase-list="showTempAirbaseList"
         />
       </v-tab-item>
     </v-tabs>
@@ -174,6 +175,7 @@
         :is-defense="isDefenseMode"
         :handle-show-item-list="showItemList"
         :handle-show-item-presets="showItemPresets"
+        :handle-show-temp-airbase-list="showTempAirbaseList"
         @input="setInfo"
       />
     </draggable>
@@ -332,6 +334,80 @@
     <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
       <item-preset-component v-if="itemPresetDialog" v-model="tempAirbase" :handle-expand-item-preset="expandItemPreset" :handle-close="closeItemPreset" />
     </v-dialog>
+    <v-dialog v-model="tempAirbaseListDialog" transition="scroll-x-transition" width="900">
+      <v-card v-if="tempAirbaseListDialog">
+        <div class="d-flex pb-1 px-2 pt-2">
+          <div class="align-self-center ml-3">{{ $t("Airbase.基地クリップボード") }}</div>
+          <v-spacer />
+          <v-btn icon @click="tempAirbaseListDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider />
+        <div class="pa-3">
+          <div class="temp-airbase-view" v-if="tempAirbase">
+            <v-card class="temp-airbase">
+              <div v-for="(item, i) in tempAirbase.items" :key="`tempItem${i}`" class="temp-item">
+                <div class="caption temp-slot">{{ item.fullSlot }}</div>
+                <div class="item-img">
+                  <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
+                </div>
+                <div class="temp-airbase-item-name">{{ getItemName(item.data.name) }}</div>
+                <div class="item-remodel" v-if="item.remodel">
+                  <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                </div>
+              </div>
+            </v-card>
+            <div>
+              <v-btn class="mb-2" color="primary" :disabled="!enabledPushTempAirbase" @click="pushTempAirbase()">
+                <v-icon>mdi-clipboard-arrow-down</v-icon>{{ $t("Fleet.クリップボードへ追加") }}
+              </v-btn>
+              <v-btn class="mb-2" color="success" :disabled="!enabledPushTempAirbase" @click="pushTempAirbaseAll()">
+                <v-icon>mdi-clipboard-arrow-down</v-icon>{{ $t("Airbase.基地全てクリップボードへ追加") }}
+              </v-btn>
+            </div>
+          </div>
+          <template v-if="tempAirbaseList.length">
+            <v-divider class="mt-3 mb-2" />
+            <div class="d-flex ml-2 mb-2 align-center">
+              <div class="d-flex align-end">
+                <div class="body-2">{{ $t("Fleet.クリップボード") }}</div>
+                <div class="ml-3 caption">※ {{ $t("Fleet.クリックで展開") }}</div>
+              </div>
+              <div class="ml-auto">
+                <v-btn color="error" :disabled="!tempAirbaseList.length" @click="resetTempAirbaseList()">
+                  <v-icon>mdi-trash-can-outline</v-icon>{{ $t("Common.リセット") }}
+                </v-btn>
+              </div>
+            </div>
+            <div class="temp-airbase-list">
+              <v-card
+                class="temp-airbase"
+                v-ripple="{ class: 'info--text' }"
+                v-for="(temp, i) in tempAirbaseList"
+                :key="`tempAirbase${i}`"
+                @click="popTempAirbase(temp)"
+              >
+                <div v-for="(item, j) in temp.items" :key="`tempAirbase${i}item${j}`" class="temp-item">
+                  <div class="caption temp-slot">
+                    <span :class="{ 'text--secondary': item.fullSlot < 1 }">{{ item.fullSlot }}</span>
+                  </div>
+                  <div class="item-img">
+                    <v-img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
+                  </div>
+                  <div class="temp-airbase-item-name">{{ getItemName(item.data.name) }}</div>
+                  <div class="item-remodel" v-if="item.remodel">
+                    <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                    <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                  </div>
+                </div>
+              </v-card>
+            </div>
+          </template>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -452,6 +528,73 @@
 .opacity0 {
   opacity: 0;
 }
+
+/** 以下、一時保存リスト用 */
+.temp-airbase-list,
+.temp-fleet-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.temp-airbase-view,
+.temp-airbase-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 0.5rem;
+  column-gap: 0.5rem;
+}
+@media (min-width: 600px) {
+  .temp-airbase-view,
+  .temp-airbase-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 840px) {
+  .temp-airbase-view,
+  .temp-airbase-list {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+.temp-airbase {
+  padding: 0.25rem 0.2rem;
+}
+.temp-airbase-list .temp-airbase {
+  cursor: pointer;
+}
+.temp-airbase-list .temp-airbase:hover,
+.temp-fleet-list .v-card:hover {
+  background-color: rgba(128, 200, 255, 0.1) !important;
+}
+.temp-airbase-item-name {
+  margin-left: 4px;
+  flex-grow: 1;
+  font-size: 0.85em;
+  width: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.temp-item {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+}
+.temp-slot {
+  text-align: right;
+  width: 22px;
+  margin-right: 0.25rem;
+}
+.item-img {
+  width: 30px;
+}
+.temp-airbase-item-name {
+  font-size: 0.8em;
+}
+.item-remodel {
+  margin-left: auto;
+  font-size: 0.8em;
+  width: 30px;
+}
 </style>
 
 <script lang="ts">
@@ -473,6 +616,7 @@ import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import Convert from '@/classes/convert';
 import { MasterMap } from '@/classes/interfaces/master';
+import { cloneDeep } from 'lodash';
 
 export default Vue.extend({
   name: 'AirbaseAll',
@@ -516,6 +660,9 @@ export default Vue.extend({
     itemPresetDialog: false,
     tempAirbase: undefined as undefined | Airbase,
     airRaidAreas: [] as number[],
+    tempAirbaseListDialog: false,
+    tempAirbaseList: [] as Airbase[],
+    enabledPushTempAirbase: true,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -613,6 +760,8 @@ export default Vue.extend({
   mounted() {
     const maps = this.$store.state.maps as MasterMap[];
     this.airRaidAreas = maps.filter((v) => v.has_air_raid).map((v) => v.area);
+
+    this.tempAirbaseList = this.$store.state.tempAirbaseList ?? [];
   },
   methods: {
     setInfo() {
@@ -768,6 +917,72 @@ export default Vue.extend({
     },
     closeItemPreset() {
       this.itemPresetDialog = false;
+    },
+    showTempAirbaseList(index: number) {
+      const airbase = this.airbaseInfo.airbases[index];
+      this.dialogTarget = [index, 0];
+      this.tempAirbase = cloneDeep(airbase);
+      this.tempAirbaseListDialog = true;
+      this.enabledPushTempAirbase = true;
+    },
+    pushTempAirbase() {
+      if (this.tempAirbase) {
+        // 一時保存リストに追加
+        this.enabledPushTempAirbase = false;
+        this.tempAirbaseList.push(this.tempAirbase);
+        this.$store.dispatch('updateTempAirbaseList', this.tempAirbaseList);
+      }
+    },
+    pushTempAirbaseAll() {
+      // 今の基地全部突っ込む
+      for (let i = 0; i < this.airbaseInfo.airbases.length; i += 1) {
+        const airbase = cloneDeep(this.airbaseInfo.airbases[i]);
+        if (airbase.items.some((v) => v.data.id)) {
+          this.tempAirbaseList.push(airbase);
+        }
+      }
+      this.enabledPushTempAirbase = false;
+      this.$store.dispatch('updateTempAirbaseList', this.tempAirbaseList);
+    },
+    popTempAirbase(airbase: Airbase) {
+      const index = this.dialogTarget[0];
+      // 元々いた基地を置き換える
+      const items = [];
+      for (let i = 0; i < airbase.items.length; i += 1) {
+        items.push(new Item({ item: airbase.items[i] }));
+      }
+      const original = this.airbaseInfo.airbases[index];
+      if (original.mode === AB_MODE.WAIT) {
+        // 待機札だった場合
+        // 出撃か防空札に変更
+        const mode = this.isDefenseMode ? AB_MODE.DEFENSE : AB_MODE.BATTLE;
+        // 派遣先を最終戦闘にオート設定
+        const battleTarget = [this.lastBattleIndex, this.lastBattleIndex];
+        this.airbaseInfo.airbases[index] = new Airbase({
+          airbase: original,
+          items,
+          mode,
+          battleTarget,
+        });
+      } else {
+        this.airbaseInfo.airbases[index] = new Airbase({ airbase: original, items });
+      }
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      const newInfo = new AirbaseInfo({ info: this.airbaseInfo });
+      this.$emit('input', newInfo);
+      this.tempAirbaseListDialog = false;
+    },
+    resetTempAirbaseList() {
+      // 一時保存リストリセット
+      this.enabledPushTempAirbase = true;
+      this.tempAirbaseList = [];
+      this.$store.dispatch('updateTempAirbaseList', []);
+    },
+    getItemName(name: string) {
+      if (this.needTrans && name) {
+        return this.$t(`${name}`);
+      }
+      return name || `${this.$t('Fleet.未装備')}`;
     },
   },
 });

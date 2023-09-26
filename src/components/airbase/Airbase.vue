@@ -1,15 +1,23 @@
 <template>
   <v-card class="mx-1 pt-1" @dragover.prevent @drop.stop>
-    <div class="d-flex mb-1 align-end">
+    <div class="d-flex">
       <div class="ml-2 airbase-title">{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
       <v-spacer />
       <div class="mr-1 mode-select">
-        <v-select dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem" />
+        <v-select class="mt-0" dense v-model="airbase.mode" hide-details :items="modes" @change="updateItem" :disabled="!hasItem" />
       </div>
       <div class="mr-1 operation-buttons">
         <v-btn color="blue lighten-1" icon small @click="viewDetail" :disabled="!enabledDetail">
           <v-icon small>mdi-information-outline</v-icon>
         </v-btn>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon small color="orange lighten-2" v-bind="attrs" v-on="on" @click="showTempAirbaseList()">
+              <v-icon small>mdi-clipboard</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Airbase.基地クリップボード") }}</span>
+        </v-tooltip>
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon small color="deep-orange lighten-1" v-bind="attrs" v-on="on" @click="showItemPresets()">
@@ -24,7 +32,7 @@
       </div>
     </div>
     <div>
-      <div class="d-flex caption pl-2 sub-status-area">
+      <div class="sub-status-area caption pl-2">
         <div>
           {{ $t("Common.制空") }}<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
@@ -118,15 +126,19 @@
 <style scoped>
 .airbase-title {
   cursor: move;
+  font-size: 0.9em;
+  align-self: flex-end;
 }
 .mode-select {
-  align-self: center;
   width: 80px;
 }
-.sub-status-area > div {
-  align-self: center;
+.sub-status-area {
+  display: flex;
+  align-items: center;
 }
-
+.operation-buttons {
+  align-self: flex-end;
+}
 .operation-buttons .v-icon {
   font-size: 20px !important;
 }
@@ -176,6 +188,10 @@ export default Vue.extend({
       required: true,
     },
     handleShowItemPresets: {
+      type: Function,
+      required: true,
+    },
+    handleShowTempAirbaseList: {
       type: Function,
       required: true,
     },
@@ -276,23 +292,24 @@ export default Vue.extend({
       this.setAirbase(new Airbase());
     },
     viewDetail(): void {
+      this.detailEditableItems = [];
       this.destroyDialog = false;
       this.detailDialog = true;
     },
     closeDetail() {
       this.detailDialog = false;
-
-      // 詳細計算画面にて変更された装備を適用する
-      const items = [];
-      for (let i = 0; i < this.detailEditableItems.length; i += 1) {
-        const editedItem = this.detailEditableItems[i];
-        items.push(new Item({ item: editedItem }));
+      if (this.detailEditableItems.length) {
+        // 詳細計算画面にて変更された装備を適用する
+        const items = [];
+        for (let i = 0; i < this.detailEditableItems.length; i += 1) {
+          const editedItem = this.detailEditableItems[i];
+          items.push(new Item({ item: editedItem }));
+        }
+        this.$emit('input', new Airbase({ airbase: this.airbase, items }));
+        setTimeout(() => {
+          this.destroyDialog = true;
+        }, 100);
       }
-      this.$emit('input', new Airbase({ airbase: this.airbase, items }));
-
-      setTimeout(() => {
-        this.destroyDialog = true;
-      }, 100);
     },
     toggleDetailDialog() {
       if (!this.detailDialog) {
@@ -303,6 +320,9 @@ export default Vue.extend({
     },
     showItemPresets() {
       this.handleShowItemPresets(this.index);
+    },
+    showTempAirbaseList() {
+      this.handleShowTempAirbaseList(this.index);
     },
     updateDetailFormItems(items: Item[]) {
       // 詳細計算画面にて装備の変更があったときに発火
