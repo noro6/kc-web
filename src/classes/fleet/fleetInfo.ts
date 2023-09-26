@@ -1,4 +1,4 @@
-import { FLEET_TYPE } from '../const';
+import Const, { FLEET_TYPE, SHIP_TYPE } from '../const';
 import Fleet from './fleet';
 import Ship from './ship';
 
@@ -134,5 +134,172 @@ export default class FleetInfo {
     }
 
     return new FleetInfo({ info, fleets });
+  }
+
+  /**
+   * 連合艦隊構成エラー用オブジェクトを返却
+   * @static
+   * @param {number} type
+   * @param {Ship[]} ships
+   * @return {*}  {({ type: string, value: number, text: '必要' | '以下' | '不可' | '旗艦' | '旗艦不可' }[][])}
+   * @memberof FleetInfo
+   */
+  public static getUnionError(type: number, ships: Ship[]): { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' }[][] {
+    const mains = ships.filter((v) => !v.isEscort);
+    const escorts = ships.filter((v) => v.isEscort);
+
+    const errors: { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' }[][] = [[], []];
+    if (type === FLEET_TYPE.TCF) {
+      // 輸送護衛部隊
+      let checkedTypes: number[] = [];
+
+      // 第1艦隊
+      // 駆逐・海防が4隻いるか？
+      if (mains.filter((v) => v.data.type === SHIP_TYPE.DD || v.data.type === SHIP_TYPE.DE).length < 4) {
+        errors[0].push({ type: '駆逐艦または海防艦', value: 4, text: '必要' });
+      }
+      // 護衛空母1隻まで
+      if (mains.filter((v) => v.data.type === SHIP_TYPE.CVL && v.data.minAsw).length > 1) {
+        errors[0].push({ type: '護衛空母', value: 1, text: '以下' });
+      }
+      // 通常の軽空母は不可
+      if (mains.filter((v) => v.data.type === SHIP_TYPE.CVL && !v.data.minAsw).length && !checkedTypes.includes(SHIP_TYPE.CVL)) {
+        errors[0].push({ type: '軽空母', value: 0, text: '編成不可' });
+        checkedTypes.push(SHIP_TYPE.CVL);
+      }
+      // 工作艦1隻まで
+      if (mains.filter((v) => v.data.type === SHIP_TYPE.AR).length > 1) {
+        errors[0].push({ type: '工作艦', value: 1, text: '以下' });
+      }
+      // 有効艦種一覧
+      const enabledTypes = [+SHIP_TYPE.CL, SHIP_TYPE.CT, SHIP_TYPE.CAV, SHIP_TYPE.BBV, SHIP_TYPE.AV, SHIP_TYPE.LHA, SHIP_TYPE.AS, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.DD, SHIP_TYPE.DE, SHIP_TYPE.AR, SHIP_TYPE.CVL];
+      for (let i = 0; i < mains.length; i += 1) {
+        const shipType = mains[i].data.type;
+        if (shipType && !enabledTypes.includes(shipType) && !checkedTypes.includes(shipType)) {
+          const typeData = Const.SHIP_TYPES_FORMAL.find((v) => v.type === shipType);
+          errors[0].push({ type: typeData ? typeData.text : '', value: 0, text: '編成不可' });
+          checkedTypes.push(shipType);
+        }
+      }
+
+      // 第2艦隊
+      // 軽巡・練巡が旗艦にいるか？
+      if (escorts[0].data.type !== SHIP_TYPE.CL && escorts[0].data.type !== SHIP_TYPE.CT) {
+        errors[1].push({ type: '軽巡または練巡', value: 0, text: '旗艦' });
+      }
+      // 駆逐・海防が3隻いるか？
+      if (escorts.filter((v) => v.data.type === SHIP_TYPE.DD || v.data.type === SHIP_TYPE.DE).length < 3) {
+        errors[1].push({ type: '駆逐艦または海防艦', value: 3, text: '必要' });
+      }
+      // 駆逐・海防が3隻いるか？
+      if (escorts.filter((v) => v.data.type === SHIP_TYPE.CL || v.data.type === SHIP_TYPE.CT).length > 2) {
+        errors[1].push({ type: '軽巡または練巡', value: 2, text: '以下' });
+      }
+      const enabledTypes2 = [+SHIP_TYPE.DD, SHIP_TYPE.DE, SHIP_TYPE.CL, SHIP_TYPE.CT, SHIP_TYPE.CA, SHIP_TYPE.CAV];
+      checkedTypes = [];
+      for (let i = 0; i < escorts.length; i += 1) {
+        const shipType = escorts[i].data.type;
+        if (shipType && !enabledTypes2.includes(shipType) && !checkedTypes.includes(shipType)) {
+          const typeData = Const.SHIP_TYPES_FORMAL.find((v) => v.type === shipType);
+          errors[1].push({ type: typeData ? typeData.text : '', value: 0, text: '編成不可' });
+          checkedTypes.push(shipType);
+        }
+      }
+    } else {
+      if (type === FLEET_TYPE.STF) {
+        // 水上打撃部隊
+        // 巡洋艦系
+        const baseTypes = [+SHIP_TYPE.CL, SHIP_TYPE.CLT, SHIP_TYPE.CA, SHIP_TYPE.CAV];
+        if (mains.filter((v) => v.data.isBB || baseTypes.includes(v.data.type)).length < 2) {
+          errors[0].push({ type: '巡洋艦系', value: 2, text: '必要' });
+        }
+        // 戦艦4隻まで
+        if (mains.filter((v) => v.data.isBB).length > 4) {
+          errors[0].push({ type: '戦艦級', value: 4, text: '以下' });
+        }
+        // 重巡4隻まで
+        if (mains.filter((v) => v.data.type === SHIP_TYPE.CA || v.data.type === SHIP_TYPE.CAV).length > 4) {
+          errors[0].push({ type: '重巡級', value: 4, text: '以下' });
+        }
+        // 空母1隻まで
+        if (mains.filter((v) => v.data.type === SHIP_TYPE.CV || v.data.type === SHIP_TYPE.CVB).length > 1) {
+          errors[0].push({ type: '正規空母', value: 1, text: '以下' });
+        }
+        // 軽空母2隻まで
+        if (mains.filter((v) => v.data.type === SHIP_TYPE.CVL).length > 2) {
+          errors[0].push({ type: '軽空母', value: 2, text: '以下' });
+        }
+      } else if (type === FLEET_TYPE.CTF) {
+        // 空母機動部隊
+        // 空母系が2隻いるか？
+        if (mains.filter((v) => v.data.isCV).length < 2) {
+          errors[0].push({ type: '空母', value: 2, text: '必要' });
+        }
+        // 戦艦2隻まで
+        if (mains.filter((v) => v.data.isBB).length > 2) {
+          errors[0].push({ type: '戦艦級', value: 2, text: '以下' });
+        }
+      }
+
+      // 共通
+      // 潜水艦の旗艦配置禁止
+      if (mains[0].data.type === SHIP_TYPE.SS || mains[0].data.type === SHIP_TYPE.SSV) {
+        errors[0].push({ type: '潜水艦', value: 0, text: '旗艦不可' });
+      }
+
+      // 第2艦隊は共通 高速化などの特例がややこしいのでいったんまとめる
+      const types = [];
+      for (let i = 0; i < escorts.length; i += 1) {
+        const ship = escorts[i];
+        // 高速戦艦として扱うものたち => Гангут、高速のウォー様改、高速+の戦艦
+        if (ship.data.originalId === 513 || (ship.speed >= 10 && ship.data.id === 364) || (ship.data.isBB && ship.speed >= 15)) {
+          types.push(SHIP_TYPE.FBB);
+        } else {
+          types.push(ship.data.type);
+        }
+      }
+      // 軽巡が1隻必須
+      if (!types.filter((v) => v === SHIP_TYPE.CL).length) {
+        errors[1].push({ type: '軽巡', value: 1, text: '必要' });
+      } else if (types.filter((v) => v === SHIP_TYPE.CL).length > 1) {
+        errors[1].push({ type: '軽巡', value: 1, text: '以下' });
+      }
+      // 駆逐が2隻いるか？
+      if (types.filter((v) => v === SHIP_TYPE.DD).length < 2) {
+        errors[1].push({ type: '駆逐艦', value: 2, text: '必要' });
+      }
+      // 重巡・航巡2隻まで
+      if (types.filter((v) => v === SHIP_TYPE.CA || v === SHIP_TYPE.CAV).length > 2) {
+        errors[1].push({ type: '重巡級', value: 2, text: '以下' });
+      }
+      // 軽空母1隻まで
+      if (types.filter((v) => v === SHIP_TYPE.CVL).length > 1) {
+        errors[1].push({ type: '軽空母', value: 1, text: '以下' });
+      }
+      // 水母1隻まで
+      if (types.filter((v) => v === SHIP_TYPE.AV).length > 1) {
+        errors[1].push({ type: '水母', value: 1, text: '以下' });
+      }
+      // 高速戦艦判定艦2隻まで
+      if (types.filter((v) => v === SHIP_TYPE.FBB).length > 2) {
+        errors[1].push({ type: '高速戦艦', value: 2, text: '以下' });
+      }
+      // 潜水艦の旗艦配置禁止
+      if (types[0] === SHIP_TYPE.SS || types[0] === SHIP_TYPE.SSV) {
+        errors[1].push({ type: '潜水艦', value: 0, text: '旗艦不可' });
+      }
+      const forbiddenTypes = [+SHIP_TYPE.CV, SHIP_TYPE.CVB, SHIP_TYPE.BB, SHIP_TYPE.BBV, SHIP_TYPE.BBB];
+      const checkedTypes: number[] = [];
+      for (let i = 0; i < types.length; i += 1) {
+        const shipType = types[i];
+        if (shipType && forbiddenTypes.includes(shipType) && !checkedTypes.includes(shipType)) {
+          const typeData = Const.SHIP_TYPES_FORMAL.find((v) => v.type === shipType);
+          errors[1].push({ type: typeData ? typeData.text : '', value: 0, text: '編成不可' });
+          checkedTypes.push(shipType);
+        }
+      }
+    }
+
+    return errors;
   }
 }

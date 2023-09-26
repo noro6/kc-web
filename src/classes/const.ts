@@ -556,31 +556,61 @@ export default class Const {
   ];
 
   /**
- * 艦種一覧 省略形の一覧
- * @static
- * @memberof Const
- */
+   * 艦種一覧 省略形の一覧
+   * @static
+   * @memberof Const
+   */
   public static readonly SHIP_TYPES_ALT3 = [
-    { text: '戦艦', types: [9] },
-    { text: '航戦', types: [10] },
-    { text: '高戦', types: [8] },
-    { text: '空母', types: [11] },
-    { text: '装空', types: [18] },
-    { text: '軽母', types: [7] },
-    { text: '重巡', types: [5] },
-    { text: '航巡', types: [6] },
-    { text: '雷巡', types: [4] },
-    { text: '軽巡', types: [3] },
-    { text: '練巡', types: [21] },
-    { text: '水母', types: [16] },
-    { text: '補給', types: [15] },
-    { text: '補給', types: [22] },
-    { text: '揚陸', types: [17] },
-    { text: '工作', types: [19] },
-    { text: '潜母', types: [20] },
-    { text: '潜水', types: [13, 14] },
-    { text: '駆逐', types: [2] },
-    { text: '海防', types: [1] },
+    { text: '戦艦', type: 9 },
+    { text: '航戦', type: 10 },
+    { text: '高戦', type: 8 },
+    { text: '空母', type: 11 },
+    { text: '装空', type: 18 },
+    { text: '軽母', type: 7 },
+    { text: '重巡', type: 5 },
+    { text: '航巡', type: 6 },
+    { text: '雷巡', type: 4 },
+    { text: '軽巡', type: 3 },
+    { text: '練巡', type: 21 },
+    { text: '水母', type: 16 },
+    { text: '補給', type: 15 },
+    { text: '補給', type: 22 },
+    { text: '揚陸', type: 17 },
+    { text: '工作', type: 19 },
+    { text: '潜母', type: 20 },
+    { text: '潜水', type: 13 },
+    { text: '潜水', type: 14 },
+    { text: '駆逐', type: 2 },
+    { text: '海防', type: 1 },
+  ];
+
+  /**
+   * 艦種一覧 正式名称の一覧
+   * @static
+   * @memberof Const
+   */
+  public static readonly SHIP_TYPES_FORMAL = [
+    { text: '海防艦', type: SHIP_TYPE.DE },
+    { text: '駆逐艦', type: SHIP_TYPE.DD },
+    { text: '軽巡', type: SHIP_TYPE.CL },
+    { text: '雷巡', type: SHIP_TYPE.CLT },
+    { text: '重巡', type: SHIP_TYPE.CA },
+    { text: '航巡', type: SHIP_TYPE.CAV },
+    { text: '軽空母', type: SHIP_TYPE.CVL },
+    { text: '高速戦艦', type: SHIP_TYPE.FBB },
+    { text: '戦艦', type: SHIP_TYPE.BB },
+    { text: '航空戦艦', type: SHIP_TYPE.BBV },
+    { text: '正規空母', type: SHIP_TYPE.CV },
+    { text: '潜水艦', type: SHIP_TYPE.SS },
+    { text: '潜水空母', type: SHIP_TYPE.SSV },
+    { text: '補給', type: SHIP_TYPE.AO_2 },
+    { text: '水母', type: SHIP_TYPE.AV },
+    { text: '揚陸艦', type: SHIP_TYPE.LHA },
+    { text: '装甲空母', type: SHIP_TYPE.CVB },
+    { text: '工作艦', type: SHIP_TYPE.AR },
+    { text: '潜水母艦', type: SHIP_TYPE.AS },
+    { text: '練巡', type: SHIP_TYPE.CT },
+    { text: '補給', type: SHIP_TYPE.AO },
   ];
 
   public static readonly JPN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54, 56, 59, 60, 62, 66, 71, 72, 74, 75, 76, 77, 85, 86, 90, 94, 97, 100, 101, 103, 104, 109, 111, 115, 117, 119, 120, 123];

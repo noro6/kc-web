@@ -86,22 +86,11 @@
           @change="changedInfo"
         />
       </div>
-      <div class="mb-3 ml-1" v-if="fleetInfo.isUnion">
+      <div class="ml-1" v-if="fleetInfo.isUnion">
         <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12" />
       </div>
-      <div class="ml-3 mb-3">
-        <v-select
-          class="form-input"
-          :label="$t('Common.陣形')"
-          v-model="fleetInfo.mainFleet.formation"
-          :items="formations"
-          hide-details
-          dense
-          @change="changedFormation(fleetInfo.mainFleet.formation)"
-        />
-      </div>
     </div>
-    <v-tabs class="px-2" v-model="tab" center-active show-arrows @change="changedTab">
+    <v-tabs class="px-2 mt-1" v-model="tab" center-active show-arrows @change="changedTab">
       <v-tab
         v-for="i in fleetCount"
         :key="i"
@@ -136,7 +125,17 @@
         class="fleet-container"
         :class="{ captured: capturing, 'is-2line': is2Line }"
       >
-        <div class="primary--text font-weight-bold mx-2 mt-2" v-if="isShow12 && i === 0">{{ $t("Fleet.主力艦隊") }}</div>
+        <div class="d-flex align-center mx-2 mt-2">
+          <template v-if="isShow12 && i === 0">
+            <div class="primary--text font-weight-bold mr-3">{{ $t("Fleet.主力艦隊") }}</div>
+            <div v-if="unionErrors[0] && unionErrors[0].length" class="flex-grow-1">
+              <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[0] }}</v-alert>
+            </div>
+          </template>
+          <div v-else-if="unionErrors[i] && unionErrors[i].length" class="flex-grow-1">
+            <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[i] }}</v-alert>
+          </div>
+        </div>
         <!-- 連合艦隊かつ12隻表示じゃないか、もしくは第2艦隊以外 -->
         <fleet-component
           v-if="i !== 1 || !isShow12"
@@ -156,7 +155,12 @@
         <template v-if="isShow12 && i === 0">
           <!-- タブが第1艦隊かつ12隻表示かつ連合艦隊 -->
           <v-divider class="mt-2" />
-          <div class="success--text font-weight-bold mx-2 mt-2">{{ $t("Fleet.随伴艦隊") }}</div>
+          <div class="d-flex align-center mx-2 mt-2">
+            <div class="success--text font-weight-bold mr-3">{{ $t("Fleet.随伴艦隊") }}</div>
+            <div v-if="unionErrors[1] && unionErrors[1].length" class="flex-grow-1">
+              <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[1] }}</v-alert>
+            </div>
+          </div>
           <fleet-component
             v-model="fleetInfo.fleets[1]"
             :index="1"
@@ -934,6 +938,21 @@ export default Vue.extend({
     invalidExportTargets(): boolean {
       // 画像出力対象が一つもないか、4艦隊を超える場合true
       return this.gkcoiOutputTarget.every((v) => !v) || this.gkcoiOutputTarget.filter((v) => !!v).length > 4;
+    },
+    unionErrors(): string[] {
+      // 連合艦隊構成エラーオブジェクトを返却
+      const fleet = this.value.mainFleet;
+      if (!fleet.isUnion) return [];
+
+      const errors = FleetInfo.getUnionError(this.value.fleetType, fleet.ships);
+
+      const errorText = [];
+      for (let i = 0; i < errors.length; i += 1) {
+        const data = errors[i];
+        errorText.push(data.map((v) => `${this.$t(`Fleet.${v.text}`, { name: `${this.$t(`SType.${v.type}`)}`, x: v.value })}`).join(' '));
+      }
+
+      return errorText;
     },
     scoutError(): string {
       const fleet = this.value.mainFleet;

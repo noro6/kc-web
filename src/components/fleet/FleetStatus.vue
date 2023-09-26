@@ -294,7 +294,7 @@ export default Vue.extend({
 
       for (let i = 0; i < Const.SHIP_TYPES_ALT3.length; i += 1) {
         const type = Const.SHIP_TYPES_ALT3[i];
-        let count = ships1.filter((v) => type.types.includes(v.data.type)).length;
+        let count = ships1.filter((v) => type.type === v.data.type).length;
         if (count) {
           if (this.outputLang === 'ja') {
             text.push(`${count > 1 ? count : ''}${this.$t(`SType.${type.text}`, 'en')}`);
@@ -303,7 +303,7 @@ export default Vue.extend({
           }
         }
 
-        count = ships2.filter((v) => type.types.includes(v.data.type)).length;
+        count = ships2.filter((v) => type.type === v.data.type).length;
         if (count) {
           if (this.outputLang === 'ja') {
             text2.push(`${count > 1 ? count : ''}${this.$t(`SType.${type.text}`, 'en')}`);
