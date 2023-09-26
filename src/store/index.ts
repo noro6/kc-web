@@ -20,13 +20,15 @@ import CellMaster, { RawCell } from '@/classes/enemy/cellMaster';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
 import ShipStockDiff from '@/classes/fleet/shipStockDiff';
+import AirbaseInfo from '@/classes/airbase/airbaseInfo';
+import Airbase from '@/classes/airbase/airbase';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.43.1',
+    siteVersion: '2.44.0',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -55,6 +57,10 @@ export default new Vuex.Store({
     tempShipList: [] as Ship[],
     /** 艦隊クリップボード */
     tempFleetList: [] as Fleet[],
+    /** 基地クリップボード */
+    tempAirbaseList: [] as Airbase[],
+    /** 基地クリップボード */
+    tempAirbaseAllList: [] as AirbaseInfo[],
     /** 装備プリセット */
     itemPresets: [] as ItemPreset[],
     /** 手動設定敵艦隊 */
@@ -232,6 +238,9 @@ export default new Vuex.Store({
     updateTempFleetList: (state, values: Fleet[]) => {
       state.tempFleetList = values;
     },
+    updateTempAirbaseList: (state, values: Airbase[]) => {
+      state.tempAirbaseList = values;
+    },
     updateItemPresets: (state, values: ItemPreset[]) => {
       state.itemPresets = values;
     },
@@ -321,6 +330,9 @@ export default new Vuex.Store({
     },
     updateTempFleetList: (context, values: Fleet[]) => {
       context.commit('updateTempFleetList', values);
+    },
+    updateTempAirbaseList: (context, values: Airbase[]) => {
+      context.commit('updateTempAirbaseList', values);
     },
     updateItemPresets: (context, values: ItemPreset[]) => {
       if (!context.state.disabledDatabase) {
