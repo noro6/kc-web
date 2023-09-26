@@ -228,7 +228,7 @@ export default class AerialFirePowerCalculator {
           // Do 217 E-5+Hs293 VS 駆逐の場合 雷装1.1倍
           torpedoMultiplier = 1.1;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
-        } else if (item.data.id === 406 && (SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.FBB === shipType)) {
+        } else if (item.data.id === 406 && args.defense.data.isBB) {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.5倍
           torpedoMultiplier = 1.5;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
@@ -240,7 +240,7 @@ export default class AerialFirePowerCalculator {
           // キ102乙改＋イ号一型乙 誘導弾 VS 駆逐 or 軽巡 or 重巡 or 軽空母 の場合 雷装1.16倍
           torpedoMultiplier = 1.16;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
-        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.CVL || SHIP_TYPE.BB === shipType || SHIP_TYPE.BBV === shipType || SHIP_TYPE.FBB === shipType)) {
+        } else if (item.data.id === 454 && (shipType === SHIP_TYPE.CVL || args.defense.data.isBB)) {
           // キ102乙改＋イ号一型乙 誘導弾 VS 戦艦 or 軽空母 の場合 雷装1.14倍
           torpedoMultiplier = 1.14;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
@@ -261,7 +261,7 @@ export default class AerialFirePowerCalculator {
           } else if (shipType === SHIP_TYPE.CVL) {
             // 軽空母 1.3倍
             B25Modifiers = 1.3;
-          } else if (shipType === SHIP_TYPE.FBB || shipType === SHIP_TYPE.BB || shipType === SHIP_TYPE.BBV || shipType === SHIP_TYPE.BBB) {
+          } else if (args.defense.data.isBB) {
             // 戦艦級 1.3倍
             B25Modifiers = 1.3;
           } else if (shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2) {

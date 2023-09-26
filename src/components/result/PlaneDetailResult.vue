@@ -41,19 +41,21 @@
               <v-btn v-else-if="item.data.isPlane" icon small class="mr-3" color="grey" @click="selectItem(i)">
                 <v-icon>mdi-radiobox-blank</v-icon>
               </v-btn>
-              <item-input
-                class="flex-grow-1"
-                v-model="editableParent.items[i]"
-                :index="i"
-                :item-parent="editableParent"
-                :drag-slot="isAirbase"
-                :handle-show-item-list="showItemList"
-                :max="isAirbase ? item.data.airbaseMaxSlot : 99"
-                :init="isAirbase ? item.data.airbaseMaxSlot : editableParent.data.slots[i]"
-                :handle-drag-start="dummyMethod"
-                :readonly="!isAirbase && !isShip"
-                @input="updateItem"
-              />
+              <div class="flex-grow-1">
+                <v-divider v-if="i === 0" class="item-input-divider" />
+                <item-input
+                  v-model="editableParent.items[i]"
+                  :index="i"
+                  :item-parent="editableParent"
+                  :drag-slot="isAirbase"
+                  :handle-show-item-list="showItemList"
+                  :max="isAirbase ? item.data.airbaseMaxSlot : 99"
+                  :init="isAirbase ? item.data.airbaseMaxSlot : editableParent.data.slots[i]"
+                  :handle-drag-start="dummyMethod"
+                  :readonly="!isAirbase && !isShip"
+                  @input="updateItem"
+                />
+              </div>
               <template v-if="isEnemy">
                 <div class="status-label">
                   <template v-if="item.data.isTorpedoAttacker">
@@ -163,6 +165,10 @@
 }
 .deep-sea .theme--dark .border-window .header-content > div {
   background-color: rgb(26, 32, 44);
+}
+
+body.item-ui-border .item-input-divider {
+  display: none !important;
 }
 </style>
 

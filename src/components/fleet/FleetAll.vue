@@ -53,10 +53,10 @@
       </v-tooltip>
     </div>
     <v-divider />
-    <div class="d-flex align-center flex-wrap mt-6 mx-2">
+    <div class="d-flex align-center flex-wrap mt-5 mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }">
-          <div class="form-input mb-3" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+          <div class="form-input" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
             <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly />
           </div>
         </template>
@@ -64,7 +64,18 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')" />
         </v-card>
       </v-menu>
-      <div class="ml-3 mb-3">
+      <div class="ml-2">
+        <v-select
+          class="form-input"
+          :label="$t('Common.陣形')"
+          v-model="fleetInfo.mainFleet.formation"
+          :items="formations"
+          hide-details
+          dense
+          @change="changedFormation(fleetInfo.mainFleet.formation)"
+        />
+      </div>
+      <div class="ml-2">
         <v-select
           class="fleet-type-input"
           :label="$t('Fleet.艦隊形式')"

@@ -278,6 +278,7 @@ import SiteSetting from '@/classes/siteSetting';
 import CalcManager from '@/classes/calcManager';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SaveData from '@/classes/saveData/saveData';
+import { FLEET_TYPE } from '../../classes/const';
 
 interface DamageRow {
   enemy: Enemy;
@@ -433,6 +434,7 @@ export default Vue.extend({
         isAirbaseMode: false,
         isCritical: this.isCritical,
         isUnion: false,
+        fleetType: FLEET_TYPE.SINGLE,
         criticalBonus: 1,
         contactBonus: 1,
         unionBonus: 1,

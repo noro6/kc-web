@@ -391,7 +391,7 @@ import Calculator, {
   FirePowerCalcArgs, PostCapTerm, PowerDist, PreCapTerm, SlotDist,
 } from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
-import Const, { SHIP_TYPE } from '@/classes/const';
+import Const, { SHIP_TYPE, FLEET_TYPE } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 
 interface DamageRowData {
@@ -432,6 +432,7 @@ export default Vue.extend({
       isAirbaseMode: false,
       isCritical: false,
       isUnion: false,
+      fleetType: FLEET_TYPE.SINGLE,
       criticalBonus: 1,
       contactBonus: 1,
       unionBonus: 1,
@@ -550,6 +551,12 @@ export default Vue.extend({
 
     const fleet = this.defenseFleets[this.defenseIndex];
     this.calcArgs.isUnion = fleet.isUnion;
+    this.calcArgs.fleetType = FLEET_TYPE.SINGLE;
+
+    if (fleet.isUnion && this.argParent instanceof Enemy) {
+      // 味方側が防御艦で、かつ連合艦隊だったら連合艦隊種別をセット => 輸送連合の場合、航空戦定数が変わるため
+      this.calcArgs.fleetType = calcManager.fleetInfo.fleetType;
+    }
     this.defenseRadius = fleet.radius;
   },
   computed: {

@@ -40,7 +40,7 @@ export default class ShipValidation {
       // 15m二重測距儀+21号電探改二
       if (item.id === 142 || item.id === 460) {
         // 戦艦系のみ
-        if (type !== SHIP_TYPE.FBB && type !== SHIP_TYPE.BB && type !== SHIP_TYPE.BBV) {
+        if (!ship.isBB) {
           return false;
         }
         const special = itemLink.find((v) => v.api_ship_id === ship.id);
@@ -57,8 +57,8 @@ export default class ShipValidation {
       }
       // 5inch連装砲(副砲配置)集中配備
       if (item.id === 467) {
-        // 重巡、戦艦系、軽空母、正規(装甲)空母のみ搭載可
-        if (type === SHIP_TYPE.CA || type === SHIP_TYPE.BB || type === SHIP_TYPE.BBB || type === SHIP_TYPE.BBV || type === SHIP_TYPE.FBB || type === SHIP_TYPE.CV || type === SHIP_TYPE.CVB) {
+        // 重巡、戦艦系、正規(装甲)空母のみ搭載可
+        if (type === SHIP_TYPE.CA || ship.isBB || type === SHIP_TYPE.CV || type === SHIP_TYPE.CVB) {
           return true;
         }
         return false;

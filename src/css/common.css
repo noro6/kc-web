@@ -211,7 +211,7 @@ body:not(.item-ui-border) .item-input {
 
 body.item-ui-border .item-input {
     border: 1px solid rgba(128, 128, 128, 0.5);
-    margin: 2px 1px;
+    margin: 1px 1px;
 }
 
 body.item-ui-border.item-ui-bold .item-input {

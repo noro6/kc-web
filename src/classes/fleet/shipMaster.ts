@@ -115,8 +115,11 @@ export default class ShipMaster {
   /** カタパルト消費数 */
   public readonly catapults: number;
 
-  /** 空母か */
+  /** 空母か(CV CVB CVL) */
   public readonly isCV: boolean
+
+  /** 戦艦か(BB FBB BBV BBB) */
+  public readonly isBB: boolean
 
   /**
    * Creates an instance of ShipMaster.
@@ -200,6 +203,7 @@ export default class ShipMaster {
 
     this.night = this.fire + this.torpedo;
     this.isCV = this.type === SHIP_TYPE.CV || this.type === SHIP_TYPE.CVL || this.type === SHIP_TYPE.CVB;
+    this.isBB = this.type === SHIP_TYPE.FBB || this.type === SHIP_TYPE.BB || this.type === SHIP_TYPE.BBB || this.type === SHIP_TYPE.BBV;
   }
 
   /**
