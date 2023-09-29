@@ -483,6 +483,9 @@ export default Vue.extend({
       if (item.id === 303) {
         return `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
       }
+      if (item.id === 389) {
+        return `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
+      }
       return `https://wikiwiki.jp/kancolle/${encodeURI(item.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
     },
   },
