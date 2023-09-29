@@ -1341,9 +1341,6 @@ export default Vue.extend({
           result = result.filter((v) => v.slotCount >= 3);
         }
 
-        // 運フィルタ
-        const minLuck = this.shipFilter.luckRange[0];
-        const maxLuck = this.shipFilter.luckRange[1];
         // 火力フィルタ
         const minFire = this.shipFilter.fireRange[0];
         const maxFire = this.shipFilter.fireRange[1];
@@ -1355,20 +1352,15 @@ export default Vue.extend({
         const maxNight = this.shipFilter.nightRange[1];
         result = result.filter((v) => {
           const night = v.fire + v.torpedo;
-          return (
-            minLuck <= v.luck
-            && v.luck <= maxLuck
-            && minFire <= v.fire
-            && v.fire <= maxFire
-            && minTorpedo <= v.torpedo
-            && v.torpedo <= maxTorpedo
-            && minNight <= night
-            && night <= maxNight
-          );
+          return minFire <= v.fire && v.fire <= maxFire && minTorpedo <= v.torpedo && v.torpedo <= maxTorpedo && minNight <= night && night <= maxNight;
         });
       }
 
       // 検索用一時変数
+      const minLevel = this.shipFilter.levelRange[0];
+      const maxLevel = this.shipFilter.levelRange[1];
+      const minLuck = this.shipFilter.luckRange[0];
+      const maxLuck = this.shipFilter.luckRange[1];
       const minAsw = this.shipFilter.aswRange[0];
       const maxAsw = this.shipFilter.aswRange[1];
       const minHP = this.shipFilter.HPRange[0];
@@ -1406,10 +1398,8 @@ export default Vue.extend({
               isBookmarked: bookmarks.includes(master.id),
             };
 
-            // 補強増設開放済み検索
-            if (this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) {
-              continue;
-            } else if (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded) {
+            if ((this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) || (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded)) {
+              // 補強増設開放済み検索
               continue;
             }
             // 札付き検索
@@ -1424,32 +1414,24 @@ export default Vue.extend({
             } else if (this.shipFilter.hasNotAreaOnly && viewShip.area > 0) {
               continue;
             }
-            // Lv検索
-            if (viewShip.level < this.shipFilter.levelRange[0] || viewShip.level > this.shipFilter.levelRange[1]) {
+            if (
+              viewShip.level < minLevel
+              || viewShip.level > maxLevel
+              || viewShip.luck < minLuck
+              || viewShip.luck > maxLuck
+              || viewShip.hp < minHP
+              || viewShip.hp > maxHP
+            ) {
+              // Lv 運 耐久検索
               continue;
             }
-            // 運検索 => 素ステの方のフィルタリングは終わっているため、上限のみチェック
-            if (viewShip.luck > this.shipFilter.luckRange[1]) {
-              continue;
-            }
-            // 耐久検索
-            if (viewShip.hp < minHP || viewShip.hp > maxHP) {
-              continue;
-            }
-            if (!this.shipFilter.HPIs4n && viewShip.hp % 4 === 0) {
-              // 耐久4nフィルタ
-              continue;
-            }
-            if (!this.shipFilter.HPIs4n1 && viewShip.hp % 4 === 3) {
-              // 耐久4n-1フィルタ
-              continue;
-            }
-            if (!this.shipFilter.HPIs4n2 && viewShip.hp % 4 === 2) {
-              // 耐久4n-2フィルタ
-              continue;
-            }
-            if (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1) {
-              // 耐久4n-3フィルタ
+            if (
+              (!this.shipFilter.HPIs4n && viewShip.hp % 4 === 0)
+              || (!this.shipFilter.HPIs4n1 && viewShip.hp % 4 === 3)
+              || (!this.shipFilter.HPIs4n2 && viewShip.hp % 4 === 2)
+              || (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1)
+            ) {
+              // 耐久4n系フィルタ
               continue;
             }
 
@@ -1512,20 +1494,13 @@ export default Vue.extend({
           if (master.hp < minHP || master.hp > maxHP) {
             continue;
           }
-          if (!this.shipFilter.HPIs4n && master.hp % 4 === 0) {
-            // 耐久4nフィルタ
-            continue;
-          }
-          if (!this.shipFilter.HPIs4n1 && master.hp % 4 === 3) {
-            // 耐久4n-1フィルタ
-            continue;
-          }
-          if (!this.shipFilter.HPIs4n2 && master.hp % 4 === 2) {
-            // 耐久4n-2フィルタ
-            continue;
-          }
-          if (!this.shipFilter.HPIs4n3 && master.hp % 4 === 1) {
-            // 耐久4n-3フィルタ
+          if (
+            (!this.shipFilter.HPIs4n && master.hp % 4 === 0)
+            || (!this.shipFilter.HPIs4n1 && master.hp % 4 === 3)
+            || (!this.shipFilter.HPIs4n2 && master.hp % 4 === 2)
+            || (!this.shipFilter.HPIs4n3 && master.hp % 4 === 1)
+          ) {
+            // 耐久4n系フィルタ
             continue;
           }
           // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
@@ -1533,8 +1508,7 @@ export default Vue.extend({
             if (master.minAsw === 0 && master.maxAsw === 0) {
               continue;
             }
-            const asw = Ship.getStatusFromLevel(99, master.maxAsw, master.minAsw);
-            if (asw < minAsw || maxAsw < asw) {
+            if (master.maxAsw < minAsw || maxAsw < master.maxAsw) {
               continue;
             }
           }
