@@ -278,14 +278,18 @@ export default class Convert {
     if (s.asw && s.asw > 0) {
       // デッキビルダー形式に対潜値が含まれていた場合 => 装備 + 改修 + ボーナス分なので、切り分ける必要がある
       const origAsw = Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
-      // 対潜なしで一度艦娘を生成
+      // 対潜なしで一度艦娘を生成 => なぜ？ => 対潜改修値を特定するために、改修なしで素朴に生成したときの対潜値を見たい
       const ship = new Ship({
         master, level: shipLv, luck, items, exItem, hp,
       });
       // 表示対潜の差分を見る => これが対潜改修分
       const increasedAsw = s.asw - ship.displayStatus.asw;
-      // 改めて再生成して返却
-      return new Ship({ ship, asw: origAsw + increasedAsw });
+      if (increasedAsw > 0) {
+        // 対潜改修値が存在したので、再生成して返却
+        return new Ship({ ship, asw: origAsw + increasedAsw });
+      }
+      // 対潜改修値がないか（なぜか）負だった => とりあえずなしとする
+      return ship;
     }
 
     return new Ship({
