@@ -88,7 +88,9 @@
             <td class="text-center" rowspan="2">{{ $t("Common.制空値") }}({{ $t("Common.平均") }})</td>
             <td class="text-center py-1">{{ $t("Fleet.自艦隊") }}</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
-            <td class="text-center header-td" colspan="3">{{ $t("Result.消費予測") }}</td>
+            <td class="text-center header-td" colspan="3">
+              {{ $t("Result.消費予測") }}<span v-if="hasBattleAirbase" class="ml-1">( {{ $t("Result.基地") }} )</span>
+            </td>
           </tr>
           <tr>
             <td class="text-center py-1">{{ $t("Enemies.敵艦隊") }}</td>
@@ -102,6 +104,7 @@
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/fuel.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ sumFuelAndAmmo[0] }}</div>
+                <div v-if="hasBattleAirbase" class="resource-value ml-1">( {{ totalAirbaseResource[0] }} )</div>
               </div>
             </td>
           </tr>
@@ -114,6 +117,7 @@
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/ammo.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ sumFuelAndAmmo[1] }}</div>
+                <div v-if="hasBattleAirbase" class="resource-value ml-1">( {{ totalAirbaseResource[1] }} )</div>
               </div>
             </td>
           </tr>
@@ -124,6 +128,7 @@
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/steel.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ calcSteel }}</div>
+                <div v-if="hasBattleAirbase" class="resource-value ml-1">( {{ totalAirbaseResource[2] }} )</div>
               </div>
             </td>
           </tr>
@@ -151,6 +156,7 @@
               <div class="d-flex justify-center">
                 <div><v-img :src="`./img/util/bauxite.png`" height="20" width="20" /></div>
                 <div class="resource-value">{{ calcBauxite }}</div>
+                <div v-if="hasBattleAirbase" class="resource-value ml-1">( {{ totalAirbaseResource[3] }} )</div>
               </div>
             </td>
           </tr>
@@ -499,6 +505,7 @@ td.item-input {
   width: 28px;
   white-space: nowrap;
 }
+.resource-value
 
 .state-label {
   position: absolute;
@@ -715,16 +722,8 @@ export default Vue.extend({
     airbases(): Airbase[] {
       return this.value.airbaseInfo.airbases;
     },
-    enabledAirbase(): { airbase: Airbase; index: number }[] {
-      const target = this.value.mainBattle;
-      const airbases = [];
-      for (let i = 0; i < this.value.airbaseInfo.airbases.length; i += 1) {
-        const airbase = this.value.airbaseInfo.airbases[i];
-        if (airbase.mode === AB_MODE.BATTLE && airbase.battleTarget.includes(target)) {
-          airbases.push({ airbase, index: i });
-        }
-      }
-      return airbases;
+    hasBattleAirbase(): boolean {
+      return this.airbases.some((v) => v.mode === AB_MODE.BATTLE);
     },
     tableData(): { data: ShipMaster; items: Item[]; allDeathRate: number; index: number }[] {
       const fleet = this.value.fleetInfo.mainFleet;
@@ -906,6 +905,24 @@ export default Vue.extend({
         }
       }
       return [sumFuel, sumAmmo];
+    },
+    totalAirbaseResource(): number[] {
+      let fuel = 0;
+      let ammo = 0;
+      let steel = 0;
+      let bauxite = 0;
+      // 基地の消費があれば突っ込む
+      for (let i = 0; i < this.airbases.length; i += 1) {
+        const airbase = this.airbases[i];
+        if (airbase.mode === AB_MODE.BATTLE) {
+          fuel += airbase.fuel + airbase.totalSupplyFuel;
+          ammo += airbase.ammo;
+          steel += airbase.steel;
+          bauxite += airbase.totalSupplyBauxite;
+        }
+      }
+
+      return [fuel, ammo, steel, bauxite];
     },
     formationNames(): string[] {
       const formationNames = [];

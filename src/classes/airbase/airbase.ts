@@ -81,6 +81,12 @@ export default class Airbase {
   /** 集中のときでも撃墜処理を行わせたいフラグ 計算用 */
   public needShootDown = false;
 
+  /** 補充時燃料合計 */
+  public totalSupplyFuel = 0;
+
+  /** 補充時ボーキ合計 */
+  public totalSupplyBauxite = 0;
+
   constructor(builder: AirbaseBuilder = {}) {
     if (builder.airbase) {
       this.items = builder.items !== undefined ? builder.items : builder.airbase.items.concat();
@@ -215,6 +221,10 @@ export default class Airbase {
     for (let i = 0; i < airbase.items.length; i += 1) {
       const item = airbase.items[i];
       item.deathRate += item.slot === 0 ? 1 : 0;
+
+      const lossSlot = item.fullSlot - item.slot;
+      airbase.totalSupplyFuel += 3 * lossSlot;
+      airbase.totalSupplyBauxite += 5 * lossSlot;
       Item.supply(airbase.items[i]);
     }
   }

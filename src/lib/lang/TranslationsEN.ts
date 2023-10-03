@@ -694,6 +694,7 @@ export default {
       '変動': 'variable',
       '発動率': 'rate',
       '合計発動率': 'Total',
+      '基地': 'LBAS',
     },
     EnemyEdit: {
       '敵艦編集': 'Edit Abyssal',
