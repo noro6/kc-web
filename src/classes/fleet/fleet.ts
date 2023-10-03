@@ -130,6 +130,8 @@ export default class Fleet {
     let sumShipRos = 0;
     let sumSPRos = 0;
     let nightContactFailureRate = 1;
+    /** TP追加ダブらない用のフラグ もっぱら鬼怒改二用 */
+    let hasAdditionalTP = false;
     for (let i = 0; i < enabledShips.length; i += 1) {
       const ship = enabledShips[i];
       if (ship.isActive && !ship.isEmpty) {
@@ -137,6 +139,12 @@ export default class Fleet {
         this.supportAirPower += ship.supportAirPower;
         this.supportAswAirPower += ship.supportAswAirPower;
         this.tp += ship.tp;
+
+        if (!hasAdditionalTP && ship.data.id === 487) {
+          // 鬼怒改二がいたらTPボーナス(1回のみ)
+          this.tp += 8;
+          hasAdditionalTP = true;
+        }
         sumShipRos += ship.scout;
         sumSPRos += ship.sumSPRos;
 

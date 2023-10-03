@@ -1253,10 +1253,6 @@ export default class Ship implements ShipBase {
         return 5;
 
       case SHIP_TYPE.CL:
-        // 鬼怒改二
-        if (this.data.id === 487) {
-          return 10;
-        }
         return 2;
 
       case SHIP_TYPE.CT:
