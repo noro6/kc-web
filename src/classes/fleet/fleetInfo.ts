@@ -141,14 +141,14 @@ export default class FleetInfo {
    * @static
    * @param {number} type
    * @param {Ship[]} ships
-   * @return {*}  {({ type: string, value: number, text: '必要' | '以下' | '不可' | '旗艦' | '旗艦不可' }[][])}
+   * @return {*}  {({ type: string, value: number, text: '必要' | '以下' | '不可' | '旗艦' | '旗艦不可' | '高速化' }[][])}
    * @memberof FleetInfo
    */
-  public static getUnionError(type: number, ships: Ship[]): { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' }[][] {
+  public static getUnionError(type: number, ships: Ship[]): { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' | '高速化' }[][] {
     const mains = ships.filter((v) => !v.isEscort);
     const escorts = ships.filter((v) => v.isEscort);
 
-    const errors: { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' }[][] = [[], []];
+    const errors: { type: string, value: number, text: '必要' | '以下' | '編成不可' | '旗艦' | '旗艦不可' | '高速化' }[][] = [[], []];
     if (type === FLEET_TYPE.TCF) {
       // 輸送護衛部隊
       let checkedTypes: number[] = [];
@@ -228,6 +228,9 @@ export default class FleetInfo {
         // 軽空母2隻まで
         if (mains.filter((v) => v.data.type === SHIP_TYPE.CVL).length > 2) {
           errors[0].push({ type: '軽空母', value: 2, text: '以下' });
+        } else if (mains.filter((v) => v.data.isCV).length > 1) {
+          // 空母系1隻まで
+          errors[0].push({ type: '軽空母と空母', value: 1, text: '以下' });
         }
       } else if (type === FLEET_TYPE.CTF) {
         // 空母機動部隊
@@ -294,7 +297,11 @@ export default class FleetInfo {
         const shipType = types[i];
         if (shipType && forbiddenTypes.includes(shipType) && !checkedTypes.includes(shipType)) {
           const typeData = Const.SHIP_TYPES_FORMAL.find((v) => v.type === shipType);
-          errors[1].push({ type: typeData ? typeData.text : '', value: 0, text: '編成不可' });
+          if (shipType === SHIP_TYPE.BB || shipType === SHIP_TYPE.BBB || shipType === SHIP_TYPE.BBV) {
+            errors[1].push({ type: typeData ? typeData.text : '', value: 0, text: '高速化' });
+          } else {
+            errors[1].push({ type: typeData ? typeData.text : '', value: 0, text: '編成不可' });
+          }
           checkedTypes.push(shipType);
         }
       }

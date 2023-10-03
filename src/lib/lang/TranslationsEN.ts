@@ -540,6 +540,7 @@ export default {
       '編成不可': '{name} are prohibited.',
       '旗艦': '{name} as the flagship.',
       '旗艦不可': '{name} cannot be the flagship.',
+      '高速化': '{name} needs to improve speed.',
     },
     Enemies: {
       '海域': 'World',
@@ -1104,6 +1105,7 @@ export default {
       '工作艦': 'AR',
       '潜水母艦': 'AS',
       '巡洋艦系': 'CL/CLT/CA/CAV/FBB/BB/BBV',
+      '軽空母と空母': 'CV/CVL',
       '護衛空母': 'Escort Carrier',
       '駆逐艦または海防艦': 'DD/DE',
       '軽巡または練巡': 'CL/CT',
