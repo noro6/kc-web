@@ -225,12 +225,13 @@ export default class FleetInfo {
         if (mains.filter((v) => v.data.type === SHIP_TYPE.CV || v.data.type === SHIP_TYPE.CVB).length > 1) {
           errors[0].push({ type: '正規空母', value: 1, text: '以下' });
         }
+        // 空母系1隻まで
+        if (mains.some((v) => v.data.type === SHIP_TYPE.CV || v.data.type === SHIP_TYPE.CVB) && mains.some((v) => v.data.type === SHIP_TYPE.CVL)) {
+          errors[0].push({ type: '軽空母と空母', value: 1, text: '以下' });
+        }
         // 軽空母2隻まで
         if (mains.filter((v) => v.data.type === SHIP_TYPE.CVL).length > 2) {
           errors[0].push({ type: '軽空母', value: 2, text: '以下' });
-        } else if (mains.filter((v) => v.data.isCV).length > 1) {
-          // 空母系1隻まで
-          errors[0].push({ type: '軽空母と空母', value: 1, text: '以下' });
         }
       } else if (type === FLEET_TYPE.CTF) {
         // 空母機動部隊

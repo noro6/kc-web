@@ -505,7 +505,6 @@ td.item-input {
   width: 28px;
   white-space: nowrap;
 }
-.resource-value
 
 .state-label {
   position: absolute;
