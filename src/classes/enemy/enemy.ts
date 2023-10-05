@@ -74,6 +74,9 @@ export default class Enemy implements ShipBase {
   /** 水上電探所持数 */
   public readonly surfaceRadarCount: number;
 
+  /** 電探所持 */
+  public readonly hasRadar: boolean;
+
   /** 高射装置所持数 */
   public readonly koshaCount: number
 
@@ -104,6 +107,7 @@ export default class Enemy implements ShipBase {
     this.antiAirBonus = 0;
     this.exItem = new Item();
     this.hasPlane = false;
+    this.hasRadar = false;
     this.antiAir = this.data.antiAir;
 
     this.specialKokakuCount = 0;
@@ -154,12 +158,13 @@ export default class Enemy implements ShipBase {
       if (item.data.apiTypeId === 21 && item.data.isSpecial) {
         this.specialKijuCount += 1;
       }
-      // 対空電探カウント
+      // 電探カウント
       if (item.data.iconTypeId === 11) {
         // 対空電探
         if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
         // 水上電探
         if (item.data.scout > 4) this.surfaceRadarCount += 1;
+        this.hasRadar = true;
       }
       // 高射装置カウント
       if (item.data.apiTypeId === 36) {

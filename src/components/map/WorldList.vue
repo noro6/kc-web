@@ -116,8 +116,11 @@
                   @focus="bootTooltip(enemy, $event)"
                   @blur="clearTooltip"
                 >
-                  <div class="align-self-center mr-1">
+                  <div class="enemy-img">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+                    <div v-if="enemy.hasRadar" class="radar-icon">
+                      <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
+                    </div>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -163,8 +166,11 @@
                   @focus="bootTooltip(enemy, $event)"
                   @blur="clearTooltip"
                 >
-                  <div class="align-self-center mr-1">
+                  <div class="enemy-img">
                     <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+                    <div v-if="enemy.hasRadar" class="radar-icon">
+                      <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
+                    </div>
                   </div>
                   <div class="align-self-center flex-grow-1">
                     <div class="d-flex text-id">
@@ -287,6 +293,19 @@
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
   min-width: 1px;
+}
+
+.enemy-img {
+  margin-right: 4px;
+  align-self: center;
+  position: relative;
+}
+.radar-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: rgba(0, 13, 29, 0.75);
+  border-radius: 50%;
 }
 
 .enemies-container {

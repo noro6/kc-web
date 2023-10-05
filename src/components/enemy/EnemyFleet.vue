@@ -1,7 +1,7 @@
 <template>
-  <v-card class="ma-1 py-2">
+  <v-card class="py-2">
     <div class="d-flex">
-      <div class="ml-2 align-self-center battle-title">{{ $t("Enemies.x戦目", { number: index + 1 }) }}</div>
+      <div class="align-self-center battle-title pl-1">{{ $t("Enemies.x戦目", { number: index + 1 }) }}</div>
       <div v-if="fleet.existUnknownEnemy" class="align-self-start ml-1">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -25,37 +25,39 @@
         </v-btn>
       </div>
     </div>
-    <div class="d-flex mb-1 justify-space-between mx-2">
-      <div class="cell-type-select">
-        <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()" />
+    <div class="px-1">
+      <div class="d-flex mb-1 justify-space-between">
+        <div class="cell-type-select">
+          <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()" />
+        </div>
+        <div class="formation-select">
+          <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()" />
+        </div>
       </div>
-      <div class="formation-select">
-        <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()" />
+      <div class="d-flex">
+        <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}</div>
+        <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
+        <v-spacer />
+        <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
+        <div class="body-2 enemy-air-power">{{ fleet.fullAirPower }}</div>
+        <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
       </div>
-    </div>
-    <div class="d-flex mx-2">
-      <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}</div>
-      <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
-      <v-spacer />
-      <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
-      <div class="body-2 enemy-air-power">{{ fleet.fullAirPower }}</div>
-      <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
-    </div>
-    <div class="d-flex mx-2">
-      <div class="caption text--secondary">{{ $t("Common.半径") }}</div>
-      <div class="ml-1 caption">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
-      <v-spacer />
-      <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}</div>
-      <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
-      <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
+      <div class="d-flex">
+        <div class="caption text--secondary">{{ $t("Common.半径") }}</div>
+        <div class="ml-1 caption">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
+        <v-spacer />
+        <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}</div>
+        <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
+        <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
+      </div>
     </div>
     <v-divider />
-    <div class="enemy-list mt-1">
+    <div class="enemy-list mt-1 pr-1">
       <div
         v-for="(enemy, index) in fleet.enemies"
         :key="index"
         v-ripple="{ class: 'info--text' }"
-        class="d-flex enemy-list-item pr-2 align-center"
+        class="enemy-list-item"
         :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
         @click="openMenu(index)"
         @keypress.enter="openMenu(index)"
@@ -71,10 +73,15 @@
             @focus="bootTooltip(enemy, $event)"
             @blur="clearTooltip"
           >
-            <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+            <div class="enemy-img">
+              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+              <div v-if="enemy.hasRadar" class="radar-icon">
+                <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
+              </div>
+            </div>
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
-          <div class="ml-1 caption text--secondary">{{ $t("Common.制空") }}</div>
+          <div class="ml-auto pl-1 caption text--secondary">{{ $t("Common.制空") }}</div>
           <div
             class="body-2 enemy-air-power"
             :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }"
@@ -121,6 +128,8 @@
 }
 
 .enemy-list-item {
+  display: flex;
+  align-items: center;
   transition: 0.1s;
   cursor: pointer;
   height: 30px;
@@ -133,13 +142,20 @@
   opacity: 0.4;
 }
 
-.anti-air-ci-icon {
-  position: absolute;
-  top: 0px;
-  left: 122px;
+.enemy-img {
+  position: relative;
 }
+.radar-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: rgba(0, 13, 29, 0.75);
+  border-radius: 50%;
+}
+
 .item-index-area {
-  width: 20px;
+  width: 16px;
+  text-align: center;
 }
 .enemy-index {
   text-align: right;

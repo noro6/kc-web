@@ -42,8 +42,8 @@
         <div v-if="value.antiAirCutIn.length" class="mr-3 anti-air-cutin">{{ $t("Fleet.対空CI") }}</div>
         <div v-if="hasOASW" class="mr-3 light-blue--text text--lighten-2">{{ $t("Fleet.先制対潜") }}</div>
         <div v-if="hasOpeningTorpedo" class="mr-3 blue--text text--lighten-1">先制雷撃</div>
-        <div v-for="text in specialAttacks" :key="text" class="orange--text text--lighten-2 mr-3">{{ $t(`Fleet.${text}`) }}</div>
-        <div v-for="text in nightSpecialAttacks" :key="text" class="indigo--text text--lighten-3 mr-3">{{ $t(`Fleet.${text}`) }}</div>
+        <div v-for="text in specialAttacks" :key="`day${text}`" class="orange--text text--lighten-2 mr-3">{{ $t(`Fleet.${text}`) }}</div>
+        <div v-for="text in nightSpecialAttacks" :key="`night${text}`" class="indigo--text text--lighten-3 mr-3">{{ $t(`Fleet.${text}`) }}</div>
       </div>
     </template>
   </div>

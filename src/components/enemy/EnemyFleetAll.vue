@@ -26,7 +26,7 @@
     <v-divider />
     <div id="enemies-container" :class="{ captured: capturing }">
       <div class="d-flex mx-1 mt-3" v-if="!isDefense">
-        <div class="align-self-center mr-3 pb-2" v-if="!capturing">
+        <div class="align-self-center ml-1 mr-3 pb-2" v-if="!capturing">
           <v-btn color="primary" @click.stop="showWorldListContinuous">{{ $t("Enemies.海域から一括入力") }}</v-btn>
         </div>
         <div class="align-self-center mr-4 pb-2" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
@@ -39,10 +39,10 @@
             <span>{{ $t("Enemies.戦闘回数が変更されている可能性があります。派遣先を確認してください。") }}</span>
           </v-tooltip>
         </div>
-        <div class="align-self-center mr-4" id="battle-count-select">
+        <div class="battle-count-select mr-4" v-if="!capturing">
           <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()" />
         </div>
-        <div class="align-self-center body-2" v-if="nodeString">
+        <div class="align-self-center body-2" v-if="nodeString" :class="{ 'mb-3 ml-2': capturing }">
           <span class="text--secondary mr-2">{{ $t("Enemies.航路") }}</span>
           <span>{{ nodeString }}</span>
         </div>
@@ -67,8 +67,8 @@
           </v-chip>
         </div>
       </div>
-      <div v-if="!isDefense">
-        <draggable v-model="battleInfo.fleets" handle=".battle-title" animation="150" @end="setInfo()" class="d-flex flex-wrap">
+      <div v-if="!isDefense" class="pl-2 pb-1">
+        <draggable v-model="battleInfo.fleets" handle=".battle-title" animation="150" @end="setInfo()" class="enemy-fleet-items">
           <enemy-fleet-component
             v-for="(i, index) in battleInfo.battleCount"
             :key="i"
@@ -82,7 +82,7 @@
           ></enemy-fleet-component>
         </draggable>
       </div>
-      <div class="d-flex flex-wrap" v-else>
+      <div class="enemy-fleet-items pl-2 pb-1" v-else>
         <enemy-fleet-component
           v-model="battleInfo.airRaidFleet"
           :index="0"
@@ -110,7 +110,8 @@
 </template>
 
 <style scoped>
-#battle-count-select {
+.battle-count-select {
+  align-self: center;
   width: 100px;
 }
 
@@ -125,6 +126,13 @@
 .chip-value {
   margin-left: 2px;
   margin-left: 4px;
+}
+
+.enemy-fleet-items {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+  row-gap: 6px;
 }
 </style>
 

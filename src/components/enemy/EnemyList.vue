@@ -44,31 +44,34 @@
               v-for="(enemy, j) in row.enemies"
               :key="j"
               class="enemy-list"
-              @click="clickedEnemy(enemy)"
-              @keypress="clickedEnemy(enemy)"
-              @mouseenter="bootTooltip(enemy, $event)"
+              @click="clickedEnemy(enemy.data)"
+              @keypress="clickedEnemy(enemy.data)"
+              @mouseenter="bootTooltip(enemy.data, $event)"
               @mouseleave="clearTooltip"
-              @focus="bootTooltip(enemy, $event)"
+              @focus="bootTooltip(enemy.data, $event)"
               @blur="clearTooltip"
             >
-              <div>
-                <v-img :src="`./img/ship/${enemy.id}.png`" height="30" width="120" />
+              <div class="enemy-img">
+                <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+                <div v-if="enemy.hasRadar" class="radar-icon">
+                  <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
+                </div>
               </div>
               <div class="flex-grow-1 ml-1">
                 <div class="d-flex align-center enemy-caption">
                   <div class="enemy-id primary--text text-no-wrap">
-                    id <span class="font-weight-bold">{{ enemy.id }}</span>
+                    id <span class="font-weight-bold">{{ enemy.data.id }}</span>
                   </div>
                   <div class="ml-1 text-no-wrap">
-                    {{ $t("Common.耐久") }} <span class="font-weight-bold">{{ enemy.hp }}</span>
+                    {{ $t("Common.耐久") }} <span class="font-weight-bold">{{ enemy.data.hp }}</span>
                   </div>
                   <div class="ml-1 text-no-wrap">
-                    {{ $t("Common.装甲") }} <span class="font-weight-bold">{{ enemy.armor }}</span>
+                    {{ $t("Common.装甲") }} <span class="font-weight-bold">{{ enemy.data.armor }}</span>
                   </div>
                 </div>
                 <div class="d-flex">
-                  <div class="enemy-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.isUnknown }">
-                    {{ getEnemyName(enemy.name) }}
+                  <div class="enemy-name text-truncate" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }">
+                    {{ getEnemyName(enemy.data.name) }}
                   </div>
                 </div>
               </div>
@@ -166,6 +169,16 @@
   margin-left: 0.1rem;
   flex-grow: 1;
 }
+.enemy-img {
+  position: relative;
+}
+.radar-icon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: rgba(0, 13, 29, 0.75);
+  border-radius: 50%;
+}
 </style>
 
 <script lang="ts">
@@ -175,6 +188,7 @@ import EnemyMaster from '@/classes/enemy/enemyMaster';
 import Const from '@/classes/const';
 import Enemy from '@/classes/enemy/enemy';
 import SiteSetting from '@/classes/siteSetting';
+import ItemMaster from '../../classes/item/itemMaster';
 
 export default Vue.extend({
   name: 'EnemyList',
@@ -193,7 +207,7 @@ export default Vue.extend({
   },
   data: () => ({
     all: [] as EnemyMaster[],
-    enemies: [] as { name: string; enemies: EnemyMaster[] }[],
+    enemies: [] as { name: string; enemies: Enemy[] }[],
     types: [] as { text: string; types: number[] }[],
     type: 0,
     isLandBase: false,
@@ -270,12 +284,13 @@ export default Vue.extend({
       }
 
       this.enemies = [];
+      const items = this.$store.state.items as ItemMaster[];
       for (let i = 0; i < nameDividers.length; i += 1) {
         const nameDiv = nameDividers[i];
-        const enemies = result.filter((v) => v.name.startsWith(nameDiv));
+        const enemies = result.filter((v) => v.name.startsWith(nameDiv)).map((v) => Enemy.createEnemyFromMasterId(v.id, false, result, items));
 
         if (enemies.length) {
-          const name = EnemyMaster.getSuffix(enemies[0].name)[0];
+          const name = EnemyMaster.getSuffix(enemies[0].data.name)[0];
           this.enemies.push({ name, enemies });
         }
       }
