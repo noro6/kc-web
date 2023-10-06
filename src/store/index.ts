@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.44.5',
+    siteVersion: '2.44.6',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -286,8 +286,10 @@ export default new Vuex.Store({
       if (value.getMinifyData) {
         const minifyData = value.getMinifyData();
         // root直下の非保存データを除去 => 中止 そのまま残す
-        if (!context.state.disabledDatabase && minifyData) {
-          context.state.kcWebDatabase.savedata.put(minifyData);
+        if (minifyData) {
+          if (!context.state.disabledDatabase) {
+            context.state.kcWebDatabase.savedata.put(minifyData);
+          }
           context.commit('updateSaveData', value);
         } else {
           // 何らかのセーブデータ異常があった場合、データ更新をせずに一度サイトを更新かける
