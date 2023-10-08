@@ -88,6 +88,7 @@ import RequiredAswCalculator from '@/components/extra/RequiredAswCalculator.vue'
 import EnemySearcher from '@/components/extra/EnemySearcher.vue';
 import QuestManager from '@/components/extra/QuestManager.vue';
 import EnemyAaRanking from '@/components/extra/EnemyAARanking.vue';
+import SaveData from '../classes/saveData/saveData';
 
 export default Vue.extend({
   name: 'ExtraCalculator',
@@ -104,6 +105,9 @@ export default Vue.extend({
     tab: 0,
   }),
   mounted() {
+    const saveData = this.$store.state.saveData as SaveData;
+    saveData.disabledMain();
+
     const { hash } = document.location;
     if (hash.endsWith('asw-calculator')) {
       this.tab = 2;

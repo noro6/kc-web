@@ -153,6 +153,9 @@ export default Vue.extend({
     lastDocument: undefined as undefined | QueryDocumentSnapshot<DocumentData>,
   }),
   mounted() {
+    const saveData = this.$store.state.saveData as SaveData;
+    saveData.disabledMain();
+
     this.initWorlds();
     const initialList = this.$store.state.searchedList as UploadedPreset[];
     if (initialList && initialList.length) {
