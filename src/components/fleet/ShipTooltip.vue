@@ -21,9 +21,9 @@
             >)
           </span>
         </div>
-        <div />
-        <div />
-        <div />
+        <div class="grey--text text--lighten-1">{{ $t("Common.TP") }}</div>
+        <div>{{ value.tp }}</div>
+        <div>( {{ Math.floor(10 * value.tp * 0.7) / 10 }} )</div>
         <div class="grey--text text--lighten-1">{{ $t("Common.火力") }}</div>
         <div>{{ value.displayStatus.firePower }}</div>
         <div>
