@@ -207,7 +207,7 @@ export default class CalcManager {
       // 自攻撃機が全滅しているか？
       for (let i = 0; i < fleet.ships.length; i += 1) {
         // 親indexをもとにして攻撃機を探索
-        const myPlanes = fleet.allPlanes.filter((v) => v.data.isAttacker && v.parentIndex === i);
+        const myPlanes = fleet.allPlanes.filter((v) => v.data.isAttacker && !v.data.isAswPlane && v.parentIndex === i);
         if (myPlanes.length && myPlanes.every((v) => v.slot === 0)) {
           fleet.ships[i].allPlaneDeathRate += 1;
         }
