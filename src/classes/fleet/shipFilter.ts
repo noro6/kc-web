@@ -150,6 +150,58 @@ export default class ShipFilter {
   /** 夜戦火力フィルタ */
   public nightRange = [1, 300];
 
+  /** 国籍フィルタ */
+  public nationalities = [
+    {
+      text: '日本',
+      value: 0,
+      filter: [],
+      isChecked: true,
+    },
+    {
+      text: 'アメリカ',
+      value: 1,
+      filter: Const.USA,
+      isChecked: true,
+    },
+    {
+      text: 'イタリア',
+      value: 2,
+      filter: Const.ITA,
+      isChecked: true,
+    },
+    {
+      text: 'イギリス',
+      value: 3,
+      filter: Const.GBR,
+      isChecked: true,
+    },
+    {
+      text: 'ドイツ',
+      value: 4,
+      filter: Const.DEU,
+      isChecked: true,
+    },
+    {
+      text: 'フランス',
+      value: 5,
+      filter: Const.FRA,
+      isChecked: true,
+    },
+    {
+      text: 'ソ連',
+      value: 6,
+      filter: Const.RUS,
+      isChecked: true,
+    },
+    {
+      text: 'その他',
+      value: 7,
+      filter: Const.AUS.concat(Const.SWE).concat(Const.NLD),
+      isChecked: true,
+    },
+  ];
+
   /**
    * 足りないプロパティが発生していたら初期化して返す。
    * @param data

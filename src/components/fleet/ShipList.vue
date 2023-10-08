@@ -321,6 +321,26 @@
             <v-checkbox v-model="shipFilter.includeRange3" dense hide-details :label="$t('Common.長')" :error="isAllUncheckedRange" />
             <v-checkbox v-model="shipFilter.includeRange4" dense hide-details :label="$t('Common.超長')" :error="isAllUncheckedRange" />
           </div>
+          <div class="d-flex mt-4 align-center">
+            <div class="caption">{{ $t("Database.国籍") }}</div>
+            <div class="header-divider" />
+            <div class="pl-3">
+              <v-btn small @click="toggleAllNationality()" outlined color="primary">
+                <v-icon small class="mr-1">mdi-check-all</v-icon> {{ $t("Database.一括チェック") }}
+              </v-btn>
+            </div>
+          </div>
+          <div class="filter-input-container">
+            <v-checkbox
+              v-for="(item, i) in shipFilter.nationalities"
+              :key="`item${i}`"
+              dense
+              v-model="item.isChecked"
+              :label="$t(`Database.${item.text}`)"
+              hide-details
+              :error="shipFilter.nationalities.every((v) => !v.isChecked)"
+            />
+          </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.装備スロット数") }}</div>
             <div class="header-divider" />
@@ -1106,6 +1126,13 @@ export default Vue.extend({
         this.shipFilter.isReleaseExSlotOnly = true;
       }
     },
+    toggleAllNationality() {
+      // いずれか1つでも未チェックがあれば全チェック => 全チェック状態だった場合のみチェックを解除ということ。
+      const checked = this.shipFilter.nationalities.some((v) => !v.isChecked);
+      for (let i = 0; i < this.shipFilter.nationalities.length; i += 1) {
+        this.shipFilter.nationalities[i].isChecked = checked;
+      }
+    },
     initialize(enabledUserShip = true) {
       this.decidedShip = false;
       // 現行の在籍艦娘情報を更新
@@ -1368,6 +1395,20 @@ export default Vue.extend({
 
       const bookmarks = setting.bookmarkedShipIds;
 
+      // 国籍フィルタ ブラックリスト形式で
+      let forbiddenNationalities: number[] = [];
+      // 選択されて『いない』国
+      const notSelectedNationalFilters = this.shipFilter.nationalities.filter((v) => !v.isChecked).map((v) => v.filter);
+      for (let index = 0; index < notSelectedNationalFilters.length; index += 1) {
+        // 選択されて『いない』国のフィルタ(type2の配列)を連結していく
+        forbiddenNationalities = forbiddenNationalities.concat(notSelectedNationalFilters[index]);
+      }
+      // 日本特別対応
+      const withoutJapan = this.shipFilter.nationalities
+        .filter((v) => !v.isChecked)
+        .map((v) => v.value)
+        .includes(0);
+
       let usedShips = this.usedShips.concat();
       let viewShips: ViewShip[] = [];
       if (this.isStockOnly && this.shipStock.length) {
@@ -1432,6 +1473,11 @@ export default Vue.extend({
               || (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1)
             ) {
               // 耐久4n系フィルタ
+              continue;
+            }
+
+            // 国籍で絞る
+            if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
               continue;
             }
 
@@ -1511,6 +1557,11 @@ export default Vue.extend({
             if (master.maxAsw < minAsw || maxAsw < master.maxAsw) {
               continue;
             }
+          }
+
+          // 国籍で絞る
+          if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
+            continue;
           }
 
           viewShips.push({
