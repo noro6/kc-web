@@ -120,6 +120,26 @@
           <v-expansion-panel-header>
             <div class="d-flex align-center">
               <div>
+                <v-icon>mdi-file-document</v-icon>
+              </div>
+              <div class="ml-3">{{ $t("Home.更新履歴") }}</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-divider />
+            <div class="mt-4 ml-4 body-2 d-flex align-center">
+              <div class="mr-3">{{ $t("Home.雑です。") }}</div>
+              <v-btn text href="https://github.com/noro6/kc-web/releases" target="_blank" outlined>
+                <v-icon>mdi-github</v-icon>
+                <span class="mx-1">GitHub Releases</span>
+              </v-btn>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <div class="d-flex align-center">
+              <div>
                 <v-icon>mdi-party-popper</v-icon>
               </div>
               <div class="ml-3">{{ $t("Home.ご支援") }}</div>
