@@ -85,6 +85,12 @@ export default class Ship implements ShipBase {
   /** 計算で適用する運 */
   public readonly luck: number;
 
+  /** 砲戦火力基礎値(連合とかで変わるので、とりあえずの基本値) */
+  public readonly baseDayBattleFirePower: number;
+
+  /** 支援射撃火力 */
+  public readonly supportFirePower: number;
+
   /** 夜戦火力 */
   public readonly nightBattleFirePower: number;
 
@@ -102,6 +108,12 @@ export default class Ship implements ShipBase {
 
   /** 回避値 */
   public readonly avoid: number;
+
+  /** 通常命中 */
+  public readonly accuracy: number;
+
+  /** 支援命中 */
+  public readonly supportAccuracy: number;
 
   /** 装備「なし」対潜値 */
   public readonly asw: number;
@@ -305,6 +317,8 @@ export default class Ship implements ShipBase {
     this.nightBattleFirePower = 0;
     this.nightAttackCrewFireBonus = 0;
     this.nightAttackCrewBomberBonus = 0;
+    this.accuracy = 0;
+    this.supportAccuracy = 0;
     this.fuel = Math.max(this.level > 99 ? Math.floor(this.data.fuel * 0.85) : this.data.fuel, 1);
     this.ammo = Math.max(this.level > 99 ? Math.floor(this.data.ammo * 0.85) : this.data.ammo, 1);
 
@@ -392,8 +406,10 @@ export default class Ship implements ShipBase {
       this.displayStatus.antiAir += item.data.antiAir;
       this.displayStatus.asw += item.data.asw;
       this.displayStatus.LoS += item.data.scout;
-      this.displayStatus.accuracy += item.data.accuracy;
       this.displayStatus.bomber += item.data.bomber;
+      this.displayStatus.accuracy += item.data.accuracy;
+      this.accuracy += item.data.accuracy;
+      this.supportAccuracy += item.data.accuracy;
 
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
@@ -478,6 +494,7 @@ export default class Ship implements ShipBase {
 
       // 夜戦火力
       this.nightBattleFirePower += item.bonusNightFire;
+      this.accuracy += item.bonusAccuracy;
     }
 
     this.nightContactRate = 1 - nightContactFailureRate;
@@ -496,8 +513,9 @@ export default class Ship implements ShipBase {
       this.displayStatus.asw += this.itemBonusStatus.asw ?? 0;
       this.displayStatus.LoS += this.itemBonusStatus.scout ?? 0;
       this.displayStatus.range += this.itemBonusStatus.range ?? 0;
-      this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
       this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
+      this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
+      this.accuracy += this.itemBonusStatus.accuracy ?? 0;
     }
 
     // 空母夜襲発動判定
@@ -552,6 +570,10 @@ export default class Ship implements ShipBase {
 
     // 装備もマスタもない場合空として計算対象から省く
     this.isEmpty = this.data.id === 0 && !this.items.some((v) => v.data.id > 0);
+
+    // 昼戦基礎火力算出
+    this.baseDayBattleFirePower = Ship.getDayBattleFirePower(this, FLEET_TYPE.SINGLE, false);
+    this.supportFirePower = this.getSupportFirePower();
   }
 
   /**
@@ -614,18 +636,16 @@ export default class Ship implements ShipBase {
 
   /**
    * 支援火力を返却
-   * @static
-   * @param {Ship} ship
-   * @returns {number}
+   * @return {*}  {number}
    * @memberof Ship
    */
-  public static getSupportFirePower(ship: Ship): number {
+  public getSupportFirePower(): number {
     let supportFirePower = 0;
-    if (ship.data.isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker && !v.data.isAswPlane))) {
+    if (this.data.isCV || ([717].includes(this.data.id) && this.items.some((v) => v.data.isAttacker && !v.data.isAswPlane))) {
       // 空母系 山汐丸
-      supportFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) - 1)) + 55;
+      supportFirePower = Math.floor(1.5 * (this.displayStatus.firePower + this.displayStatus.torpedo + Math.floor(1.3 * this.displayStatus.bomber) - 1)) + 55;
     } else {
-      supportFirePower = ship.displayStatus.firePower + 4;
+      supportFirePower = this.displayStatus.firePower + 4;
     }
     return CommonCalc.softCap(supportFirePower, CAP.SUPPORT);
   }

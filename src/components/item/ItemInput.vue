@@ -472,7 +472,7 @@ export default Vue.extend({
       return classes.join(' ');
     },
     bonusText(): string {
-      if (!this.value.data.id || !this.value.data.bonuses.length) {
+      if (!this.value.data.id || !this.value.data.bonuses.length || !this.setting.displayBonusKey) {
         return '';
       }
       const key = this.setting.displayBonusKey;
