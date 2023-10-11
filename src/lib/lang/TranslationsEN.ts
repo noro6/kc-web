@@ -574,6 +574,7 @@ export default {
       '基地航空隊フェーズで撃沈しない': 'Not calculate as if sunk in LBAS phase',
       '基地航空隊フェーズで撃沈する': 'Calculate as if sunk in LBAS phase',
       '耐久装甲表示': 'Show Armor',
+      '本当に戦闘は1戦だけですか？意図せずこのエラーが出ている場合は、経由する道中の敵編成を全て入力してください。': 'There is only one battle? If you are getting this error unintentionally, please enter all the enemies you will go through along the way.',
     },
     Result: {
       '計算結果': 'Result',

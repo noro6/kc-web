@@ -25,11 +25,11 @@
     </div>
     <v-divider />
     <div id="enemies-container" :class="{ captured: capturing }">
-      <div class="d-flex mx-1 mt-3" v-if="!isDefense">
-        <div class="align-self-center ml-1 mr-3 pb-2" v-if="!capturing">
-          <v-btn color="primary" @click.stop="showWorldListContinuous">{{ $t("Enemies.海域から一括入力") }}</v-btn>
+      <div class="d-flex flex-wrap align-center mx-2 mb-2" v-if="!isDefense">
+        <div class="mt-4 mr-3" v-if="!capturing">
+          <v-btn :color="batchInputButtonColor" @click.stop="showWorldListContinuous">{{ $t("Enemies.海域から一括入力") }}</v-btn>
         </div>
-        <div class="align-self-center mr-4 pb-2" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
+        <div class="mt-4 mr-4" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-tooltip bottom color="red" :disabled="!alertAirbaseTarget">
             <template v-slot:activator="{ on, attrs }">
               <v-btn :outlined="!alertAirbaseTarget" :color="airbaseTargetButtonColor" @click.stop="targetDialog = true" v-bind="attrs" v-on="on">
@@ -39,15 +39,20 @@
             <span>{{ $t("Enemies.戦闘回数が変更されている可能性があります。派遣先を確認してください。") }}</span>
           </v-tooltip>
         </div>
-        <div class="battle-count-select mr-4" v-if="!capturing">
-          <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()" />
-        </div>
-        <div class="align-self-center body-2" v-if="nodeString" :class="{ 'mb-3 ml-2': capturing }">
-          <span class="text--secondary mr-2">{{ $t("Enemies.航路") }}</span>
-          <span>{{ nodeString }}</span>
+        <div class="d-flex align-center mt-4">
+          <div class="battle-count-select mr-4" v-if="!capturing">
+            <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()" />
+          </div>
+          <div class="body-2" v-if="nodeString" :class="{ 'mb-3 ml-2': capturing }">
+            <span class="text--secondary mr-2">{{ $t("Enemies.航路") }}</span>
+            <span>{{ nodeString }}</span>
+          </div>
         </div>
       </div>
-      <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-1">
+      <v-alert v-if="onlyOnceBattle" type="warning" border="left" class="mx-2 mb-2 body-2" dense outlined>
+        {{ $t("Enemies.本当に戦闘は1戦だけですか？意図せずこのエラーが出ている場合は、経由する道中の敵編成を全て入力してください。") }}
+      </v-alert>
+      <div v-if="isDefense" class="d-flex flex-wrap air-power-info ma-2">
         <div>
           <v-chip class="mr-1" color="green" label outlined>
             <span>{{ $t("Common.確保") }}</span>
@@ -220,6 +225,9 @@ export default Vue.extend({
     isDefense(): boolean {
       return this.value.isDefense;
     },
+    onlyOnceBattle(): boolean {
+      return !this.isDefense && this.battleInfo.fleets.filter((v) => v.enemies.some((w) => w.data.id)).length === 1;
+    },
     defenseAirPowerBorders(): number[] {
       if (this.isDefense) {
         return CommonCalc.getAirStatusBorder(this.battleInfo.airRaidFleet.airbaseAirPower);
@@ -228,6 +236,9 @@ export default Vue.extend({
     },
     existsBattleAirbase(): boolean {
       return this.airbaseInfo.airbases.some((v) => v.mode === AB_MODE.BATTLE);
+    },
+    batchInputButtonColor(): string {
+      return this.onlyOnceBattle ? 'warning' : 'primary';
     },
     airbaseTargetButtonColor(): string {
       return this.alertAirbaseTarget ? 'error' : 'success';

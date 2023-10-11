@@ -1,7 +1,7 @@
 <template>
   <v-card class="py-2">
-    <div class="d-flex">
-      <div class="align-self-center battle-title pl-1">{{ $t("Enemies.x戦目", { number: index + 1 }) }}</div>
+    <div class="d-flex align-center pl-2 pr-1">
+      <div class="battle-title">{{ $t("Enemies.x戦目", { number: index + 1 }) }}</div>
       <div v-if="fleet.existUnknownEnemy" class="align-self-start ml-1">
         <v-tooltip bottom color="black">
           <template v-slot:activator="{ on, attrs }">
@@ -12,11 +12,11 @@
         </v-tooltip>
       </div>
       <v-spacer />
-      <div v-if="capturing && fleet.nodeName" class="mx-3">{{ fleet.nodeName }}</div>
-      <div class="align-self-center mr-1" v-if="!capturing">
+      <div v-if="capturing && fleet.nodeName" class="mr-2">{{ fleet.nodeName }}</div>
+      <div v-if="!capturing" class="mr-1">
         <v-btn outlined small color="primary" @click.stop="showWorldList">{{ $t("Enemies.海域選択") }}</v-btn>
       </div>
-      <div class="align-self-center pr-1" v-if="existEnemy && !capturing">
+      <div v-if="existEnemy && !capturing">
         <v-btn color="primary" icon small @click="clickedInfo()">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
@@ -25,7 +25,7 @@
         </v-btn>
       </div>
     </div>
-    <div class="px-1">
+    <div class="px-2">
       <div class="d-flex mb-1 justify-space-between">
         <div class="cell-type-select">
           <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()" />
@@ -52,12 +52,12 @@
       </div>
     </div>
     <v-divider />
-    <div class="enemy-list mt-1 pr-1">
+    <div class="enemy-list mt-1">
       <div
         v-for="(enemy, index) in fleet.enemies"
         :key="index"
         v-ripple="{ class: 'info--text' }"
-        class="enemy-list-item"
+        class="enemy-list-item pr-2"
         :class="{ 'disabled-stage2': enemy.disabledMainAerialPhase }"
         @click="openMenu(index)"
         @keypress.enter="openMenu(index)"
@@ -89,7 +89,7 @@
           >
             {{ enemy.fullAirPower }}
           </div>
-          <div class="body-2 enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>({{ enemy.fullLBAirPower }})</div>
+          <div class="caption enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>({{ enemy.fullLBAirPower }})</div>
         </template>
       </div>
     </div>
@@ -154,7 +154,7 @@
 }
 
 .item-index-area {
-  width: 16px;
+  width: 20px;
   text-align: center;
 }
 .enemy-index {
