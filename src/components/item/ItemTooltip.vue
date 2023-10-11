@@ -124,6 +124,7 @@
         <span v-if="existsBonus" class="fit-bonus" :class="{ 'bad-status': itemBonus.armor < 0 }">
           <template v-if="itemBonus.armor">{{ formatBonus(itemBonus.armor) }}</template>
         </span>
+        <span v-if="value.bonusArmor" class="remodel-bonus">&plus; {{ formatStatus(value.bonusArmor) }}</span>
       </div>
       <div v-if="value.data.range || itemBonus.range">
         <span class="item-status-text">{{ $t("Common.射程") }}</span>

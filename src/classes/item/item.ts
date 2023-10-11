@@ -57,6 +57,9 @@ export default class Item {
   /** 改修値による対空値増分(遠征) */
   public readonly bonusExpeditionAntiAir: number;
 
+  /** 改修値による装甲値増分 */
+  public readonly bonusArmor: number;
+
   /** 改修値による命中値増分 */
   public readonly bonusAccuracy: number;
 
@@ -243,6 +246,7 @@ export default class Item {
     this.bonusNightFire = this.getBonusNightFirePower();
     this.bonusTorpedo = this.getBonusTorpedo();
     this.bonusBomber = this.getBonusBomber();
+    this.bonusArmor = this.getBonusArmor();
     this.bonusAntiAir = this.getBonusAntiAir();
     this.bonusAccuracy = this.getBonusAccuracy();
     this.bonusAsw = this.getBonusAsw();
@@ -750,6 +754,24 @@ export default class Item {
     // 主砲 副砲 徹甲弾 高射装置 探照灯
     if ([1, 2, 3, 4, 12, 13, 19, 29, 36, 42].includes(this.data.apiTypeId)) {
       return Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス装甲を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusArmor(): number {
+    // 中型バルジ
+    if (this.data.apiTypeId === 27) {
+      return 0.2 * this.remodel;
+    }
+    // 大型バルジ
+    if (this.data.apiTypeId === 28) {
+      return 0.3 * this.remodel;
     }
     return 0;
   }
