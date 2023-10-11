@@ -317,6 +317,8 @@ export default {
       '更新が完了しました。': 'Update completed.',
       '編成を展開しました。': 'Deployed.',
       'URL fragmentsよりデータを読み込みました。': 'Data was read from URL fragments.',
+      '更新履歴': 'Change Log',
+      '雑です。': 'Very rough.',
     },
     SaveData: {
       '新しい編成を作成': 'New File',
