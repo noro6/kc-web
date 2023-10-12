@@ -1,12 +1,12 @@
 import sum from 'lodash/sum';
+import { cloneDeep } from 'lodash';
 import ShipMaster from './shipMaster';
 import Item from '../item/item';
-import Const, { CAP, FLEET_TYPE, SHIP_TYPE } from '../const';
+import Const, { FLEET_TYPE, SHIP_TYPE } from '../const';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import { ShipBase } from '../interfaces/shipBase';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
 import ItemBonus, { ItemBonusStatus } from '../item/ItemBonus';
-import CommonCalc from '../commonCalc';
 
 export interface ShipBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -647,7 +647,7 @@ export default class Ship implements ShipBase {
     } else {
       supportFirePower = this.displayStatus.firePower + 4;
     }
-    return CommonCalc.softCap(supportFirePower, CAP.SUPPORT);
+    return supportFirePower;
   }
 
   /**
@@ -1114,6 +1114,60 @@ export default class Ship implements ShipBase {
       }
     }
     return sumBonuses;
+  }
+
+  /**
+   * 指定したスロットにある装備特有の装備ボーナスを取得
+   *  => 指定スロットの装備を外した場合との差分から算出する
+   * @param {number} slotIndex
+   * @return {*}  {ItemBonusStatus}
+   * @memberof Ship
+   */
+  public getItemBonusDiff(slotIndex: number): ItemBonusStatus {
+    // この装備がなかった場合のボーナスと比較した分をこの装備のボーナスとする
+    const baseItems = this.items.concat();
+    baseItems.push(this.exItem);
+    const tempItems = cloneDeep(baseItems);
+    tempItems[(slotIndex < 0 || slotIndex === Const.EXPAND_SLOT_INDEX) ? tempItems.length - 1 : slotIndex] = new Item();
+
+    const emptyBonus = Ship.getItemBonus(this.data, tempItems);
+    // 未装備時のボーナス合計
+    const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
+    // 装備している現在のボーナス これをベースに、未装備時のボーナスを差っ引いていく
+    const totalBonus = ItemBonus.getTotalBonus(this.itemBonuses);
+    // 未装備時と、装備時のボーナスの差分を取る
+    if (totalBonus.firePower) {
+      totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+    }
+    if (totalBonus.torpedo) {
+      totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+    }
+    if (totalBonus.antiAir) {
+      totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+    }
+    if (totalBonus.armor) {
+      totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+    }
+    if (totalBonus.asw) {
+      totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+    }
+    if (totalBonus.avoid) {
+      totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+    }
+    if (totalBonus.accuracy) {
+      totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+    }
+    if (totalBonus.range) {
+      totalBonus.range -= totalEmptyBonus.range ?? 0;
+    }
+    if (totalBonus.bomber) {
+      totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+    }
+    if (totalBonus.scout) {
+      totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+    }
+
+    return totalBonus;
   }
 
   /**

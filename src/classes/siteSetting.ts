@@ -144,6 +144,9 @@ export default class SiteSetting {
   /** ネタバレ防止ON */
   public isAvoidSpoiler: boolean;
 
+  /** 装備選択時に比較画面を出すかどうか */
+  public showItemCompareDialog: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -190,6 +193,7 @@ export default class SiteSetting {
       this.bookmarkedShipIds = setting.bookmarkedShipIds ? setting.bookmarkedShipIds : [];
       this.imageType = setting.imageType ?? 'png';
       this.isAvoidSpoiler = setting.isAvoidSpoiler ?? true;
+      this.showItemCompareDialog = setting.showItemCompareDialog ?? true;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -285,6 +289,7 @@ export default class SiteSetting {
       this.bookmarkedShipIds = [];
       this.imageType = 'png';
       this.isAvoidSpoiler = true;
+      this.showItemCompareDialog = true;
     }
   }
 }

@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="d-flex align-center">
-      <div>
+      <div class="item-icon mr-1">
         <v-img :src="`./img/type/icon${value.data.iconTypeId}.png`" height="32" width="32" />
       </div>
-      <div class="ml-1 flex-grow-1">
+      <div class="flex-grow-1">
         <div class="item-id primary--text">id {{ value.data.id ? value.data.id : "-" }}</div>
         <div class="body-2 d-flex flex-grow-1">
           <div class="text-truncate caption item-name" v-if="value.data.id">{{ needTrans ? $t(`${value.data.name}`) : value.data.name }}</div>
@@ -54,7 +54,7 @@
         <div>{{ $t(`Common.${rangeText[value.data.range]}`) }}</div>
       </template>
     </div>
-    <div class="mt-2 body-2 primary--text">{{ $t("Result.装備シナジーボーナス") }}</div>
+    <div class="mt-2 caption light-blue--text">{{ $t("Result.装備シナジーボーナス") }}</div>
     <v-divider></v-divider>
     <div class="item-statuses synergy-bonus">
       <template v-if="itemBonus.firePower">
@@ -98,7 +98,7 @@
         <div>{{ formatBonus(itemBonus.range) }}</div>
       </template>
     </div>
-    <div class="mt-2 body-2 teal--text text--accent-4">{{ $t("Common.改修ボーナス") }}</div>
+    <div class="mt-2 caption teal--text text--accent-4">{{ $t("Common.改修ボーナス") }}</div>
     <v-divider></v-divider>
     <div class="item-statuses remodel-bonus">
       <template v-if="value.bonusFire">
@@ -138,7 +138,7 @@
         <div>{{ formatStatus(value.bonusAsw) }}</div>
       </template>
     </div>
-    <div class="mt-2 body-2 text--secondary">{{ $t("Database.その他") }}</div>
+    <div class="mt-2 caption text--secondary">{{ $t("Database.その他") }}</div>
     <v-divider></v-divider>
     <div class="item-statuses sub-sub">
       <template v-if="value.data.avoidId">
@@ -168,12 +168,26 @@
 .item-statuses {
   padding-top: 4px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: repeat(5, 22px);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(10, 24px);
   column-gap: 28px;
   font-size: 0.9em;
   text-align: right;
   align-items: center;
+}
+.item-statuses.synergy-bonus {
+  grid-template-rows: repeat(3, 24px);
+}
+.item-statuses.remodel-bonus {
+  grid-template-rows: repeat(3, 24px);
+}
+.item-statuses.sub-sub {
+  grid-template-rows: repeat(1, 24px);
+}
+.item-statuses.sub-sub > div {
+  display: flex;
+  align-items: center;
+  height: 24px;
 }
 .item-statuses > div {
   white-space: nowrap;
@@ -184,17 +198,33 @@
   font-size: 0.8em;
   text-align: left;
 }
-.item-statuses.synergy-bonus {
-  grid-template-rows: repeat(3, 22px);
+@media (min-width: 450px) {
+  .item-icon {
+    display: none;
+  }
 }
-.item-statuses.remodel-bonus {
-  grid-template-rows: repeat(2, 22px);
+@media (min-width: 600px) {
+  .item-icon {
+    display: block;
+  }
+  .item-statuses {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: repeat(5, 24px);
+  }
+  .item-statuses.synergy-bonus {
+    grid-template-rows: repeat(3, 24px);
+  }
+  .item-statuses.remodel-bonus {
+    grid-template-rows: repeat(2, 24px);
+  }
 }
-.item-statuses.sub-sub {
-  grid-template-rows: repeat(1, 22px);
+@media (min-width: 1000px) {
+  .item-name {
+    min-width: 200px;
+  }
 }
 .no-status {
-  opacity: 0.3;
+  opacity: 0.2;
 }
 </style>
 

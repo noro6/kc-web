@@ -281,7 +281,7 @@
     </div>
     <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
       <v-list dense class="caption" v-if="menuItem">
-        <v-list-item link @click="compareItem()">{{ $t("Common.比較") }}</v-list-item>
+        <v-list-item link @click="compareItem()" :disabled="!isAirbaseMode && !isShipMode">{{ $t("ItemList.装備比較") }}</v-list-item>
         <v-list-item link @click="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-list-item>
         <v-menu v-model="remodelChangeMenu" offset-x max-width="72" v-if="isStockOnly && !isReadonlyMode">
           <template v-slot:activator="{ on, attrs }">
@@ -349,457 +349,29 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="compareDialog" width="auto">
-      <v-card class="pa-3" v-if="menuItem && originalItem">
+    <v-dialog v-model="compareDialog" transition="scroll-x-transition" width="auto">
+      <v-card class="pa-3" v-if="menuItem">
         <div class="d-flex px-2 align-center">
-          <div>{{ $t("Common.比較") }}</div>
+          <div>{{ $t("ItemList.装備比較") }}</div>
           <v-btn class="ml-auto" icon @click="compareDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
         <v-divider class="mt-2 mb-3" />
-        <div class="compare-cards">
-          <v-card class="pa-3">
-            <item-status-view v-model="originalItem.item" :bonus="originalItem.bonus ? JSON.stringify(originalItem.bonus) : ''"></item-status-view>
-          </v-card>
-          <div class="d-flex align-center">
-            <v-icon x-large color="primary">mdi-chevron-double-right</v-icon>
-          </div>
-          <v-card class="pa-3">
-            <item-status-view v-model="menuItem.item" :bonus="menuItem.bonus ? JSON.stringify(menuItem.bonus) : ''"></item-status-view>
-          </v-card>
-          <!-- 艦娘のステータスプレビュー -->
-          <v-card class="preview-card pa-3" v-if="!isAirbaseMode && exchangeParent && itemParent">
-            <div class="d-flex align-center">
-              <div>
-                <v-img :src="`./img/ship/${exchangeParent.data.id}.png`" height="30" width="120" />
-              </div>
-              <div class="ml-1">
-                <div class="primary--text caption level-text">Lv {{ exchangeParent.level }}</div>
-                <div class="caption">
-                  <span>{{ getShipName(exchangeParent.data) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-1 caption text--secondary">{{ $t("Common.表示ステータス") }}</div>
-            <v-divider></v-divider>
-            <div class="preview-statuses">
-              <div>{{ $t("Common.火力") }}</div>
-              <div>{{ itemParent.displayStatus.firePower }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.firePower > 0, 'error--text': diffStatuses.firePower < 0 }">
-                {{ exchangeParent.displayStatus.firePower }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.firePower">
-                  <v-icon :color="diffStatuses.firePower > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.firePower > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.firePower) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.雷装") }}</div>
-              <div>{{ itemParent.displayStatus.torpedo }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.torpedo > 0, 'error--text': diffStatuses.torpedo < 0 }">
-                {{ exchangeParent.displayStatus.torpedo }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.torpedo">
-                  <v-icon :color="diffStatuses.torpedo > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.torpedo > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.torpedo) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.爆装") }}</div>
-              <div>{{ itemParent.displayStatus.bomber }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.bomber > 0, 'error--text': diffStatuses.bomber < 0 }">
-                {{ exchangeParent.displayStatus.bomber }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.bomber">
-                  <v-icon :color="diffStatuses.bomber > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.bomber > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.bomber) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.装甲") }}</div>
-              <div>{{ itemParent.displayStatus.armor }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.armor > 0, 'error--text': diffStatuses.armor < 0 }">
-                {{ exchangeParent.displayStatus.armor }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.armor">
-                  <v-icon :color="diffStatuses.armor > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.armor > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.armor) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.対空") }}</div>
-              <div>{{ itemParent.displayStatus.antiAir }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.antiAir > 0, 'error--text': diffStatuses.antiAir < 0 }">
-                {{ exchangeParent.displayStatus.antiAir }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.antiAir">
-                  <v-icon :color="diffStatuses.antiAir > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.antiAir > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.antiAir) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.索敵") }}</div>
-              <div>{{ itemParent.displayStatus.LoS }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.LoS > 0, 'error--text': diffStatuses.LoS < 0 }">
-                {{ exchangeParent.displayStatus.LoS }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.LoS">
-                  <v-icon :color="diffStatuses.LoS > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.LoS > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.LoS) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.対潜") }}</div>
-              <div>{{ itemParent.displayStatus.asw }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.asw > 0, 'error--text': diffStatuses.asw < 0 }">
-                {{ exchangeParent.displayStatus.asw }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.asw">
-                  <v-icon :color="diffStatuses.asw > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.asw > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.asw) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.回避") }}</div>
-              <div>{{ itemParent.displayStatus.avoid }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.avoid > 0, 'error--text': diffStatuses.avoid < 0 }">
-                {{ exchangeParent.displayStatus.avoid }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.avoid">
-                  <v-icon :color="diffStatuses.avoid > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.avoid > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.avoid) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.射程") }}</div>
-              <div>{{ $t(`Common.${rangeText[itemParent.displayStatus.range]}`) }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.range > 0, 'error--text': diffStatuses.range < 0 }">
-                {{ $t(`Common.${rangeText[exchangeParent.displayStatus.range]}`) }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.range">
-                  <v-icon :color="diffStatuses.range > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.range > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span></span>
-                </template>
-              </div>
-            </div>
-            <div class="mt-3 caption text--secondary">{{ $t("Common.実性能") }}</div>
-            <v-divider></v-divider>
-            <div class="preview-statuses sub">
-              <div class="caption">{{ $t("Common.砲戦火力") }}</div>
-              <div>{{ Math.floor(10 * itemParent.baseDayBattleFirePower) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.dayBattleFirePower > 0, 'error--text': diffStatuses.dayBattleFirePower < 0 }">
-                {{ Math.floor(10 * exchangeParent.baseDayBattleFirePower) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.dayBattleFirePower">
-                  <v-icon :color="diffStatuses.dayBattleFirePower > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.dayBattleFirePower > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.dayBattleFirePower)) / 10 }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.命中") }}</div>
-              <div>{{ Math.floor(10 * itemParent.accuracy) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.accuracy > 0, 'error--text': diffStatuses.accuracy < 0 }">
-                {{ Math.floor(10 * exchangeParent.accuracy) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.accuracy">
-                  <v-icon :color="diffStatuses.accuracy > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.accuracy > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.accuracy)) / 10 }}</span>
-                </template>
-              </div>
-              <template v-if="!itemParent.data.isCV">
-                <div class="caption">{{ $t("Common.夜戦火力") }}</div>
-                <div>{{ Math.floor(10 * itemParent.nightBattleFirePower) / 10 }}</div>
-                <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-                <div :class="{ 'primary--text': diffStatuses.nightFirePower > 0, 'error--text': diffStatuses.nightFirePower < 0 }">
-                  {{ Math.floor(10 * exchangeParent.nightBattleFirePower) / 10 }}
-                </div>
-                <div>
-                  <template v-if="diffStatuses.nightFirePower">
-                    <v-icon :color="diffStatuses.nightFirePower > 0 ? 'primary' : 'error'">
-                      {{ diffStatuses.nightFirePower > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                    </v-icon>
-                    <span>{{ Math.floor(10 * Math.abs(diffStatuses.nightFirePower)) / 10 }}</span>
-                  </template>
-                </div>
-              </template>
-              <div class="caption">{{ $t("Common.支援火力") }}</div>
-              <div>{{ itemParent.supportFirePower }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.supportFirePower > 0, 'error--text': diffStatuses.supportFirePower < 0 }">
-                {{ exchangeParent.supportFirePower }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.supportFirePower">
-                  <v-icon :color="diffStatuses.supportFirePower > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.supportFirePower > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.supportFirePower)) / 10 }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.支援命中") }}</div>
-              <div>{{ Math.floor(itemParent.supportAccuracy) }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.supportAccuracy > 0, 'error--text': diffStatuses.supportAccuracy < 0 }">
-                {{ Math.floor(exchangeParent.supportAccuracy) }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.supportAccuracy">
-                  <v-icon :color="diffStatuses.supportAccuracy > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.supportAccuracy > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(Math.abs(diffStatuses.supportAccuracy)) }}</span>
-                </template>
-              </div>
-            </div>
-          </v-card>
-          <!-- 基地のステータスプレビュー -->
-          <v-card class="preview-card pa-3" v-else-if="isAirbaseMode">
-            <div class="mt-1 caption text--secondary">{{ $t("Common.基本装備性能") }}</div>
-            <v-divider></v-divider>
-            <div class="preview-statuses airbase">
-              <div>{{ $t("Common.雷装") }}</div>
-              <div>{{ originalItem.item.data.torpedo }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.torpedo > 0, 'error--text': diffStatuses.torpedo < 0 }">
-                {{ menuItem.item.data.torpedo }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.torpedo">
-                  <v-icon :color="diffStatuses.torpedo > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.torpedo > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.torpedo) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.爆装") }}</div>
-              <div>{{ originalItem.item.data.bomber }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.bomber > 0, 'error--text': diffStatuses.bomber < 0 }">
-                {{ menuItem.item.data.bomber }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.bomber">
-                  <v-icon :color="diffStatuses.bomber > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.bomber > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.bomber) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.対空") }}</div>
-              <div>{{ originalItem.item.data.antiAir }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.antiAir > 0, 'error--text': diffStatuses.antiAir < 0 }">
-                {{ menuItem.item.data.antiAir }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.antiAir">
-                  <v-icon :color="diffStatuses.antiAir > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.antiAir > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.antiAir) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.対潜") }}</div>
-              <div>{{ originalItem.item.data.asw }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.asw > 0, 'error--text': diffStatuses.asw < 0 }">
-                {{ menuItem.item.data.asw }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.asw">
-                  <v-icon :color="diffStatuses.asw > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.asw > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.asw) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.索敵") }}</div>
-              <div>{{ originalItem.item.data.scout }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.LoS > 0, 'error--text': diffStatuses.LoS < 0 }">
-                {{ menuItem.item.data.scout }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.LoS">
-                  <v-icon :color="diffStatuses.LoS > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.LoS > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.LoS) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.命中") }}</div>
-              <div>{{ originalItem.item.data.accuracy }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.accuracy > 0, 'error--text': diffStatuses.accuracy < 0 }">
-                {{ menuItem.item.data.accuracy }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.accuracy">
-                  <v-icon :color="diffStatuses.accuracy > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.accuracy > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.accuracy) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.対爆") }}</div>
-              <div>{{ originalItem.item.data.antiBomber }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.antiBomber > 0, 'error--text': diffStatuses.antiBomber < 0 }">
-                {{ menuItem.item.data.antiBomber }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.antiBomber">
-                  <v-icon :color="diffStatuses.antiBomber > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.antiBomber > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.antiBomber) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.迎撃") }}</div>
-              <div>{{ originalItem.item.data.interception }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.interception > 0, 'error--text': diffStatuses.interception < 0 }">
-                {{ menuItem.item.data.interception }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.interception">
-                  <v-icon :color="diffStatuses.interception > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.interception > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.interception) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.半径") }}</div>
-              <div>{{ originalItem.item.data.radius }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.radius > 0, 'error--text': diffStatuses.radius < 0 }">
-                {{ menuItem.item.data.radius }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.radius">
-                  <v-icon :color="diffStatuses.radius > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.radius > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.radius) }}</span>
-                </template>
-              </div>
-              <div>{{ $t("Common.コスト") }}</div>
-              <div>{{ originalItem.item.data.cost }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.cost < 0, 'error--text': diffStatuses.cost > 0 }">
-                {{ menuItem.item.data.cost }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.cost">
-                  <v-icon :color="diffStatuses.cost < 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.cost > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.abs(diffStatuses.cost) }}</span>
-                </template>
-              </div>
-            </div>
-            <div class="mt-3 caption text--secondary">{{ $t("Common.実性能") }}</div>
-            <v-divider></v-divider>
-            <div class="preview-statuses sub airbase">
-              <div class="caption">{{ $t("Common.雷装") }}</div>
-              <div>{{ Math.floor(10 * originalItem.item.actualTorpedo) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.actualTorpedo > 0, 'error--text': diffStatuses.actualTorpedo < 0 }">
-                {{ Math.floor(10 * menuItem.item.actualTorpedo) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.actualTorpedo">
-                  <v-icon :color="diffStatuses.actualTorpedo > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.actualTorpedo > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.actualTorpedo)) / 10 }}</span>
-                </template>
-              </div>
-              <div class="caption">{{ $t("Common.爆装") }}</div>
-              <div>{{ Math.floor(10 * originalItem.item.actualBomber) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.actualBomber > 0, 'error--text': diffStatuses.actualBomber < 0 }">
-                {{ Math.floor(10 * menuItem.item.actualBomber) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.actualBomber">
-                  <v-icon :color="diffStatuses.actualBomber > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.actualBomber > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.actualBomber)) / 10 }}</span>
-                </template>
-              </div>
-              <div class="caption">{{ $t("Common.出撃対空") }}</div>
-              <div>{{ Math.floor(10 * originalItem.item.actualAntiAir) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.actualAntiAir > 0, 'error--text': diffStatuses.actualAntiAir < 0 }">
-                {{ Math.floor(10 * menuItem.item.actualAntiAir) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.actualAntiAir">
-                  <v-icon :color="diffStatuses.actualAntiAir > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.actualAntiAir > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.actualAntiAir)) / 10 }}</span>
-                </template>
-              </div>
-              <div class="caption">{{ $t("Common.防空対空") }}</div>
-              <div>{{ Math.floor(10 * originalItem.item.actualDefenseAntiAir) / 10 }}</div>
-              <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :class="{ 'primary--text': diffStatuses.actualDefenseAntiAir > 0, 'error--text': diffStatuses.actualDefenseAntiAir < 0 }">
-                {{ Math.floor(10 * menuItem.item.actualDefenseAntiAir) / 10 }}
-              </div>
-              <div>
-                <template v-if="diffStatuses.actualDefenseAntiAir">
-                  <v-icon :color="diffStatuses.actualDefenseAntiAir > 0 ? 'primary' : 'error'">
-                    {{ diffStatuses.actualDefenseAntiAir > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(diffStatuses.actualDefenseAntiAir)) / 10 }}</span>
-                </template>
-              </div>
-            </div>
-          </v-card>
-        </div>
+        <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex" :is-airbase-mode="isAirbaseMode"></item-compare>
         <v-divider class="my-2" />
-        <div class="d-flex">
-          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-btn>
-          <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        <div class="d-flex flex-wrap">
+          <v-checkbox
+            v-model="setting.showItemCompareDialog"
+            @click="toggleCompareSetting"
+            hide-details
+            dense
+            :label="$t('ItemList.装備選択時は常に表示する')"
+          />
+          <div class="ml-auto">
+            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -810,57 +382,6 @@
 </template>
 
 <style scoped>
-/** 装備比較UI */
-.compare-cards {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  row-gap: 20px;
-}
-.preview-card {
-  width: 100%;
-}
-@media (min-width: 800px) {
-  .compare-cards {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto;
-  }
-  .preview-card {
-    margin-left: 24px;
-    width: unset;
-  }
-}
-.level-text {
-  height: 16px;
-}
-.preview-statuses {
-  padding-top: 4px;
-  display: grid;
-  grid-template-columns: auto auto auto auto auto;
-  grid-template-rows: repeat(9, 22px);
-  column-gap: 8px;
-  font-size: 0.9em;
-  text-align: right;
-  align-items: center;
-}
-.preview-statuses > div:nth-child(5n - 4) {
-  text-align: left;
-  font-size: 0.8em;
-}
-.preview-statuses.sub {
-  grid-template-rows: repeat(5, 22px);
-}
-.preview-statuses > div:nth-child(5n) span {
-  display: inline-block;
-  min-width: 20px;
-}
-.preview-statuses.airbase {
-  grid-template-rows: repeat(10, 22px);
-  grid-template-columns: auto 32px auto 32px auto;
-}
-.preview-statuses.sub.airbase {
-  grid-template-rows: repeat(6, 22px);
-}
-
 .list-card {
   position: relative;
 }
@@ -1203,7 +724,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
-import ItemStatusView from '@/components/item/ItemStatusView.vue';
+import ItemCompare from '@/components/item/ItemCompare.vue';
 import BlacklistItemEdit from '@/components/item/BlacklistItemEdit.vue';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
@@ -1217,7 +738,6 @@ import SaveData from '@/classes/saveData/saveData';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import { cloneDeep } from 'lodash';
 import ItemBonus, { ItemBonusStatus } from '@/classes/item/ItemBonus';
-import ShipMaster from '../../classes/fleet/shipMaster';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 type viewItem = {
@@ -1233,7 +753,7 @@ type viewItem = {
 
 export default Vue.extend({
   name: 'ItemList',
-  components: { ItemTooltip, BlacklistItemEdit, ItemStatusView },
+  components: { ItemTooltip, BlacklistItemEdit, ItemCompare },
   props: {
     handleEquipItem: {
       type: Function,
@@ -1329,36 +849,7 @@ export default Vue.extend({
     menuItem: null as viewItem | null,
     menuX: 0,
     menuY: 0,
-    originalItem: null as viewItem | null,
     compareDialog: false,
-    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
-    exchangeParent: new Ship(),
-    diffStatuses: {
-      HP: 0,
-      firePower: 0,
-      armor: 0,
-      torpedo: 0,
-      avoid: 0,
-      antiAir: 0,
-      asw: 0,
-      LoS: 0,
-      luck: 0,
-      range: 0,
-      radius: 0,
-      accuracy: 0,
-      bomber: 0,
-      interception: 0,
-      antiBomber: 0,
-      cost: 0,
-      dayBattleFirePower: 0,
-      supportFirePower: 0,
-      nightFirePower: 0,
-      supportAccuracy: 0,
-      actualTorpedo: 0,
-      actualBomber: 0,
-      actualAntiAir: 0,
-      actualDefenseAntiAir: 0,
-    },
   }),
   mounted() {
     this.types = [];
@@ -1396,6 +887,9 @@ export default Vue.extend({
   computed: {
     isAirbaseMode(): boolean {
       return this.itemParent instanceof Airbase;
+    },
+    isShipMode(): boolean {
+      return this.itemParent instanceof Ship;
     },
     isAircraftMode(): boolean {
       return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717].includes(this.itemParent.data.id));
@@ -1907,7 +1401,97 @@ export default Vue.extend({
 
       // 装備フィットの可視化
       if (this.itemParent instanceof Ship) {
-        this.setItemSynergyBonus(this.viewItems, withoutSynergy);
+        // viewItem配列全てのviewItemに対し、装備シナジーボーナスを付与する
+        // => 変更対象のスロットが空の場合のボーナスと、それぞれの装備を搭載時に発生するボーナスの差分を採る
+        const baseItems = this.itemParent.items.concat();
+        baseItems.push(this.itemParent.exItem);
+
+        let targetSlot = this.slotIndex;
+        if (targetSlot === Const.EXPAND_SLOT_INDEX) {
+          targetSlot = baseItems.length - 1;
+        }
+
+        // 装備を入れ替えようとしているスロットが未装備だった状態のbonusを取得...(1)
+        const tempItems = cloneDeep(baseItems);
+        tempItems[targetSlot] = new Item();
+        const emptyBonus = Ship.getItemBonus(this.itemParent.data, tempItems);
+        const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
+
+        for (let i = 0; i < viewItems.length; i += 1) {
+          const item = viewItems[i];
+          const items = cloneDeep(baseItems);
+          items[targetSlot] = item.item;
+          const bonuses = Ship.getItemBonus(this.itemParent.data, items);
+          // (1) とのボーナスの個数を比較し、多ければボーナスありとする
+          if (bonuses.length > emptyBonus.length) {
+            const totalBonus = ItemBonus.getTotalBonus(bonuses);
+            // ボーナスの差分を取る
+            let sumBonus = 0;
+            if (totalBonus.firePower) {
+              totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+              sumBonus += totalBonus.firePower;
+            }
+            if (totalBonus.torpedo) {
+              totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+              sumBonus += totalBonus.torpedo;
+            }
+            if (totalBonus.antiAir) {
+              totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+              sumBonus += totalBonus.antiAir;
+            }
+            if (totalBonus.armor) {
+              totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+              sumBonus += totalBonus.armor;
+            }
+            if (totalBonus.asw) {
+              totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+              sumBonus += totalBonus.asw;
+            }
+            if (totalBonus.avoid) {
+              totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+              sumBonus += totalBonus.avoid;
+            }
+            if (totalBonus.accuracy) {
+              totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+              sumBonus += totalBonus.accuracy;
+            }
+            if (totalBonus.range) {
+              totalBonus.range -= totalEmptyBonus.range ?? 0;
+              sumBonus += totalBonus.range;
+            }
+            if (totalBonus.bomber) {
+              totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+              sumBonus += totalBonus.bomber;
+            }
+            if (totalBonus.scout) {
+              totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+              sumBonus += totalBonus.scout;
+            }
+
+            item.sumBonus = sumBonus;
+            item.bonus = totalBonus;
+
+            if (!withoutSynergy) {
+              // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
+              item.item.actualFire += totalBonus.firePower ?? 0;
+              item.item.actualTorpedo += totalBonus.torpedo ?? 0;
+              item.item.actualAsw += totalBonus.asw ?? 0;
+              item.item.actualAccuracy += totalBonus.accuracy ?? 0;
+              item.item.actualScout += totalBonus.scout ?? 0;
+              item.item.actualAvoid += totalBonus.avoid ?? 0;
+              item.item.nightBattleFirePower += (totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0);
+
+              // 砲戦火力に加算
+              if (item.item.data.isPlane && !item.item.data.isSPPlane) {
+                item.dayBattleFirePower += totalBonus.firePower ?? 0;
+                item.aircraftDayBattleFirePower += ((totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0) + (totalBonus.bomber ?? 0)) * 1.5;
+              } else {
+                item.dayBattleFirePower += totalBonus.firePower ?? 0;
+                item.aircraftDayBattleFirePower += totalBonus.firePower ?? 0;
+              }
+            }
+          }
+        }
 
         // 射程変化フィルタ
         const currentRange = this.itemParent.displayStatus.range;
@@ -1944,102 +1528,6 @@ export default Vue.extend({
         this.sortItems();
       }
     },
-    setItemSynergyBonus(viewItems: viewItem[], withoutSynergy = false) {
-      if (!(this.itemParent instanceof Ship)) {
-        return viewItems;
-      }
-      // viewItem配列全てのviewItemに対し、装備シナジーボーナスを付与する => 変更対象のスロットが空の場合のボーナスと、それぞれの装備を搭載時に発生するボーナスの差分を採る
-      const baseItems = this.itemParent.items.concat();
-      baseItems.push(this.itemParent.exItem);
-
-      let slot = this.slotIndex;
-      if (slot === Const.EXPAND_SLOT_INDEX) {
-        slot = baseItems.length - 1;
-      }
-
-      // 装備を入れ替えようとしているスロットが未装備だった状態のbonusを取得...(1)
-      const tempItems = cloneDeep(baseItems);
-      tempItems[slot] = new Item();
-      const emptyBonus = Ship.getItemBonus(this.itemParent.data, tempItems);
-      const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
-
-      for (let i = 0; i < viewItems.length; i += 1) {
-        const item = viewItems[i];
-        const items = cloneDeep(baseItems);
-        items[slot] = item.item;
-        const bonuses = Ship.getItemBonus(this.itemParent.data, items);
-        // (1) とのボーナスの個数を比較し、多ければボーナスありとする
-        if (bonuses.length > emptyBonus.length) {
-          const totalBonus = ItemBonus.getTotalBonus(bonuses);
-          // ボーナスの差分を取る
-          let sumBonus = 0;
-          if (totalBonus.firePower) {
-            totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
-            sumBonus += totalBonus.firePower;
-          }
-          if (totalBonus.torpedo) {
-            totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
-            sumBonus += totalBonus.torpedo;
-          }
-          if (totalBonus.antiAir) {
-            totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
-            sumBonus += totalBonus.antiAir;
-          }
-          if (totalBonus.armor) {
-            totalBonus.armor -= totalEmptyBonus.armor ?? 0;
-            sumBonus += totalBonus.armor;
-          }
-          if (totalBonus.asw) {
-            totalBonus.asw -= totalEmptyBonus.asw ?? 0;
-            sumBonus += totalBonus.asw;
-          }
-          if (totalBonus.avoid) {
-            totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
-            sumBonus += totalBonus.avoid;
-          }
-          if (totalBonus.accuracy) {
-            totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
-            sumBonus += totalBonus.accuracy;
-          }
-          if (totalBonus.range) {
-            totalBonus.range -= totalEmptyBonus.range ?? 0;
-            sumBonus += totalBonus.range;
-          }
-          if (totalBonus.bomber) {
-            totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
-            sumBonus += totalBonus.bomber;
-          }
-          if (totalBonus.scout) {
-            totalBonus.scout -= totalEmptyBonus.scout ?? 0;
-            sumBonus += totalBonus.scout;
-          }
-
-          item.sumBonus = sumBonus;
-          item.bonus = totalBonus;
-
-          if (!withoutSynergy) {
-            // ボーナス(差分のみ)をパラメータに加算 対空はややこしいので指摘されるまではスルー
-            item.item.actualFire += totalBonus.firePower ?? 0;
-            item.item.actualTorpedo += totalBonus.torpedo ?? 0;
-            item.item.actualAsw += totalBonus.asw ?? 0;
-            item.item.actualAccuracy += totalBonus.accuracy ?? 0;
-            item.item.actualScout += totalBonus.scout ?? 0;
-            item.item.actualAvoid += totalBonus.avoid ?? 0;
-            item.item.nightBattleFirePower += (totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0);
-
-            // 砲戦火力に加算
-            if (item.item.data.isPlane && !item.item.data.isSPPlane) {
-              item.dayBattleFirePower += totalBonus.firePower ?? 0;
-              item.aircraftDayBattleFirePower += ((totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0) + (totalBonus.bomber ?? 0)) * 1.5;
-            } else {
-              item.dayBattleFirePower += totalBonus.firePower ?? 0;
-              item.aircraftDayBattleFirePower += totalBonus.firePower ?? 0;
-            }
-          }
-        }
-      }
-      return viewItems;
-    },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
         this.openWiki(data.item.data);
@@ -2050,6 +1538,19 @@ export default Vue.extend({
         return;
       }
       this.clearTooltip();
+
+      // 装備比較画面展開できるかどうか
+      if (this.setting.showItemCompareDialog && !this.compareDialog && (this.isAirbaseMode || this.isShipMode) && this.itemParent) {
+        // 元あった装備がないなら展開はしない
+        const baseItem = this.itemParent.items[this.slotIndex] || (this.itemParent instanceof Ship && this.itemParent.exItem);
+        if (baseItem && baseItem.data && baseItem.data.id) {
+          // 比較画面展開
+          this.menuItem = data;
+          this.compareItem();
+          return;
+        }
+      }
+
       if (data.count || this.confirmDialog) {
         this.decidedItem = true;
         this.confirmDialog = false;
@@ -2241,86 +1742,13 @@ export default Vue.extend({
       }
     },
     compareItem() {
-      if (this.itemParent instanceof Airbase || this.itemParent instanceof Ship) {
-        // 元々装備していたやつ
-        let item = this.itemParent.items[this.slotIndex];
-        if (this.itemParent instanceof Ship && this.slotIndex === Const.EXPAND_SLOT_INDEX) {
-          item = this.itemParent.exItem;
-        }
-
-        this.originalItem = {
-          item,
-          count: 1,
-          sumBonus: 0,
-          remodel: 0,
-          bonus: {},
-          text: '',
-          dayBattleFirePower: item.dayBattleFirePower,
-          aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
-        };
-        this.setItemSynergyBonus([this.originalItem]);
-
-        if (this.itemParent instanceof Ship) {
-          // 乗せ換えたバージョンを作成
-          const newItems: Item[] = [];
-          for (let i = 0; i < this.itemParent.items.length; i += 1) {
-            if (this.slotIndex === i && this.menuItem) {
-              newItems.push(new Item({ item: this.menuItem.item }));
-            } else {
-              newItems.push(new Item({ item: this.itemParent.items[i] }));
-            }
-          }
-          let exItem = new Item({ item: this.itemParent.exItem });
-          if (this.slotIndex === Const.EXPAND_SLOT_INDEX && this.menuItem) {
-            exItem = new Item({ item: this.menuItem.item });
-          }
-
-          this.exchangeParent = new Ship({ ship: this.itemParent, items: newItems, exItem });
-          this.diffStatuses.HP = this.exchangeParent.displayStatus.HP - this.itemParent.displayStatus.HP;
-          this.diffStatuses.firePower = this.exchangeParent.displayStatus.firePower - this.itemParent.displayStatus.firePower;
-          this.diffStatuses.armor = this.exchangeParent.displayStatus.armor - this.itemParent.displayStatus.armor;
-          this.diffStatuses.torpedo = this.exchangeParent.displayStatus.torpedo - this.itemParent.displayStatus.torpedo;
-          this.diffStatuses.avoid = this.exchangeParent.displayStatus.avoid - this.itemParent.displayStatus.avoid;
-          this.diffStatuses.antiAir = this.exchangeParent.displayStatus.antiAir - this.itemParent.displayStatus.antiAir;
-          this.diffStatuses.asw = this.exchangeParent.displayStatus.asw - this.itemParent.displayStatus.asw;
-          this.diffStatuses.LoS = this.exchangeParent.displayStatus.LoS - this.itemParent.displayStatus.LoS;
-          this.diffStatuses.luck = this.exchangeParent.displayStatus.luck - this.itemParent.displayStatus.luck;
-          this.diffStatuses.range = this.exchangeParent.displayStatus.range - this.itemParent.displayStatus.range;
-          this.diffStatuses.accuracy = this.exchangeParent.accuracy - this.itemParent.accuracy;
-          this.diffStatuses.bomber = this.exchangeParent.displayStatus.bomber - this.itemParent.displayStatus.bomber;
-          this.diffStatuses.dayBattleFirePower = this.exchangeParent.baseDayBattleFirePower - this.itemParent.baseDayBattleFirePower;
-          this.diffStatuses.supportFirePower = this.exchangeParent.supportFirePower - this.itemParent.supportFirePower;
-          this.diffStatuses.nightFirePower = this.exchangeParent.nightBattleFirePower - this.itemParent.nightBattleFirePower;
-          this.diffStatuses.supportAccuracy = this.exchangeParent.supportAccuracy - this.itemParent.supportAccuracy;
-        } else if (this.itemParent instanceof Airbase && this.menuItem) {
-          this.diffStatuses.torpedo = this.menuItem.item.data.torpedo - this.originalItem.item.data.torpedo;
-          this.diffStatuses.avoid = this.menuItem.item.actualAvoid - this.originalItem.item.actualAvoid;
-          this.diffStatuses.antiAir = this.menuItem.item.data.antiAir - this.originalItem.item.data.antiAir;
-          this.diffStatuses.asw = this.menuItem.item.data.asw - this.originalItem.item.data.asw;
-          this.diffStatuses.LoS = this.menuItem.item.data.scout - this.originalItem.item.data.scout;
-          this.diffStatuses.accuracy = this.menuItem.item.actualAccuracy - this.originalItem.item.actualAccuracy;
-          this.diffStatuses.bomber = this.menuItem.item.data.bomber - this.originalItem.item.data.bomber;
-          this.diffStatuses.radius = this.menuItem.item.data.radius - this.originalItem.item.data.radius;
-          this.diffStatuses.interception = this.menuItem.item.data.interception - this.originalItem.item.data.interception;
-          this.diffStatuses.antiBomber = this.menuItem.item.data.antiBomber - this.originalItem.item.data.antiBomber;
-          this.diffStatuses.cost = this.menuItem.item.data.cost - this.originalItem.item.data.cost;
-          this.diffStatuses.actualTorpedo = this.menuItem.item.actualTorpedo - this.originalItem.item.actualTorpedo;
-          this.diffStatuses.actualBomber = this.menuItem.item.actualBomber - this.originalItem.item.actualBomber;
-          this.diffStatuses.actualAntiAir = this.menuItem.item.actualAntiAir - this.originalItem.item.actualAntiAir;
-          this.diffStatuses.actualDefenseAntiAir = this.menuItem.item.actualDefenseAntiAir - this.originalItem.item.actualDefenseAntiAir;
-        }
-
+      if (this.isShipMode || this.isAirbaseMode) {
         this.compareDialog = true;
       }
     },
-    getShipName(ship: ShipMaster): string {
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      if (this.$i18n.locale === 'en' && !setting.nameIsNotTranslate) {
-        const shipName = ShipMaster.getSuffix(ship);
-        const trans = (v: string) => (v ? `${this.$t(v)}` : '');
-        return shipName.map((v) => trans(v)).join('');
-      }
-      return ship.name || '';
+    toggleCompareSetting() {
+      // 設定書き換え
+      this.$store.dispatch('updateSetting', this.setting);
     },
   },
 });

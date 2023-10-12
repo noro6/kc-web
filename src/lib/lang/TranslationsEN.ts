@@ -179,6 +179,7 @@ export default {
       '基本装備性能': 'Spec',
       '改修ボーナス': 'Improvement Bonuses',
       '実性能': 'Actual Spec',
+      '航空隊ステータス': 'Air Squadron Spec',
     },
     Difficulty: {
       '難易度': 'Difficulty',
@@ -750,6 +751,8 @@ export default {
       '装備名コピー': 'Copy item name',
       'wikiを開く': 'Open wiki',
       'メニューを閉じる': 'Close Menu',
+      '装備比較': 'Compare',
+      '装備選択時は常に表示する': 'Show every time',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',

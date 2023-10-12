@@ -493,8 +493,6 @@ import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
 import ShipValidation from '@/classes/fleet/shipValidation';
-import { cloneDeep } from 'lodash';
-import ItemBonus from '@/classes/item/ItemBonus';
 import Const from '@/classes/const';
 
 export default Vue.extend({
@@ -890,50 +888,7 @@ export default Vue.extend({
         this.tooltipItem = item;
         this.enabledTooltip = true;
 
-        // この装備がなかった場合のボーナスと比較した分をこの装備のボーナスとする
-        const baseItems = this.value.items.concat();
-        baseItems.push(this.value.exItem);
-        const tempItems = cloneDeep(baseItems);
-        tempItems[index < 0 ? tempItems.length - 1 : index] = new Item();
-
-        const emptyBonus = Ship.getItemBonus(this.value.data, tempItems);
-        // 未装備時のボーナス合計
-        const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
-        // 現在のボーナス
-        const totalBonus = ItemBonus.getTotalBonus(this.value.itemBonuses);
-        // ボーナスの差分を取る
-        if (totalBonus.firePower) {
-          totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
-        }
-        if (totalBonus.torpedo) {
-          totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
-        }
-        if (totalBonus.antiAir) {
-          totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
-        }
-        if (totalBonus.armor) {
-          totalBonus.armor -= totalEmptyBonus.armor ?? 0;
-        }
-        if (totalBonus.asw) {
-          totalBonus.asw -= totalEmptyBonus.asw ?? 0;
-        }
-        if (totalBonus.avoid) {
-          totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
-        }
-        if (totalBonus.accuracy) {
-          totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
-        }
-        if (totalBonus.range) {
-          totalBonus.range -= totalEmptyBonus.range ?? 0;
-        }
-        if (totalBonus.bomber) {
-          totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
-        }
-        if (totalBonus.scout) {
-          totalBonus.scout -= totalEmptyBonus.scout ?? 0;
-        }
-
-        this.tooltipBonus = JSON.stringify(totalBonus);
+        this.tooltipBonus = JSON.stringify(this.value.getItemBonusDiff(index));
       }, Math.max(setting.popUpCount, 10));
     },
     bootShipTooltip(e: MouseEvent) {
