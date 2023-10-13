@@ -170,6 +170,7 @@
             :handle-show-temp-ship-list="showTempShipList"
             :handle-show-temp-fleet-list="showTempFleetList"
             :handle-show-item-preset="showItemPreset"
+            :handle-create-tray="createTray"
             :union-fleet="fleetInfo.unionFleet"
             :is-union="fleetInfo.isUnion"
             :admiral-lv="fleetInfo.admiralLevel"
