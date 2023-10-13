@@ -1,64 +1,91 @@
 <template>
-  <div class="compare-cards pa-1">
-    <v-card class="pa-3">
-      <item-status-view v-model="originalItem" :bonus="originalItemBonusString"></item-status-view>
-    </v-card>
+  <div class="compare-cards px-1 pb-1">
+    <div class="d-flex flex-column">
+      <div class="d-flex align-end">
+        <div class="caption">Before</div>
+        <v-icon class="ml-auto" small>mdi-chevron-triple-right</v-icon>
+      </div>
+      <v-divider class="mb-2"></v-divider>
+      <v-card class="px-3 py-2 flex-grow-1">
+        <item-status-view v-model="originalItem" :bonus="originalItemBonusString" :is-airbase-mode="isAirbaseMode"></item-status-view>
+      </v-card>
+    </div>
     <div class="compare-arrow">
       <div><v-icon x-large color="light-blue">mdi-chevron-right</v-icon></div>
     </div>
-    <v-card class="pa-3">
-      <item-status-view v-model="targetItem" :bonus="itemBonusString"></item-status-view>
-    </v-card>
+    <div class="d-flex flex-column">
+      <div class="caption">After</div>
+      <v-divider class="mb-2"></v-divider>
+      <v-card class="px-3 py-2 flex-grow-1">
+        <item-status-view v-model="targetItem" :bonus="itemBonusString" :is-airbase-mode="isAirbaseMode"></item-status-view>
+      </v-card>
+    </div>
     <!-- ステータスプレビュー -->
-    <v-card class="preview-card pa-3">
-      <template v-if="!isAirbaseMode && exchangeParent && itemParent">
-        <div class="d-flex align-center">
-          <div><v-img :src="`./img/ship/${exchangeParent.data.id}.png`" height="30" width="120" /></div>
-          <div class="ml-1">
-            <div class="light-blue--text caption level-text">Lv {{ exchangeParent.level }}</div>
-            <div class="caption">{{ getShipName(exchangeParent.data) }}</div>
+    <div class="preview-card d-flex flex-column">
+      <div class="caption">Preview</div>
+      <v-divider class="mb-2"></v-divider>
+      <v-card class="px-3 py-2 flex-grow-1">
+        <template v-if="!isAirbaseMode && exchangeParent && itemParent && itemParent.data.id">
+          <div class="d-flex align-center">
+            <div><v-img :src="`./img/ship/${exchangeParent.data.id}.png`" height="30" width="120" /></div>
+            <div class="ml-1">
+              <div class="level-text light-blue--text caption">Lv {{ exchangeParent.level }}</div>
+              <div class="caption">{{ getShipName(exchangeParent.data) }}</div>
+            </div>
           </div>
-        </div>
-        <div class="mt-1 caption text--secondary">{{ $t("Common.表示ステータス") }}</div>
-      </template>
-      <template v-else>
-        <div class="mt-1 caption text--secondary">{{ $t("Common.基本装備性能") }}</div>
-      </template>
-      <v-divider></v-divider>
-      <div class="preview-statuses">
-        <template v-for="(row, i) in displayStatuses">
-          <div :key="`title${i}`">{{ row.text }}</div>
-          <div :key="`before${i}`">{{ row.before }}</div>
-          <div :key="`arrow${i}`"><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-          <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0 }">{{ row.after }}</div>
-          <div :key="`diff${i}`">
-            <template v-if="row.diff">
-              <v-icon :color="row.diff > 0 ? 'light-blue' : 'error'">{{ row.diff > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}</v-icon>
-              <span>{{ row.hideDiff ? "" : Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
-            </template>
-          </div>
+          <div class="mt-1 caption text--secondary">{{ $t("Common.表示ステータス") }}</div>
         </template>
-      </div>
-      <template v-if="displayStatuses2.length">
-        <div class="mt-1 caption text--secondary" v-if="isAirbaseMode">{{ $t("Common.航空隊ステータス") }}</div>
-        <div class="mt-1 caption text--secondary" v-else>{{ $t("Common.実性能") }}</div>
+        <template v-else>
+          <div class="mt-1 caption text--secondary">{{ $t("Common.基本装備性能") }}</div>
+        </template>
         <v-divider></v-divider>
         <div class="preview-statuses">
-          <template v-for="(row, i) in displayStatuses2">
+          <template v-for="(row, i) in displayStatuses">
             <div :key="`title${i}`">{{ row.text }}</div>
-            <div :key="`before${i}`">{{ Math.floor(10 * row.before) / 10 }}</div>
+            <div :key="`before${i}`" :class="{ text: row.hideDiff }">{{ row.before }}</div>
             <div :key="`arrow${i}`"><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-            <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0 }">{{ Math.floor(10 * row.after) / 10 }}</div>
+            <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0, text: row.hideDiff }">{{ row.after }}</div>
             <div :key="`diff${i}`">
               <template v-if="row.diff">
-                <v-icon :color="row.diff > 0 ? 'light-blue' : 'error'">{{ row.diff > 0 ? "mdi-chevron-double-up" : "mdi-chevron-double-down" }}</v-icon>
-                <span>{{ Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
+                <v-icon v-if="row.diff > 0" color="light-blue">
+                  {{ row.diff > 15 ? "mdi-chevron-triple-up" : row.diff >= 3 ? "mdi-chevron-double-up" : "mdi-chevron-up" }}
+                </v-icon>
+                <v-icon v-else color="error">
+                  {{ -15 > row.diff ? "mdi-chevron-triple-down" : -3 >= row.diff ? "mdi-chevron-double-down" : "mdi-chevron-down" }}
+                </v-icon>
+                <span>{{ row.hideDiff ? "" : Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
               </template>
             </div>
           </template>
         </div>
-      </template>
-    </v-card>
+        <template v-if="displayStatuses2.length">
+          <div class="mt-1 caption text--secondary" v-if="isAirbaseMode">{{ $t("Common.航空隊ステータス") }}</div>
+          <div class="mt-1 caption text--secondary" v-else>{{ $t("Common.実性能") }}</div>
+          <v-divider></v-divider>
+          <div class="preview-statuses">
+            <template v-for="(row, i) in displayStatuses2">
+              <div :key="`title${i}`">{{ row.text }}</div>
+              <div :key="`before${i}`" :class="{ text: row.hideDiff }">{{ Math.floor(10 * row.before) / 10 }}</div>
+              <div :key="`arrow${i}`"><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
+              <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0, text: row.hideDiff }">
+                {{ Math.floor(10 * row.after) / 10 }}
+              </div>
+              <div :key="`diff${i}`">
+                <template v-if="row.diff">
+                  <v-icon v-if="row.diff > 0" color="light-blue">
+                    {{ row.diff > 15 ? "mdi-chevron-triple-up" : row.diff >= 3 ? "mdi-chevron-double-up" : "mdi-chevron-up" }}
+                  </v-icon>
+                  <v-icon v-else color="error">
+                    {{ -15 > row.diff ? "mdi-chevron-triple-down" : -3 >= row.diff ? "mdi-chevron-double-down" : "mdi-chevron-down" }}
+                  </v-icon>
+                  <span>{{ Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
+                </template>
+              </div>
+            </template>
+          </div>
+        </template>
+      </v-card>
+    </div>
   </div>
 </template>
 
@@ -79,7 +106,7 @@
   top: -20px;
   right: 50%;
   transform: rotate(90deg) translateY(-20px);
-  filter: drop-shadow(0 0 4px #00bcd4);
+  filter: drop-shadow(0 0 2px rgba(0, 188, 212, 0.6));
 }
 @media (min-width: 450px) {
   .compare-cards {
@@ -107,6 +134,17 @@
     margin-left: 8px;
   }
 }
+@media (min-width: 1000px) {
+  .compare-cards {
+    grid-template-columns: 1fr 16px 1fr auto;
+  }
+  .preview-card {
+    margin-left: 16px;
+  }
+  .compare-arrow > div {
+    right: -12px;
+  }
+}
 .level-text {
   height: 16px;
 }
@@ -115,7 +153,6 @@
   display: grid;
   grid-template-columns: auto auto auto auto auto;
   column-gap: 12px;
-  font-size: 0.9em;
   align-items: center;
 }
 .preview-statuses > div {
@@ -123,11 +160,15 @@
   align-items: center;
   justify-content: flex-end;
   height: 24px;
+  font-size: 14px;
 }
 .preview-statuses > div:nth-child(5n - 4) {
   justify-content: flex-start;
   min-width: 50px;
-  font-size: 0.8em;
+  font-size: 12px;
+}
+.preview-statuses > div.text {
+  font-size: 12px;
 }
 .preview-statuses > div:nth-child(5n) {
   display: flex;
@@ -141,6 +182,16 @@
 .preview-statuses.airbase {
   grid-template-columns: auto 32px auto 32px auto;
 }
+
+.text--secondary {
+  filter: drop-shadow(0 0 3px rgba(128, 128, 128, 0.5));
+}
+.light-blue--text {
+  filter: drop-shadow(0 0 4px rgba(0, 188, 212, 0.3));
+}
+.error--text {
+  filter: drop-shadow(0 0 4px rgba(212, 14, 0, 0.3));
+}
 </style>
 
 <script lang="ts">
@@ -148,10 +199,10 @@ import Vue from 'vue';
 import ItemStatusView from '@/components/item/ItemStatusView.vue';
 import Item from '@/classes/item/item';
 import Ship from '@/classes/fleet/ship';
-import ShipMaster from '../../classes/fleet/shipMaster';
-import SiteSetting from '../../classes/siteSetting';
-import Airbase from '../../classes/airbase/airbase';
-import Const from '../../classes/const';
+import ShipMaster from '@/classes/fleet/shipMaster';
+import SiteSetting from '@/classes/siteSetting';
+import Airbase from '@/classes/airbase/airbase';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'ItemCompare',
@@ -200,9 +251,19 @@ export default Vue.extend({
     },
   },
   methods: {
+    getSpeedText(value: number) {
+      if (value <= 5) {
+        return `${this.$t('Fleet.低速')}`;
+      }
+      if (value <= 10) {
+        return `${this.$t('Fleet.高速')}`;
+      }
+      if (value <= 15) {
+        return `${this.$t('Fleet.高速+')}`;
+      }
+      return `${this.$t('Fleet.最速')}`;
+    },
     compareItem() {
-      console.log('a');
-
       // プレビュー表示用配列初期化
       this.displayStatuses = [];
       this.displayStatuses2 = [];
@@ -222,7 +283,11 @@ export default Vue.extend({
       const newItems: Item[] = [];
       for (let i = 0; i < this.itemParent.items.length; i += 1) {
         if (this.slotIndex === i) {
-          newItems.push(new Item({ item: this.targetItem }));
+          if (this.isAirbaseMode) {
+            newItems.push(new Item({ item: this.targetItem, slot: this.targetItem.data.airbaseMaxSlot }));
+          } else {
+            newItems.push(new Item({ item: this.targetItem }));
+          }
         } else {
           newItems.push(new Item({ item: this.itemParent.items[i] }));
         }
@@ -283,6 +348,14 @@ export default Vue.extend({
           after: `${this.$t(`Common.${this.rangeText[this.exchangeParent.displayStatus.range]}`)}`,
           before: `${this.$t(`Common.${this.rangeText[this.itemParent.displayStatus.range]}`)}`,
           diff: this.exchangeParent.displayStatus.range - this.itemParent.displayStatus.range,
+          hideDiff: true,
+        });
+        this.displayStatuses.push({
+          text: `${this.$t('Common.速力')}`,
+          after: this.getSpeedText(this.exchangeParent.speed),
+          before: this.getSpeedText(this.itemParent.speed),
+          diff: this.exchangeParent.speed - this.itemParent.speed,
+          hideDiff: true,
         });
 
         // 実性能欄
@@ -397,7 +470,7 @@ export default Vue.extend({
           text: `${this.$t('Common.コスト')}`,
           after: this.targetItem.data.cost,
           before: this.originalItem.data.cost,
-          diff: this.targetItem.data.cost - this.originalItem.data.cost,
+          diff: -(this.targetItem.data.cost - this.originalItem.data.cost),
         });
         if (this.originalItem.data.avoidId !== this.targetItem.data.avoidId) {
           this.displayStatuses.push({

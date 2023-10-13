@@ -350,14 +350,12 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="compareDialog" transition="scroll-x-transition" width="auto">
-      <v-card class="pa-3" v-if="menuItem">
-        <div class="d-flex px-2 align-center">
-          <div>{{ $t("ItemList.装備比較") }}</div>
+      <v-card class="pa-3 compare-dialog" v-if="menuItem">
+        <div class="compare-close-button">
           <v-btn class="ml-auto" icon @click="compareDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider class="mt-2 mb-3" />
         <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex" :is-airbase-mode="isAirbaseMode"></item-compare>
         <v-divider class="my-2" />
         <div class="d-flex flex-wrap">
@@ -370,7 +368,7 @@
           />
           <div class="ml-auto">
             <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-btn>
-            <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.戻る") }}</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -718,6 +716,16 @@
   height: 1px;
   width: 1px;
   opacity: 0;
+}
+
+.compare-dialog {
+  position: relative;
+  padding-top: 24px !important;
+}
+.compare-close-button {
+  position: absolute;
+  right: 12px;
+  top: 8px;
 }
 </style>
 
@@ -1146,6 +1154,18 @@ export default Vue.extend({
             continue;
           }
           types.push(i);
+          if (this.type <= 0) {
+            // カテゴリがおかしかったら最初のカテゴリにする
+            this.type = 1;
+          }
+
+          const filterData = this.setting.savedItemListFilter.find((v) => v.parent === 'ship');
+          if (filterData && filterData.key) {
+            this.filterStatus = filterData.key;
+          }
+          if (filterData && filterData.value) {
+            this.filterStatusValue = filterData.value;
+          }
         }
       } else if (parent instanceof Airbase) {
         // 基地航空隊 全艦載機装備可能

@@ -501,7 +501,7 @@ export default class Item {
       return Math.sqrt(this.remodel);
     }
     // ソナー 爆雷
-    if ([14, 15].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
+    if ([14, 15, 40].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return 0.75 * Math.sqrt(this.remodel);
     }
     // 艦攻 艦爆
@@ -593,7 +593,7 @@ export default class Item {
    */
   private getBonusAswForExpedition(): number {
     // ソナー 爆雷投射機 爆雷
-    if ([14, 15].includes(this.data.apiTypeId)) {
+    if ([14, 15, 40].includes(this.data.apiTypeId)) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
 
@@ -705,8 +705,8 @@ export default class Item {
   private getBonusAsw(): number {
     const type = this.data.apiTypeId;
     // ソナー 爆雷
-    if ([14, 15].includes(type)) {
-      return Math.sqrt(this.remodel);
+    if ([14, 15, 40].includes(type)) {
+      return (2 / 3) * Math.sqrt(this.remodel);
     }
 
     // 艦攻
@@ -751,8 +751,8 @@ export default class Item {
     if ([28, 29, 31, 32, 88, 89, 141, 240, 278, 279, 315].includes(this.data.id)) {
       return 1.7 * Math.sqrt(this.remodel);
     }
-    // 主砲 副砲 徹甲弾 高射装置 探照灯
-    if ([1, 2, 3, 4, 12, 13, 19, 29, 36, 42].includes(this.data.apiTypeId)) {
+    // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－
+    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 29, 36, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return Math.sqrt(this.remodel);
     }
     return 0;
