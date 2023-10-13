@@ -120,7 +120,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="level in maxLevel" :key="`all_level_${level}`" class="level-status-list" :class="{ last: level === maxLevel}">
+            <tr v-for="level in maxLevel" :key="`all_level_${level}`" class="level-status-list" :class="{ last: level === maxLevel }">
               <td class="level-td">{{ maxLevel + 1 - level }}</td>
               <td :class="{ increase: aswResults[level] && aswResults[level - 1] - aswResults[level] }">{{ aswResults[level - 1] }}</td>
               <td :class="{ increase: scoutResults[level] && scoutResults[level - 1] - scoutResults[level] }">{{ scoutResults[level - 1] }}</td>

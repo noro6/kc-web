@@ -176,7 +176,7 @@
                       class="range-input"
                       :class="{ english: isNotJapanese }"
                       :max="luckImpRange[1]"
-                      min="1"
+                      min="0"
                       v-model="luckImpRange[0]"
                       hide-details
                     />
@@ -202,7 +202,7 @@
                       class="range-input"
                       :class="{ english: isNotJapanese }"
                       :max="aswImpRange[1]"
-                      min="1"
+                      min="0"
                       v-model="aswImpRange[0]"
                       hide-details
                     />

@@ -159,7 +159,7 @@ export default class Enemy implements ShipBase {
         this.specialKijuCount += 1;
       }
       // 電探カウント
-      if (item.data.iconTypeId === 11) {
+      if (item.data.apiTypeId === 12 || item.data.apiTypeId === 13) {
         // 対空電探
         if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
         // 水上電探

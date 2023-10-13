@@ -53,10 +53,10 @@
       </v-tooltip>
     </div>
     <v-divider />
-    <div class="d-flex align-center flex-wrap mt-5 mx-2">
+    <div class="d-flex align-center flex-wrap mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }">
-          <div class="form-input" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+          <div class="form-input mt-5 mr-2" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
             <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly />
           </div>
         </template>
@@ -64,7 +64,7 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')" />
         </v-card>
       </v-menu>
-      <div class="ml-2">
+      <div class="mr-2 mt-5">
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -75,7 +75,7 @@
           @change="changedFormation(fleetInfo.mainFleet.formation)"
         />
       </div>
-      <div class="ml-2">
+      <div class="mr-1 mt-5">
         <v-select
           class="fleet-type-input"
           :label="$t('Fleet.艦隊形式')"
@@ -86,7 +86,7 @@
           @change="changedInfo"
         />
       </div>
-      <div class="ml-1" v-if="fleetInfo.isUnion">
+      <div class="mt-5" v-if="fleetInfo.isUnion">
         <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12" />
       </div>
     </div>
@@ -146,6 +146,7 @@
           :handle-show-temp-ship-list="showTempShipList"
           :handle-show-temp-fleet-list="showTempFleetList"
           :handle-show-item-preset="showItemPreset"
+          :handle-create-tray="createTray"
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
@@ -1091,6 +1092,21 @@ export default Vue.extend({
       this.shipDialogTarget = [fleetIndex, shipIndex];
       this.tempShip = cloneDeep(ship);
       this.itemPresetDialog = true;
+    },
+    createTray(fleetIndex: number, shipIndex: number) {
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+      const tray = new ShipMaster();
+      tray.slots = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      tray.slotCount = tray.slots.length;
+      fleet.ships[shipIndex] = new Ship({
+        master: tray,
+        isActive: false,
+        isTray: true,
+      });
+
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     showTempShipList(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];

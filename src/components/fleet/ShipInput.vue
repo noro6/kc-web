@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="ma-1 ship-input"
-    :class="{ disabled: !ship.isActive, 'py-1': !ship.isEmpty }"
+    :class="{ disabled: !ship.isActive && !ship.isTray, 'py-1': !ship.isEmpty && !ship.isTray }"
     @mousedown="setDraggable"
     @mouseup="resetDraggable"
     @dragstart="dragStart($event)"
@@ -11,14 +11,23 @@
     @drop.stop="dropShip($event)"
     @dragover.prevent
   >
-    <template v-if="ship.isEmpty">
-      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
-        <div class="align-self-center">{{ shipName }}</div>
-        <div class="empty-temp-list" v-if="handleShowTempShipList">
-          <v-tooltip bottom color="black">
+    <template v-if="ship.isEmpty && !ship.isTray">
+      <div class="empty-ship d-flex align-center" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
+        <v-icon small class="mr-1">mdi-plus</v-icon>
+        <div>{{ shipName }}</div>
+        <div class="empty-temp-list" v-if="handleShowTempShipList || handleCreateTray">
+          <v-tooltip bottom color="black" v-if="handleCreateTray">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
-                <v-icon small>mdi-clipboard-arrow-down</v-icon>
+              <v-btn icon color="light-blue" v-bind="attrs" v-on="on" @click.stop="createTray()">
+                <v-icon>mdi-tray-plus</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.装備置き場生成") }}</span>
+          </v-tooltip>
+          <v-tooltip bottom color="black" v-if="handleShowTempShipList">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+                <v-icon>mdi-clipboard-arrow-down</v-icon>
               </v-btn>
             </template>
             <span>{{ $t("Fleet.艦娘クリップボード") }}</span>
@@ -42,7 +51,13 @@
             <v-img :src="`./img/tags/area${ship.area}.webp`" height="40" width="29" />
           </div>
         </div>
-        <div class="flex-grow-1">
+        <template v-if="ship.isTray">
+          <div class="align-self-center">
+            <v-img :src="`./img/util/mushi.png`" height="24" width="24" />
+          </div>
+          <div class="mt-1 ml-3 align-self-center caption flex-grow-1">{{ $t('Fleet.装備を自由に置くスペースです。') }}</div>
+        </template>
+        <div class="flex-grow-1" v-if="!ship.isTray">
           <div class="caption">
             <v-menu
               v-model="editStatusMenu"
@@ -107,7 +122,7 @@
           </v-btn>
         </div>
       </div>
-      <div class="ship-status-container caption pl-2">
+      <div class="ship-status-container caption pl-2" v-if="!ship.isTray">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}</span>
         <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
@@ -189,7 +204,7 @@
           </v-tooltip>
         </template>
       </div>
-      <div class="d-flex pr-1 pl-2 flex-wrap">
+      <div class="d-flex pr-1 pl-2 flex-wrap" v-if="!ship.isTray">
         <div v-if="ship.fullAirPower" class="align-self-center caption">
           <span class="text--secondary">{{ $t("Common.制空") }}</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
@@ -267,9 +282,9 @@
           </div>
         </div>
       </div>
-      <v-divider class="mx-1 item-input-divider" />
+      <v-divider class="mx-1 item-input-divider" v-if="!ship.isTray" />
       <!-- 装備一覧 -->
-      <div class="px-1" v-if="!ship.isEmpty">
+      <div class="px-1" v-if="!ship.isEmpty && !ship.isTray">
         <div
           @mouseenter="bootTooltip(item, j, $event)"
           @mouseleave="clearTooltip"
@@ -304,6 +319,32 @@
             :is-released="ship.releaseExpand"
             @input="updateItem"
           />
+        </div>
+      </div>
+      <div class="pa-1" v-else-if="ship.isTray">
+        <v-divider class="item-input-divider" />
+        <div class="tray-items">
+          <div
+            @mouseenter="bootTooltip(item, j, $event)"
+            @mouseleave="clearTooltip"
+            @focus="bootTooltip(item, j, $event)"
+            @blur="clearTooltip"
+            v-for="(item, j) in ship.items"
+            :key="j"
+          >
+            <item-input
+              v-model="ship.items[j]"
+              :index="j"
+              :max="99"
+              :drag-slot="false"
+              :init="ship.data.slots[j]"
+              :handle-show-item-list="showItemList"
+              :item-parent="ship"
+              :handle-drag-start="clearTooltip"
+              :dense="true"
+              @input="updateItem"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -481,6 +522,11 @@
 body.item-ui-border .item-input-divider {
   display: none !important;
 }
+.tray-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 2px;
+}
 </style>
 
 <script lang="ts">
@@ -493,8 +539,6 @@ import Item from '@/classes/item/item';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
 import ShipValidation from '@/classes/fleet/shipValidation';
-import { cloneDeep } from 'lodash';
-import ItemBonus from '@/classes/item/ItemBonus';
 import Const from '@/classes/const';
 
 export default Vue.extend({
@@ -517,6 +561,9 @@ export default Vue.extend({
       type: Function,
     },
     handleShowItemPreset: {
+      type: Function,
+    },
+    handleCreateTray: {
       type: Function,
     },
     value: {
@@ -696,6 +743,10 @@ export default Vue.extend({
       // 一時保存領域の展開
       this.handleShowTempShipList(this.index);
     },
+    createTray() {
+      // 装備置き場の生成
+      this.handleCreateTray(this.index);
+    },
     showItemPresets() {
       // 装備プリセット画面
       this.handleShowItemPreset(this.index);
@@ -785,7 +836,7 @@ export default Vue.extend({
         return;
       }
       const target = e.target as HTMLDivElement;
-      if (this.value.isEmpty || !target || !target.classList || !target.classList.contains('ship-input') || !target.draggable) {
+      if ((this.value.isEmpty && !this.value.isTray) || !target || !target.classList || !target.classList.contains('ship-input') || !target.draggable) {
         return;
       }
       target.style.opacity = '0.6';
@@ -890,50 +941,7 @@ export default Vue.extend({
         this.tooltipItem = item;
         this.enabledTooltip = true;
 
-        // この装備がなかった場合のボーナスと比較した分をこの装備のボーナスとする
-        const baseItems = this.value.items.concat();
-        baseItems.push(this.value.exItem);
-        const tempItems = cloneDeep(baseItems);
-        tempItems[index < 0 ? tempItems.length - 1 : index] = new Item();
-
-        const emptyBonus = Ship.getItemBonus(this.value.data, tempItems);
-        // 未装備時のボーナス合計
-        const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
-        // 現在のボーナス
-        const totalBonus = ItemBonus.getTotalBonus(this.value.itemBonuses);
-        // ボーナスの差分を取る
-        if (totalBonus.firePower) {
-          totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
-        }
-        if (totalBonus.torpedo) {
-          totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
-        }
-        if (totalBonus.antiAir) {
-          totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
-        }
-        if (totalBonus.armor) {
-          totalBonus.armor -= totalEmptyBonus.armor ?? 0;
-        }
-        if (totalBonus.asw) {
-          totalBonus.asw -= totalEmptyBonus.asw ?? 0;
-        }
-        if (totalBonus.avoid) {
-          totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
-        }
-        if (totalBonus.accuracy) {
-          totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
-        }
-        if (totalBonus.range) {
-          totalBonus.range -= totalEmptyBonus.range ?? 0;
-        }
-        if (totalBonus.bomber) {
-          totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
-        }
-        if (totalBonus.scout) {
-          totalBonus.scout -= totalEmptyBonus.scout ?? 0;
-        }
-
-        this.tooltipBonus = JSON.stringify(totalBonus);
+        this.tooltipBonus = JSON.stringify(this.value.getItemBonusDiff(index));
       }, Math.max(setting.popUpCount, 10));
     },
     bootShipTooltip(e: MouseEvent) {

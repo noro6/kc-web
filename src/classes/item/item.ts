@@ -57,6 +57,9 @@ export default class Item {
   /** 改修値による対空値増分(遠征) */
   public readonly bonusExpeditionAntiAir: number;
 
+  /** 改修値による装甲値増分 */
+  public readonly bonusArmor: number;
+
   /** 改修値による命中値増分 */
   public readonly bonusAccuracy: number;
 
@@ -243,6 +246,7 @@ export default class Item {
     this.bonusNightFire = this.getBonusNightFirePower();
     this.bonusTorpedo = this.getBonusTorpedo();
     this.bonusBomber = this.getBonusBomber();
+    this.bonusArmor = this.getBonusArmor();
     this.bonusAntiAir = this.getBonusAntiAir();
     this.bonusAccuracy = this.getBonusAccuracy();
     this.bonusAsw = this.getBonusAsw();
@@ -497,7 +501,7 @@ export default class Item {
       return Math.sqrt(this.remodel);
     }
     // ソナー 爆雷
-    if ([14, 15].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
+    if ([14, 15, 40].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return 0.75 * Math.sqrt(this.remodel);
     }
     // 艦攻 艦爆
@@ -589,7 +593,7 @@ export default class Item {
    */
   private getBonusAswForExpedition(): number {
     // ソナー 爆雷投射機 爆雷
-    if ([14, 15].includes(this.data.apiTypeId)) {
+    if ([14, 15, 40].includes(this.data.apiTypeId)) {
       return Math.floor(10 * Math.sqrt(this.remodel)) / 10;
     }
 
@@ -701,8 +705,8 @@ export default class Item {
   private getBonusAsw(): number {
     const type = this.data.apiTypeId;
     // ソナー 爆雷
-    if ([14, 15].includes(type)) {
-      return Math.sqrt(this.remodel);
+    if ([14, 15, 40].includes(type)) {
+      return (2 / 3) * Math.sqrt(this.remodel);
     }
 
     // 艦攻
@@ -747,9 +751,27 @@ export default class Item {
     if ([28, 29, 31, 32, 88, 89, 141, 240, 278, 279, 315].includes(this.data.id)) {
       return 1.7 * Math.sqrt(this.remodel);
     }
-    // 主砲 副砲 徹甲弾 高射装置 探照灯
-    if ([1, 2, 3, 4, 12, 13, 19, 29, 36, 42].includes(this.data.apiTypeId)) {
+    // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－
+    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 29, 36, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return Math.sqrt(this.remodel);
+    }
+    return 0;
+  }
+
+  /**
+   * 改修値によるボーナス装甲を返却
+   * @private
+   * @return {*}  {number}
+   * @memberof Item
+   */
+  private getBonusArmor(): number {
+    // 中型バルジ
+    if (this.data.apiTypeId === 27) {
+      return 0.2 * this.remodel;
+    }
+    // 大型バルジ
+    if (this.data.apiTypeId === 28) {
+      return 0.3 * this.remodel;
     }
     return 0;
   }

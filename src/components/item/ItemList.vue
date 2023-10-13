@@ -281,6 +281,7 @@
     </div>
     <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
       <v-list dense class="caption" v-if="menuItem">
+        <v-list-item link @click="compareItem()" :disabled="!isAirbaseMode && !isShipMode">{{ $t("ItemList.装備比較") }}</v-list-item>
         <v-list-item link @click="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-list-item>
         <v-menu v-model="remodelChangeMenu" offset-x max-width="72" v-if="isStockOnly && !isReadonlyMode">
           <template v-slot:activator="{ on, attrs }">
@@ -321,7 +322,7 @@
       <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
     <v-dialog v-model="sortDialog" width="600">
-      <v-card class="px-3 py-3">
+      <v-card class="pa-3">
         <div class="d-flex px-2 align-center">
           <div>{{ $t("Common.ソート") }}</div>
           <v-btn class="ml-auto" icon @click="sortDialog = false">
@@ -345,6 +346,30 @@
         <v-divider />
         <div class="d-flex mt-3 justify-end">
           <v-btn color="secondary" @click="resetOrdering">{{ $t("Common.リセット") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="compareDialog" transition="scroll-x-transition" width="auto">
+      <v-card class="pa-3 compare-dialog" v-if="menuItem">
+        <div class="compare-close-button">
+          <v-btn class="ml-auto" icon @click="compareDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex" :is-airbase-mode="isAirbaseMode"></item-compare>
+        <v-divider class="my-2" />
+        <div class="d-flex flex-wrap">
+          <v-checkbox
+            v-model="setting.showItemCompareDialog"
+            @click="toggleCompareSetting"
+            hide-details
+            dense
+            :label="$t('ItemList.装備選択時は常に表示する')"
+          />
+          <div class="ml-auto">
+            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-btn>
+            <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</v-btn>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -692,11 +717,22 @@
   width: 1px;
   opacity: 0;
 }
+
+.compare-dialog {
+  position: relative;
+  padding-top: 24px !important;
+}
+.compare-close-button {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import ItemTooltip from '@/components/item/ItemTooltip.vue';
+import ItemCompare from '@/components/item/ItemCompare.vue';
 import BlacklistItemEdit from '@/components/item/BlacklistItemEdit.vue';
 import ItemMaster from '@/classes/item/itemMaster';
 import Airbase from '@/classes/airbase/airbase';
@@ -725,7 +761,7 @@ type viewItem = {
 
 export default Vue.extend({
   name: 'ItemList',
-  components: { ItemTooltip, BlacklistItemEdit },
+  components: { ItemTooltip, BlacklistItemEdit, ItemCompare },
   props: {
     handleEquipItem: {
       type: Function,
@@ -821,6 +857,7 @@ export default Vue.extend({
     menuItem: null as viewItem | null,
     menuX: 0,
     menuY: 0,
+    compareDialog: false,
   }),
   mounted() {
     this.types = [];
@@ -858,6 +895,9 @@ export default Vue.extend({
   computed: {
     isAirbaseMode(): boolean {
       return this.itemParent instanceof Airbase;
+    },
+    isShipMode(): boolean {
+      return this.itemParent instanceof Ship;
     },
     isAircraftMode(): boolean {
       return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717].includes(this.itemParent.data.id));
@@ -1114,6 +1154,18 @@ export default Vue.extend({
             continue;
           }
           types.push(i);
+          if (this.type <= 0) {
+            // カテゴリがおかしかったら最初のカテゴリにする
+            this.type = 1;
+          }
+
+          const filterData = this.setting.savedItemListFilter.find((v) => v.parent === 'ship');
+          if (filterData && filterData.key) {
+            this.filterStatus = filterData.key;
+          }
+          if (filterData && filterData.value) {
+            this.filterStatusValue = filterData.value;
+          }
         }
       } else if (parent instanceof Airbase) {
         // 基地航空隊 全艦載機装備可能
@@ -1369,23 +1421,26 @@ export default Vue.extend({
 
       // 装備フィットの可視化
       if (this.itemParent instanceof Ship) {
+        // viewItem配列全てのviewItemに対し、装備シナジーボーナスを付与する
+        // => 変更対象のスロットが空の場合のボーナスと、それぞれの装備を搭載時に発生するボーナスの差分を採る
         const baseItems = this.itemParent.items.concat();
         baseItems.push(this.itemParent.exItem);
 
-        if (this.slotIndex === Const.EXPAND_SLOT_INDEX) {
-          this.slotIndex = baseItems.length - 1;
+        let targetSlot = this.slotIndex;
+        if (targetSlot === Const.EXPAND_SLOT_INDEX) {
+          targetSlot = baseItems.length - 1;
         }
 
         // 装備を入れ替えようとしているスロットが未装備だった状態のbonusを取得...(1)
         const tempItems = cloneDeep(baseItems);
-        tempItems[this.slotIndex] = new Item();
+        tempItems[targetSlot] = new Item();
         const emptyBonus = Ship.getItemBonus(this.itemParent.data, tempItems);
         const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
 
         for (let i = 0; i < viewItems.length; i += 1) {
           const item = viewItems[i];
           const items = cloneDeep(baseItems);
-          items[this.slotIndex] = item.item;
+          items[targetSlot] = item.item;
           const bonuses = Ship.getItemBonus(this.itemParent.data, items);
           // (1) とのボーナスの個数を比較し、多ければボーナスありとする
           if (bonuses.length > emptyBonus.length) {
@@ -1503,6 +1558,19 @@ export default Vue.extend({
         return;
       }
       this.clearTooltip();
+
+      // 装備比較画面展開できるかどうか
+      if (this.setting.showItemCompareDialog && !this.compareDialog && (this.isAirbaseMode || this.isShipMode) && this.itemParent) {
+        // 元あった装備がないなら展開はしない
+        const baseItem = this.itemParent.items[this.slotIndex] || (this.itemParent instanceof Ship && this.itemParent.exItem);
+        if (baseItem && baseItem.data && baseItem.data.id) {
+          // 比較画面展開
+          this.menuItem = data;
+          this.compareItem();
+          return;
+        }
+      }
+
       if (data.count || this.confirmDialog) {
         this.decidedItem = true;
         this.confirmDialog = false;
@@ -1513,7 +1581,7 @@ export default Vue.extend({
       }
     },
     changeMultiLine(isMulti: boolean) {
-      this.handleChangeWidth(isMulti ? 1200 : 900);
+      this.handleChangeWidth(isMulti ? 1200 : 940);
       this.multiLine = isMulti;
 
       // 設定書き換え
@@ -1692,6 +1760,15 @@ export default Vue.extend({
         this.showMenu = false;
         this.filter();
       }
+    },
+    compareItem() {
+      if (this.isShipMode || this.isAirbaseMode) {
+        this.compareDialog = true;
+      }
+    },
+    toggleCompareSetting() {
+      // 設定書き換え
+      this.$store.dispatch('updateSetting', this.setting);
     },
   },
 });

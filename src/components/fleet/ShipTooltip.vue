@@ -33,7 +33,7 @@
           </span>
         </div>
         <div class="grey--text text--lighten-1">{{ $t("Common.支援火力") }}</div>
-        <div>{{ supportFirePower }}</div>
+        <div>{{ value.supportFirePower }}</div>
         <div />
         <div class="grey--text text--lighten-1">{{ $t("Common.砲戦火力") }}</div>
         <div>{{ dayBattleFirePower }}</div>
@@ -287,7 +287,6 @@ import sum from 'lodash/sum';
 import Ship from '@/classes/fleet/ship';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SiteSetting from '@/classes/siteSetting';
-import { FLEET_TYPE } from '@/classes/const';
 import SaveData from '@/classes/saveData/saveData';
 import SpecialAttack from '../../classes/specialAttack';
 
@@ -410,10 +409,7 @@ export default Vue.extend({
       }
 
       // なければデフォルトで。
-      return Math.floor(Ship.getDayBattleFirePower(this.value, FLEET_TYPE.SINGLE, false));
-    },
-    supportFirePower(): number {
-      return Ship.getSupportFirePower(this.value);
+      return Math.floor(this.value.baseDayBattleFirePower);
     },
     prevShip(): ShipMaster | undefined {
       const ships = this.$store.state.ships as ShipMaster[];

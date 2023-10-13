@@ -12,6 +12,7 @@
   >
     <!-- 搭載数 -->
     <v-menu
+      v-if="!dense"
       offset-y
       :close-on-content-click="false"
       transition="slide-y-transition"
@@ -37,7 +38,7 @@
       </v-card>
     </v-menu>
     <!-- 装備種別 -->
-    <div class="mx-1 item-icon" :class="{ draggable: isDraggable }">
+    <div class="item-icon" :class="{ 'mx-1': !dense, draggable: isDraggable }">
       <img v-if="item.data.iconTypeId > 0" :src="`./img/type/icon${item.data.iconTypeId}.png`" alt="item-icon" />
     </div>
     <!-- 装備名称 -->
@@ -63,7 +64,8 @@
       <v-menu offset-y transition="slide-y-transition" left :disabled="readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-remodel" v-bind="attrs" v-on="on" :class="{ 'no-remodel': !item.data.canRemodel, 'value-0': item.remodel === 0 }">
-            <v-icon small :color="remodelIconColor">mdi-star</v-icon>
+            <v-icon v-if="dense" x-small :color="remodelIconColor">mdi-star</v-icon>
+            <v-icon v-else small :color="remodelIconColor">mdi-star</v-icon>
             <span :class="remodelLabelColor">{{ item.remodel }}</span>
           </div>
         </template>
@@ -80,7 +82,8 @@
       <v-menu offset-y transition="slide-y-transition" left :disabled="!item.data.isPlane || isExpandSlot || readonly || draggingNow || isEnemy">
         <template v-slot:activator="{ on, attrs }">
           <div class="item-level" v-bind="attrs" v-on="on">
-            <v-img :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18" />
+            <v-img v-if="dense" :src="`./img/util/prof${item.levelAlt}.png`" height="16" width="12" />
+            <v-img v-else :src="`./img/util/prof${item.levelAlt}.png`" height="24" width="18" />
             <span class="level-value">{{ item.level }}</span>
           </div>
         </template>
@@ -179,7 +182,7 @@
 .item-name {
   flex-grow: 1;
   cursor: pointer;
-  width: 100px;
+  width: 10px;
   font-size: 0.8em;
   line-height: 25px;
   position: relative;
@@ -318,9 +321,32 @@
 .item-input:hover .level-value {
   opacity: 1;
 }
-
 .no-stock {
   color: rgb(255, 100, 100) !important;
+}
+
+/** 装備置き場用最小サイズ */
+.minify-size .item-name {
+  font-size: 12px;
+  line-height: 12px;
+}
+.minify-size .item-remodel {
+  width: 26px;
+}
+.minify-size .item-remodel span {
+  font-size: 0.7em;
+}
+.minify-size .level-value {
+  font-size: 10px;
+}
+.minify-size .item-icon {
+  display: flex;
+  align-items: center;
+  width: 20px;
+}
+.minify-size .item-icon img {
+  width: 20px;
+  height: 20px;
 }
 
 /** 読み取り専用など */
@@ -400,6 +426,10 @@ export default Vue.extend({
       type: Boolean,
       default: true,
     },
+    dense: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     slotMenu: false,
@@ -469,10 +499,13 @@ export default Vue.extend({
       if (!this.isDraggable) {
         classes.push('disabled-draggable');
       }
+      if (this.dense) {
+        classes.push('minify-size');
+      }
       return classes.join(' ');
     },
     bonusText(): string {
-      if (!this.value.data.id || !this.value.data.bonuses.length) {
+      if (!this.value.data.id || !this.value.data.bonuses.length || !this.setting.displayBonusKey) {
         return '';
       }
       const key = this.setting.displayBonusKey;

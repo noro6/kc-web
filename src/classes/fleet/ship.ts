@@ -1,12 +1,12 @@
 import sum from 'lodash/sum';
+import { cloneDeep } from 'lodash';
 import ShipMaster from './shipMaster';
 import Item from '../item/item';
-import Const, { CAP, FLEET_TYPE, SHIP_TYPE } from '../const';
+import Const, { FLEET_TYPE, SHIP_TYPE } from '../const';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import { ShipBase } from '../interfaces/shipBase';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
 import ItemBonus, { ItemBonusStatus } from '../item/ItemBonus';
-import CommonCalc from '../commonCalc';
 
 export interface ShipBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -39,6 +39,8 @@ export interface ShipBuilder {
   releaseExpand?: boolean;
   /** 在庫にないけど配備されている警告用 再装備時にはこの情報は引き継がない */
   noStock?: boolean;
+  /** 装備受け皿用枠でインスタンス化するかどうか */
+  isTray?: boolean;
 }
 
 /** 表示ステータス */
@@ -85,6 +87,12 @@ export default class Ship implements ShipBase {
   /** 計算で適用する運 */
   public readonly luck: number;
 
+  /** 砲戦火力基礎値(連合とかで変わるので、とりあえずの基本値) */
+  public readonly baseDayBattleFirePower: number;
+
+  /** 支援射撃火力 */
+  public readonly supportFirePower: number;
+
   /** 夜戦火力 */
   public readonly nightBattleFirePower: number;
 
@@ -102,6 +110,12 @@ export default class Ship implements ShipBase {
 
   /** 回避値 */
   public readonly avoid: number;
+
+  /** 通常命中 */
+  public readonly accuracy: number;
+
+  /** 支援命中 */
+  public readonly supportAccuracy: number;
 
   /** 装備「なし」対潜値 */
   public readonly asw: number;
@@ -208,6 +222,9 @@ export default class Ship implements ShipBase {
   /** 所持なしなのに配備されてる */
   public readonly noStock: boolean;
 
+  /** 装備置き場用プロパティ */
+  public readonly isTray: boolean;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -239,6 +256,7 @@ export default class Ship implements ShipBase {
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : builder.ship.uniqueId;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : builder.ship.releaseExpand;
       this.noStock = builder.noStock ?? false;
+      this.isTray = builder.isTray !== undefined ? builder.isTray : builder.ship.isTray;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -254,6 +272,7 @@ export default class Ship implements ShipBase {
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : 0;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : true;
       this.noStock = builder.noStock ?? false;
+      this.isTray = builder.isTray ?? false;
     }
 
     // 装備数をマスタのスロット数に合わせる
@@ -305,6 +324,8 @@ export default class Ship implements ShipBase {
     this.nightBattleFirePower = 0;
     this.nightAttackCrewFireBonus = 0;
     this.nightAttackCrewBomberBonus = 0;
+    this.accuracy = 0;
+    this.supportAccuracy = 0;
     this.fuel = Math.max(this.level > 99 ? Math.floor(this.data.fuel * 0.85) : this.data.fuel, 1);
     this.ammo = Math.max(this.level > 99 ? Math.floor(this.data.ammo * 0.85) : this.data.ammo, 1);
 
@@ -392,8 +413,10 @@ export default class Ship implements ShipBase {
       this.displayStatus.antiAir += item.data.antiAir;
       this.displayStatus.asw += item.data.asw;
       this.displayStatus.LoS += item.data.scout;
-      this.displayStatus.accuracy += item.data.accuracy;
       this.displayStatus.bomber += item.data.bomber;
+      this.displayStatus.accuracy += item.data.accuracy;
+      this.accuracy += item.data.accuracy;
+      this.supportAccuracy += item.data.accuracy;
 
       // 装備防空ボーナス
       this.antiAirBonus += item.antiAirBonus;
@@ -478,6 +501,7 @@ export default class Ship implements ShipBase {
 
       // 夜戦火力
       this.nightBattleFirePower += item.bonusNightFire;
+      this.accuracy += item.bonusAccuracy;
     }
 
     this.nightContactRate = 1 - nightContactFailureRate;
@@ -496,8 +520,9 @@ export default class Ship implements ShipBase {
       this.displayStatus.asw += this.itemBonusStatus.asw ?? 0;
       this.displayStatus.LoS += this.itemBonusStatus.scout ?? 0;
       this.displayStatus.range += this.itemBonusStatus.range ?? 0;
-      this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
       this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
+      this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
+      this.accuracy += this.itemBonusStatus.accuracy ?? 0;
     }
 
     // 空母夜襲発動判定
@@ -552,6 +577,10 @@ export default class Ship implements ShipBase {
 
     // 装備もマスタもない場合空として計算対象から省く
     this.isEmpty = this.data.id === 0 && !this.items.some((v) => v.data.id > 0);
+
+    // 昼戦基礎火力算出
+    this.baseDayBattleFirePower = Ship.getDayBattleFirePower(this, FLEET_TYPE.SINGLE, false);
+    this.supportFirePower = this.getSupportFirePower();
   }
 
   /**
@@ -614,20 +643,18 @@ export default class Ship implements ShipBase {
 
   /**
    * 支援火力を返却
-   * @static
-   * @param {Ship} ship
-   * @returns {number}
+   * @return {*}  {number}
    * @memberof Ship
    */
-  public static getSupportFirePower(ship: Ship): number {
+  public getSupportFirePower(): number {
     let supportFirePower = 0;
-    if (ship.data.isCV || ([717].includes(ship.data.id) && ship.items.some((v) => v.data.isAttacker && !v.data.isAswPlane))) {
+    if (this.data.isCV || ([717].includes(this.data.id) && this.items.some((v) => v.data.isAttacker && !v.data.isAswPlane))) {
       // 空母系 山汐丸
-      supportFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) - 1)) + 55;
+      supportFirePower = Math.floor(1.5 * (this.displayStatus.firePower + this.displayStatus.torpedo + Math.floor(1.3 * this.displayStatus.bomber) - 1)) + 55;
     } else {
-      supportFirePower = ship.displayStatus.firePower + 4;
+      supportFirePower = this.displayStatus.firePower + 4;
     }
-    return CommonCalc.softCap(supportFirePower, CAP.SUPPORT);
+    return supportFirePower;
   }
 
   /**
@@ -1094,6 +1121,60 @@ export default class Ship implements ShipBase {
       }
     }
     return sumBonuses;
+  }
+
+  /**
+   * 指定したスロットにある装備特有の装備ボーナスを取得
+   *  => 指定スロットの装備を外した場合との差分から算出する
+   * @param {number} slotIndex
+   * @return {*}  {ItemBonusStatus}
+   * @memberof Ship
+   */
+  public getItemBonusDiff(slotIndex: number): ItemBonusStatus {
+    // この装備がなかった場合のボーナスと比較した分をこの装備のボーナスとする
+    const baseItems = this.items.concat();
+    baseItems.push(this.exItem);
+    const tempItems = cloneDeep(baseItems);
+    tempItems[(slotIndex < 0 || slotIndex === Const.EXPAND_SLOT_INDEX) ? tempItems.length - 1 : slotIndex] = new Item();
+
+    const emptyBonus = Ship.getItemBonus(this.data, tempItems);
+    // 未装備時のボーナス合計
+    const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
+    // 装備している現在のボーナス これをベースに、未装備時のボーナスを差っ引いていく
+    const totalBonus = ItemBonus.getTotalBonus(this.itemBonuses);
+    // 未装備時と、装備時のボーナスの差分を取る
+    if (totalBonus.firePower) {
+      totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
+    }
+    if (totalBonus.torpedo) {
+      totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
+    }
+    if (totalBonus.antiAir) {
+      totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
+    }
+    if (totalBonus.armor) {
+      totalBonus.armor -= totalEmptyBonus.armor ?? 0;
+    }
+    if (totalBonus.asw) {
+      totalBonus.asw -= totalEmptyBonus.asw ?? 0;
+    }
+    if (totalBonus.avoid) {
+      totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
+    }
+    if (totalBonus.accuracy) {
+      totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
+    }
+    if (totalBonus.range) {
+      totalBonus.range -= totalEmptyBonus.range ?? 0;
+    }
+    if (totalBonus.bomber) {
+      totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
+    }
+    if (totalBonus.scout) {
+      totalBonus.scout -= totalEmptyBonus.scout ?? 0;
+    }
+
+    return totalBonus;
   }
 
   /**

@@ -10,7 +10,14 @@
       <div class="main-content-buttons">
         <v-tooltip left bottom color="black" max-width="400px" open-delay="500" v-for="page in mainPages" :key="page.title" :disabled="!page.text">
           <template v-slot:activator="{ on, attrs }">
-            <button class="content-button" v-bind="attrs" v-on="on" v-ripple="{ class: `${page.color}--text` }" @click="clickedButton(page.url)">
+            <button
+              class="content-button"
+              v-bind="attrs"
+              v-on="on"
+              v-ripple="{ class: `${page.color}--text` }"
+              @click="clickedButton(page)"
+              :disabled="page.clicked"
+            >
               <div>
                 <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
               </div>
@@ -27,7 +34,14 @@
       <div class="main-content-buttons">
         <v-tooltip left bottom color="black" max-width="340px" open-delay="500" v-for="page in extraPages" :key="page.title">
           <template v-slot:activator="{ on, attrs }">
-            <button class="content-button" v-bind="attrs" v-on="on" v-ripple="{ class: `${page.color}--text` }" @click="clickedButton(page.url)">
+            <button
+              class="content-button"
+              v-bind="attrs"
+              v-on="on"
+              v-ripple="{ class: `${page.color}--text` }"
+              @click="clickedButton(page)"
+              :disabled="page.clicked"
+            >
               <div>
                 <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
               </div>
@@ -398,16 +412,18 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickedButton(url: string) {
-      switch (url) {
+    clickedButton(page: { url: string; clicked: boolean }) {
+      switch (page.url) {
         case 'aircalc':
+          page.clicked = true;
           this.goAirCalcPage();
           break;
         case 'setting':
           this.$emit('showSiteSetting');
           break;
         default:
-          this.$router.push(url);
+          page.clicked = true;
+          this.$router.push(page.url);
           break;
       }
     },
