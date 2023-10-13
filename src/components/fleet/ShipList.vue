@@ -1181,7 +1181,7 @@ export default Vue.extend({
 
       // 検索語句あればこれ以外の検索はしない
       if (word) {
-        result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
+        result = result.filter((v) => v.id === +word || v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0);
       } else {
         // カテゴリ検索
         if (t) {
