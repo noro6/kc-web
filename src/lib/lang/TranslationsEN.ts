@@ -551,6 +551,8 @@ export default {
       '旗艦': '{name} as the flagship.',
       '旗艦不可': '{name} cannot be the flagship.',
       '高速化': '{name} needs to improve speed.',
+      '装備置き場生成': 'Create Equipment Storage',
+      '装備を自由に置くスペースです。': 'Free equipment storage',
     },
     Enemies: {
       '海域': 'World',
@@ -731,7 +733,7 @@ export default {
       '改修値無効': 'Sort by excluding improvement bonus',
       '装備シナジー無効': 'Sort by excluding synergy bonus',
       '熟練度成長': 'Growth speed',
-      '戦': ' battles',
+      '戦': 'battles',
       '装備プリセット': 'Equipment Preset',
       '現在の装備構成で新規登録': 'Create',
       '現在の装備構成で上書き': 'Overwrite with current equipments',

@@ -146,6 +146,7 @@
           :handle-show-temp-ship-list="showTempShipList"
           :handle-show-temp-fleet-list="showTempFleetList"
           :handle-show-item-preset="showItemPreset"
+          :handle-create-tray="createTray"
           :union-fleet="fleetInfo.unionFleet"
           :is-union="fleetInfo.isUnion"
           :admiral-lv="fleetInfo.admiralLevel"
@@ -1091,6 +1092,21 @@ export default Vue.extend({
       this.shipDialogTarget = [fleetIndex, shipIndex];
       this.tempShip = cloneDeep(ship);
       this.itemPresetDialog = true;
+    },
+    createTray(fleetIndex: number, shipIndex: number) {
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+      const tray = new ShipMaster();
+      tray.slots = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      tray.slotCount = tray.slots.length;
+      fleet.ships[shipIndex] = new Ship({
+        master: tray,
+        isActive: false,
+        isTray: true,
+      });
+
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     showTempShipList(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];

@@ -23,10 +23,10 @@ export default class ShipMaster {
   public readonly type2: number;
 
   /** 装備スロット数 */
-  public readonly slotCount: number;
+  public slotCount: number;
 
   /** 装備搭載数 */
-  public readonly slots: number[];
+  public slots: number[];
 
   /** 改造段階 0で無印 */
   public readonly version: number;

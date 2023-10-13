@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="ma-1 ship-input"
-    :class="{ disabled: !ship.isActive, 'py-1': !ship.isEmpty }"
+    :class="{ disabled: !ship.isActive && !ship.isTray, 'py-1': !ship.isEmpty && !ship.isTray }"
     @mousedown="setDraggable"
     @mouseup="resetDraggable"
     @dragstart="dragStart($event)"
@@ -11,14 +11,23 @@
     @drop.stop="dropShip($event)"
     @dragover.prevent
   >
-    <template v-if="ship.isEmpty">
-      <div class="empty-ship d-flex" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
-        <div class="align-self-center">{{ shipName }}</div>
-        <div class="empty-temp-list" v-if="handleShowTempShipList">
-          <v-tooltip bottom color="black">
+    <template v-if="ship.isEmpty && !ship.isTray">
+      <div class="empty-ship d-flex align-center" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
+        <v-icon small class="mr-1">mdi-plus</v-icon>
+        <div>{{ shipName }}</div>
+        <div class="empty-temp-list" v-if="handleShowTempShipList || handleCreateTray">
+          <v-tooltip bottom color="black" v-if="handleCreateTray">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
-                <v-icon small>mdi-clipboard-arrow-down</v-icon>
+              <v-btn icon color="light-blue" v-bind="attrs" v-on="on" @click.stop="createTray()">
+                <v-icon>mdi-tray-plus</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t("Fleet.装備置き場生成") }}</span>
+          </v-tooltip>
+          <v-tooltip bottom color="black" v-if="handleShowTempShipList">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon color="orange lighten-2" v-bind="attrs" v-on="on" @click.stop="showTempShip()">
+                <v-icon>mdi-clipboard-arrow-down</v-icon>
               </v-btn>
             </template>
             <span>{{ $t("Fleet.艦娘クリップボード") }}</span>
@@ -42,7 +51,13 @@
             <v-img :src="`./img/tags/area${ship.area}.webp`" height="40" width="29" />
           </div>
         </div>
-        <div class="flex-grow-1">
+        <template v-if="ship.isTray">
+          <div class="align-self-center">
+            <v-img :src="`./img/util/mushi.png`" height="24" width="24" />
+          </div>
+          <div class="mt-1 ml-3 align-self-center caption flex-grow-1">{{ $t('Fleet.装備を自由に置くスペースです。') }}</div>
+        </template>
+        <div class="flex-grow-1" v-if="!ship.isTray">
           <div class="caption">
             <v-menu
               v-model="editStatusMenu"
@@ -107,7 +122,7 @@
           </v-btn>
         </div>
       </div>
-      <div class="ship-status-container caption pl-2">
+      <div class="ship-status-container caption pl-2" v-if="!ship.isTray">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}</span>
         <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
         <template v-if="ship.hunshinRate">
@@ -189,7 +204,7 @@
           </v-tooltip>
         </template>
       </div>
-      <div class="d-flex pr-1 pl-2 flex-wrap">
+      <div class="d-flex pr-1 pl-2 flex-wrap" v-if="!ship.isTray">
         <div v-if="ship.fullAirPower" class="align-self-center caption">
           <span class="text--secondary">{{ $t("Common.制空") }}</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
@@ -267,9 +282,9 @@
           </div>
         </div>
       </div>
-      <v-divider class="mx-1 item-input-divider" />
+      <v-divider class="mx-1 item-input-divider" v-if="!ship.isTray" />
       <!-- 装備一覧 -->
-      <div class="px-1" v-if="!ship.isEmpty">
+      <div class="px-1" v-if="!ship.isEmpty && !ship.isTray">
         <div
           @mouseenter="bootTooltip(item, j, $event)"
           @mouseleave="clearTooltip"
@@ -304,6 +319,32 @@
             :is-released="ship.releaseExpand"
             @input="updateItem"
           />
+        </div>
+      </div>
+      <div class="pa-1" v-else-if="ship.isTray">
+        <v-divider class="item-input-divider" />
+        <div class="tray-items">
+          <div
+            @mouseenter="bootTooltip(item, j, $event)"
+            @mouseleave="clearTooltip"
+            @focus="bootTooltip(item, j, $event)"
+            @blur="clearTooltip"
+            v-for="(item, j) in ship.items"
+            :key="j"
+          >
+            <item-input
+              v-model="ship.items[j]"
+              :index="j"
+              :max="99"
+              :drag-slot="false"
+              :init="ship.data.slots[j]"
+              :handle-show-item-list="showItemList"
+              :item-parent="ship"
+              :handle-drag-start="clearTooltip"
+              :dense="true"
+              @input="updateItem"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -481,6 +522,11 @@
 body.item-ui-border .item-input-divider {
   display: none !important;
 }
+.tray-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 2px;
+}
 </style>
 
 <script lang="ts">
@@ -515,6 +561,9 @@ export default Vue.extend({
       type: Function,
     },
     handleShowItemPreset: {
+      type: Function,
+    },
+    handleCreateTray: {
       type: Function,
     },
     value: {
@@ -694,6 +743,10 @@ export default Vue.extend({
       // 一時保存領域の展開
       this.handleShowTempShipList(this.index);
     },
+    createTray() {
+      // 装備置き場の生成
+      this.handleCreateTray(this.index);
+    },
     showItemPresets() {
       // 装備プリセット画面
       this.handleShowItemPreset(this.index);
@@ -783,7 +836,7 @@ export default Vue.extend({
         return;
       }
       const target = e.target as HTMLDivElement;
-      if (this.value.isEmpty || !target || !target.classList || !target.classList.contains('ship-input') || !target.draggable) {
+      if ((this.value.isEmpty && !this.value.isTray) || !target || !target.classList || !target.classList.contains('ship-input') || !target.draggable) {
         return;
       }
       target.style.opacity = '0.6';

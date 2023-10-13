@@ -79,6 +79,7 @@
         :handle-show-item-list="showItemList"
         :handle-show-temp-ship-list="showTempShipList"
         :handle-show-item-preset="showItemPreset"
+        :handle-create-tray="createTray"
         :handle-close-ship="removeShip"
         :fix-down="ship.fixDown"
         :rate-down="ship.rateDown"
@@ -241,6 +242,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleCreateTray: {
+      type: Function,
+      required: true,
+    },
     hideResultBar: {
       type: Boolean,
       default: false,
@@ -325,6 +330,9 @@ export default Vue.extend({
     showItemPreset(shipIndex: number) {
       this.handleShowItemPreset(this.index, shipIndex);
     },
+    createTray(shipIndex: number) {
+      this.handleCreateTray(this.index, shipIndex);
+    },
     showAreaTagDialog() {
       this.updateAreaTagDialog = true;
     },
@@ -391,9 +399,13 @@ export default Vue.extend({
       this.setFleet(new Fleet({ fleet: this.fleet, ships }));
     },
     removeShip(index: number) {
-      const ships = this.fleet.ships.concat();
+      let ships = this.fleet.ships.concat();
       if (ships.length) {
-        ships[index] = new Ship();
+        if (ships.length > 1 && ships[index] && ships[index].isTray) {
+          ships = ships.filter((v, i) => index !== i);
+        } else {
+          ships[index] = new Ship();
+        }
         this.setFleet(new Fleet({ fleet: this.fleet, ships }));
       } else {
         // 消せなかったらリセット処理と同じで

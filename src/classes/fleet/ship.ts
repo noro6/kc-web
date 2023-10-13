@@ -39,6 +39,8 @@ export interface ShipBuilder {
   releaseExpand?: boolean;
   /** 在庫にないけど配備されている警告用 再装備時にはこの情報は引き継がない */
   noStock?: boolean;
+  /** 装備受け皿用枠でインスタンス化するかどうか */
+  isTray?: boolean;
 }
 
 /** 表示ステータス */
@@ -220,6 +222,9 @@ export default class Ship implements ShipBase {
   /** 所持なしなのに配備されてる */
   public readonly noStock: boolean;
 
+  /** 装備置き場用プロパティ */
+  public readonly isTray: boolean;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -251,6 +256,7 @@ export default class Ship implements ShipBase {
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : builder.ship.uniqueId;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : builder.ship.releaseExpand;
       this.noStock = builder.noStock ?? false;
+      this.isTray = builder.isTray !== undefined ? builder.isTray : builder.ship.isTray;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -266,6 +272,7 @@ export default class Ship implements ShipBase {
       this.uniqueId = builder.uniqueId !== undefined ? builder.uniqueId : 0;
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : true;
       this.noStock = builder.noStock ?? false;
+      this.isTray = builder.isTray ?? false;
     }
 
     // 装備数をマスタのスロット数に合わせる
