@@ -70,7 +70,7 @@
               @input="onEditStatusMenuToggle"
             >
               <template v-slot:activator="{ on, attrs }">
-                <div class="pr-2 clickable-status d-flex flex-wrap" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+                <div class="pr-2 clickable-status level-area" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
                   <div class="pl-1 pr-1 primary--text">
                     Lv<span class="font-weight-bold">{{ ship.level }}</span>
                   </div>
@@ -116,7 +116,7 @@
           </div>
         </div>
         <!-- 艦娘解除 -->
-        <div class="ship-remove mt-1">
+        <div class="ship-remove">
           <v-btn icon @click.stop="removeShip">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -397,7 +397,7 @@
   opacity: 0.6;
   position: absolute;
   right: 1px;
-  top: -6px;
+  top: 0px;
   z-index: 1;
 }
 
@@ -408,6 +408,10 @@
 }
 .clickable-status:hover {
   background-color: rgba(128, 128, 128, 0.1);
+}
+.level-area {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .edit-status-container {

@@ -336,8 +336,8 @@ export default class AerialFirePowerCalculator {
    * 基地航空隊 キャップ後攻撃力やその周辺の補正値を返却
    * @static
    * @param {FirePowerCalcArgs} args
-   * @param {number} power
-   * @return {*}  {PostCapTerm}
+   * @param {number} preCapFirePower
+   * @return {*}  {PostCapTerm[]}
    * @memberof AerialFirePowerCalculator
    */
   public static getPostCapAttackPowers(args: FirePowerCalcArgs, preCapFirePower: number): PostCapTerm[] {
@@ -461,10 +461,8 @@ export default class AerialFirePowerCalculator {
    * 基地航空隊 -対潜 キャップ前攻撃力やその周辺の補正値を返却
    * さしあたり、補正の最大と最小の場合を返却する。基本攻撃力は同一(種別係数をかける前)
    * @static
-   * @param {Item} item
-   * @param {number} slot
-   * @param {(Ship | Enemy)} defense
-   * @return {*}  {PreCapTerm}
+   * @param {FirePowerCalcArgs} args
+   * @return {*}  {PreCapTerm[]}
    * @memberof AerialFirePowerCalculator
    */
   public static getAirbasePreCapAswAttackPowers(args: FirePowerCalcArgs): PreCapTerm[] {
@@ -513,10 +511,9 @@ export default class AerialFirePowerCalculator {
   /**
    * 基地航空隊 -対潜 キャップ後攻撃力やその周辺の補正値を返却
    * @static
-   * @param {Item} item
-   * @param {number} baseFirePower
-   * @param {number} typeMultiplier A+B
    * @param {FirePowerCalcArgs} args
+   * @param {number} baseFirePower
+   * @param {number} typeMultiplier
    * @return {*}  {PostCapTerm}
    * @memberof AerialFirePowerCalculator
    */

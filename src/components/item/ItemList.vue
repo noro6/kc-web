@@ -99,7 +99,7 @@
         <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})</v-btn>
       </div>
     </div>
-    <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+    <div class="type-selector-container" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
         v-ripple="{ class: 'info--text' }"
         class="type-selector d-flex"
@@ -425,11 +425,18 @@
 
 .item-filter-container >>> .v-input--checkbox label {
   left: -5px !important;
+  font-size: 12px;
 }
-
+.item-filter-container >>> .v-input--switch label {
+  font-size: 12px;
+}
+.type-selector-container {
+  display: flex;
+  flex-wrap: wrap;
+}
 .type-selector {
   border: 1px solid transparent;
-  padding: 0.25rem 0.6rem;
+  padding: 0.2rem 0.4rem;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -700,8 +707,8 @@
 .manual-checkbox span {
   position: relative;
   left: -3px;
-  bottom: -10px;
-  font-size: 0.85em;
+  top: 11px;
+  font-size: 12px;
   opacity: 0.7;
   user-select: none;
 }
