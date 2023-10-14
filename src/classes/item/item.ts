@@ -635,7 +635,7 @@ export default class Item {
       return 0.2 * this.remodel;
     }
     // 陸攻 重爆
-    if (this.data.isABAttacker) {
+    if (this.data.isABAttacker && this.data.iconTypeId !== 47) {
       return 0.7 * Math.sqrt(this.remodel);
     }
     // 魚雷 / 機銃
@@ -735,6 +735,11 @@ export default class Item {
       }
 
       return 0.2 * this.remodel;
+    }
+
+    // 陸攻(対潜哨戒機)
+    if (this.data.isABAttacker && this.data.iconTypeId === 47) {
+      return 0.66 * Math.sqrt(this.remodel);
     }
 
     return 0;
