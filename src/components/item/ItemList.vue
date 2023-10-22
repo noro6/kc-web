@@ -1727,17 +1727,7 @@ export default Vue.extend({
       }
     },
     openWiki(item: ItemMaster) {
-      let wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(
-        item.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆').replaceAll('Ⅲ', 'III'),
-      )}`;
-      if (item.id === 144) {
-        wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
-      } else if (item.id === 303) {
-        wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
-      } else if (item.id === 389) {
-        wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
-      }
-      window.open(wikiURL);
+      window.open(ItemMaster.getWikiURL(item));
     },
     showItemMenu(item: viewItem, e: MouseEvent) {
       e.preventDefault();

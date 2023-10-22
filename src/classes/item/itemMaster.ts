@@ -255,4 +255,21 @@ export default class ItemMaster {
 
     this.isNightAircraftItem = this.iconTypeId === 45 || this.iconTypeId === 46 || [154, 242, 243, 244, 320].includes(this.id);
   }
+
+  /** 装備の日本wikiURLを返却 */
+  public static getWikiURL(data: ItemMaster): string {
+    if (data.id === 122) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('10cm高角砲＋高射装置')}`;
+    }
+    if (data.id === 144) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
+    }
+    if (data.id === 303) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
+    }
+    if (data.id === 389) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
+    }
+    return `https://wikiwiki.jp/kancolle/${encodeURI(data.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
+  }
 }
