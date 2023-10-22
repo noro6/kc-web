@@ -189,7 +189,7 @@
             <div class="ml-auto caption text--secondary">{{ detail.raw }}</div>
           </div>
           <div class="d-flex" v-if="false">
-            <div class="ml-auto caption text--secondary">{{ detail.items }}</div>
+            <div class="ml-auto caption text--secondary">{{ detail.items.map((v) => ({ id: v.data.id, remodel: v.remodel })) }}</div>
           </div>
         </div>
       </div>
@@ -526,15 +526,24 @@ export default Vue.extend({
 
           if (bonus.requiresAR && (tempItem.data.iconTypeId !== 11 || tempItem.data.antiAir < 2)) {
             // 対空電探条件(ベース装備自体が対空電探にカウントされない)場合、ダミー対空電探を搭載する
+            dummyRadar.id = 999997;
             dummyRadar.antiAir = 2;
+            dummyRadar.scout = 0;
+            dummyRadar.accuracy = 0;
             subItem = new Item({ master: new ItemMaster(dummyRadar), remodel: bonus.requiresIdLevel ? bonus.requiresIdLevel : 0 });
           }
           if (bonus.requiresSR && (tempItem.data.iconTypeId !== 11 || tempItem.data.scout < 5)) {
             // 水上電探条件(ベース装備自体が水上電探にカウントされない)場合、ダミー水上電探を搭載する
+            dummyRadar.id = 999998;
+            dummyRadar.antiAir = 0;
             dummyRadar.scout = 5;
+            dummyRadar.accuracy = 0;
             subItem = new Item({ master: new ItemMaster(dummyRadar), remodel: bonus.requiresIdLevel ? bonus.requiresIdLevel : 0 });
           }
           if (bonus.requiresAccR && (tempItem.data.iconTypeId !== 11 || tempItem.data.accuracy < 8)) {
+            dummyRadar.id = 999999;
+            dummyRadar.antiAir = 0;
+            dummyRadar.scout = 0;
             dummyRadar.accuracy = 8;
             subItem = new Item({ master: new ItemMaster(dummyRadar), remodel: bonus.requiresIdLevel ? bonus.requiresIdLevel : 0 });
           }
@@ -639,7 +648,8 @@ export default Vue.extend({
               });
             }
           } else if (!viewBonuses.some((v) => isEqual(requiredItems, v.items))) {
-            // 同じ装備構成でなければ追加
+            // 同じ装備構成かどうかをチェック
+
             viewBonuses.push({
               raw: bonus,
               hasCond: !!(
