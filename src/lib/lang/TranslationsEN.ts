@@ -754,6 +754,7 @@ export default {
       'wikiを開く': 'Open wiki',
       'メニューを閉じる': 'Close Menu',
       '装備比較': 'Compare',
+      '装備シナジー確認': 'Show Synergy',
       '装備選択時は常に表示する': 'Show every time',
     },
     Database: {
@@ -995,6 +996,13 @@ export default {
       '機': 'slots',
       '備考': 'Remarks',
       '対空CI発動可能': 'Anti-Air Cut-In can be triggered',
+      '装備シナジーチェッカー': 'Equipment Synergy Bonuses Checker (prototype)',
+      '条件': 'COND.',
+      '累積可': 'Multiple',
+      '累積不可': 'One-Time',
+      '水上電探': 'Surface Radar',
+      '対空電探': 'Air Radar',
+      '命中電探': 'Accuracy (+8) Radar',
     },
     EType: {
       '小口径主砲': 'Small Cal. Main Gun',

@@ -21,6 +21,11 @@
               <ship-status-compare />
             </v-card>
           </div>
+          <div class="pa-2">
+            <v-card class="pa-3">
+              <ship-item-synergy />
+            </v-card>
+          </div>
         </v-tab-item>
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.装備の基本ステータスの確認と比較を行えます。") }}</div>
@@ -88,6 +93,7 @@ import RequiredAswCalculator from '@/components/extra/RequiredAswCalculator.vue'
 import EnemySearcher from '@/components/extra/EnemySearcher.vue';
 import QuestManager from '@/components/extra/QuestManager.vue';
 import EnemyAaRanking from '@/components/extra/EnemyAARanking.vue';
+import ShipItemSynergy from '@/components/fleet/ShipItemSynergy.vue';
 import SaveData from '../classes/saveData/saveData';
 
 export default Vue.extend({
@@ -95,6 +101,7 @@ export default Vue.extend({
   components: {
     ShipMasterList,
     ShipStatusCompare,
+    ShipItemSynergy,
     ItemMasterList,
     RequiredAswCalculator,
     EnemySearcher,

@@ -161,7 +161,7 @@ export default class Enemy implements ShipBase {
       // 電探カウント
       if (item.data.apiTypeId === 12 || item.data.apiTypeId === 13) {
         // 対空電探
-        if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
+        if (item.data.antiAir > 1) this.antiAirRadarCount += 1;
         // 水上電探
         if (item.data.scout > 4) this.surfaceRadarCount += 1;
         this.hasRadar = true;

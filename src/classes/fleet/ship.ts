@@ -467,7 +467,7 @@ export default class Ship implements ShipBase {
 
       if (item.data.iconTypeId === 11) {
         // 対空電探
-        if (item.data.antiAir > 0) this.antiAirRadarCount += 1;
+        if (item.data.antiAir > 1) this.antiAirRadarCount += 1;
         // 水上電探
         if (item.data.scout > 4) this.surfaceRadarCount += 1;
       }
@@ -1000,7 +1000,7 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       // 対空電探カウント
-      if (item.data.iconTypeId === 11 && item.data.antiAir > 0) {
+      if (item.data.iconTypeId === 11 && item.data.antiAir > 1) {
         antiAirRadarCount += 1;
       }
       // 水上電探カウント

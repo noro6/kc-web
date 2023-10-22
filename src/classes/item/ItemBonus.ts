@@ -4,25 +4,40 @@ export type ItemBonusStatus = {
   firePower?: number, torpedo?: number, antiAir?: number, armor?: number, asw?: number, scout?: number, avoid?: number, accuracy?: number, bomber?: number, range?: number, fromTypeId?: number
 }
 
-type Bonus = {
+export type Bonus = {
+  /** 上昇するステータス */
   bonus: ItemBonusStatus
-  shipBase?: number[]
-  shipClass?: number[]
-  shipCountry?: number[]
-  shipType?: number[]
-  shipId?: number[]
-  requiresType?: number[]
-  requiresId?: number[]
-  requiresSR?: number
-  requiresAR?: number
-  requiresAccR?: number
-  requiresIdNum?: number
-  requiresIdLevel?: number
-  num?: number
-  remodel?: number
+  /** 艦型(未改造id) */
+  shipBase?: number[];
+  /** 艦型(白露型 など) */
+  shipClass?: number[];
+  /** 国籍(艦型と同じ) */
+  shipCountry?: number[];
+  /** 艦種(駆逐 軽巡...) */
+  shipType?: number[];
+  /** 艦種娘固有id */
+  shipId?: number[];
+  /** 必須の組み合わせ装備種別 */
+  requiresType?: number[];
+  /** 必須の組み合わせ水上電探有無 */
+  requiresSR?: number;
+  /** 必須の組み合わせ対空電探有無 */
+  requiresAR?: number;
+  /** 必須の組み合わせ命中+8以上電探有無 */
+  requiresAccR?: number;
+  /** 必須の組み合わせ装備id */
+  requiresId?: number[];
+  /** 必須の組み合わせ装備id個数 requiresIdに一致する装備の最低限必要数 */
+  requiresIdNum?: number;
+  /** 必須の組み合わせ装備idの改修値 requiresIdに一致する装備の最低限必要改修★数 */
+  requiresIdLevel?: number;
+  /** 該当装備の最低限必要改修★数 */
+  remodel?: number;
+  /** 存在する場合、上記の条件を全て満たしている装備の最低限の個数 4連装酸素魚雷辺りがわかりやすい */
+  num?: number;
 }
 
-type Bonuses = {
+export type Bonuses = {
   types?: number[]
   ids?: number[]
   bonuses: Bonus[]
@@ -7292,14 +7307,6 @@ export default class ItemBonus {
           shipClass: [38],
           requiresId: [267, 366],
           requiresIdLevel: 3,
-          num: 1,
-        },
-        {
-          bonus: {
-            firePower: 1, accuracy: 1, antiAir: 4, avoid: 3,
-          },
-          requiresId: [450],
-          requiresIdLevel: 4,
           num: 1,
         },
       ],
