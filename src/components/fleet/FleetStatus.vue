@@ -93,12 +93,40 @@
           <tbody>
             <tr v-for="(row, i) in expeditionRows" :key="`expedition${i}`" :class="{ 'tr-lack': row.failed }">
               <td>{{ row.id }} : {{ row.name }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.flagshipLevel }">{{ row.flagshipLevel ? row.flagshipLevel : "&#10004;" }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.level }">{{ row.level ? row.level : "&#10004;" }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.fire }">{{ row.fire ? row.fire : "&#10004;" }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.antiAir }">{{ row.antiAir ? row.antiAir : "&#10004;" }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.asw }">{{ row.asw ? row.asw : "&#10004;" }}</td>
-              <td class="text-right" :class="{ 'success--text': !row.scout }">{{ row.scout ? row.scout : "&#10004;" }}</td>
+              <td class="text-right">
+                <v-icon v-if="row.flagshipLevel >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.flagshipLevel < 0">{{ row.flagshipLevel }}</span>
+              </td>
+              <td class="text-right">
+                <v-icon v-if="row.level >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.level < 0">{{ row.level }}</span>
+              </td>
+              <td class="text-right">
+                <v-icon v-if="row.fire >= 217" color="primary" small>mdi-star</v-icon>
+                <v-icon v-else-if="row.fire >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.fire">{{ row.fire > 0 ? `${row.fire}%` : row.fire }}</span>
+              </td>
+              <td class="text-right">
+                <v-icon v-if="row.antiAir >= 217" color="primary" small>mdi-star</v-icon>
+                <v-icon v-else-if="row.antiAir >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.antiAir">{{ row.antiAir > 0 ? `${row.antiAir}%` : row.antiAir }}</span>
+              </td>
+              <td class="text-right">
+                <v-icon v-if="row.asw >= 217" color="primary" small>mdi-star</v-icon>
+                <v-icon v-else-if="row.asw >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.asw">{{ row.asw > 0 ? `${row.asw}%` : row.asw }}</span>
+              </td>
+              <td class="text-right">
+                <v-icon v-if="row.scout >= 217" color="primary" small>mdi-star</v-icon>
+                <v-icon v-else-if="row.scout >= 0" color="success" small>mdi-check</v-icon>
+                <v-icon v-else color="error" small>mdi-close</v-icon>
+                <span class="status-area" v-if="row.scout">{{ row.scout > 0 ? `${row.scout}%` : row.scout }}</span>
+              </td>
             </tr>
           </tbody>
         </template>
@@ -122,14 +150,19 @@
   background-color: rgba(128, 128, 128, 0.2) !important;
 }
 .v-data-table tbody tr.tr-lack {
-  background-color: rgba(255, 10, 10, 0.1);
+  background-color: rgba(255, 10, 10, 0.05);
 }
 .v-data-table tbody tr.tr-lack:hover {
-  background-color: rgba(255, 10, 10, 0.2) !important;
+  background-color: rgba(255, 10, 10, 0.1) !important;
 }
 .ship-name {
   flex-grow: 1;
   width: 10px;
+}
+.status-area {
+  display: inline-block;
+  font-size: 12px;
+  width: 34px;
 }
 </style>
 
@@ -148,10 +181,10 @@ type ExpeditionRow = {
   name: string;
   flagshipLevel: string;
   level: string;
-  fire: string;
-  antiAir: string;
-  asw: string;
-  scout: string;
+  fire: number;
+  antiAir: number;
+  asw: number;
+  scout: number;
   failed: boolean;
 };
 
@@ -254,20 +287,40 @@ export default Vue.extend({
         if (this.worlds.some((v) => v.world === expedition.world && v.isChecked)) {
           const flagshipLevel = (this.ships[0] ? this.ships[0].level : 0) - expedition.minFlagshipLv;
           const level = this.totalLevel - expedition.totalLevel;
-          const fire = this.totalFirePower - (expedition.statuses.fire ?? 0);
-          const antiAir = this.totalAntiAir - (expedition.statuses.antiAir ?? 0);
-          const asw = this.totalAsw - (expedition.statuses.asw ?? 0);
-          const scout = this.totalLoS - (expedition.statuses.scout ?? 0);
+          let fire = this.totalFirePower - (expedition.statuses.fire ?? 0);
+          let antiAir = this.totalAntiAir - (expedition.statuses.antiAir ?? 0);
+          let asw = this.totalAsw - (expedition.statuses.asw ?? 0);
+          let scout = this.totalLoS - (expedition.statuses.scout ?? 0);
+          if (fire >= 0) {
+            if (expedition.statuses.fire) fire = Math.floor((100 * this.totalFirePower) / expedition.statuses.fire);
+            else fire = 0;
+            if (fire >= 1000) fire = 999;
+          }
+          if (antiAir >= 0) {
+            if (expedition.statuses.antiAir) antiAir = Math.floor((100 * this.totalAntiAir) / expedition.statuses.antiAir);
+            else antiAir = 0;
+            if (antiAir >= 1000) antiAir = 999;
+          }
+          if (asw >= 0) {
+            if (expedition.statuses.asw) asw = Math.floor((100 * this.totalAsw) / expedition.statuses.asw);
+            else asw = 0;
+            if (asw >= 1000) asw = 999;
+          }
+          if (scout >= 0) {
+            if (expedition.statuses.scout) scout = Math.floor((100 * this.totalLoS) / expedition.statuses.scout);
+            else scout = 0;
+            if (scout >= 1000) scout = 999;
+          }
 
           this.expeditionRows.push({
             id: expedition.id,
             name: expedition.name,
             flagshipLevel: flagshipLevel >= 0 ? '' : `${flagshipLevel}`,
             level: level >= 0 ? '' : `${level}`,
-            fire: fire >= 0 ? '' : `${fire}`,
-            antiAir: antiAir >= 0 ? '' : `${antiAir}`,
-            asw: asw >= 0 ? '' : `${asw}`,
-            scout: scout >= 0 ? '' : `${scout}`,
+            fire,
+            antiAir,
+            asw,
+            scout,
             failed: flagshipLevel < 0 || level < 0 || fire < 0 || antiAir < 0 || asw < 0 || scout < 0,
           });
         }
