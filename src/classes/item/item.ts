@@ -752,12 +752,12 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAccuracy(): number {
-    // 一部電探 電探改修可能変更時注意
-    if ([28, 29, 31, 32, 88, 89, 141, 240, 278, 279, 315].includes(this.data.id)) {
+    // 水上電探
+    if ([12, 13].includes(this.data.apiTypeId) && this.data.scout >= 5) {
       return 1.7 * Math.sqrt(this.remodel);
     }
     // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－
-    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 29, 36, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
+    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 29, 36, 37, 39, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return Math.sqrt(this.remodel);
     }
     return 0;

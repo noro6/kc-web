@@ -4,7 +4,7 @@ import ItemMaster from '../item/itemMaster';
 import ShipMaster from './shipMaster';
 
 /**
- * 在籍艦娘情報
+ * 搭載可否の情報クラス
  * @export
  * @class ShipStock
  */

@@ -690,7 +690,7 @@ export default class Const {
       id: 7, text: '艦爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [7],
     },
     {
-      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'asw', 'avoidId', 'radius'], types: [8],
+      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [8],
     },
     {
       id: 9, text: '艦偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAntiAir', 'radius', 'cost'], types: [9],
@@ -735,7 +735,7 @@ export default class Const {
       id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['radius', 'nightBattleFirePower', 'actualAccuracy', 'actualScout', 'asw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54, 55],
+      id: 17, text: 'その他', viewStatus: ['radius', 'nightBattleFirePower', 'actualAccuracy', 'actualScout', 'actualAsw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54, 55],
     },
   ]
 
