@@ -413,6 +413,7 @@ export default Vue.extend({
   },
   methods: {
     clickedButton(page: { url: string; clicked: boolean }) {
+      if (page.clicked) return;
       switch (page.url) {
         case 'aircalc':
           page.clicked = true;
