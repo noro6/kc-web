@@ -1181,7 +1181,14 @@ export default Vue.extend({
 
       // 検索語句あればこれ以外の検索はしない
       if (word) {
-        result = result.filter((v) => v.id === +word || v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0);
+        // ひらがなをカタカナに変換
+        const kana = word.replace(/[\u3041-\u3096]/g, (match) => {
+          const chr = match.charCodeAt(0) + 0x60;
+          return String.fromCharCode(chr);
+        });
+        result = result.filter(
+          (v) => v.id === +word || v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0 || v.yomi.indexOf(word) >= 0 || v.yomi.indexOf(kana) >= 0,
+        );
       } else {
         // カテゴリ検索
         if (t) {

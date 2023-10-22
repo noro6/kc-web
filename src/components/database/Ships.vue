@@ -1427,6 +1427,11 @@ export default Vue.extend({
       const stock = this.shipStock;
       let rowData: ShipRowData[] = [];
       const keyword = this.searchWord ? this.searchWord.trim().toUpperCase() : '';
+      // ひらがなをカタカナに変換
+      const kana = keyword.replace(/[\u3041-\u3096]/g, (match) => {
+        const chr = match.charCodeAt(0) + 0x60;
+        return String.fromCharCode(chr);
+      });
 
       // 描画されるはずだった数
       let sumCount = 0;
@@ -1452,7 +1457,7 @@ export default Vue.extend({
         if (!stockList.length) {
           sumCount += 1;
           // キーワード検索で全状態で引っかからなかったらさようなら
-          if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {
+          if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0 || v.yomi.indexOf(keyword) >= 0 || v.yomi.indexOf(kana) >= 0)) {
             continue;
           }
           // 未着任データを省く
@@ -1481,7 +1486,7 @@ export default Vue.extend({
             sumCount += 1;
             if (this.onlyNoStock) continue;
             // キーワード検索で全状態で引っかからなかったらさようなら
-            if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0)) {
+            if (keyword && !versions.some((v) => v.name.toUpperCase().indexOf(keyword) >= 0 || v.yomi.indexOf(keyword) >= 0 || v.yomi.indexOf(kana) >= 0)) {
               continue;
             }
 

@@ -16,6 +16,9 @@ export default class ShipMaster {
   /** 名称 */
   public readonly name: string;
 
+  /** 読み */
+  public readonly yomi: string;
+
   /** 艦種id */
   public readonly type: number;
 
@@ -131,6 +134,7 @@ export default class ShipMaster {
       this.id = ship.id ? ship.id : 0;
       this.albumId = ship.album ? ship.album : 0;
       this.name = ship.name ? ship.name : '';
+      this.yomi = ship.yomi ? ship.yomi : '';
       this.type = ship.type ? ship.type : 0;
       this.type2 = ship.type2 ? ship.type2 : 0;
       this.slotCount = ship.s_count ? ship.s_count : 0;
@@ -167,6 +171,7 @@ export default class ShipMaster {
       this.id = 0;
       this.albumId = 0;
       this.name = '';
+      this.yomi = '';
       this.type = 0;
       this.type2 = 0;
       this.slotCount = 0;

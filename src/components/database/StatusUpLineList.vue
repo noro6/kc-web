@@ -553,14 +553,28 @@ export default Vue.extend({
         const hp = stock.improvement.hp + (stock.level > 99 ? master.hp2 : master.hp);
         const asw = Ship.getStatusFromLevel(stock.level, master.maxAsw, master.minAsw) + stock.improvement.asw;
         if (searchWord) {
-          if (searchWords.length <= 1 && master.name.toUpperCase().indexOf(searchWord) < 0) {
+          // ひらがなをカタカナに変換
+          const kana = searchWord.replace(/[\u3041-\u3096]/g, (match) => {
+            const chr = match.charCodeAt(0) + 0x60;
+            return String.fromCharCode(chr);
+          });
+          if (
+            searchWords.length <= 1
+            && master.name.toUpperCase().indexOf(searchWord) < 0
+            && master.yomi.indexOf(searchWord) < 0
+            && master.yomi.indexOf(kana) < 0
+          ) {
             continue;
           } else if (searchWords.length) {
             // 空白による複数検索
             let result = false;
             for (let j = 0; j < searchWords.length; j += 1) {
               const word = searchWords[j].trim();
-              if (word && master.name.toUpperCase().indexOf(word) >= 0) {
+              const kana2 = word.replace(/[\u3041-\u3096]/g, (match) => {
+                const chr = match.charCodeAt(0) + 0x60;
+                return String.fromCharCode(chr);
+              });
+              if (word && (master.name.toUpperCase().indexOf(word) >= 0 || master.yomi.indexOf(word) >= 0 || master.yomi.indexOf(kana2) >= 0)) {
                 // 見つかった場合はここで検索終了
                 result = true;
                 break;
