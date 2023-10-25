@@ -274,6 +274,8 @@ export default Vue.extend({
       this.fleet = new Fleet({ ships: [new Ship({ ship: this.fleet.ships[0] })] });
       this.level = this.ship.level;
       this.improveAsw = this.ship.improveAsw;
+      this.minAsw = this.ship.data.minAsw;
+      this.maxAsw = this.ship.data.maxAsw;
     },
     async showShipList() {
       await (this.shipListDialog = true);
