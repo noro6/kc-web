@@ -221,8 +221,16 @@ export default class Calculator {
     for (let j = 0; j < items.length; j += 1) {
       const item = items[j];
       // ====== STAGE1 ======
-      // ジェットなら0.6倍 切り捨て
-      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
+      const down = CommonCalc.getStage1ShootDownValue(state, item.slot);
+      if (item.data.isJet) {
+        // ジェットなら0.6倍 切り捨て
+        item.slot -= Math.floor(down * 0.6);
+      } else if (item.data.isAswPlane) {
+        // 対潜哨戒機なら0.91倍 切り捨て
+        item.slot -= Math.floor(down * 0.91);
+      } else {
+        item.slot -= Math.floor(down);
+      }
 
       // ====== STAGE2 ======
       if (item.data.isAttacker) {
@@ -351,8 +359,16 @@ export default class Calculator {
       }
 
       // ====== STAGE1 ======
-      // ジェットなら0.6倍 切り捨て
-      item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
+      const down = CommonCalc.getStage1ShootDownValue(state, item.slot);
+      if (item.data.isJet) {
+        // ジェットなら0.6倍 切り捨て
+        item.slot -= Math.floor(down * 0.6);
+      } else if (item.data.isAswPlane) {
+        // 対潜哨戒機なら0.91倍 切り捨て
+        item.slot -= Math.floor(down * 0.91);
+      } else {
+        item.slot -= Math.floor(down);
+      }
 
       // ====== STAGE2 ======
       if (!enemyFleet.isAirRaidCell && st2List.length && item.data.isAttacker) {
@@ -498,8 +514,16 @@ export default class Calculator {
       for (let j = 0; j < items.length; j += 1) {
         const item = items[j];
         // ====== STAGE1 ======
-        // ジェットなら0.6倍 切り捨て
-        item.slot -= Math.floor(CommonCalc.getStage1ShootDownValue(state, item.slot) * (item.data.isJet ? 0.6 : 1));
+        const down = CommonCalc.getStage1ShootDownValue(state, item.slot);
+        if (item.data.isJet) {
+          // ジェットなら0.6倍 切り捨て
+          item.slot -= Math.floor(down * 0.6);
+        } else if (item.data.isAswPlane) {
+          // 対潜哨戒機なら0.91倍 切り捨て
+          item.slot -= Math.floor(down * 0.91);
+        } else {
+          item.slot -= Math.floor(down);
+        }
 
         // 制空値を更新
         Item.updateDefenseAirPower(item);
