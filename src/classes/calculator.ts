@@ -225,7 +225,7 @@ export default class Calculator {
       if (item.data.isJet) {
         // ジェットなら0.6倍 切り捨て
         item.slot -= Math.floor(down * 0.6);
-      } else if (item.data.isAswPlane) {
+      } else if (item.data.isAswPlane && !item.data.isAttacker) {
         // 対潜哨戒機なら0.91倍 切り捨て
         item.slot -= Math.floor(down * 0.91);
       } else {
@@ -363,7 +363,7 @@ export default class Calculator {
       if (item.data.isJet) {
         // ジェットなら0.6倍 切り捨て
         item.slot -= Math.floor(down * 0.6);
-      } else if (item.data.isAswPlane) {
+      } else if (item.data.isAswPlane && !item.data.isAttacker) {
         // 対潜哨戒機なら0.91倍 切り捨て
         item.slot -= Math.floor(down * 0.91);
       } else {
@@ -518,7 +518,7 @@ export default class Calculator {
         if (item.data.isJet) {
           // ジェットなら0.6倍 切り捨て
           item.slot -= Math.floor(down * 0.6);
-        } else if (item.data.isAswPlane) {
+        } else if (item.data.isAswPlane && !item.data.isAttacker) {
           // 対潜哨戒機なら0.91倍 切り捨て
           item.slot -= Math.floor(down * 0.91);
         } else {
