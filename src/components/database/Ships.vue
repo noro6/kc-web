@@ -387,6 +387,10 @@
                         <div class="slot-ex-img" v-if="item.stockData.releaseExpand">
                           <v-img :src="`./img/util/slot_ex.png`" height="30" width="30" />
                         </div>
+                        <div class="sp-item-img" v-if="item.stockData.spEffectItems && item.stockData.spEffectItems.length">
+                          <v-img v-if="item.stockData.spEffectItems.some((v) => v.kind === 1)" :src="`./img/util/miiro.png`" height="40" width="16" />
+                          <v-img v-else :src="`./img/util/tasuki.png`" height="40" width="16" />
+                        </div>
                       </div>
                       <div class="ship-name text-truncate" :title="item.ship.name">{{ getShipName(item.ship) }}</div>
                     </div>
@@ -400,6 +404,10 @@
                         </div>
                         <div class="slot-ex-img min" v-if="item.stockData.releaseExpand">
                           <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
+                        </div>
+                        <div class="sp-item-img min" v-if="item.stockData.spEffectItems && item.stockData.spEffectItems.length">
+                          <v-img v-if="item.stockData.spEffectItems.some((v) => v.kind === 1)" :src="`./img/util/miiro_min.png`" height="30" width="18" />
+                          <v-img v-else :src="`./img/util/tasuki_min.png`" height="30" width="18" />
                         </div>
                       </div>
                     </div>
@@ -514,6 +522,20 @@
                               alt="ex-slot"
                             />
                           </div>
+                          <div
+                            class="status-item-img"
+                            :class="{ min: data.stockData.area <= 0 }"
+                            v-if="data.stockData.spEffectItems && data.stockData.spEffectItems.length"
+                          >
+                            <template v-if="data.stockData.area > 0">
+                              <v-img v-if="data.stockData.spEffectItems.some((v) => v.kind === 1)" :src="`./img/util/miiro.png`" height="40" width="16" />
+                              <v-img v-else :src="`./img/util/tasuki.png`" height="40" width="16" />
+                            </template>
+                            <template v-else>
+                              <v-img v-if="data.stockData.spEffectItems.some((v) => v.kind === 1)" :src="`./img/util/miiro_min.png`" height="24" width="14" />
+                              <v-img v-else :src="`./img/util/tasuki_min.png`" height="24" width="14" />
+                            </template>
+                          </div>
                         </template>
                         <template v-else>
                           <div class="mx-auto text-center no_ship caption py-1">{{ $t("Database.新規登録") }}</div>
@@ -603,7 +625,12 @@
             <v-slider class="ml-5 align-self-center" hide-details max="9" min="0" v-model="editRow.stockData.improvement.asw" thumb-label></v-slider>
           </div>
           <div class="mt-8">
-            <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" />
+            <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" hide-details />
+            <v-radio-group v-model="editRow.spEffectItemId" row>
+              <v-radio label="なし" :value="0" />
+              <v-radio label="海色リボン" :value="1" />
+              <v-radio label="白たすき" :value="2" />
+            </v-radio-group>
           </div>
           <div class="d-flex justify-space-around">
             <div
@@ -847,6 +874,18 @@
   height: 25px;
 }
 
+.edit-stock-img .sp-item-img {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  height: 40px;
+  width: 16px;
+}
+.edit-stock-img .sp-item-img.min {
+  width: 18px;
+  height: 30px;
+}
+
 .selected-area-btn {
   opacity: 0.4;
   cursor: pointer;
@@ -886,6 +925,7 @@
 
 .detail-row {
   justify-content: space-between;
+  position: relative;
 }
 .detail-row > div {
   align-self: center;
@@ -916,12 +956,26 @@
   height: 40px;
 }
 .status-area-img img {
+  position: absolute;
+  right: 22px;
   width: 37px;
   height: 40px;
 }
 .status-ex-img {
   width: 24px;
   height: 24px;
+}
+.status-item-img {
+  position: absolute;
+  right: 54px;
+  top: 0px;
+  height: 40px;
+  width: 16px;
+}
+.status-item-img.min {
+  right: 38px;
+  height: 24px;
+  width: 14px;
 }
 
 .manual-column-select {
@@ -968,6 +1022,7 @@ interface ShipRowData {
   avoid: number;
   ci: number;
   manualValue: number;
+  spEffectItemId: number;
 }
 
 interface AltShipRowData {
@@ -1478,6 +1533,7 @@ export default Vue.extend({
             avoid: -1,
             ci: -1,
             manualValue: 0,
+            spEffectItemId: 0,
           });
         } else {
           // いるだけ回す
@@ -1495,6 +1551,11 @@ export default Vue.extend({
             const hp = stockData.improvement.hp + (stockData.level > 99 ? master.hp2 : master.hp);
             const luck = stockData.improvement.luck + master.luck;
             const avoid = Ship.getStatusFromLevel(stockData.level, master.maxAvoid, master.minAvoid);
+
+            let spEffectItemId = 0;
+            if (stockData.spEffectItems && stockData.spEffectItems.length) {
+              spEffectItemId = stockData.spEffectItems.some((v) => v.kind === 1) ? 1 : 2;
+            }
             pushedData.push({
               count: 1,
               ship: master,
@@ -1510,6 +1571,7 @@ export default Vue.extend({
               avoid: Ship.getAvoidValue(avoid, luck),
               ci: Ship.getCIValue(stockData.level, luck),
               manualValue: 0,
+              spEffectItemId,
             });
           }
 
@@ -1708,6 +1770,15 @@ export default Vue.extend({
       const master = this.versionButtons[this.version];
       stockData.id = master.id;
       stockData.improvement.luck = this.editLuck - master.luck;
+
+      stockData.spEffectItems = [];
+      if (this.editRow.spEffectItemId === 1) {
+        // 海色リボン
+        stockData.spEffectItems.push({ kind: 1, torpedo: 1, armor: 1 });
+      } else if (this.editRow.spEffectItemId === 2) {
+        // 白たすき
+        stockData.spEffectItems.push({ kind: 2, fire: 2, avoid: 2 });
+      }
 
       // 経験値算出
       const exp = Const.LEVEL_BORDERS.find((v) => v.lv === stockData.level);

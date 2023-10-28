@@ -79,8 +79,8 @@ interface DeckBuilder {
   a3?: DeckBuilderAirbase,
 }
 
-type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number };
-type shipStockJson2 = { 'id': number, 'ship_id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number };
+type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number, 'api_sp_effect_items': { 'api_kind': number }[] };
+type shipStockJson2 = { 'id': number, 'ship_id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number, 'sp': number[] };
 type itemStockJson = { 'api_slotitem_id': number, 'api_level': number };
 type itemStockJson2 = { 'id': number, 'lv': number };
 
@@ -466,6 +466,31 @@ export default class Convert {
         shipStock.area = data.api_sally_area;
       } else if ('area' in data) {
         shipStock.area = data.area;
+      }
+
+      // 拡張情報 -海色リボン 白たすき
+      if ('api_sp_effect_items' in data && data.api_sp_effect_items.length) {
+        for (let j = 0; j < data.api_sp_effect_items.length; j += 1) {
+          const kind = data.api_sp_effect_items[j].api_kind;
+          if (kind === 1) {
+            // 海色リボン
+            shipStock.spEffectItems.push({ kind, torpedo: 1, armor: 1 });
+          } else if (kind === 2) {
+            // 白たすき
+            shipStock.spEffectItems.push({ kind, fire: 2, avoid: 2 });
+          }
+        }
+      } else if ('sp' in data && data.sp.length) {
+        for (let j = 0; j < data.sp.length; j += 1) {
+          const kind = data.sp[j];
+          if (kind === 1) {
+            // 海色リボン
+            shipStock.spEffectItems.push({ kind, torpedo: 1, armor: 1 });
+          } else if (kind === 2) {
+            // 白たすき
+            shipStock.spEffectItems.push({ kind, fire: 2, avoid: 2 });
+          }
+        }
       }
 
       // エラーチェック & 修正

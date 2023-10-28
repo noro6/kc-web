@@ -10,6 +10,14 @@ interface ShipImprovement {
   asw: number;
 }
 
+interface SpecialEffectItem {
+  kind: number;
+  fire?: number;
+  torpedo?: number;
+  avoid?: number;
+  armor?: number;
+}
+
 /**
  * 在籍艦娘情報
  * @export
@@ -36,6 +44,9 @@ export default class ShipStock {
 
   /** 出撃海域札 */
   public area = 0;
+
+  /** たすきとかりぼんとか */
+  public spEffectItems: SpecialEffectItem[] = [];
 
   /**
    * 艦隊分析コードを生成
@@ -68,6 +79,7 @@ export default class ShipStock {
           exp: [stock.exp, nextExp, 0],
           area: stock.area,
           ex: stock.releaseExpand ? 1 : 0,
+          sp: stock.spEffectItems ? stock.spEffectItems.map((v) => v.kind) : [],
         };
         shipJSONRows.push(data);
       }

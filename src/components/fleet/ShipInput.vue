@@ -50,12 +50,15 @@
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
             <v-img :src="`./img/tags/area${ship.area}.webp`" height="40" width="29" />
           </div>
+          <div class="ship-sp-item-img" v-if="ship.spEffectItemId">
+            <v-img :src="`./img/util/${ship.spEffectItemId === 1 ? 'miiro' : 'tasuki'}.png`" height="30" width="12" />
+          </div>
         </div>
         <template v-if="ship.isTray">
           <div class="align-self-center">
             <v-img :src="`./img/util/mushi.png`" height="24" width="24" />
           </div>
-          <div class="mt-1 ml-3 align-self-center caption flex-grow-1">{{ $t('Fleet.装備を自由に置くスペースです。') }}</div>
+          <div class="mt-1 ml-3 align-self-center caption flex-grow-1">{{ $t("Fleet.装備を自由に置くスペースです。") }}</div>
         </template>
         <div class="flex-grow-1" v-if="!ship.isTray">
           <div class="caption">
@@ -431,6 +434,11 @@
   position: absolute;
   top: -6px;
   left: 22px;
+}
+.ship-sp-item-img {
+  position: absolute;
+  top: 0;
+  right: 5px;
 }
 
 .ship-name {

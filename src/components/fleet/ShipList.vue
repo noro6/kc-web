@@ -147,8 +147,12 @@
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
                 <v-img :src="`./img/tags/area${data.area}.webp`" height="40" width="29" />
               </div>
-              <div class="slot-ex-img" v-if="data.expanded">
-                <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
+              <div class="slot-ex-img" v-if="data.expanded" :class="{ 'exist-item': data.spEffectItemId }">
+                <v-img :src="`./img/util/slot_ex.png`" :height="data.spEffectItemId ? 20 : 25" :width="data.spEffectItemId ? 20 : 25" />
+              </div>
+              <div class="sp-item-img" v-if="data.spEffectItemId">
+                <v-img v-if="data.spEffectItemId === 1" :src="`./img/util/miiro_min.png`" height="30" width="18" />
+                <v-img v-else :src="`./img/util/tasuki_min.png`" height="30" width="18" />
               </div>
               <div class="bookmarked-icon" v-if="data.isBookmarked"><v-icon small color="pink lighten-2">mdi-heart</v-icon></div>
             </div>
@@ -680,6 +684,18 @@
   width: 25px;
   height: 25px;
 }
+.slot-ex-img.exist-item {
+  right: 10px;
+  width: 20px;
+  height: 20px;
+}
+.sp-item-img {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 18px;
+  height: 30px;
+}
 
 .ship-caption {
   font-size: 11px;
@@ -845,6 +861,8 @@ export interface ViewShip {
   uniqueId: number;
   /** お気に入りかどうか */
   isBookmarked: boolean;
+  /** 海色リボン 白たすき */
+  spEffectItemId: number;
 }
 
 export default Vue.extend({
@@ -1444,6 +1462,7 @@ export default Vue.extend({
               sortValue: 0,
               uniqueId: shipData.uniqueId,
               isBookmarked: bookmarks.includes(master.id),
+              spEffectItemId: shipData.spEffectItems && shipData.spEffectItems.length ? shipData.spEffectItems[0].kind : 0,
             };
 
             if ((this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) || (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded)) {
@@ -1506,7 +1525,9 @@ export default Vue.extend({
                   && v.hp === viewShip.hp
                   && v.luck === viewShip.luck
                   && v.area === viewShip.area
-                  && v.improveAsw === viewShip.asw)
+                  && v.improveAsw === viewShip.asw
+                  && v.spEffectItemId === viewShip.spEffectItemId
+                  && v.releaseExpand === viewShip.expanded)
                 || (v.uniqueId === viewShip.uniqueId && v.data.id === master.id),
             );
             if (usedIndex >= 0) {
@@ -1523,7 +1544,8 @@ export default Vue.extend({
                 && v.area === viewShip.area
                 && v.hp === viewShip.hp
                 && v.asw === viewShip.asw
-                && v.expanded === viewShip.expanded,
+                && v.expanded === viewShip.expanded
+                && v.spEffectItemId === viewShip.spEffectItemId,
             );
             if (search) {
               // いたらcountだけインクリメント
@@ -1583,6 +1605,7 @@ export default Vue.extend({
             sortValue: 0,
             uniqueId: 0,
             isBookmarked: bookmarks.includes(master.id),
+            spEffectItemId: 0,
           });
         }
       }

@@ -1276,6 +1276,7 @@ export default Vue.extend({
         area: viewShip.area,
         uniqueId: viewShip.uniqueId,
         releaseExpand: viewShip.expanded,
+        spEffectItemId: viewShip.spEffectItemId,
       });
 
       // 編成が更新されたため、艦隊を再インスタンス化し更新

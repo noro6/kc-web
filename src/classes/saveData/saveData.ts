@@ -53,6 +53,8 @@ interface SavedShip {
   un?: number,
   /** 補強増設の空き具合 */
   re?: boolean,
+  /** 海色リボン:1 白たすき:2 */
+  sp?: number,
 }
 
 export default class SaveData {
@@ -594,6 +596,7 @@ export default class SaveData {
           // URLでの出力情報には載せないもの
           if (v.area > 0) data.ar = v.area;
           if (v.uniqueId) data.un = v.uniqueId;
+          if (v.spEffectItemId) data.sp = v.spEffectItemId;
         }
         return data;
       }
@@ -850,9 +853,10 @@ export default class SaveData {
         const shipMaster = shipMasters.find((v) => v.id === ship.i);
         const area = ship.ar && ship.ar > 0 ? ship.ar : undefined;
         const uniqueId = ship.un ?? undefined;
+        const spEffectItemId = ship.sp ?? 0;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId: (clearUniqueId ? 0 : uniqueId), releaseExpand: ship.re,
+            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId: (clearUniqueId ? 0 : uniqueId), releaseExpand: ship.re, spEffectItemId,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…

@@ -41,6 +41,8 @@ export interface ShipBuilder {
   noStock?: boolean;
   /** 装備受け皿用枠でインスタンス化するかどうか */
   isTray?: boolean;
+  /** 海色リボン 白たすき */
+  spEffectItemId?: number;
 }
 
 /** 表示ステータス */
@@ -225,6 +227,9 @@ export default class Ship implements ShipBase {
   /** 装備置き場用プロパティ */
   public readonly isTray: boolean;
 
+  /** 海色リボン 白たすき */
+  public readonly spEffectItemId: number;
+
   /** 先制対潜不足対潜値 */
   public missingAsw = 0;
 
@@ -257,6 +262,7 @@ export default class Ship implements ShipBase {
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : builder.ship.releaseExpand;
       this.noStock = builder.noStock ?? false;
       this.isTray = builder.isTray !== undefined ? builder.isTray : builder.ship.isTray;
+      this.spEffectItemId = builder.spEffectItemId !== undefined ? builder.spEffectItemId : builder.ship.spEffectItemId;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
       this.level = builder.level !== undefined ? builder.level : 99;
@@ -273,6 +279,7 @@ export default class Ship implements ShipBase {
       this.releaseExpand = builder.releaseExpand !== undefined ? builder.releaseExpand : true;
       this.noStock = builder.noStock ?? false;
       this.isTray = builder.isTray ?? false;
+      this.spEffectItemId = builder.spEffectItemId ?? 0;
     }
 
     // 装備数をマスタのスロット数に合わせる
@@ -523,6 +530,15 @@ export default class Ship implements ShipBase {
       this.displayStatus.bomber += this.itemBonusStatus.bomber ?? 0;
       this.displayStatus.accuracy += this.itemBonusStatus.accuracy ?? 0;
       this.accuracy += this.itemBonusStatus.accuracy ?? 0;
+    }
+
+    // 海色リボン 白たすき
+    if (this.spEffectItemId === 1) {
+      this.displayStatus.torpedo += 1;
+      this.displayStatus.armor += 1;
+    } else if (this.spEffectItemId > 1) {
+      this.displayStatus.firePower += 2;
+      this.displayStatus.avoid += 2;
     }
 
     // 空母夜襲発動判定
