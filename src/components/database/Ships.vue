@@ -627,9 +627,9 @@
           <div class="mt-8">
             <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" hide-details />
             <v-radio-group v-model="editRow.spEffectItemId" row>
-              <v-radio label="なし" :value="0" />
-              <v-radio label="海色リボン" :value="1" />
-              <v-radio label="白たすき" :value="2" />
+              <v-radio :label="$t('Common.なし')" :value="0" />
+              <v-radio :label="$t('Database.海色リボン')" :value="1" />
+              <v-radio :label="$t('Database.白たすき')" :value="2" />
             </v-radio-group>
           </div>
           <div class="d-flex justify-space-around">

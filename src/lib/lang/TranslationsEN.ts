@@ -774,6 +774,8 @@ export default {
       '未着任艦非表示': 'Hide unowned ship',
       '未着任艦のみ': 'Only unowned ship',
       '補強増設開放済': 'Ex Slot open',
+      '海色リボン': 'Sea-colored Ribbon',
+      '白たすき': 'White Tasuki',
       'Lv上限': 'Max Lv',
       'Lv下限': 'Min Lv',
       '運上限': 'Max Luck',
