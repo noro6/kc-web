@@ -756,8 +756,8 @@ export default class Item {
     if ([12, 13].includes(this.data.apiTypeId) && this.data.scout >= 5) {
       return 1.7 * Math.sqrt(this.remodel);
     }
-    // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－
-    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 29, 36, 37, 39, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
+    // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－ 上陸用舟艇
+    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 24, 29, 36, 37, 39, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
       return Math.sqrt(this.remodel);
     }
     return 0;
