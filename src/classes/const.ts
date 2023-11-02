@@ -196,7 +196,7 @@ export default class Const {
   public static readonly ENABLED_ASW_SUPPORT = [7, 8, 10, 11, 45, 41, 25, 26];
 
   /** 潜水艦後期型魚雷 */
-  public static readonly LATE_MODEL_TORPEDO = [213, 214, 383, 441, 443, 457, 461];
+  public static readonly LATE_MODEL_TORPEDO = [213, 214, 383, 441, 443, 457, 461, 512];
 
   /** 特効情報 */
   public static readonly SPECIAL_GROUP: { key: string, text: string, items: number[] }[] = [
