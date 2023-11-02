@@ -820,7 +820,7 @@ export default Vue.extend({
           newItems.push(new Item());
         }
       }
-      if (ShipValidation.isValidItem(newVersion, exItem.data)) {
+      if (ShipValidation.isValidItem(newVersion, exItem.data, Const.EXPAND_SLOT_INDEX, exItem.remodel)) {
         newExItem = new Item({ item: exItem });
       } else {
         newExItem = new Item();

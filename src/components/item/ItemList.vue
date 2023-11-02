@@ -1241,7 +1241,7 @@ export default Vue.extend({
       let types: number[] = [];
       if (parent instanceof Ship && parent.data.id) {
         // 渡された艦娘情報より装備可能種別を取得
-        this.baseItems = this.all.filter((item) => ShipValidation.isValidItem(parent.data, item, slotIndex));
+        this.baseItems = this.all.filter((item) => ShipValidation.isValidItem(parent.data, item, slotIndex, 10));
         if (this.enabledTypes.length && this.type !== -1 && !this.enabledTypes.find((v) => v.id === this.type)) {
           // カテゴリがおかしかったら最初のカテゴリにする
           this.type = this.enabledTypes[0].id;
@@ -1515,10 +1515,16 @@ export default Vue.extend({
             }
 
             let disabled = false;
-            if (this.isBatchMode && this.itemParent instanceof Ship) {
+            if (this.itemParent instanceof Ship) {
               // 一括モード 現在の装備スロットに搭載できるかどうかを判定
               const parent = this.itemParent;
-              disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex);
+              if (this.isBatchMode) {
+                // 一括モードの際は消さずに赤くする
+                disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex, remodel);
+              } else if (!ShipValidation.isValidItem(parent.data, master, this.slotIndex, remodel)) {
+                // 通常モード 消す
+                continue;
+              }
             }
             viewItems.push({
               item,
@@ -1559,10 +1565,16 @@ export default Vue.extend({
           }
 
           let disabled = false;
-          if (this.isBatchMode && this.itemParent instanceof Ship) {
-            // 一括モード 現在の装備スロットに搭載できるかどうかを判定
+          if (this.itemParent instanceof Ship) {
+            // 現在の装備スロットに搭載できるかどうかを最終判定
             const parent = this.itemParent;
-            disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex);
+            if (this.isBatchMode) {
+              // 一括モードの際は消さずに赤くする
+              disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex, 0);
+            } else if (!ShipValidation.isValidItem(parent.data, master, this.slotIndex, 0)) {
+              // 通常モード 消す
+              continue;
+            }
           }
           viewItems.push({
             item,

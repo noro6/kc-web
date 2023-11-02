@@ -1283,7 +1283,7 @@ export default Vue.extend({
       // 補強増設チェック
       const oldExItem = oldShip.exItem.data;
       let exItem;
-      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX)) {
+      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX, oldShip.exItem.remodel)) {
         exItem = new Item({ master: oldExItem, remodel: oldShip.exItem.remodel });
       } else {
         exItem = new Item();
@@ -1351,7 +1351,7 @@ export default Vue.extend({
 
           // 補強増設ある？
           const exItem = dialog.batchList[ship.data.slotCount];
-          if (exItem && ShipValidation.isValidItem(ship.data, exItem.item.data, Const.EXPAND_SLOT_INDEX)) {
+          if (exItem && ShipValidation.isValidItem(ship.data, exItem.item.data, Const.EXPAND_SLOT_INDEX, exItem.item.remodel)) {
             ship = ship.putItem(dialog.batchList[ship.data.slotCount].item, Const.EXPAND_SLOT_INDEX, initialLevels);
           } else {
             ship = ship.putItem(new Item(), Const.EXPAND_SLOT_INDEX, initialLevels);
@@ -1434,13 +1434,13 @@ export default Vue.extend({
       // 補強増設チェック
       const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
       let exItem;
-      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
+      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX, preset.exItem.remodel)) {
         // 搭載可能なら入れ替え
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       } else if (isForce && preset.exItem.assumedId) {
         const assumedExItem = itemMasters.find((v) => v.id === preset.exItem.assumedId);
         // 理想装備idが存在するなら無理やり搭載
-        if (assumedExItem && ShipValidation.isValidItem(ship, assumedExItem, Const.EXPAND_SLOT_INDEX)) {
+        if (assumedExItem && ShipValidation.isValidItem(ship, assumedExItem, Const.EXPAND_SLOT_INDEX, preset.exItem.remodel)) {
           exItem = new Item({ master: assumedExItem });
         }
       }

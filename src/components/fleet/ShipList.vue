@@ -1425,7 +1425,7 @@ export default Vue.extend({
           const radar3 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 506);
           if (radar0 && radar1 && radar2 && radar3) {
             const ex = Const.EXPAND_SLOT_INDEX;
-            result = result.filter((v) => isValid(v, radar0, ex) || isValid(v, radar1, ex) || isValid(v, radar2, ex) || isValid(v, radar3, ex));
+            result = result.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10) || isValid(v, radar2, ex, 10) || isValid(v, radar3, ex, 10));
           }
         }
         if (this.shipFilter.canEquipExSubGunOnly) {
@@ -1433,7 +1433,7 @@ export default Vue.extend({
           const subGun1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 220);
           const subGun2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 275);
           if (subGun1 && subGun2) {
-            result = result.filter((v) => isValid(v, subGun1, Const.EXPAND_SLOT_INDEX) || isValid(v, subGun2, Const.EXPAND_SLOT_INDEX));
+            result = result.filter((v) => isValid(v, subGun1, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, subGun2, Const.EXPAND_SLOT_INDEX, 10));
           }
         }
         if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {

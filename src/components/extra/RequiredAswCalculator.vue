@@ -326,7 +326,7 @@ export default Vue.extend({
       // 補強増設チェック
       const oldExItem = oldShip.exItem.data;
       let exItem;
-      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX)) {
+      if (oldExItem.id && ShipValidation.isValidItem(ship, oldExItem, Const.EXPAND_SLOT_INDEX, oldShip.exItem.remodel)) {
         exItem = new Item({ master: oldExItem, remodel: oldShip.exItem.remodel });
       } else {
         exItem = new Item();
@@ -470,7 +470,7 @@ export default Vue.extend({
       // 補強増設チェック
       const presetExItem = itemMasters.find((v) => v.id === preset.exItem.id);
       let exItem;
-      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX)) {
+      if (presetExItem && ShipValidation.isValidItem(ship, presetExItem, Const.EXPAND_SLOT_INDEX, preset.exItem.remodel)) {
         // 搭載可能なら入れ替え
         exItem = new Item({ master: presetExItem, remodel: preset.exItem.remodel });
       }

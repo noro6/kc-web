@@ -572,6 +572,7 @@ export default Vue.extend({
       // ドラッグ元を一意識別するためのclassを追加
       target.id = 'dragging-item';
       target.dataset.itemId = `${this.value.data.id}`;
+      target.dataset.remodel = `${this.value.remodel}`;
       target.dataset.apiType = `${this.value.data.apiTypeId}`;
       target.dataset.isPlane = `${this.value.data.isPlane ? 'true' : ''}`;
 
@@ -607,8 +608,9 @@ export default Vue.extend({
       const item = new ItemMaster();
       item.id = +draggingDiv.dataset.itemId;
       item.apiTypeId = +draggingDiv.dataset.apiType;
+      const remodel = draggingDiv.dataset.remodel ? +draggingDiv.dataset.remodel : 0;
       if (
-        (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index))
+        (this.itemParent instanceof Ship && !ShipValidation.isValidItem(this.itemParent.data, item, this.index, remodel))
         || (this.itemParent instanceof Airbase && !draggingDiv.dataset.isPlane)
       ) {
         // 搭載不可なので背景色を変な色にする
@@ -699,6 +701,7 @@ export default Vue.extend({
       // ドラッグ元を一意識別するためのidを削除
       draggingDiv.id = '';
       delete draggingDiv.dataset.itemId;
+      delete draggingDiv.dataset.remodel;
       delete draggingDiv.dataset.apiType;
       delete draggingDiv.dataset.isPlane;
 
@@ -715,7 +718,7 @@ export default Vue.extend({
         builder.item = JSON.parse(itemData) as Item;
         // 交換前にチェック
         if (this.itemParent instanceof Ship) {
-          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index)) {
+          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index, builder.remodel)) {
             // 搭載不可なので外す
             builder.item = undefined;
             this.setItem(new Item(builder));

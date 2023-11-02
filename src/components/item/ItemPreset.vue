@@ -499,7 +499,7 @@ export default Vue.extend({
           lastItem = assumedItem ? new Item({ master: assumedItem }) : new Item();
         }
 
-        if (ShipValidation.isValidItem(parent.data, lastItem.data, Const.EXPAND_SLOT_INDEX)) {
+        if (ShipValidation.isValidItem(parent.data, lastItem.data, Const.EXPAND_SLOT_INDEX, lastItem.remodel)) {
           // 増設にのりそうなので、ケツの装備を通常装備枠から消す
           preset.exItem = { id: lastItem.data.id, remodel: lastItem.remodel };
           // 見つかってない場合は理想装備を搭載

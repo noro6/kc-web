@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.46.0',
+    siteVersion: '2.46.1',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -143,10 +143,13 @@ export default new Vuex.Store({
             api_ship_ids: [],
             api_stypes: [],
             api_ctypes: [],
+            api_req_level: 0,
           };
 
-          // eslint-disable-next-line camelcase
-          const { api_ship_ids, api_stypes, api_ctypes } = values[v];
+          const {
+            // eslint-disable-next-line camelcase
+            api_ship_ids, api_stypes, api_ctypes, api_req_level,
+          } = values[v];
           // eslint-disable-next-line camelcase
           if (api_ship_ids) {
             Object.keys(api_ship_ids).forEach((x) => {
@@ -164,6 +167,11 @@ export default new Vuex.Store({
             Object.keys(api_ctypes).forEach((x) => {
               if (+x && api_ctypes[x]) row.api_ctypes.push(+x);
             });
+          }
+          // eslint-disable-next-line camelcase
+          if (api_req_level) {
+            // eslint-disable-next-line camelcase
+            row.api_req_level = +api_req_level;
           }
 
           data.push(row);
