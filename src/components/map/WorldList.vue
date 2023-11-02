@@ -351,10 +351,8 @@
   margin-left: 2px;
   margin-left: 4px;
 }
-</style>
 
-<style>
-.patterns-container .v-tabs-bar {
+.patterns-container >>> .v-tabs-bar {
   height: 38px !important;
 }
 </style>

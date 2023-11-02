@@ -1,10 +1,10 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="general-container d-flex my-2 px-4 py-0" v-if="false">
+    <v-card class="general-container d-flex my-2 px-4 py-0" v-if="true">
       <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
       <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
         <v-radio :label="$t('Common.なし')" value="" />
-        <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
+        <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" />
         <!-- <v-radio label="2023夏イベ後段" value="57-5" /> -->
       </v-radio-group>
     </v-card>

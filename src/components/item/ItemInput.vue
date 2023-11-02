@@ -328,7 +328,6 @@
 /** 装備置き場用最小サイズ */
 .minify-size .item-name {
   font-size: 12px;
-  line-height: 12px;
 }
 .minify-size .item-remodel {
   width: 26px;
