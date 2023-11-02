@@ -55,7 +55,15 @@
         <div class="mr-1">{{ $t("Database.増加経験値合計") }}</div>
         <div>{{ totalDiffExp ? totalDiffExp.toLocaleString() : 0 }}</div>
       </div>
-      <v-switch class="ml-3 mt-0 pt-0" v-model="showExpMode" hide-details @change="generateTable()" dense :label="$t('Database.経験値表示モード')" />
+      <v-switch
+        class="ml-3 mt-0 pt-0"
+        v-model="showExpMode"
+        :disabled="noDiff"
+        hide-details
+        @change="generateTable()"
+        dense
+        :label="$t('Database.経験値表示モード')"
+      />
     </div>
     <v-divider />
     <v-simple-table fixed-header height="66vh" dense>
@@ -199,6 +207,7 @@ export default Vue.extend({
   },
   data: () => ({
     diffs: [] as tableRow[],
+    noDiff: false,
     showExpMode: false,
     showNewcomers: true,
     showDiffs: true,
@@ -416,6 +425,15 @@ export default Vue.extend({
             logs,
           });
         }
+      }
+
+      // 条件なしだけどテーブルログがない！
+      if (this.showNewcomers && this.showExpulsions && this.showDiffs && !this.diffs.length && !this.showExpMode) {
+        // EXPモードでもう一度作成
+        this.showExpMode = true;
+        this.noDiff = true;
+        this.generateTable();
+        return;
       }
 
       if (this.showExpMode) {
