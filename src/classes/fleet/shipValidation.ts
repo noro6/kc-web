@@ -105,8 +105,6 @@ export default class ShipValidation {
         if (sp && normalCheck && (sp.api_ship_ids.includes(ship.id) || sp.api_stypes.includes(ship.type) || sp.api_ctypes.includes(ship.type2))) {
           // 改修条件が追加された
           if (!sp.api_req_level || remodel >= sp.api_req_level) {
-            console.log(sp);
-
             return true;
           }
         }
