@@ -32,7 +32,7 @@
       </div>
     </div>
     <div>
-      <div class="sub-status-area caption pl-2">
+      <div class="sub-status-area caption pl-2" v-if="hasItem">
         <div>
           {{ $t("Common.制空") }}<span class="ml-1 font-weight-medium">{{ airPower }}</span>
         </div>
@@ -60,6 +60,7 @@
           </v-btn>
         </div>
       </div>
+      <v-btn v-else small @click="showBatchItemList()" text>{{ $t("ItemList.一括配備") }}</v-btn>
       <v-divider class="item-input-divider" />
       <div
         v-for="(item, i) in airbase.items"
@@ -92,7 +93,7 @@
       </div>
     </div>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" />
+      <item-tooltip v-model="tooltipItem" :is-airbase-mode="true" />
     </v-tooltip>
     <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
       <v-card class="px-2 pb-2" v-if="!destroyDialog">
@@ -174,6 +175,9 @@ export default Vue.extend({
     handleShowItemList: {
       type: Function,
       required: true,
+    },
+    handleShowBatchItemList: {
+      type: Function,
     },
     value: {
       type: Airbase,
@@ -287,6 +291,11 @@ export default Vue.extend({
     showItemList(index: number) {
       this.clearTooltip();
       this.handleShowItemList(this.index, index);
+    },
+    showBatchItemList() {
+      if (this.handleShowBatchItemList) {
+        this.handleShowBatchItemList(this.index);
+      }
     },
     resetItems(): void {
       this.setAirbase(new Airbase());

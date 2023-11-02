@@ -7,7 +7,10 @@
       <v-btn @click="removeFleet" color="secondary" class="ml-3">{{ $t("Fleet.艦隊削除") }}</v-btn>
     </div>
     <div class="d-flex px-1 flex-wrap align-center">
-      <fleet-info-header :value="value" :index="index" :isUnion="isUnion" :unionFleet="unionFleet" :admiralLv="admiralLv" />
+      <div v-if="isShipAllEmpty" class="d-capture-none">
+        <v-btn color="primary" @click.stop="batchDeploy">{{ $t("Fleet.一括編成") }}</v-btn>
+      </div>
+      <fleet-info-header v-if="!isShipAllEmpty" :value="value" :index="index" :isUnion="isUnion" :unionFleet="unionFleet" :admiralLv="admiralLv" />
       <div class="d-flex ml-auto">
         <div class="operation-button">
           <v-tooltip bottom color="black">
@@ -59,13 +62,16 @@
         </div>
         <div class="d-capture-none ship-line-setting ml-2">
           <v-btn-toggle class="align-self-center" dense v-model="isShipView2Line" borderless mandatory>
-            <v-btn :value="true" small :class="{ blue: isShipView2Line, secondary: !isShipView2Line }" @click="toggleViewLine(true)">
+            <v-btn :value="true" small :color="isShipView2Line ? 'primary' : 'secondary'" @click="toggleViewLine(true)">
               <span class="white--text">{{ $t("Fleet.x列", { number: 2 }) }}</span>
             </v-btn>
-            <v-btn :value="false" small :class="{ blue: !isShipView2Line, secondary: isShipView2Line }" @click="toggleViewLine(false)">
+            <v-btn :value="false" small :color="!isShipView2Line ? 'primary' : 'secondary'" @click="toggleViewLine(false)">
               <span class="white--text">{{ $t("Fleet.x列", { number: 3 }) }}</span>
             </v-btn>
           </v-btn-toggle>
+        </div>
+        <div class="d-capture-none align-self-center ml-2">
+          <v-btn color="primary" small @click.stop="batchDeploy">{{ $t("Fleet.一括編成") }}</v-btn>
         </div>
       </div>
     </div>
@@ -77,6 +83,7 @@
         :index="i"
         :handle-show-ship-list="showShipList"
         :handle-show-item-list="showItemList"
+        :handle-show-batch-item-list="showBatchItemList"
         :handle-show-temp-ship-list="showTempShipList"
         :handle-show-item-preset="showItemPreset"
         :handle-create-tray="createTray"
@@ -226,9 +233,15 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    handleShowBatchShipList: {
+      type: Function,
+    },
     handleShowItemList: {
       type: Function,
       required: true,
+    },
+    handleShowBatchItemList: {
+      type: Function,
     },
     handleShowTempShipList: {
       type: Function,
@@ -307,6 +320,9 @@ export default Vue.extend({
       // 一時所持情報データがあるなら
       return this.$store.getters.getExistsTempStock;
     },
+    isShipAllEmpty(): boolean {
+      return this.value.ships.every((v) => v.isEmpty);
+    },
   },
   watch: {
     isTempStockMode(value) {
@@ -318,8 +334,17 @@ export default Vue.extend({
       // 艦娘indexを解決してFleetAll.vueへパス
       this.handleShowItemList(this.index, shipIndex, slotIndex);
     },
+    showBatchItemList(shipIndex: number) {
+      // 艦娘indexを解決してFleetAll.vueへパス
+      this.handleShowBatchItemList(this.index, shipIndex);
+    },
     showShipList(index: number) {
       this.handleShowShipList(this.index, index);
+    },
+    batchDeploy() {
+      if (this.handleShowBatchShipList) {
+        this.handleShowBatchShipList(this.index);
+      }
     },
     showTempShipList(shipIndex: number) {
       this.handleShowTempShipList(this.index, shipIndex);

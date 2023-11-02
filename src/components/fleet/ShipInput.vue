@@ -125,6 +125,7 @@
           </v-btn>
         </div>
       </div>
+      <!-- ステータス欄(上段 pbは消すな) -->
       <div class="ship-status-container caption pl-2" v-if="!ship.isTray">
         <span class="text--secondary">{{ $t("Fleet.撃墜") }}</span>
         <span class="ml-1 font-weight-medium mr-2">{{ rateDownValue }}%,{{ fixDown }}{{ isNotJapanese ? "" : "機" }}</span>
@@ -207,15 +208,19 @@
           </v-tooltip>
         </template>
       </div>
-      <div class="d-flex pr-1 pl-2 flex-wrap" v-if="!ship.isTray">
-        <div v-if="ship.fullAirPower" class="align-self-center caption">
+      <!-- ステータス欄(下段) -->
+      <div class="ship-sub-status-container px-1" v-if="!ship.isTray">
+        <v-btn v-if="!isNoShip && noItem" small @click.stop="showBatchItemList()" text class="btn-batch-deploy">
+          {{ $t("ItemList.一括配備") }}
+        </v-btn>
+        <div v-else-if="ship.fullAirPower" class="align-self-center caption ml-1">
           <span class="text--secondary">{{ $t("Common.制空") }}</span>
           <span class="ml-1 font-weight-medium">{{ ship.fullAirPower }}</span>
           <span class="ml-1 text--secondary">{{ airPowerDetail }}</span>
         </div>
         <div
           v-else
-          class="align-self-center caption cursor-help"
+          class="align-self-center caption cursor-help ml-1"
           @mouseenter="bootShipTooltip($event)"
           @mouseleave="clearTooltip"
           @focus="bootShipTooltip($event)"
@@ -510,6 +515,16 @@
   display: none;
 }
 
+.ship-sub-status-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 28px;
+}
+.captured .btn-batch-deploy {
+  display: none;
+}
+
 .cursor-help {
   cursor: help;
 }
@@ -560,6 +575,9 @@ export default Vue.extend({
     handleShowItemList: {
       type: Function,
       required: true,
+    },
+    handleShowBatchItemList: {
+      type: Function,
     },
     handleShowShipList: {
       type: Function,
@@ -655,6 +673,9 @@ export default Vue.extend({
     isNoShip(): boolean {
       return this.value.data.id === 0;
     },
+    noItem(): boolean {
+      return this.value.items.concat(this.value.exItem).every((v) => !v.data.id);
+    },
     rateDownValue(): number {
       return Math.floor(this.rateDown * 100);
     },
@@ -745,6 +766,11 @@ export default Vue.extend({
       this.clearTooltip();
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.handleShowItemList(this.index, slotIndex);
+    },
+    showBatchItemList() {
+      if (this.handleShowBatchItemList) {
+        this.handleShowBatchItemList(this.index);
+      }
     },
     showShipList(): void {
       // 艦娘indexを付与してFleet.vueへスルーパス

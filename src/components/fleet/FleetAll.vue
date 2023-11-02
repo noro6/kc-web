@@ -125,15 +125,15 @@
         class="fleet-container"
         :class="{ captured: capturing, 'is-2line': is2Line }"
       >
-        <div class="d-flex align-center mx-2 mt-2">
+        <div class="d-flex align-center mx-2 mt-1">
           <template v-if="isShow12 && i === 0">
             <div class="primary--text font-weight-bold mr-3">{{ $t("Fleet.主力艦隊") }}</div>
             <div v-if="unionErrors[0] && unionErrors[0].length" class="flex-grow-1">
-              <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[0] }}</v-alert>
+              <v-alert class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[0] }}</v-alert>
             </div>
           </template>
           <div v-else-if="unionErrors[i] && unionErrors[i].length" class="flex-grow-1">
-            <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[i] }}</v-alert>
+            <v-alert class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[i] }}</v-alert>
           </div>
         </div>
         <!-- 連合艦隊かつ12隻表示じゃないか、もしくは第2艦隊以外 -->
@@ -142,7 +142,9 @@
           v-model="fleetInfo.fleets[i]"
           :index="i"
           :handle-show-ship-list="showShipList"
+          :handle-show-batch-ship-list="showBatchShipList"
           :handle-show-item-list="showItemList"
+          :handle-show-batch-item-list="showBatchItemList"
           :handle-show-temp-ship-list="showTempShipList"
           :handle-show-temp-fleet-list="showTempFleetList"
           :handle-show-item-preset="showItemPreset"
@@ -156,9 +158,9 @@
         <template v-if="isShow12 && i === 0">
           <!-- タブが第1艦隊かつ12隻表示かつ連合艦隊 -->
           <v-divider class="mt-2" />
-          <div class="d-flex align-center mx-2 mt-2">
+          <div class="d-flex align-center mx-2 mt-1">
             <div class="success--text font-weight-bold mr-3">{{ $t("Fleet.随伴艦隊") }}</div>
-            <div v-if="unionErrors[1] && unionErrors[1].length" class="flex-grow-1">
+            <div v-if="unionErrors[1] && unionErrors[1].length" class="flex-grow-1 mb-1">
               <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[1] }}</v-alert>
             </div>
           </div>
@@ -166,7 +168,9 @@
             v-model="fleetInfo.fleets[1]"
             :index="1"
             :handle-show-ship-list="showShipList"
+            :handle-show-batch-ship-list="showBatchShipList"
             :handle-show-item-list="showItemList"
+            :handle-show-batch-item-list="showBatchItemList"
             :handle-show-temp-ship-list="showTempShipList"
             :handle-show-temp-fleet-list="showTempFleetList"
             :handle-show-item-preset="showItemPreset"
@@ -231,7 +235,7 @@
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" @input="toggleShipListDialog">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth" @input="toggleItemListDialog">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="900">
@@ -1083,10 +1087,23 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex);
     },
+    async showBatchItemList(fleetIndex: number, shipIndex: number) {
+      const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
+      this.itemDialogTarget = [fleetIndex, shipIndex];
+      await (this.itemListDialog = true);
+      // 一括モードで起動(第四引数 補強増設の分+1)
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, 0, [], ship.data.slotCount + 1);
+    },
     async showShipList(fleetIndex: number, shipIndex: number) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+    },
+    async showBatchShipList(fleetIndex: number) {
+      this.shipDialogTarget = [fleetIndex, 0];
+      await (this.shipListDialog = true);
+      // 一括モードtrueで起動
+      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(true, this.fleetInfo.fleets[fleetIndex].ships.length);
     },
     showItemPreset(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
@@ -1219,13 +1236,22 @@ export default Vue.extend({
     },
     putShip(viewShip: ViewShip) {
       /** 艦娘選択画面からの艦娘選択 */
-      const { ship } = viewShip;
       this.shipListDialog = false;
       this.toggleShipListDialog();
       const fleetIndex = this.shipDialogTarget[0];
       const index = this.shipDialogTarget[1];
       const fleet = this.fleetInfo.fleets[fleetIndex];
 
+      // 置き換え処理
+      this.replaceShip(viewShip, fleetIndex, index);
+
+      // 編成が更新されたため、艦隊を再インスタンス化し更新
+      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
+    replaceShip(viewShip: ViewShip, fleetIndex: number, index: number) {
+      const { ship } = viewShip;
+      const fleet = this.fleetInfo.fleets[fleetIndex];
       // もともとここに配備されていた艦娘の装備情報を抜き取る
       const oldShip = fleet.ships[index];
       const oldItems: Item[] = oldShip.items.concat();
@@ -1277,11 +1303,8 @@ export default Vue.extend({
         uniqueId: viewShip.uniqueId,
         releaseExpand: viewShip.expanded,
         spEffectItemId: viewShip.spEffectItemId,
+        isTray: false,
       });
-
-      // 編成が更新されたため、艦隊を再インスタンス化し更新
-      this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
-      this.setInfo(new FleetInfo({ info: this.fleetInfo }));
     },
     equipItem(item: Item) {
       this.itemListDialog = false;
@@ -1303,6 +1326,47 @@ export default Vue.extend({
       const builder: FleetBuilder = { fleet, ships: fleet.ships.concat() };
       this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
+    toggleItemListDialog() {
+      // 装備一覧が閉じられたとき
+      if (!this.itemListDialog) {
+        // 一括モードかチェック
+        const dialog = this.$refs.itemList as InstanceType<typeof ItemList>;
+        if (dialog && dialog.isBatchMode && dialog.batchList.length) {
+          // 一括編成モードで何らかの選択があったと判定されたため、上書き展開
+          const fleetIndex = this.itemDialogTarget[0];
+          const shipIndex = this.itemDialogTarget[1];
+          const fleet = this.fleetInfo.fleets[fleetIndex];
+          let ship = fleet.ships[shipIndex];
+          const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+
+          for (let slot = 0; slot < ship.items.length; slot += 1) {
+            const item = dialog.batchList[slot];
+            if (item && item.item.data.id && ShipValidation.isValidItem(ship.data, item.item.data, slot)) {
+              ship = ship.putItem(item.item, slot, initialLevels);
+            } else {
+              ship = ship.putItem(new Item(), slot, initialLevels);
+            }
+          }
+
+          // 補強増設ある？
+          const exItem = dialog.batchList[ship.data.slotCount];
+          if (exItem && ShipValidation.isValidItem(ship.data, exItem.item.data, Const.EXPAND_SLOT_INDEX)) {
+            ship = ship.putItem(dialog.batchList[ship.data.slotCount].item, Const.EXPAND_SLOT_INDEX, initialLevels);
+          } else {
+            ship = ship.putItem(new Item(), Const.EXPAND_SLOT_INDEX, initialLevels);
+          }
+
+          dialog.isBatchMode = false;
+          dialog.batchList = [];
+
+          fleet.ships[shipIndex] = ship;
+          // 再生成した艦娘インスタンスで該当艦娘を置き換えた艦隊インスタンスを設定
+          const builder: FleetBuilder = { fleet, ships: fleet.ships.concat() };
+          this.fleetInfo.fleets[fleetIndex] = new Fleet(builder);
+          this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+        }
+      }
     },
     expandItemPreset(preset: ItemPreset, isForce: boolean) {
       const itemMasters = this.$store.state.items as ItemMaster[];
@@ -1464,6 +1528,7 @@ export default Vue.extend({
       this.itemPresetDialog = false;
 
       this.toggleShipListDialog();
+      this.toggleItemListDialog();
     },
     toggleShipListDialog() {
       // v-rippleが消えない問題の対処
@@ -1473,6 +1538,29 @@ export default Vue.extend({
           for (let i = 0; i < ripples.length; i += 1) {
             ripples[i].remove();
           }
+        }
+
+        // 一括モードかチェック
+        const dialog = this.$refs.shipList as InstanceType<typeof ShipList>;
+        if (dialog && dialog.isBatchMode && dialog.batchList.length) {
+          // 一括編成モードで何らかの選択があったと判定されたため、上書き展開
+          const fleetIndex = this.shipDialogTarget[0];
+          const fleet = this.fleetInfo.fleets[fleetIndex];
+
+          for (let i = 0; i < fleet.ships.length; i += 1) {
+            const ship = dialog.batchList[i];
+            if (ship && ship.ship.id) {
+              this.replaceShip(dialog.batchList[i], fleetIndex, i);
+            } else {
+              fleet.ships[i] = new Ship();
+            }
+          }
+
+          dialog.isBatchMode = false;
+          dialog.batchList = [];
+          // 編成が更新されたため、艦隊を再インスタンス化し更新
+          this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
+          this.setInfo(new FleetInfo({ info: this.fleetInfo }));
         }
       }
     },

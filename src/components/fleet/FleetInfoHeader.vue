@@ -9,22 +9,15 @@
         <v-img :src="`./img/type/icon50.png`" height="24" width="24" />
       </div>
       <div class="mx-1 body-2">{{ nightContactRate }}%</div>
+      <!-- 速力 -->
       <template v-if="actualFleet.fleetSpeed">
         <div>
           <v-img :src="`./img/type/icon19.png`" height="24" width="24" />
         </div>
-        <div class="mr-2 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
+        <div class="mr-1 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
       </template>
-      <!-- 索敵値 -->
-      <div class="d-flex">
-        <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
-          <v-img :src="`./img/type/icon11.png`" height="20" width="20" />
-          <div class="option-status-label">{{ i + 1 }}</div>
-          <div class="ml-2 body-2">{{ scout }}</div>
-        </div>
-      </div>
       <!-- TP -->
-      <div class="mr-3 d-flex">
+      <div class="mr-2 d-flex">
         <div class="option-status d-flex">
           <v-img :src="`./img/type/icon25.png`" height="24" width="24" />
           <div class="option-status-label label-tp">TP</div>
@@ -39,7 +32,15 @@
           </div>
         </div>
       </div>
-      <div class="d-flex align-center">
+      <!-- 索敵値 -->
+      <div class="d-flex">
+        <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
+          <v-img :src="`./img/type/icon11.png`" height="20" width="20" />
+          <div class="option-status-label">{{ i + 1 }}</div>
+          <div class="ml-2 body-2">{{ scout }}</div>
+        </div>
+      </div>
+      <div class="ml-2 d-flex align-center">
         <div class="caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}</div>
         <div class="operation-button">
           <v-btn color="primary" icon @click="clickedInfo">

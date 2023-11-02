@@ -1482,7 +1482,7 @@ export default class Ship implements ShipBase {
   /**
    * 装備をセットしなおした新しいShipクラスを返却
    * @param {Item} item セット対象の装備データ
-   * @param {number} slot セット先のスロット番号
+   * @param {number} slot セット先のスロット番号 補強増設は定数でね
    * @param {{ id: number, level: number }[]} initialLevels 初期熟練度情報
    * @return {Ship} {Ship} 装備を更新した新しいShipインスタンス
    * @memberof Ship

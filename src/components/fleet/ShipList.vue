@@ -45,8 +45,8 @@
     </div>
     <v-divider />
     <div class="d-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
-      <v-btn @click="filterDialog = true" :disabled="!!keyword" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
-      <v-btn class="ml-1" text @click.stop="resetFilter()">
+      <v-btn @click="filterDialog = true" :disabled="disabledDetailFilter" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
+      <v-btn class="ml-1" text @click.stop="resetFilter()" small :disabled="disabledDetailFilter">
         {{ $t("Common.リセット") }}
       </v-btn>
       <div v-if="!isNotJapanese" class="ml-3 caption d-none d-md-block text--secondary">Ctrlキー + 艦娘をクリックでwikiを展開します。</div>
@@ -56,7 +56,7 @@
           v-model="isStockOnly"
           :label="$t('Fleet.在籍艦娘反映')"
           @click="clickedStockOnly()"
-          :disabled="disabledStockOnlyChange"
+          :disabled="disabledStockOnlyChange || !!batchList.length"
           dense
           hide-details
         />
@@ -66,7 +66,7 @@
       <div
         v-ripple="{ class: 'info--text' }"
         class="type-selector d-flex"
-        :class="{ active: type === -1, disabled: keyword }"
+        :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword }"
         @click="changeType(-1)"
         @keypress="changeType(-1)"
       >
@@ -77,11 +77,21 @@
         :key="index"
         v-ripple="{ class: 'info--text' }"
         class="type-selector"
-        :class="{ active: index === type, disabled: keyword }"
+        :class="{ active: index === type && !disabledDetailFilter, disabled: keyword }"
         @click="changeType(index)"
         @keypress="changeType(index)"
       >
         {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
+      </div>
+      <div
+        v-if="batchList.length"
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector d-flex"
+        :class="{ active: isCheckedOnly, disabled: keyword }"
+        @click="toggleCheckedOnly"
+        @keypress="toggleCheckedOnly"
+      >
+        {{ $t("Fleet.選択済") }}
       </div>
       <div class="ml-auto mr-3 d-flex" v-if="isStockOnly">
         <div v-if="shipFilter.hasAreaOnly" class="area-tags">
@@ -126,21 +136,17 @@
           <div class="caption text--secondary" v-else>{{ getShipTypeName(typeData.typeName) }}</div>
           <div class="type-divider-border" />
         </div>
-        <div :class="{ multi: multiLine }">
+        <div :class="{ multi: multiLine, 'batch-mode': isBatchMode }">
           <div
             v-for="(data, i) in typeData.ships"
             :key="i"
             class="ship-list"
-            :class="{ 'pr-3': !multiLine, 'no-stock': !data.count }"
+            :class="{ 'pr-3': !multiLine, 'no-stock': !data.count, selected: data.batchListIndex >= 0 }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data, $event)"
             @keypress.enter="clickedShip(data, $event)"
-            @mouseenter="bootTooltip(data, $event)"
-            @mouseleave="clearTooltip"
-            @focus="bootTooltip(data, $event)"
-            @blur="clearTooltip"
           >
-            <div class="ship-img">
+            <div class="ship-img" @mouseenter="bootTooltip(data, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(data, $event)" @blur="clearTooltip">
               <div>
                 <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
               </div>
@@ -175,6 +181,7 @@
               <span>&times;</span>
               <span>{{ data.count }}</span>
             </div>
+            <div v-if="data.batchListIndex >= 0" class="batch-index">{{ data.batchListIndex + 1 }}</div>
             <template v-if="!multiLine">
               <div class="ship-status" v-for="i in 5" :key="`ship_slot${i - 1}`">
                 {{ data.ship.slots[i - 1] ? data.ship.slots[i - 1] : "" }}
@@ -222,7 +229,7 @@
               v-model="isStockOnly"
               :label="$t('Fleet.在籍艦娘反映')"
               @click="clickedStockOnly()"
-              :disabled="disabledStockOnlyChange"
+              :disabled="disabledStockOnlyChange || !!batchList.length"
               dense
               hide-details
             />
@@ -591,8 +598,8 @@
 
 .type-selector {
   border: 1px solid transparent;
-  padding: 0.5rem 0.6rem;
-  font-size: 0.9em;
+  padding: 0.5rem;
+  font-size: 14px;
   cursor: pointer;
 }
 .type-selector:hover {
@@ -639,6 +646,8 @@
 @media (min-width: 880px) {
   .multi {
     grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 1px;
+    row-gap: 1px;
   }
 }
 @media (min-width: 1100px) {
@@ -653,6 +662,7 @@
   padding: 0.15rem 0.3rem;
   transition: 0.1s;
   border-radius: 0.2rem;
+  user-select: none;
 }
 .ship-list:hover {
   background-color: rgba(128, 128, 128, 0.1);
@@ -662,6 +672,34 @@
 }
 .ship-list > div {
   align-self: center;
+}
+.batch-mode .ship-list {
+  position: relative !important;
+  opacity: 0.7;
+  border: 1px solid transparent;
+}
+.batch-mode .ship-list.selected {
+  border: 1px solid #2196f3;
+  opacity: 1;
+}
+.batch-mode .batch-index {
+  position: absolute;
+  top: 1px;
+  right: 45%;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+}
+.multi.batch-mode .batch-index {
+  right: 1px;
 }
 
 .ship-img {
@@ -711,6 +749,7 @@
   position: absolute;
   white-space: nowrap;
 }
+
 .caption2 {
   font-size: 11px;
 }
@@ -863,6 +902,8 @@ export interface ViewShip {
   isBookmarked: boolean;
   /** 海色リボン 白たすき */
   spEffectItemId: number;
+  /** 一括編成リストのインデックス */
+  batchListIndex: number;
 }
 
 export default Vue.extend({
@@ -925,6 +966,10 @@ export default Vue.extend({
     filterDialog: false,
     maxLevel: Const.MAX_LEVEL,
     bookmarksDialog: false,
+    isBatchMode: false,
+    batchMax: 0,
+    batchList: [] as ViewShip[],
+    isCheckedOnly: false,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1042,10 +1087,18 @@ export default Vue.extend({
     isAllUncheckedRange() {
       return !this.shipFilter.includeRange1 && !this.shipFilter.includeRange2 && !this.shipFilter.includeRange3 && !this.shipFilter.includeRange4;
     },
+    disabledDetailFilter(): boolean {
+      return !!this.keyword || this.isCheckedOnly;
+    },
   },
   methods: {
     changeType(index = 0) {
       this.type = index;
+      this.isCheckedOnly = false;
+      this.filter();
+    },
+    toggleCheckedOnly() {
+      this.isCheckedOnly = true;
       this.filter();
     },
     clickedStockOnly() {
@@ -1151,7 +1204,13 @@ export default Vue.extend({
         this.shipFilter.nationalities[i].isChecked = checked;
       }
     },
-    initialize(enabledUserShip = true) {
+    initialize(enabledUserShip = true, batchMax = 0) {
+      // 一括編成モード
+      this.isBatchMode = batchMax > 0;
+      this.isCheckedOnly = false;
+      this.batchMax = batchMax;
+      this.batchList = [];
+
       this.decidedShip = false;
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
@@ -1188,6 +1247,11 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
+      if (!this.batchList.length && this.isCheckedOnly) {
+        // 一括配備モードのゴミ掃除 => 一件も選択装備がないのに選択のみフィルタがあった場合
+        this.isCheckedOnly = false;
+      }
+
       const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.all.concat();
       const t = this.types[this.type];
@@ -1207,7 +1271,10 @@ export default Vue.extend({
         result = result.filter(
           (v) => v.id === +word || v.albumId === +word || v.name.toUpperCase().indexOf(word) >= 0 || v.yomi.indexOf(word) >= 0 || v.yomi.indexOf(kana) >= 0,
         );
-      } else {
+      } else if (!this.disabledDetailFilter) {
+        // 一括配備モードの選択済みフィルタがないとき
+        // 以下、この段階でフィルタ可能なものをフィルタする
+
         // カテゴリ検索
         if (t) {
           result = result.filter((v) => t.types.includes(v.type));
@@ -1463,12 +1530,57 @@ export default Vue.extend({
               uniqueId: shipData.uniqueId,
               isBookmarked: bookmarks.includes(master.id),
               spEffectItemId: shipData.spEffectItems && shipData.spEffectItems.length ? shipData.spEffectItems[0].kind : 0,
+              batchListIndex: this.isBatchMode ? this.batchList.findIndex((v) => v.uniqueId === shipData.uniqueId) : -1,
             };
 
-            if ((this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) || (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded)) {
-              // 補強増設開放済み検索
+            if (this.isCheckedOnly && viewShip.batchListIndex < 0) {
+              // 一括反映モード 選択艦のみ
               continue;
             }
+
+            if (!this.disabledDetailFilter) {
+              if ((this.shipFilter.isReleaseExSlotOnly && !viewShip.expanded) || (this.shipFilter.isNotReleaseExSlotOnly && viewShip.expanded)) {
+                // 補強増設開放済み検索
+                continue;
+              }
+              if (
+                viewShip.level < minLevel
+                || viewShip.level > maxLevel
+                || viewShip.luck < minLuck
+                || viewShip.luck > maxLuck
+                || viewShip.hp < minHP
+                || viewShip.hp > maxHP
+              ) {
+                // Lv 運 耐久検索
+                continue;
+              }
+              if (
+                (!this.shipFilter.HPIs4n && viewShip.hp % 4 === 0)
+                || (!this.shipFilter.HPIs4n1 && viewShip.hp % 4 === 3)
+                || (!this.shipFilter.HPIs4n2 && viewShip.hp % 4 === 2)
+                || (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1)
+              ) {
+                // 耐久4n系フィルタ
+                continue;
+              }
+
+              // 国籍で絞る
+              if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
+                continue;
+              }
+
+              // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
+              if (minAsw > 0 || maxAsw < 150) {
+                if (!master.maxAsw) {
+                  continue;
+                }
+                const asw = Ship.getStatusFromLevel(viewShip.level, master.maxAsw, master.minAsw) + viewShip.asw;
+                if (asw < minAsw || maxAsw < asw) {
+                  continue;
+                }
+              }
+            }
+
             // 札付き検索
             if (this.shipFilter.hasAreaOnly) {
               if (!this.shipFilter.selectedArea && viewShip.area <= 0) {
@@ -1480,42 +1592,6 @@ export default Vue.extend({
               }
             } else if (this.shipFilter.hasNotAreaOnly && viewShip.area > 0) {
               continue;
-            }
-            if (
-              viewShip.level < minLevel
-              || viewShip.level > maxLevel
-              || viewShip.luck < minLuck
-              || viewShip.luck > maxLuck
-              || viewShip.hp < minHP
-              || viewShip.hp > maxHP
-            ) {
-              // Lv 運 耐久検索
-              continue;
-            }
-            if (
-              (!this.shipFilter.HPIs4n && viewShip.hp % 4 === 0)
-              || (!this.shipFilter.HPIs4n1 && viewShip.hp % 4 === 3)
-              || (!this.shipFilter.HPIs4n2 && viewShip.hp % 4 === 2)
-              || (!this.shipFilter.HPIs4n3 && viewShip.hp % 4 === 1)
-            ) {
-              // 耐久4n系フィルタ
-              continue;
-            }
-
-            // 国籍で絞る
-            if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
-              continue;
-            }
-
-            // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
-            if (minAsw > 0 || maxAsw < 150) {
-              if (!master.maxAsw) {
-                continue;
-              }
-              const asw = Ship.getStatusFromLevel(viewShip.level, master.maxAsw, master.minAsw) + viewShip.asw;
-              if (asw < minAsw || maxAsw < asw) {
-                continue;
-              }
             }
 
             // id 練度 運 対潜 耐久 海域を見て配備済みかどうか判定
@@ -1564,33 +1640,40 @@ export default Vue.extend({
         // 所持装備考慮なしの場合
         for (let i = 0; i < result.length; i += 1) {
           const master = result[i];
-
-          // 耐久検索
-          if (master.hp < minHP || master.hp > maxHP) {
+          const batchListIndex = this.isBatchMode ? this.batchList.findIndex((v) => v.ship.id === master.id) : -1;
+          if (this.isCheckedOnly && batchListIndex < 0) {
+            // 一括反映モード 選択艦のみ
             continue;
-          }
-          if (
-            (!this.shipFilter.HPIs4n && master.hp % 4 === 0)
-            || (!this.shipFilter.HPIs4n1 && master.hp % 4 === 3)
-            || (!this.shipFilter.HPIs4n2 && master.hp % 4 === 2)
-            || (!this.shipFilter.HPIs4n3 && master.hp % 4 === 1)
-          ) {
-            // 耐久4n系フィルタ
-            continue;
-          }
-          // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
-          if (minAsw > 0 || maxAsw < 150) {
-            if (master.minAsw === 0 && master.maxAsw === 0) {
-              continue;
-            }
-            if (master.maxAsw < minAsw || maxAsw < master.maxAsw) {
-              continue;
-            }
           }
 
-          // 国籍で絞る
-          if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
-            continue;
+          if (!this.disabledDetailFilter) {
+            // 耐久検索
+            if (master.hp < minHP || master.hp > maxHP) {
+              continue;
+            }
+            if (
+              (!this.shipFilter.HPIs4n && master.hp % 4 === 0)
+              || (!this.shipFilter.HPIs4n1 && master.hp % 4 === 3)
+              || (!this.shipFilter.HPIs4n2 && master.hp % 4 === 2)
+              || (!this.shipFilter.HPIs4n3 && master.hp % 4 === 1)
+            ) {
+              // 耐久4n系フィルタ
+              continue;
+            }
+            // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
+            if (minAsw > 0 || maxAsw < 150) {
+              if (master.minAsw === 0 && master.maxAsw === 0) {
+                continue;
+              }
+              if (master.maxAsw < minAsw || maxAsw < master.maxAsw) {
+                continue;
+              }
+            }
+
+            // 国籍で絞る
+            if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
+              continue;
+            }
           }
 
           viewShips.push({
@@ -1606,6 +1689,7 @@ export default Vue.extend({
             uniqueId: 0,
             isBookmarked: bookmarks.includes(master.id),
             spEffectItemId: 0,
+            batchListIndex,
           });
         }
       }
@@ -1709,6 +1793,27 @@ export default Vue.extend({
         return;
       }
 
+      // 一括選択モードの処理
+      if (this.isBatchMode) {
+        this.clearTooltip();
+        const selectedId = ship.uniqueId;
+        if (ship.batchListIndex >= 0) {
+          // 選択状態から解除する
+          if (selectedId) {
+            // 在籍艦娘情報反映状態のデータ
+            this.batchList = this.batchList.filter((v) => v.uniqueId !== selectedId);
+          } else {
+            // 在籍艦娘情報を未反映のデータ
+            this.batchList = this.batchList.filter((v) => v.ship.id !== ship.ship.id);
+          }
+        } else if (this.batchList.length < this.batchMax) {
+          // 追加
+          this.batchList.push(ship);
+        }
+        this.filter();
+        return;
+      }
+
       if (this.decidedShip) {
         return;
       }
@@ -1723,7 +1828,7 @@ export default Vue.extend({
       }
     },
     changeMultiLine(isMulti: boolean) {
-      this.handleChangeWidth(isMulti ? 1200 : 660);
+      this.handleChangeWidth(isMulti ? 1200 : 696);
       this.multiLine = isMulti;
 
       // 設置値復元
@@ -1782,6 +1887,7 @@ export default Vue.extend({
       return name;
     },
     resetFilter() {
+      this.keyword = '';
       this.shipFilter = new ShipFilter();
       this.filter();
     },

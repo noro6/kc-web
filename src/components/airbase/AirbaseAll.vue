@@ -150,6 +150,7 @@
           v-model="airbaseInfo.airbases[i]"
           :index="i"
           :handle-show-item-list="showItemList"
+          :handle-show-batch-item-list="showBatchItemList"
           @input="setInfo"
           :is-defense="isDefenseMode"
           :handle-show-item-presets="showItemPresets"
@@ -174,6 +175,7 @@
         :index="i"
         :is-defense="isDefenseMode"
         :handle-show-item-list="showItemList"
+        :handle-show-batch-item-list="showBatchItemList"
         :handle-show-item-presets="showItemPresets"
         :handle-show-temp-airbase-list="showTempAirbaseList"
         @input="setInfo"
@@ -192,7 +194,7 @@
         </div>
       </div>
     </div>
-    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition" @input="toggleItemListDialog">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
@@ -773,6 +775,13 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base, slot);
     },
+    async showBatchItemList(index: number) {
+      this.dialogTarget = [index, 0];
+      const base = this.airbaseInfo.airbases[index];
+      await (this.itemListDialog = true);
+      // 一括モードtrueで起動
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base, 0, [], 4);
+    },
     equipItem(item: Item) {
       const index = this.dialogTarget[0];
       const slot = this.dialogTarget[1];
@@ -783,6 +792,35 @@ export default Vue.extend({
       this.airbaseInfo.airbases[index] = base.putItem(item, slot, initialLevels, this.isDefenseMode, this.lastBattleIndex);
       this.itemListDialog = false;
       this.setInfo();
+
+      this.toggleItemListDialog();
+    },
+    toggleItemListDialog() {
+      // 装備一覧が閉じられたとき
+      if (!this.itemListDialog) {
+        // 一括モードかチェック
+        const dialog = this.$refs.itemList as InstanceType<typeof ItemList>;
+        if (dialog && dialog.isBatchMode && dialog.batchList.length) {
+          // 一括編成モードで何らかの選択があったと判定されたため、上書き展開
+          const index = this.dialogTarget[0];
+          const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+          let base = this.airbaseInfo.airbases[index];
+          for (let slot = 0; slot < base.items.length; slot += 1) {
+            const item = dialog.batchList[slot];
+            if (item && item.item.data.id) {
+              base = base.putItem(item.item, slot, initialLevels, this.isDefenseMode, this.lastBattleIndex);
+            } else {
+              base = base.putItem(new Item(), slot, initialLevels, this.isDefenseMode, this.lastBattleIndex);
+            }
+          }
+
+          dialog.isBatchMode = false;
+          dialog.batchList = [];
+
+          this.airbaseInfo.airbases[index] = base;
+          this.setInfo();
+        }
+      }
     },
     supply() {
       const targets = this.bulkUpdateTarget.concat();
@@ -815,6 +853,7 @@ export default Vue.extend({
     },
     closeItemList() {
       this.itemListDialog = false;
+      this.toggleItemListDialog();
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;

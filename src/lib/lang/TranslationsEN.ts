@@ -553,6 +553,8 @@ export default {
       '高速化': '{name} needs to improve speed.',
       '装備置き場生成': 'Create Equipment Storage',
       '装備を自由に置くスペースです。': 'Free equipment storage',
+      '一括編成': 'Bath Deploy',
+      '選択済': 'Checked',
     },
     Enemies: {
       '海域': 'World',
@@ -756,6 +758,9 @@ export default {
       '装備比較': 'Compare',
       '装備シナジー確認': 'Show Synergy',
       '装備選択時は常に表示する': 'Show every time',
+      '一括配備': 'Batch Deploy',
+      '選択済': 'Checked',
+      '補': 'Ex',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',

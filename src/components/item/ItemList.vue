@@ -41,45 +41,47 @@
     </div>
     <v-divider />
     <div class="item-filter-container px-3 py-1">
-      <div>
-        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
-      </div>
-      <div class="d-flex manual-checkbox" v-if="!isAirbaseMode">
-        <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">{{ $t("ItemList.射程増加") }}</span>
-      </div>
-      <div class="d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
-        <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
-          <v-icon class="manual-icon" color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
-          <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
-          <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
-        </v-btn>
-        <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
-      </div>
-      <div class="d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
-        <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
-      </div>
-      <div class="d-flex manual-checkbox" v-if="enabledAAResistFilter">
-        <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
-      </div>
-      <template v-if="type === 14">
+      <template v-if="!isBatchMode || !isCheckedOnly">
         <div>
-          <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
+          <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
         </div>
-        <div>
-          <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
+        <div class="d-flex manual-checkbox" v-if="!isAirbaseMode">
+          <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
+            <v-icon class="manual-icon" color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
+            <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
+            <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+          </v-btn>
+          <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">{{ $t("ItemList.射程増加") }}</span>
         </div>
-        <div>
-          <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
+        <div class="d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
+          <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
+            <v-icon class="manual-icon" color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
+            <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
+            <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
+          </v-btn>
+          <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
+        </div>
+        <div class="d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
+          <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
+        </div>
+        <div class="d-flex manual-checkbox" v-if="enabledAAResistFilter">
+          <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
+        </div>
+        <template v-if="type === 14">
+          <div>
+            <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
+          </div>
+          <div>
+            <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
+          </div>
+          <div>
+            <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
+          </div>
+        </template>
+        <div v-if="!isEnemyMode && setting.displayBonusKey">
+          <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
         </div>
       </template>
-      <div v-if="!isEnemyMode && setting.displayBonusKey">
-        <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
-      </div>
       <div v-if="isStockOnly && !multiLine">
         <v-checkbox v-model="sortExcludeRemodelStatus" @click="filter()" hide-details dense :label="$t('ItemList.改修値無効')" />
       </div>
@@ -95,6 +97,7 @@
           @click="clickedStockOnly"
           dense
           hide-details
+          :disabled="!!batchList.length"
         />
         <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})</v-btn>
       </div>
@@ -102,8 +105,8 @@
     <div class="type-selector-container" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
       <div
         v-ripple="{ class: 'info--text' }"
-        class="type-selector d-flex"
-        :class="{ active: type === -1, disabled: keyword }"
+        class="type-selector"
+        :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
         @click="changeType(-1)"
         @keypress="changeType(-1)"
       >
@@ -114,11 +117,21 @@
         :key="i.id"
         v-ripple="{ class: 'info--text' }"
         class="type-selector"
-        :class="{ active: type === i.id, disabled: keyword }"
+        :class="{ active: type === i.id && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
         @click="changeType(i.id)"
         @keypress="changeType(i.id)"
       >
         <v-img :src="`./img/type/type${isAirbaseMode && i.id === 17 ? 26 : i.id}.png`" height="32" width="32" />
+      </div>
+      <div
+        v-if="batchList.length"
+        v-ripple="{ class: 'info--text' }"
+        class="type-selector"
+        :class="{ active: isCheckedOnly, disabled: keyword }"
+        @click="toggleCheckedOnly"
+        @keypress="toggleCheckedOnly"
+      >
+        {{ $t("Fleet.選択済") }}
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine }" />
@@ -188,7 +201,7 @@
           <div class="caption text--secondary">{{ $t(`EType.${data.typeName}`) }}</div>
           <div class="type-divider-border" />
         </div>
-        <div class="type-item-container" :class="{ multi: multiLine }">
+        <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
           <div
             v-for="(v, i) in data.items"
             :key="i"
@@ -197,9 +210,11 @@
             :class="{
               single: !multiLine,
               'no-stock': !v.count,
-              'has-bonus': v.sumBonus,
-              'has-bad-bonus': v.sumBonus < 0,
+              'has-bonus': !isCheckedOnly && v.sumBonus,
+              'has-bad-bonus': !isCheckedOnly && v.sumBonus < 0,
               'ignore-bonus': sortExcludeSynergyStatus,
+              selected: v.batchListIndexes.length,
+              disabled: !isCheckedOnly && v.disabled,
             }"
             @click="clickedItem(v, $event)"
             @keypress.enter="clickedItem(v, $event)"
@@ -217,6 +232,12 @@
               <div class="item-special-text" v-else-if="v.text">
                 <div class="align-self-center">{{ v.text }}</div>
               </div>
+              <!-- 一括配備モード用インデックス -->
+              <div v-if="v.batchListIndexes.length" class="batch-index-container">
+                <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
+                  {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+                </div>
+              </div>
             </div>
             <div
               class="item-name-container"
@@ -230,11 +251,11 @@
                 {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
               </div>
             </div>
-            <div v-if="v.sumBonus" class="bonus-icon">
+            <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
               <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-              <v-icon v-else-if="v.sumBonus <= 2" color="light-blue" class="pt-1">mdi-chevron-up</v-icon>
-              <v-icon v-else-if="v.sumBonus <= 5" color="light-blue">mdi-chevron-double-up</v-icon>
-              <v-icon v-else color="light-blue">mdi-chevron-triple-up</v-icon>
+              <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
+              <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+              <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
             </div>
             <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
@@ -303,7 +324,7 @@
       </v-list>
     </v-menu>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" />
+      <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" :is-airbase-mode="isAirbaseMode" />
     </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
       <v-card class="pa-3">
@@ -367,7 +388,7 @@
             :label="$t('ItemList.装備選択時は常に表示する')"
           />
           <div class="ml-auto">
-            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-btn>
+            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)" v-if="!isBatchMode">{{ $t("Common.配備") }}</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</v-btn>
           </div>
         </div>
@@ -435,8 +456,12 @@
   flex-wrap: wrap;
 }
 .type-selector {
+  display: flex;
+  align-items: center;
   border: 1px solid transparent;
   padding: 0.2rem 0.4rem;
+  font-size: 12px;
+  text-align: center;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -452,12 +477,13 @@
   background-color: transparent;
   pointer-events: none;
 }
+.type-selector.batch-max {
+  opacity: 0.4;
+}
+
 .type-all-text {
   width: 32px;
-  text-align: center;
   font-weight: bold;
-  font-size: 0.9em;
-  align-self: center;
 }
 
 .type-divider {
@@ -503,6 +529,7 @@
   transition: 0.1s;
   border-radius: 0.2rem;
   border: 1px solid transparent;
+  user-select: none;
 }
 .list-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
@@ -602,6 +629,52 @@
   left: 0px;
 }
 
+.batch-mode .list-item {
+  opacity: 0.8;
+}
+.batch-mode .list-item.selected {
+  border-color: #4caf50;
+  opacity: 1;
+}
+.batch-mode .list-item .item-name {
+  position: relative;
+}
+.batch-mode .batch-index-container {
+  position: absolute;
+  display: flex;
+  top: 1px;
+  right: 56%;
+}
+.batch-mode .has-bonus .batch-index-container {
+  right: calc(56% + 3px);
+}
+.multi.batch-mode .batch-index-container {
+  right: 1px;
+}
+.multi.batch-mode .has-bonus .batch-index-container {
+  right: 2px;
+}
+.batch-mode .batch-index {
+  z-index: 1;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4caf50;
+}
+.batch-mode .list-item.disabled .item-name-container {
+  color: rgb(255, 100, 100);
+}
+.batch-mode.batch-max .list-item.disabled {
+  opacity: 0.4;
+}
+
 .saury-bonus {
   position: absolute;
   left: 1px;
@@ -642,7 +715,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  z-index: 1;
+  z-index: 2;
   top: 0;
 }
 .theme--dark .item-status-header {
@@ -757,13 +830,20 @@ import ItemBonus, { ItemBonusStatus } from '@/classes/item/ItemBonus';
 type sortItem = { [key: string]: number | { [key: string]: number } };
 type viewItem = {
   item: Item;
+  /** 装備個数(表示値) */
   count: number;
+  /** 装備個数(実際) */
+  allCount: number;
   remodel: number;
   sumBonus: number;
   bonus: ItemBonusStatus;
   text: string;
   dayBattleFirePower: number;
   aircraftDayBattleFirePower: number;
+  /** 一括編成リストのインデックスたち */
+  batchListIndexes: number[];
+  /** 一括装備モード 搭載不可の場合true */
+  disabled: boolean;
 };
 
 export default Vue.extend({
@@ -865,6 +945,10 @@ export default Vue.extend({
     menuX: 0,
     menuY: 0,
     compareDialog: false,
+    isBatchMode: false,
+    batchMax: 0,
+    batchList: [] as viewItem[],
+    isCheckedOnly: false,
   }),
   mounted() {
     this.types = [];
@@ -1046,9 +1130,19 @@ export default Vue.extend({
     enabledAAResistFilter() {
       return Const.ATTACKERS.includes(this.type) || this.type === -1 || this.type === 1100;
     },
+    disabledDetailFilter() {
+      return !!this.keyword || (this.isBatchMode && this.isCheckedOnly);
+    },
+    currentBatchIndex() {
+      return this.batchList.length === this.batchMax - 1 ? Const.EXPAND_SLOT_INDEX : this.batchList.length;
+    },
+    isBatchListMax() {
+      return this.isBatchMode && this.batchList.length >= this.batchMax;
+    },
   },
   methods: {
     changeType(type = 0): void {
+      this.isCheckedOnly = false;
       this.type = type;
 
       if (this.selectedType && this.selectedType.sortKey) {
@@ -1061,6 +1155,10 @@ export default Vue.extend({
       }
       this.filter();
     },
+    toggleCheckedOnly() {
+      this.isCheckedOnly = true;
+      this.filter();
+    },
     clickedStockOnly() {
       this.setting.isStockOnlyForItemList = this.isStockOnly;
       this.$store.dispatch('updateSetting', this.setting);
@@ -1071,7 +1169,13 @@ export default Vue.extend({
       this.filterStatusValue = 0;
       this.changedFilter();
     },
-    initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0, usedItems: Item[] = []) {
+    initialFilter(parent: Ship | Enemy | Airbase, slotIndex = 0, usedItems: Item[] = [], batchMax = 0) {
+      // 一括編成モード
+      this.isBatchMode = batchMax > 0;
+      this.isCheckedOnly = false;
+      this.batchMax = batchMax;
+      this.batchList = [];
+
       this.decidedItem = false;
       this.itemParent = parent;
       this.slotIndex = slotIndex;
@@ -1261,90 +1365,98 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
+      if (!this.batchList.length && this.isCheckedOnly) {
+        // 一括配備モードのゴミ掃除 => 一件も選択装備がないのに選択装備のみフィルタがあった場合
+        this.isCheckedOnly = false;
+      }
+
       const word = this.keyword ? this.keyword.toUpperCase() : '';
       let result = this.baseItems.concat();
       const bonusKey = this.setting.displayBonusKey;
 
-      if (this.isEnemyMode) {
-        // 敵装備
-        result = result.filter((v) => v.isEnemyItem);
-      } else {
-        result = result.filter((v) => !v.isEnemyItem);
-      }
-      if (this.type === 7) {
-        if (this.onlyEnabledLandBaseAttack) {
-          result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
-        } else if (this.onlyDisabledLandBaseAttack) {
-          result = result.filter((v) => !Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
-        }
-      }
-
-      if (this.type === 14) {
-        // ソ爆投フィルタ
-        if (!this.includeSonar) {
-          result = result.filter((v) => v.apiTypeId !== 14);
-        }
-        if (!this.includeDepthCharge) {
-          result = result.filter((v) => v.iconTypeId !== 1700);
-        }
-        if (!this.includeDepthChargeLauncher) {
-          result = result.filter((v) => v.iconTypeId !== 17);
-        }
-      }
-      if (this.enabledNightAircraftFilter && this.onlyNightAircraft) {
-        // 夜間機フィルタ
-        result = result.filter((v) => v.isNightAircraftItem);
-      }
-      if (this.enabledAAResistFilter && this.onlyAAResistAircraft) {
-        // 射撃回避フィルタ
-        result = result.filter((v) => v.avoidId);
-      }
-      if (this.isSpecialOnly && bonusKey) {
-        // 特効フィルタ
-        result = result.filter((v) => v.bonuses.find((x) => x.key === bonusKey));
-      }
-
-      // ブラックリスト
+      // ブラックリスト装備を消す
       if (this.setting.blacklistItemIds.length) {
         const list = this.setting.blacklistItemIds;
         result = result.filter((v) => !list.includes(v.id));
       }
 
-      // 検索語句あれば最優先 カテゴリ検索を飛ばす
+      // 検索語句あれば最優先
       if (word) {
         result = result.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
       }
-
-      // カテゴリ検索
-      const t = this.types.find((v) => v.id === this.type);
-      if (!word && this.type && t) {
-        this.viewStatus = t.viewStatus.concat();
-
-        if (!this.isAirbaseMode) {
-          // 基地じゃない場合
-          if (this.viewStatus.includes('radius')) {
-            // 半径が含まれていたら、砲撃戦火力に置換
-            this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
-          }
-          if (this.viewStatus.includes('cost')) {
-            // コストが含まれていたら、回避に置換
-            this.viewStatus[this.viewStatus.indexOf('cost')] = 'actualAvoid';
-          }
-        } else if (this.viewStatus.includes('nightBattleFirePower')) {
-          // 基地の場合 夜戦火力が含まれていたら、対空に置換
-          this.viewStatus[this.viewStatus.indexOf('nightBattleFirePower')] = 'antiAir';
-        }
-        result = result.filter((v) => t.types.includes(v.apiTypeId));
-      } else if (!word && this.type === -1) {
-        // カテゴリ全て検索
-        if (this.itemParent instanceof Ship) {
-          // 艦娘 -全て
-          this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'nightBattleFirePower', 'actualAsw'];
-        } else if (this.isAirbaseMode) {
-          // 基地 -全て
-          this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
+      if (!this.disabledDetailFilter) {
+        // 通常フィルタ
+        if (this.isEnemyMode) {
+          // 敵装備
+          result = result.filter((v) => v.isEnemyItem);
         } else {
-          this.viewStatus = ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'actualAvoid', 'armor'];
+          result = result.filter((v) => !v.isEnemyItem);
+        }
+        // カテゴリ毎のフィルタ
+        if (this.type === 7) {
+          if (this.onlyEnabledLandBaseAttack) {
+            result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+          } else if (this.onlyDisabledLandBaseAttack) {
+            result = result.filter((v) => !Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
+          }
+        }
+
+        if (this.type === 14) {
+          // ソ爆投フィルタ
+          if (!this.includeSonar) {
+            result = result.filter((v) => v.apiTypeId !== 14);
+          }
+          if (!this.includeDepthCharge) {
+            result = result.filter((v) => v.iconTypeId !== 1700);
+          }
+          if (!this.includeDepthChargeLauncher) {
+            result = result.filter((v) => v.iconTypeId !== 17);
+          }
+        }
+        if (this.enabledNightAircraftFilter && this.onlyNightAircraft) {
+          // 夜間機フィルタ
+          result = result.filter((v) => v.isNightAircraftItem);
+        }
+        if (this.enabledAAResistFilter && this.onlyAAResistAircraft) {
+          // 射撃回避フィルタ
+          result = result.filter((v) => v.avoidId);
+        }
+        if (this.isSpecialOnly && bonusKey) {
+          // 特効フィルタ
+          result = result.filter((v) => v.bonuses.find((x) => x.key === bonusKey));
+        }
+
+        // カテゴリ検索
+        const t = this.types.find((v) => v.id === this.type);
+        if (!word && this.type && t) {
+          this.viewStatus = t.viewStatus.concat();
+
+          if (!this.isAirbaseMode) {
+            // 基地じゃない場合
+            if (this.viewStatus.includes('radius')) {
+              // 半径が含まれていたら、砲撃戦火力に置換
+              this.viewStatus[this.viewStatus.indexOf('radius')] = 'dayBattleFirePower';
+            }
+            if (this.viewStatus.includes('cost')) {
+              // コストが含まれていたら、回避に置換
+              this.viewStatus[this.viewStatus.indexOf('cost')] = 'actualAvoid';
+            }
+          } else if (this.viewStatus.includes('nightBattleFirePower')) {
+            // 基地の場合 夜戦火力が含まれていたら、対空に置換
+            this.viewStatus[this.viewStatus.indexOf('nightBattleFirePower')] = 'antiAir';
+          }
+          result = result.filter((v) => t.types.includes(v.apiTypeId));
+        } else if (!word && this.type === -1) {
+          // カテゴリ全て検索
+          if (this.itemParent instanceof Ship) {
+            // 艦娘 -全て
+            this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'nightBattleFirePower', 'actualAsw'];
+          } else if (this.isAirbaseMode) {
+            // 基地 -全て
+            this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
+          } else {
+            this.viewStatus = ['actualFire', 'actualAntiAir', 'actualAccuracy', 'actualScout', 'actualAvoid', 'armor'];
+          }
         }
       }
 
@@ -1387,15 +1499,39 @@ export default Vue.extend({
             // 減らす
             count -= usedCount;
             usedItem = usedItem.filter((v) => v.data.id !== master.id || v.remodel !== remodel);
+
+            const allCount = count;
+            const batchListIndexes: number[] = [];
+            if (this.isBatchMode) {
+              for (let j = 0; j < this.batchList.length; j += 1) {
+                const el = this.batchList[j];
+                if (el.item.data.id === master.id && el.remodel === remodel) {
+                  batchListIndexes.push(j);
+                }
+              }
+
+              // さらに個数減らす
+              count -= batchListIndexes.length;
+            }
+
+            let disabled = false;
+            if (this.isBatchMode && this.itemParent instanceof Ship) {
+              // 一括モード 現在の装備スロットに搭載できるかどうかを判定
+              const parent = this.itemParent;
+              disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex);
+            }
             viewItems.push({
               item,
               count: Math.max(count, 0),
+              allCount: Math.max(allCount, 0),
               remodel,
               sumBonus: 0,
               bonus: {},
               text: bonus ? bonus.text : '',
               dayBattleFirePower: item.dayBattleFirePower,
               aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
+              batchListIndexes,
+              disabled,
             });
           }
         }
@@ -1411,29 +1547,77 @@ export default Vue.extend({
             slot,
             level,
           });
+
+          const batchListIndexes: number[] = [];
+          if (this.isBatchMode) {
+            for (let j = 0; j < this.batchList.length; j += 1) {
+              const el = this.batchList[j];
+              if (el.item.data.id === master.id && el.remodel === 0) {
+                batchListIndexes.push(j);
+              }
+            }
+          }
+
+          let disabled = false;
+          if (this.isBatchMode && this.itemParent instanceof Ship) {
+            // 一括モード 現在の装備スロットに搭載できるかどうかを判定
+            const parent = this.itemParent;
+            disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex);
+          }
           viewItems.push({
             item,
             count: 1,
+            allCount: 99,
             sumBonus: 0,
             remodel: 0,
             bonus: {},
             text: bonus ? bonus.text : '',
             dayBattleFirePower: item.dayBattleFirePower,
             aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
+            batchListIndexes,
+            disabled,
           });
         }
       }
 
-      this.viewItems = viewItems;
+      if (this.isBatchMode && this.isCheckedOnly) {
+        this.viewItems = viewItems.filter((v) => !!v.batchListIndexes.length);
+      } else {
+        this.viewItems = viewItems;
+      }
 
       // 装備フィットの可視化
       if (this.itemParent instanceof Ship) {
+        let parent = this.itemParent;
+        if (this.isBatchMode && this.batchList.length) {
+          // 一括モード => 既に搭載されている装備を反映したものとする
+          const tempNewItems: Item[] = [];
+          for (let index = 0; index < parent.items.length; index += 1) {
+            const item = this.batchList[index];
+            if (item && item.item.data.id) {
+              tempNewItems.push(new Item({ item: item.item }));
+            } else {
+              tempNewItems.push(new Item());
+            }
+          }
+          // 補強増設
+          const exItem = this.batchList[parent.data.slotCount];
+          if (exItem) {
+            parent = new Ship({ ship: parent, items: tempNewItems, exItem: exItem.item });
+          } else {
+            parent = new Ship({ ship: parent, items: tempNewItems, exItem: new Item() });
+          }
+        }
         // viewItem配列全てのviewItemに対し、装備シナジーボーナスを付与する
         // => 変更対象のスロットが空の場合のボーナスと、それぞれの装備を搭載時に発生するボーナスの差分を採る
-        const baseItems = this.itemParent.items.concat();
-        baseItems.push(this.itemParent.exItem);
+        const baseItems = parent.items.concat();
+        baseItems.push(parent.exItem);
 
         let targetSlot = this.slotIndex;
+        if (this.isBatchMode) {
+          // 一括モードの際は現在のインデックス
+          targetSlot = this.currentBatchIndex;
+        }
         if (targetSlot === Const.EXPAND_SLOT_INDEX) {
           targetSlot = baseItems.length - 1;
         }
@@ -1441,14 +1625,14 @@ export default Vue.extend({
         // 装備を入れ替えようとしているスロットが未装備だった状態のbonusを取得...(1)
         const tempItems = cloneDeep(baseItems);
         tempItems[targetSlot] = new Item();
-        const emptyBonus = Ship.getItemBonus(this.itemParent.data, tempItems);
+        const emptyBonus = Ship.getItemBonus(parent.data, tempItems);
         const totalEmptyBonus = ItemBonus.getTotalBonus(emptyBonus);
 
-        for (let i = 0; i < viewItems.length; i += 1) {
-          const item = viewItems[i];
+        for (let i = 0; i < this.viewItems.length; i += 1) {
+          const item = this.viewItems[i];
           const items = cloneDeep(baseItems);
           items[targetSlot] = item.item;
-          const bonuses = Ship.getItemBonus(this.itemParent.data, items);
+          const bonuses = Ship.getItemBonus(parent.data, items);
           // (1) とのボーナスの個数を比較し、多ければボーナスありとする
           if (bonuses.length > emptyBonus.length) {
             const totalBonus = ItemBonus.getTotalBonus(bonuses);
@@ -1520,44 +1704,66 @@ export default Vue.extend({
           }
         }
 
-        // 射程変化フィルタ
-        const currentRange = this.itemParent.displayStatus.range;
-        if (this.onlyAffectingRange) {
-          this.viewItems = this.viewItems.filter((v) => v.bonus.range || currentRange < v.item.data.range);
-        } else if (this.onlyNotAffectingRange) {
-          this.viewItems = this.viewItems.filter((v) => !v.bonus.range && currentRange >= v.item.data.range);
+        if (!this.disabledDetailFilter) {
+          // 射程変化フィルタ
+          const currentRange = parent.displayStatus.range;
+          if (this.onlyAffectingRange) {
+            this.viewItems = this.viewItems.filter((v) => v.bonus.range || currentRange < v.item.data.range);
+          } else if (this.onlyNotAffectingRange) {
+            this.viewItems = this.viewItems.filter((v) => !v.bonus.range && currentRange >= v.item.data.range);
+          }
         }
       }
 
-      const filterValue = this.filterStatusValue ? +this.filterStatusValue : 0;
-      if (this.filterStatus && filterValue) {
-        let filterKey = this.filterStatus;
-        if (withoutRemodel && filterKey.startsWith('actual')) {
-          filterKey = filterKey.replace('actual', '');
-          filterKey = filterKey[0].toLowerCase() + filterKey.slice(1);
-        }
-        const isActualFilterKey = filterKey.indexOf('actual') >= 0
-          || filterKey === 'tp'
-          || filterKey === 'airPower'
-          || filterKey === 'defenseAirPower'
-          || filterKey === 'antiAirWeight'
-          || filterKey === 'antiAirBonus';
-        this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
-          if (isActualFilterKey) {
-            return v.item[filterKey] >= filterValue;
+      if (!this.disabledDetailFilter) {
+        // ステータスの数値によるフィルタ => 装備ボーナス分を考慮するため、最後にやる必要がある
+        const filterValue = this.filterStatusValue ? +this.filterStatusValue : 0;
+        if (this.filterStatus && filterValue) {
+          let filterKey = this.filterStatus;
+          if (withoutRemodel && filterKey.startsWith('actual')) {
+            filterKey = filterKey.replace('actual', '');
+            filterKey = filterKey[0].toLowerCase() + filterKey.slice(1);
           }
-          return (v.item.data as { [key: string]: number })[filterKey] >= filterValue;
-        });
+          const isActualFilterKey = filterKey.indexOf('actual') >= 0
+            || filterKey === 'tp'
+            || filterKey === 'airPower'
+            || filterKey === 'defenseAirPower'
+            || filterKey === 'antiAirWeight'
+            || filterKey === 'antiAirBonus';
+          this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
+            if (isActualFilterKey) {
+              return v.item[filterKey] >= filterValue;
+            }
+            return (v.item.data as { [key: string]: number })[filterKey] >= filterValue;
+          });
+        }
       }
 
       // ソートを行う
-      if (this.sortKey) {
+      if (this.sortKey && !this.isCheckedOnly) {
         this.sortItems();
+      } else if (this.isCheckedOnly) {
+        this.viewItems.sort((a, b) => (a.batchListIndexes[0] ?? 0) - (b.batchListIndexes[0] ?? 0));
       }
     },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
         this.openWiki(data.item.data);
+        return;
+      }
+
+      // 一括選択モードの処理
+      if (this.isBatchMode) {
+        this.clearTooltip();
+        if (this.isCheckedOnly || this.isBatchListMax || data.batchListIndexes.length >= data.allCount || (data.batchListIndexes.length && data.disabled)) {
+          // 選択済みのみモード || 選択装備数が配備可能数を上回っていたら || 選択装備数が在庫数を上回っていたら
+          // この装備を一括選択状態から解除する
+          this.batchList = this.batchList.filter((v) => !(v.item.data.id === data.item.data.id && v.remodel === data.remodel));
+        } else if (!data.disabled) {
+          // 選択不可(スロット位置の関係で装備できないとか)でないならば追加可能
+          this.batchList.push(data);
+        }
+        this.filter();
         return;
       }
 
