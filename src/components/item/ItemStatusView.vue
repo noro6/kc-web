@@ -40,6 +40,14 @@
         <div :class="{ 'no-status': !value.data.antiAir }">{{ $t("Common.対空") }}</div>
         <div :class="{ 'no-status': !value.data.antiAir }">{{ value.data.antiAir }}</div>
       </template>
+      <template v-if="dense && value.actualAntiAir && value.actualAntiAir !== value.data.antiAir">
+        <div>{{ $t("Common.出撃対空") }}</div>
+        <div>{{ formatActual(value.actualAntiAir) }}</div>
+      </template>
+      <template v-if="dense && isAirbaseMode && value.actualAntiAir !== value.actualDefenseAntiAir">
+        <div>{{ $t("Common.防空対空") }}</div>
+        <div>{{ formatActual(value.actualDefenseAntiAir) }}</div>
+      </template>
       <template v-if="!dense || value.data.asw">
         <div :class="{ 'no-status': !value.data.asw }">{{ $t("Common.対潜") }}</div>
         <div :class="{ 'no-status': !value.data.asw }">{{ value.data.asw }}</div>
@@ -64,9 +72,17 @@
         <div :class="{ 'no-status': !value.data.avoid }">{{ $t("Common.回避") }}</div>
         <div :class="{ 'no-status': !value.data.avoid }">{{ value.data.avoid }}</div>
       </template>
-      <template v-if="value.data.range">
+      <template v-if="!isAirbaseMode && value.data.range">
         <div>{{ $t("Common.射程") }}</div>
         <div class="text-value">{{ $t(`Common.${rangeText[value.data.range]}`) }}</div>
+      </template>
+      <template v-if="isAirbaseMode">
+        <div :class="{ 'no-status': !value.data.radius }">{{ $t("Common.半径") }}</div>
+        <div :class="{ 'no-status': !value.data.radius }">{{ value.data.radius }}</div>
+      </template>
+      <template v-if="dense && isAirbaseMode && value.data.cost">
+        <div>{{ $t("Common.コスト") }}</div>
+        <div>{{ value.data.cost }}</div>
       </template>
     </div>
     <template v-if="!isAirbaseMode && (!dense || hasItemBonus)">
@@ -178,7 +194,7 @@
           <div>
             <v-img :src="`./img/util/prof0.png`" alt="prof0" width="12" height="16" />
           </div>
-          <div><v-icon small>mdi-arrow-right-thin</v-icon></div>
+          <div><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
           <div>
             <v-img :src="`./img/util/prof7.png`" alt="prof7" width="12" height="16" />
           </div>
@@ -337,6 +353,9 @@ export default Vue.extend({
     },
     formatBonus() {
       return (value: number) => (value >= 0 ? `+${value}` : `-${Math.abs(value)}`);
+    },
+    formatActual() {
+      return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
     },
     itemBonus(): ItemBonusStatus {
       const bonus = {

@@ -43,18 +43,20 @@
               </v-btn>
               <div class="flex-grow-1">
                 <v-divider v-if="i === 0" class="item-input-divider" />
-                <item-input
-                  v-model="editableParent.items[i]"
-                  :index="i"
-                  :item-parent="editableParent"
-                  :drag-slot="isAirbase"
-                  :handle-show-item-list="showItemList"
-                  :max="isAirbase ? item.data.airbaseMaxSlot : 99"
-                  :init="isAirbase ? item.data.airbaseMaxSlot : editableParent.data.slots[i]"
-                  :handle-drag-start="dummyMethod"
-                  :readonly="!isAirbase && !isShip"
-                  @input="updateItem"
-                />
+                <div @mouseenter="bootTooltip(item, i, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(item, i, $event)" @blur="clearTooltip">
+                  <item-input
+                    v-model="editableParent.items[i]"
+                    :index="i"
+                    :item-parent="editableParent"
+                    :drag-slot="isAirbase"
+                    :handle-show-item-list="showItemList"
+                    :max="isAirbase ? item.data.airbaseMaxSlot : 99"
+                    :init="isAirbase ? item.data.airbaseMaxSlot : editableParent.data.slots[i]"
+                    :handle-drag-start="dummyMethod"
+                    :readonly="!isAirbase && !isShip"
+                    @input="updateItem"
+                  />
+                </div>
               </div>
               <template v-if="isEnemy">
                 <div class="status-label">
@@ -95,6 +97,9 @@
     <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
+      <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" :is-airbase-mode="isAirbase" />
+    </v-tooltip>
   </div>
 </template>
 
@@ -179,6 +184,7 @@ import groupBy from 'lodash/groupBy';
 import cloneDeep from 'lodash/cloneDeep';
 import ItemList from '@/components/item/ItemList.vue';
 import ItemInput from '@/components/item/ItemInput.vue';
+import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import AirStatusResultBar from '@/components/result/AirStatusResultBar.vue';
 import AirstrikeCalculator from '@/components/result/AirstrikeCalculator.vue';
 import BarChart, { BarGraphData, LabelCallbackArg } from '@/components/graph/Bar.vue';
@@ -203,6 +209,7 @@ export default Vue.extend({
   components: {
     BarChart,
     AirstrikeCalculator,
+    ItemTooltip,
     ItemInput,
     ItemList,
     AirStatusResultBar,
@@ -292,6 +299,12 @@ export default Vue.extend({
     manager: new CalcManager(),
     editableParent: null as Airbase | Ship | Enemy | null,
     fleetResult: null as AirCalcResult | null,
+    enabledTooltip: false,
+    tooltipTimer: undefined as undefined | number,
+    tooltipItem: new Item(),
+    tooltipBonus: '',
+    tooltipX: 0,
+    tooltipY: 0,
   }),
   mounted() {
     const saveData = this.$store.state.mainSaveData as SaveData;
@@ -547,6 +560,31 @@ export default Vue.extend({
     },
     dummyMethod() {
       //
+    },
+    bootTooltip(item: Item, index: number, e: MouseEvent | FocusEvent) {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (!item.data.id || setting.disabledItemTooltip) {
+        return;
+      }
+      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
+      window.clearTimeout(this.tooltipTimer);
+      this.tooltipTimer = window.setTimeout(() => {
+        const rect = nameDiv.getBoundingClientRect();
+        this.tooltipX = rect.x + rect.width / 3;
+        this.tooltipY = rect.y + rect.height;
+        this.tooltipItem = item;
+        this.enabledTooltip = true;
+
+        if (this.argParent instanceof Ship) {
+          this.tooltipBonus = JSON.stringify(this.argParent.getItemBonusDiff(index));
+        } else {
+          this.tooltipBonus = '';
+        }
+      }, Math.max(setting.popUpCount, 10));
+    },
+    clearTooltip() {
+      this.enabledTooltip = false;
+      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

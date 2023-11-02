@@ -1,5 +1,5 @@
 <template>
-  <item-status-view v-model="value" :bonus="bonus" :dense="true" :dark="true"></item-status-view>
+  <item-status-view v-model="value" :bonus="bonus" :dense="true" :dark="true" :is-airbase-mode="isAirbaseMode"></item-status-view>
 </template>
 
 <script lang="ts">
@@ -18,6 +18,10 @@ export default Vue.extend({
     bonus: {
       type: String,
       default: '',
+    },
+    isAirbaseMode: {
+      type: Boolean,
+      default: false,
     },
   },
 });
