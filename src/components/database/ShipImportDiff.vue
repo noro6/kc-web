@@ -343,17 +343,18 @@ export default Vue.extend({
                 logs.push({
                   type: 4,
                   title: `${this.$t('Database.運改修')}`,
-                  current: current.improvement.luck.toLocaleString(),
-                  old: old.improvement.luck.toLocaleString(),
+                  current: (master.luck + current.improvement.luck).toLocaleString(),
+                  old: (master.luck + old.improvement.luck).toLocaleString(),
                   diff: current.improvement.luck - old.improvement.luck,
                 });
               }
               if (current.improvement.hp !== old.improvement.hp) {
+                const baseHP = current.level <= 99 ? master.hp : master.hp2;
                 logs.push({
                   type: 5,
                   title: `${this.$t('Database.耐久改修')}`,
-                  current: current.improvement.hp.toLocaleString(),
-                  old: old.improvement.hp.toLocaleString(),
+                  current: (baseHP + current.improvement.hp).toLocaleString(),
+                  old: (baseHP + old.improvement.hp).toLocaleString(),
                   diff: current.improvement.hp - old.improvement.hp,
                 });
               }
