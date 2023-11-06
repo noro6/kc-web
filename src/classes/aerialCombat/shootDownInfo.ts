@@ -123,15 +123,19 @@ export default class ShootDownInfo {
         let avoid1 = avoidObj.c1;
         let avoid2 = avoidObj.c2;
         // 対空CI補正Aに掛かると思われる係数 加重対空補正と同等？
-        let avoid3 = avoidObj.c1;
-        // 対空CI補正Bに掛かると思われる係数 1
-        const avoid4 = 1;
+        // => 違いました。5 / 8 / 12種に対して、弱で0 中で1 強、超で3
+        // 出典 https://x.com/Divinity_123/status/1721218795878879635
+        let avoid3 = avoidObj.c3;
+        // 対空CI補正Bに掛かると思われる係数
+        // => 上の結果を踏まえ少なくとも 5 / 8 / 12種の結果は合うように調整
+        let avoid4 = avoidObj.c4;
 
         if (j === Const.AVOID_TYPE.length - 1 && avoid) {
           // 任意の射撃回避補正値を置き換え
           avoid1 = avoid.c1;
           avoid2 = avoid.c2;
-          avoid3 = avoid.c1;
+          avoid3 = avoid.c3;
+          avoid4 = avoid.c4;
         }
 
         // 艦船加重対空値

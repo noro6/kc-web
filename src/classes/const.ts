@@ -809,13 +809,13 @@ export default class Const {
       value: 1, text: '弱', c1: 0.6, c2: 1, c3: 1, c4: 1,
     },
     {
-      value: 2, text: '中', c1: 0.6, c2: 0.7, c3: 1, c4: 1,
+      value: 2, text: '中', c1: 0.6, c2: 0.7, c3: 0.6, c4: 1,
     },
     {
-      value: 3, text: '強', c1: 0.5, c2: 0.7, c3: 1, c4: 1,
+      value: 3, text: '強', c1: 0.5, c2: 0.7, c3: 0.4, c4: 0.5,
     },
     {
-      value: 4, text: '超', c1: 0.5, c2: 0.5, c3: 1, c4: 1,
+      value: 4, text: '超', c1: 0.5, c2: 0.5, c3: 0.4, c4: 0.5,
     },
     {
       value: Const.MANUAL_AVOID, text: '任意', c1: 1, c2: 1, c3: 1, c4: 1,
