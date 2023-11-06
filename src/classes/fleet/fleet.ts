@@ -68,6 +68,12 @@ export default class Fleet {
   /** stage2 撃墜テーブル(空襲) */
   public readonly shootDownListAirRaid: ShootDownInfo[];
 
+  /** stage2 撃墜テーブル(どちらかが連合) */
+  public readonly unionShootDownList: ShootDownInfo[];
+
+  /** stage2 撃墜テーブル(どちらかが連合かつ空襲) */
+  public readonly unionShootDownListAirRaid: ShootDownInfo[];
+
   /** 発動可能対空CI全種 */
   public readonly allAntiAirCutIn: AntiAirCutIn[];
 
@@ -211,7 +217,9 @@ export default class Fleet {
 
     // 対空砲火情報更新
     this.shootDownList = [];
+    this.unionShootDownList = [];
     this.shootDownListAirRaid = [];
+    this.unionShootDownListAirRaid = [];
     let sum = 1;
     let border = 0;
     for (let i = 0; i < this.allAntiAirCutIn.length; i += 1) {
@@ -221,12 +229,16 @@ export default class Fleet {
       border += rate;
 
       this.shootDownList.push(new ShootDownInfo(enabledShips, false, this.isUnion, cutIn, border, formation));
+      this.unionShootDownList.push(new ShootDownInfo(enabledShips, false, true, cutIn, border, formation));
       this.shootDownListAirRaid.push(new ShootDownInfo(enabledShips, false, this.isUnion, cutIn, border, formation, true));
+      this.unionShootDownListAirRaid.push(new ShootDownInfo(enabledShips, false, true, cutIn, border, formation, true));
     }
     // 対空CI不発データを挿入
     const noCutinData = new ShootDownInfo(enabledShips, false, this.isUnion, new AntiAirCutIn(), 1, formation);
     this.shootDownList.push(noCutinData);
+    this.unionShootDownList.push(new ShootDownInfo(enabledShips, false, true, new AntiAirCutIn(), 1, formation));
     this.shootDownListAirRaid.push(new ShootDownInfo(enabledShips, false, this.isUnion, new AntiAirCutIn(), 1, formation, true));
+    this.unionShootDownListAirRaid.push(new ShootDownInfo(enabledShips, false, true, new AntiAirCutIn(), 1, formation, true));
 
     // 画面表示用撃墜数格納
     for (let i = 0; i < enabledShips.length; i += 1) {

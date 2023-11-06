@@ -110,7 +110,16 @@ export default class Calculator {
     if (calcStage2) {
       // 敵機撃墜処理
       if (enemyFleet.isAirRaidCell) {
-        Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownListAirRaid);
+        // 空襲マスかどうか
+        if (enemyFleet.isUnion) {
+          // 敵が連合なら強制的に連合補正
+          Calculator.shootDownEnemy(state, enemyFleet, fleet.unionShootDownListAirRaid);
+        } else {
+          Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownListAirRaid);
+        }
+      } else if (enemyFleet.isUnion) {
+        // 敵が連合なら強制的に連合補正
+        Calculator.shootDownEnemy(state, enemyFleet, fleet.unionShootDownList);
       } else {
         Calculator.shootDownEnemy(state, enemyFleet, fleet.shootDownList);
       }

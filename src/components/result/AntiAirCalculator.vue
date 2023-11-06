@@ -64,7 +64,16 @@
       </div>
       <div class="ml-auto d-flex" v-if="!showAntiAirMode">
         <v-checkbox class="mr-3" :label="$t('Fleet.空襲マス')" v-model="isAirRaid" dense hide-details @change="updateTable" />
-        <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemy" dense hide-details @change="updateTable" />
+        <v-checkbox
+          v-if="!isEnemyMode && !fleet.isUnion"
+          class="mr-3"
+          :label="$t('Result.対敵連合艦隊')"
+          v-model="isEnemyUnion"
+          dense
+          hide-details
+          @change="updateTable"
+        />
+        <v-checkbox :label="$t('Fleet.敵側式')" v-model="isEnemyFormula" dense hide-details @change="updateTable" />
       </div>
     </div>
     <div v-if="!showAntiAirMode">
@@ -275,8 +284,10 @@ export default Vue.extend({
     adj2: 1,
     fleetAntiAir: '0.00',
     cutInId: 0,
-    isEnemy: false,
+    isEnemyMode: false,
+    isEnemyFormula: false,
     isAirRaid: false,
+    isEnemyUnion: false,
     stage2Data: [] as Stage2Row[],
     showAntiAirMode: false,
     antiAirCutIns: [] as AntiAirCutInRow[],
@@ -388,7 +399,8 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.isEnemy = this.ships[0] instanceof Enemy;
+    this.isEnemyMode = this.ships[0] instanceof Enemy;
+    this.isEnemyFormula = this.ships[0] instanceof Enemy;
     this.formation = this.fleet.formation;
     this.updateTable();
   },
@@ -427,7 +439,15 @@ export default Vue.extend({
       if (cutIn) {
         aaci = new AntiAirCutIn(cutIn.id, cutIn.rateBonus, cutIn.c1, cutIn.c2, cutIn.rate);
       }
-      const stage2 = ShootDownInfo.getStage2(this.ships, this.isEnemy, this.fleet.isUnion, formation, aaci, this.isAirRaid, manualAvoid);
+      const stage2 = ShootDownInfo.getStage2(
+        this.ships,
+        this.isEnemyFormula,
+        this.fleet.isUnion || this.isEnemyUnion,
+        formation,
+        aaci,
+        this.isAirRaid,
+        manualAvoid,
+      );
       const d = stage2[stage2.length - 1];
       this.stage2Data = [];
       for (let i = 0; i < this.ships.length; i += 1) {
