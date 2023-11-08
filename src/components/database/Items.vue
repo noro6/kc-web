@@ -49,8 +49,17 @@
                     :label="$t('ItemList.図鑑id 名称検索')"
                   />
                 </div>
-                <v-checkbox class="mr-5" dense hide-details v-model="onlyStock" :label="$t('Database.未所持装備非表示')" />
-                <v-checkbox dense hide-details v-model="visibleAllCount" @change="changeVisibleAllCount()" :label="$t('Database.総所持数表示')" />
+                <v-checkbox class="mr-5" dense hide-details v-model="onlyStock" :label="$t('Database.未所持装備非表示')" :disabled="onlyHasNot" />
+                <v-checkbox
+                  class="mr-5"
+                  dense
+                  hide-details
+                  v-model="visibleAllCount"
+                  @change="changeVisibleAllCount()"
+                  :label="$t('Database.総所持数表示')"
+                  :disabled="onlyHasNot"
+                />
+                <v-checkbox dense hide-details v-model="onlyHasNot" @change="changeVisibleAllCount()" label="未所持のみ" />
               </div>
               <div class="d-flex mt-4 align-center">
                 <div class="caption">{{ $t("Database.カテゴリ") }}</div>
@@ -62,14 +71,22 @@
                 </div>
               </div>
               <div class="filter-input-container">
-                <v-checkbox v-for="(item, i) in types" :key="`item${i}`" dense v-model="item.isChecked" :label="$t(`EType.${item.text}`)" hide-details />
+                <v-checkbox
+                  v-for="(item, i) in types"
+                  :key="`item${i}`"
+                  dense
+                  v-model="item.isChecked"
+                  :label="$t(`EType.${item.text}`)"
+                  hide-details
+                  :disabled="onlyHasNot"
+                />
               </div>
               <div class="d-flex mt-6">
                 <div class="caption">{{ $t("Common.改修値") }}</div>
                 <div class="header-divider" />
               </div>
               <div>
-                <v-range-slider class="mt-4 px-3" v-model="remodelRange" dense thumb-label min="0" max="10" hide-details>
+                <v-range-slider class="mt-4 px-3" v-model="remodelRange" dense thumb-label min="0" max="10" hide-details :disabled="onlyHasNot">
                   <template v-slot:prepend>
                     <v-text-field
                       :label="$t('Database.改修下限')"
@@ -455,6 +472,7 @@ export default Vue.extend({
     tooltipY: 0,
     readOnly: false,
     blacklistDialog: false,
+    onlyHasNot: false,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -592,6 +610,7 @@ export default Vue.extend({
       this.searchWord = '';
       this.remodelRange = [0, 10];
       this.onlyStock = false;
+      this.onlyHasNot = false;
 
       for (let i = 0; i < this.types.length; i += 1) {
         this.types[i].isChecked = true;
@@ -617,14 +636,21 @@ export default Vue.extend({
           if (keyWord && master.id !== +keyWord && master.name.toUpperCase().indexOf(keyWord) === -1) {
             continue;
           }
-          // 改修値で絞り込み
-          const filteredItems = details.filter((v) => v.remodel >= minRemodel && v.remodel <= maxRemodel);
+          // 未所持のみモード
+          if (this.onlyHasNot) {
+            if (!allCount) {
+              viewRow.items.push(items[j]);
+            }
+          } else {
+            // 改修値で絞り込み
+            const filteredItems = details.filter((v) => v.remodel >= minRemodel && v.remodel <= maxRemodel);
 
-          if (filteredItems.length) {
-            viewRow.items.push({ master, details: filteredItems, allCount: sum(filteredItems.map((v) => v.count)) });
-          } else if (minRemodel === 0 && allCount === 0 && !this.onlyStock) {
-            // 元から0ならそのまま投入
-            viewRow.items.push(items[j]);
+            if (filteredItems.length) {
+              viewRow.items.push({ master, details: filteredItems, allCount: sum(filteredItems.map((v) => v.count)) });
+            } else if (minRemodel === 0 && allCount === 0 && !this.onlyStock) {
+              // 元から0ならそのまま投入
+              viewRow.items.push(items[j]);
+            }
           }
         }
 
