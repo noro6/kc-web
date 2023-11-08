@@ -517,7 +517,7 @@ export default Vue.extend({
       if (this.isAirbase) {
         const original = this.manager.airbaseInfo.airbases[this.index];
         await (this.itemListDialog = true);
-        (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, 0, usedItems);
+        (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, slot, usedItems);
       } else if (this.isShip) {
         const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
         await (this.itemListDialog = true);
