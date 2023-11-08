@@ -81,6 +81,14 @@ export default class ShipValidation {
           return [66, 220].includes(item.id);
         }
       }
+
+      if (ship.id === 166) {
+        // あきつ丸
+        if (item.apiTypeId === 35) {
+          // 航空要員は寒冷地装備&甲板要員のみ
+          return item.id === 402;
+        }
+      }
     }
 
     // 特定艦娘判定
