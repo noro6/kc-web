@@ -9,6 +9,20 @@
           v-model.trim="keyword"
           @input="filter()"
           clearable
+          :disabled="!!uniqueIdSearch"
+          prepend-inner-icon="mdi-magnify"
+        />
+      </div>
+      <div class="api-search-text" v-if="enabledApiIdSearch">
+        <v-text-field
+          dense
+          hide-details
+          type="number"
+          placeholder="api_id"
+          v-model.trim="uniqueIdSearch"
+          @input="filter()"
+          clearable
+          :disabled="!!keyword"
           prepend-inner-icon="mdi-magnify"
         />
       </div>
@@ -66,7 +80,7 @@
       <div
         v-ripple="{ class: 'info--text' }"
         class="type-selector d-flex"
-        :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword }"
+        :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword || uniqueIdSearch }"
         @click="changeType(-1)"
         @keypress="changeType(-1)"
       >
@@ -77,7 +91,7 @@
         :key="index"
         v-ripple="{ class: 'info--text' }"
         class="type-selector"
-        :class="{ active: index === type && !disabledDetailFilter, disabled: keyword }"
+        :class="{ active: index === type && !disabledDetailFilter, disabled: keyword || uniqueIdSearch }"
         @click="changeType(index)"
         @keypress="changeType(index)"
       >
@@ -87,7 +101,7 @@
         v-if="batchList.length"
         v-ripple="{ class: 'info--text' }"
         class="type-selector d-flex"
-        :class="{ active: isCheckedOnly, disabled: keyword }"
+        :class="{ active: isCheckedOnly, disabled: keyword || uniqueIdSearch }"
         @click="toggleCheckedOnly"
         @keypress="toggleCheckedOnly"
       >
@@ -590,7 +604,10 @@
   overscroll-behavior: contain;
 }
 .ship-search-text {
-  width: 200px;
+  width: 180px;
+}
+.api-search-text {
+  width: 120px;
 }
 .ship-sort-select {
   width: 150px;
@@ -970,6 +987,7 @@ export default Vue.extend({
     batchMax: 0,
     batchList: [] as ViewShip[],
     isCheckedOnly: false,
+    uniqueIdSearch: '',
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1088,7 +1106,11 @@ export default Vue.extend({
       return !this.shipFilter.includeRange1 && !this.shipFilter.includeRange2 && !this.shipFilter.includeRange3 && !this.shipFilter.includeRange4;
     },
     disabledDetailFilter(): boolean {
-      return !!this.keyword || this.isCheckedOnly;
+      return !!this.keyword || this.isCheckedOnly || !!this.uniqueIdSearch;
+    },
+    enabledApiIdSearch() {
+      // 在籍モード かつ ケツのuniqueId が意味のある数字
+      return this.isStockOnly && this.shipStock.length && this.shipStock[this.shipStock.length - 1].uniqueId !== this.shipStock.length;
     },
   },
   methods: {
@@ -1253,6 +1275,7 @@ export default Vue.extend({
       }
 
       const word = this.keyword ? this.keyword.toUpperCase() : '';
+      const uniqueIdWord = this.uniqueIdSearch ? +this.uniqueIdSearch : 0;
       let result = this.all.concat();
       const t = this.types[this.type];
 
@@ -1532,6 +1555,11 @@ export default Vue.extend({
               spEffectItemId: shipData.spEffectItems && shipData.spEffectItems.length ? shipData.spEffectItems[0].kind : 0,
               batchListIndex: this.isBatchMode ? this.batchList.findIndex((v) => v.uniqueId === shipData.uniqueId) : -1,
             };
+
+            // api_id検索が有効
+            if (uniqueIdWord && shipData.uniqueId !== uniqueIdWord && this.enabledApiIdSearch) {
+              continue;
+            }
 
             if (this.isCheckedOnly && viewShip.batchListIndex < 0) {
               // 一括反映モード 選択艦のみ
