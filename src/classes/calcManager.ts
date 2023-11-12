@@ -247,7 +247,7 @@ export default class CalcManager {
           // 計算処理で履歴が保存されているitem
           const lbItem = lb.items[j];
           const deathRate = (100 * lbItem.deathRate) / maxCount;
-          item.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
+          item.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(10 * deathRate) / 10;
           if (lbItem.needRecord) {
             item.dist = lb.items[j].dist.concat();
             item.needRecord = false;
@@ -276,7 +276,7 @@ export default class CalcManager {
       mainItem.minSlot = item.minSlot;
       mainItem.maxSlot = item.maxSlot;
       const deathRate = (100 * item.deathRate) / maxCount;
-      mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(deathRate);
+      mainItem.deathRate = deathRate >= 1 ? Math.round(deathRate) : Math.ceil(10 * deathRate) / 10;
       if (mainItem.needRecord) {
         mainItem.dist = item.dist;
         mainItem.needRecord = false;
@@ -286,7 +286,7 @@ export default class CalcManager {
     // 艦娘棒立ち率
     for (let i = 0; i < mainFleet.ships.length; i += 1) {
       const rate = (100 * fleet.ships[i].allPlaneDeathRate) / maxCount;
-      mainFleet.ships[i].allPlaneDeathRate = rate >= 1 ? Math.round(rate) : Math.ceil(rate);
+      mainFleet.ships[i].allPlaneDeathRate = rate >= 1 ? Math.round(rate) : Math.ceil(10 * rate) / 10;
     }
 
     const enemyItems = this.battleInfo.fleets[mainBattle].allPlanes;
