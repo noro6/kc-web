@@ -66,7 +66,7 @@ export default class SpecialAttack {
     }
 
     // 連撃
-    if (!specialAttacks.length && (mainGunCount + subGunCount) >= 2) {
+    if (!specialAttacks.length && (mainGunCount + subGunCount) >= 2 && !parent.enabledAircraftNightAttack) {
       specialAttacks.push({ text: '連撃', value: 0 });
     }
 
