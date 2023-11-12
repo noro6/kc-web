@@ -731,6 +731,7 @@ export default {
       '一列': 'Single',
       '複数列': 'Multi',
       '以上': 'or over',
+      '以下': 'or less',
       '所持装備反映': 'Reflects registered equipment',
       '改修値無効': 'Sort by excluding improvement bonus',
       '装備シナジー無効': 'Sort by excluding synergy bonus',

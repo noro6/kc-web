@@ -232,7 +232,8 @@ export default class ItemMaster {
     this.defenseAntiAir = this.antiAir + this.interception + 2 * this.antiBomber;
 
     if (!this.isSpecial) {
-      this.isSpecial = this.isRocket || this.enabledAttackLandBase || this.isLateModelTorpedo;
+      // ロケ戦 対地可能 後期魚雷 対潜+7以上の艦攻
+      this.isSpecial = this.isRocket || this.enabledAttackLandBase || this.isLateModelTorpedo || (this.apiTypeId === 8 && this.asw >= 7);
     }
 
     if (this.isStrictDepthCharge) {

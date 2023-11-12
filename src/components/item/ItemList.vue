@@ -18,7 +18,7 @@
       <div class="filter-value-input">
         <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
       </div>
-      <div class="align-self-end caption">{{ $t("ItemList.以上") }}</div>
+      <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
       <div class="ml-3">
         <v-btn color="secondary" small @click="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
       </div>
@@ -135,7 +135,7 @@
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine }" />
-    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine }">
+    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine, 'table-mode': !multiLine }">
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div class="pl-1">
           <v-btn icon small @click="sortDialog = true">
@@ -151,23 +151,15 @@
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.装備名称`) }}</div>
         </div>
         <div
-          class="item-status"
           v-for="(data, i) in headerItems"
           :key="`item${i}`"
           @click="toggleSortKey(data.key)"
           @keypress="toggleSortKey(data.key)"
-          :class="{ desc: sortKey === data.key && isDesc, asc: sortKey === data.key && !isDesc }"
-          v-show="isShow(data.key, viewStatus)"
+          :class="itemHeaderClasses(data.key, viewStatus)"
         >
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.${data.text}`) }}</div>
         </div>
-        <div
-          class="item-status"
-          @click="toggleSortKey('airPower')"
-          @keypress="toggleSortKey('airPower')"
-          :class="{ desc: sortKey === 'airPower' && isDesc, asc: sortKey === 'airPower' && !isDesc }"
-          v-show="isShow('airPower', viewStatus)"
-        >
+        <div @click="toggleSortKey('airPower')" @keypress="toggleSortKey('airPower')" :class="itemHeaderClasses('airPower', viewStatus)">
           <div class="d-flex">
             <div class="align-self-center ml-auto">
               <v-icon small>mdi-chevron-down</v-icon>
@@ -178,13 +170,7 @@
             </div>
           </div>
         </div>
-        <div
-          class="item-status"
-          @click="toggleSortKey('defenseAirPower')"
-          @keypress="toggleSortKey('defenseAirPower')"
-          :class="{ desc: sortKey === 'defenseAirPower' && isDesc, asc: sortKey === 'defenseAirPower' && !isDesc }"
-          v-show="isShow('defenseAirPower', viewStatus)"
-        >
+        <div @click="toggleSortKey('defenseAirPower')" @keypress="toggleSortKey('defenseAirPower')" :class="itemHeaderClasses('defenseAirPower', viewStatus)">
           <div class="d-flex">
             <div class="align-self-center ml-auto">
               <v-icon small>mdi-chevron-down</v-icon>
@@ -202,100 +188,137 @@
           <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
-          <div
-            v-for="(v, i) in data.items"
-            :key="i"
-            v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
-            class="list-item"
-            :class="{
-              single: !multiLine,
-              'no-stock': !v.count,
-              'has-bonus': !isCheckedOnly && v.sumBonus,
-              'has-bad-bonus': !isCheckedOnly && v.sumBonus < 0,
-              'ignore-bonus': sortExcludeSynergyStatus,
-              selected: v.batchListIndexes.length,
-              disabled: !isCheckedOnly && v.disabled,
-            }"
-            @click="clickedItem(v, $event)"
-            @keypress.enter="clickedItem(v, $event)"
-            @contextmenu="showItemMenu(v, $event)"
-          >
-            <div>
-              <div>
-                <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
-              </div>
-              <!-- 秋刀魚特効表示特別対応 -->
-              <div class="saury-bonus" v-if="v.text === 'Saury'">
-                <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
-                <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-              </div>
-              <div class="item-special-text" v-else-if="v.text">
-                <div class="align-self-center">{{ v.text }}</div>
-              </div>
-              <!-- 一括配備モード用インデックス -->
-              <div v-if="v.batchListIndexes.length" class="batch-index-container">
-                <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
-                  {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+          <v-virtual-scroll v-if="!multiLine && data.items.length" :height="itemListHeight" item-height="36" :items="data.items" bench="1">
+            <template v-slot:default="{ item }">
+              <div
+                v-ripple="{ class: item.count ? 'info--text' : 'red--text' }"
+                class="list-item single"
+                :class="{
+                  'no-stock': !item.count,
+                  'has-bonus': !isCheckedOnly && item.sumBonus,
+                  'has-bad-bonus': !isCheckedOnly && item.sumBonus < 0,
+                  'ignore-bonus': sortExcludeSynergyStatus,
+                  selected: item.batchListIndexes.length,
+                  disabled: !isCheckedOnly && item.disabled,
+                }"
+                @click="clickedItem(item, $event)"
+                @keypress.enter="clickedItem(item, $event)"
+                @contextmenu="showItemMenu(item, $event)"
+              >
+                <div>
+                  <div>
+                    <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
+                  </div>
+                  <!-- 秋刀魚特効表示特別対応 -->
+                  <div class="saury-bonus" v-if="item.text === 'Saury'">
+                    <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+                    <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+                  </div>
+                  <div class="item-special-text" v-else-if="item.text">
+                    <div class="align-self-center">{{ item.text }}</div>
+                  </div>
+                  <!-- 一括配備モード用インデックス -->
+                  <div v-if="item.batchListIndexes.length" class="batch-index-container">
+                    <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
+                      {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div
-              class="item-name-container"
-              :class="{ 'is-special': v.item.data.isSpecial }"
-              @mouseenter="bootTooltip(v.item, v.bonus, $event)"
-              @mouseleave="clearTooltip"
-              @focus="bootTooltip(v.item, v.bonus, $event)"
-              @blur="clearTooltip"
-            >
-              <div class="text-truncate">
-                {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
-              </div>
-            </div>
-            <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
-              <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-              <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
-              <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
-              <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
-            </div>
-            <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
-              <v-icon small color="teal accent-4">mdi-star</v-icon>
-              <span class="teal--text text--accent-4">{{ v.remodel }}</span>
-            </div>
-            <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
-              <span>&times;</span>
-              <span>{{ v.count }}</span>
-            </div>
-            <template v-if="!multiLine">
-              <div class="item-status" v-if="isShowFire">{{ formatStatus(v.item.actualFire) }}</div>
-              <div class="item-status" v-if="isShowDayBattleFire && isAircraftMode">{{ formatStatus(v.aircraftDayBattleFirePower) }}</div>
-              <div class="item-status" v-else-if="isShowDayBattleFire">{{ formatStatus(v.dayBattleFirePower) }}</div>
-              <div class="item-status" v-if="isShowTorpedo">{{ formatStatus(v.item.actualTorpedo) }}</div>
-              <div class="item-status" v-if="isShowNightBattleFire">{{ formatStatus(v.item.nightBattleFirePower) }}</div>
-              <div class="item-status" v-if="isShowBomber">{{ formatStatus(v.item.actualBomber) }}</div>
-              <div class="item-status" v-if="isShowAntiAir">{{ v.item.data.antiAir ? v.item.data.antiAir : "" }}</div>
-              <div class="item-status" v-if="isShowActAntiAir">{{ formatStatus(v.item.actualAntiAir) }}</div>
-              <div class="item-status" v-if="isShowDefAntiAir">{{ formatStatus(v.item.actualDefenseAntiAir) }}</div>
-              <div class="item-status" v-if="isShowArmor">{{ v.item.data.armor ? v.item.data.armor : "" }}</div>
-              <div class="item-status" v-if="isShowAsw">{{ formatStatus(v.item.data.asw) }}</div>
-              <div class="item-status" v-if="isShowActualAsw">{{ formatStatus(v.item.actualAsw) }}</div>
-              <div class="item-status" v-if="isShowAvoid">{{ formatStatus(v.item.actualAvoid) }}</div>
-              <div class="item-status" v-if="isShowScout">{{ formatStatus(v.item.actualScout) }}</div>
-              <div class="item-status" v-if="isShowAccuracy">{{ formatStatus(v.item.actualAccuracy) }}</div>
-              <div class="item-status" v-if="isShowAntiBomber">{{ v.item.data.antiBomber ? v.item.data.antiBomber : "" }}</div>
-              <div class="item-status" v-if="isShowAntiAirWeight">{{ formatStatus(v.item.antiAirWeight) }}</div>
-              <div class="item-status" v-if="isShowAntiAirBonus">{{ formatStatus(v.item.antiAirBonus / 100) }}</div>
-              <div class="item-status" v-if="isAirbaseMode && isShowRadius">{{ v.item.data.radius ? v.item.data.radius : "" }}</div>
-              <div class="item-status" v-if="isShowCost">{{ v.item.data.cost ? v.item.data.cost : "" }}</div>
-              <div class="item-status" v-if="isShowTP">{{ v.item.tp ? v.item.tp : "" }}</div>
-              <div class="item-status" v-if="isShowAvoidText">
-                {{ avoidTexts[v.item.data.avoidId] ? $t(`Common.回避性能.${avoidTexts[v.item.data.avoidId]}`) : "" }}
-              </div>
-              <div class="item-status" v-if="isShowAirPower">{{ v.item.fullAirPower ? v.item.fullAirPower : "" }}</div>
-              <div class="item-status" v-if="isShowDefAirPower">
-                {{ v.item.defenseAirPower ? v.item.defenseAirPower : "" }}
+                <div
+                  class="item-name-container"
+                  :class="{ 'is-special': item.item.data.isSpecial }"
+                  @mouseenter="bootTooltip(item.item, item.bonus, $event)"
+                  @mouseleave="clearTooltip"
+                  @focus="bootTooltip(item.item, item.bonus, $event)"
+                  @blur="clearTooltip"
+                >
+                  <div class="text-truncate">
+                    {{ needTrans ? $t(`${item.item.data.name}`) : item.item.data.name }}
+                  </div>
+                </div>
+                <div v-if="!isCheckedOnly && item.sumBonus" class="bonus-icon">
+                  <v-icon v-if="item.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
+                  <v-icon v-else-if="item.sumBonus <= 2" :color="item.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
+                  <v-icon v-else-if="item.sumBonus <= 5" :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                  <v-icon v-else :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+                </div>
+                <div class="item-remodel caption mr-1" v-if="isStockOnly && item.remodel > 0">
+                  <v-icon small color="teal accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                </div>
+                <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
+                  <span>&times;</span>
+                  <span>{{ item.count }}</span>
+                </div>
+                <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}</div>
               </div>
             </template>
-          </div>
+          </v-virtual-scroll>
+          <template v-else>
+            <div
+              v-for="(v, i) in data.items"
+              :key="i"
+              v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
+              class="list-item"
+              :class="{
+                'no-stock': !v.count,
+                'has-bonus': !isCheckedOnly && v.sumBonus,
+                'has-bad-bonus': !isCheckedOnly && v.sumBonus < 0,
+                'ignore-bonus': sortExcludeSynergyStatus,
+                selected: v.batchListIndexes.length,
+                disabled: !isCheckedOnly && v.disabled,
+              }"
+              @click="clickedItem(v, $event)"
+              @keypress.enter="clickedItem(v, $event)"
+              @contextmenu="showItemMenu(v, $event)"
+            >
+              <div>
+                <div>
+                  <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
+                </div>
+                <!-- 秋刀魚特効表示特別対応 -->
+                <div class="saury-bonus" v-if="v.text === 'Saury'">
+                  <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+                  <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+                </div>
+                <div class="item-special-text" v-else-if="v.text">
+                  <div class="align-self-center">{{ v.text }}</div>
+                </div>
+                <!-- 一括配備モード用インデックス -->
+                <div v-if="v.batchListIndexes.length" class="batch-index-container">
+                  <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
+                    {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+                  </div>
+                </div>
+              </div>
+              <div
+                class="item-name-container"
+                :class="{ 'is-special': v.item.data.isSpecial }"
+                @mouseenter="bootTooltip(v.item, v.bonus, $event)"
+                @mouseleave="clearTooltip"
+                @focus="bootTooltip(v.item, v.bonus, $event)"
+                @blur="clearTooltip"
+              >
+                <div class="text-truncate">
+                  {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
+                </div>
+              </div>
+              <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
+                <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
+                <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
+                <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+              </div>
+              <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
+                <v-icon small color="teal accent-4">mdi-star</v-icon>
+                <span class="teal--text text--accent-4">{{ v.remodel }}</span>
+              </div>
+              <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
+                <span>&times;</span>
+                <span>{{ v.count }}</span>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
       <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
@@ -409,6 +432,11 @@
   overflow-y: auto;
   height: 64vh;
   overscroll-behavior: contain;
+}
+#item-table-body.table-mode {
+  overflow-y: unset;
+  height: unset;
+  min-height: 65vh;
 }
 .item-search-text {
   width: 160px;
@@ -846,6 +874,8 @@ type viewItem = {
   disabled: boolean;
 };
 
+const actualKey = ['tp', 'airPower', 'defenseAirPower', 'antiAirWeight', 'antiAirBonus', 'nightBattleFirePower'];
+
 export default Vue.extend({
   name: 'ItemList',
   components: { ItemTooltip, BlacklistItemEdit, ItemCompare },
@@ -909,7 +939,7 @@ export default Vue.extend({
       { text: '対空', key: 'antiAir' },
       { text: '出撃対空', key: 'actualAntiAir' },
       { text: '防空対空', key: 'actualDefenseAntiAir' },
-      { text: '装甲', key: 'armor' },
+      { text: '装甲', key: 'actualArmor' },
       { text: '対潜', key: 'asw' },
       { text: '対潜', key: 'actualAsw' },
       { text: '回避', key: 'actualAvoid' },
@@ -922,7 +952,7 @@ export default Vue.extend({
       { text: 'コスト', key: 'cost' },
       { text: 'TP', key: 'tp' },
       { text: '射撃回避', key: 'avoidId' },
-      { text: '射程', key: 'range' },
+      { text: '射程', key: 'actualRange' },
     ],
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
@@ -949,6 +979,8 @@ export default Vue.extend({
     batchMax: 0,
     batchList: [] as viewItem[],
     isCheckedOnly: false,
+    rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
+    itemListHeight: 100,
   }),
   mounted() {
     this.types = [];
@@ -1042,80 +1074,55 @@ export default Vue.extend({
       }
       return undefined;
     },
-    isShow() {
-      return (key: string, items: string[]) => items.includes(key);
+    viewOrder() {
+      return (key: string, items: string[]) => items.findIndex((v) => v === key);
     },
-    isShowFire(): boolean {
-      return this.viewStatus.includes('actualFire');
-    },
-    isShowDayBattleFire(): boolean {
-      return this.viewStatus.includes('dayBattleFirePower');
-    },
-    isShowNightBattleFire(): boolean {
-      return this.viewStatus.includes('nightBattleFirePower');
-    },
-    isShowTorpedo(): boolean {
-      return this.viewStatus.includes('actualTorpedo');
-    },
-    isShowBomber(): boolean {
-      return this.viewStatus.includes('actualBomber');
-    },
-    isShowAntiAir(): boolean {
-      return this.viewStatus.includes('antiAir');
-    },
-    isShowActAntiAir(): boolean {
-      return this.viewStatus.includes('actualAntiAir');
-    },
-    isShowDefAntiAir(): boolean {
-      return this.viewStatus.includes('actualDefenseAntiAir');
-    },
-    isShowArmor(): boolean {
-      return this.viewStatus.includes('armor');
-    },
-    isShowAsw(): boolean {
-      return this.viewStatus.includes('asw');
-    },
-    isShowActualAsw(): boolean {
-      return this.viewStatus.includes('actualAsw');
-    },
-    isShowAvoid(): boolean {
-      return this.viewStatus.includes('actualAvoid');
-    },
-    isShowScout(): boolean {
-      return this.viewStatus.includes('actualScout');
-    },
-    isShowAccuracy(): boolean {
-      return this.viewStatus.includes('actualAccuracy');
-    },
-    isShowAntiBomber(): boolean {
-      return this.viewStatus.includes('antiBomber');
-    },
-    isShowAntiAirWeight(): boolean {
-      return this.viewStatus.includes('antiAirWeight');
-    },
-    isShowAntiAirBonus(): boolean {
-      return this.viewStatus.includes('antiAirBonus');
-    },
-    isShowRadius(): boolean {
-      return this.viewStatus.includes('radius');
-    },
-    isShowCost(): boolean {
-      return this.viewStatus.includes('cost');
-    },
-    isShowTP(): boolean {
-      return this.viewStatus.includes('tp');
-    },
-    isShowAvoidText(): boolean {
-      return this.viewStatus.includes('avoidId');
-    },
-    isShowAirPower(): boolean {
-      return this.viewStatus.includes('airPower');
-    },
-    isShowDefAirPower(): boolean {
-      return this.viewStatus.includes('defenseAirPower');
+    itemHeaderClasses() {
+      return (key: string, items: string[]) => {
+        const classes: string[] = ['item-status'];
+        if (key === this.sortKey && this.isDesc) classes.push('desc');
+        else if (key === this.sortKey && !this.isDesc) classes.push('asc');
+
+        const index = items.findIndex((v) => v === key);
+        if (index >= 0) {
+          classes.push(`order-${index}`);
+
+          // おケツの方ほどpaddingをとりたい
+          const padding = index - 1;
+          if (padding > 0) {
+            classes.push(`pr-${padding}`);
+          }
+        } else {
+          classes.push('d-none');
+        }
+        return classes;
+      };
     },
     formatStatus() {
-      return (value: number) => (value ? `${Math.floor(10 * value) / 10}` : '');
+      return (v: viewItem, key: string) => {
+        const item = v.item as unknown as sortItem;
+        let value = 0;
+        if (key === 'dayBattleFirePower') {
+          // 昼火力
+          value = this.isAircraftMode ? v.aircraftDayBattleFirePower : v.dayBattleFirePower;
+        } else if (key === 'antiAirBonus') {
+          // 艦隊防空 /100する
+          value = v.item.antiAirBonus / 100;
+        } else if (key === 'actualRange') {
+          // 射程 テキスト表示が必要なため別対応
+          return this.rangeText[v.item.actualRange] ? this.$t(`Common.${this.rangeText[v.item.actualRange]}`) : '';
+        } else if (key === 'avoidId') {
+          // 射撃回避 テキスト表示が必要なため別対応
+          return this.avoidTexts[v.item.data.avoidId] ? this.$t(`Common.回避性能.${this.avoidTexts[v.item.data.avoidId]}`) : '';
+        } else if (key && (key.includes('actual') || actualKey.includes(key))) {
+          // その他 改修効果が載る系のやつ
+          value = (item as { [key: string]: number })[key];
+        } else {
+          // 装備素性能を出すやつなど
+          value = (item.data as { [key: string]: number })[key];
+        }
+        return value ? `${Math.floor(10 * value) / 10}` : '';
+      };
     },
     isJapanese() {
       return this.$i18n.locale === 'ja';
@@ -1138,6 +1145,9 @@ export default Vue.extend({
     },
     isBatchListMax() {
       return this.isBatchMode && this.batchList.length >= this.batchMax;
+    },
+    isCostFilter() {
+      return this.filterStatus === 'cost';
     },
   },
   methods: {
@@ -1450,7 +1460,7 @@ export default Vue.extend({
           // カテゴリ全て検索
           if (this.itemParent instanceof Ship) {
             // 艦娘 -全て
-            this.viewStatus = ['dayBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'nightBattleFirePower', 'actualAsw'];
+            this.viewStatus = ['dayBattleFirePower', 'nightBattleFirePower', 'actualAccuracy', 'antiAir', 'actualScout', 'actualAsw'];
           } else if (this.isAirbaseMode) {
             // 基地 -全て
             this.viewStatus = ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'airPower', 'defenseAirPower'];
@@ -1699,9 +1709,11 @@ export default Vue.extend({
               item.item.actualFire += totalBonus.firePower ?? 0;
               item.item.actualTorpedo += totalBonus.torpedo ?? 0;
               item.item.actualAsw += totalBonus.asw ?? 0;
+              item.item.actualArmor += totalBonus.armor ?? 0;
               item.item.actualAccuracy += totalBonus.accuracy ?? 0;
               item.item.actualScout += totalBonus.scout ?? 0;
               item.item.actualAvoid += totalBonus.avoid ?? 0;
+              item.item.actualRange += totalBonus.range ?? 0;
               item.item.nightBattleFirePower += (totalBonus.firePower ?? 0) + (totalBonus.torpedo ?? 0);
 
               // 砲戦火力に加算
@@ -1736,15 +1748,13 @@ export default Vue.extend({
             filterKey = filterKey.replace('actual', '');
             filterKey = filterKey[0].toLowerCase() + filterKey.slice(1);
           }
-          const isActualFilterKey = filterKey.indexOf('actual') >= 0
-            || filterKey === 'tp'
-            || filterKey === 'airPower'
-            || filterKey === 'defenseAirPower'
-            || filterKey === 'antiAirWeight'
-            || filterKey === 'antiAirBonus';
+          const isActualFilterKey = filterKey.indexOf('actual') >= 0 || actualKey.includes(filterKey);
           this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
             if (isActualFilterKey) {
               return v.item[filterKey] >= filterValue;
+            }
+            if (this.isCostFilter) {
+              return (v.item.data as { [key: string]: number }).cost <= filterValue;
             }
             return (v.item.data as { [key: string]: number })[filterKey] >= filterValue;
           });
@@ -1757,6 +1767,8 @@ export default Vue.extend({
       } else if (this.isCheckedOnly) {
         this.viewItems.sort((a, b) => (a.batchListIndexes[0] ?? 0) - (b.batchListIndexes[0] ?? 0));
       }
+
+      this.itemListHeight = Math.floor(0.65 * window.innerHeight);
     },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
@@ -1844,7 +1856,7 @@ export default Vue.extend({
         return;
       }
       // 初回は基本的に降順
-      this.isDesc = value !== 'id';
+      this.isDesc = value !== 'id' && value !== 'cost';
 
       // ソート任意設定
       this.sortKey = value;
@@ -1852,7 +1864,7 @@ export default Vue.extend({
     },
     handleSortItem() {
       // 昇順降順変更
-      this.sortItems();
+      this.filter();
       // 選択中のカテゴリにソートを記憶
       if (this.selectedType) {
         this.selectedType.isDesc = this.isDesc;
@@ -1873,6 +1885,11 @@ export default Vue.extend({
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
 
+      if (!this.multiLine && key !== 'name' && key !== 'id' && !this.viewStatus.includes(key)) {
+        // ソート対象が一覧になかった場合、ケツのviewStatusをソート項目に置き換え
+        this.viewStatus[this.viewStatus.length - 1] = key;
+      }
+
       // 砲戦火力ソート時特別対応
       if (key === 'dayBattleFirePower') {
         if (this.isAircraftMode) {
@@ -1885,13 +1902,7 @@ export default Vue.extend({
 
       const isNameSort = key === 'name';
       // 装備マスタの値でソートできないものたち
-      const isActualValue = key.indexOf('actual') >= 0
-        || key === 'tp'
-        || key === 'airPower'
-        || key === 'defenseAirPower'
-        || key === 'antiAirWeight'
-        || key === 'antiAirBonus'
-        || key === 'nightBattleFirePower';
+      const isActualValue = key.indexOf('actual') >= 0 || actualKey.includes(key);
 
       (this.viewItems as []).sort((a: { item: sortItem }, b: { item: sortItem }) => {
         if (isActualValue) {

@@ -678,19 +678,19 @@ export default class Const {
       id: 2, text: '中口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [2],
     },
     {
-      id: 3, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [3],
+      id: 3, text: '大口径主砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirBonus', 'actualRange'], types: [3],
     },
     {
-      id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'actualFire', 'actualAccuracy', 'actualAvoid', 'nightBattleFirePower', 'armor'], types: [5, 22, 32],
+      id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'nightBattleFirePower', 'actualFire', 'actualAccuracy', 'actualAvoid', 'actualArmor'], types: [5, 22, 32],
     },
     {
-      id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'actualAvoid', 'airPower', 'radius'], types: [6],
+      id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'actualAvoid', 'radius', 'airPower'], types: [6],
     },
     {
-      id: 7, text: '艦爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [7],
+      id: 7, text: '艦爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [7],
     },
     {
-      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'avoidId', 'radius'], types: [8],
+      id: 8, text: '艦攻', viewStatus: ['actualTorpedo', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [8],
     },
     {
       id: 9, text: '艦偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAntiAir', 'radius', 'cost'], types: [9],
@@ -711,31 +711,31 @@ export default class Const {
       id: 41, text: '大型飛行艇', viewStatus: ['actualScout', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [41],
     },
     {
-      id: 12, text: '電探', viewStatus: ['nightBattleFirePower', 'antiAir', 'actualAccuracy', 'actualScout', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
+      id: 12, text: '電探', viewStatus: ['actualAccuracy', 'actualScout', 'antiAir', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [12, 13],
     },
     {
-      id: 14, text: '対潜装備', viewStatus: ['actualAsw', 'actualAccuracy', 'armor', 'actualAvoid', 'actualScout'], types: [14, 15, 40],
+      id: 14, text: '対潜装備', viewStatus: ['actualAsw', 'actualAccuracy', 'actualArmor', 'actualAvoid', 'actualScout'], types: [14, 15, 40],
     },
     {
       id: 4, text: '副砲', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'nightBattleFirePower', 'antiAirWeight', 'antiAirBonus'], types: [4],
     },
     {
-      id: 21, text: '機銃', viewStatus: ['actualFire', 'antiAir', 'actualAccuracy', 'antiAirWeight', 'antiAirBonus'], types: [21],
+      id: 21, text: '機銃', viewStatus: ['antiAir', 'actualFire', 'actualAccuracy', 'actualArmor', 'antiAirWeight', 'antiAirBonus'], types: [21],
     },
     {
-      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'armor', 'tp'], types: [24, 30, 46, 52],
+      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'actualArmor', 'tp'], types: [24, 30, 46, 52],
     },
     {
-      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'avoidId', 'cost'], types: [47, 53],
+      id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'cost', 'avoidId'], types: [47, 53],
     },
     {
-      id: 48, text: '局戦', viewStatus: ['antiBomber', 'actualAntiAir', 'radius', 'actualDefenseAntiAir', 'airPower', 'defenseAirPower'], types: [48],
+      id: 48, text: '局戦', viewStatus: ['actualAntiAir', 'actualDefenseAntiAir', 'antiBomber', 'radius', 'airPower', 'defenseAirPower'], types: [48],
     },
     {
-      id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'armor', 'cost'], types: [49],
+      id: 49, text: '陸偵', viewStatus: ['actualAntiAir', 'actualScout', 'actualAccuracy', 'radius', 'actualArmor', 'cost'], types: [49],
     },
     {
-      id: 17, text: 'その他', viewStatus: ['radius', 'nightBattleFirePower', 'actualAccuracy', 'actualScout', 'actualAsw', 'armor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54, 55],
+      id: 17, text: 'その他', viewStatus: ['radius', 'nightBattleFirePower', 'actualAccuracy', 'actualScout', 'actualAsw', 'actualArmor'], types: [17, 18, 19, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 39, 42, 43, 44, 50, 51, 54, 55],
     },
   ]
 

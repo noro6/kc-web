@@ -111,6 +111,9 @@ export default class Item {
   /** 改修効果込み実対潜値 装備ボーナス分は後付け(艦娘が必要なため) */
   public actualAsw: number;
 
+  /** 改修効果込み実装甲値 装備ボーナス分は後付け(艦娘が必要なため) */
+  public actualArmor: number;
+
   /** 改修効果込み実命中値 装備ボーナスは後付け(艦娘が必要なため) */
   public actualAccuracy: number;
 
@@ -119,6 +122,9 @@ export default class Item {
 
   /** 改修効果込み実回避 装備ボーナス分は後付け(艦娘が必要なため) */
   public actualAvoid: number;
+
+  /** 実射程値 装備ボーナス分後付け(艦娘が必要なため) */
+  public actualRange: number;
 
   /** 制空値計算時に適用される実対空値(防空時) */
   public readonly actualDefenseAntiAir: number;
@@ -271,6 +277,8 @@ export default class Item {
       this.actualTorpedo = this.data.torpedo;
       this.actualBomber = this.data.bomber;
       this.actualAsw = this.data.asw;
+      this.actualArmor = this.data.armor;
+      this.actualRange = this.data.range;
       this.actualAccuracy = this.data.accuracy;
       this.actualScout = this.data.scout;
       this.actualAvoid = this.data.avoid;
@@ -282,6 +290,8 @@ export default class Item {
       this.actualTorpedo = this.data.torpedo + this.bonusTorpedo;
       this.actualBomber = this.data.bomber + this.bonusBomber;
       this.actualAsw = this.data.asw + this.bonusAsw;
+      this.actualArmor = this.data.armor + this.bonusArmor;
+      this.actualRange = this.data.range;
       this.actualAccuracy = this.data.accuracy + this.bonusAccuracy;
       this.actualScout = this.data.scout + this.bonusScout;
       this.actualAvoid = this.data.avoid;
