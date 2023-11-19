@@ -147,6 +147,9 @@ export default class SiteSetting {
   /** 装備選択時に比較画面を出すかどうか */
   public showItemCompareDialog: boolean;
 
+  /** 艦娘取り込下限レベル */
+  public importShipMinLevel: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -194,6 +197,7 @@ export default class SiteSetting {
       this.imageType = setting.imageType ?? 'png';
       this.isAvoidSpoiler = setting.isAvoidSpoiler ?? true;
       this.showItemCompareDialog = setting.showItemCompareDialog ?? true;
+      this.importShipMinLevel = setting.importShipMinLevel ?? 1;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -290,6 +294,7 @@ export default class SiteSetting {
       this.imageType = 'png';
       this.isAvoidSpoiler = true;
       this.showItemCompareDialog = true;
+      this.importShipMinLevel = 1;
     }
   }
 }

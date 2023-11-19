@@ -365,10 +365,11 @@ export default class Convert {
    * @static
    * @param {string} value 読み込むデータ
    * @param {boolean} [isLockOnly=true] ロック済みのみならtrueを指定する
-   * @returns {ShipStock[]}
+   * @param {number} [minLevel=1] 取り込み最小レベル
+   * @return {*}  {ShipStock[]}
    * @memberof Convert
    */
-  public static readShipStockJson(value: string, isLockOnly = false): ShipStock[] {
+  public static readShipStockJson(value: string, isLockOnly = false, minLevel = 1): ShipStock[] {
     if (!value) {
       return [];
     }
@@ -504,6 +505,11 @@ export default class Convert {
       if (!shipStock.improvement.hp) shipStock.improvement.hp = 0;
       if (!shipStock.improvement.asw) shipStock.improvement.asw = 0;
       if (!shipStock.area) shipStock.area = 0;
+
+      if (shipStock.level < minLevel) {
+        // 最小レベル条件
+        continue;
+      }
 
       // 晴れてようやく追加
       shipList.push(shipStock);

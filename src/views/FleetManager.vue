@@ -85,10 +85,25 @@
           </v-card>
           <v-card class="tutorial_box" v-if="showHowToDoIt">
             <div>4. {{ $t("Database.手順4") }}</div>
-            <v-radio-group v-model="includeUnLockedShip" row hide-details @change="toggleUnLocked()">
-              <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
-              <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
-            </v-radio-group>
+            <div class="d-flex align-center mt-3">
+              <v-radio-group v-model="includeUnLockedShip" row hide-details @change="toggleUnLocked()" class="mt-0">
+                <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
+                <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
+              </v-radio-group>
+              <div class="min-level-input">
+                <v-text-field
+                  type="number"
+                  :max="maxLevel"
+                  min="1"
+                  v-model.number="importMinLevel"
+                  :label="$t('Database.取込Lv下限')"
+                  hide-details
+                  outlined
+                  dense
+                  @change="changeMinLevel()"
+                />
+              </div>
+            </div>
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
@@ -104,10 +119,25 @@
           </v-card>
           <v-card class="tutorial_box">
             <div v-if="showHowToDoIt">6. {{ $t("Database.手順4") }}</div>
-            <v-radio-group v-if="!showHowToDoIt" v-model="includeUnLockedShip" row hide-details class="mt-0" @change="toggleUnLocked()">
-              <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
-              <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
-            </v-radio-group>
+            <div class="d-flex flex-wrap align-center">
+              <v-radio-group v-if="!showHowToDoIt" v-model="includeUnLockedShip" row hide-details class="mt-0" @change="toggleUnLocked()">
+                <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
+                <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
+              </v-radio-group>
+              <div class="min-level-input" v-if="!showHowToDoIt">
+                <v-text-field
+                  type="number"
+                  :max="maxLevel"
+                  min="1"
+                  v-model.number="importMinLevel"
+                  :label="$t('Database.取込Lv下限')"
+                  hide-details
+                  outlined
+                  dense
+                  @change="changeMinLevel()"
+                />
+              </div>
+            </div>
             <v-radio-group v-model="includeUnLockedItem" row hide-details class="" @change="toggleUnLocked()">
               <v-radio :label="$t('Database.未ロックの装備も含める')" :value="true" />
               <v-radio :label="$t('Database.ロック済みの装備のみ')" :value="false" />
@@ -311,6 +341,10 @@
 .shared-url-container {
   max-width: 400px;
 }
+
+.min-level-input {
+  width: 120px;
+}
 </style>
 
 <script lang="ts">
@@ -330,6 +364,7 @@ import OutputHistory from '@/classes/saveData/outputHistory';
 import FirebaseManager from '@/classes/firebaseManager';
 import ShipMaster from '@/classes/fleet/shipMaster';
 import SaveData from '@/classes/saveData/saveData';
+import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'FleetManager',
@@ -358,6 +393,8 @@ export default Vue.extend({
     showHowToDoIt: false,
     areaOverwriteConfirmDialog: false,
     readyImportShipStock: [] as ShipStock[],
+    maxLevel: Const.MAX_LEVEL,
+    importMinLevel: 1,
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -386,6 +423,7 @@ export default Vue.extend({
     const setting = this.$store.state.siteSetting as SiteSetting;
     this.includeUnLockedShip = setting.isIncludeUnLockShip;
     this.includeUnLockedItem = setting.isIncludeUnLockItem;
+    this.importMinLevel = setting.importShipMinLevel;
 
     // 何もデータがなかったら反映タブに飛ばす
     const shipStock = this.$store.state.shipStock as ShipStock[];
@@ -488,7 +526,13 @@ export default Vue.extend({
     setShipStock(): boolean {
       // 在籍艦娘情報を更新
       try {
-        const shipList = Convert.readShipStockJson(this.inputText, !this.includeUnLockedShip);
+        if (!this.importMinLevel || this.importMinLevel < 0) {
+          this.importMinLevel = 1;
+        } else if (this.importMinLevel > this.maxLevel) {
+          this.importMinLevel = this.maxLevel;
+        }
+
+        const shipList = Convert.readShipStockJson(this.inputText, !this.includeUnLockedShip, this.importMinLevel);
         this.readyImportShipStock = [];
         if (shipList.length === 0) {
           // 何もない在籍データは無意味なので返す
@@ -498,6 +542,7 @@ export default Vue.extend({
         // 設定書き換え
         const setting = this.$store.state.siteSetting as SiteSetting;
         setting.isStockOnlyForShipList = true;
+        setting.importShipMinLevel = this.importMinLevel;
         this.$store.dispatch('updateSetting', setting);
 
         const shipStock = this.$store.state.shipStock as ShipStock[];
@@ -769,6 +814,16 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.isIncludeUnLockShip = this.includeUnLockedShip;
       setting.isIncludeUnLockItem = this.includeUnLockedItem;
+      this.$store.dispatch('updateSetting', setting);
+    },
+    changeMinLevel() {
+      // 取り込み最小レベル変更時
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      if (this.importMinLevel > 0 && this.importMinLevel <= this.maxLevel) {
+        setting.importShipMinLevel = +this.importMinLevel;
+      } else {
+        setting.importShipMinLevel = 1;
+      }
       this.$store.dispatch('updateSetting', setting);
     },
   },

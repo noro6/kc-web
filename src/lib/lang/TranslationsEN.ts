@@ -784,6 +784,7 @@ export default {
       '白たすき': 'White Tasuki',
       'Lv上限': 'Max Lv',
       'Lv下限': 'Min Lv',
+      '取込Lv下限': 'Import Min Lv',
       '運上限': 'Max Luck',
       '運下限': 'Min Luck',
       '対潜上限': 'Max Asw',
