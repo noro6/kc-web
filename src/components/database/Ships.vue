@@ -653,7 +653,7 @@
               <v-icon>mdi-heart</v-icon>
             </v-btn>
             <div class="align-self-center ml-3" v-if="versionButtons[version]">
-              <a :href="`https://wikiwiki.jp/kancolle/${encodeURI(versionButtons[version].name)}`">wiki</a>
+              <a :href="`https://wikiwiki.jp/kancolle/${encodeURI(versionButtons[version].name)}`" target="_blank">wiki</a>
             </div>
             <v-btn class="ml-auto" :disabled="btnPushed || readOnly" color="primary" @click.stop="commitStock">
               {{ $t("Database.着任") }}

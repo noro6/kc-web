@@ -265,11 +265,23 @@ export default class ItemMaster {
     if (data.id === 144) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
     }
+    if (data.id === 278) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('SKレーダー')}`;
+    }
+    if (data.id === 279) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('SK＋SGレーダー')}`;
+    }
     if (data.id === 303) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
     }
     if (data.id === 389) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
+    }
+    if (data.id === 482) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('特大発動艇＋III号戦車(北アフリカ仕様)')}`;
+    }
+    if (data.id === 514) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('特大発動艇＋III号戦車J型')}`;
     }
     return `https://wikiwiki.jp/kancolle/${encodeURI(data.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
   }
