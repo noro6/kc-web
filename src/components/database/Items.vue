@@ -233,7 +233,7 @@
             </div>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="blacklistDialog" width="660">
+        <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlackListDialog()">
           <blacklist-item-edit :handle-close="closeBlacklist" />
         </v-dialog>
       </v-tab-item>
@@ -624,6 +624,7 @@ export default Vue.extend({
       const minRemodel = this.remodelRange[0];
       const maxRemodel = this.remodelRange[1];
       const keyWord = this.searchWord ? this.searchWord.toUpperCase() : '';
+      const setting = this.$store.state.siteSetting as SiteSetting;
 
       for (let i = 0; i < bases.length; i += 1) {
         const { items } = bases[i];
@@ -634,6 +635,11 @@ export default Vue.extend({
 
           // 検索語句で絞り込み
           if (keyWord && master.id !== +keyWord && master.name.toUpperCase().indexOf(keyWord) === -1) {
+            continue;
+          }
+
+          // ブラックリスト
+          if (setting.blacklistItemIds.includes(master.id)) {
             continue;
           }
           // 未所持のみモード
@@ -750,6 +756,12 @@ export default Vue.extend({
     },
     closeBlacklist() {
       this.blacklistDialog = false;
+      this.filter();
+    },
+    toggleBlackListDialog() {
+      if (!this.blacklistDialog) {
+        this.filter();
+      }
     },
   },
 });
