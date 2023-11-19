@@ -24,6 +24,11 @@
         <div :class="{ 'no-status': !value.data.fire }">{{ $t("Common.火力") }}</div>
         <div :class="{ 'no-status': !value.data.fire }">{{ value.data.fire }}</div>
       </template>
+      <template v-if="dense && !isAirbaseMode && (value.dayBattleFirePower || value.aircraftDayBattleFirePower)">
+        <div>{{ $t("Common.砲戦火力") }}</div>
+        <div v-if="value.aircraftDayBattleFirePower !== value.dayBattleFirePower">{{ formatActual(value.aircraftDayBattleFirePower) }}</div>
+        <div v-else>{{ formatActual(value.dayBattleFirePower) }}</div>
+      </template>
       <template v-if="!dense || value.data.torpedo">
         <div :class="{ 'no-status': !value.data.torpedo }">{{ $t("Common.雷装") }}</div>
         <div :class="{ 'no-status': !value.data.torpedo }">{{ value.data.torpedo }}</div>
@@ -72,7 +77,7 @@
         <div :class="{ 'no-status': !value.data.avoid }">{{ $t("Common.回避") }}</div>
         <div :class="{ 'no-status': !value.data.avoid }">{{ value.data.avoid }}</div>
       </template>
-      <template v-if="!isAirbaseMode && value.data.range">
+      <template v-if="value.data.range && (!isAirbaseMode || dense)">
         <div>{{ $t("Common.射程") }}</div>
         <div class="text-value">{{ $t(`Common.${rangeText[value.data.range]}`) }}</div>
       </template>
@@ -136,7 +141,7 @@
       <v-divider :dark="dark" />
       <div class="item-statuses remodel-bonus">
         <template v-if="value.bonusFire">
-          <div>{{ $t("Common.火力") }}</div>
+          <div>{{ $t("Common.砲戦火力") }}</div>
           <div>{{ formatStatus(value.bonusFire) }}</div>
         </template>
         <template v-if="value.bonusTorpedo">
