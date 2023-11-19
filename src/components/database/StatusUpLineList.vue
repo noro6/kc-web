@@ -74,7 +74,7 @@
     <v-data-table
       dense
       fixed-header
-      height="50vh"
+      height="60vh"
       class="ship-list"
       multi-sort
       :page.sync="page"
@@ -200,10 +200,10 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider />
-        <div class="ma-4">
+        <v-divider class="mb-3" />
+        <div class="px-2">
           <v-btn-toggle v-model="type" mandatory class="flex-wrap" color="primary">
-            <v-btn v-for="(i, index) in types" :key="index" :value="index">
+            <v-btn v-for="(i, index) in types" :key="index" :value="index" small class="py-5">
               {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
             </v-btn>
           </v-btn-toggle>
@@ -216,7 +216,7 @@
               <v-text-field :label="$t('Database.Lv上限')" type="number" max="200" :min="levelRange[0]" dense v-model.trim="levelRange[1]" hide-details />
             </div>
           </div>
-          <div class="d-flex mt-10">
+          <div class="d-flex mt-6">
             <div class="range-input">
               <v-text-field :label="$t('Database.運下限')" type="number" :max="luckRange[1]" min="1" dense v-model.trim="luckRange[0]" hide-details />
             </div>
@@ -225,13 +225,54 @@
               <v-text-field :label="$t('Database.運上限')" type="number" max="200" :min="luckRange[0]" dense v-model.trim="luckRange[1]" hide-details />
             </div>
           </div>
-          <div class="d-flex mt-3">
-            <v-checkbox v-model="isFinalOnly" :label="$t('Fleet.最終改造')" />
+          <div class="d-flex mt-6" v-if="viewStatus.value === 'asw'">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.対潜下限')" type="number" :max="aswRange[1]" min="1" dense v-model.trim="aswRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="aswRange" dense thumb-label min="1" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.対潜上限')" type="number" max="150" :min="aswRange[0]" dense v-model.trim="aswRange[1]" hide-details />
+            </div>
           </div>
-          <div class="d-flex">
-            <v-checkbox v-model="enabledOnly" :label="$t('Database.成長限界に到達した艦娘を省略')" />
+          <div class="d-flex mt-6" v-if="viewStatus.value === 'LoS'">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.索敵下限')" type="number" :max="losRange[1]" min="1" dense v-model.trim="losRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="losRange" dense thumb-label min="1" max="150" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.索敵上限')" type="number" max="150" :min="losRange[0]" dense v-model.trim="losRange[1]" hide-details />
+            </div>
           </div>
-          <div>
+          <div class="d-flex mt-6" v-if="viewStatus.value === 'avoid'">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.回避下限')" type="number" :max="evaRange[1]" min="1" dense v-model.trim="evaRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="evaRange" dense thumb-label min="1" max="180" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.回避上限')" type="number" max="180" :min="evaRange[0]" dense v-model.trim="evaRange[1]" hide-details />
+            </div>
+          </div>
+          <div class="d-flex mt-6" v-if="viewStatus.value === 'acc'">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.命中項下限')" type="number" :max="accRange[1]" min="1" dense v-model.trim="accRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="accRange" dense thumb-label min="1" max="50" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.命中項上限')" type="number" max="50" :min="accRange[0]" dense v-model.trim="accRange[1]" hide-details />
+            </div>
+          </div>
+          <div class="d-flex mt-6" v-if="viewStatus.value === 'ci'">
+            <div class="range-input">
+              <v-text-field :label="$t('Database.CI項下限')" type="number" :max="ciRange[1]" min="1" dense v-model.trim="ciRange[0]" hide-details />
+            </div>
+            <v-range-slider v-model="ciRange" dense thumb-label min="1" max="100" hide-details class="pt-2 align-center mx-2"> </v-range-slider>
+            <div class="range-input">
+              <v-text-field :label="$t('Database.CI項上限')" type="number" max="100" :min="ciRange[0]" dense v-model.trim="ciRange[1]" hide-details />
+            </div>
+          </div>
+          <div class="d-flex flex-wrap">
+            <v-checkbox class="mr-6" v-model="isFinalOnly" :label="$t('Fleet.最終改造')" />
+            <v-checkbox class="mr-6" v-model="enabledOnly" :label="$t('Database.成長限界に到達した艦娘を省略')" />
             <v-checkbox v-model="onlyBookmarked" :label="$t('Fleet.お気に入り')" />
           </div>
         </div>
@@ -330,7 +371,7 @@
   width: 240px;
 }
 .range-input {
-  width: 80px;
+  width: 92px;
 }
 </style>
 
@@ -440,6 +481,11 @@ export default Vue.extend({
     maxLevel: Const.MAX_LEVEL,
     levelRange: [1, Const.MAX_LEVEL],
     luckRange: [1, 200],
+    aswRange: [1, 150],
+    losRange: [1, 150],
+    evaRange: [1, 180],
+    accRange: [1, 50],
+    ciRange: [1, 100],
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipShip: new Ship(),
@@ -533,6 +579,15 @@ export default Vue.extend({
       const minLevel = this.levelRange[0];
       const maxLuck = this.luckRange[1];
       const minLuck = this.luckRange[0];
+
+      // フィルタ用数値を取得
+      let filterRange = this.aswRange;
+      if (this.viewStatus && this.viewStatus.value === 'LoS') filterRange = this.losRange;
+      else if (this.viewStatus && this.viewStatus.value === 'avoid') filterRange = this.evaRange;
+      else if (this.viewStatus && this.viewStatus.value === 'acc') filterRange = this.accRange;
+      else if (this.viewStatus && this.viewStatus.value === 'ci') filterRange = this.ciRange;
+      const maxTarget = filterRange[1];
+      const minTarge = filterRange[0];
 
       const searchWord = (this.keyword ?? '').trim().toUpperCase();
       const searchWords = searchWord.split(/\s+/);
@@ -674,6 +729,11 @@ export default Vue.extend({
           row.target3 = Ship.getRequiredLevelAccuracy(row.target + 3, row.luck);
           row.manual = Ship.getRequiredLevelAccuracy(manual, row.luck);
           row.isMaximum = row.target1 > this.maxLevel;
+        }
+
+        if (maxTarget < row.target || row.target < minTarge) {
+          // フィルタ適用
+          continue;
         }
 
         if (!isLuckMode && !row.isMaximum) {
