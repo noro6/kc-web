@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <div class="d-flex py-2 pr-2 align-center">
-      <div class="ship-search-text ml-5">
+      <div class="ship-search-text ml-3">
         <v-text-field
           dense
           hide-details
@@ -604,10 +604,10 @@
   overscroll-behavior: contain;
 }
 .ship-search-text {
-  width: 180px;
+  width: 150px;
 }
 .api-search-text {
-  width: 120px;
+  width: 128px;
 }
 .ship-sort-select {
   width: 150px;

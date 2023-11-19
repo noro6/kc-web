@@ -1,7 +1,7 @@
 <template>
   <v-card class="list-card">
     <div class="d-flex py-2 pr-2 align-center">
-      <div class="item-search-text ml-5">
+      <div class="item-search-text ml-3">
         <v-text-field
           :placeholder="$t('ItemList.図鑑id 名称検索')"
           clearable
@@ -12,26 +12,26 @@
           prepend-inner-icon="mdi-magnify"
         />
       </div>
-      <div class="ml-5 filter-select">
+      <div class="ml-1 filter-select">
         <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()" />
       </div>
       <div class="filter-value-input">
         <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
       </div>
       <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
-      <div class="ml-3">
-        <v-btn color="secondary" small @click="resetFilter()">{{ $t("Common.リセット") }}</v-btn>
+      <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
+        <v-btn @click="resetFilter()" icon small>
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
       </div>
       <v-spacer />
       <div class="d-none d-sm-block mr-5">
         <v-btn-toggle dense v-model="multiLine" borderless mandatory>
           <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
             <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">{{ $t("ItemList.一列") }}</span>
           </v-btn>
           <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
             <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">{{ $t("ItemList.複数列") }}</span>
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -42,9 +42,7 @@
     <v-divider />
     <div class="item-filter-container px-3 py-1">
       <template v-if="!isBatchMode || !isCheckedOnly">
-        <div>
-          <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
-        </div>
+        <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
         <div class="d-flex manual-checkbox" v-if="!isAirbaseMode">
           <v-btn icon @click="toggleAffectingRangeFilter()" class="manual-checkbox-button">
             <v-icon class="manual-icon" color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
@@ -68,24 +66,18 @@
           <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
         </div>
         <template v-if="type === 14">
-          <div>
-            <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
-          </div>
-          <div>
-            <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
-          </div>
-          <div>
-            <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
-          </div>
+          <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
+          <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
+          <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
         </template>
         <div v-if="!isEnemyMode && setting.displayBonusKey">
           <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
         </div>
       </template>
-      <div v-if="isStockOnly && !multiLine">
+      <div v-if="isStockOnly && !multiLine && !isEnemyMode">
         <v-checkbox v-model="sortExcludeRemodelStatus" @click="filter()" hide-details dense :label="$t('ItemList.改修値無効')" />
       </div>
-      <div v-if="!multiLine && !isAirbaseMode">
+      <div v-if="!multiLine && !isAirbaseMode && !isEnemyMode">
         <v-checkbox v-model="sortExcludeSynergyStatus" @click="filter()" hide-details dense :label="$t('ItemList.装備シナジー無効')" />
       </div>
       <div class="ml-auto mt-1 d-flex align-center">
@@ -439,14 +431,14 @@
   min-height: 65vh;
 }
 .item-search-text {
-  width: 160px;
+  width: 150px;
 }
 
 .filter-select {
   width: 100px;
 }
 .filter-value-select {
-  width: 40px;
+  width: 32px;
 }
 .filter-value-select input {
   text-align: right !important;
@@ -719,7 +711,6 @@
 .multi .saury-bonus {
   left: -5px;
 }
-
 @keyframes special-text {
   0% {
     opacity: 0;
@@ -896,6 +887,7 @@ export default Vue.extend({
   data: () => ({
     itemParent: undefined as undefined | Ship | Airbase | Enemy,
     slotIndex: -1,
+    sortItemListIndex: 0,
     all: [] as ItemMaster[],
     baseItems: [] as ItemMaster[],
     types: [] as { id: number; text: string; viewStatus: string[]; types: number[]; sortKey: string; isDesc: boolean }[],
@@ -1404,6 +1396,7 @@ export default Vue.extend({
         }
         // カテゴリ毎のフィルタ
         if (this.type === 7) {
+          // 艦爆フィルタ
           if (this.onlyEnabledLandBaseAttack) {
             result = result.filter((v) => Const.ENABLED_LAND_BASE_ATTACK.includes(v.id));
           } else if (this.onlyDisabledLandBaseAttack) {
@@ -1768,7 +1761,11 @@ export default Vue.extend({
         this.viewItems.sort((a, b) => (a.batchListIndexes[0] ?? 0) - (b.batchListIndexes[0] ?? 0));
       }
 
-      this.itemListHeight = Math.floor(0.65 * window.innerHeight);
+      if (this.isJapanese) {
+        this.itemListHeight = Math.floor(0.64 * window.innerHeight);
+      } else {
+        this.itemListHeight = Math.floor(0.6 * window.innerHeight);
+      }
     },
     clickedItem(data: viewItem, event: MouseEvent) {
       if (event && event.ctrlKey && data && data.item && !data.item.data.isEnemyItem) {
