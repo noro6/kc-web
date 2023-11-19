@@ -520,6 +520,7 @@ export default {
       'デッキビルダー読込': 'Import Deck Builder',
       '艦隊クリップボードにデッキビルダー形式の艦隊データを直接追加することができます。': 'Loading Deck Builder format data on this screen will add the fleet data to the Fleet Clipboard.',
       '計算対象から省く': 'Exclude from calculation',
+      '装備一括解除': 'Clear Equipments',
       '対空CI': 'AA Cut-In',
       '攻撃機搭載数': 'Attacker Plane Slot',
       '対空射撃回避': 'AA Resistance',

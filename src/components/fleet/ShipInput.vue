@@ -283,9 +283,14 @@
             <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
-            <v-btn icon small @click.stop="resetItems()">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
+            <v-tooltip bottom color="black" v-if="!hideActiveButton">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn icon small v-bind="attrs" v-on="on" @click.stop="resetItems()">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t("Fleet.装備一括解除") }}</span>
+            </v-tooltip>
             <div class="close-bar" :class="`item-count-${ship.items.length + 1}`"></div>
           </div>
         </div>
