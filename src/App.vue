@@ -1487,7 +1487,8 @@ export default Vue.extend({
         shipStock: ShipStock.createFleetAnalyticsCode(this.$store.state.shipStock as ShipStock[]),
         itemStock: ItemStock.createFleetAnalyticsCode(this.$store.state.itemStock as ItemStock[]),
         outputHistories: this.$store.state.outputHistories,
-        ver: 3,
+        quests: this.$store.state.quests,
+        ver: 4,
       };
       const minify = LZString.compressToUTF16(JSON.stringify(backUpData));
       const blob = new Blob([minify], { type: 'application/octet-stream' });
@@ -1502,7 +1503,10 @@ export default Vue.extend({
         const minify = await file.text();
         const dataString = LZString.decompressFromUTF16(minify) ?? '{}';
         const data = JSON.parse(dataString);
-        if (data.ver === 3 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock && data.outputHistories) {
+        if (data.ver === 4 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock && data.outputHistories && data.quests) {
+          // 艦隊 装備分析 戦果任務データチェック
+          this.backupString = dataString;
+        } else if (data.ver === 3 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock && data.outputHistories) {
           // 艦隊 装備分析データチェック
           this.backupString = dataString;
         } else if (data.ver === 2 && SaveData.IsSaveData(data.savedata as SaveData) && data.shipStock && data.itemStock) {
@@ -1541,7 +1545,7 @@ export default Vue.extend({
         const backUpData = JSON.parse(str);
         let saveData: SaveData | undefined;
 
-        if (backUpData.ver === 2 || backUpData.ver === 3) {
+        if (backUpData.ver >= 2) {
           if (this.isImportSaveData) {
             saveData = SaveData.getInstance(backUpData.savedata as SaveData);
           }
@@ -1553,6 +1557,9 @@ export default Vue.extend({
           }
           if (backUpData.outputHistories && this.isImportURLData) {
             this.$store.dispatch('updateOutputHistories', backUpData.outputHistories);
+          }
+          if (backUpData.quests) {
+            this.$store.dispatch('updateQuests', backUpData.quests);
           }
         } else if (this.isImportSaveData) {
           saveData = SaveData.getInstance(backUpData as SaveData);
@@ -1575,6 +1582,10 @@ export default Vue.extend({
 
           saveData.sortChild();
           this.$store.dispatch('updateSaveData', saveData);
+        }
+
+        if (this.$route.path !== '/') {
+          this.$router.push({ path: '/' });
         }
 
         this.inform('バックアップデータを復元しました。');
