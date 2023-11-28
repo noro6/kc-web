@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.46.6',
+    siteVersion: '2.46.7',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -536,7 +536,7 @@ export default new Vuex.Store({
       const loadHistory = db.outputHistories.toArray().then((data) => {
         context.commit('updateOutputHistories', data);
       });
-      // 出力履歴
+      // 戦果任務
       const quest = db.quests.toArray().then((data) => {
         context.commit('updateQuests', data);
       });
