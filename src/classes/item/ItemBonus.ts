@@ -2557,7 +2557,7 @@ export default class ItemBonus {
       ],
     },
     {
-      ids: [310],
+      ids: [310, 518],
       bonuses: [
         {
           bonus: { firePower: 2, antiAir: 1, avoid: 1 },
@@ -2602,6 +2602,33 @@ export default class ItemBonus {
           bonus: { firePower: 1, torpedo: 1 },
           shipId: [622, 623, 624],
           remodel: 7,
+        },
+      ],
+    },
+    {
+      ids: [518],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 1, antiAir: 1, asw: 1, avoid: 1,
+          },
+          shipClass: [34, 56],
+        },
+        {
+          bonus: { firePower: 1, torpedo: 1, avoid: 1 },
+          shipType: [16],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [622, 623, 624],
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [622, 624],
+        },
+        {
+          bonus: { asw: 2 },
+          shipId: [624],
         },
       ],
     },
@@ -4278,6 +4305,34 @@ export default class ItemBonus {
           bonus: { torpedo: 4 },
           shipId: [607],
         },
+        {
+          bonus: { torpedo: 1 },
+          shipClass: [44],
+          remodel: 4,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [44],
+          remodel: 6,
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1 },
+          remodel: 8,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 10,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipBase: [127, 636],
+          remodel: 5,
+          num: 1,
+        },
       ],
     },
     {
@@ -5046,6 +5101,15 @@ export default class ItemBonus {
           shipClass: [67, 78, 82, 88, 108, 112],
           remodel: 6,
         },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [67, 78, 82, 88, 108, 112],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 10,
+        },
       ],
     },
     {
@@ -5073,13 +5137,39 @@ export default class ItemBonus {
           remodel: 6,
         },
         {
+          bonus: { accuracy: 1 },
+          shipClass: [67, 78, 82, 88, 108, 112],
+          remodel: 7,
+        },
+        {
           bonus: { torpedo: 1 },
           shipClass: [67, 78, 82, 88, 108, 112],
           remodel: 8,
         },
         {
+          bonus: { firePower: 1 },
+          shipClass: [67, 78, 82, 88, 108, 112],
+          remodel: 9,
+        },
+        {
           bonus: { asw: 1 },
           shipClass: [67, 78, 82, 88, 108, 112],
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 7,
+        },
+        {
+          bonus: { asw: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
           remodel: 10,
         },
       ],
@@ -7307,6 +7397,26 @@ export default class ItemBonus {
           shipClass: [38],
           requiresId: [267, 366],
           requiresIdLevel: 3,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 7,
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          remodel: 8,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 9,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 10,
           num: 1,
         },
       ],

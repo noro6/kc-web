@@ -646,6 +646,10 @@ export default class Item {
     }
     // 陸攻 重爆
     if (this.data.isABAttacker && this.data.iconTypeId !== 47) {
+      if (this.data.id === 484) {
+        // 四式重爆 飛龍(熟練)+イ号一型甲 誘導弾 だけなぜか0.75 つよい
+        return 0.75 * Math.sqrt(this.remodel);
+      }
       return 0.7 * Math.sqrt(this.remodel);
     }
     // 魚雷 / 機銃
