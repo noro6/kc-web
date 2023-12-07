@@ -37,6 +37,8 @@ export default new Vuex.Store({
     worlds: [] as Master.MasterWorld[],
     /** マップマスタデータ */
     maps: [] as Master.MasterMap[],
+    /** マップマスタデータ */
+    cellInfos: [] as Master.MasterCell[],
     /** 海域セルマスタデータ */
     cells: [] as CellMaster[],
     /** 敵艦マスタデータ */
@@ -190,6 +192,9 @@ export default new Vuex.Store({
     },
     setMaps: (state, values: Master.MasterMap[]) => {
       state.maps = values;
+    },
+    setCellInfos: (state, values: Master.MasterCell[]) => {
+      state.cellInfos = values;
     },
     setAreaCount: (state, value: number) => {
       state.areaCount = value;
@@ -442,6 +447,7 @@ export default new Vuex.Store({
           context.commit('setShipTypes', master.api_mst_stype);
           context.commit('setWorlds', master.worlds);
           context.commit('setMaps', master.maps);
+          context.commit('setCellInfos', master.cells);
           context.commit('setAreaCount', master.area_count);
         });
 

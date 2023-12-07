@@ -11,7 +11,7 @@ export interface RawCell {
 }
 
 export default class CellMaster {
-  /** 識別id [] */
+  /** world+map (ex.5-4なら54、 2023夏E-7なら 577) */
   public area: number;
 
   /** セル名 ABC */

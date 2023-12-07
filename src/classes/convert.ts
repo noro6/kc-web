@@ -19,6 +19,7 @@ import BattleInfo from './enemy/battleInfo';
 import EnemyMaster from './enemy/enemyMaster';
 import Enemy from './enemy/enemy';
 import EnemyFleet from './enemy/enemyFleet';
+import { MasterCell } from './interfaces/master';
 
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
@@ -66,6 +67,47 @@ interface DeckBuilderAirbase {
   items: { [name: string]: DeckBuilderItem }
 }
 
+/** デッキビルダー敵編成データ */
+interface DeckBuilderEnemyEquipment {
+  /** 装備id */
+  id: number;
+}
+/** デッキビルダー敵編成データ */
+interface DeckBuilderEnemyShip {
+  /** 敵id */
+  id: number;
+  /** 装備 */
+  items: DeckBuilderEnemyEquipment[];
+}
+/** デッキビルダー敵編成データ */
+interface DeckBuilderEnemyFleet {
+  /** 敵艦隊名 ここでは使わないかな */
+  name: string;
+  /** 敵情報一覧 */
+  s: DeckBuilderEnemyShip[];
+}
+/** デッキビルダーセルデータ */
+interface DeckBuilderCell {
+  /** セルid */
+  c: number;
+  /** 味方陣形 */
+  pf: number;
+  /** 敵陣形 */
+  ef: number;
+  /** 第1艦隊 */
+  f1: DeckBuilderEnemyFleet;
+  /** 第2艦隊 */
+  f2?: DeckBuilderEnemyFleet;
+}
+/** デッキビルダー出撃データ */
+interface DeckBuilderSortieData {
+  /** 海域id (world) */
+  a: number;
+  /** マップid (map) */
+  i: number;
+  c: DeckBuilderCell[];
+}
+
 /** デッキビルダー形式 全体 */
 interface DeckBuilder {
   version: number,
@@ -77,6 +119,7 @@ interface DeckBuilder {
   a1?: DeckBuilderAirbase,
   a2?: DeckBuilderAirbase,
   a3?: DeckBuilderAirbase,
+  s?: DeckBuilderSortieData,
 }
 
 type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number, 'api_sp_effect_items': { 'api_kind': number }[] };
@@ -97,13 +140,17 @@ export default class Convert {
   /** 艦船マスタ */
   private readonly shipMasters: ShipMaster[];
 
-  /** 艦船マスタ */
+  /** 敵艦船マスタ */
   private readonly enemyMasters: EnemyMaster[];
 
-  constructor(items: ItemMaster[], ships: ShipMaster[], enemies: EnemyMaster[] = []) {
+  /** セルマスタ */
+  private readonly cellMasters: MasterCell[];
+
+  constructor(items: ItemMaster[], ships: ShipMaster[], enemies: EnemyMaster[] = [], cells: MasterCell[] = []) {
     this.itemMasters = items;
     this.shipMasters = ships;
     this.enemyMasters = enemies;
+    this.cellMasters = cells;
   }
 
   /**
@@ -116,89 +163,94 @@ export default class Convert {
     try {
       const json = JSON.parse(text) as DeckBuilder;
 
-      if (!(json.a1 || json.a2 || json.a3 || json.f1 || json.f2 || json.f3 || json.f4)) {
+      if (!(json.a1 || json.a2 || json.a3 || json.f1 || json.f2 || json.f3 || json.f4 || json.s)) {
         return undefined;
       }
 
-      // 基地情報の取得生成
+      // 基地情報の取得と生成
       const airbases: Airbase[] = [];
-      if (json.a1) {
-        airbases.push(this.convertDeckToAirbase(json.a1));
-      }
-      if (json.a2) {
-        airbases.push(this.convertDeckToAirbase(json.a2));
-      }
-      if (json.a3) {
-        airbases.push(this.convertDeckToAirbase(json.a3));
-      }
-
-      // 艦娘情報の取得生成 4艦隊分まで取り込む(あれば)
-      const fleets: Fleet[] = [];
-      if (json.f1) {
-        const fleet = json.f1;
-        const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => {
-          const data = fleet[key];
-          if (data.id) {
-            ships.push(this.convertDeckToShip(fleet[key]));
-          }
-        });
-        const sub = 6 - ships.length;
-        for (let i = 0; i < sub; i += 1) {
-          ships.push(new Ship());
+      const as = ['a1', 'a2', 'a3'];
+      for (let aIndex = 0; aIndex < as.length; aIndex += 1) {
+        const a = as[aIndex] as 'a1' | 'a2' | 'a3';
+        const airbase = json[a];
+        if (airbase) {
+          airbases.push(this.convertDeckToAirbase(airbase));
         }
-        fleets.push(new Fleet({ ships }));
-      } else {
-        fleets.push(new Fleet());
       }
 
-      if (json.f2) {
-        const fleet = json.f2;
-        const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => {
-          const data = fleet[key];
-          if (data.id) {
-            ships.push(this.convertDeckToShip(fleet[key]));
+      // 艦娘情報の取得と生成
+      const fleets: Fleet[] = [];
+      const fs = ['f1', 'f2', 'f3', 'f4'];
+      for (let fIndex = 0; fIndex < fs.length; fIndex += 1) {
+        const f = fs[fIndex] as 'f1' | 'f2' | 'f3' | 'f4';
+        const fleet = json[f];
+        if (fleet) {
+          const ships: Ship[] = [];
+          Object.keys(fleet).forEach((key) => {
+            const data = fleet[key];
+            if (data.id) {
+              ships.push(this.convertDeckToShip(fleet[key]));
+            }
+          });
+          const sub = 6 - ships.length;
+          for (let i = 0; i < sub; i += 1) {
+            ships.push(new Ship());
           }
-        });
-        fleets.push(new Fleet({ ships }));
-      } else {
-        fleets.push(new Fleet());
-      }
-      if (json.f3) {
-        const ships: Ship[] = [];
-        const fleet = json.f3;
-        Object.keys(fleet).forEach((key) => {
-          const data = fleet[key];
-          if (data.id) {
-            ships.push(this.convertDeckToShip(fleet[key]));
-          }
-        });
-        fleets.push(new Fleet({ ships }));
-      } else {
-        fleets.push(new Fleet());
-      }
-      if (json.f4) {
-        const fleet = json.f4;
-        const ships: Ship[] = [];
-        Object.keys(fleet).forEach((key) => {
-          const data = fleet[key];
-          if (data.id) {
-            ships.push(this.convertDeckToShip(fleet[key]));
-          }
-        });
-        fleets.push(new Fleet({ ships }));
-      } else {
-        fleets.push(new Fleet());
+          fleets.push(new Fleet({ ships }));
+        } else {
+          fleets.push(new Fleet());
+        }
       }
 
-      if (!airbases.length && !fleets.length) {
+      // 出撃情報の取得と生成
+      let sortieInfo: BattleInfo | null = null;
+      if (json.s) {
+        const sortie = json.s;
+        const enemyFleets: EnemyFleet[] = [];
+        for (let i = 0; i < sortie.c.length; i += 1) {
+          const cell = sortie.c[i];
+          const enemies: Enemy[] = [];
+          // 第1艦隊の復元
+          for (let j = 0; j < 6; j += 1) {
+            const enemy = cell.f1.s[j];
+            if (enemy && enemy.id) {
+              enemies.push(Enemy.createEnemyFromMasterId(enemy.id, false, this.enemyMasters, this.itemMasters));
+            }
+          }
+
+          // 第2艦隊の復元
+          if (cell.f2) {
+            for (let j = 0; j < cell.f2.s.length; j += 1) {
+              const enemy = cell.f2.s[j];
+              if (enemy.id) {
+                enemies.push(Enemy.createEnemyFromMasterId(enemy.id, true, this.enemyMasters, this.itemMasters));
+              }
+            }
+          }
+
+          const cellMaster = this.cellMasters.find((v) => v.w === sortie.a && v.m === sortie.i && v.i === cell.c);
+          if (cellMaster) {
+            enemyFleets.push(new EnemyFleet({
+              area: +`${cellMaster.w}${cellMaster.m}`, enemies, formation: cell.ef, mainFleetFormation: cell.pf, cellType: cellMaster.t, nodeName: cellMaster.n, radius: cellMaster.r,
+            }));
+          } else {
+            enemyFleets.push(new EnemyFleet({ enemies, formation: cell.ef, mainFleetFormation: cell.pf }));
+          }
+        }
+
+        sortieInfo = new BattleInfo({ fleets: enemyFleets, battleCount: enemyFleets.length });
+      }
+
+      if (!airbases.length && !fleets.length && !sortieInfo) {
         return undefined;
       }
 
       const info = new CalcManager();
       info.airbaseInfo = new AirbaseInfo({ airbases });
       info.fleetInfo = new FleetInfo({ fleets, admiralLevel: json.hqlv ? json.hqlv : 120 });
+      if (sortieInfo) {
+        info.battleInfo = new BattleInfo({ info: sortieInfo });
+      }
       return info;
     } catch (error) {
       console.error(error);

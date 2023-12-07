@@ -1214,7 +1214,7 @@ export default Vue.extend({
     },
     readTempDeckBuilder() {
       const text = this.tempDeckBuilder;
-      const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+      const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.getters.getEnemies);
 
       try {
         const manager = converter.loadDeckBuilder(text);

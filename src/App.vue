@@ -993,12 +993,14 @@ export default Vue.extend({
         return this.loadAndOpenFromDeckBuilder(text);
       }
       try {
-        const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+        const { items, ships, cellInfos } = this.$store.state;
+        const converter = new Convert(items, ships, this.$store.getters.getEnemies, cellInfos);
         const manager = converter.loadDeckBuilder(text);
         if (!manager) {
           // 何もない編成データは無意味なので返す
           return false;
         }
+        console.log(JSON.parse(JSON.stringify(manager.battleInfo)));
 
         this.selectableFleets = [];
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
@@ -1030,7 +1032,8 @@ export default Vue.extend({
     loadAndOpenFromDeckBuilder(builder: string): boolean {
       // デッキビルダー形式データを計算データに設定して計算ページに移譲
       try {
-        const converter = new Convert(this.$store.state.items, this.$store.state.ships);
+        const { items, ships, cellInfos } = this.$store.state;
+        const converter = new Convert(items, ships, this.$store.getters.getEnemies, cellInfos);
         const manager = converter.loadDeckBuilder(builder);
         if (!manager) {
           // 何もない編成データは無意味なので返す
@@ -1058,11 +1061,14 @@ export default Vue.extend({
       this.inform('デッキビルダー形式編成データを読み込みました。');
     },
     expandCalcManager(manager: CalcManager): void {
+      console.log(JSON.parse(JSON.stringify(manager.battleInfo)));
       let mainData = this.saveData.getMainData();
       if (mainData) {
         const currentManager = mainData.tempData[mainData.tempIndex];
-        // 敵情報はないので元の情報を使う
-        manager.battleInfo = currentManager.battleInfo;
+        if (!manager.battleInfo.fleets.some((v) => v.enemies.some((i) => i.data.id > 0))) {
+          // 敵情報が空のデータなら元の情報を使う
+          manager.battleInfo = currentManager.battleInfo;
+        }
         if (!manager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
           // 基地が空のデータなら元の情報を使う
           manager.airbaseInfo = currentManager.airbaseInfo;

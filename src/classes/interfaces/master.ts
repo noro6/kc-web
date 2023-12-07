@@ -10,6 +10,7 @@ export interface MasterEquipmentExSlot { [key: string]: { api_ship_ids: { [key: 
 export interface FormattedMasterEquipmentExSlot { api_slotitem_id: number, api_ship_ids: number[], api_stypes: number[], api_ctypes: number[], api_req_level?: number }
 export interface MasterWorld { world: number, name: string }
 export interface MasterMap { area: number, name: string, boss: string[], has_detail: number, has_air_raid: number }
+export interface MasterCell { w: number, m: number, i: number, n: string, t: number, r: number[] }
 
 export interface Master {
   api_mst_equip_exslot_ship: MasterEquipmentExSlot[],
@@ -17,6 +18,7 @@ export interface Master {
   api_mst_stype: MasterShipType[],
   worlds: MasterWorld[],
   maps: MasterMap[],
+  cells: MasterCell[],
   ships: MasterShip[],
   items: MasterItem[],
   enemies: MasterEnemy[],
