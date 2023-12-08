@@ -21,6 +21,15 @@ import Enemy from './enemy/enemy';
 import EnemyFleet from './enemy/enemyFleet';
 import { MasterCell } from './interfaces/master';
 
+interface DeckBuilderSpecialEffectItem {
+  /** 種別 (1=海色りぼん 2=白たすき ) */
+  kind?: 1 | 2;
+  fp: number;
+  tp: number;
+  ar: number;
+  ev: number;
+}
+
 /** デッキビルダー 装備個別 */
 interface DeckBuilderItem {
   /** 装備id */
@@ -58,11 +67,13 @@ interface DeckBuilderShip {
   /** 補強増設 */
   exa?: boolean;
   /** 装備データ */
-  items: { [name: string]: DeckBuilderItem }
+  items: { [name: string]: DeckBuilderItem };
+  /** 特殊アイテム 海色りぼんなど */
+  spi?: DeckBuilderSpecialEffectItem[];
 }
 
 /** デッキビルダー 艦隊 */
-interface DeckBuilderFleetData {
+interface DeckBuilderFleet {
   /** 艦隊名 */
   name?: string;
   /** 陣形 */
@@ -140,10 +151,10 @@ interface DeckBuilderSortieData {
 interface DeckBuilder {
   version: number,
   hqlv: number,
-  f1?: DeckBuilderFleetData,
-  f2?: DeckBuilderFleetData,
-  f3?: DeckBuilderFleetData,
-  f4?: DeckBuilderFleetData,
+  f1?: DeckBuilderFleet,
+  f2?: DeckBuilderFleet,
+  f3?: DeckBuilderFleet,
+  f4?: DeckBuilderFleet,
   a1?: DeckBuilderAirbase,
   a2?: DeckBuilderAirbase,
   a3?: DeckBuilderAirbase,
@@ -357,6 +368,7 @@ export default class Convert {
     const baseHP = (shipLv > 99 ? master.hp2 : master.hp);
     const hp = (s.hp && s.hp > 0) ? s.hp : baseHP;
     const items: Item[] = [];
+    const spEffectItemId = s.spi && s.spi.length ? s.spi[0].kind : 0;
     let exItem = new Item();
 
     for (let i = 0; i < master.slotCount; i += 1) {
@@ -389,7 +401,7 @@ export default class Convert {
       const origAsw = Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
       // 対潜なしで一度艦娘を生成 => なぜ？ => 対潜改修値を特定するために、改修なしで素朴に生成したときの対潜値を見たい
       const ship = new Ship({
-        master, level: shipLv, luck, items, exItem, hp, releaseExpand,
+        master, level: shipLv, luck, items, exItem, hp, releaseExpand, spEffectItemId,
       });
       // 表示対潜の差分を見る => これが対潜改修分
       const increasedAsw = s.asw - ship.displayStatus.asw;
@@ -402,7 +414,7 @@ export default class Convert {
     }
 
     return new Ship({
-      master, level: shipLv, luck, items, exItem, hp, releaseExpand,
+      master, level: shipLv, luck, items, exItem, hp, releaseExpand, spEffectItemId,
     });
   }
 
@@ -719,7 +731,7 @@ export default class Convert {
    * @param {boolean} [includeStatus=false]
    * @memberof Convert
    */
-  private static setDeckBuilderFleet(fleet: DeckBuilderFleetData, ships: Ship[], includeStatus = false): void {
+  private static setDeckBuilderFleet(fleet: DeckBuilderFleet, ships: Ship[], includeStatus = false): void {
     for (let i = 0; i < ships.length; i += 1) {
       const ship = ships[i];
       const items = Convert.getDeckBuilderItems(ship.items);
@@ -750,6 +762,17 @@ export default class Convert {
         data.los = ship.displayStatus.LoS;
         data.ev = ship.displayStatus.avoid;
       }
+
+      if (ship.spEffectItemId === 1) {
+        data.spi = [{
+          kind: 1, fp: 0, tp: 1, ar: 1, ev: 0,
+        }];
+      } else if (ship.spEffectItemId === 2) {
+        data.spi = [{
+          kind: 2, fp: 2, tp: 1, ar: 1, ev: 2,
+        }];
+      }
+
       const s = `s${i + 1}` as 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7';
       fleet[s] = data;
     }
