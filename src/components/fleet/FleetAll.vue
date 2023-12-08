@@ -1214,7 +1214,8 @@ export default Vue.extend({
     },
     readTempDeckBuilder() {
       const text = this.tempDeckBuilder;
-      const converter = new Convert(this.$store.state.items, this.$store.state.ships, this.$store.getters.getEnemies);
+      const { items, ships, cellInfos } = this.$store.state;
+      const converter = new Convert(items, ships, this.$store.getters.getEnemies, cellInfos);
 
       try {
         const manager = converter.loadDeckBuilder(text);
@@ -1840,17 +1841,17 @@ export default Vue.extend({
       newManager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets: targetFleets });
       newManager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo });
 
-      const deck = Convert.createDeckBuilder(newManager, true);
+      const deck = Convert.createDeckBuilder(newManager, this.$store.state.cellInfos, true);
       if (deck.f1 && !Object.keys(deck.f1).length) delete deck.f1;
       if (deck.f2 && !Object.keys(deck.f2).length) delete deck.f2;
       if (deck.f3 && !Object.keys(deck.f3).length) delete deck.f3;
       if (deck.f4 && !Object.keys(deck.f4).length) delete deck.f4;
 
-      const gkcoiBuilder: DeckBuilder = Object.assign(deck, {
+      const gkcoiBuilder = Object.assign(deck, {
         lang: this.gkcoiLang,
         theme: this.gkcoiTheme,
         cmt: saveData.remarks,
-      });
+      }) as DeckBuilder;
       generate(gkcoiBuilder)
         .then((canvas) => {
           canvas.style.maxWidth = '100%';

@@ -137,18 +137,7 @@ export default Vue.extend({
       if (!manager) {
         return '';
       }
-      return Convert.createDeckBuilderToString(manager);
-    },
-    jervisDeckBuilder(): string {
-      const saveData = this.$store.state.mainSaveData as SaveData;
-      if (!saveData) {
-        return '';
-      }
-      const manager = saveData.tempData[saveData.tempIndex];
-      if (!manager) {
-        return '';
-      }
-      return Convert.createDeckBuilderForJervis(saveData.name, manager);
+      return Convert.createDeckBuilderToString(manager, this.$store.state.cellInfos);
     },
   },
   methods: {

@@ -1790,6 +1790,28 @@ export default Vue.extend({
               resultShips.push({ typeName, ships, needOrOver: false });
             }
           }
+        } else if (key === 'level') {
+          // 練度毎にタイプ分け
+          // 最大値を10の倍数に均す
+          maxValue = Math.floor(maxValue / 10) * 10;
+          for (let i = maxValue; i >= 0; i -= 10) {
+            if (i === 90) {
+              // 練度99で一つ特別に作る
+              const lv99 = viewShips.filter((v) => v.sortValue === 99);
+              if (lv99.length) {
+                resultShips.push({ typeName: '99', ships: lv99, needOrOver: false });
+              }
+              const ships = viewShips.filter((v) => v.sortValue >= 90 && v.sortValue < 99);
+              if (ships.length) {
+                resultShips.push({ typeName: `${i}`, ships, needOrOver: true });
+              }
+            } else {
+              const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10);
+              if (ships.length) {
+                resultShips.push({ typeName: `${Math.max(i, 1)}`, ships, needOrOver: true });
+              }
+            }
+          }
         } else if (key === 'range') {
           // 値毎にタイプ分け
           for (let i = maxValue; i >= 0; i -= 1) {

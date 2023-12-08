@@ -139,6 +139,26 @@ export default class EnemyFleet {
   /** 敵の装備艦載機一覧 計算用 */
   public readonly allPlanes: { enemyIndex: number, item: Item }[];
 
+  /**
+   * 海域id
+   * @readonly
+   * @type {number}
+   * @memberof EnemyFleet
+   */
+  public get world(): number {
+    return Math.floor(this.area / 10);
+  }
+
+  /**
+   * map番号
+   * @readonly
+   * @type {number}
+   * @memberof EnemyFleet
+   */
+  public get map(): number {
+    return this.area % 10;
+  }
+
   constructor(builder: EnemyFleetBuilder = {}) {
     if (builder.fleet) {
       // builderよりそのままインスタンスを引継ぎ

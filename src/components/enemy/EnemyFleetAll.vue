@@ -215,8 +215,8 @@ export default Vue.extend({
         let map = '';
         const lastBattle = this.value.battleInfo.fleets[this.value.battleInfo.fleets.length - 1];
         if (lastBattle && lastBattle.area) {
-          const world = Math.floor(lastBattle.area / 10);
-          map = `${world > 40 ? 'E' : world}-${lastBattle.area % 10}`;
+          const { world } = lastBattle;
+          map = `${world > 40 ? 'E' : world}-${lastBattle.map}`;
         }
         return `${map} : ${nodeList.map((v) => (v === '' ? '?' : v)).join(' → ')}`;
       }

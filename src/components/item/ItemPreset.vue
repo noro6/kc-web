@@ -251,6 +251,13 @@ export default Vue.extend({
     const savedPresets = this.$store.state.itemPresets as (ItemPreset | OldItemPreset)[];
     this.presets = ItemPreset.convertOldItemPresets(savedPresets);
 
+    // idズレを直す
+    if (this.presets.some((v) => v.id === 0)) {
+      for (let i = 0; i < this.presets.length; i += 1) {
+        this.presets[i].id = i + 1;
+      }
+    }
+
     this.getAACIPreset();
   },
   watch: {
@@ -340,8 +347,9 @@ export default Vue.extend({
       this.selectedPreset = newPreset;
     },
     overwritePreset() {
-      const { name } = this.selectedPreset;
+      const { id, name } = this.selectedPreset;
       this.selectedPreset = new ItemPreset();
+      this.selectedPreset.id = id;
       this.selectedPreset.name = name;
       for (let i = 0; i < this.value.items.length; i += 1) {
         const item = this.value.items[i];
@@ -382,9 +390,8 @@ export default Vue.extend({
       }
     },
     sortEnd() {
-      const baseIds = this.presets.map((v) => v.id);
       for (let i = 0; i < this.presets.length; i += 1) {
-        this.presets[i].id = baseIds[i];
+        this.presets[i].id = i + 1;
       }
       this.$store.dispatch('updateItemPresets', this.presets);
     },

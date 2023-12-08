@@ -1,5 +1,5 @@
 import CalcManager from './calcManager';
-import Const, { CELL_TYPE, FORMATION } from './const';
+import Const, { CELL_TYPE, FLEET_TYPE, FORMATION } from './const';
 import Fleet from './fleet/fleet';
 import FleetInfo from './fleet/fleetInfo';
 import Item from './item/item';
@@ -28,7 +28,7 @@ interface DeckBuilderItem {
   /** 改修値 */
   rf: number,
   /** 熟練度 */
-  mas: number
+  mas?: number
 }
 
 /** デッキビルダー 艦娘 */
@@ -55,16 +55,44 @@ interface DeckBuilderShip {
   ev?: number;
   /** 索敵 */
   los?: number;
+  /** 補強増設 */
+  exa?: boolean;
   /** 装備データ */
   items: { [name: string]: DeckBuilderItem }
 }
 
+/** デッキビルダー 艦隊 */
+interface DeckBuilderFleetData {
+  /** 艦隊名 */
+  name?: string;
+  /** 陣形 */
+  t?: number;
+  /** 艦娘1 */
+  s1?: DeckBuilderShip;
+  /** 艦娘2 */
+  s2?: DeckBuilderShip;
+  /** 艦娘3 */
+  s3?: DeckBuilderShip;
+  /** 艦娘4 */
+  s4?: DeckBuilderShip;
+  /** 艦娘5 */
+  s5?: DeckBuilderShip;
+  /** 艦娘6 */
+  s6?: DeckBuilderShip;
+  /** 艦娘7 */
+  s7?: DeckBuilderShip;
+}
+
 /** デッキビルダー 基地 */
 interface DeckBuilderAirbase {
+  /** 基地名称 */
+  name?: string;
   /** 待機 出撃 防空 */
-  mode: number,
+  mode: number;
   /** 装備データ */
-  items: { [name: string]: DeckBuilderItem }
+  items: { [name: string]: DeckBuilderItem };
+  /** 派遣先 DeckBuilderCell.cに対応 */
+  sp?: number[];
 }
 
 /** デッキビルダー敵編成データ */
@@ -82,7 +110,7 @@ interface DeckBuilderEnemyShip {
 /** デッキビルダー敵編成データ */
 interface DeckBuilderEnemyFleet {
   /** 敵艦隊名 ここでは使わないかな */
-  name: string;
+  name?: string;
   /** 敵情報一覧 */
   s: DeckBuilderEnemyShip[];
 }
@@ -112,10 +140,10 @@ interface DeckBuilderSortieData {
 interface DeckBuilder {
   version: number,
   hqlv: number,
-  f1?: { [name: string]: DeckBuilderShip },
-  f2?: { [name: string]: DeckBuilderShip },
-  f3?: { [name: string]: DeckBuilderShip },
-  f4?: { [name: string]: DeckBuilderShip },
+  f1?: DeckBuilderFleetData,
+  f2?: DeckBuilderFleetData,
+  f3?: DeckBuilderFleetData,
+  f4?: DeckBuilderFleetData,
   a1?: DeckBuilderAirbase,
   a2?: DeckBuilderAirbase,
   a3?: DeckBuilderAirbase,
@@ -167,48 +195,17 @@ export default class Convert {
         return undefined;
       }
 
-      // 基地情報の取得と生成
-      const airbases: Airbase[] = [];
-      const as = ['a1', 'a2', 'a3'];
-      for (let aIndex = 0; aIndex < as.length; aIndex += 1) {
-        const a = as[aIndex] as 'a1' | 'a2' | 'a3';
-        const airbase = json[a];
-        if (airbase) {
-          airbases.push(this.convertDeckToAirbase(airbase));
-        }
-      }
-
-      // 艦娘情報の取得と生成
-      const fleets: Fleet[] = [];
-      const fs = ['f1', 'f2', 'f3', 'f4'];
-      for (let fIndex = 0; fIndex < fs.length; fIndex += 1) {
-        const f = fs[fIndex] as 'f1' | 'f2' | 'f3' | 'f4';
-        const fleet = json[f];
-        if (fleet) {
-          const ships: Ship[] = [];
-          Object.keys(fleet).forEach((key) => {
-            const data = fleet[key];
-            if (data.id) {
-              ships.push(this.convertDeckToShip(fleet[key]));
-            }
-          });
-          const sub = 6 - ships.length;
-          for (let i = 0; i < sub; i += 1) {
-            ships.push(new Ship());
-          }
-          fleets.push(new Fleet({ ships }));
-        } else {
-          fleets.push(new Fleet());
-        }
-      }
-
+      const cellIds: number[] = [];
+      let lastFormation: number = FORMATION.LINE_AHEAD;
       // 出撃情報の取得と生成
-      let sortieInfo: BattleInfo | null = null;
+      let sortieInfo = new BattleInfo();
       if (json.s) {
         const sortie = json.s;
         const enemyFleets: EnemyFleet[] = [];
         for (let i = 0; i < sortie.c.length; i += 1) {
           const cell = sortie.c[i];
+          cellIds.push(cell.c);
+          lastFormation = cell.pf;
           const enemies: Enemy[] = [];
           // 第1艦隊の復元
           for (let j = 0; j < 6; j += 1) {
@@ -231,7 +228,13 @@ export default class Convert {
           const cellMaster = this.cellMasters.find((v) => v.w === sortie.a && v.m === sortie.i && v.i === cell.c);
           if (cellMaster) {
             enemyFleets.push(new EnemyFleet({
-              area: +`${cellMaster.w}${cellMaster.m}`, enemies, formation: cell.ef, mainFleetFormation: cell.pf, cellType: cellMaster.t, nodeName: cellMaster.n, radius: cellMaster.r,
+              area: +`${cellMaster.w}${cellMaster.m}`,
+              enemies,
+              formation: Convert.replaceFormationId(cell.ef),
+              mainFleetFormation: Convert.replaceFormationId(cell.pf),
+              cellType: cellMaster.t,
+              nodeName: cellMaster.n,
+              radius: cellMaster.r,
             }));
           } else {
             enemyFleets.push(new EnemyFleet({ enemies, formation: cell.ef, mainFleetFormation: cell.pf }));
@@ -241,16 +244,56 @@ export default class Convert {
         sortieInfo = new BattleInfo({ fleets: enemyFleets, battleCount: enemyFleets.length });
       }
 
+      // 基地情報の取得と生成
+      const airbases: Airbase[] = [];
+      for (let a = 1; a <= 3; a += 1) {
+        const airbase = json[`a${a}` as 'a1' | 'a2' | 'a3'];
+        if (airbase) {
+          airbases.push(this.convertDeckToAirbase(airbase, cellIds));
+        } else {
+          airbases.push(new Airbase());
+        }
+      }
+
+      // 艦娘情報の取得と生成
+      const fleets: Fleet[] = [];
+      for (let f = 1; f <= 4; f += 1) {
+        const fleet = json[`f${f}` as 'f1' | 'f2' | 'f3' | 'f4'];
+        if (fleet) {
+          const ships: Ship[] = [];
+          for (let s = 1; s <= 7; s += 1) {
+            const data = fleet[`s${s}` as 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7'];
+            if (data && data.id) {
+              ships.push(this.convertDeckToShip(data));
+            } else if (s <= 6) {
+              // 6隻までは入れ続ける
+              ships.push(new Ship());
+            }
+          }
+          fleets.push(new Fleet({ ships, formation: Convert.replaceFormationId(lastFormation) }));
+        } else {
+          fleets.push(new Fleet());
+        }
+      }
+
       if (!airbases.length && !fleets.length && !sortieInfo) {
         return undefined;
       }
 
       const info = new CalcManager();
+      const admiralLevel = json.hqlv ?? 120;
+      const fleetType = json.f1 && json.f1.t ? json.f1 && json.f1.t : FLEET_TYPE.SINGLE;
+      const isUnion = !!(json.f1 && json.f1.t);
+
+      // 基地データ投入
       info.airbaseInfo = new AirbaseInfo({ airbases });
-      info.fleetInfo = new FleetInfo({ fleets, admiralLevel: json.hqlv ? json.hqlv : 120 });
-      if (sortieInfo) {
-        info.battleInfo = new BattleInfo({ info: sortieInfo });
-      }
+      // 艦隊データ投入
+      info.fleetInfo = new FleetInfo({
+        fleets, admiralLevel, isUnion, fleetType,
+      });
+      // 戦闘データ投入
+      info.battleInfo = new BattleInfo({ info: sortieInfo });
+
       return info;
     } catch (error) {
       console.error(error);
@@ -263,10 +306,11 @@ export default class Convert {
    * エラー起きてもそのまま投げます
    * @private
    * @param {DeckBuilderAirbase} a
-   * @returns {Airbase}
+   * @param {number[]} cells
+   * @return {*}  {Airbase}
    * @memberof Convert
    */
-  private convertDeckToAirbase(a: DeckBuilderAirbase): Airbase {
+  private convertDeckToAirbase(a: DeckBuilderAirbase, cells: number[]): Airbase {
     const items: Item[] = [];
     for (let i = 1; i <= 4; i += 1) {
       const key = `i${i}`;
@@ -279,8 +323,20 @@ export default class Convert {
         slot = 9;
       }
       items.push(new Item({
-        master, remodel: item.rf, level: Const.PROF_LEVEL_BORDER[item.mas], slot,
+        master, remodel: item.rf, level: Const.PROF_LEVEL_BORDER[item.mas ?? 0], slot,
       }));
+    }
+
+    if (cells.length && a.sp && a.sp.length) {
+      return new Airbase({
+        mode: a.mode,
+        items,
+        battleTarget: a.sp.map((v) => {
+          const target = cells.findIndex((w) => w === v);
+          // 派遣先が見つかればそこだしみつからなければ最終戦闘
+          return target >= 0 ? target : cells.length - 1;
+        }),
+      });
     }
     return new Airbase({ mode: a.mode, items });
   }
@@ -296,6 +352,7 @@ export default class Convert {
   private convertDeckToShip(s: DeckBuilderShip): Ship {
     const master = this.shipMasters.find((v) => v.id === +s.id) || new ShipMaster();
     const shipLv = s.lv || 99;
+    const releaseExpand = s.exa ?? undefined;
     const luck = (s.luck && s.luck > 0) ? s.luck : master.luck;
     const baseHP = (shipLv > 99 ? master.hp2 : master.hp);
     const hp = (s.hp && s.hp > 0) ? s.hp : baseHP;
@@ -306,7 +363,7 @@ export default class Convert {
       const key = `i${i + 1}`;
       const item = s.items[key] || { id: 0, rf: 0, mas: 0 };
       const itemMaster = this.itemMasters.find((v) => v.id === item.id);
-      const level = Const.PROF_LEVEL_BORDER[item.mas];
+      const level = Const.PROF_LEVEL_BORDER[item.mas ?? 0];
       if (itemMaster && itemMaster.apiTypeId === 41 && master.type2 === 90) {
         // 日進 & 大型飛行艇
         items.push(new Item({
@@ -323,7 +380,7 @@ export default class Convert {
     if (Object.keys(s.items).includes('ix') || Object.keys(s.items).includes(`i${master.slotCount + 1}`)) {
       const item = s.items.ix || s.items[`i${master.slotCount + 1}`] || { id: 0, rf: 0, mas: 0 };
       const itemMaster = this.itemMasters.find((v) => v.id === item.id);
-      const level = Const.PROF_LEVEL_BORDER[item.mas];
+      const level = Const.PROF_LEVEL_BORDER[item.mas ?? 0];
       exItem = new Item({ master: itemMaster, remodel: item.rf, level });
     }
 
@@ -332,7 +389,7 @@ export default class Convert {
       const origAsw = Ship.getStatusFromLevel(shipLv, master.maxAsw, master.minAsw);
       // 対潜なしで一度艦娘を生成 => なぜ？ => 対潜改修値を特定するために、改修なしで素朴に生成したときの対潜値を見たい
       const ship = new Ship({
-        master, level: shipLv, luck, items, exItem, hp,
+        master, level: shipLv, luck, items, exItem, hp, releaseExpand,
       });
       // 表示対潜の差分を見る => これが対潜改修分
       const increasedAsw = s.asw - ship.displayStatus.asw;
@@ -345,7 +402,7 @@ export default class Convert {
     }
 
     return new Ship({
-      master, level: shipLv, luck, items, exItem, hp,
+      master, level: shipLv, luck, items, exItem, hp, releaseExpand,
     });
   }
 
@@ -576,8 +633,8 @@ export default class Convert {
    * @returns {string}
    * @memberof Convert
    */
-  public static createDeckBuilderToString(manager: CalcManager): string {
-    return JSON.stringify(Convert.createDeckBuilder(manager));
+  public static createDeckBuilderToString(manager: CalcManager, cells: MasterCell[]): string {
+    return JSON.stringify(Convert.createDeckBuilder(manager, cells));
   }
 
   /**
@@ -588,7 +645,7 @@ export default class Convert {
    * @return {*}  {DeckBuilder}
    * @memberof Convert
    */
-  public static createDeckBuilder(manager: CalcManager, includeStatus = false): DeckBuilder {
+  public static createDeckBuilder(manager: CalcManager, cells: MasterCell[], includeStatus = false): DeckBuilder {
     const deckBuilder = {
       version: 4, hqlv: manager.fleetInfo.admiralLevel, f1: {}, f2: {}, f3: {}, f4: {},
     } as DeckBuilder;
@@ -597,40 +654,53 @@ export default class Convert {
       const { fleets } = manager.fleetInfo;
       for (let i = 0; i < fleets.length; i += 1) {
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
-        if (i === 0) {
-          deckBuilder.f1 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f1, ships, includeStatus);
-        }
-        if (i === 1) {
-          deckBuilder.f2 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f2, ships, includeStatus);
-        }
-        if (i === 2) {
-          deckBuilder.f3 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f3, ships, includeStatus);
-        }
-        if (i === 3) {
-          deckBuilder.f4 = {};
-          Convert.setDeckBuilderFleet(deckBuilder.f4, ships, includeStatus);
-        }
+        const builder = { name: `第${i + 1}艦隊`, t: Convert.replaceAltFormationId(fleets[i].formation) };
+        Convert.setDeckBuilderFleet(builder, ships, includeStatus);
+        deckBuilder[`f${i + 1}` as 'f1' | 'f2' | 'f3' | 'f4'] = builder;
       }
 
       // 基地データ
       const { airbases } = manager.airbaseInfo;
       for (let i = 0; i < airbases.length; i += 1) {
         const airbase = airbases[i];
-        if (i === 0) {
-          const items = Convert.getDeckBuilderItems(airbase.items);
-          deckBuilder.a1 = { mode: airbase.mode, items };
+        const items = Convert.getDeckBuilderItems(airbase.items);
+        deckBuilder[`a${i + 1}` as 'a1' | 'a2' | 'a3'] = { name: `第${i + 1}基地航空隊`, items, mode: airbase.mode };
+      }
+
+      // 出撃データ => 最終戦闘をベースで考える
+      const lastBattle = manager.battleInfo.fleets[manager.battleInfo.fleets.length - 1];
+      if (lastBattle) {
+        const c: DeckBuilderCell[] = [];
+        for (let i = 0; i < manager.battleInfo.fleets.length; i += 1) {
+          const cell = manager.battleInfo.fleets[i];
+          const enemies1: DeckBuilderEnemyShip[] = [];
+          const enemies2: DeckBuilderEnemyShip[] = [];
+          for (let j = 0; j < cell.enemies.length; j += 1) {
+            const enemy = cell.enemies[j];
+            if (j < 6 && enemy.data.id) enemies1.push({ id: enemy.data.id, items: enemy.items.map((v) => ({ id: v.data.id })) });
+            else if (enemy.data.id) enemies2.push({ id: enemy.data.id, items: enemy.items.map((v) => ({ id: v.data.id })) });
+          }
+
+          const cellMaster = cells.find((v) => v.w === cell.world && v.m === cell.map && v.n === cell.nodeName);
+          if (enemies2.length) {
+            c.push({
+              c: cellMaster ? cellMaster.i : 0,
+              pf: Convert.replaceAltFormationId(cell.mainFleetFormation),
+              ef: Convert.replaceAltFormationId(cell.formation),
+              f1: { s: enemies1 },
+              f2: { s: enemies2 },
+            });
+          } else {
+            c.push({
+              c: cellMaster ? cellMaster.i : 0,
+              pf: Convert.replaceAltFormationId(cell.mainFleetFormation),
+              ef: Convert.replaceAltFormationId(cell.formation),
+              f1: { s: enemies1 },
+            });
+          }
         }
-        if (i === 1) {
-          const items = Convert.getDeckBuilderItems(airbase.items);
-          deckBuilder.a2 = { mode: airbase.mode, items };
-        }
-        if (i === 2) {
-          const items = Convert.getDeckBuilderItems(airbase.items);
-          deckBuilder.a3 = { mode: airbase.mode, items };
-        }
+
+        deckBuilder.s = { a: lastBattle.world, i: lastBattle.map, c };
       }
 
       return deckBuilder;
@@ -649,21 +719,26 @@ export default class Convert {
    * @param {boolean} [includeStatus=false]
    * @memberof Convert
    */
-  private static setDeckBuilderFleet(fleet: { [name: string]: DeckBuilderShip }, ships: Ship[], includeStatus = false): void {
+  private static setDeckBuilderFleet(fleet: DeckBuilderFleetData, ships: Ship[], includeStatus = false): void {
     for (let i = 0; i < ships.length; i += 1) {
       const ship = ships[i];
       const items = Convert.getDeckBuilderItems(ship.items);
       if (ship.exItem.data.id) {
         const level = CommonCalc.getProfLevel(ship.exItem.level);
-        items.ix = { id: ship.exItem.data.id, mas: level, rf: ship.exItem.remodel };
+        if (ship.exItem.data.isPlane) {
+          items.ix = { id: ship.exItem.data.id, rf: ship.exItem.remodel, mas: level };
+        } else {
+          items.ix = { id: ship.exItem.data.id, rf: ship.exItem.remodel };
+        }
       }
       const data: DeckBuilderShip = {
         id: ship.data.id,
         lv: ship.level,
-        hp: ship.hp,
-        luck: ship.luck,
-        asw: ship.displayStatus.asw,
+        exa: !!ship.releaseExpand || !!ship.exItem.data.id,
         items,
+        hp: ship.hp,
+        asw: ship.displayStatus.asw,
+        luck: ship.luck,
       };
 
       // ステータスを含める場合
@@ -675,7 +750,8 @@ export default class Convert {
         data.los = ship.displayStatus.LoS;
         data.ev = ship.displayStatus.avoid;
       }
-      fleet[`s${i + 1}`] = data;
+      const s = `s${i + 1}` as 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7';
+      fleet[s] = data;
     }
   }
 
@@ -694,98 +770,14 @@ export default class Convert {
       if (!item.data.id) {
         continue;
       }
-      deckItem[`i${j + 1}`] = { id: item.data.id, mas: CommonCalc.getProfLevel(item.level), rf: item.remodel };
+      if (item.data.isPlane) {
+        deckItem[`i${j + 1}`] = { id: item.data.id, rf: item.remodel, mas: CommonCalc.getProfLevel(item.level) };
+      } else {
+        deckItem[`i${j + 1}`] = { id: item.data.id, rf: item.remodel };
+      }
     }
 
     return deckItem;
-  }
-
-  /**
-   * 作戦室用デッキビルダー変換
-   * @static
-   * @param {string} name
-   * @param {CalcManager} manager
-   * @returns {string}
-   * @memberof Convert
-   */
-  public static createDeckBuilderForJervis(name: string, manager: CalcManager): string {
-    type JervisItem = {
-      masterId: number,
-      improvement: number,
-      proficiency: number,
-    };
-
-    type JervisShip = {
-      masterId: number,
-      level: number,
-      slots: [],
-      increased: { luck: number },
-      equipments: JervisItem[]
-    };
-
-    type JervisAirbase = {
-      slots: [],
-      equipments: JervisItem[]
-    };
-
-    const json = {
-      version: 1,
-      name,
-      hqLevel: manager.fleetInfo.admiralLevel,
-      side: 'Player',
-      fleetType: manager.fleetInfo.isUnion ? 'CarrierTaskForce' : 'Single',
-      fleets: [
-        { ships: [] as JervisShip[] },
-        { ships: [] as JervisShip[] },
-        { ships: [] as JervisShip[] },
-        { ships: [] as JervisShip[] },
-      ],
-      landBase: [] as JervisAirbase[],
-    };
-
-    // 艦隊データ
-    const { fleets } = manager.fleetInfo;
-    for (let i = 0; i < fleets.length; i += 1) {
-      const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
-      for (let j = 0; j < ships.length; j += 1) {
-        const ship = ships[j];
-        const { items } = ship;
-        const equipments = [] as JervisItem[];
-        for (let k = 0; k < items.length; k += 1) {
-          const item = items[k];
-          equipments.push({ masterId: item.data.id, improvement: item.remodel, proficiency: item.level } as JervisItem);
-        }
-        // 補強増設
-        equipments.push({ masterId: ship.exItem.data.id, improvement: ship.exItem.remodel, proficiency: ship.exItem.level } as JervisItem);
-
-        const jervisShip = {
-          masterId: ship.data.id,
-          level: ship.level,
-          slots: items.map((v) => v.fullSlot),
-          increased: { luck: ship.luck - ship.data.luck },
-          equipments,
-        } as JervisShip;
-        json.fleets[i].ships.push(jervisShip);
-      }
-    }
-
-    // 基地データ
-    const { airbases } = manager.airbaseInfo;
-    for (let i = 0; i < airbases.length; i += 1) {
-      const items = airbases[i].items.filter((v) => v.data.id > 0);
-      const equipments = [] as JervisItem[];
-      for (let k = 0; k < items.length; k += 1) {
-        const item = items[k];
-        equipments.push({ masterId: item.data.id, improvement: item.remodel, proficiency: item.level } as JervisItem);
-      }
-      const jervisAirbase = {
-        slots: items.map((v) => v.fullSlot),
-        equipments,
-      } as JervisAirbase;
-      json.landBase.push(jervisAirbase);
-    }
-
-    return JSON.stringify(json);
   }
 
   /**
@@ -1312,5 +1304,37 @@ export default class Convert {
       }
     }
     return newStocks;
+  }
+
+  /**
+   * 陣形idをこのサイト用に置き換え
+   * @static
+   * @param {number} api
+   * @return {*}  {number}
+   * @memberof Convert
+   */
+  public static replaceFormationId(api?: number): number {
+    // 旧シミュのせいでこんなことになってる 過去の自分をぶん殴るべき
+    if (api === 11) return FORMATION.FORMATION1;
+    if (api === 12) return FORMATION.FORMATION2;
+    if (api === 13) return FORMATION.FORMATION3;
+    if (api === 14) return FORMATION.FORMATION4;
+    return api ?? 1;
+  }
+
+  /**
+   * 陣形id置き換え
+   * @static
+   * @param {number} formationId
+   * @return {*}  {number}
+   * @memberof Convert
+   */
+  public static replaceAltFormationId(formationId?: number): number {
+    // 旧シミュのせいでこんなことになってる 過去の自分をぶん殴るべき
+    if (formationId === FORMATION.FORMATION1) return 11;
+    if (formationId === FORMATION.FORMATION2) return 12;
+    if (formationId === FORMATION.FORMATION3) return 13;
+    if (formationId === FORMATION.FORMATION4) return 14;
+    return formationId ?? 1;
   }
 }

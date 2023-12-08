@@ -174,8 +174,8 @@ export default class Airbase {
     this.defenseAirPower = Math.floor(this.defenseAirPower * this.reconCorrDefense);
     this.airPower = this.fullAirPower;
 
-    // 装備なんもないなら自動で待機にする
-    if (!this.items.some((v) => v.data.id > 0)) {
+    // 装備なんもないとか、なんか変な札になってたらなら自動で待機にする
+    if (!this.items.some((v) => v.data.id > 0) || (this.mode !== AB_MODE.BATTLE && this.mode !== AB_MODE.DEFENSE && this.mode !== AB_MODE.WAIT)) {
       this.mode = AB_MODE.WAIT;
     }
   }

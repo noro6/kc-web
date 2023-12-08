@@ -1000,7 +1000,6 @@ export default Vue.extend({
           // 何もない編成データは無意味なので返す
           return false;
         }
-        console.log(JSON.parse(JSON.stringify(manager.battleInfo)));
 
         this.selectableFleets = [];
         for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
@@ -1061,7 +1060,6 @@ export default Vue.extend({
       this.inform('デッキビルダー形式編成データを読み込みました。');
     },
     expandCalcManager(manager: CalcManager): void {
-      console.log(JSON.parse(JSON.stringify(manager.battleInfo)));
       let mainData = this.saveData.getMainData();
       if (mainData) {
         const currentManager = mainData.tempData[mainData.tempIndex];
