@@ -206,7 +206,8 @@ export default class Convert {
         return undefined;
       }
 
-      const cellIds: number[] = [];
+      /** 通ったセルid */
+      const cellIds: number[][] = [];
       let lastFormation: number = FORMATION.LINE_AHEAD;
       // 出撃情報の取得と生成
       let sortieInfo = new BattleInfo();
@@ -215,7 +216,6 @@ export default class Convert {
         const enemyFleets: EnemyFleet[] = [];
         for (let i = 0; i < sortie.c.length; i += 1) {
           const cell = sortie.c[i];
-          cellIds.push(cell.c);
           lastFormation = cell.pf;
           const enemies: Enemy[] = [];
           // 第1艦隊の復元
@@ -238,6 +238,12 @@ export default class Convert {
 
           const cellMaster = this.cellMasters.find((v) => v.w === sortie.a && v.m === sortie.i && v.i === cell.c);
           if (cellMaster) {
+            // このセルと同じセルを表すidを全て取得する => 基地のspの値と、sortie.cが必ずしも一致しないため
+            const ids = this.cellMasters.filter((v) => v.w === cellMaster.w && v.m === cellMaster.m && v.n === cellMaster.n);
+            if (ids) {
+              cellIds.push(ids.map((v) => v.i));
+            }
+
             enemyFleets.push(new EnemyFleet({
               area: +`${cellMaster.w}${cellMaster.m}`,
               enemies,
@@ -321,7 +327,7 @@ export default class Convert {
    * @return {*}  {Airbase}
    * @memberof Convert
    */
-  private convertDeckToAirbase(a: DeckBuilderAirbase, cells: number[]): Airbase {
+  private convertDeckToAirbase(a: DeckBuilderAirbase, cells: number[][]): Airbase {
     const items: Item[] = [];
     for (let i = 1; i <= 4; i += 1) {
       const key = `i${i}`;
@@ -343,7 +349,7 @@ export default class Convert {
         mode: a.mode,
         items,
         battleTarget: a.sp.map((v) => {
-          const target = cells.findIndex((w) => w === v);
+          const target = cells.findIndex((w) => w.some((x) => x === v));
           // 派遣先が見つかればそこだしみつからなければ最終戦闘
           return target >= 0 ? target : cells.length - 1;
         }),
