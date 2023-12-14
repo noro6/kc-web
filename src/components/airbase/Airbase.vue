@@ -315,10 +315,10 @@ export default Vue.extend({
           items.push(new Item({ item: editedItem }));
         }
         this.$emit('input', new Airbase({ airbase: this.airbase, items }));
-        setTimeout(() => {
-          this.destroyDialog = true;
-        }, 100);
       }
+      setTimeout(() => {
+        this.destroyDialog = true;
+      }, 100);
     },
     toggleDetailDialog() {
       if (!this.detailDialog) {

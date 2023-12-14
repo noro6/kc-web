@@ -1050,7 +1050,7 @@ export default class Item {
       }
 
       // 触接選択率 => 20 - (2 * 制空定数[3, 2, 1])
-      return [scout / 14, scout / 16, scout / 18];
+      return [Math.min(scout / 14, 1), Math.min(scout / 16), Math.min(scout / 18)];
     }
     return [0, 0, 0];
   }
