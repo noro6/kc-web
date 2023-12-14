@@ -221,9 +221,12 @@ export default class AerialFirePowerCalculator {
           if (item.data.id === 459) {
             B25Modifiers = 0.9;
           }
-        } else if (item.data.id === 224 && shipType === SHIP_TYPE.DD) {
-          // 65戦隊 VS 駆逐の場合、雷装値25として計算
-          actualTorpedo = 25 + item.bonusTorpedo;
+        } else if (item.data.id === 224) {
+          actualTorpedo = item.data.torpedo;
+          // 65戦隊 vs 駆逐の場合、雷装値25として計算
+          if (shipType === SHIP_TYPE.DD) {
+            actualTorpedo = 25 + item.bonusTorpedo;
+          }
         } else if (item.data.id === 405 && shipType === SHIP_TYPE.DD) {
           // Do 217 E-5+Hs293 VS 駆逐の場合 雷装1.1倍
           torpedoMultiplier = 1.1;
