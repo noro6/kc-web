@@ -672,9 +672,11 @@ export default class Convert {
       const { fleets } = manager.fleetInfo;
       for (let i = 0; i < fleets.length; i += 1) {
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
-        const builder = { name: `第${i + 1}艦隊`, t: Convert.replaceAltFormationId(fleets[i].formation) };
-        Convert.setDeckBuilderFleet(builder, ships, includeStatus);
-        deckBuilder[`f${i + 1}` as 'f1' | 'f2' | 'f3' | 'f4'] = builder;
+        if (ships.length) {
+          const builder = { name: `第${i + 1}艦隊`, t: Convert.replaceAltFormationId(fleets[i].formation) };
+          Convert.setDeckBuilderFleet(builder, ships, includeStatus);
+          deckBuilder[`f${i + 1}` as 'f1' | 'f2' | 'f3' | 'f4'] = builder;
+        }
       }
 
       // 基地データ
