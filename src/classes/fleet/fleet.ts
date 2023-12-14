@@ -334,6 +334,30 @@ export default class Fleet {
   }
 
   /**
+   * 艦娘配列の合計航空偵察索敵スコア
+   * @static
+   * @param {Ship[]} argShips 艦娘配列
+   * @returns {number[]}
+   * @memberof Fleet
+   */
+  public static getAerialScoutScore(argShips: Ship[]): number {
+    const ships = argShips.filter((v) => v.isActive && !v.isEmpty);
+    let score = 0;
+    for (let i = 0; i < ships.length; i += 1) {
+      const items = ships[i].items.concat(ships[i].exItem);
+      for (let j = 0; j < items.length; j += 1) {
+        const item = items[j];
+        if (item.data.apiTypeId === 10 || item.data.apiTypeId === 11) {
+          score += item.data.scout * Math.sqrt(Math.sqrt(item.fullSlot));
+        } else if (item.data.apiTypeId === 41) {
+          score += item.data.scout * Math.sqrt(item.fullSlot);
+        }
+      }
+    }
+    return score;
+  }
+
+  /**
    * この艦隊の触接情報テーブルを取得
    * @returns {ContactRate[]}
    * @memberof Fleet

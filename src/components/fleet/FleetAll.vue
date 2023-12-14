@@ -114,8 +114,11 @@
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
     </v-tabs>
     <v-divider class="mx-2" />
-    <div v-if="scoutError" class="mx-2 mt-1">
-      <v-alert class="ma-0" dense outlined type="warning">{{ scoutError }}</v-alert>
+    <div v-if="scoutError[0]" class="mx-2 mt-1">
+      <v-alert class="ma-0" dense outlined type="warning">{{ scoutError[0] }}</v-alert>
+    </div>
+    <div v-if="scoutError[1]" class="mx-2 mt-1">
+      <v-alert class="ma-0 body-2" dense outlined type="info">{{ scoutError[1] }}</v-alert>
     </div>
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item
@@ -960,14 +963,19 @@ export default Vue.extend({
 
       return errorText;
     },
-    scoutError(): string {
+    scoutError(): string[] {
       const fleet = this.value.mainFleet;
       const lastBattle = this.battleInfo.fleets[this.battleInfo.fleets.length - 1];
+
+      // 航空偵察スコア
+      const ARScore = Fleet.getAerialScoutScore(fleet.ships);
+      let ARScoreBorder = 0;
 
       let LoS = 0;
       let coefficient = 0;
       if (lastBattle) {
         const nodeList = this.battleInfo.fleets.map((v) => v.nodeName);
+        // 通常索敵値
         const scores = Fleet.getScoutScore(fleet.ships, this.value.admiralLevel).map((v) => Math.floor(100 * v) / 100);
         let score = 0;
         switch (lastBattle.area) {
@@ -1043,6 +1051,8 @@ export default Vue.extend({
             if (lastBattle.nodeName === 'J') {
               if (score < 38) LoS = 38;
             }
+            // 航空偵察 Hマスを基準に
+            ARScoreBorder = 16;
             break;
           case 65:
             coefficient = 3;
@@ -1071,10 +1081,17 @@ export default Vue.extend({
         }
       }
 
+      const errors: string[] = [];
+
       if (LoS && coefficient) {
-        return `${this.$t('Fleet.索敵値が不足している可能性があります。', { LoS, num: coefficient })}`;
+        errors.push(`${this.$t('Fleet.索敵値が不足している可能性があります。', { LoS, num: coefficient })}`);
+      } else {
+        errors.push('');
       }
-      return '';
+      if (ARScoreBorder) {
+        errors.push(`${this.$t('Fleet.航空偵察', { score: Math.floor(10 * ARScore) / 10, required: ARScoreBorder, success: ARScoreBorder * 2.2 })}`);
+      }
+      return errors;
     },
   },
   methods: {
