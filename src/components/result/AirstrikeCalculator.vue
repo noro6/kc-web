@@ -391,7 +391,7 @@ import Calculator, {
   FirePowerCalcArgs, PostCapTerm, PowerDist, PreCapTerm, SlotDist,
 } from '@/classes/aerialCombat/powerCalculator';
 import CommonCalc from '@/classes/commonCalc';
-import Const, { SHIP_TYPE, FLEET_TYPE } from '@/classes/const';
+import Const, { SHIP_TYPE, FLEET_TYPE, CAP } from '@/classes/const';
 import SiteSetting from '@/classes/siteSetting';
 
 interface DamageRowData {
@@ -834,7 +834,7 @@ export default Vue.extend({
             const preCapTerms = Calculator.getPreCapTerms(args);
             for (let i = 0; i < preCapTerms.length; i += 1) {
               const preCapTerm = preCapTerms[i];
-              const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower);
+              const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower, CAP.LBAS);
               for (let j = 0; j < postCapTerms.length; j += 1) {
                 this.preCapTerms.push(preCapTerm);
                 this.postCapTerms.push(postCapTerms[j]);
@@ -847,7 +847,7 @@ export default Vue.extend({
           const preCapTerms = Calculator.getPreCapTerms(args);
           for (let i = 0; i < preCapTerms.length; i += 1) {
             const preCapTerm = preCapTerms[i];
-            const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower);
+            const postCapTerms = Calculator.getPostCapAttackPowers(args, preCapTerm.preCapFirePower, CAP.AS);
             for (let j = 0; j < postCapTerms.length; j += 1) {
               this.preCapTerms.push(preCapTerm);
               this.postCapTerms.push(postCapTerms[j]);

@@ -120,7 +120,7 @@ export default class AerialFirePowerCalculator {
   }
 
   /**
-   * 火力分布計算
+   * 航空戦火力を返却 -通常航空戦
    * @private
    * @static
    * @param {FirePowerCalcArgs} args
@@ -134,7 +134,7 @@ export default class AerialFirePowerCalculator {
     const preCapTerms = AerialFirePowerCalculator.getPreCapTerms(args);
     const retPowers = [];
     for (let i = 0; i < preCapTerms.length; i += 1) {
-      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower);
+      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower, CAP.AS);
       for (let j = 0; j < powers.length; j += 1) {
         const power = powers[j].finalFirePower;
         retPowers.push({ power, rate: rate / preCapTerms.length });
@@ -340,13 +340,14 @@ export default class AerialFirePowerCalculator {
    * @static
    * @param {FirePowerCalcArgs} args
    * @param {number} preCapFirePower
-   * @return {*}  {PostCapTerm[]}
+   * @param {number} cap
+   * @returns {PostCapTerm[]}
    * @memberof AerialFirePowerCalculator
    */
-  public static getPostCapAttackPowers(args: FirePowerCalcArgs, preCapFirePower: number): PostCapTerm[] {
+  public static getPostCapAttackPowers(args: FirePowerCalcArgs, preCapFirePower: number, cap: number): PostCapTerm[] {
     const { item, isAirbaseMode, defense } = args;
     // キャップ適用
-    const postCapFirePower = CommonCalc.softCap(preCapFirePower, CAP.LBAS);
+    const postCapFirePower = CommonCalc.softCap(preCapFirePower, cap);
 
     // 陸攻補正
     const airBaseBonus = item.data.apiTypeId === 47 ? 1.8 : 1;
@@ -446,7 +447,7 @@ export default class AerialFirePowerCalculator {
     const preCapTerms = AerialFirePowerCalculator.getPreCapTerms(args);
     const retPowers = [];
     for (let i = 0; i < preCapTerms.length; i += 1) {
-      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower);
+      const powers = AerialFirePowerCalculator.getPostCapAttackPowers(args, preCapTerms[i].preCapFirePower, CAP.LBAS);
       for (let j = 0; j < powers.length; j += 1) {
         const power = powers[j].finalFirePower;
         retPowers.push({ power, rate });
