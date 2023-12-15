@@ -179,25 +179,36 @@
           <v-divider />
           <div class="pa-4">
             <div class="mb-2">{{ $t("Database.発行履歴") }}</div>
+            <v-tabs v-model="yearTab">
+              <v-tab>ALL</v-tab>
+              <v-tab v-for="year in years" :key="`year${year}`">{{ year }}</v-tab>
+            </v-tabs>
+            <v-divider></v-divider>
             <div class="d-flex flex-column-reverse">
-              <v-card v-for="(data, i) in outputHistories" :key="`history_${i}`" class="ma-2 pa-3 d-flex">
-                <div class="mr-2 align-self-center caption">
-                  <div>{{ $t("Database.発行日") }}:</div>
-                  <div>{{ data.createdAt }}</div>
-                </div>
-                <div class="mr-2 align-self-center">
-                  <v-btn color="primary" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(i)">{{ $t("Database.展開") }}</v-btn>
-                </div>
-                <div class="mr-2 align-self-center">
-                  <v-btn color="error" @click="clickedDeleteHistory(i)">{{ $t("Common.削除") }}</v-btn>
-                </div>
-                <div class="mr-2 align-self-center">
-                  <v-btn color="success" :disabled="!data.remarks || !data.remarks.length" @click="updateHistory(i)">{{ $t("Common.更新") }}</v-btn>
-                </div>
-                <div class="align-self-center flex-grow-1">
-                  <v-text-field v-model="data.remarks" dense outlined hide-details label="Memo" />
-                </div>
-              </v-card>
+              <template v-for="(data, i) in outputHistories">
+                <v-card
+                  :key="`history_${i}`"
+                  class="mt-3 pa-2 d-flex"
+                  v-if="!yearTab || (data.createdAt && data.createdAt.startsWith && data.createdAt.startsWith(`${years[yearTab - 1]}`))"
+                >
+                  <div class="mr-2 align-self-center caption">
+                    <div>{{ $t("Database.発行日") }}:</div>
+                    <div>{{ data.createdAt }}</div>
+                  </div>
+                  <div class="mr-2 align-self-center">
+                    <v-btn color="primary" :disabled="expandBtnClicked || readOnlyMode" @click="expandHistory(data.id)">{{ $t("Database.展開") }}</v-btn>
+                  </div>
+                  <div class="mr-2 align-self-center">
+                    <v-btn color="error" @click="clickedDeleteHistory(data.id)">{{ $t("Common.削除") }}</v-btn>
+                  </div>
+                  <div class="mr-2 align-self-center">
+                    <v-btn color="success" :disabled="!data.remarks || !data.remarks.length" @click="updateHistory(data.id)">{{ $t("Common.更新") }}</v-btn>
+                  </div>
+                  <div class="align-self-center flex-grow-1">
+                    <v-text-field v-model="data.remarks" dense outlined hide-details label="memo" />
+                  </div>
+                </v-card>
+              </template>
             </div>
           </div>
         </v-card>
@@ -380,7 +391,7 @@ export default Vue.extend({
     copiedURLHint: '',
     outputHistories: [] as OutputHistory[],
     confirmDialog: false,
-    deleteIndex: -1,
+    deleteId: -1,
     expandBtnClicked: false,
     kantaiAnalyticsShipsCode: '',
     kantaiAnalyticsItemsCode: '',
@@ -395,6 +406,7 @@ export default Vue.extend({
     readyImportShipStock: [] as ShipStock[],
     maxLevel: Const.MAX_LEVEL,
     importMinLevel: 1,
+    yearTab: 0,
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -439,6 +451,19 @@ export default Vue.extend({
     },
     isTempStockMode(): boolean {
       return this.$store.getters.getExistsTempStock;
+    },
+    years(): number[] {
+      const array: number[] = [];
+      for (let i = 0; i < this.outputHistories.length; i += 1) {
+        const date = this.outputHistories[i].createdAt;
+        const year = date && +date.slice(0, 4);
+
+        if (year && !array.some((v) => v === year)) {
+          array.push(year);
+        }
+      }
+
+      return array;
     },
   },
   watch: {
@@ -684,28 +709,30 @@ export default Vue.extend({
     clearURLHint() {
       this.copiedURLHint = '';
     },
-    async expandHistory(index: number) {
+    async expandHistory(id: number) {
       this.expandBtnClicked = true;
 
-      const history = this.outputHistories[index];
-      // 所持情報データ解析
-      const stockData = await FirebaseManager.getAndRestoreStockData(history.key);
-      if (stockData.shipStocks.length || stockData.itemStocks.length) {
-        // 一時所持情報にセット
-        this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
-        this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
-        this.$emit('inform', '編成を展開しました。');
-      } else {
-        this.$emit('inform', '編成の展開に失敗しました。', true);
+      const history = this.outputHistories.find((v) => v.id === id);
+      if (history) {
+        // 所持情報データ解析
+        const stockData = await FirebaseManager.getAndRestoreStockData(history.key);
+        if (stockData.shipStocks.length || stockData.itemStocks.length) {
+          // 一時所持情報にセット
+          this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
+          this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
+          this.$emit('inform', '編成を展開しました。');
+        } else {
+          this.$emit('inform', '編成の展開に失敗しました。', true);
+        }
       }
     },
-    clickedDeleteHistory(index: number) {
+    clickedDeleteHistory(id: number) {
       this.confirmDialog = true;
-      this.deleteIndex = index;
+      this.deleteId = id;
     },
     deleteHistory() {
       this.confirmDialog = false;
-      const history = this.outputHistories[this.deleteIndex];
+      const history = this.outputHistories.find((v) => v.id === this.deleteId);
       if (history) {
         const histories = this.$store.state.outputHistories as OutputHistory[];
         const newHistories = histories.filter((v) => v.id !== history.id);
@@ -714,9 +741,10 @@ export default Vue.extend({
         this.$emit('inform', '出力履歴を削除しました。');
       }
     },
-    updateHistory(index: number) {
-      const history = this.outputHistories[index];
-      if (history) {
+    updateHistory(id: number) {
+      const index = this.outputHistories.findIndex((v) => v.id === id);
+      if (index >= 0) {
+        const history = this.outputHistories[index];
         const histories = this.$store.state.outputHistories as OutputHistory[];
         const newHistories = histories.concat();
         newHistories[index] = history;
