@@ -21,6 +21,7 @@
     "html2canvas": "^1.4.1",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
+    "party-js": "^2.2.0",
     "vue": "^2.6.11",
     "vue-chart-3": "^2.0.5",
     "vue-gtag": "^1.16.1",

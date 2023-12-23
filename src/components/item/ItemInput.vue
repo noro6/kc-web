@@ -718,7 +718,7 @@ export default Vue.extend({
         builder.item = JSON.parse(itemData) as Item;
         // 交換前にチェック
         if (this.itemParent instanceof Ship) {
-          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index, builder.remodel)) {
+          if (!ShipValidation.isValidItem(this.itemParent.data, builder.item.data, this.index, builder.item.remodel)) {
             // 搭載不可なので外す
             builder.item = undefined;
             this.setItem(new Item(builder));
