@@ -455,8 +455,11 @@ export default Vue.extend({
 
       // 火力計算画面を更新
       const { fullSlot } = this.selectedItem;
-      (this.$refs.airstrikeCalculator as InstanceType<typeof AirstrikeCalculator>).calculateFire(this.selectedItem, fullSlot);
       this.setEditableParent();
+      setTimeout(() => {
+        // 即時実行だと熟練度クリティカル倍率が更新されない => 苦肉の策で一瞬ディレイをかける
+        (this.$refs.airstrikeCalculator as InstanceType<typeof AirstrikeCalculator>).calculateFire(this.selectedItem, fullSlot);
+      }, 10);
     },
     changeDefenseIndex(index: number) {
       // 火力計算画面より、防御艦隊を変更した際のイベント
