@@ -420,9 +420,9 @@ export default Vue.extend({
         });
         this.displayStatuses.push({
           text: `${this.$t('Common.対空')}`,
-          after: this.targetItem.data.antiAir,
-          before: this.originalItem.data.antiAir,
-          diff: this.targetItem.data.antiAir - this.originalItem.data.antiAir,
+          after: Math.floor(10 * this.targetItem.actualAntiAir) / 10,
+          before: Math.floor(10 * this.originalItem.actualAntiAir) / 10,
+          diff: this.targetItem.actualAntiAir - this.originalItem.actualAntiAir,
         });
         this.displayStatuses.push({
           text: `${this.$t('Common.対潜')}`,
