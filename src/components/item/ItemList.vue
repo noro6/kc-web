@@ -932,7 +932,7 @@ export default Vue.extend({
       { text: '出撃対空', key: 'actualAntiAir' },
       { text: '防空対空', key: 'actualDefenseAntiAir' },
       { text: '装甲', key: 'actualArmor' },
-      { text: '対潜', key: 'asw' },
+      { text: '対潜', key: 'actualAsw' },
       { text: '対潜', key: 'actualAsw' },
       { text: '回避', key: 'actualAvoid' },
       { text: '索敵', key: 'actualScout' },
