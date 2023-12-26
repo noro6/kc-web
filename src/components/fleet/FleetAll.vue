@@ -110,7 +110,7 @@
         <template v-else-if="fleetInfo.isUnion && i === 2">{{ $t("Fleet.随伴艦隊") }}</template>
         <template v-else>{{ $t("Fleet.第x艦隊", { number: i }) }}</template>
       </v-tab>
-      <v-btn v-if="fleetCount < 8" large text tile @click="createNewFleet" class="btn-create-feet">{{ $t("Fleet.艦隊追加") }}</v-btn>
+      <v-btn v-if="fleetCount < 28" large text tile @click="createNewFleet" class="btn-create-feet">{{ $t("Fleet.艦隊追加") }}</v-btn>
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
     </v-tabs>
     <v-divider class="mx-2" />
