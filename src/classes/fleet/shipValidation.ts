@@ -123,6 +123,11 @@ export default class ShipValidation {
         return false;
       }
 
+      // 基本的に潜水艦電探はダメ OKなら上の条件で通ってるはず
+      if (item.apiTypeId === 51) {
+        return false;
+      }
+
       // 補強増設可能装備で絞る
       types = types.filter((v) => Const.EXPANDED_ITEM_TYPE.includes(v));
     }
