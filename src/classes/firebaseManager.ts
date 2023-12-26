@@ -71,8 +71,8 @@ export default class FirebaseManager {
    * @return {*}  {Promise<{ shipStocks: ShipStock[], itemStocks: ItemStock[] }>}
    * @memberof FirebaseManager
    */
-  public static async getAndRestoreStockData(stockid: string): Promise<{ shipStocks: ShipStock[], itemStocks: ItemStock[] }> {
-    let result = { shipStocks: [] as ShipStock[], itemStocks: [] as ItemStock[] };
+  public static async getAndRestoreStockData(stockid: string): Promise<{ shipStocks: ShipStock[], itemStocks: ItemStock[], date: string }> {
+    let result = { shipStocks: [] as ShipStock[], itemStocks: [] as ItemStock[], date: '' };
     // 匿名ログイン
     const auth = getAuth();
     await signInAnonymously(auth);
@@ -82,7 +82,7 @@ export default class FirebaseManager {
       .then((snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
-          result = FirebaseManager.restoreStocksFirebaseStockObject(data.ships, data.items);
+          result = FirebaseManager.restoreStocksFirebaseStockObject(data.ships, data.items, data.date);
         }
       })
       .catch((error) => {
@@ -100,10 +100,16 @@ export default class FirebaseManager {
    * @return {*}  {{ shipStocks: ShipStock[], itemStocks: ItemStock[] }}
    * @memberof Convert
    */
-  private static restoreStocksFirebaseStockObject(shipsString: string, itemsString: string): { shipStocks: ShipStock[], itemStocks: ItemStock[] } {
-    const result = { shipStocks: [] as ShipStock[], itemStocks: [] as ItemStock[] };
+  private static restoreStocksFirebaseStockObject(shipsString: string, itemsString: string, date: string): { shipStocks: ShipStock[], itemStocks: ItemStock[], date: string } {
+    const result = { shipStocks: [] as ShipStock[], itemStocks: [] as ItemStock[], date: '' };
 
     try {
+      if (date) {
+        const dateTest = new Date(`20${date}`);
+        if (dateTest.getTime()) {
+          result.date = dateTest.toLocaleDateString();
+        }
+      }
       const shipsJSONString = LZString.decompressFromEncodedURIComponent(shipsString);
       if (shipsJSONString) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

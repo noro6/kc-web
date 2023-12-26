@@ -895,6 +895,9 @@ export default Vue.extend({
             this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
             available = true;
           }
+          if (available && stockData.date) {
+            this.$store.dispatch('updateTempDate', stockData.date);
+          }
 
           if (available) {
             if (!this.$route.path.endsWith('/manager')) {
