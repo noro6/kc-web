@@ -98,6 +98,9 @@
             <v-btn class="mx-1" color="primary" small dark @click="resetTempData()">{{ $t("Home.終了") }}</v-btn>
           </div>
         </v-alert>
+        <v-alert border="left" class="mb-2" outlined type="success" :class="{ 'info-container': !isManagerPage }" dense v-if="$store.state.tempDate">
+          <div class="body-2">{{ $t("Home.作成した日", { date: `${$store.state.tempDate}`.slice(0, 10) }) }}</div>
+        </v-alert>
       </div>
       <div :class="routerViewClass">
         <transition name="router" mode="out-in">
@@ -1457,6 +1460,7 @@ export default Vue.extend({
     async resetTempData() {
       this.$store.dispatch('updateTempShipStock', []);
       this.$store.dispatch('updateTempItemStock', []);
+      this.$store.dispatch('updateTempDate', '');
       this.inform('閲覧モードを終了しました。');
     },
     changeUploadTabs(value: string) {

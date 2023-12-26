@@ -238,6 +238,7 @@ export default {
       'URL情報より復元された艦娘在籍情報、装備所持情報が適用されています。': 'The data on ships and equipment restored by the URL data is applied.',
       '自分の登録情報に戻す場合は次のボタンを押下してください。': 'To quit, press the next button.',
       '終了': 'Quit',
+      '作成した日': 'The data you are currently viewing was created on {date}.',
       'メインメニュー': 'Main Menu',
       '本サイトの主要機能です。': 'Primary features.',
       '基地航空隊や艦隊、敵艦隊を編成することで、道中を含めた全ての戦闘の制空状態や艦載機の損耗、全滅率などのシミュレーションが可能です。': 'By organizing LBAS, fleets, and enemy fleets, it is possible to simulate the air status, aircraft losses, and shot down rate for all battles, including those on the road.',

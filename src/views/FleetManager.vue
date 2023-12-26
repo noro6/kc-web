@@ -720,6 +720,7 @@ export default Vue.extend({
           // 一時所持情報にセット
           this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
           this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
+          this.$store.dispatch('updateTempDate', history.createdAt);
           this.$emit('inform', '編成を展開しました。');
         } else {
           this.$emit('inform', '編成の展開に失敗しました。', true);

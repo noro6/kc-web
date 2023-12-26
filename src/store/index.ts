@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.46.12',
+    siteVersion: '2.46.13',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -55,6 +55,8 @@ export default new Vuex.Store({
     tempItemStock: [] as ItemStock[],
     /** 一時展開中艦隊マスタ */
     tempShipStock: [] as ShipStock[],
+    /** 一時展開中艦隊データ */
+    tempDate: '' as string,
     /** 艦娘クリップボード */
     tempShipList: [] as Ship[],
     /** 艦隊クリップボード */
@@ -245,6 +247,9 @@ export default new Vuex.Store({
     updateTempShipStock: (state, values: ShipStock[]) => {
       state.tempShipStock = values;
     },
+    updateTempDate: (state, values: string) => {
+      state.tempDate = values;
+    },
     updateTempShipList: (state, values: Ship[]) => {
       state.tempShipList = values;
     },
@@ -346,6 +351,9 @@ export default new Vuex.Store({
     },
     updateTempShipStock: (context, values: ShipStock[]) => {
       context.commit('updateTempShipStock', values);
+    },
+    updateTempDate: (context, values: string) => {
+      context.commit('updateTempDate', values);
     },
     updateTempShipList: (context, values: Ship[]) => {
       context.commit('updateTempShipList', values);
