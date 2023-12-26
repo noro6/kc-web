@@ -194,7 +194,7 @@
           <div class="gkcoi-select mr-3 my-1">
             <v-select :items="gkcoiLangs" dense hide-details v-model="gkcoiLang" outlined label="Languages" />
           </div>
-          <div class="d-flex mr-3 my-1">
+          <div class="d-flex mr-3 my-1 flex-wrap">
             <v-checkbox
               v-for="(check, i) in gkcoiOutputTarget"
               :key="i"
