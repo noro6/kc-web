@@ -22,7 +22,7 @@ import EnemyFleet from './enemy/enemyFleet';
 import { MasterCell } from './interfaces/master';
 
 interface DeckBuilderSpecialEffectItem {
-  /** 種別 (1=海色りぼん 2=白たすき ) */
+  /** 種別 (1=海色リボン 2=白たすき ) */
   kind?: 1 | 2;
   fp: number;
   tp: number;
@@ -68,7 +68,7 @@ interface DeckBuilderShip {
   exa?: boolean;
   /** 装備データ */
   items: { [name: string]: DeckBuilderItem };
-  /** 特殊アイテム 海色りぼんなど */
+  /** 特殊アイテム 海色リボンなど */
   spi?: DeckBuilderSpecialEffectItem[];
 }
 

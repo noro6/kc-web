@@ -382,9 +382,9 @@ export default class Ship implements ShipBase {
     const items = this.items.concat(this.exItem);
     // 装備ボーナス算出
     this.itemBonuses = Ship.getItemBonus(this.data, items);
-    // 海色りぼん 白たすき系
+    // 海色リボン 白たすき系
     if (this.spEffectItemId === 1) {
-      // 海色りぼん
+      // 海色リボン
       this.itemBonuses.push({ torpedo: 1, armor: 1 });
     } else if (this.spEffectItemId === 2) {
       // 白たすき
