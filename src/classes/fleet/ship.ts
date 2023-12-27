@@ -540,15 +540,6 @@ export default class Ship implements ShipBase {
       this.accuracy += this.itemBonusStatus.accuracy ?? 0;
     }
 
-    // 海色リボン 白たすき
-    if (this.spEffectItemId === 1) {
-      this.displayStatus.torpedo += 1;
-      this.displayStatus.armor += 1;
-    } else if (this.spEffectItemId > 1) {
-      this.displayStatus.firePower += 2;
-      this.displayStatus.avoid += 2;
-    }
-
     // 空母夜襲発動判定
     this.enabledAircraftNightAttack = this.data.isCV && ([545, 599, 610, 883].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)));
 
