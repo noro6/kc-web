@@ -277,6 +277,9 @@ export default class ItemMaster {
     if (data.id === 389) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
     }
+    if (data.id === 467) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('5inch連装砲(副砲配置)集中配備')}`;
+    }
     if (data.id === 482) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('特大発動艇＋III号戦車(北アフリカ仕様)')}`;
     }
