@@ -7421,5 +7421,54 @@ export default class ItemBonus {
         },
       ],
     },
+    {
+      ids: [85],
+      bonuses: [
+        {
+          bonus: { antiAir: 1, avoid: 1 },
+          remodel: 6,
+        },
+        {
+          bonus: { antiAir: 2 },
+          remodel: 6,
+          requiresAR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1, avoid: 1 },
+          shipCountry: Const.DEU.concat(Const.ITA),
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU.concat(Const.ITA),
+          remodel: 10,
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [519],
+      bonuses: [
+        {
+          bonus: { accuracy: 2, avoid: 2 },
+          shipClass: [122],
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1, accuracy: 2, avoid: 2 },
+          shipClass: [114],
+          num: 1,
+        },
+      ],
+    },
   ];
 }

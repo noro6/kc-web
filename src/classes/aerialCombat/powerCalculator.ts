@@ -235,6 +235,10 @@ export default class AerialFirePowerCalculator {
           // Do 217 K-2 + Fritz-X VS 戦艦の場合 雷装1.5倍
           torpedoMultiplier = 1.5;
           actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
+        } else if (item.data.id === 444 && (args.defense.data.isBB || args.defense.data.isCV)) {
+          // 四式重爆 飛龍+イ号一型甲 誘導弾 対戦艦 / 空母 雷装1.13倍
+          torpedoMultiplier = 1.13;
+          actualTorpedo = item.data.torpedo * torpedoMultiplier + item.bonusTorpedo;
         } else if ((item.data.id === 444 || item.data.id === 484) && !(shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2)) {
           // 四式重爆 飛龍+イ号一型甲 誘導弾 雷装1.15倍
           torpedoMultiplier = 1.15;
