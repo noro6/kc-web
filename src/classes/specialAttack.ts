@@ -122,7 +122,7 @@ export default class SpecialAttack {
 
       let chip = 0;
       if (parent.luck >= 50) {
-        chip = Math.floor(65 + Math.sqrt(parent.luck - 50) + 0.8 * Math.sqrt(parent.level));
+        chip = Math.floor(65 + Math.floor(Math.sqrt(parent.luck - 50)) + 0.8 * Math.sqrt(parent.level));
       } else {
         chip = Math.floor(15 + parent.luck + 0.75 * Math.sqrt(parent.level));
       }
