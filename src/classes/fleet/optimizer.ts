@@ -515,8 +515,14 @@ export default class Optimizer {
     }
     const stockItem = stock.find((v) => v.id === item.data.id && v.num.some((remodel) => remodel > 0));
     if (stockItem) {
+      let maxRemodel = 10;
+      // 新型缶★7未満は特別対応 => ここで★7以上を用いると高速+が解除されるおそれがある
+      // 実際は艦隊全体を俯瞰した、もう少しちゃんとした最適化処理がいる いつかやるかも
+      if (item.data.id === 87 && item.remodel < 7) {
+        maxRemodel = 6;
+      }
       // 装備あった => 最も改修値が高いものをとってくる
-      for (let remodel = 10; remodel >= 0; remodel -= 1) {
+      for (let remodel = maxRemodel; remodel >= 0; remodel -= 1) {
         if (stockItem.num[remodel]) {
           // 装備置き換え
           // 在庫から直で減らす concatしてるので大丈夫！
@@ -529,7 +535,7 @@ export default class Optimizer {
       return new Item();
     }
 
-    // それ以外はそのままだけど在庫なしエラーだけ出す。ここだけの特別対応！
+    // それ以外はそのままだけど在庫なしエラーだけ出す。在庫なしエラーが出るのはここだけの特別対応！
     return new Item({ item, noStock: true });
   }
 }
