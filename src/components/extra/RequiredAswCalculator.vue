@@ -114,6 +114,7 @@
           <thead>
             <tr>
               <th class="text-right">Lv</th>
+              <th class="text-right">{{ $t("Extra.必要Exp") }}</th>
               <th class="text-right">{{ $t("Common.対潜") }}</th>
               <th class="text-right">{{ $t("Common.索敵") }}</th>
               <th class="text-right">{{ $t("Common.回避") }}</th>
@@ -122,6 +123,7 @@
           <tbody>
             <tr v-for="level in maxLevel" :key="`all_level_${level}`" class="level-status-list" :class="{ last: level === maxLevel }">
               <td class="level-td">{{ maxLevel + 1 - level }}</td>
+              <td class="level-td">{{ (expResults[level - 1]).toLocaleString() }}</td>
               <td :class="{ increase: aswResults[level] && aswResults[level - 1] - aswResults[level] }">{{ aswResults[level - 1] }}</td>
               <td :class="{ increase: scoutResults[level] && scoutResults[level - 1] - scoutResults[level] }">{{ scoutResults[level - 1] }}</td>
               <td :class="{ increase: avoidResults[level] && avoidResults[level - 1] - avoidResults[level] }">{{ avoidResults[level - 1] }}</td>
@@ -222,6 +224,7 @@ export default Vue.extend({
     aswResults: [] as number[],
     scoutResults: [] as number[],
     avoidResults: [] as number[],
+    expResults: [] as number[],
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -517,11 +520,20 @@ export default Vue.extend({
       this.aswResults = [];
       this.scoutResults = [];
       this.avoidResults = [];
+      this.expResults = [];
+      const levelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === this.level);
       const base = this.ship.data;
       for (let level = this.maxLevel; level > 0; level -= 1) {
         this.aswResults.push(Ship.getStatusFromLevel(level, base.maxAsw, base.minAsw));
         this.scoutResults.push(Ship.getStatusFromLevel(level, base.maxScout, base.minScout));
         this.avoidResults.push(Ship.getStatusFromLevel(level, base.maxAvoid, base.minAvoid));
+
+        if (this.level < level && levelInfo) {
+          const targetLevelInfo = Const.LEVEL_BORDERS.find((v) => v.lv === level);
+          this.expResults.push(targetLevelInfo ? targetLevelInfo.req - levelInfo.req : 0);
+        } else {
+          this.expResults.push(0);
+        }
       }
 
       const setting = this.$store.state.siteSetting as SiteSetting;
