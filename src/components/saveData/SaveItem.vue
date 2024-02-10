@@ -128,7 +128,6 @@
             ref="nameInput"
           />
           <v-textarea
-            v-if="!value.isDirectory"
             v-model.trim="editedRemarks"
             rows="10"
             dense
