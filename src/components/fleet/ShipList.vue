@@ -155,7 +155,13 @@
             v-for="(data, i) in typeData.ships"
             :key="i"
             class="ship-list"
-            :class="{ 'pr-3': !multiLine, 'no-stock': !data.count, selected: data.batchListIndex >= 0 }"
+            :class="{
+              'pr-3': !multiLine,
+              'no-stock': !data.count,
+              selected: data.batchListIndex >= 0,
+              'blue-ribbon': data.spEffectItemId === 1,
+              'white-ribbon': data.spEffectItemId === 2,
+            }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data, $event)"
             @keypress.enter="clickedShip(data, $event)"
@@ -687,6 +693,15 @@
 .ship-list.no-stock:hover {
   background-color: rgba(255, 128, 128, 0.1);
 }
+.ship-list.blue-ribbon {
+  border: 2px solid rgb(74, 112, 214);
+  padding: 0.4px 2.8px;
+}
+.ship-list.white-ribbon {
+  border: 2px solid rgb(128, 128, 128);
+  padding: 0.4px 2.8px;
+}
+
 .ship-list > div {
   align-self: center;
 }
