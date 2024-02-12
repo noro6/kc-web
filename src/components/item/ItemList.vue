@@ -1652,43 +1652,43 @@ export default Vue.extend({
             const totalBonus = ItemBonus.getTotalBonus(bonuses);
             // ボーナスの差分を取る
             let sumBonus = 0;
-            if (totalBonus.firePower) {
+            if (totalBonus.firePower !== undefined) {
               totalBonus.firePower -= totalEmptyBonus.firePower ?? 0;
               sumBonus += totalBonus.firePower;
             }
-            if (totalBonus.torpedo) {
+            if (totalBonus.torpedo !== undefined) {
               totalBonus.torpedo -= totalEmptyBonus.torpedo ?? 0;
               sumBonus += totalBonus.torpedo;
             }
-            if (totalBonus.antiAir) {
+            if (totalBonus.antiAir !== undefined) {
               totalBonus.antiAir -= totalEmptyBonus.antiAir ?? 0;
               sumBonus += totalBonus.antiAir;
             }
-            if (totalBonus.armor) {
+            if (totalBonus.armor !== undefined) {
               totalBonus.armor -= totalEmptyBonus.armor ?? 0;
               sumBonus += totalBonus.armor;
             }
-            if (totalBonus.asw) {
+            if (totalBonus.asw !== undefined) {
               totalBonus.asw -= totalEmptyBonus.asw ?? 0;
               sumBonus += totalBonus.asw;
             }
-            if (totalBonus.avoid) {
+            if (totalBonus.avoid !== undefined) {
               totalBonus.avoid -= totalEmptyBonus.avoid ?? 0;
               sumBonus += totalBonus.avoid;
             }
-            if (totalBonus.accuracy) {
+            if (totalBonus.accuracy !== undefined) {
               totalBonus.accuracy -= totalEmptyBonus.accuracy ?? 0;
               sumBonus += totalBonus.accuracy;
             }
-            if (totalBonus.range) {
+            if (totalBonus.range !== undefined) {
               totalBonus.range -= totalEmptyBonus.range ?? 0;
               sumBonus += totalBonus.range;
             }
-            if (totalBonus.bomber) {
+            if (totalBonus.bomber !== undefined) {
               totalBonus.bomber -= totalEmptyBonus.bomber ?? 0;
               sumBonus += totalBonus.bomber;
             }
-            if (totalBonus.scout) {
+            if (totalBonus.scout !== undefined) {
               totalBonus.scout -= totalEmptyBonus.scout ?? 0;
               sumBonus += totalBonus.scout;
             }
