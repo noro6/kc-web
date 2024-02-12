@@ -70,8 +70,15 @@ export default class Optimizer {
         { id: 15, items: [gun, machineGun] },
       ];
     }
-    if (shipId === 470 || shipId === 622) {
-      // 霞改二乙 夕張改二 => 16種, 17種
+    if (shipId === 622) {
+      // 夕張改二 => 16種
+      const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21 });
+      return [
+        { id: 16, items: [gun, antiAirRadar, machineGun] },
+      ];
+    }
+    if (shipId === 470) {
+      // 霞改二乙 => 16種, 17種
       const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21 });
       return [
         { id: 16, items: [gun, antiAirRadar, machineGun] },
