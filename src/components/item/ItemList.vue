@@ -180,7 +180,14 @@
           <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
-          <v-virtual-scroll v-if="!multiLine && data.items.length" :height="itemListHeight" item-height="36" :items="data.items" bench="1">
+          <v-virtual-scroll
+            v-if="!multiLine && data.items.length"
+            :height="itemListHeight"
+            item-height="36"
+            :items="data.items"
+            bench="1"
+            id="item-virtual-list"
+          >
             <template v-slot:default="{ item }">
               <div
                 v-ripple="{ class: item.count ? 'info--text' : 'red--text' }"
@@ -1319,6 +1326,19 @@ export default Vue.extend({
 
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
       this.filter();
+
+      // Firefox Virtual Scroll 描画対策のためスクロールをシミュレート
+      const targetList = document.getElementById('item-virtual-list');
+      if (targetList) {
+        const scrollEvent = new CustomEvent('scroll', {
+          bubbles: true,
+          cancelable: true,
+          detail: 0, // スクロールの詳細情報、ここでは特に指定しない
+        });
+
+        // 対象の要素にスクロールイベントをディスパッチする
+        targetList.dispatchEvent(scrollEvent);
+      }
     },
     changedFilter() {
       const filterData = { parent: 'ship' as 'ship' | 'airbase', key: this.filterStatus, value: this.filterStatusValue };
