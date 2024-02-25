@@ -163,6 +163,7 @@ import Airbase from '@/classes/airbase/airbase';
 import CalcManager from '@/classes/calcManager';
 import SiteSetting from '@/classes/siteSetting';
 import FleetInfo from '../../classes/fleet/fleetInfo';
+import { MasterMap } from '../../classes/interfaces/master';
 
 const BattleCountItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -226,7 +227,18 @@ export default Vue.extend({
       return this.value.isDefense;
     },
     onlyOnceBattle(): boolean {
-      return !this.isDefense && this.battleInfo.fleets.filter((v) => v.enemies.some((w) => w.data.id)).length === 1;
+      if (this.isDefense) return false;
+      // 敵が入っている戦闘を抽出
+      const battles = this.battleInfo.fleets.filter((v) => v.enemies.some((w) => w.data.id));
+      // 1戦以上ならヨシ
+      if (battles.length > 1) return false;
+      if (battles.length) {
+        const { area, nodeName } = battles[0];
+        if ((this.$store.state.maps as MasterMap[]).some((v) => v.area === area && v.boss.includes(nodeName))) {
+          return true;
+        }
+      }
+      return false;
     },
     defenseAirPowerBorders(): number[] {
       if (this.isDefense) {
