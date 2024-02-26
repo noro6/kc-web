@@ -154,16 +154,41 @@
           </div>
           <v-divider />
           <div class="pa-4">
-            <div class="mb-2">{{ $t("Database.URL発行") }}</div>
+            <div class="mb-2">{{ $t("Database.共有URL発行機能") }}</div>
             <div class="body-2">{{ $t("Database.自分の艦隊、装備情報を他の人に見てもらうためのURLを発行します。") }}</div>
             <div class="body-2">
               {{ $t("Database.発行された情報は閲覧専用です。発行されたURLを他人に公開しても、自分の艦娘や装備情報が書き換えられてしまうことはありません。") }}
             </div>
             <div class="body-2 mb-3">{{ $t("Database.閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。") }}</div>
+            <v-alert v-show="!createdURL" class="mt-2 pa-1 caption" dense type="warning" outlined>
+              <div>{{ $t("Database.現在、URL発行時に送信された艦隊データを用いた新たな機能を開発中です。") }}</div>
+              <div>
+                {{
+                  $t(
+                    "Database.この機能は、あなたの艦隊の総経験値や在籍している艦娘数、経験値、装備データなどが【匿名で】他の人が閲覧できる機能も予定しています。"
+                  )
+                }}
+              </div>
+              <div>
+                {{ $t("Database.もし匿名でも、ご自身の艦隊データをこれらの対象としたくない場合は、「データの利用を許可」のチェックを外してください。") }}
+              </div>
+            </v-alert>
             <div class="shared-url-container">
-              <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || readOnlyMode" @click="requestURLKey()">{{
-                $t("Database.共有URL作成")
-              }}</v-btn>
+              <div class="d-flex align-center">
+                <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || readOnlyMode" @click="requestURLKey()">{{
+                  $t("Database.共有URL作成")
+                }}</v-btn>
+
+                <v-checkbox
+                  class="ml-3"
+                  v-show="!createdURL"
+                  v-model="allowDataUse"
+                  hide-details
+                  dense
+                  :disabled="loadingURL || readOnlyMode"
+                  :label="$t('Database.データの利用を許可')"
+                />
+              </div>
               <v-text-field
                 id="created-url"
                 v-show="createdURL"
@@ -178,7 +203,7 @@
           </div>
           <v-divider />
           <div class="pa-4">
-            <div class="mb-2">{{ $t("Database.発行履歴") }}</div>
+            <div class="mb-2">{{ $t("Database.URL発行履歴") }}</div>
             <v-tabs v-model="yearTab">
               <v-tab>ALL</v-tab>
               <v-tab v-for="year in years" :key="`year${year}`">{{ year }}</v-tab>
@@ -361,6 +386,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import max from 'lodash/max';
+import { v4 as uuidv4 } from 'uuid';
 import Ships from '@/components/database/Ships.vue';
 import Items from '@/components/database/Items.vue';
 import Convert from '@/classes/convert';
@@ -407,6 +433,7 @@ export default Vue.extend({
     maxLevel: Const.MAX_LEVEL,
     importMinLevel: 1,
     yearTab: 0,
+    allowDataUse: true,
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -436,6 +463,7 @@ export default Vue.extend({
     this.includeUnLockedShip = setting.isIncludeUnLockShip;
     this.includeUnLockedItem = setting.isIncludeUnLockItem;
     this.importMinLevel = setting.importShipMinLevel;
+    this.allowDataUse = setting.allowDataUse;
 
     // 何もデータがなかったら反映タブに飛ばす
     const shipStock = this.$store.state.shipStock as ShipStock[];
@@ -662,6 +690,24 @@ export default Vue.extend({
                 console.error(error);
                 this.$emit('inform', '共有URLの生成に失敗しました。', true);
               });
+
+            const setting = this.$store.state.siteSetting as SiteSetting;
+            // 集計用データの登録可否
+            setting.allowDataUse = this.allowDataUse;
+            if (this.allowDataUse) {
+              // 念のためuuidなければ発行
+              if (!setting.userId) {
+                setting.userId = uuidv4();
+              }
+              // 集計用データのご協力
+              set(ref(db, `user_stocks/${setting.userId}`), {
+                ships: stockData.ships,
+                items: stockData.items,
+                date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
+              });
+            }
+            // サイト設定を保存
+            this.$store.dispatch('updateSetting', setting);
           })
           .catch((error) => {
             console.error(error);

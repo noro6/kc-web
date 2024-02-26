@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import ShipFilter from './fleet/shipFilter';
 
 export type SiteTheme = 'light' | 'ice' | 'pink' | 'green' | 'dark' | 'deep-sea' | '';
@@ -150,6 +151,12 @@ export default class SiteSetting {
   /** 艦娘取り込下限レベル */
   public importShipMinLevel: number;
 
+  /** ユーザー識別id */
+  public userId: string;
+
+  /** データ利用を許可 */
+  public allowDataUse: boolean;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -230,6 +237,8 @@ export default class SiteSetting {
         }
       }
       this.contentOrder = setting.contentOrder ? setting.contentOrder : [];
+      this.userId = setting.userId ? setting.userId : uuidv4();
+      this.allowDataUse = setting.allowDataUse ?? true;
     } else {
       this.id = 'setting';
       this.confirmCloseTab = true;
@@ -295,6 +304,8 @@ export default class SiteSetting {
       this.isAvoidSpoiler = true;
       this.showItemCompareDialog = true;
       this.importShipMinLevel = 1;
+      this.userId = uuidv4();
+      this.allowDataUse = true;
     }
   }
 }
