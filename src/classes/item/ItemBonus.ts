@@ -7723,5 +7723,172 @@ export default class ItemBonus {
         },
       ],
     },
+    {
+      ids: [522, 523],
+      bonuses: [
+        {
+          bonus: {
+            torpedo: 1, avoid: 5, accuracy: 1, scout: 3,
+          },
+          shipType: [14],
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipType: [14],
+          remodel: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [14],
+          remodel: 2,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [14],
+          remodel: 3,
+        },
+        {
+          bonus: { scout: 1 },
+          shipType: [14],
+          remodel: 5,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [14],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [14],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [523],
+      bonuses: [
+        {
+          bonus: {
+            torpedo: 2, bomber: 2, avoid: 1, accuracy: 1, scout: 1,
+          },
+          shipType: [14],
+        },
+      ],
+    },
+    {
+      ids: [524],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 1, antiAir: 2, avoid: 2, accuracy: 1,
+          },
+          shipType: [17, 19, 20, 21, 22],
+        },
+        {
+          bonus: { antiAir: 2, avoid: 2 },
+          shipType: [17, 19, 20, 21, 22],
+          requiresAR: 1,
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 2,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 4,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 7,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipType: [17, 19, 20, 21, 22],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [525, 526],
+      bonuses: [
+        {
+          bonus: { firePower: 1, torpedo: 2, avoid: -1 },
+          shipType: [13, 14],
+        },
+        {
+          bonus: { firePower: 2, torpedo: 1, accuracy: 2 },
+          shipBase: [971],
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipType: [13, 14],
+          remodel: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [13, 14],
+          remodel: 3,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [13, 14],
+          remodel: 6,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipType: [13, 14],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [526],
+      bonuses: [
+        {
+          bonus: { firePower: 1, torpedo: 1, accuracy: 1 },
+          shipType: [13, 14],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipType: [13, 14],
+          remodel: 2,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipType: [13, 14],
+          remodel: 4,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipType: [13, 14],
+          remodel: 8,
+        },
+      ],
+    },
   ];
 }
