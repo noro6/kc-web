@@ -239,7 +239,7 @@
         <v-btn color="secondary" @click="close">{{ $t("Common.閉じる") }}</v-btn>
       </v-card-actions>
     </v-card>
-    <v-snackbar v-model="snackbar" color="primary" outlined>
+    <v-snackbar v-model="snackbar" color="primary" outlined top>
       {{ $t("Enemies.敵編成を展開しました。続けて次の敵編成を選択できます。") }}
       <template v-slot:action="{ attrs }">
         <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>

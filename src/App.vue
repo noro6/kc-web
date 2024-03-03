@@ -850,6 +850,8 @@ export default Vue.extend({
     w.loadShipData = this.setShipStock;
     w.loadItemData = this.setItemStock;
     w.loadDeckBuilder = this.loadAndOpenFromDeckBuilder;
+    // const stock = Convert.restoreTest('');
+    // console.log(stock.filter((v) => v.level > 99));
 
     document.addEventListener('keyup', this.keyupHandler);
     document.addEventListener('keydown', this.keydownHandler);

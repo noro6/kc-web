@@ -1,3 +1,4 @@
+import LZString from 'lz-string';
 import CalcManager from './calcManager';
 import Const, { CELL_TYPE, FLEET_TYPE, FORMATION } from './const';
 import Fleet from './fleet/fleet';
@@ -20,6 +21,7 @@ import EnemyMaster from './enemy/enemyMaster';
 import Enemy from './enemy/enemy';
 import EnemyFleet from './enemy/enemyFleet';
 import { MasterCell } from './interfaces/master';
+import FirebaseManager from './firebaseManager';
 
 interface DeckBuilderSpecialEffectItem {
   /** 種別 (1=海色リボン 2=白たすき ) */
@@ -1367,5 +1369,17 @@ export default class Convert {
     if (formationId === FORMATION.FORMATION3) return 13;
     if (formationId === FORMATION.FORMATION4) return 14;
     return formationId ?? 1;
+  }
+
+  /**
+   * 汎用
+   * @static
+   * @param {string} str
+   * @returns
+   * @memberof Convert
+   */
+  public static restoreTest(str: string) {
+    const json = LZString.decompressFromEncodedURIComponent(str);
+    return FirebaseManager.restoreShipsString(json ?? '[]');
   }
 }

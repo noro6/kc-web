@@ -112,49 +112,7 @@ export default class FirebaseManager {
       }
       const shipsJSONString = LZString.decompressFromEncodedURIComponent(shipsString);
       if (shipsJSONString) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const shipsJSON = JSON.parse(shipsJSONString) as [number, any[]][];
-
-        for (let i = 0; i < shipsJSON.length; i += 1) {
-          const data = shipsJSON[i];
-          const masterId = data[0];
-          for (let j = 0; j < data[1].length; j += 1) {
-            const detail = data[1][j];
-            const newStock = new ShipStock();
-            newStock.uniqueId = +detail[0];
-            newStock.id = masterId;
-            newStock.level = +detail[1];
-            newStock.exp = +detail[2];
-            newStock.area = detail[4] ? +detail[4] : 0;
-            newStock.releaseExpand = !!detail[5];
-
-            const st = detail[3];
-            if (st) {
-              newStock.improvement.fire = st[0] ? +st[0] : 0;
-              newStock.improvement.torpedo = st[1] ? +st[1] : 0;
-              newStock.improvement.antiAir = st[2] ? +st[2] : 0;
-              newStock.improvement.armor = st[3] ? +st[3] : 0;
-              newStock.improvement.luck = st[4] ? +st[4] : 0;
-              newStock.improvement.hp = st[5] ? +st[5] : 0;
-              newStock.improvement.asw = st[6] ? +st[6] : 0;
-            }
-
-            const sp = detail[6];
-            if (sp && sp.length) {
-              for (let k = 0; k < sp.length; k += 1) {
-                const kind = sp[k] as number;
-                if (kind === 1) {
-                  // 海色リボン
-                  newStock.spEffectItems.push({ kind, torpedo: 1, armor: 1 });
-                } else if (kind === 2) {
-                  // 白たすき
-                  newStock.spEffectItems.push({ kind, fire: 2, avoid: 2 });
-                }
-              }
-            }
-            result.shipStocks.push(newStock);
-          }
-        }
+        result.shipStocks = FirebaseManager.restoreShipsString(shipsJSONString);
       }
 
       const itemsJSONString = LZString.decompressFromEncodedURIComponent(itemsString);
@@ -180,6 +138,55 @@ export default class FirebaseManager {
     }
 
     return result;
+  }
+
+  public static restoreShipsString(str: string) {
+    const array: ShipStock[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const shipsJSON = JSON.parse(str) as [number, any[]][];
+
+    for (let i = 0; i < shipsJSON.length; i += 1) {
+      const data = shipsJSON[i];
+      const masterId = data[0];
+      for (let j = 0; j < data[1].length; j += 1) {
+        const detail = data[1][j];
+        const newStock = new ShipStock();
+        newStock.uniqueId = +detail[0];
+        newStock.id = masterId;
+        newStock.level = +detail[1];
+        newStock.exp = +detail[2];
+        newStock.area = detail[4] ? +detail[4] : 0;
+        newStock.releaseExpand = !!detail[5];
+
+        const st = detail[3];
+        if (st) {
+          newStock.improvement.fire = st[0] ? +st[0] : 0;
+          newStock.improvement.torpedo = st[1] ? +st[1] : 0;
+          newStock.improvement.antiAir = st[2] ? +st[2] : 0;
+          newStock.improvement.armor = st[3] ? +st[3] : 0;
+          newStock.improvement.luck = st[4] ? +st[4] : 0;
+          newStock.improvement.hp = st[5] ? +st[5] : 0;
+          newStock.improvement.asw = st[6] ? +st[6] : 0;
+        }
+
+        const sp = detail[6];
+        if (sp && sp.length) {
+          for (let k = 0; k < sp.length; k += 1) {
+            const kind = sp[k] as number;
+            if (kind === 1) {
+              // 海色リボン
+              newStock.spEffectItems.push({ kind, torpedo: 1, armor: 1 });
+            } else if (kind === 2) {
+              // 白たすき
+              newStock.spEffectItems.push({ kind, fire: 2, avoid: 2 });
+            }
+          }
+        }
+        array.push(newStock);
+      }
+    }
+
+    return array;
   }
 
   /**
