@@ -1264,7 +1264,9 @@ export default Vue.extend({
         }
 
         this.filter();
-        this.simulateScroll();
+        this.$nextTick(() => {
+          this.simulateScroll();
+        });
         return;
       }
       if (parent instanceof Ship) {
@@ -1327,7 +1329,9 @@ export default Vue.extend({
 
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
       this.filter();
-      this.simulateScroll();
+      this.$nextTick(() => {
+        this.simulateScroll();
+      });
     },
     simulateScroll() {
       // Firefox Virtual Scroll 描画対策のためスクロールをシミュレート
