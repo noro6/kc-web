@@ -239,12 +239,6 @@
         <v-btn color="secondary" @click="close">{{ $t("Common.閉じる") }}</v-btn>
       </v-card-actions>
     </v-card>
-    <v-snackbar v-model="snackbar" color="primary" outlined top>
-      {{ $t("Enemies.敵編成を展開しました。続けて次の敵編成を選択できます。") }}
-      <template v-slot:action="{ attrs }">
-        <v-btn icon v-bind="attrs" @click="snackbar = false"><v-icon>mdi-close</v-icon></v-btn>
-      </template>
-    </v-snackbar>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
       <enemy-detail v-if="!destroyDialog" :fleet="selectedFleet" :handle-close="closeDetail" />
     </v-dialog>
@@ -411,7 +405,6 @@ export default Vue.extend({
     selectedFleet: undefined as undefined | EnemyFleet,
     enabledCommitBtn: false,
     continuousMode: false,
-    snackbar: false,
     unsubscribe: undefined as unknown,
     selectedNodeName: '',
     selectedNodeNames: [] as string[],
@@ -675,10 +668,6 @@ export default Vue.extend({
       this.handleSetEnemy(this.selectedFleet, this.continuousMode);
       this.selectedNodeNames.push(this.selectedNodeName);
       this.selectedNodeName = '';
-
-      if (this.continuousMode) {
-        this.snackbar = true;
-      }
     },
     expandMap() {
       this.expandMapDialog = true;

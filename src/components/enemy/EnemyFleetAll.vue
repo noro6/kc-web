@@ -301,7 +301,6 @@ export default Vue.extend({
       ref.continuousMode = true;
       ref.selectedNodeName = '';
       ref.selectedNodeNames = [];
-      ref.snackbar = false;
     },
     async showWorldList(index: number) {
       this.fleetStock = [];
@@ -311,7 +310,6 @@ export default Vue.extend({
       ref.continuousMode = false;
       ref.selectedNodeName = '';
       ref.selectedNodeNames = [];
-      ref.snackbar = false;
       if (ref.allCells.length) {
         ref.cellChanged();
       }

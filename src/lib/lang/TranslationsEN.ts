@@ -577,7 +577,6 @@ export default {
       '陣形': 'Form',
       '詳細': 'Details',
       '展開したい海域、セル、敵編成を選択してください。': 'Select the world, cell, and enemy you wish to deploy.',
-      '敵編成を展開しました。続けて次の敵編成を選択できます。': 'Deployed. You can continue to select the next enemy fleet.',
       '選択したセル': 'Selected Nodes',
       '前哨': 'Normal',
       '最終': 'Final',
