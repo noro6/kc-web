@@ -90,6 +90,14 @@ export default class ShipValidation {
         }
       }
 
+      if (ship.id === 352 || ship.id === 460) {
+        // 速吸
+        if (item.apiTypeId === 4) {
+          // 副砲は12cm単装高角砲＋25mm機銃増備のみ
+          return item.id === 524;
+        }
+      }
+
       if (ship.id === 699) {
         // 宗谷(特務艦)
         if (item.apiTypeId === 1) {
