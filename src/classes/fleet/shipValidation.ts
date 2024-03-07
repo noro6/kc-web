@@ -89,6 +89,18 @@ export default class ShipValidation {
           return item.id === 402;
         }
       }
+
+      if (ship.id === 699) {
+        // 宗谷(特務艦)
+        if (item.apiTypeId === 1) {
+          // 小口径主砲は12cm単装高角砲のみ
+          return item.id === 48;
+        }
+        if (item.apiTypeId === 4) {
+          // 副砲は12cm単装高角砲＋25mm機銃増備のみ
+          return item.id === 524;
+        }
+      }
     }
 
     // 特定艦娘判定
