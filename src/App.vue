@@ -104,7 +104,13 @@
       </div>
       <div :class="routerViewClass">
         <transition name="router" mode="out-in">
-          <router-view @inform="inform" @showSiteSetting="showSiteSetting" @downloadBackupFile="downloadBackupFile" @openSidebar="drawer = true" />
+          <router-view
+            @inform="inform"
+            @showSiteSetting="showSiteSetting"
+            @downloadBackupFile="downloadBackupFile"
+            @openSidebar="drawer = true"
+            @saveCurrentData="saveCurrentData"
+          />
         </transition>
       </div>
       <v-snackbar v-model="readInform" :color="readResultColor" bottom>

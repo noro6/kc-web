@@ -122,7 +122,16 @@
             :disabled="!editDialog"
             ref="nameInput"
           />
-          <v-textarea v-model.trim="editedRemarks" rows="10" outlined dense hide-details :label="$t('SaveData.補足情報')" class="remarks-input" />
+          <v-textarea
+            v-model.trim="editedRemarks"
+            rows="10"
+            outlined
+            dense
+            hide-details
+            :label="$t('SaveData.補足情報')"
+            class="remarks-input"
+            @keydown="keydownHandler"
+          />
           <div class="mt-4 d-flex" v-if="!editedIsUnsaved">
             <div class="align-self-center">
               <v-icon x-large :color="selectedColor">{{ editedIsDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
@@ -540,6 +549,13 @@ export default Vue.extend({
       this.saveData.childItems.push(data);
 
       this.clickSaveData(data);
+    },
+    keydownHandler(event: KeyboardEvent) {
+      if (event.ctrlKey && event.code === 'KeyS') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.commitName();
+      }
     },
   },
 });

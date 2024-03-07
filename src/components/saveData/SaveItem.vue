@@ -135,6 +135,7 @@
             hide-details
             :label="$t('SaveData.補足情報')"
             class="remarks-input"
+            @keydown="keydownHandler"
           />
           <div class="mt-4 d-flex align-center">
             <div>
@@ -554,6 +555,13 @@ export default Vue.extend({
       this.$nextTick(() => {
         this.showMenu = true;
       });
+    },
+    keydownHandler(event: KeyboardEvent) {
+      if (event.ctrlKey && event.code === 'KeyS') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.commitName();
+      }
     },
   },
 });

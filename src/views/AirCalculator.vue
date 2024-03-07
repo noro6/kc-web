@@ -42,7 +42,7 @@
             <v-divider />
             <div class="px-1 pt-2 d-flex">
               <div class="flex-grow-1 remarks-input">
-                <v-textarea auto-grow rows="2" v-model="editedRemarks" outlined dense hide-details @blur="commitRemarks()" />
+                <v-textarea auto-grow rows="2" v-model="editedRemarks" outlined dense hide-details @blur="commitRemarks()" @keydown="keydownHandler" />
               </div>
             </div>
           </v-card>
@@ -323,6 +323,14 @@ export default Vue.extend({
     },
   },
   methods: {
+    keydownHandler(event: KeyboardEvent) {
+      if (event.ctrlKey && event.code === 'KeyS') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.commitRemarks();
+        this.$emit('saveCurrentData');
+      }
+    },
     dropItem() {
       // ドラッグ中itemをドロップ時消すフラグを建てる
       const draggingDiv = document.getElementById('dragging-item');

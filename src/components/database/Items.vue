@@ -239,7 +239,7 @@
       </v-tab-item>
     </v-tabs-items>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" />
+      <item-tooltip v-model="tooltipItem" :is-airbase-mode="!!tooltipItem.data.radius" />
     </v-tooltip>
   </div>
 </template>
