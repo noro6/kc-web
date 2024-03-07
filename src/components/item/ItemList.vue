@@ -180,79 +180,72 @@
           <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
-          <v-virtual-scroll
-            v-if="!multiLine && data.items.length"
-            :height="itemListHeight"
-            item-height="36"
-            :items="data.items"
-            bench="1"
-            id="item-virtual-list"
-          >
-            <template v-slot:default="{ item }">
-              <div
-                v-ripple="{ class: item.count ? 'info--text' : 'red--text' }"
-                class="list-item single"
-                :class="{
-                  'no-stock': !item.count,
-                  'has-bonus': !isCheckedOnly && item.sumBonus,
-                  'has-bad-bonus': !isCheckedOnly && item.sumBonus < 0,
-                  'ignore-bonus': sortExcludeSynergyStatus,
-                  selected: item.batchListIndexes.length,
-                  disabled: !isCheckedOnly && item.disabled,
-                }"
-                @click="clickedItem(item, $event)"
-                @keypress.enter="clickedItem(item, $event)"
-                @contextmenu="showItemMenu(item, $event)"
-              >
+          <div class="list-item-container" v-if="!multiLine && data.items.length">
+            <div
+              v-for="(item, i) in data.items"
+              :key="`item-${i}`"
+              v-ripple="{ class: item.count ? 'info--text' : 'red--text' }"
+              class="list-item single"
+              :class="{
+                'no-stock': !item.count,
+                'has-bonus': !isCheckedOnly && item.sumBonus,
+                'has-bad-bonus': !isCheckedOnly && item.sumBonus < 0,
+                'ignore-bonus': sortExcludeSynergyStatus,
+                selected: item.batchListIndexes.length,
+                disabled: !isCheckedOnly && item.disabled,
+              }"
+              @click="clickedItem(item, $event)"
+              @keypress.enter="clickedItem(item, $event)"
+              @contextmenu="showItemMenu(item, $event)"
+            >
+              <div>
                 <div>
-                  <div>
-                    <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
-                  </div>
-                  <!-- 秋刀魚特効表示特別対応 -->
-                  <div class="saury-bonus" v-if="item.text === 'Saury'">
-                    <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
-                    <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-                  </div>
-                  <div class="item-special-text" v-else-if="item.text">
-                    <div class="align-self-center">{{ item.text }}</div>
-                  </div>
-                  <!-- 一括配備モード用インデックス -->
-                  <div v-if="item.batchListIndexes.length" class="batch-index-container">
-                    <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
-                      {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
-                    </div>
+                  <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
+                </div>
+                <!-- 秋刀魚特効表示特別対応 -->
+                <div class="saury-bonus" v-if="item.text === 'Saury'">
+                  <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
+                  <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
+                </div>
+                <div class="item-special-text" v-else-if="item.text">
+                  <div class="align-self-center">{{ item.text }}</div>
+                </div>
+                <!-- 一括配備モード用インデックス -->
+                <div v-if="item.batchListIndexes.length" class="batch-index-container">
+                  <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
+                    {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
                   </div>
                 </div>
-                <div
-                  class="item-name-container"
-                  :class="{ 'is-special': item.item.data.isSpecial }"
-                  @mouseenter="bootTooltip(item.item, item.bonus, $event)"
-                  @mouseleave="clearTooltip"
-                  @focus="bootTooltip(item.item, item.bonus, $event)"
-                  @blur="clearTooltip"
-                >
-                  <div class="text-truncate">
-                    {{ needTrans ? $t(`${item.item.data.name}`) : item.item.data.name }}
-                  </div>
-                </div>
-                <div v-if="!isCheckedOnly && item.sumBonus" class="bonus-icon">
-                  <v-icon v-if="item.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-                  <v-icon v-else-if="item.sumBonus <= 2" :color="item.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
-                  <v-icon v-else-if="item.sumBonus <= 5" :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
-                  <v-icon v-else :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
-                </div>
-                <div class="item-remodel caption mr-1" v-if="isStockOnly && item.remodel > 0">
-                  <v-icon small color="teal accent-4">mdi-star</v-icon>
-                  <span class="teal--text text--accent-4">{{ item.remodel }}</span>
-                </div>
-                <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
-                  <span>&times;</span>
-                  <span>{{ item.count }}</span>
-                </div>
-                <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}</div>
               </div>
-            </template>
-          </v-virtual-scroll>
+              <div
+                class="item-name-container"
+                :class="{ 'is-special': item.item.data.isSpecial }"
+                @mouseenter="bootTooltip(item.item, item.bonus, $event)"
+                @mouseleave="clearTooltip"
+                @focus="bootTooltip(item.item, item.bonus, $event)"
+                @blur="clearTooltip"
+              >
+                <div class="text-truncate">
+                  {{ needTrans ? $t(`${item.item.data.name}`) : item.item.data.name }}
+                </div>
+              </div>
+              <div v-if="!isCheckedOnly && item.sumBonus" class="bonus-icon">
+                <v-icon v-if="item.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
+                <v-icon v-else-if="item.sumBonus <= 2" :color="item.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
+                <v-icon v-else-if="item.sumBonus <= 5" :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                <v-icon v-else :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+              </div>
+              <div class="item-remodel caption mr-1" v-if="isStockOnly && item.remodel > 0">
+                <v-icon small color="teal accent-4">mdi-star</v-icon>
+                <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+              </div>
+              <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
+                <span>&times;</span>
+                <span>{{ item.count }}</span>
+              </div>
+              <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}</div>
+            </div>
+          </div>
           <template v-else>
             <div
               v-for="(v, i) in data.items"
@@ -543,6 +536,11 @@
   .type-item-container.multi {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
+}
+
+.list-item-container {
+  height: 62vh;
+  overflow-y: scroll;
 }
 
 .list-item {
@@ -1264,9 +1262,6 @@ export default Vue.extend({
         }
 
         this.filter();
-        this.$nextTick(() => {
-          this.simulateScroll();
-        });
         return;
       }
       if (parent instanceof Ship) {
@@ -1329,23 +1324,6 @@ export default Vue.extend({
 
       this.baseItems = this.all.filter((v) => types.includes(v.apiTypeId));
       this.filter();
-      this.$nextTick(() => {
-        this.simulateScroll();
-      });
-    },
-    simulateScroll() {
-      // Firefox Virtual Scroll 描画対策のためスクロールをシミュレート
-      const targetList = document.getElementById('item-virtual-list');
-      if (targetList) {
-        const scrollEvent = new CustomEvent('scroll', {
-          bubbles: true,
-          cancelable: true,
-          detail: 0, // スクロールの詳細情報、ここでは特に指定しない
-        });
-
-        // 対象の要素にスクロールイベントをディスパッチする
-        targetList.dispatchEvent(scrollEvent);
-      }
     },
     changedFilter() {
       const filterData = { parent: 'ship' as 'ship' | 'airbase', key: this.filterStatus, value: this.filterStatusValue };
