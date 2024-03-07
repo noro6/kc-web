@@ -206,6 +206,7 @@ export default class AirbaseInfo {
         continue;
       }
 
+      /** 空襲により削られる機数 */
       let count = 4;
       const { items } = this.airbases[i];
       for (let j = 0; j < items.length; j += 1) {
@@ -214,15 +215,12 @@ export default class AirbaseInfo {
           continue;
         }
 
-        if (item.data.isRecon) {
-          // 偵察機系
-          if (count) {
-            items[j] = new Item({ item, slot: 1 });
-            count = 1;
-          } else {
-            items[j] = new Item({ item, slot: item.data.airbaseMaxSlot });
-          }
+        if (count >= item.data.airbaseMaxSlot) {
+          // 最大搭載数以上に削られる場合は1機残す
+          items[j] = new Item({ item, slot: 1 });
+          count -= (item.data.airbaseMaxSlot - 1);
         } else {
+          // 受けきれる
           items[j] = new Item({ item, slot: item.data.airbaseMaxSlot - count });
           count = 0;
         }
