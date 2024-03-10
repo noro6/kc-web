@@ -70,6 +70,11 @@
           <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
           <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
         </template>
+        <template v-if="type === 5">
+          <v-checkbox v-model="includeTorpedo" @click="filter()" hide-details dense :label="$t('EType.魚雷')" />
+          <v-checkbox v-model="includeSPTorpedo" @click="filter()" hide-details dense :label="$t('EType.特殊潜航艇')" />
+          <v-checkbox v-model="includeSVTorpedo" @click="filter()" hide-details dense :label="$t('EType.潜水艦魚雷')" />
+        </template>
         <div v-if="!isEnemyMode && setting.displayBonusKey">
           <v-checkbox v-model="isSpecialOnly" @click="filter()" hide-details dense :label="$t('ItemList.特効装備')" />
         </div>
@@ -313,7 +318,7 @@
           </template>
         </div>
       </div>
-      <div v-show="viewItems.length === 0" class="body-2 text-center mt-10">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
+      <div v-show="viewItems.length === 0" class="body-2 text-center mt-6">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
     </div>
     <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
       <v-list dense class="caption" v-if="menuItem">
@@ -422,7 +427,7 @@
 
 #item-table-body {
   overflow-y: auto;
-  height: 64vh;
+  height: 65vh;
   overscroll-behavior: contain;
 }
 #item-table-body.table-mode {
@@ -907,6 +912,9 @@ export default Vue.extend({
     includeSonar: true,
     includeDepthCharge: true,
     includeDepthChargeLauncher: true,
+    includeTorpedo: true,
+    includeSPTorpedo: true,
+    includeSVTorpedo: true,
     onlyEnabledLandBaseAttack: false,
     onlyDisabledLandBaseAttack: false,
     onlyAffectingRange: false,
@@ -1418,6 +1426,18 @@ export default Vue.extend({
           }
           if (!this.includeDepthChargeLauncher) {
             result = result.filter((v) => v.iconTypeId !== 17);
+          }
+        }
+        if (this.type === 5) {
+          // 魚雷フィルタ
+          if (!this.includeTorpedo) {
+            result = result.filter((v) => v.apiTypeId !== 5);
+          }
+          if (!this.includeSPTorpedo) {
+            result = result.filter((v) => v.apiTypeId !== 22);
+          }
+          if (!this.includeSVTorpedo) {
+            result = result.filter((v) => v.apiTypeId !== 32);
           }
         }
         if (this.enabledNightAircraftFilter && this.onlyNightAircraft) {
