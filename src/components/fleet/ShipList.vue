@@ -11,6 +11,7 @@
           clearable
           :disabled="!!uniqueIdSearch"
           prepend-inner-icon="mdi-magnify"
+          ref="inputBox"
         />
       </div>
       <div class="api-search-text" v-if="enabledApiIdSearch">
@@ -1282,6 +1283,10 @@ export default Vue.extend({
 
       this.changeMultiLine(setting.isMultiLineForShipList);
       this.filter();
+
+      this.$nextTick(() => {
+        (this.$refs.inputBox as HTMLInputElement).focus();
+      });
     },
     filter() {
       if (!this.batchList.length && this.isCheckedOnly) {
