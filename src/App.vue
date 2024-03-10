@@ -637,8 +637,10 @@ import ItemStock from './classes/item/itemStock';
 import Fleet from './classes/fleet/fleet';
 import CalcManager from './classes/calcManager';
 import FleetInfo from './classes/fleet/fleetInfo';
-import Const from './classes/const';
+import Const, { AB_MODE } from './classes/const';
 import ShipStockDiff from './classes/fleet/shipStockDiff';
+import Airbase from './classes/airbase/airbase';
+import AirbaseInfo from './classes/airbase/airbaseInfo';
 
 export default Vue.extend({
   name: 'App',
@@ -1084,6 +1086,23 @@ export default Vue.extend({
         if (!manager.airbaseInfo.airbases.some((v) => v.items.some((i) => i.data.id > 0))) {
           // 基地が空のデータなら元の情報を使う
           manager.airbaseInfo = currentManager.airbaseInfo;
+        } else if (currentManager.airbaseInfo.airbases.some((v) => v.mode === AB_MODE.BATTLE)) {
+          // 元の基地データのうち出撃情報がある場合、派遣先を流用
+          /** 今現在開いているデータの艦隊 */
+          const base = currentManager.airbaseInfo.airbases;
+          /** デッキビルダーから復元された基地データ */
+          const newBase = manager.airbaseInfo.airbases;
+          const airbases: Airbase[] = [];
+          for (let i = 0; i < base.length; i += 1) {
+            const oldBase = base[i];
+            if (oldBase.mode === AB_MODE.BATTLE && newBase[i] && newBase[i].mode === AB_MODE.BATTLE) {
+              // 派遣先だけ置き換え
+              airbases.push(new Airbase({ airbase: newBase[i], battleTarget: oldBase.battleTarget }));
+            } else {
+              airbases.push(newBase[i]);
+            }
+          }
+          manager.airbaseInfo = new AirbaseInfo({ info: manager.airbaseInfo, airbases });
         }
         if (!manager.fleetInfo.fleets.some((v) => v.ships.some((s) => s.data.id > 0))) {
           // 編成が空のデータなら元の情報を使う
