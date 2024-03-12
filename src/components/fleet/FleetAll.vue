@@ -115,10 +115,10 @@
     </v-tabs>
     <v-divider class="mx-2" />
     <div v-if="scoutError[0]" class="mx-2 mt-1">
-      <v-alert class="ma-0" dense outlined type="warning">{{ scoutError[0] }}</v-alert>
+      <v-alert class="ma-0 body-2 py-1" dense outlined type="warning">{{ scoutError[0] }}</v-alert>
     </div>
     <div v-if="scoutError[1]" class="mx-2 mt-1">
-      <v-alert class="ma-0 body-2" dense outlined type="info">{{ scoutError[1] }}</v-alert>
+      <v-alert class="ma-0 body-2 py-1" dense outlined type="info">{{ scoutError[1] }}</v-alert>
     </div>
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item

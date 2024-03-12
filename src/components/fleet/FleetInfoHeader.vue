@@ -1,52 +1,68 @@
 <template>
-  <div>
-    <div class="d-flex px-1 flex-wrap align-center">
-      <div class="caption text--secondary">{{ $t("Common.制空") }}</div>
-      <div class="mx-1 body-2">{{ value.fullAirPower }}</div>
-      <div class="caption text--secondary">{{ $t("Fleet.触接") }}</div>
-      <div class="mx-1 body-2">{{ contactRate }}%</div>
-      <div>
-        <v-img :src="`./img/type/icon50.png`" height="24" width="24" />
-      </div>
-      <div class="mx-1 body-2">{{ nightContactRate }}%</div>
-      <!-- 速力 -->
-      <template v-if="actualFleet.fleetSpeed">
-        <div>
-          <v-img :src="`./img/type/icon19.png`" height="24" width="24" />
+  <div class="d-flex align-center">
+    <div>
+      <div class="d-flex flex-wrap align-center">
+        <!-- 制空 -->
+        <div class="d-flex align-center">
+          <div class="caption text--secondary">{{ $t("Common.制空") }}</div>
+          <div class="ml-1 mr-2 body-2">{{ value.fullAirPower }}</div>
         </div>
-        <div class="mr-1 body-2">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
-      </template>
-      <!-- TP -->
-      <div class="mr-2 d-flex">
-        <div class="option-status d-flex">
-          <v-img :src="`./img/type/icon25.png`" height="24" width="24" />
-          <div class="option-status-label label-tp">TP</div>
-          <div class="ml-2 body-2 align-self-center tp d-flex">
-            <div>{{ actualFleet.tp }}</div>
-            <div class="status-label">S</div>
+        <!-- 触接 -->
+        <div class="d-flex align-center">
+          <div class="caption text--secondary">{{ $t("Fleet.触接") }}</div>
+          <div class="ml-1 mr-2 body-2">{{ contactRate }}%</div>
+        </div>
+        <!-- 夜偵 -->
+        <div class="d-flex align-center">
+          <div><v-img :src="`./img/type/icon50.png`" height="24" width="24" /></div>
+          <div class="ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
+        </div>
+        <!-- TP -->
+        <div class="mr-2 d-flex">
+          <div class="option-status d-flex">
+            <v-img :src="`./img/type/icon25.png`" height="24" width="24" />
+            <div class="option-status-label label-tp">TP</div>
+            <div class="ml-2 body-2 align-self-center tp d-flex">
+              <div>{{ actualFleet.tp }}</div>
+              <div class="status-label">S</div>
+            </div>
+            <div class="ml-2 mr-1">/</div>
+            <div class="body-2 align-self-center tp d-flex">
+              <div>{{ tpA }}</div>
+              <div class="status-label">A</div>
+            </div>
           </div>
-          <div class="ml-2 mr-1">/</div>
-          <div class="body-2 align-self-center tp d-flex">
-            <div>{{ tpA }}</div>
-            <div class="status-label">A</div>
+        </div>
+        <!-- 煙幕 -->
+        <div class="d-flex align-center">
+          <div class="d-flex align-center mr-1" v-for="(rate, i) in fleetSmoke" :key="i">
+            <v-img :src="`./img/type/smoke${i + 1}.png`" height="24" width="27" />
+            <div class="body-2">{{ rate.toFixed(0) }}%</div>
           </div>
         </div>
       </div>
-      <!-- 索敵値 -->
-      <div class="d-flex">
-        <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
-          <v-img :src="`./img/type/icon11.png`" height="20" width="20" />
-          <div class="option-status-label">{{ i + 1 }}</div>
-          <div class="ml-2 body-2">{{ scout }}</div>
+      <div class="d-flex flex-wrap align-center">
+        <!-- 速力 -->
+        <template v-if="actualFleet.fleetSpeed">
+          <div class="caption text--secondary">{{ $t("Common.速力") }}</div>
+          <div class="ml-1 mr-2 caption">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
+        </template>
+        <!-- 索敵値 -->
+        <div class="d-flex align-center justify-md-space-between flex-grow-1">
+          <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
+            <v-img :src="`./img/type/icon11.png`" height="20" width="20" />
+            <div class="option-status-label">{{ i + 1 }}</div>
+            <div class="ml-2 body-2">{{ scout }}</div>
+          </div>
         </div>
       </div>
-      <div class="ml-2 d-flex align-center">
-        <div class="caption d-capture-none">{{ $t("Fleet.艦隊詳細") }}</div>
-        <div class="operation-button">
-          <v-btn color="primary" icon @click="clickedInfo">
-            <v-icon>mdi-information-outline</v-icon>
-          </v-btn>
-        </div>
+    </div>
+    <div class="ml-auto d-flex align-center">
+      <div class="operation-button">
+        <v-btn color="primary" @click="clickedInfo" text>
+          <v-icon>mdi-information-outline</v-icon>
+          {{ $t("Fleet.艦隊詳細") }}
+        </v-btn>
       </div>
     </div>
     <v-dialog v-model="detailDialog" transition="scroll-x-transition" width="880" @input="toggleDetailDialog">
@@ -144,6 +160,14 @@ export default Vue.extend({
         return this.unionFleet.getUnionScoutScore(this.admiralLv).map((v) => Math.floor(100 * v) / 100);
       }
       return Fleet.getScoutScore(this.value.ships, this.admiralLv).map((v) => Math.floor(100 * v) / 100);
+    },
+    fleetSmoke(): number[] {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        // return Fleet.getSmokeTriggerRate(this.value.ships);
+        return Fleet.getSmokeTriggerRate2(this.unionFleet.ships);
+      }
+      // return Fleet.getSmokeTriggerRate(this.value.ships);
+      return Fleet.getSmokeTriggerRate2(this.value.ships);
     },
     tpA(): number {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {

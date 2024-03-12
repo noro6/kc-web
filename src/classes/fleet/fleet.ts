@@ -334,6 +334,125 @@ export default class Fleet {
   }
 
   /**
+   * 艦娘配列から煙幕発動率取得 仮説1 ゆめみさん
+   * https://x.com/yukicacoon/status/1739480992090632669
+   * @static
+   * @param {Ship[]} argShips
+   * @return {*}  {number}
+   * @memberof Fleet
+   */
+  public static getSmokeTriggerRate(argShips: Ship[]): number[] {
+    const ships = argShips.filter((v) => v.isActive && !v.isEmpty);
+    /** 発煙搭載数 + 改搭載数*2 */
+    let n = 0;
+    /** 煙幕の改修値合計 */
+    let totalSmokeRemodel = 0;
+    /** 煙幕改の改修値合計 */
+    let totalSmokeKaiRemodel = 0;
+
+    for (let i = 0; i < ships.length; i += 1) {
+      const items = ships[i].items.concat(ships[i].exItem);
+      for (let j = 0; j < items.length; j += 1) {
+        const item = items[j];
+        if (item.data.id === 500) {
+          // 通常煙幕
+          n += 1;
+          totalSmokeRemodel += item.remodel;
+        } else if (item.data.id === 501) {
+          // 煙幕改
+          n += 2;
+          totalSmokeKaiRemodel += item.remodel;
+        }
+      }
+    }
+
+    /** 旗艦の運 */
+    const flagshipLuck = ships[0].luck;
+    /** Roundup[√(luk)+0.3*煙改修+0.5*煙改改修] */
+    const k = Math.ceil(Math.sqrt(flagshipLuck) + 0.3 * totalSmokeRemodel + 0.5 * totalSmokeKaiRemodel);
+
+    /** 不発率 */
+    const p0 = Math.max(320 - 20 * k - 100 * n, 0);
+
+    if (n >= 3) {
+      const p3 = 4.2 * k + 15 * (n - 3);
+      const p2 = Math.min(30, 100 - p3);
+      const p1 = Math.max(100 - p2 - p3, 0);
+      return [p1, p2, p3];
+    }
+    if (n >= 2) {
+      const p3 = 0;
+      const p2 = (100 - p0) * 0.05 * (k + 2);
+      const p1 = Math.max(100 - p0 - p2 - p3, 0);
+      return [p1, p2, p3];
+    }
+    if (n >= 1) {
+      const p3 = 0;
+      const p2 = 0;
+      const p1 = Math.max(100 - p0, 0);
+      return [p1, p2, p3];
+    }
+
+    return [0, 0, 0];
+  }
+
+  /**
+   * 艦娘配列から煙幕発動率取得 仮説2 Xeさん
+   * https://x.com/Xe_UCH/status/1767407602554855730
+   * @static
+   * @param {Ship[]} argShips
+   * @return {*}  {number[]}
+   * @memberof Fleet
+   */
+  public static getSmokeTriggerRate2(argShips: Ship[]): number[] {
+    const ships = argShips.filter((v) => v.isActive && !v.isEmpty);
+    /** 発煙搭載数 + 改搭載数*2 */
+    let smokeA = 0;
+    /** 煙幕の改修値合計 */
+    let totalSmokeRemodel = 0;
+    /** 煙幕改の改修値合計 */
+    let totalSmokeKaiRemodel = 0;
+
+    for (let i = 0; i < ships.length; i += 1) {
+      const items = ships[i].items.concat(ships[i].exItem);
+      for (let j = 0; j < items.length; j += 1) {
+        const item = items[j];
+        if (item.data.id === 500) {
+          // 通常煙幕
+          smokeA += 1;
+          totalSmokeRemodel += item.remodel;
+        } else if (item.data.id === 501) {
+          // 煙幕改
+          smokeA += 2;
+          totalSmokeKaiRemodel += item.remodel;
+        }
+      }
+    }
+
+    /** 旗艦の運 */
+    const flagshipLuck = ships[0].luck;
+    /** 発動判定p0: https://twitter.com/yukicacoon/status/1739480992090632669  */
+    const k = Math.ceil(Math.sqrt(flagshipLuck) + 0.3 * totalSmokeRemodel + 0.5 * totalSmokeKaiRemodel);
+    /** 発動率 */
+    const triggerRate = 1 - Math.max(3.2 - 0.2 * k - smokeA, 0);
+
+    if (smokeA >= 3) {
+      const triple = 3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 15) + 1;
+      const double = 30 - (triple > 70 ? (triple - 70) : 0);
+      const single = Math.max(100 - triple - double, 0);
+      return [single, double, triple].map((v) => v * triggerRate);
+    }
+    if (smokeA === 2) {
+      const triple = 0;
+      const double = 3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 5) + 1;
+      const single = Math.max(100 - triple - double, 0);
+      return [single, double, triple].map((v) => v * triggerRate);
+    }
+
+    return [Math.max(100 * triggerRate, 0), 0, 0];
+  }
+
+  /**
    * 艦娘配列の合計航空偵察索敵スコア
    * @static
    * @param {Ship[]} argShips 艦娘配列
