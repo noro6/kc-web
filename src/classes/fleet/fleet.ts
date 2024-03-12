@@ -437,14 +437,14 @@ export default class Fleet {
     const triggerRate = 1 - Math.max(3.2 - 0.2 * k - smokeA, 0);
 
     if (smokeA >= 3) {
-      const triple = 3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 15) + 1;
+      const triple = Math.min(3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 15) + 1, 100);
       const double = 30 - (triple > 70 ? (triple - 70) : 0);
       const single = Math.max(100 - triple - double, 0);
       return [single, double, triple].map((v) => v * triggerRate);
     }
     if (smokeA === 2) {
       const triple = 0;
-      const double = 3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 5) + 1;
+      const double = Math.min(3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 5) + 1, 100);
       const single = Math.max(100 - triple - double, 0);
       return [single, double, triple].map((v) => v * triggerRate);
     }
