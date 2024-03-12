@@ -111,6 +111,7 @@ export default Vue.extend({
       return (
         (this.value.data.type === 7 && this.value.items.some((v) => [1574, 1575, 1586].includes(v.data.id)))
         || [1623, 1624, 1862, 1690, 1691, 1692, 1849, 1850, 1851, 1927, 1928, 1929, 1930, 1931, 1932, 1947].includes(this.value.data.id)
+        || [2204, 2205, 2206, 2207, 2208, 2209, 2216, 2217, 2218, 2219, 2220, 2221].includes(this.value.data.id)
       );
     },
     specialAttacks(): string[] {
