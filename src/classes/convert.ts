@@ -671,11 +671,11 @@ export default class Convert {
     } as DeckBuilder;
     try {
       // 艦隊データ
-      const { fleets } = manager.fleetInfo;
+      const { fleets, fleetType } = manager.fleetInfo;
       for (let i = 0; i < fleets.length; i += 1) {
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
         if (ships.length) {
-          const builder = { name: `第${i + 1}艦隊`, t: Convert.replaceAltFormationId(fleets[i].formation) };
+          const builder = { name: `第${i + 1}艦隊`, t: fleetType };
           Convert.setDeckBuilderFleet(builder, ships, includeStatus);
           deckBuilder[`f${i + 1}` as 'f1' | 'f2' | 'f3' | 'f4'] = builder;
         }

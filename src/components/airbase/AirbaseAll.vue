@@ -744,8 +744,8 @@ export default Vue.extend({
 
       // 出撃になっている航空隊の第1スロットのみを取得
       const firstSlots = this.airbaseInfo.airbases.filter((v) => v.mode === AB_MODE.BATTLE).map((v) => v.items.find((w) => w.data.id));
-      // 上記のスロットが偵察機なら4未満に、攻撃機なら18未満になっているかチェック
-      const doneAirRaid = firstSlots.every((v) => v && ((v.data.isRecon && v.fullSlot < 4) || (!v.data.isRecon && v.fullSlot < 18)));
+      // 上記スロットが最大数以下になっているかチェック
+      const doneAirRaid = firstSlots.every((v) => v && v.fullSlot < v.data.airbaseMaxSlot);
 
       return hasAirRaid && !hasDefense && !doneAirRaid;
     },
