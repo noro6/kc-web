@@ -620,34 +620,37 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 /** スクショ用調整  */
-.normal-airbases.captured {
+#airbase-container.captured {
     width: 1200px !important;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 0.2rem;
     padding: 0.75rem 0.5rem;
 }
 
-.normal-airbases.captured * {
+#airbase-container.captured .normal-airbases {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+#airbase-container.captured .normal-airbases * {
     box-shadow: none !important;
 }
 
-.normal-airbases.captured>div {
+#airbase-container.captured .normal-airbases > div {
     border: 1px solid #bbb;
 }
 
-.theme--dark .normal-airbases.captured {
+.theme--dark #airbase-container.captured {
     background: rgb(40, 40, 45);
     border: 1px solid #444;
 }
 
-.deep-sea .theme--dark .normal-airbases.captured {
+.deep-sea .theme--dark #airbase-container.captured {
     background: rgb(8, 18, 42);
 }
 
-.theme--dark .normal-airbases.captured>div {
+.theme--dark #airbase-container.captured .normal-airbases > div {
     border: 1px solid #444;
 }
 

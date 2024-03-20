@@ -158,39 +158,33 @@
         />
       </v-tab-item>
     </v-tabs>
-    <draggable
-      id="airbase-container"
-      class="normal-airbases"
-      :class="{ captured: capturing }"
-      v-model="airbaseInfo.airbases"
-      handle=".airbase-title"
-      animation="150"
-      @end="setInfo"
-    >
-      <airbase-comp
-        v-for="(lb, i) in airbaseInfo.airbases"
-        :key="i"
-        :class="{ unMatch: unMatchModes[i] }"
-        v-model="airbaseInfo.airbases[i]"
-        :index="i"
-        :is-defense="isDefenseMode"
-        :handle-show-item-list="showItemList"
-        :handle-show-batch-item-list="showBatchItemList"
-        :handle-show-item-presets="showItemPresets"
-        :handle-show-temp-airbase-list="showTempAirbaseList"
-        @input="setInfo"
-      />
-    </draggable>
-    <div v-if="isNormalAirRaidMode" class="mx-2 mb-1 mt-3">
-      <!-- 通常防空時の計算結果 -->
-      <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
-    </div>
-    <div v-else-if="isDefenseMode" class="mx-2 mb-1">
-      <!-- 超重爆時の計算結果 -->
-      <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4 d-flex">
-        <div class="mr-1 align-self-center caption">{{ $t("Airbase.第x波", { number: i + 1 }) }}</div>
-        <div class="flex-grow-1">
-          <air-status-result-bar :result="result" />
+    <div id="airbase-container" :class="{ captured: capturing }">
+      <draggable class="normal-airbases" v-model="airbaseInfo.airbases" handle=".airbase-title" animation="150" @end="setInfo">
+        <airbase-comp
+          v-for="(lb, i) in airbaseInfo.airbases"
+          :key="i"
+          :class="{ unMatch: unMatchModes[i] }"
+          v-model="airbaseInfo.airbases[i]"
+          :index="i"
+          :is-defense="isDefenseMode"
+          :handle-show-item-list="showItemList"
+          :handle-show-batch-item-list="showBatchItemList"
+          :handle-show-item-presets="showItemPresets"
+          :handle-show-temp-airbase-list="showTempAirbaseList"
+          @input="setInfo"
+        />
+      </draggable>
+      <div v-if="isNormalAirRaidMode" class="mx-2 mb-1 mt-3">
+        <!-- 通常防空時の計算結果 -->
+        <air-status-result-bar :result="airbaseInfo.airbases[0].resultWave1" />
+      </div>
+      <div v-else-if="isDefenseMode" class="mx-2 mb-1">
+        <!-- 超重爆時の計算結果 -->
+        <div v-for="(result, i) in airbaseInfo.superHighAirRaidResults" :key="`high_result${i}`" class="mt-4 d-flex">
+          <div class="mr-1 align-self-center caption">{{ $t("Airbase.第x波", { number: i + 1 }) }}</div>
+          <div class="flex-grow-1">
+            <air-status-result-bar :result="result" />
+          </div>
         </div>
       </div>
     </div>
