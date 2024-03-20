@@ -14,7 +14,7 @@
       <v-spacer />
       <div v-if="capturing && fleet.nodeName" class="mr-2">{{ fleet.nodeName }}</div>
       <div v-if="!capturing" class="mr-1">
-        <v-btn outlined small color="primary" @click.stop="showWorldList">{{ $t("Enemies.海域選択") }}</v-btn>
+        <v-btn outlined small color="primary" @click.stop="showWorldList">{{ fleet.nodeName ? fleet.nodeName : $t("Enemies.海域選択") }}</v-btn>
       </div>
       <div v-if="existEnemy && !capturing">
         <v-btn color="primary" icon small @click="clickedInfo()">
