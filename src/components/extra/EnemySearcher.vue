@@ -1,6 +1,6 @@
 <template>
   <v-card class="pa-3">
-    <div class="d-flex align-center mb-3">
+    <div class="d-flex flex-wrap align-center mb-3">
       <v-btn color="teal" dark @click="showEnemyList()">{{ $t("Extra.検索する敵艦を選択") }}</v-btn>
       <div class="ml-3 d-flex" v-if="targetEnemy.data.id">
         <div class="align-self-center">
@@ -22,6 +22,7 @@
             <div class="enemy-name ml-2 text-truncate">{{ getEnemyName(targetEnemy.data.name) }}</div>
           </div>
         </div>
+        <v-checkbox class="ml-3" v-model="withoutPast" dense label="過去イベを除外" @change="search()" hide-details></v-checkbox>
       </div>
     </div>
     <div v-if="targetEnemy.data.id" class="my-3">
@@ -323,6 +324,7 @@ export default Vue.extend({
     selectedFleet: new EnemyFleet(),
     detailDialog: false,
     destroyDialog: false,
+    withoutPast: true,
     enabledTooltip: false,
     tooltipTimer: undefined as undefined | number,
     tooltipEnemy: new Enemy(),
@@ -431,9 +433,18 @@ export default Vue.extend({
           let name = '';
           if (world && area) {
             if (worldId < 10) {
+              // 通常海域
               name = `${world.name.substring(2)} ${area.name}`;
             } else {
               name = `${world.name} ${area.name}`;
+            }
+          }
+
+          // 過去イベ除外
+          if (worldId > 10 && this.withoutPast) {
+            // 最新イベントでないなら飛ばす
+            if (this.worlds.findIndex((v) => v.world === worldId) > 0) {
+              continue;
             }
           }
 
