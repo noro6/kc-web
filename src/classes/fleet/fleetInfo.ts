@@ -239,6 +239,10 @@ export default class FleetInfo {
         if (mains.filter((v) => v.data.isCV).length < 2) {
           errors[0].push({ type: '空母', value: 2, text: '必要' });
         }
+        // 空母系4隻まで
+        if (mains.filter((v) => v.data.isCV).length > 4) {
+          errors[0].push({ type: '空母', value: 4, text: '以下' });
+        }
         // 戦艦2隻まで
         if (mains.filter((v) => v.data.isBB).length > 2) {
           errors[0].push({ type: '戦艦級', value: 2, text: '以下' });
