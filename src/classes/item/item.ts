@@ -226,15 +226,15 @@ export default class Item {
     if (builder.item) {
       // ItemBuilderより生成 Itemインスタンスを引継ぎ
       this.data = builder.master ? builder.master : builder.item.data;
-      this.fullSlot = builder.slot !== undefined ? builder.slot : builder.item.fullSlot;
-      this.remodel = builder.remodel !== undefined ? builder.remodel : builder.item.remodel;
-      this.level = builder.level !== undefined ? builder.level : builder.item.level;
+      this.fullSlot = builder.slot !== undefined ? +builder.slot : +builder.item.fullSlot;
+      this.remodel = builder.remodel !== undefined ? +builder.remodel : +builder.item.remodel;
+      this.level = builder.level !== undefined ? +builder.level : +builder.item.level;
       this.noStock = builder.noStock ?? false;
     } else {
       this.data = builder.master ? builder.master : new ItemMaster();
-      this.fullSlot = builder.slot !== undefined ? builder.slot : 0;
-      this.remodel = builder.remodel !== undefined ? builder.remodel : 0;
-      this.level = builder.level !== undefined ? builder.level : 0;
+      this.fullSlot = builder.slot !== undefined ? +builder.slot : 0;
+      this.remodel = builder.remodel !== undefined ? +builder.remodel : 0;
+      this.level = builder.level !== undefined ? +builder.level : 0;
       this.noStock = builder.noStock ?? false;
     }
 

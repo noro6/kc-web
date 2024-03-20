@@ -357,11 +357,11 @@ export default class Fleet {
         if (item.data.id === 500) {
           // 通常煙幕
           n += 1;
-          totalSmokeRemodel += item.remodel;
+          totalSmokeRemodel += +item.remodel;
         } else if (item.data.id === 501) {
           // 煙幕改
           n += 2;
-          totalSmokeKaiRemodel += item.remodel;
+          totalSmokeKaiRemodel += +item.remodel;
         }
       }
     }
@@ -420,11 +420,11 @@ export default class Fleet {
         if (item.data.id === 500) {
           // 通常煙幕
           smokeA += 1;
-          totalSmokeRemodel += item.remodel;
+          totalSmokeRemodel += +item.remodel;
         } else if (item.data.id === 501) {
           // 煙幕改
           smokeA += 2;
-          totalSmokeKaiRemodel += item.remodel;
+          totalSmokeKaiRemodel += +item.remodel;
         }
       }
     }
