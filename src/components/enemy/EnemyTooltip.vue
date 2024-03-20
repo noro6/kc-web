@@ -105,6 +105,9 @@ export default Vue.extend({
       if (this.value.data.name.indexOf('深海日棲姫') >= 0) {
         return false;
       }
+      if (this.value.data.name.indexOf('米駆逐棲姫') >= 0) {
+        return true;
+      }
       return this.value.items.some((v) => v.data.apiTypeId === 22) || (this.value.isSubmarine && this.value.level >= 10);
     },
     hasOASW(): boolean {
