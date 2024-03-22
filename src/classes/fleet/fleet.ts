@@ -449,6 +449,10 @@ export default class Fleet {
       return [single, double, triple].map((v) => v * triggerRate);
     }
 
+    if (smokeA < 1) {
+      return [0, 0, 0];
+    }
+
     return [Math.max(100 * triggerRate, 0), 0, 0];
   }
 

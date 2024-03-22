@@ -830,7 +830,7 @@ export default Vue.extend({
         return 'px-2 pt-6';
       }
 
-      if (this.setting.visibleAirCalcMenuButton && this.isAirCalcPage) return 'pl-2 pl-sm-4 pr-12';
+      if (this.setting.visibleAirCalcMenuButton && this.isAirCalcPage) return 'pl-4 pr-12';
       return 'px-4';
     },
     selectedAnyFleet(): boolean {
@@ -1958,6 +1958,11 @@ export default Vue.extend({
   border-bottom: 1px solid #888;
   padding-bottom: 3px;
   margin-bottom: 3px;
+}
+@media (min-width: 600px) {
+  .operation-buttons {
+    display: none;
+  }
 }
 
 .color-select-items {
