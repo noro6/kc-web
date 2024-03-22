@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="list-card">
     <div class="d-flex py-2 pr-2 align-center">
       <div class="ship-search-text ml-3">
         <v-text-field
@@ -14,53 +14,78 @@
           ref="inputBox"
         />
       </div>
-      <div class="api-search-text" v-if="enabledApiIdSearch">
-        <v-text-field
-          dense
-          hide-details
-          type="number"
-          placeholder="api_id"
-          v-model.trim="uniqueIdSearch"
-          @input="filter()"
-          clearable
-          :disabled="!!keyword"
-          prepend-inner-icon="mdi-magnify"
-        />
-      </div>
-      <v-spacer />
-      <div class="mr-3 ship-sort-select">
-        <v-select
-          dense
-          :placeholder="$t('Common.ソート')"
-          hide-details
-          v-model="sortKey"
-          :items="sortKeys"
-          item-value="value"
-          :item-text="(item) => $t('Common.' + item.text)"
-          @input="filter()"
-          clearable
-          prepend-inner-icon="mdi-sort-descending"
-        />
-      </div>
-      <div class="d-none d-sm-block mr-5">
-        <v-btn-toggle dense v-model="multiLine" borderless mandatory>
-          <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
-            <v-icon color="white">mdi-view-headline</v-icon>
-            <span class="white--text">{{ $t("ItemList.一列") }}</span>
-          </v-btn>
-          <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
-            <v-icon color="white">mdi-view-comfy</v-icon>
-            <span class="white--text">{{ $t("ItemList.複数列") }}</span>
-          </v-btn>
-        </v-btn-toggle>
-      </div>
+      <template v-if="!isMobile">
+        <div class="api-search-text" v-if="enabledApiIdSearch">
+          <v-text-field
+            dense
+            hide-details
+            type="number"
+            placeholder="api_id"
+            v-model.trim="uniqueIdSearch"
+            @input="filter()"
+            clearable
+            :disabled="!!keyword"
+            prepend-inner-icon="mdi-magnify"
+          />
+        </div>
+        <v-spacer />
+        <div class="mr-3 ship-sort-select">
+          <v-select
+            dense
+            :placeholder="$t('Common.ソート')"
+            hide-details
+            v-model="sortKey"
+            :items="sortKeys"
+            item-value="value"
+            :item-text="(item) => $t('Common.' + item.text)"
+            @input="filter()"
+            clearable
+            prepend-inner-icon="mdi-sort-descending"
+          />
+        </div>
+        <div class="d-none d-sm-block mr-5">
+          <v-btn-toggle dense v-model="multiLine" borderless mandatory>
+            <v-btn :value="false" :class="{ blue: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
+              <v-icon color="white">mdi-view-headline</v-icon>
+              <span class="white--text">{{ $t("ItemList.一列") }}</span>
+            </v-btn>
+            <v-btn :value="true" :class="{ blue: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
+              <v-icon color="white">mdi-view-comfy</v-icon>
+              <span class="white--text">{{ $t("ItemList.複数列") }}</span>
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+      </template>
+      <template v-else>
+        <v-spacer></v-spacer>
+        <v-btn icon @click="filterDialog = true">
+          <v-icon>mdi-filter</v-icon>
+        </v-btn>
+        <v-menu bottom @input="filter()">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-sort</v-icon>
+            </v-btn>
+          </template>
+          <v-card class="sort-menu-card">
+            <v-list dense>
+              <v-list-item @click="sortKey = ''">
+                <v-list-item-title>{{ $t("Common.リセット") }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item v-for="(key, index) in sortKeys" :key="index" @click="sortKey = key.value" :input-value="sortKey === key.value">
+                <v-list-item-title>{{ $t("Common." + key.text) }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+      </template>
       <v-btn icon @click="handleClose()">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
     <v-divider />
-    <div class="d-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
-      <v-btn @click="filterDialog = true" :disabled="disabledDetailFilter" outlined> <v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
+    <div class="d-none d-sm-flex py-2 align-center" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+      <v-btn @click="filterDialog = true" :disabled="disabledDetailFilter" outlined> <v-icon>mdi-filter</v-icon>{{ $t("Common.絞り込み") }} </v-btn>
       <v-btn class="ml-1" text @click.stop="resetFilter()" small :disabled="disabledDetailFilter">
         {{ $t("Common.リセット") }}
       </v-btn>
@@ -77,7 +102,7 @@
         />
       </div>
     </div>
-    <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+    <div class="d-flex flex-wrap" :class="{ 'ml-3': multiLine && !isMobile, 'ml-1': !multiLine }">
       <div
         v-ripple="{ class: 'info--text' }"
         class="type-selector d-flex"
@@ -108,7 +133,7 @@
       >
         {{ $t("Fleet.選択済") }}
       </div>
-      <div class="ml-auto mr-3 d-flex" v-if="isStockOnly">
+      <div class="ml-auto mr-3 d-flex" v-if="isStockOnly && !isMobile">
         <div v-if="shipFilter.hasAreaOnly" class="area-tags">
           <div
             v-for="area in maxAreas"
@@ -137,12 +162,12 @@
         </div>
       </div>
     </div>
-    <v-divider :class="{ 'ml-3': multiLine }" />
-    <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine }">
+    <v-divider :class="{ 'ml-3': multiLine && !isMobile }" />
+    <div class="ship-table-body pb-2" :class="{ 'ml-3': multiLine && !isMobile, 'px-2': isMobile }">
       <div v-if="!multiLine && ships.length" class="ship-status-header pr-3">
         <div class="ship-status" v-for="i in 5" :key="`slot${i}`">{{ $t("Fleet.搭載") }}{{ i }}</div>
       </div>
-      <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
+      <div v-for="(typeData, i) in ships" :key="i" class="pl-sm-3">
         <div class="type-divider">
           <div class="caption text--secondary" v-if="sortKey">
             {{ selectedSortText }} {{ typeData.typeName }}
@@ -239,8 +264,8 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="760" @input="toggleFilterDialog">
-      <v-card>
+    <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="760" @input="toggleFilterDialog" :fullscreen="isMobile">
+      <v-card class="filter-dialog-card">
         <div class="d-flex pt-2 pb-1 px-2">
           <div class="align-self-center ml-3 body-2">{{ $t("Common.絞り込み") }}</div>
           <v-spacer />
@@ -255,7 +280,10 @@
               hide-details
             />
           </div>
-          <v-btn class="mr-3 align-self-center" small text @click.stop="resetFilter()">
+          <v-btn class="align-self-center" v-if="isMobile" icon @click.stop="resetFilter()">
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+          <v-btn class="mr-3 align-self-center" v-else small text @click.stop="resetFilter()">
             {{ $t("Common.リセット") }}
           </v-btn>
           <v-btn icon @click="closeFilterDialog()">
@@ -264,7 +292,45 @@
         </div>
         <v-divider class="mx-2" />
         <div class="filter-dialog-body pr-1 pb-2">
-          <div class="d-flex">
+          <div class="d-flex" v-if="isMobile">
+            <div class="caption">{{ $t("Database.お札") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div v-if="isMobile">
+            <div class="filter-img">
+              <!-- 作戦参加中 -->
+              <img v-show="shipFilter.hasAreaOnly" @click="toggleAreaFilter" @keypress="toggleAreaFilter" :src="`./img/util/filtered1.png`" alt="area-img-1" />
+              <!-- 待機中 -->
+              <img
+                v-show="shipFilter.hasNotAreaOnly"
+                @click="toggleAreaFilter"
+                @keypress="toggleAreaFilter"
+                :src="`./img/util/filtered2.png`"
+                alt="area-img-2"
+              />
+              <!-- 全艦艇 -->
+              <img
+                v-show="!shipFilter.hasAreaOnly && !shipFilter.hasNotAreaOnly"
+                @click="toggleAreaFilter"
+                @keypress="toggleAreaFilter"
+                :src="`./img/util/filtered0.png`"
+                alt="area-img-0"
+              />
+            </div>
+            <div v-if="shipFilter.hasAreaOnly" class="area-tags">
+              <div
+                v-for="area in maxAreas"
+                :key="`area${area}`"
+                class="area-area-img mobile"
+                :class="{ selected: shipFilter.selectedArea === area || !shipFilter.selectedArea }"
+                @click="selectAreaTag(area)"
+                @keypress.enter="selectAreaTag(area)"
+              >
+                <img :src="`./img/tags/area${area}.webp`" :alt="`area-${area}`" />
+              </div>
+            </div>
+          </div>
+          <div class="d-flex mt-4 mt-sm-0">
             <div class="caption">{{ $t("Fleet.改造状態") }}</div>
             <div class="header-divider" />
           </div>
@@ -413,7 +479,16 @@
             <div class="caption">{{ $t("Fleet.ステータス") }}</div>
             <div class="header-divider" />
           </div>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.levelRange" dense thumb-label min="1" :max="maxLevel" hide-details :disabled="!isStockOnly">
+          <v-range-slider
+            class="mt-6 mt-sm-4 px-1 px-sm-3"
+            v-model="shipFilter.levelRange"
+            dense
+            thumb-label
+            min="1"
+            :max="maxLevel"
+            hide-details
+            :disabled="!isStockOnly"
+          >
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.Lv下限')"
@@ -439,7 +514,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.luckRange" dense thumb-label min="1" max="200" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.luckRange" dense thumb-label min="1" max="200" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.運下限')"
@@ -465,7 +540,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.aswRange" dense thumb-label min="0" max="150" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.aswRange" dense thumb-label min="0" max="150" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.対潜下限')"
@@ -491,7 +566,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.HPRange" dense thumb-label min="1" max="120" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.HPRange" dense thumb-label min="1" max="120" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.耐久下限')"
@@ -517,7 +592,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.fireRange" dense thumb-label min="1" max="200" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.fireRange" dense thumb-label min="1" max="200" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.火力下限')"
@@ -543,7 +618,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.torpedoRange" dense thumb-label min="0" max="150" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.torpedoRange" dense thumb-label min="0" max="150" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.雷装下限')"
@@ -569,7 +644,7 @@
               />
             </template>
           </v-range-slider>
-          <v-range-slider class="mt-4 px-3" v-model="shipFilter.nightRange" dense thumb-label min="1" max="300" hide-details>
+          <v-range-slider class="mt-6 mt-sm-4 px-1 px-sm-3" v-model="shipFilter.nightRange" dense thumb-label min="1" max="300" hide-details>
             <template v-slot:prepend>
               <v-text-field
                 :label="$t('Database.夜戦火力下限')"
@@ -598,18 +673,34 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog">
+    <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog" :fullscreen="isMobile">
       <ship-bookmark-edit :handle-close="closeBookmarkDialog" />
     </v-dialog>
   </v-card>
 </template>
 
 <style scoped>
+.list-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .ship-table-body {
   overflow-y: auto;
-  height: 64vh;
   overscroll-behavior: contain;
 }
+@media (min-width: 600px) {
+  .list-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .ship-table-body {
+    height: 64vh;
+  }
+}
+
 .ship-search-text {
   width: 150px;
 }
@@ -625,6 +716,13 @@
   padding: 0.5rem;
   font-size: 14px;
   cursor: pointer;
+  min-width: 50px;
+  text-align: center;
+}
+@media (min-width: 600px) {
+  .type-selector {
+    min-width: unset;
+  }
 }
 .type-selector:hover {
   background-color: rgba(128, 128, 128, 0.2);
@@ -847,9 +945,14 @@
 }
 /** 海域札 */
 .area-tags {
-  height: 40px;
   display: flex;
-  margin-right: 4px;
+  flex-wrap: wrap;
+}
+@media (min-width: 600px) {
+  .area-tags {
+    height: 40px;
+    margin-right: 4px;
+  }
 }
 .area-area-img {
   cursor: pointer;
@@ -867,13 +970,32 @@
 .area-area-img.selected {
   opacity: 1;
 }
+.area-area-img.mobile img {
+  width: 50px;
+  height: 68px;
+}
 
+.filter-dialog-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .filter-dialog-body {
-  padding-top: 20px;
-  padding-left: 20px;
+  padding: 10px;
   overflow-y: auto;
-  height: 70vh;
   overscroll-behavior: contain;
+}
+@media (min-width: 600px) {
+  .filter-dialog-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .filter-dialog-body {
+    padding-top: 20px;
+    padding-left: 20px;
+    height: 70vh;
+  }
 }
 .header-divider {
   margin-left: 1rem;
@@ -890,10 +1012,21 @@
   width: 100px !important;
 }
 .filter-input-container {
-  margin-left: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
+}
+@media (min-width: 600px) {
+  .filter-input-container {
+    margin-left: 12px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+.sort-menu-card {
+  min-width: 120px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 </style>
 
@@ -1004,6 +1137,7 @@ export default Vue.extend({
     batchList: [] as ViewShip[],
     isCheckedOnly: false,
     uniqueIdSearch: '',
+    isMobile: true,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1022,6 +1156,8 @@ export default Vue.extend({
         this.types.push({ text: data.text, types: data.types });
       }
     }
+
+    this.updateIsMobile();
   },
   computed: {
     isNotJapanese(): boolean {
@@ -1130,6 +1266,12 @@ export default Vue.extend({
     },
   },
   methods: {
+    updateIsMobile() {
+      this.isMobile = window.innerWidth < 600;
+      if (this.isMobile) {
+        this.changeMultiLine(true);
+      }
+    },
     changeType(index = 0) {
       this.type = index;
       this.isCheckedOnly = false;
@@ -1289,6 +1431,8 @@ export default Vue.extend({
       });
     },
     filter() {
+      this.updateIsMobile();
+
       if (!this.batchList.length && this.isCheckedOnly) {
         // 一括配備モードのゴミ掃除 => 一件も選択装備がないのに選択のみフィルタがあった場合
         this.isCheckedOnly = false;
@@ -1619,7 +1763,7 @@ export default Vue.extend({
 
               // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
               if (minAsw > 0 || maxAsw < 150) {
-                if (!master.maxAsw) {
+                if (!master.maxAsw && minAsw > 0) {
                   continue;
                 }
                 const asw = Ship.getStatusFromLevel(viewShip.level, master.maxAsw, master.minAsw) + viewShip.asw;
@@ -1710,9 +1854,6 @@ export default Vue.extend({
             }
             // 対潜値検索 => 初期値じゃない場合のみ、フィルタのための計算をする
             if (minAsw > 0 || maxAsw < 150) {
-              if (master.minAsw === 0 && master.maxAsw === 0) {
-                continue;
-              }
               if (master.maxAsw < minAsw || maxAsw < master.maxAsw) {
                 continue;
               }
@@ -1908,7 +2049,7 @@ export default Vue.extend({
     },
     bootTooltip(viewShip: ViewShip, e: MouseEvent | FocusEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledShipTooltip) {
+      if (setting.disabledShipTooltip || this.isMobile) {
         return;
       }
       window.clearTimeout(this.tooltipTimer);

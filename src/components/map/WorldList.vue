@@ -1,45 +1,51 @@
 <template>
   <div>
-    <v-card class="px-2">
-      <div class="d-flex pt-7 px-4">
-        <div class="world-select-all">
-          <v-select
-            dense
-            v-model="selectedArea"
-            hide-details
-            :items="areaItems"
-            @change="worldChanged"
-            :label="$t('Enemies.海域')"
-            :menu-props="{ maxHeight: '600px' }"
-          />
-        </div>
-        <div v-show="isEvent">
-          <v-select dense v-model="level" hide-details :items="levelItems" @change="worldChanged" :label="$t('Difficulty.難易度')" />
-        </div>
-        <div>
+    <v-card class="parent-container">
+      <div class="cell-select-header px-2 pt-6">
+        <v-select
+          dense
+          v-model="selectedArea"
+          hide-details
+          :items="areaItems"
+          @change="worldChanged"
+          :label="$t('Enemies.海域')"
+          :menu-props="{ maxHeight: '600px' }"
+        />
+        <div class="level-select">
           <v-select dense v-model="cellIndex" hide-details :items="cellItems" @change="cellChanged" :label="$t('Enemies.セル')" />
+          <v-select dense v-model="level" :disabled="!isEvent" hide-details :items="levelItems" @change="worldChanged" :label="$t('Difficulty.難易度')" />
         </div>
       </div>
       <div class="map-img-area">
-        <div>
-          <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`" width="467" height="268" />
+        <div class="background-map">
+          <img :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`" alt="map-img" />
         </div>
         <div class="dummy-map">
-          <img usemap="#click_map" class="mx-auto d-block" :src="`./img/util/map_dummy.png`" alt="dummy" />
-          <map name="click_map">
-            <area
-              class="node"
-              v-for="(item, i) in imgMapItems"
-              :key="i"
-              :title="item.node"
-              :coords="item.coords"
-              :alt="item.node"
-              shape="rect"
-              @click="cellClicked(i)"
-              @dblclick="commitFleet"
-              @keypress.enter="cellClicked(i)"
-            />
-          </map>
+          <svg xmlns="http://www.w3.org/2000/svg" width="467px" viewBox="0 0 467 268">
+            <defs>
+              <radialGradient id="yellow-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" style="stop-color: rgb(255, 160, 60); stop-opacity: 0.9" />
+                <stop offset="40%" style="stop-color: rgb(255, 160, 60); stop-opacity: 0.5" />
+                <stop offset="100%" style="stop-color: rgb(255, 160, 60); stop-opacity: 0" />
+              </radialGradient>
+            </defs>
+            <template v-for="(item, i) in imgMapItems">
+              <circle
+                v-if="item.coords.split(',') && item.coords.split(',')[0] && item.coords.split(',')[1]"
+                :cx="+item.coords.split(',')[0] + 10"
+                :cy="+item.coords.split(',')[1] + 10"
+                r="15"
+                fill="rgba(0,0,0,0)"
+                onmouseover="evt.target.setAttribute('fill', 'url(#yellow-gradient)');"
+                onmouseout="evt.target.setAttribute('fill', 'rgba(0,0,0,0)');"
+                style="cursor: pointer"
+                @click="cellClicked(i)"
+                @dblclick="commitFleet"
+                @keypress.enter="cellClicked(i)"
+                :key="i"
+              />
+            </template>
+          </svg>
         </div>
         <div class="map-expand-button" v-if="hasBigMap">
           <v-btn fab text color="grey lighten-2" @click.stop="expandMap()">
@@ -70,7 +76,7 @@
                 </v-btn>
               </div>
             </div>
-            <div v-if="isAirRaid || fleet.fullAirPower || fleet.isUnion" class="d-flex align-center flex-wrap px-2 body-2">
+            <div v-if="isAirRaid || fleet.fullAirPower || fleet.isUnion" class="d-none d-sm-flex align-center flex-wrap px-2 body-2">
               <div class="text--secondary mr-1 caption">{{ $t("Common.制空") }}</div>
               <div class="mr-1">{{ isAirRaid ? fleet.fullAirbaseAirPower : fleet.fullAirPower }}</div>
               <div v-if="fleet.existUnknownEnemy">
@@ -122,7 +128,7 @@
                       <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
                     </div>
                   </div>
-                  <div class="align-self-center flex-grow-1">
+                  <div class="d-none d-sm-block align-self-center flex-grow-1">
                     <div class="d-flex text-id">
                       <template v-if="fleet.isUnion && showHP">
                         <div>
@@ -172,7 +178,7 @@
                       <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
                     </div>
                   </div>
-                  <div class="align-self-center flex-grow-1">
+                  <div class="align-self-center flex-grow-1" :class="{ 'd-none d-sm-block ': fleet.isUnion }">
                     <div class="d-flex text-id">
                       <template v-if="fleet.isUnion && showHP">
                         <div>
@@ -188,14 +194,14 @@
                         <div class="primary--text">
                           id <span class="font-weight-bold">{{ enemy.data.id }}</span>
                         </div>
-                        <div class="ml-2" v-if="enemy.fullAirPower">
+                        <div class="ml-2 d-none d-sm-block" v-if="enemy.fullAirPower">
                           {{ $t("Common.制空") }} <span class="font-weight-bold">{{ enemy.fullAirPower }}</span>
                         </div>
-                        <div class="ml-2" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
+                        <div class="ml-2 d-none d-sm-block" v-if="enemy.fullLBAirPower !== enemy.fullAirPower">
                           {{ $t("Common.制空") }} (<span class="font-weight-bold">{{ enemy.fullLBAirPower }}</span
                           >)
                         </div>
-                        <div class="ml-1" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
+                        <div class="ml-1 d-none d-sm-block" v-if="enemy.data.isUnknown && enemy.fullLBAirPower">?</div>
                         <div class="ml-2" v-if="!fleet.isUnion">
                           <span class="text--secondary mr-1">{{ $t("Common.耐久") }}</span>
                           <span class="font-weight-bold">{{ enemy.data.hp }}</span>
@@ -229,9 +235,11 @@
             </div>
           </v-tab-item>
         </v-tabs>
-        <div v-show="!enabledCommitBtn" class="pt-10 text-center">{{ $t("Enemies.展開したい海域、セル、敵編成を選択してください。") }}</div>
+        <div v-show="!enabledCommitBtn" class="pt-10 text-center caption text-sm-body-2">
+          {{ $t("Enemies.展開したい海域、セル、敵編成を選択してください。") }}
+        </div>
       </div>
-      <v-divider />
+      <v-divider class="mt-auto" />
       <v-card-actions>
         <div v-if="selectedNodeNames.length" class="body-2">{{ $t("Enemies.選択したセル") }} {{ selectedNodeNames.join(" → ") }}</div>
         <v-spacer />
@@ -257,30 +265,86 @@
 .v-tab {
   text-transform: none;
 }
-.world-select-all {
-  max-width: 70%;
+
+.parent-container {
+  display: flex;
+  flex-direction: column;
+  padding-left: 4px;
+  padding-right: 4px;
+  height: 100vh;
 }
+.cell-select-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 18px;
+}
+.level-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (min-width: 600px) {
+  .parent-container {
+    height: unset;
+    max-height: unset;
+  }
+  .cell-select-header {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .map-img-area {
-  height: 268px;
   user-select: none;
   position: relative;
 }
+.background-map {
+  display: flex;
+  justify-content: center;
+}
+.background-map img {
+  display: block;
+  max-width: 100%;
+  max-height: 268px;
+  aspect-ratio: 467/268;
+}
+
+@media (min-width: 600px) {
+  .enemy-list-item {
+    justify-content: unset;
+  }
+}
+
 .dummy-map {
   position: absolute;
   top: 0;
-  left: calc(50% - 233px);
+  max-height: 268px;
+}
+.dummy-map svg {
+  max-width: 100%;
+  max-height: 268px;
+  aspect-ratio: 467/268;
 }
 .map-expand-button {
-  position: absolute;
-  bottom: 10px;
-  left: calc(50% - 220px);
+  display: none;
 }
-.node {
-  cursor: pointer;
+@media (min-width: 476px) {
+  .map-expand-button {
+    display: block;
+    position: absolute;
+    bottom: 10px;
+    left: calc(50% - 233px);
+  }
+  .dummy-map {
+    left: calc(50% - 233px);
+  }
 }
 
 .patterns-container {
-  min-height: 340px;
+  overflow-y: auto;
+}
+@media (min-width: 600px) {
+  .patterns-container {
+    min-height: 340px;
+  }
 }
 
 .v-tabs-bar .v-tab {
@@ -319,9 +383,14 @@
 }
 
 .item-preview {
-  display: flex;
-  align-self: center;
-  width: 180px;
+  display: none;
+}
+@media (min-width: 600px) {
+  .item-preview {
+    display: flex;
+    align-self: center;
+    width: 180px;
+  }
 }
 .item-image-area {
   position: relative;

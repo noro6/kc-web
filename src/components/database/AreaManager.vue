@@ -68,17 +68,17 @@
         </div>
         <template v-if="!minimizeArea.includes(data.area)">
           <div v-for="header in data.headers" :key="`type_${header.text}`">
-            <div class="type-divider" :class="{ 'mt-2 mb-1': capturing }" >
+            <div class="type-divider" :class="{ 'mt-2 mb-1': capturing }">
               <div class="caption">{{ $t(`SType.${header.text}`) }}</div>
               <div class="caption ml-1 text--secondary">({{ header.ships.length }})</div>
               <div class="type-divider-border" />
             </div>
-            <div class="d-flex flex-wrap">
+            <div class="ships-container" :class="{ capturing: capturing }">
               <div
                 v-for="(ship, i) in header.ships"
                 :key="`area_${data.area}_ship${i}`"
                 class="ship-container"
-                :class="{ draggable: !disabledEdit }"
+                :class="{ draggable: !disabledEdit, capturing: capturing }"
                 :draggable="!disabledEdit"
                 @dragstart="dragStart(ship, $event)"
                 @dragend="dragEnd($event)"
@@ -107,7 +107,7 @@
                     <div class="align-self-center primary--text">
                       Lv <span class="font-weight-bold">{{ ship.level }}</span>
                     </div>
-                    <div class="ml-1 align-self-center">
+                    <div class="ml-1 align-self-center d-none d-sm-block">
                       {{ $t("Common.運") }} <span class="font-weight-bold">{{ ship.luck }}</span>
                     </div>
                   </div>
@@ -119,7 +119,7 @@
         </template>
       </v-card>
     </div>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
@@ -211,12 +211,64 @@
   flex-grow: 1;
   border-top: 1px solid rgba(128, 128, 128, 0.2);
 }
+
+.ships-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.ships-container.capturing {
+  display: flex;
+  flex-wrap: wrap;
+}
+@media (min-width: 500px) {
+  .ships-container {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 600px) {
+  .ships-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
 .ship-container {
+  border: 1px solid transparent;
+  transition: 0.1s;
+  border-radius: 0.2rem;
+}
+.ship-container .ship-status-name {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+.ship-container.capturing {
   display: flex;
   border: 1px solid transparent;
   height: 32px;
   transition: 0.1s;
+  align-items: center;
   border-radius: 0.2rem;
+}
+.ship-container.capturing .ship-status-name {
+  display: block;
+  align-items: unset;
+  column-gap: unset;
+}
+@media (min-width: 600px) {
+  .ship-container {
+    display: flex;
+    border: 1px solid transparent;
+    height: 32px;
+    transition: 0.1s;
+    align-items: center;
+    border-radius: 0.2rem;
+  }
+  .ship-container .ship-status-name {
+    display: block;
+    align-items: unset;
+    column-gap: unset;
+  }
 }
 .ship-container.draggable {
   cursor: move;
@@ -224,18 +276,31 @@
 .ship-container:hover {
   background-color: rgba(128, 128, 128, 0.1);
 }
-.ship-container > div {
-  align-self: center;
-}
 .ship-img-container {
   position: relative;
 }
 .ship-img {
-  height: 30px;
+  height: 36px;
 }
 .ship-img img {
+  height: 36px;
+  width: 144px;
+}
+.capturing .ship-img {
+  height: 30px;
+}
+.capturing .ship-img img {
   height: 30px;
   width: 120px;
+}
+@media (min-width: 600px) {
+  .ship-img {
+    height: 30px;
+  }
+  .ship-img img {
+    height: 30px;
+    width: 120px;
+  }
 }
 .ship-area-banner {
   position: absolute;
@@ -253,11 +318,21 @@
   height: 25px;
   width: 25px;
   bottom: 0px;
-  right: 0px;
+  left: 119px;
 }
 .slot-ex-img img {
   height: 25px;
   width: 25px;
+}
+.capturing .slot-ex-img {
+  right: 0px;
+  left: unset;
+}
+@media (min-width: 600px) {
+  .slot-ex-img {
+    right: 0px;
+    left: unset;
+  }
 }
 .ship-status {
   display: flex;
@@ -284,6 +359,7 @@
   border: 1px solid #bbb;
   border-radius: 0.25rem;
   padding: 0.75rem;
+  grid-template-columns: 1fr 1fr;
 }
 .theme--dark .area-manager-container.captured {
   background: rgb(40, 40, 45);
@@ -363,6 +439,7 @@ export default Vue.extend({
     minimizeArea: [] as number[],
     capturing: false,
     confirmResetDialog: false,
+    isMobile: true,
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation) => {
@@ -416,6 +493,7 @@ export default Vue.extend({
   },
   methods: {
     loadShipStock() {
+      this.isMobile = window.innerWidth < 600;
       // 海域グループ初期化
       this.areaShipList = [];
       const maxArea = this.$store.state.areaCount as number;

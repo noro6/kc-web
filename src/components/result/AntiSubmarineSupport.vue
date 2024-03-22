@@ -4,8 +4,8 @@
       <div class="caption">{{ $t("Result.攻撃機選択") }}</div>
       <div class="header-divider" />
     </div>
-    <div class="select-item-container">
-      <div>
+    <div class="result-header-container">
+      <div class="select-item-container">
         <div class="selectable-ship-container">
           <div
             v-for="(ship, i) in enabledShips"
@@ -21,25 +21,25 @@
             </div>
           </div>
         </div>
-      </div>
-      <div v-if="items.length">
-        <div class="selectable-item-container">
-          <div
-            v-for="(item, i) in items"
-            :key="`item_${i}`"
-            v-ripple="{ class: 'info--text' }"
-            class="selectable-item"
-            :class="{ selected: i === selectedItemIndex, edited: i === selectedItemIndex && isManualItem }"
-            @click="clickedItem(i)"
-            @keypress.enter="clickedItem(i)"
-          >
-            <div class="caption item-slot">{{ item.fullSlot }}</div>
-            <div class="mx-1">
-              <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
+        <div v-if="items.length">
+          <div class="selectable-item-container">
+            <div
+              v-for="(item, i) in items"
+              :key="`item_${i}`"
+              v-ripple="{ class: 'info--text' }"
+              class="selectable-item"
+              :class="{ selected: i === selectedItemIndex, edited: i === selectedItemIndex && isManualItem }"
+              @click="clickedItem(i)"
+              @keypress.enter="clickedItem(i)"
+            >
+              <div class="caption item-slot">{{ item.fullSlot }}</div>
+              <div class="mx-1">
+                <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
+              </div>
+              <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
+              <div class="ml-auto caption">{{ $t("Common.対潜") }}</div>
+              <div class="item-asw caption">{{ item.data.asw }}</div>
             </div>
-            <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-            <div class="ml-auto caption">{{ $t("Common.対潜") }}</div>
-            <div class="item-asw caption">{{ item.data.asw }}</div>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@
     </div>
     <div>
       <div class="d-flex flex-wrap">
-        <v-checkbox :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()" />
+        <v-checkbox class="mr-5 ml-2" :label="$t('Result.姫級表示')" v-model="displayPrincess" dense hide-details @change="calculate()" />
         <div class="ml-auto d-flex">
           <div class="align-self-end caption">{{ $t("Result.対潜火力(確率)") }}</div>
           <div class="d-flex align-self-end">
@@ -100,7 +100,7 @@
         </div>
       </div>
       <v-divider class="mt-2" />
-      <v-simple-table fixed-header height="34vh">
+      <v-simple-table fixed-header :height="isMobile ? '50vh' : '34vh'">
         <template v-slot:default>
           <thead>
             <tr>
@@ -158,15 +158,28 @@
 <style scoped>
 .select-item-container {
   display: grid;
-  grid-template-columns: 140px 1fr 0.5fr;
-  column-gap: 0.5rem;
+  grid-template-columns: 140px 1fr;
+  column-gap: 4px;
   overflow: hidden;
-  height: 180px;
+  flex-grow: 1;
 }
-
+.selectable-item-container {
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 600px) {
+  .result-header-container {
+    display: flex;
+  }
+}
 .selectable-ship-container {
   height: 180px;
   overflow-y: auto;
+}
+.selectable-item-container {
+  display: flex;
+  flex-direction: column;
+  height: 180px;
 }
 
 .ship-selectable {
@@ -217,6 +230,12 @@
 .item-name {
   flex-grow: 1;
   width: 10px;
+  font-size: 12px;
+}
+@media (min-width: 600px) {
+  .item-name {
+    font-size: 14px;
+  }
 }
 
 .header-divider {
@@ -226,16 +245,26 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 .border-left {
-  border-left: 1px solid rgba(128, 128, 128, 0.4);
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+  margin-bottom: 8px;
+}
+@media (min-width: 600px) {
+  .border-left {
+    border-top: unset;
+    border-left: 1px solid rgba(128, 128, 128, 0.4);
+    margin-bottom: unset;
+  }
 }
 .enemy-id {
   font-size: 11px;
   height: 13px;
 }
 .v-data-table thead th {
+  white-space: nowrap;
   height: 36px !important;
 }
 .v-data-table tbody td {
+  white-space: nowrap;
   height: unset !important;
 }
 .v-data-table tbody tr.tr-half-damaged {
@@ -305,6 +334,7 @@ export default Vue.extend({
       counter: (value: number) => (value <= 999 && value >= 0) || '0 ~ 999までが有効です。',
       counter2: (value: number) => (value >= -99 && value <= 0) || '0 ~ -99までが有効です。',
     },
+    isMobile: true,
   }),
   mounted() {
     const enemies = this.$store.getters.getEnemies as EnemyMaster[];
@@ -390,6 +420,7 @@ export default Vue.extend({
       this.calculate();
     },
     calculate() {
+      this.isMobile = window.innerWidth < 600;
       // 検証
       if (!this.asw || this.asw < 0) {
         this.asw = 0;

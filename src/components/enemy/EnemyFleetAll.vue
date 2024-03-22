@@ -26,21 +26,26 @@
     <v-divider />
     <div id="enemies-container" :class="{ captured: capturing }">
       <div class="d-flex flex-wrap align-center mx-2 mb-2" v-if="!isDefense">
-        <div class="mt-4 mr-3" v-if="!capturing">
-          <v-btn :color="batchInputButtonColor" @click.stop="showWorldListContinuous">{{ $t("Enemies.海域から一括入力") }}</v-btn>
-        </div>
-        <div class="mt-4 mr-4" v-if="!capturing" v-show="battleInfo.battleCount > 1 && existsBattleAirbase">
+        <div class="top-buttons mt-4 mr-sm-3" v-if="!capturing">
+          <v-btn :color="batchInputButtonColor" @click.stop="showWorldListContinuous" class="text-wrap">{{ $t("Enemies.海域から一括入力") }}</v-btn>
           <v-tooltip bottom color="red" :disabled="!alertAirbaseTarget">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn :outlined="!alertAirbaseTarget" :color="airbaseTargetButtonColor" @click.stop="targetDialog = true" v-bind="attrs" v-on="on">
+              <v-btn
+                :outlined="!alertAirbaseTarget"
+                :disabled="battleInfo.battleCount <= 1 && !existsBattleAirbase"
+                :color="airbaseTargetButtonColor"
+                @click.stop="targetDialog = true"
+                v-bind="attrs"
+                v-on="on"
+              >
                 {{ $t("Airbase.基地派遣先設定") }}
               </v-btn>
             </template>
             <span>{{ $t("Enemies.戦闘回数が変更されている可能性があります。派遣先を確認してください。") }}</span>
           </v-tooltip>
         </div>
-        <div class="d-flex align-center mt-4">
-          <div class="battle-count-select mr-4" v-if="!capturing">
+        <div class="d-flex flex-wrap align-center mt-4">
+          <div class="battle-count-select mr-4 mb-2 mb-sm-0" v-if="!capturing">
             <v-select dense hide-details v-model="battleInfo.battleCount" :items="items" :label="$t('Enemies.戦闘回数')" @change="setInfo()" />
           </div>
           <div class="body-2" v-if="nodeString" :class="{ 'mb-3 ml-2': capturing }">
@@ -72,7 +77,7 @@
           </v-chip>
         </div>
       </div>
-      <div v-if="!isDefense" class="pl-2 pb-1">
+      <div v-if="!isDefense" class="px-1 px-sm-2 pb-1">
         <draggable v-model="battleInfo.fleets" handle=".battle-title" animation="150" @end="setInfo()" class="enemy-fleet-items">
           <enemy-fleet-component
             v-for="(i, index) in battleInfo.battleCount"
@@ -87,7 +92,7 @@
           ></enemy-fleet-component>
         </draggable>
       </div>
-      <div class="enemy-fleet-items pl-2 pb-1" v-else>
+      <div class="enemy-fleet-items px-1 px-sm-2 pb-1" v-else>
         <enemy-fleet-component
           v-model="battleInfo.airRaidFleet"
           :index="0"
@@ -99,13 +104,13 @@
         ></enemy-fleet-component>
       </div>
     </div>
-    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
+    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200" :fullscreen="isMobile">
       <enemy-list :handle-decide-enemy="putEnemy" :handleClose="closeEnemyList" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" :width="itemDialogWidth">
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" :fullscreen="isMobile">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
-    <v-dialog v-model="worldListDialog" transition="scroll-x-transition" width="600" @input="toggleWorldList">
+    <v-dialog v-model="worldListDialog" transition="scroll-x-transition" width="600" @input="toggleWorldList" :fullscreen="isMobile">
       <world-list ref="worldList" :handle-set-enemy="setEnemyFleet" :handleClose="closeWorldList" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
@@ -115,6 +120,18 @@
 </template>
 
 <style scoped>
+.top-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6px;
+}
+.top-buttons >>> .v-btn {
+  display: block !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word;
+}
+
 .battle-count-select {
   align-self: center;
   width: 100px;
@@ -134,10 +151,24 @@
 }
 
 .enemy-fleet-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 4px;
+  row-gap: 4px;
+}
+.captured .enemy-fleet-items {
   display: flex;
   flex-wrap: wrap;
   column-gap: 6px;
   row-gap: 6px;
+}
+@media (min-width: 600px) {
+  .enemy-fleet-items {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 6px;
+    row-gap: 6px;
+  }
 }
 </style>
 
@@ -192,6 +223,7 @@ export default Vue.extend({
     enemyListDialog: false,
     itemListDialog: false,
     worldListDialog: false,
+    isMobile: true,
     targetDialog: false,
     dialogTarget: [-1, -1],
     itemDialogTarget: [-1, -1, -1],
@@ -287,15 +319,18 @@ export default Vue.extend({
     async showItemList(fleetIndex: number, enemyIndex: number, slotIndex: number) {
       this.itemDialogTarget = [fleetIndex, enemyIndex, slotIndex];
       const enemy = this.battleInfo.fleets[fleetIndex].enemies[enemyIndex];
+      this.isMobile = window.innerWidth < 600;
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(enemy, slotIndex);
     },
     showEnemyList(battle: number, index: number) {
       this.dialogTarget = [battle, index];
+      this.isMobile = window.innerWidth < 600;
       this.enemyListDialog = true;
     },
     async showWorldListContinuous() {
       this.fleetStock = [];
+      this.isMobile = window.innerWidth < 600;
       await (this.worldListDialog = true);
       const ref = this.$refs.worldList as InstanceType<typeof WorldList>;
       ref.continuousMode = true;
@@ -305,6 +340,7 @@ export default Vue.extend({
     async showWorldList(index: number) {
       this.fleetStock = [];
       this.dialogTarget = [index, 0];
+      this.isMobile = window.innerWidth < 600;
       await (this.worldListDialog = true);
       const ref = this.$refs.worldList as InstanceType<typeof WorldList>;
       ref.continuousMode = false;

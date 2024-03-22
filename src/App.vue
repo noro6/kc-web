@@ -1,11 +1,12 @@
 <template>
   <v-app v-resize="onResize">
-    <v-navigation-drawer v-model="drawer" app dark width="410" :permanent="drawerFixed" :temporary="!drawerFixed">
+    <v-navigation-drawer v-model="drawer" app dark :width="isMobile ? '100%' : '410px'" :permanent="drawerFixed" :temporary="!drawerFixed">
       <save-data-view
         :root-data="saveData"
         :handle-inform="inform"
         :enabled-fix-drawer="enabledFixDrawer"
         :fixed-drawer="setting.fixedDrawer"
+        :is-mobile="isMobile"
         :handle-close="() => (drawer = false)"
       />
     </v-navigation-drawer>
@@ -14,18 +15,18 @@
       <v-btn icon @click="pushPage('/')" :disabled="$route.path === '/'">
         <v-icon>mdi-home</v-icon>
       </v-btn>
-      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData">
+      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="saveCurrentData" v-if="!isMobile">
         <v-icon small>mdi-content-save</v-icon>{{ $t("Common.保存") }}
       </v-btn>
-      <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData">
+      <v-btn class="header-btn" :disabled="!isAirCalcPage || mainSaveData.isUnsaved" text @click.stop="handleSaveAndRenameCurrentData" v-if="!isMobile">
         <v-icon small>mdi-content-duplicate</v-icon>{{ $t("Common.別名保存") }}
       </v-btn>
-      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare">
+      <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare" v-if="!isMobile">
         <v-icon small>mdi-share-variant</v-icon>{{ $t("Common.共有") }}
       </v-btn>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked">
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked" v-if="!isMobile">
             <v-icon small>mdi-undo-variant</v-icon>
           </v-btn>
         </template>
@@ -33,7 +34,7 @@
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
-          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledRedo" v-bind="attrs" v-on="on" @click="redoClicked">
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledRedo" v-bind="attrs" v-on="on" @click="redoClicked" v-if="!isMobile">
             <v-icon small>mdi-redo-variant</v-icon>
           </v-btn>
         </template>
@@ -81,14 +82,14 @@
         </template>
         <span>{{ $t("Common.サイト設定") }}</span>
       </v-tooltip>
-      <template v-slot:extension>
+      <template v-slot:extension v-if="!isMobile">
         <save-data-tab :save-data="saveData" ref="saveDataTab" />
       </template>
     </v-app-bar>
     <v-main>
-      <div class="event-banner mb-3" v-if="false">
-        <v-img class="banner-normal" :src="`./img/util/bn_230825.png`" />
-        <v-img class="banner-on" :src="`./img/util/bn_230825_on.png`" />
+      <div class="event-banner mb-3" v-if="true">
+        <v-img class="banner-normal" :src="`./img/util/bn_240229.png`" />
+        <v-img class="banner-on" :src="`./img/util/bn_240229_on.png`" />
       </div>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
         <v-alert border="left" class="mb-2" outlined type="info" :class="{ 'info-container': !isManagerPage }" dense>
@@ -122,8 +123,13 @@
     </v-main>
     <v-footer app class="d-flex justify-center">
       <v-fab-transition>
-        <v-btn color="grey darken-3" class="side-btn" v-show="isAirCalcPage" fab small dark @click="toggleMenuButton()">
+        <v-btn color="grey darken-3" class="side-btn" v-show="isAirCalcPage && !isMobile" fab small dark @click="toggleMenuButton()">
           <v-icon small>{{ showSideBtn ? "mdi-close" : "mdi-menu" }}</v-icon>
+        </v-btn>
+      </v-fab-transition>
+      <v-fab-transition v-if="isAirCalcPage && isMobile">
+        <v-btn color="success" class="side-btn" dark fab small @click="saveCurrentData()">
+          <v-icon small>mdi-content-save</v-icon>
         </v-btn>
       </v-fab-transition>
       <v-fab-transition>
@@ -221,13 +227,28 @@
         </template>
         <span>{{ $t("Common.保存") }}</span>
       </v-tooltip>
+      <div v-if="isMobile && !isManagerPage && !isExtraPage" class="operation-buttons">
+        <v-btn icon :disabled="!enabledUndo" @click="undoClicked" dark>
+          <v-icon>mdi-undo-variant</v-icon>
+        </v-btn>
+        <v-btn icon :disabled="!enabledRedo" @click="redoClicked" dark>
+          <v-icon>mdi-redo-variant</v-icon>
+        </v-btn>
+        <v-btn @click="mobileTabDialog = true" text small fab plain dark>
+          <div class="tab-button-view">{{ tabCount }}</div>
+        </v-btn>
+        <v-btn icon :disabled="!isAirCalcPage || mainSaveData.isUnsaved" @click.stop="handleSaveAndRenameCurrentData" dark>
+          <v-icon>mdi-content-save-plus</v-icon>
+        </v-btn>
+        <v-btn icon @click.stop="clickedShare" dark><v-icon>mdi-share-variant</v-icon></v-btn>
+      </div>
       <span class="d-md-none text-caption">
         <template v-if="isJapanese">
           <span class="mr-2">要望・バグ報告:</span>
           <a href="https://odaibako.net/u/noro_006" class="blue--text text--accent-1" target="_blank">お題箱</a>
-          <span class="ml-3 mr-2">連絡先:</span>
+          <span class="ml-2 mr-2">連絡先:</span>
           <a href="https://twitter.com/noro_006" class="blue--text text--accent-1" target="_blank">Twitter</a>
-          <span class="ml-3 mr-2">カンパ:</span>
+          <span class="ml-2 mr-2">カンパ:</span>
           <a href="https://www.amazon.jp/hz/wishlist/ls/1OX9QVZF828GD?ref_=wl_share" class="blue--text text--accent-1" target="_blank">こちら</a>
         </template>
         <template v-else>
@@ -250,207 +271,226 @@
         </template>
       </span>
     </v-footer>
-    <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog">
+    <v-dialog v-model="configDialog" width="1000" @input="toggleConfigDialog" :fullscreen="isMobile">
       <v-card>
-        <div class="site-setting-container px-5 pb-3">
-          <div>
-            <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.言語") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 mt-2">
-              <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
-              <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
-            </div>
-            <div class="ml-3 mt-2">
-              <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :disabled="isJapanese" :label="$t('Setting.艦娘や装備名は翻訳しない')" />
-            </div>
+        <div class="site-setting-container">
+          <div class="d-flex mx-1 pl-2 py-1 align-center" v-if="isMobile">
+            <div>{{ $t("Common.サイト設定") }}</div>
+            <v-btn class="ml-auto" icon @click="closeConfig">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
           </div>
-          <div>
-            <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.装備表示UI調整") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 mt-2 d-flex">
-              <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
-                {{ $t("Setting.枠線") }}
-              </v-btn>
-              <v-btn :disabled="!hasItemUIBorder" @click="toggleItemUIIsBold()" class="mr-2" :class="{ primary: isItemUIBold, secondary: !isItemUIBold }">
-                {{ $t("Setting.太枠") }}
-              </v-btn>
-              <v-btn :disabled="!hasItemUIBorder" @click="toggleItemUIIsRadius()" class="mr-2" :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }">
-                {{ $t("Setting.角丸") }}
-              </v-btn>
-              <div class="align-self-center flex-grow-1">
-                <v-divider v-if="!hasItemUIBorder" />
-                <div class="item-input my-0 type-6 d-flex align-center">
-                  <div class="body-2 ml-2">24</div>
-                  <div class="mx-1">
-                    <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
-                  </div>
-                  <div class="body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : "さんぷる" }}</div>
-                  <div class="item-remodel">
-                    <v-icon small color="teal accent-4">mdi-star</v-icon>
-                    <span class="teal--text text--accent-4">10</span>
-                  </div>
-                  <div class="ml-1">
-                    <v-tooltip top color="black" :disabled="!setting.showDeathRateIndicator">
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-hover v-slot="{ hover }">
-                          <v-btn icon x-small v-bind="attrs" v-on="on">
-                            <v-icon small v-if="hover">mdi-close</v-icon>
-                            <template v-else-if="setting.showDeathRateIndicator">
-                              <v-icon x-small v-if="setting.isGraphicModeDeathRateIndicator" color="orange">mdi-triangle</v-icon>
-                              <v-icon small v-else color="orange">mdi-record</v-icon>
-                            </template>
-                          </v-btn>
-                        </v-hover>
-                      </template>
-                      <span>{{ $t("Result.全滅率") }} xx %</span>
-                    </v-tooltip>
-                  </div>
+          <v-divider v-if="isMobile"></v-divider>
+          <div class="site-setting-bodies">
+            <div>
+              <div class="site-setting-header first-item">
+                <div class="body-2">{{ $t("Setting.言語") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <div>
+                  <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
+                  <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
+                </div>
+                <div>
+                  <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :disabled="isJapanese" :label="$t('Setting.艦娘や装備名は翻訳しない')" />
                 </div>
               </div>
             </div>
-            <div class="ml-3 mt-2 d-flex justify-content-around">
-              <v-checkbox v-model="setting.showDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーター表示')" />
-              <v-checkbox
-                v-if="setting.showDeathRateIndicator"
-                class="ml-3"
-                v-model="setting.isGraphicModeDeathRateIndicator"
-                dense
-                hide-details
-                :label="$t('Setting.図形で区別')"
-              />
-            </div>
-          </div>
-          <div class="pt-5">
-            <div class="d-flex">
-              <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 mt-2">
-              <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
-                {{ $t("Setting.通常") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }" :small="!isJapanese">
-                {{ $t("Setting.空色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }" :small="!isJapanese">
-                {{ $t("Setting.桜色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }" :small="!isJapanese">
-                {{ $t("Setting.翠色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }" :small="!isJapanese">
-                {{ $t("Setting.暗色") }}
-              </v-btn>
-              <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }" :small="!isJapanese">
-                {{ $t("Setting.深海") }}
-              </v-btn>
-            </div>
-            <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 d-flex">
-              <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')" />
-            </div>
-            <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.編成データのオートセーブ") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 d-flex">
-              <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
-            </div>
-            <div class="d-flex mt-5">
-              <div class="body-2">{{ $t("Setting.画像保存形式") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3">
-              <v-radio-group v-model="setting.imageType" row hide-details dense class="mt-1 mb-2">
-                <v-radio label="png" :value="'png'" />
-                <v-radio label="jpg" :value="'jpg'" />
-              </v-radio-group>
-            </div>
-          </div>
-          <div class="pt-5">
-            <div class="d-flex">
-              <div class="body-2">{{ $t("Setting.装備選択時のデフォルト熟練度") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3">
-              <div class="initial-level-items">
-                <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
-                <setting-initial-level :index="-1" :setting="setting" />
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.装備表示UI調整") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <div class="d-flex flex-wrap align-center">
+                  <v-btn @click="toggleItemUIHasBorder()" class="mr-2" :class="{ primary: hasItemUIBorder, secondary: !hasItemUIBorder }">
+                    {{ $t("Setting.枠線") }}
+                  </v-btn>
+                  <v-btn :disabled="!hasItemUIBorder" @click="toggleItemUIIsBold()" class="mr-2" :class="{ primary: isItemUIBold, secondary: !isItemUIBold }">
+                    {{ $t("Setting.太枠") }}
+                  </v-btn>
+                  <v-btn
+                    :disabled="!hasItemUIBorder"
+                    @click="toggleItemUIIsRadius()"
+                    class="mr-2"
+                    :class="{ primary: isItemUIRadius, secondary: !isItemUIRadius }"
+                  >
+                    {{ $t("Setting.角丸") }}
+                  </v-btn>
+                  <div class="flex-grow-1 mt-3 mt-sm-0">
+                    <v-divider v-if="!hasItemUIBorder" />
+                    <div class="item-input my-0 type-6 d-flex align-center">
+                      <div class="body-2 ml-2">24</div>
+                      <div class="mx-1">
+                        <v-img :src="`./img/type/icon6.png`" height="30" width="30" />
+                      </div>
+                      <div class="body-2 flex-grow-1 text-truncate">{{ needTrans ? $t("Setting.sample") : "さんぷる" }}</div>
+                      <div class="item-remodel">
+                        <v-icon small color="teal accent-4">mdi-star</v-icon>
+                        <span class="teal--text text--accent-4">10</span>
+                      </div>
+                      <div class="ml-1">
+                        <v-tooltip top color="black" :disabled="!setting.showDeathRateIndicator">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-hover v-slot="{ hover }">
+                              <v-btn icon x-small v-bind="attrs" v-on="on">
+                                <v-icon small v-if="hover">mdi-close</v-icon>
+                                <template v-else-if="setting.showDeathRateIndicator">
+                                  <v-icon x-small v-if="setting.isGraphicModeDeathRateIndicator" color="orange">mdi-triangle</v-icon>
+                                  <v-icon small v-else color="orange">mdi-record</v-icon>
+                                </template>
+                              </v-btn>
+                            </v-hover>
+                          </template>
+                          <span>{{ $t("Result.全滅率") }} xx %</span>
+                        </v-tooltip>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-around">
+                  <v-checkbox v-model="setting.showDeathRateIndicator" dense hide-details :label="$t('Setting.全滅率インジケーター表示')" />
+                  <v-checkbox
+                    v-if="setting.showDeathRateIndicator"
+                    class="ml-3"
+                    v-model="setting.isGraphicModeDeathRateIndicator"
+                    dense
+                    hide-details
+                    :label="$t('Setting.図形で区別')"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div>
-            <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.マウスホバー時の詳細情報表示") }}</div>
-              <div class="header-divider" />
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.サイトカラーテーマ") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-btn @click="changeSiteTheme('light')" class="mr-2 mb-1" :class="{ primary: isLight, secondary: !isLight }" :small="!isJapanese">
+                  {{ $t("Setting.通常") }}
+                </v-btn>
+                <v-btn @click="changeSiteTheme('ice')" class="mr-2 mb-1" :class="{ primary: isIce, secondary: !isIce }" :small="!isJapanese">
+                  {{ $t("Setting.空色") }}
+                </v-btn>
+                <v-btn @click="changeSiteTheme('pink')" class="mr-2 mb-1" :class="{ primary: isPink, secondary: !isPink }" :small="!isJapanese">
+                  {{ $t("Setting.桜色") }}
+                </v-btn>
+                <v-btn @click="changeSiteTheme('green')" class="mr-2 mb-1" :class="{ primary: isGreen, secondary: !isGreen }" :small="!isJapanese">
+                  {{ $t("Setting.翠色") }}
+                </v-btn>
+                <v-btn @click="changeSiteTheme('dark')" class="mr-2 mb-1" :class="{ primary: isDark, secondary: !isDark }" :small="!isJapanese">
+                  {{ $t("Setting.暗色") }}
+                </v-btn>
+                <v-btn @click="changeSiteTheme('deep-sea')" class="mr-2 mb-1" :class="{ primary: isDeepSea, secondary: !isDeepSea }" :small="!isJapanese">
+                  {{ $t("Setting.深海") }}
+                </v-btn>
+              </div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.未保存の編成タブを閉じる際の挙動") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-checkbox v-model="setting.confirmCloseTab" hide-details dense :label="$t('Setting.確認ダイアログを表示する')" />
+              </div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.編成データのオートセーブ") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-checkbox v-model="setting.enabledAutoSave" hide-details dense :label="$t('Setting.オートセーブを有効にする')" />
+              </div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.画像保存形式") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-radio-group v-model="setting.imageType" row hide-details dense class="mt-1 mb-2">
+                  <v-radio label="png" :value="'png'" />
+                  <v-radio label="jpg" :value="'jpg'" />
+                </v-radio-group>
+              </div>
             </div>
-            <div class="ml-3 mt-2 d-flex align-center">
-              <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.無効(装備)')" />
-              <v-checkbox class="ml-3" v-model="setting.disabledShipTooltip" dense :label="$t('Setting.無効(艦娘)')" />
-              <v-text-field
-                class="ml-3"
-                type="number"
-                :label="$t('Setting.表示までのディレイ')"
-                max="10000"
-                min="100"
-                suffix="ms"
-                v-model.number="setting.popUpCount"
-                :rules="[rules.popUpRange]"
-                :disabled="setting.disabledItemTooltip && setting.disabledShipTooltip"
-              />
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.装備選択時のデフォルト熟練度") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <div class="initial-level-items">
+                  <setting-initial-level v-for="(item, i) in setting.planeInitialLevels" :key="i" :index="i" :setting="setting" />
+                  <setting-initial-level :index="-1" :setting="setting" />
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.デッキビルダー形式データ読込設定") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 mt-2 d-flex">
-              <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.常に全艦隊データを読み込む')" />
-            </div>
-          </div>
-          <div>
-            <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.制空計算時のシミュレーション回数") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3">
-              <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
-                <div>{{ $t("Setting.数値が大きいほど計算の精度が上がりますが、") }}</div>
-                <div>{{ $t("Setting.計算時のパフォーマンスが低下します。") }}</div>
-              </v-alert>
-              <div class="d-flex">
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.マウスホバー時の詳細情報表示") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body d-sm-flex align-center">
+                <div class="d-flex">
+                  <v-checkbox v-model="setting.disabledItemTooltip" dense :label="$t('Setting.無効(装備)')" />
+                  <v-checkbox class="mx-3" v-model="setting.disabledShipTooltip" dense :label="$t('Setting.無効(艦娘)')" />
+                </div>
                 <v-text-field
-                  class="mt-0 pt-0 text-right"
                   type="number"
-                  max="100000"
+                  :label="$t('Setting.表示までのディレイ')"
+                  max="10000"
                   min="100"
-                  :suffix="$t('Setting.回')"
-                  v-model.number="setting.simulationCount"
-                  :rules="[rules.simulationCountRange]"
+                  suffix="ms"
+                  v-model.number="setting.popUpCount"
+                  :rules="[rules.popUpRange]"
+                  :disabled="setting.disabledItemTooltip && setting.disabledShipTooltip"
                 />
               </div>
             </div>
-          </div>
-          <div>
-            <div class="d-flex mt-3">
-              <div class="body-2">{{ $t("Setting.編成データのバックアップ") }}</div>
-              <div class="header-divider" />
-            </div>
-            <div class="ml-3 mt-2">
-              <div class="d-flex">
-                <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
-                <div class="caption align-self-center ml-4">… {{ $t("Setting.保存した編成データのバックアップファイルを作成します") }}</div>
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.デッキビルダー形式データ読込設定") }}</div>
+                <div class="header-divider" />
               </div>
-              <div class="mt-4">
-                <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" />
+              <div class="site-setting-body">
+                <v-checkbox v-model="setting.importAllDeck" dense :label="$t('Setting.常に全艦隊データを読み込む')" />
+              </div>
+            </div>
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.制空計算時のシミュレーション回数") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-alert class="mt-3 caption" border="left" outlined type="warning" dense>
+                  <div>{{ $t("Setting.数値が大きいほど計算の精度が上がりますが、") }}</div>
+                  <div>{{ $t("Setting.計算時のパフォーマンスが低下します。") }}</div>
+                </v-alert>
+                <div class="d-flex">
+                  <v-text-field
+                    class="mt-0 pt-0 text-right"
+                    type="number"
+                    max="100000"
+                    min="100"
+                    :suffix="$t('Setting.回')"
+                    v-model.number="setting.simulationCount"
+                    :rules="[rules.simulationCountRange]"
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.編成データのバックアップ") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <div class="d-flex">
+                  <v-btn color="primary" @click="downloadBackupFile()">{{ $t("Common.作成") }}</v-btn>
+                  <div class="caption align-self-center ml-4">… {{ $t("Setting.保存した編成データのバックアップファイルを作成します") }}</div>
+                </div>
+                <div class="mt-4">
+                  <v-file-input v-model="fileValue" :label="$t('Setting.復元するバックアップファイルを選択')" @change="handleFileSelect" />
+                </div>
               </div>
             </div>
           </div>
@@ -486,7 +526,7 @@
         <v-divider />
         <v-tabs-items v-model="saveDialogTab" :touchless="true">
           <v-tab-item value="save">
-            <div class="mx-4 mt-4">
+            <div class="mx-2 mx-sm-4 mt-4">
               <v-text-field
                 v-model="editedName"
                 dense
@@ -504,7 +544,7 @@
                 <div class="align-self-center">
                   <v-icon x-large :color="selectedColor">{{ isDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
                 </div>
-                <div class="ml-1 flex-grow-1 d-flex justify-space-around">
+                <div class="ml-1 color-select-items">
                   <div v-for="color in fileColors" :key="`color${color}`" class="my-1">
                     <v-btn fab light x-small :color="color" @click="selectedColor = color">
                       <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
@@ -613,6 +653,24 @@
     <v-dialog v-model="shipStockDiffDialog" transition="scroll-x-transition" width="800">
       <ship-import-diff v-if="shipStockDiffDialog" :handle-close="() => (shipStockDiffDialog = false)" />
     </v-dialog>
+    <v-dialog v-model="mobileTabDialog" fullscreen>
+      <v-card>
+        <div class="d-flex align-center pt-2 px-2">
+          <v-btn icon @click="pushPage('/')" :disabled="$route.path === '/'">
+            <v-icon>mdi-home</v-icon>
+          </v-btn>
+          <v-btn :disabled="!isAirCalcPage" icon @click.stop="saveCurrentData">
+            <v-icon>mdi-content-save</v-icon>
+          </v-btn>
+          <v-btn class="ml-auto" icon @click="mobileTabDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <div v-if="mobileTabDialog" class="pa-2">
+          <save-data-mobile-tab :save-data="saveData" :handle-close="() => (mobileTabDialog = false)" ref="saveDataTab" />
+        </div>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -624,6 +682,7 @@ import colors from 'vuetify/lib/util/colors';
 import Convert from '@/classes/convert';
 import SaveDataView from '@/components/saveData/SaveDataView.vue';
 import SaveDataTab from '@/components/saveData/SaveDataTab.vue';
+import SaveDataMobileTab from '@/components/saveData/SaveDataMobileTab.vue';
 import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
@@ -651,6 +710,7 @@ export default Vue.extend({
     ShipImportDiff,
     SettingInitialLevel,
     UploadSaveData,
+    SaveDataMobileTab,
   },
   data: () => ({
     saveData: new SaveData(),
@@ -698,6 +758,8 @@ export default Vue.extend({
     areaOverwriteConfirmDialog: false,
     readyImportShipStock: [] as ShipStock[],
     shipStockDiffDialog: false,
+    isMobile: true,
+    mobileTabDialog: false,
   }),
   computed: {
     getCompletedAll() {
@@ -758,14 +820,18 @@ export default Vue.extend({
       return this.setting.itemUI.radius;
     },
     showSideBtn(): boolean {
-      return this.isAirCalcPage && this.setting.visibleAirCalcMenuButton;
+      return this.isAirCalcPage && this.setting.visibleAirCalcMenuButton && !this.isMobile;
     },
     drawerFixed(): boolean {
       return this.enabledFixDrawer && this.setting.fixedDrawer;
     },
     routerViewClass(): string {
-      if (this.setting.visibleAirCalcMenuButton) return 'px-12';
-      return 'px-2 px-md-4';
+      if (this.isMobile) {
+        return 'px-2 pt-6';
+      }
+
+      if (this.setting.visibleAirCalcMenuButton && this.isAirCalcPage) return 'pl-2 pl-sm-4 pr-12';
+      return 'px-4';
     },
     selectedAnyFleet(): boolean {
       return this.selectableFleets.some((v) => v.selected);
@@ -781,6 +847,12 @@ export default Vue.extend({
     },
     getShipStockDiff(): ShipStockDiff {
       return this.$store.getters.getShipStockDiff;
+    },
+    tabCount(): number {
+      if (!this.isMobile) {
+        return 0;
+      }
+      return this.saveData.fetchActiveData().length;
     },
   },
   watch: {
@@ -863,12 +935,19 @@ export default Vue.extend({
 
     document.addEventListener('keyup', this.keyupHandler);
     document.addEventListener('keydown', this.keydownHandler);
+    this.updateIsMobile();
   },
   methods: {
+    updateIsMobile() {
+      this.isMobile = window.innerWidth < 600;
+    },
     textFieldFocused(focusEvent: FocusEvent) {
       if (focusEvent) (focusEvent.target as HTMLInputElement).select();
     },
     pushPage(path: string) {
+      if (this.mobileTabDialog) {
+        this.mobileTabDialog = false;
+      }
       if (this.$route.path !== path) this.$router.push({ path });
     },
     showSiteSetting() {
@@ -1401,6 +1480,10 @@ export default Vue.extend({
         document.body.classList.add('item-ui-radius');
       }
     },
+    closeConfig() {
+      this.configDialog = false;
+      this.toggleConfigDialog();
+    },
     toggleConfigDialog() {
       if (!this.configDialog) {
         // 設定ダイアログを閉じると同時に保存
@@ -1513,6 +1596,7 @@ export default Vue.extend({
       }
     },
     onResize() {
+      this.updateIsMobile();
       if (this.enabledFixDrawer && window.innerWidth < 1480) {
         this.enabledFixDrawer = false;
       } else if (!this.enabledFixDrawer && window.innerWidth >= 1480) {
@@ -1751,24 +1835,58 @@ export default Vue.extend({
 }
 
 .site-setting-container {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.site-setting-bodies {
+  padding: 8px;
+  overflow-y: auto;
+}
+.site-setting-header {
+  margin-top: 40px;
+  display: flex;
+}
+.site-setting-header.first-item {
+  margin-top: 0px;
+}
+.site-setting-body {
+  padding-top: 10px;
+  padding-left: 10px;
+}
+@media (min-width: 600px) {
+  .site-setting-container {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .site-setting-header {
+    margin-top: 20px;
+  }
+  .site-setting-body {
+    padding-top: unset;
+  }
 }
 @media (min-width: 900px) {
-  .site-setting-container {
+  .site-setting-bodies {
+    display: grid;
+    padding: 20px 20px 5px 20px;
     grid-template-columns: 1fr 1fr;
   }
-  .site-setting-container > div:nth-child(2n) {
+  .site-setting-bodies > div:nth-child(2n) {
     margin-left: 1rem;
     padding-left: 1rem;
     border-left: 1px solid rgba(128, 128, 128, 0.6);
+  }
+  .site-setting-header.first-item {
+    margin-top: 20px;
   }
 }
 
 .event-banner {
   position: relative;
   max-width: 760px;
-  height: 100px;
+  aspect-ratio: 760/100;
   margin: 0 auto;
 }
 .event-banner .banner-on,
@@ -1818,6 +1936,40 @@ export default Vue.extend({
 }
 .item-remodel span {
   font-size: 0.9em;
+}
+
+/** スマホ用 タブ表示ボタン */
+.tab-button-view {
+  height: 22px;
+  width: 22px;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+/** スマホ用 下部ボタン群 */
+.operation-buttons {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #888;
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+}
+
+.color-select-items {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+@media (min-width: 600px) {
+  .color-select-items {
+    display: grid;
+    flex-wrap: wrap;
+  }
 }
 </style>
 

@@ -73,59 +73,61 @@
             </div>
           </div>
         </div>
-        <div class="border-left ml-2 px-4 auto-slot-container" v-if="!selectedShip.isEmpty">
-          <div class="d-flex align-center">
-            <div class="body-2">{{ $t("Fleet.搭載数") }}</div>
-            <div class="ml-2 pb-1">
-              <v-tooltip bottom color="black">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
-                </template>
-                <div class="caption">{{ $t("Fleet.最終戦闘までの撃墜数に応じて、搭載数を自動設定します。") }}</div>
-              </v-tooltip>
+        <div class="d-flex ml-sm-2">
+          <div class="border-left px-sm-4 auto-slot-container" v-if="!selectedShip.isEmpty">
+            <div class="d-flex align-center">
+              <div class="body-2">{{ $t("Fleet.搭載数") }}</div>
+              <div class="ml-2 pb-1">
+                <v-tooltip bottom color="black">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                  </template>
+                  <div class="caption">{{ $t("Fleet.最終戦闘までの撃墜数に応じて、搭載数を自動設定します。") }}</div>
+                </v-tooltip>
+              </div>
+            </div>
+            <div>
+              <v-btn color="success" @click="bulkSetSlots(fullSlots)" block>{{ $t("Fleet.満タン") }}</v-btn>
+            </div>
+            <div>
+              <v-btn color="primary" @click="bulkSetSlots(maxSlots)" block>{{ $t("Fleet.最大") }}</v-btn>
+            </div>
+            <div>
+              <v-btn color="warning" @click="bulkSetSlots(avgSlots)" block>{{ $t("Fleet.平均") }}</v-btn>
+            </div>
+            <div>
+              <v-btn color="error" @click="bulkSetSlots(minSlots)" block>{{ $t("Fleet.最小") }}</v-btn>
             </div>
           </div>
-          <div>
-            <v-btn color="success" @click="bulkSetSlots(fullSlots)" block>{{ $t("Fleet.満タン") }}</v-btn>
+          <div class="border-left pl-2 input-container" v-if="!selectedShip.isEmpty">
+            <v-select
+              class="mt-3"
+              outlined
+              :label="$t('Result.夜襲CI')"
+              :items="specials"
+              v-model="special"
+              hide-details
+              :item-text="(item) => `${item.text ? $t(`Fleet.${item.text}`) : ''} ${item.rate && item.rate[0] ? `( ${Math.floor(item.rate[0] * 100)}% )` : ''}`"
+              dense
+              return-object
+              @change="calculate()"
+            />
+            <v-text-field
+              class="mt-3"
+              type="number"
+              v-model.number="manualAfterCapBonus"
+              min="0"
+              max="9999"
+              :label="$t('Result.特効')"
+              hide-details
+              outlined
+              dense
+              step="0.01"
+              @input="calculate()"
+            />
+            <v-select class="mt-3" :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculate()" />
+            <v-checkbox class="mt-3" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()" />
           </div>
-          <div>
-            <v-btn color="primary" @click="bulkSetSlots(maxSlots)" block>{{ $t("Fleet.最大") }}</v-btn>
-          </div>
-          <div>
-            <v-btn color="warning" @click="bulkSetSlots(avgSlots)" block>{{ $t("Fleet.平均") }}</v-btn>
-          </div>
-          <div>
-            <v-btn color="error" @click="bulkSetSlots(minSlots)" block>{{ $t("Fleet.最小") }}</v-btn>
-          </div>
-        </div>
-        <div class="border-left pl-2 input-container" v-if="!selectedShip.isEmpty">
-          <v-select
-            class="mt-3"
-            outlined
-            :label="$t('Result.夜襲CI')"
-            :items="specials"
-            v-model="special"
-            hide-details
-            :item-text="(item) => `${item.text ? $t(`Fleet.${item.text}`) : ''} ${item.rate && item.rate[0] ? `( ${Math.floor(item.rate[0] * 100)}% )` : ''}`"
-            dense
-            return-object
-            @change="calculate()"
-          />
-          <v-text-field
-            class="mt-3"
-            type="number"
-            v-model.number="manualAfterCapBonus"
-            min="0"
-            max="9999"
-            :label="$t('Result.特効')"
-            hide-details
-            outlined
-            dense
-            step="0.01"
-            @input="calculate()"
-          />
-          <v-select class="mt-3" :label="$t('Result.残弾薬')" v-model="ammo" :items="ammos" hide-details outlined dense @change="calculate()" />
-          <v-checkbox class="mt-3" :label="$t('Result.クリティカル')" dense hide-details v-model="isCritical" @change="calculate()" />
         </div>
       </div>
     </v-card>
@@ -258,6 +260,13 @@
 <style scoped>
 .select-ship-container {
   display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+@media (min-width: 600px) {
+  .select-ship-container {
+    flex-direction: row;
+  }
 }
 .selectable-ship-container {
   display: flex;
@@ -294,18 +303,24 @@
   justify-content: space-around;
   width: 140px;
 }
-.input-container {
-  width: 180px;
-}
-
 .border-left {
-  border-left: 1px solid rgba(128, 128, 128, 0.4);
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+}
+@media (min-width: 600px) {
+  .border-left {
+    border-top: unset;
+    border-left: 1px solid rgba(128, 128, 128, 0.4);
+  }
+  .input-container {
+    width: 180px;
+  }
 }
 .enemy-id {
   font-size: 11px;
   height: 13px;
 }
 .v-data-table thead th {
+  white-space: nowrap;
   height: 36px !important;
   background-color: rgb(242, 242, 242) !important;
 }
@@ -313,6 +328,7 @@
   background-color: rgb(49, 49, 53) !important;
 }
 .v-data-table tbody td {
+  white-space: nowrap;
   background-color: unset !important;
   height: unset !important;
 }
@@ -749,7 +765,7 @@ export default Vue.extend({
     },
     bootShipTooltip(e: MouseEvent, ship: Ship) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledShipTooltip) {
+      if (setting.disabledShipTooltip || window.innerWidth < 600) {
         return;
       }
       this.tooltipTimer = window.setTimeout(() => {
@@ -761,7 +777,7 @@ export default Vue.extend({
     },
     bootItemTooltip(item: Item, index: number, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (!item.data.id || setting.disabledItemTooltip || this.selectedShip.isEmpty) {
+      if (!item.data.id || setting.disabledItemTooltip || this.selectedShip.isEmpty || window.innerWidth < 600) {
         return;
       }
       const ship = this.selectedShip;
@@ -821,6 +837,8 @@ export default Vue.extend({
       }, Math.max(setting.popUpCount, 10));
     },
     bootDamageDetailTooltip(row: DamageRow, e: MouseEvent) {
+      if (window.innerWidth < 600) return;
+
       const setting = this.$store.state.siteSetting as SiteSetting;
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('tooltip-anchor')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {

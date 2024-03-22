@@ -1,7 +1,7 @@
 <template>
-  <v-card>
+  <v-card class="bookmark-card">
     <div class="d-flex pa-2">
-      <div class="item-search-text">
+      <div class="item-search-text d-none d-sm-block mr-3">
         <v-text-field
           :placeholder="$t('ItemList.図鑑id 名称検索')"
           clearable
@@ -12,13 +12,14 @@
           prepend-inner-icon="mdi-magnify"
         />
       </div>
-      <v-checkbox class="ml-3" :disabled="!!keyword" v-model="bookmarkOnly" @change="filter()" hide-details dense :label="$t('Fleet.お気に入り')" />
+      <v-checkbox :disabled="!!keyword" v-model="bookmarkOnly" @change="filter()" hide-details dense :label="$t('Fleet.お気に入り')" />
       <v-checkbox class="ml-3" :disabled="!!keyword" v-model="finalOnly" @change="filter()" hide-details dense :label="$t('Fleet.最終改造')" />
       <v-spacer />
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
+    <v-divider class="mx-2"></v-divider>
     <div class="d-flex flex-wrap pl-2">
       <div
         v-for="(i, index) in types"
@@ -33,7 +34,7 @@
       </div>
     </div>
     <v-divider class="mx-2" />
-    <div class="ship-table-body mx-2">
+    <div class="ship-table-body mx-1 mx-sm-2">
       <div v-for="(typeData, i) in ships" :key="i" class="pl-3">
         <div class="type-divider">
           <div class="caption text--secondary">{{ getShipTypeName(typeData.typeName) }}</div>
@@ -68,7 +69,10 @@
     <v-divider />
     <div class="d-flex px-3 py-3">
       <v-spacer />
-      <v-btn color="secondary" :dark="existsBookmark" :disabled="!existsBookmark" @click.stop="removeAll()">
+      <v-btn color="secondary" :dark="existsBookmark" :disabled="!existsBookmark" @click.stop="removeAll()" class="d-none d-sm-block">
+        {{ $t("Fleet.全解除") }}
+      </v-btn>
+      <v-btn color="secondary" block :dark="existsBookmark" :disabled="!existsBookmark" @click.stop="removeAll()" class="d-sm-none">
         {{ $t("Fleet.全解除") }}
       </v-btn>
     </div>
@@ -76,6 +80,26 @@
 </template>
 
 <style scoped>
+.bookmark-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.ship-table-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 600px) {
+  .bookmark-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .ship-table-body {
+    height: 64vh;
+  }
+}
+
 .item-search-text {
   width: 180px;
 }
@@ -117,11 +141,6 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
-.ship-table-body {
-  overflow-y: auto;
-  height: 64vh;
-  overscroll-behavior: contain;
-}
 .multi {
   display: grid;
   grid-template-columns: 1fr;

@@ -3,94 +3,177 @@
     <div class="d-flex pb-1">
       <div class="pl-2 align-self-center">{{ $t("Airbase.基地航空隊") }}</div>
       <v-spacer />
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="handleSyncCurrentData" v-bind="attrs" v-on="on">
-            <v-icon>mdi-database-sync</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Fleet.現在の登録情報に置き換え") }}</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
-            <v-icon>mdi-wrench</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Common.一括設定") }}</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="supply" v-bind="attrs" v-on="on">
-            <v-icon>mdi-reload</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Airbase.搭載数を最大に戻す") }}</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="doAirRaid" v-bind="attrs" v-on="on">
-            <v-icon>mdi-bomb</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <div>{{ $t("Airbase.基地空襲被害を発生させる") }}</div>
-          <div class="caption">※ {{ $t("Airbase.第1スロットから順に搭載数を4機減らします。") }}</div>
-        </div>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="resetAirbaseAll" v-bind="attrs" v-on="on">
-            <v-icon>mdi-trash-can-outline</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Airbase.全基地航空隊リセット") }}</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="captureAirbase" v-bind="attrs" v-on="on">
-            <v-icon>mdi-camera</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Common.スクリーンショットを保存") }}</span>
-      </v-tooltip>
-      <v-tooltip bottom color="black">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
-            <v-icon>mdi-minus</v-icon>
-          </v-btn>
-        </template>
-        <span>{{ $t("Common.最小化") }}</span>
-      </v-tooltip>
-    </div>
-    <v-divider class="mb-3" />
-    <div :class="{ 'has-error-space': !isDefenseMode && needErrorSpace }">
-      <div v-if="!isDefenseMode && needAirRaid" class="w-100">
-        <v-alert outlined type="error" border="left">
-          {{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
-          <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
-        </v-alert>
+      <div class="d-none d-sm-flex">
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="handleSyncCurrentData" v-bind="attrs" v-on="on">
+              <v-icon>mdi-database-sync</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Fleet.現在の登録情報に置き換え") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
+              <v-icon>mdi-wrench</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Common.一括設定") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="supply" v-bind="attrs" v-on="on">
+              <v-icon>mdi-reload</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Airbase.搭載数を最大に戻す") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="doAirRaid" v-bind="attrs" v-on="on">
+              <v-icon>mdi-bomb</v-icon>
+            </v-btn>
+          </template>
+          <div>
+            <div>{{ $t("Airbase.基地空襲被害を発生させる") }}</div>
+            <div class="caption">※ {{ $t("Airbase.第1スロットから順に搭載数を4機減らします。") }}</div>
+          </div>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="resetAirbaseAll" v-bind="attrs" v-on="on">
+              <v-icon>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Airbase.全基地航空隊リセット") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="captureAirbase" v-bind="attrs" v-on="on">
+              <v-icon>mdi-camera</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Common.スクリーンショットを保存") }}</span>
+        </v-tooltip>
+        <v-tooltip bottom color="black">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon @click="handleMinimize(true)" v-bind="attrs" v-on="on">
+              <v-icon>mdi-minus</v-icon>
+            </v-btn>
+          </template>
+          <span>{{ $t("Common.最小化") }}</span>
+        </v-tooltip>
       </div>
-      <div class="d-flex w-100">
-        <v-switch v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo" />
+      <div class="d-flex d-sm-none">
+        <v-btn icon @click="supply">
+          <v-icon>mdi-reload</v-icon>
+        </v-btn>
+        <v-btn icon @click="doAirRaid">
+          <v-icon>mdi-bomb</v-icon>
+        </v-btn>
+        <v-btn icon @click="resetAirbaseAll">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-horizontal</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item @click="handleSyncCurrentData">
+              <v-list-item-icon>
+                <v-icon>mdi-database-sync</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Fleet.現在の登録情報に置き換え") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="bulkUpdateDialog = true">
+              <v-list-item-icon>
+                <v-icon>mdi-wrench</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Common.一括設定") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="supply">
+              <v-list-item-icon>
+                <v-icon>mdi-reload</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Airbase.搭載数を最大に戻す") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="doAirRaid">
+              <v-list-item-icon>
+                <v-icon>mdi-bomb</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Airbase.基地空襲被害を発生させる") }}</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">※ {{ $t("Airbase.第1スロットから順に搭載数を4機減らします。") }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="resetAirbaseAll">
+              <v-list-item-icon>
+                <v-icon>mdi-trash-can-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Airbase.全基地航空隊リセット") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="captureAirbase">
+              <v-list-item-icon>
+                <v-icon>mdi-camera</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Common.スクリーンショットを保存") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="handleMinimize(true)">
+              <v-list-item-icon>
+                <v-icon>mdi-minus</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title class="text-wrap">{{ $t("Common.最小化") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </div>
+    <v-divider />
+    <div :class="{ 'has-error-space': !isDefenseMode && needErrorSpace }">
+      <div class="d-flex flex-wrap w-100">
+        <v-switch class="ml-3" v-model="airbaseInfo.isDefense" dense hide-details :label="$t('Airbase.防空計算モード')" @click="setInfo" />
         <div class="align-self-center ml-3" v-show="!isDefenseMode && battleInfo.battleCount > 1 && existsBattleAirbase">
           <v-btn outlined color="success" @click.stop="targetDialog = true">{{ $t("Airbase.基地派遣先設定") }}</v-btn>
         </div>
         <div class="align-self-center flex-grow-1" v-show="rangeError">
-          <v-alert border="left" dense outlined type="warning" icon="mdi-alert">{{ rangeError }}</v-alert>
+          <v-alert border="left" dense outlined type="warning" icon="mdi-alert" class="text-caption text-sm-body-2">{{ rangeError }}</v-alert>
         </div>
       </div>
-      <div class="d-flex ml-2 mb-2" v-if="isDefenseMode">
+      <v-alert v-if="!isDefenseMode && needAirRaid" outlined type="error" border="left" class="w-100 mt-1 mt-sm-0">
+        {{ $t("Airbase.基地空襲が発生します。基地空襲による被害を考慮してください。") }}
+        <v-btn color="error" @click="doAirRaid" small><v-icon>mdi-bomb</v-icon>{{ $t("Airbase.基地空襲被害を発生させる") }}</v-btn>
+      </v-alert>
+      <div class="d-flex flex-wrap ml-2 mb-2" v-if="isDefenseMode">
         <template v-if="isNormalAirRaidMode">
-          <div class="d-flex align-center align-self-end">
-            <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
-            <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
-            <div class="ml-3 text--secondary body-2">{{ $t("Airbase.対重爆制空値") }}</div>
-            <div class="ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
-            <div class="ml-3 text--secondary body-2">{{ $t("Airbase.対重爆補正") }}</div>
-            <div class="ml-1">&times;{{ airbaseInfo.highDefenseCoefficient }}</div>
+          <div class="d-sm-flex flex-wrap mr-5">
+            <div class="mr-3 d-flex align-center">
+              <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
+              <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+            </div>
+            <div class="mr-3 d-flex align-center">
+              <div class="text--secondary body-2">{{ $t("Airbase.対重爆制空値") }}</div>
+              <div class="ml-1">{{ airbaseInfo.highDefenseAirPower }}</div>
+            </div>
+            <div class="mr-3 d-flex align-center">
+              <div class="text--secondary body-2">{{ $t("Airbase.対重爆補正") }}</div>
+              <div class="ml-1">&times;{{ airbaseInfo.highDefenseCoefficient }}</div>
+            </div>
           </div>
-          <div class="ml-5 difficulty-select mt-3">
+          <div class="difficulty-select align-self-end align-sm-self-center mb-1">
             <v-select
               dense
               v-model="airbaseInfo.difficultyLevel"
@@ -101,49 +184,52 @@
             />
           </div>
         </template>
-        <div v-else class="d-flex align-center">
-          <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
-          <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
-          <div class="ml-5 text--secondary body-2">{{ $t("Airbase.対超重爆補正") }}</div>
-          <div class="ml-1">&times;{{ Math.floor(100000 * airbaseInfo.superHighAirRaidCoefficient) / 100000 }}</div>
-          <v-tooltip bottom color="black">
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon class="ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
-            </template>
-            <div class="body-2">
-              <table>
-                <tr>
-                  <td>{{ $t("Airbase.補正A") }}</td>
-                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrA }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t("Airbase.補正B") }}</td>
-                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrB }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t("Airbase.補正C") }}</td>
-                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrC }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t("Airbase.補正D1") }}</td>
-                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientA }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t("Airbase.補正D2") }}</td>
-                  <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientB }}</td>
-                </tr>
-              </table>
-            </div>
-          </v-tooltip>
-          <div class="ml-5 text--secondary body-2">{{ $t("Airbase.対超重爆制空値") }}</div>
-          <div class="ml-1">{{ airbaseInfo.fullSuperHighDefenseAirPower }}</div>
+        <div v-else class="d-flex align-center flex-wrap">
+          <div class="mr-3 d-flex align-center">
+            <div class="text--secondary body-2">{{ $t("Airbase.防空時制空値") }}</div>
+            <div class="ml-1">{{ airbaseInfo.defenseAirPower }}</div>
+          </div>
+          <div class="mr-3 d-flex align-center">
+            <div class="text--secondary body-2">{{ $t("Airbase.対超重爆補正") }}</div>
+            <div class="ml-1">&times;{{ Math.floor(100 * airbaseInfo.superHighAirRaidCoefficient) / 100 }}</div>
+            <v-tooltip bottom color="black">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon class="ml-1" small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+              </template>
+              <div class="body-2">
+                <table>
+                  <tr>
+                    <td>{{ $t("Airbase.補正A") }}</td>
+                    <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrA }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Airbase.補正B") }}</td>
+                    <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrB }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Airbase.補正C") }}</td>
+                    <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidCorrC }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Airbase.補正D1") }}</td>
+                    <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientA }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Airbase.補正D2") }}</td>
+                    <td class="pl-5 text-right">{{ airbaseInfo.superHighAirRaidRocketCoefficientB }}</td>
+                  </tr>
+                </table>
+              </div>
+            </v-tooltip>
+            <div class="ml-3 text--secondary body-2">{{ $t("Airbase.対超重爆制空値") }}</div>
+            <div class="ml-1">{{ airbaseInfo.fullSuperHighDefenseAirPower }}</div>
+          </div>
         </div>
       </div>
     </div>
-    <v-tabs class="small-airbases" v-model="tab" vertical :class="{ captured: capturing }">
+    <v-tabs class="small-airbases" v-model="tab" :class="{ captured: capturing }" grow height="42px">
       <v-tab v-for="i in 3" :key="i" :href="`#base${i}`">
-        <div class="airbase-tab-text d-none d-sm-block">{{ $t("Airbase.第x基地航空隊", { number: i }) }}</div>
-        <div class="airbase-tab-text d-sm-none">{{ $t("Airbase.第x航空隊", { number: i }) }}</div>
+        <div>{{ $t("Airbase.第x航空隊", { number: i }) }}</div>
       </v-tab>
       <v-tab-item v-for="(lb, i) in airbaseInfo.airbases" :key="i" :value="`base${i + 1}`" class="py-1">
         <airbase-comp
@@ -188,7 +274,7 @@
         </div>
       </div>
     </div>
-    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition" @input="toggleItemListDialog">
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" :fullscreen="isMobile" transition="scroll-x-transition" @input="toggleItemListDialog">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="targetDialog" width="600" transition="scroll-x-transition" @input="toggleTargetDialog">
@@ -211,7 +297,7 @@
               <div class="header-divider" />
             </div>
             <div class="caption">{{ $t("Common.選択されている航空隊に対し、下記の設定を適用します。") }}</div>
-            <div class="d-flex justify-space-between">
+            <div class="d-flex flex-wrap justify-space-between">
               <v-checkbox :label="$t('Airbase.全航空隊')" dense hide-details @click="toggleBulkTarget" v-model="isBulkUpdateTargetAll" readonly />
               <v-checkbox
                 v-for="(check, i) in bulkUpdateTarget"
@@ -227,7 +313,7 @@
             <div class="caption">{{ $t("Common.熟練度") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex justify-space-between">
+          <div class="d-flex flex-wrap justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
@@ -238,7 +324,7 @@
             <div class="caption">{{ $t("Common.改修値") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex justify-space-between">
+          <div class="d-flex flex-wrap justify-space-between">
             <div v-for="i in 11" :key="i" v-ripple @click="setRemodel(i - 1)" class="remodel-list-item" @keypress.enter="setRemodel(i - 1)">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
@@ -269,8 +355,8 @@
               />
             </div>
           </div>
-          <div class="d-flex mt-3">
-            <div class="flex-grow-1 mx-1">
+          <div class="d-flex flex-wrap mt-3">
+            <div class="flex-grow-1 mx-1 mb-1">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">{{ $t("ItemList.x機", { number: 1 }) }}</v-btn>
@@ -280,7 +366,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-1">
+            <div class="flex-grow-1 mx-1 mb-1">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">{{ $t("ItemList.x機", { number: 2 }) }}</v-btn>
@@ -290,7 +376,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-1">
+            <div class="flex-grow-1 mx-1 mb-1">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">{{ $t("ItemList.x機", { number: 3 }) }}</v-btn>
@@ -300,7 +386,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-1">
+            <div class="flex-grow-1 mx-1 mb-1">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">{{ $t("ItemList.x機", { number: 5 }) }}</v-btn>
@@ -310,7 +396,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-1">
+            <div class="flex-grow-1 mx-1 mb-1">
               <v-tooltip bottom color="black" :disabled="needTrans">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">{{ $t("ItemList.x機", { number: 17 }) }}</v-btn>
@@ -320,17 +406,23 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mb-1">
               <v-btn outlined @click="resetSlot" block>{{ $t("ItemList.x機", { number: 18 }) }}</v-btn>
             </div>
           </div>
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
-      <item-preset-component v-if="itemPresetDialog" v-model="tempAirbase" :handle-expand-item-preset="expandItemPreset" :handle-close="closeItemPreset" />
+    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600" :fullscreen="isMobile">
+      <item-preset-component
+        v-if="itemPresetDialog"
+        v-model="tempAirbase"
+        :handle-expand-item-preset="expandItemPreset"
+        :handle-close="closeItemPreset"
+        :isMobile="isMobile"
+      />
     </v-dialog>
-    <v-dialog v-model="tempAirbaseListDialog" transition="scroll-x-transition" width="900">
+    <v-dialog v-model="tempAirbaseListDialog" transition="scroll-x-transition" width="900" :fullscreen="isMobile">
       <v-card v-if="tempAirbaseListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Airbase.基地クリップボード") }}</div>
@@ -421,7 +513,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  min-height: 90px;
+}
+@media (min-width: 600px) {
+  .has-error-space {
+    min-height: 90px;
+  }
 }
 
 .difficulty-select {
@@ -435,16 +531,32 @@
 .normal-airbases {
   display: none;
 }
-.small-airbases {
-  display: flex;
+.captured.small-airbases {
+  display: none !important;
 }
-@media (min-width: 960px) {
+.captured.normal-airbases {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+@media (min-width: 600px) {
   .small-airbases {
     display: none;
   }
   .normal-airbases {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    overflow-x: auto;
+  }
+  .normal-airbases > div {
+    min-width: 320px;
+  }
+}
+@media (min-width: 950px) {
+  .normal-airbases {
+    overflow-x: unset;
+  }
+  .normal-airbases > div {
+    min-width: unset;
   }
 }
 @media (min-width: 600px) {
@@ -644,10 +756,10 @@ export default Vue.extend({
   },
   data: () => ({
     itemListDialog: false,
+    itemDialogWidth: 1200,
     targetDialog: false,
     dialogTarget: [-1, -1],
     tab: 0,
-    itemDialogWidth: 1200,
     capturing: false,
     bulkUpdateDialog: false,
     bulkUpdateSlotValue: 18,
@@ -659,6 +771,7 @@ export default Vue.extend({
     tempAirbaseListDialog: false,
     tempAirbaseList: [] as Airbase[],
     enabledPushTempAirbase: true,
+    isMobile: true,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -766,12 +879,14 @@ export default Vue.extend({
     async showItemList(index: number, slot: number) {
       this.dialogTarget = [index, slot];
       const base = this.airbaseInfo.airbases[index];
+      this.isMobile = window.innerWidth < 600;
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base, slot);
     },
     async showBatchItemList(index: number) {
       this.dialogTarget = [index, 0];
       const base = this.airbaseInfo.airbases[index];
+      this.isMobile = window.innerWidth < 600;
       await (this.itemListDialog = true);
       // 一括モードtrueで起動
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(base, 0, [], 4);
@@ -926,6 +1041,7 @@ export default Vue.extend({
       const airbase = this.airbaseInfo.airbases[baseIndex];
       this.dialogTarget = [baseIndex, 0];
       this.tempAirbase = airbase;
+      this.isMobile = window.innerWidth < 600;
       this.itemPresetDialog = true;
     },
     expandItemPreset(preset: ItemPreset) {
@@ -955,6 +1071,7 @@ export default Vue.extend({
       const airbase = this.airbaseInfo.airbases[index];
       this.dialogTarget = [index, 0];
       this.tempAirbase = cloneDeep(airbase);
+      this.isMobile = window.innerWidth < 600;
       this.tempAirbaseListDialog = true;
       this.enabledPushTempAirbase = true;
     },

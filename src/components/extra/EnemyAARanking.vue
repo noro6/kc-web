@@ -16,6 +16,7 @@
         nextIcon: 'mdi-chevron-right',
         'items-per-page-options': [50, 100],
       }"
+      mobile-breakpoint="0"
     >
       <template v-slot:[`header.rank`]="{ header }">{{ $t(`Extra.${header.text}`) }}</template>
       <template v-slot:[`header.enemy.data.name`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -50,6 +51,7 @@
 
 .v-card >>> .v-data-table th,
 .v-card >>> .v-data-table td {
+  white-space: nowrap;
   padding: 0 8px !important;
 }
 .v-card >>> .v-data-table th:first-child,

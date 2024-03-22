@@ -191,8 +191,10 @@
 }
 
 /** 編成タブのやつ */
-.v-toolbar--dense.v-app-bar {
-    height: 76px !important;
+@media (min-width: 600px) {
+    .v-toolbar--dense.v-app-bar {
+        height: 76px !important;
+    }
 }
 
 .v-toolbar--dense.v-app-bar .v-toolbar__extension {

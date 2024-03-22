@@ -10,10 +10,16 @@
     <v-divider />
     <div class="px-3">
       <div class="d-flex flex-wrap">
-        <v-btn class="my-2 mr-2" color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()">
+        <v-btn class="my-2 mr-2" color="teal" :dark="!disabledCommit" :disabled="disabledCommit" @click="readyPreset()" :block="isMobile">
           {{ $t("ItemList.現在の装備構成で新規登録") }}
         </v-btn>
-        <v-btn class="my-2" color="primary" :disabled="disabledCommit || isPresetItemEmpty || isAACIMode || selectedIndex < 0" @click="overwritePreset()">
+        <v-btn
+          class="my-2"
+          color="primary"
+          :disabled="disabledCommit || isPresetItemEmpty || isAACIMode || selectedIndex < 0"
+          @click="overwritePreset()"
+          v-if="!isMobile"
+        >
           {{ $t("ItemList.現在の装備構成で上書き") }}
         </v-btn>
       </div>
@@ -64,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div class="preset-view pl-2">
+        <div class="preset-view pl-2" v-if="!isMobile">
           <div class="mt-5 d-flex align-center" v-if="!isPresetItemEmpty">
             <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" clearable dense maxlength="100" hide-details />
             <v-btn class="ml-2" color="success" :disabled="!selectedPreset.name || isAACIMode" @click="savePreset()">
@@ -111,6 +117,66 @@
             <v-btn v-if="!isAACIMode" class="ml-2" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">{{ $t("Common.削除") }}</v-btn>
           </div>
         </div>
+        <!-- スマホ用表示 -->
+        <v-dialog fullscreen v-model="viewDialog">
+          <v-card>
+            <div class="d-flex px-2 py-1 align-center">
+              <div>{{ $t("Common.編集") }}</div>
+              <v-spacer></v-spacer>
+              <v-btn class="ml-3" icon @click="viewDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </div>
+            <v-divider />
+            <div class="pa-2">
+              <div class="mt-5 d-flex align-center" v-if="!isPresetItemEmpty">
+                <v-text-field :label="$t('ItemList.名称')" outlined v-model.trim="selectedPreset.name" clearable dense maxlength="100" hide-details />
+                <v-btn class="ml-2" color="success" :disabled="!selectedPreset.name || isAACIMode" @click="savePreset()">
+                  {{ selectedIndex >= 0 ? $t("Common.更新") : $t("Common.保存") }}
+                </v-btn>
+              </div>
+              <div class="items-container pa-2 mt-2" v-if="!isPresetItemEmpty">
+                <div v-for="(item, i) in itemView" :key="`view${i}`" class="d-flex align-center py-1">
+                  <div v-if="item.data.iconTypeId">
+                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
+                  </div>
+                  <div class="ml-1 text-truncate preset-item-name" :class="{ 'is-lack': item.isLack }">
+                    {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                  </div>
+                  <div class="ml-1 d-flex align-center" v-if="item.remodel">
+                    <v-icon small color="teal accent-4">mdi-star</v-icon>
+                    <div class="remodel-text">{{ item.remodel }}</div>
+                  </div>
+                  <div v-if="item.isLack" class="ml-auto"><v-icon color="warning" small>mdi-alert-outline</v-icon></div>
+                </div>
+                <div v-if="exItemView.data.id" class="mt-2 d-flex ml-1">
+                  <div class="caption">{{ $t("ItemList.補強増設") }}</div>
+                  <div class="divider-line"></div>
+                </div>
+                <div v-if="exItemView.data.id" class="d-flex align-center py-1">
+                  <div v-if="exItemView.data.iconTypeId">
+                    <v-img :src="`./img/type/icon${exItemView.data.iconTypeId}.png`" width="30" height="30" />
+                  </div>
+                  <div class="ml-1 text-truncate preset-item-name" :class="{ 'is-lack': exItemView.isLack }">
+                    {{ needTrans ? $t(`${exItemView.data.name}`) : exItemView.data.name }}
+                  </div>
+                  <div class="ml-1 d-flex align-center" v-if="exItemView.remodel">
+                    <v-icon small color="teal accent-4">mdi-star</v-icon>
+                    <div class="remodel-text">{{ exItemView.remodel }}</div>
+                  </div>
+                  <div v-if="exItemView.isLack" class="ml-auto"><v-icon color="warning" small>mdi-alert-outline</v-icon></div>
+                </div>
+              </div>
+              <div class="d-flex my-3 justify-end" v-if="!isPresetItemEmpty">
+                <v-btn v-if="selectedIndex >= 0" color="primary" @click="expandPreset()">{{ $t("Common.展開") }}</v-btn>
+                <v-btn v-if="selectedIndex >= 0 && selectedPreset.isLack" color="warning" @click="expandPreset(true)" class="ml-2">
+                  {{ $t("ItemList.在庫がなくても展開") }}
+                </v-btn>
+                <v-btn v-if="!isAACIMode" class="ml-2" color="error" :disabled="selectedIndex < 0" @click="deletePreset()">{{ $t("Common.削除") }}</v-btn>
+              </div>
+            </div>
+          </v-card>
+        </v-dialog>
       </div>
     </div>
     <v-snackbar v-model="snackbar" color="success" :top="snackbar">
@@ -125,7 +191,14 @@
 <style scoped>
 .preset-container {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .preset-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .preset-list {
@@ -136,9 +209,14 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 6px 0;
   border: 1px solid transparent;
   border-radius: 0.2rem;
+}
+@media (min-width: 600px) {
+  .preset-item {
+    padding: 4px 0;
+  }
 }
 .preset-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
@@ -233,6 +311,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     },
+    isMobile: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     items: [] as ItemMaster[],
@@ -243,6 +325,7 @@ export default Vue.extend({
     selectedPreset: new ItemPreset(),
     snackbar: false,
     infoText: '',
+    viewDialog: false,
   }),
   mounted() {
     this.items = this.$store.state.items as ItemMaster[];
@@ -315,11 +398,18 @@ export default Vue.extend({
         this.selectedIndex = index;
         this.selectedPreset = cloneDeep(this.presets[index]);
       }
+
+      if (this.isMobile) {
+        this.viewDialog = true;
+      }
     },
     clickedUniquePreset(index: number) {
       this.isAACIMode = true;
       this.selectedIndex = index;
       this.selectedPreset = cloneDeep(this.uniquePresets[index]);
+      if (this.isMobile) {
+        this.viewDialog = true;
+      }
     },
     readyPreset() {
       this.isAACIMode = false;
@@ -345,6 +435,10 @@ export default Vue.extend({
 
       this.selectedIndex = -1;
       this.selectedPreset = newPreset;
+
+      if (this.isMobile) {
+        this.viewDialog = true;
+      }
     },
     overwritePreset() {
       const { id, name } = this.selectedPreset;
@@ -373,6 +467,7 @@ export default Vue.extend({
       this.snackbar = true;
       this.selectedIndex = -1;
       this.selectedPreset = new ItemPreset();
+      this.viewDialog = false;
     },
     deletePreset() {
       this.presets = this.presets.filter((v, i) => i !== this.selectedIndex);
@@ -382,9 +477,11 @@ export default Vue.extend({
       this.infoText = '削除しました。';
       this.selectedIndex = -1;
       this.selectedPreset = new ItemPreset();
+      this.viewDialog = false;
     },
     expandPreset(isForce = false) {
       if (this.selectedPreset) {
+        this.viewDialog = false;
         this.handleExpandItemPreset(this.selectedPreset, isForce);
         this.handleClose();
       }

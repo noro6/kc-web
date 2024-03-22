@@ -89,6 +89,8 @@
 
 .search-inputs {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 12px;
 }
 .search-inputs > div {
   align-self: center;

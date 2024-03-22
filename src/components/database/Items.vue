@@ -9,7 +9,7 @@
       <v-tab-item value="list">
         <div class="d-flex align-center flex-wrap mt-2">
           <v-btn @click="filterDialog = true" color="info">
-            <v-icon>mdi-filter-variant</v-icon>
+            <v-icon>mdi-filter</v-icon>
             {{ $t("Common.絞り込み") }}
           </v-btn>
           <v-btn @click="resetFilterCondition()" text class="ml-1">
@@ -20,7 +20,7 @@
             <v-icon>mdi-skull-crossbones</v-icon>Blacklist ({{ $store.state.siteSetting.blacklistItemIds.length }})
           </v-btn>
         </div>
-        <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="800" @input="toggleFilterDialog">
+        <v-dialog v-model="filterDialog" transition="scroll-x-transition" width="800" @input="toggleFilterDialog" :fullscreen="isMobile">
           <v-card>
             <div class="d-flex pt-2 pb-1 px-2">
               <div class="align-self-center ml-3 body-2">{{ $t("Common.絞り込み") }}</div>
@@ -127,7 +127,7 @@
               <div class="type-img">
                 <img :src="`./img/type/type${header.type.id}.png`" :alt="`type-${header.type.id}`" />
               </div>
-              <div class="ml-1 align-self-center">{{ $t(`EType.${header.type.name}`) }}</div>
+              <div class="ml-1 type-name">{{ $t(`EType.${header.type.name}`) }}</div>
               <v-spacer />
               <div v-if="header.type.sortKey">
                 <v-menu offset-y left>
@@ -233,7 +233,7 @@
             </div>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlackListDialog()">
+        <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlackListDialog()" :fullscreen="isMobile">
           <blacklist-item-edit :handle-close="closeBlacklist" />
         </v-dialog>
       </v-tab-item>
@@ -246,12 +246,18 @@
 
 <style scoped>
 .filter-dialog-body {
-  padding-top: 20px;
-  padding-bottom: 30px;
-  padding-left: 20px;
+  padding: 8px;
   overflow-y: auto;
-  max-height: 70vh;
   overscroll-behavior: contain;
+}
+@media (min-width: 600px) {
+  .filter-dialog-body {
+    padding-top: 20px;
+    padding-bottom: 30px;
+    padding-left: 20px;
+    overflow-y: auto;
+    max-height: 70vh;
+  }
 }
 
 .keyword-input {
@@ -274,19 +280,26 @@
 .filter-input-container {
   margin-left: 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
+}
+@media (min-width: 600px) {
+  .filter-input-container {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
 
 .item-all-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 0.5rem;
-  row-gap: 0.5rem;
+  column-gap: 4px;
+  row-gap: 4px;
 }
 @media (min-width: 840px) {
   .item-all-container {
     grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
   }
 }
 @media (min-width: 1120px) {
@@ -342,6 +355,10 @@
   height: 30px;
   width: 30px;
 }
+.type-name {
+  font-size: 14px;
+  align-self: center;
+}
 
 .icon-img,
 .icon-img img {
@@ -350,12 +367,25 @@
 }
 
 .item-name {
-  padding-left: 0.25rem;
-  font-size: 0.85em;
+  padding-left: 2px;
+  font-size: 12px;
   align-self: center;
   width: 10px;
   white-space: nowrap;
 }
+@media (min-width: 600px) {
+  .type-name {
+    font-size: unset;
+  }
+  .item-name {
+    padding-left: 0.25rem;
+    font-size: 0.85em;
+    align-self: center;
+    width: 10px;
+    white-space: nowrap;
+  }
+}
+
 .detail-container {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(255, 255, 255, 1) 35%);
   padding-left: 20px;
@@ -473,6 +503,7 @@ export default Vue.extend({
     readOnly: false,
     blacklistDialog: false,
     onlyHasNot: false,
+    isMobile: true,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -619,6 +650,7 @@ export default Vue.extend({
       this.masterFilter();
     },
     filter() {
+      this.isMobile = window.innerWidth < 600;
       const bases = this.baseViewItems;
       const result = [];
       const minRemodel = this.remodelRange[0];

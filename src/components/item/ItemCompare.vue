@@ -1,6 +1,6 @@
 <template>
   <div class="compare-cards px-1 pb-1">
-    <div class="d-flex flex-column">
+    <div class="d-none d-sm-flex flex-column">
       <div class="d-flex align-end">
         <div class="caption">Before</div>
         <v-icon class="ml-auto" small>mdi-chevron-triple-right</v-icon>
@@ -10,10 +10,10 @@
         <item-status-view v-model="originalItem" :bonus="originalItemBonusString" :is-airbase-mode="isAirbaseMode"></item-status-view>
       </v-card>
     </div>
-    <div class="compare-arrow">
+    <div class="compare-arrow d-none d-sm-block">
       <div><v-icon x-large color="light-blue">mdi-chevron-right</v-icon></div>
     </div>
-    <div class="d-flex flex-column">
+    <div class="d-none d-sm-flex flex-column">
       <div class="caption">After</div>
       <v-divider class="mb-2"></v-divider>
       <v-card class="px-3 py-2 flex-grow-1">
@@ -94,7 +94,6 @@
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 8px;
-  max-height: 70vh;
   overflow-y: auto;
 }
 .compare-arrow {
@@ -121,6 +120,11 @@
     top: 50%;
     right: -16px;
     transform: unset;
+  }
+}
+@media (min-width: 600px) {
+  .compare-cards {
+    max-height: 70vh;
   }
 }
 @media (min-width: 800px) {

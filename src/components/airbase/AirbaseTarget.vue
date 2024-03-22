@@ -8,9 +8,9 @@
       </v-btn>
     </div>
     <div class="px-4 target-buttons" v-for="(lb, i) in info.airbases" :key="i">
-      <v-divider />
-      <div class="py-3">
-        <div v-for="(t, j) in lb.battleTarget" :key="j" class="d-flex ml-3 pb-1">
+      <v-divider class="mb-3" />
+      <div class="pl-2 pb-3">
+        <div v-for="(t, j) in lb.battleTarget" :key="j" class="target-selector">
           <div class="align-self-center body-2 mr-3">{{ $t("Airbase.第x基地航空隊", { number: i + 1 }) }} {{ $t("Airbase.第x波", { number: j + 1 }) }}</div>
           <v-btn-toggle v-model="lb.battleTarget[j]" mandatory dense tile color="light-blue">
             <v-btn
@@ -63,6 +63,19 @@
 }
 .target-buttons .v-btn.v-btn--has-bg {
   background-color: transparent !important;
+}
+
+.target-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 4px;
+  margin-top: 10px;
+}
+@media (min-width: 600px) {
+  .target-selector {
+    grid-template-columns: auto auto;
+    margin-top: unset;
+  }
 }
 
 .enemy-id {

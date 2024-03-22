@@ -104,7 +104,7 @@
         <div class="body-2 py-2">{{ $t("Result.ダメージ計算結果") }}</div>
         <v-spacer />
         <template v-if="!isAirbase">
-          <div class="caption mr-3">{{ $t("Result.防御艦隊") }}</div>
+          <div class="caption mr-3 d-none d-sm-block">{{ $t("Result.防御艦隊") }}</div>
           <div class="form-control lg mt-0 pt-0">
             <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="changeDefenseIndex" />
           </div>
@@ -314,6 +314,7 @@
 }
 
 .v-data-table thead th {
+  white-space: nowrap;
   text-align: right !important;
   height: 36px !important;
   background-color: rgb(242, 242, 242) !important;
@@ -325,6 +326,7 @@
   background-color: rgb(52, 58, 72) !important;
 }
 .v-data-table tbody td {
+  white-space: nowrap;
   text-align: right;
   background-color: unset !important;
   height: unset !important;
@@ -803,6 +805,7 @@ export default Vue.extend({
       window.clearTimeout(this.tooltipTimer);
     },
     bootDamageDetailTooltip(row: DamageRowData, e: MouseEvent) {
+      if (window.innerWidth < 600) return;
       const setting = this.$store.state.siteSetting as SiteSetting;
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('tooltip-anchor')[0] as HTMLDivElement;
       this.tooltipTimer = window.setTimeout(() => {

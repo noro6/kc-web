@@ -1,7 +1,7 @@
 <template>
   <v-sheet dark>
     <div class="d-flex header">
-      <div v-if="!fixedDrawer">
+      <div v-if="!fixedDrawer && !isMobile">
         <v-btn icon large @click="handleClose()">
           <v-icon>mdi-menu</v-icon>
         </v-btn>
@@ -56,6 +56,9 @@
           <span v-if="!fixedDrawer">{{ $t("SaveData.サイドバー固定") }}</span>
           <span v-else>{{ $t("SaveData.サイドバー固定解除") }}</span>
         </v-tooltip>
+        <v-btn color="grey lighten-2" v-show="isMobile" icon @click="handleClose()">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
       </div>
     </div>
     <v-divider />
@@ -110,7 +113,7 @@
 }
 
 .github-button {
-  font-size: 0.9em;
+  font-size: 11px;
   padding-left: 2px !important;
   padding-right: 6px !important;
   height: 44px !important;
@@ -142,6 +145,10 @@ export default Vue.extend({
     fixedDrawer: {
       type: Boolean,
       default: false,
+    },
+    isMobile: {
+      type: Boolean,
+      default: true,
     },
     handleClose: {
       type: Function,

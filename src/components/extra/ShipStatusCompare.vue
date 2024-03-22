@@ -305,7 +305,7 @@
         </tbody>
       </template>
     </v-simple-table>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
   </div>
@@ -320,6 +320,10 @@
   box-shadow: 0 0 12px rgb(128, 128, 128);
 }
 
+table th,
+table td {
+  white-space: nowrap;
+}
 table td:not(:first-child) {
   text-align: right;
 }
@@ -429,9 +433,10 @@ export default Vue.extend({
     maxLevel: Const.MAX_LEVEL,
     isDiffMode: false,
     diffs: [] as number[],
+    isMobile: true,
   }),
   mounted() {
-    //
+    this.isMobile = window.innerWidth < 600;
   },
   computed: {
     completed() {

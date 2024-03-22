@@ -1,60 +1,48 @@
 <template>
-  <div class="mt-2">
+  <div class="mx-2 mb-2 mb-sm-0 mx-sm-0 mt-2">
     <div class="input-container">
-      <div>
-        <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable" />
-      </div>
-      <div>
-        <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable" />
-      </div>
-      <div>
-        <v-text-field
-          type="number"
-          v-model.number="attackerSlot"
-          min="0"
-          max="999"
-          :label="$t('Fleet.攻撃機搭載数')"
-          hide-details
-          outlined
-          dense
-          @input="updateTable"
-        />
-      </div>
-      <div>
-        <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable" />
-      </div>
-      <div>
-        <v-text-field
-          type="number"
-          min="0"
-          max="2"
-          step="0.1"
-          v-model.number="adj1"
-          :label="$t('Fleet.加重対空補正')"
-          hide-details
-          outlined
-          dense
-          :disabled="!isManual || showAntiAirMode"
-          @input="updateTable"
-        />
-      </div>
-      <div>
-        <v-text-field
-          type="number"
-          min="0"
-          max="2"
-          step="0.1"
-          v-model.number="adj2"
-          :label="$t('Fleet.艦隊防空補正')"
-          hide-details
-          outlined
-          dense
-          :disabled="!isManual || showAntiAirMode"
-          @input="updateTable"
-        />
-      </div>
+      <v-select :label="$t('Common.陣形')" v-model="formation" :items="formations" hide-details outlined dense @change="updateTable" />
+      <v-select :label="$t('Fleet.対空CI')" v-model="cutInId" :items="antiAirItems" hide-details outlined dense @change="updateTable" />
+      <v-text-field
+        type="number"
+        v-model.number="attackerSlot"
+        min="0"
+        max="999"
+        :label="$t('Fleet.攻撃機搭載数')"
+        hide-details
+        outlined
+        dense
+        @input="updateTable"
+      />
+      <v-select :label="$t('Fleet.対空射撃回避')" v-model="avoid" :items="avoids" hide-details outlined dense @change="updateTable" />
+      <v-text-field
+        type="number"
+        min="0"
+        max="2"
+        step="0.1"
+        v-model.number="adj1"
+        :label="$t('Fleet.加重対空補正')"
+        hide-details
+        outlined
+        dense
+        :disabled="!isManual || showAntiAirMode"
+        @input="updateTable"
+      />
+      <v-text-field
+        type="number"
+        min="0"
+        max="2"
+        step="0.1"
+        v-model.number="adj2"
+        :label="$t('Fleet.艦隊防空補正')"
+        hide-details
+        outlined
+        dense
+        :disabled="!isManual || showAntiAirMode"
+        @input="updateTable"
+      />
     </div>
-    <div class="mb-1 d-flex px-1">
+    <div class="mb-1 d-flex flex-wrap px-1">
       <div class="align-self-end">
         <span class="body-2 text--secondary mr-2">{{ $t("Common.艦隊防空値") }}</span>
         <span>{{ fleetAntiAir }}</span>
@@ -114,7 +102,7 @@
       </v-simple-table>
     </div>
     <div v-else class="d-flex flex-wrap justify-center">
-      <div class="flex-grow-1">
+      <div class="cutin-table">
         <v-divider />
         <v-simple-table dense>
           <template v-slot:default>
@@ -149,7 +137,7 @@
       </div>
       <div class="graph-area" v-if="showAntiAirMode">
         <div class="contact-graph">
-          <doughnut-chart :data="graphData" :options="options" title-text="" />
+          <doughnut-chart :data="graphData" :options="options" title-text="" :sp-normal="true" />
         </div>
         <div class="total-rate">
           <div>{{ $t("Result.合計発動率") }}</div>
@@ -162,14 +150,23 @@
 
 <style scoped>
 .input-container {
-  display: flex;
-  flex-wrap: wrap;
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 10px;
+  column-gap: 4px;
 }
-.input-container > div {
-  width: 136px;
-  align-self: center;
-  margin-top: 0.5rem;
-  margin-right: 0.25rem;
+@media (min-width: 660px) {
+  .input-container {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 4px;
+    column-gap: 4px;
+  }
+  .input-container > * {
+    width: 136px;
+    align-self: center;
+  }
 }
 .stage2-id {
   font-size: 11px;
@@ -181,9 +178,11 @@
   width: 10px;
 }
 .v-data-table thead th {
+  white-space: nowrap;
   height: 36px !important;
 }
 .v-data-table tbody td {
+  white-space: nowrap;
   height: unset !important;
 }
 .v-data-table tbody td > * {
@@ -206,6 +205,10 @@
   background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
+.cutin-table {
+  flex-grow: 1;
+  overflow-x: auto;
+}
 .graph-area {
   display: flex;
   align-self: center;

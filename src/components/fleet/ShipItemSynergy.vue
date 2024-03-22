@@ -4,7 +4,7 @@
       {{ $t("Extra.装備シナジーチェッカー") }}
     </div>
     <v-divider class="mt-1"></v-divider>
-    <div class="my-3 d-flex align-center">
+    <div class="my-3 d-flex flex-wrap align-center">
       <template v-if="ship.data.id">
         <div class="ship-input" @click="showShipList()" @keypress.enter="showShipList()" v-ripple="{ class: 'primary--text' }">
           <div>
@@ -14,7 +14,7 @@
         </div>
       </template>
       <v-btn v-else color="primary" @click="showShipList()">{{ $t("Fleet.艦娘選択") }}</v-btn>
-      <template v-if="ship.data.id">
+      <div class="d-flex align-center" v-if="ship.data.id">
         <div class="mx-3 caption text--secondary">{{ $t("Database.表示") }}</div>
         <v-btn
           class="mr-1"
@@ -38,7 +38,7 @@
           "
           >{{ $t("Extra.累積不可") }}</v-btn
         >
-      </template>
+      </div>
     </div>
     <div class="type-selector-container">
       <div
@@ -194,7 +194,7 @@
         </div>
       </div>
     </div>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
   </div>
@@ -264,9 +264,14 @@
 }
 
 .bonus-detail {
-  margin-left: 14px;
+  margin-left: 4px;
   padding-top: 2px;
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+}
+@media (min-width: 600px) {
+  .bonus-detail {
+    margin-left: 14px;
+  }
 }
 
 .multiple-chip {
@@ -358,6 +363,7 @@ export default Vue.extend({
     selectedTypes: [] as number[],
     showMultiple: true,
     showOneTime: true,
+    isMobile: true,
   }),
   mounted() {
     // カテゴリセレクト初期化
@@ -723,6 +729,7 @@ export default Vue.extend({
       this.allBonuses = items;
     },
     async showShipList() {
+      this.isMobile = window.innerWidth < 600;
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(false);
     },

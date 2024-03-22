@@ -4,8 +4,8 @@
       <div class="caption">{{ $t("Result.攻撃機選択") }}</div>
       <div class="header-divider" />
     </div>
-    <div class="select-item-container">
-      <div>
+    <div class="result-header-container">
+      <div class="select-item-container">
         <div class="selectable-ship-container">
           <div
             v-for="(ship, i) in enabledShips"
@@ -21,8 +21,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div v-if="items.length">
         <div class="selectable-item-container">
           <div
             v-for="(item, i) in items"
@@ -37,11 +35,13 @@
             <div class="mx-1">
               <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
             </div>
-            <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-            <div class="ml-auto caption" v-if="item.data.isTorpedoAttacker">{{ $t("Common.雷装") }}</div>
-            <div class="ml-auto caption" v-else-if="item.data.isAttacker">{{ $t("Common.爆装") }}</div>
-            <div class="item-torpedo caption" v-if="item.data.isTorpedoAttacker">{{ item.data.torpedo }}</div>
-            <div class="item-torpedo caption" v-else-if="item.data.isAttacker">{{ item.data.bomber }}</div>
+            <div class="text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
+            <template v-if="!isMobile">
+              <div class="ml-auto caption" v-if="item.data.isTorpedoAttacker">{{ $t("Common.雷装") }}</div>
+              <div class="ml-auto caption" v-else-if="item.data.isAttacker">{{ $t("Common.爆装") }}</div>
+              <div class="item-torpedo caption" v-if="item.data.isTorpedoAttacker">{{ item.data.torpedo }}</div>
+              <div class="item-torpedo caption" v-else-if="item.data.isAttacker">{{ item.data.bomber }}</div>
+            </template>
           </div>
         </div>
       </div>
@@ -88,9 +88,11 @@
     </div>
     <div>
       <div class="d-flex flex-wrap">
-        <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}</div>
-        <div>
-          <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="calculate" />
+        <div class="d-flex align-center mb-3 mb-sm-0">
+          <div class="align-self-end caption mr-3">{{ $t("Result.防御艦隊") }}</div>
+          <div>
+            <v-select v-model="defenseIndex" :items="defenseFleets" hide-details dense @change="calculate" />
+          </div>
         </div>
         <div class="ml-auto d-flex">
           <div class="align-self-end caption">{{ $t("Result.航空支援火力") }}</div>
@@ -161,15 +163,28 @@
 <style scoped>
 .select-item-container {
   display: grid;
-  grid-template-columns: 140px 1fr 0.5fr;
-  column-gap: 0.5rem;
-  height: 160px;
+  grid-template-columns: 140px 1fr;
+  column-gap: 4px;
   overflow: hidden;
+  flex-grow: 1;
 }
-
-.selectable-ship-container {
-  height: 160px;
-  overflow-y: auto;
+.selectable-item-container {
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 600px) {
+  .result-header-container {
+    display: flex;
+  }
+  .selectable-ship-container {
+    height: 160px;
+    overflow-y: auto;
+  }
+  .selectable-item-container {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+  }
 }
 
 .ship-selectable {
@@ -191,11 +206,6 @@
   border-color: rgba(0, 164, 255, 0.6);
 }
 
-.selectable-item-container {
-  display: flex;
-  flex-direction: column;
-  height: 200px;
-}
 .selectable-item {
   display: flex;
   cursor: pointer;
@@ -215,6 +225,12 @@
 .item-name {
   flex-grow: 1;
   width: 10px;
+  font-size: 12px;
+}
+@media (min-width: 600px) {
+  .item-name {
+    font-size: 14px;
+  }
 }
 
 .header-divider {
@@ -224,13 +240,22 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 .border-left {
-  border-left: 1px solid rgba(128, 128, 128, 0.4);
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
+  margin-bottom: 8px;
+}
+@media (min-width: 600px) {
+  .border-left {
+    border-top: unset;
+    border-left: 1px solid rgba(128, 128, 128, 0.4);
+    margin-bottom: unset;
+  }
 }
 .enemy-id {
   font-size: 11px;
   height: 13px;
 }
 .v-data-table thead th {
+  white-space: nowrap;
   height: 36px !important;
   background-color: rgb(242, 242, 242) !important;
 }
@@ -238,6 +263,7 @@
   background-color: rgb(49, 49, 53) !important;
 }
 .v-data-table tbody td {
+  white-space: nowrap;
   background-color: unset !important;
   height: unset !important;
 }
@@ -314,6 +340,7 @@ export default Vue.extend({
       counter: (value: number) => (value <= 999 && value >= 0) || '0 ~ 999までが有効です。',
       counter2: (value: number) => (value >= -99 && value <= 0) || '0 ~ -99までが有効です。',
     },
+    isMobile: true,
   }),
   mounted() {
     const saveData = this.$store.state.mainSaveData as SaveData;
@@ -418,6 +445,7 @@ export default Vue.extend({
       this.calculate();
     },
     calculate() {
+      this.isMobile = window.innerWidth < 600;
       // 検証
       if (this.slot > 999) {
         this.slot = 999;

@@ -59,6 +59,7 @@
         nextIcon: 'mdi-chevron-right',
         'items-per-page-options': [20, 50, 100],
       }"
+      mobile-breakpoint="0"
     >
       <template v-slot:[`header.name`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.hp`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -119,6 +120,7 @@
 
 .v-card >>> .v-data-table th,
 .v-card >>> .v-data-table td {
+  white-space: nowrap;
   padding: 0 8px !important;
 }
 

@@ -1,12 +1,12 @@
 <template>
   <v-card class="pa-3">
     <div class="d-flex flex-wrap align-center mb-3">
-      <v-btn color="teal" dark @click="showEnemyList()">{{ $t("Extra.検索する敵艦を選択") }}</v-btn>
-      <div class="ml-3 d-flex" v-if="targetEnemy.data.id">
+      <v-btn class="mr-3" color="teal" dark @click="showEnemyList()">{{ $t("Extra.検索する敵艦を選択") }}</v-btn>
+      <div class="d-flex flex-wrap" v-if="targetEnemy.data.id">
         <div class="align-self-center">
           <v-img :src="`./img/ship/${targetEnemy.data.id}.png`" height="30" width="120" />
         </div>
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 mr-3">
           <div class="d-flex caption flex-wrap">
             <div class="enemy-id ml-2 primary--text">
               id <span class="font-weight-bold">{{ targetEnemy.data.id }}</span>
@@ -22,7 +22,7 @@
             <div class="enemy-name ml-2 text-truncate">{{ getEnemyName(targetEnemy.data.name) }}</div>
           </div>
         </div>
-        <v-checkbox class="ml-3" v-model="withoutPast" dense label="過去イベを除外" @change="search()" hide-details></v-checkbox>
+        <v-checkbox v-model="withoutPast" dense label="過去イベを除外" @change="search()" hide-details></v-checkbox>
       </div>
     </div>
     <div v-if="targetEnemy.data.id" class="my-3">
@@ -45,6 +45,7 @@
         nextIcon: 'mdi-chevron-right',
         'items-per-page-options': [50, 100, 150],
       }"
+      mobile-breakpoint="0"
     >
       <template v-slot:[`header.area`]="{ header }">{{ $t(`Enemies.${header.text}`) }}</template>
       <template v-slot:[`header.name`]="{ header }">{{ $t(`Enemies.${header.text}`) }}</template>
@@ -64,12 +65,12 @@
         <div class="caption">{{ getCellName(item.type) }}</div>
       </template>
       <template v-slot:[`item.data`]="{ item }">
-        <v-btn color="primary" icon @click.stop="showMap(item)">
+        <v-btn color="primary" icon @click.stop="showMap(item)" v-if="!isMobile">
           <v-icon>mdi-information-outline</v-icon>
         </v-btn>
       </template>
     </v-data-table>
-    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
+    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200" :fullscreen="isMobile">
       <enemy-list :handle-decide-enemy="putEnemy" :handleClose="closeEnemyList" />
     </v-dialog>
     <v-dialog width="1100" v-model="detailDialog" transition="scroll-y-transition" @input="toggleDetailDialog">
@@ -229,6 +230,7 @@
 
 .v-card >>> .v-data-table th,
 .v-card >>> .v-data-table td {
+  white-space: nowrap;
   padding: 0 8px !important;
 }
 .v-card >>> .v-data-table th:first-child,
@@ -330,6 +332,7 @@ export default Vue.extend({
     tooltipEnemy: new Enemy(),
     tooltipX: 0,
     tooltipY: 0,
+    isMobile: true,
   }),
   mounted() {
     const cells = this.$store.state.cells as CellMaster[];
@@ -380,6 +383,7 @@ export default Vue.extend({
       }
     },
     showEnemyList() {
+      this.isMobile = window.innerWidth < 600;
       this.enemyListDialog = true;
     },
     putEnemy(enemy: EnemyMaster) {

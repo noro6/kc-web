@@ -1,5 +1,5 @@
 <template>
-  <v-card class="ma-2 pa-3">
+  <v-card class="ma-1 ma-sm-2 pa-2 pa-sm-3">
     <div class="my-1 d-flex align-center flex-wrap">
       <div class="select-item">
         <v-select
@@ -14,7 +14,7 @@
           :label="$t('Database.計算したい項目')"
         />
       </div>
-      <div>
+      <div class="mr-6">
         <v-tooltip top color="black">
           <template v-slot:activator="{ on, attrs }">
             <v-icon class="ml-1" v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
@@ -22,7 +22,7 @@
           <div>{{ $t("Database.選択した項目と、次にその項目が1繰り上がるのは何Lvであるかを表示します。") }}</div>
         </v-tooltip>
       </div>
-      <div class="ml-6" v-if="!luckMode">
+      <div v-if="!luckMode">
         <v-checkbox v-model="showEXP" @change="setShipList" dense hide-details :label="$t('Database.必要経験値表示')" />
       </div>
       <div class="ml-6" v-if="!showEXP">
@@ -41,7 +41,7 @@
       </div>
     </div>
     <div class="d-flex flex-wrap align-center mt-3">
-      <div class="text-field">
+      <div class="text-field mr-3 mb-3">
         <v-text-field
           :label="$t('Database.名称検索')"
           :placeholder="$t('Database.空白区切りで複数指定可')"
@@ -53,10 +53,10 @@
           prepend-inner-icon="mdi-magnify"
         />
       </div>
-      <div>
-        <v-btn text @click="filterDialog = true" :disabled="!!keyword"><v-icon>mdi-filter-variant</v-icon>{{ $t("Common.絞り込み") }}</v-btn>
+      <div class="mb-1">
+        <v-btn outlined @click="filterDialog = true" :disabled="!!keyword"><v-icon>mdi-filter</v-icon>{{ $t("Common.絞り込み") }}</v-btn>
       </div>
-      <div class="ml-auto" v-if="viewStatus">
+      <div class="ml-auto mb-1" v-if="viewStatus">
         <v-text-field
           type="number"
           dense
@@ -85,6 +85,7 @@
         showFirstLastPage: true,
         'items-per-page-options': [30],
       }"
+      mobile-breakpoint="0"
     >
       <template v-slot:[`header.name`]></template>
       <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -190,10 +191,10 @@
     <div class="mt-3">
       <v-pagination v-model="page" :length="pageLength" total-visible="9" />
     </div>
-    <v-dialog v-model="filterDialog" width="740" @input="toggleFilterDialog">
+    <v-dialog v-model="filterDialog" width="740" @input="toggleFilterDialog" :fullscreen="isMobile">
       <v-card class="px-3 pt-2 pb-3">
-        <div class="d-flex">
-          <div class="align-self-center mx-2"><v-icon>mdi-filter-variant</v-icon></div>
+        <div class="d-flex pt-2 pb-1 px-2">
+          <div class="align-self-center mx-2"><v-icon>mdi-filter</v-icon></div>
           <div class="align-self-center">{{ $t("Common.絞り込み") }}</div>
           <v-spacer />
           <v-btn icon @click.stop="closeFilterDialog()">
@@ -276,10 +277,6 @@
             <v-checkbox v-model="onlyBookmarked" :label="$t('Fleet.お気に入り')" />
           </div>
         </div>
-        <v-divider class="my-2" />
-        <div class="d-flex">
-          <v-btn class="ml-auto" color="secondary" @click.stop="closeFilterDialog()">{{ $t("Common.閉じる") }}</v-btn>
-        </div>
       </v-card>
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
@@ -346,6 +343,10 @@
 .luck-caption + span {
   display: inline-block;
   min-width: 24px;
+}
+.ship-list >>> th,
+.ship-list >>> td {
+  white-space: nowrap;
 }
 
 .ship-list >>> tr.maximum {
@@ -491,6 +492,7 @@ export default Vue.extend({
     tooltipShip: new Ship(),
     tooltipX: 0,
     tooltipY: 0,
+    isMobile: true,
   }),
   mounted() {
     for (let i = 0; i < Const.SHIP_TYPES_ALT2.length; i += 1) {
@@ -558,6 +560,7 @@ export default Vue.extend({
       this.setShipList();
     },
     setShipList() {
+      this.isMobile = window.innerWidth < 600;
       this.listData = [];
 
       const all = this.$store.state.ships as ShipMaster[];
@@ -803,7 +806,7 @@ export default Vue.extend({
     },
     bootTooltip(ship: listRow, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledShipTooltip) {
+      if (setting.disabledShipTooltip || this.isMobile) {
         return;
       }
       window.clearTimeout(this.tooltipTimer);

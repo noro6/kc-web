@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container">
+  <div class="chart-container" :class="{ 'normal-size': spNormal }">
     <DoughnutChart ref="doughnutRef" :chart-data="actualData" :options="actualOptions" :plugins="plugins" />
   </div>
 </template>
@@ -7,8 +7,20 @@
 <style scoped>
 .chart-container {
   position: relative;
-  height: 260px;
-  width: 260px;
+  width: 180px;
+  height: 180px;
+}
+
+.normal-size.chart-container {
+  position: relative;
+  width: 260px !important;
+  height: 260px !important;
+}
+@media (min-width: 600px) {
+  .chart-container {
+    width: 260px;
+    height: 260px;
+  }
 }
 </style>
 
@@ -72,6 +84,9 @@ export default Vue.use(vueCompositionApi).extend({
     },
     titleText: {
       type: String,
+    },
+    spNormal: {
+      type: Boolean,
     },
   },
   data: () => ({

@@ -1,29 +1,26 @@
 <template>
   <div class="ma-2">
-    <div class="d-flex ml-5 align-center">
-      <div>{{ $t("Result.制空状態") }}</div>
-      <div class="ml-5">
-        <v-radio-group v-model="airState" row @change="changeAirState">
-          <v-radio :label="$t('Common.制空権確保')" :value="0" />
-          <v-radio :label="$t('Common.航空優勢')" :value="1" />
-          <v-radio :label="$t('Common.航空劣勢')" :value="2" />
-        </v-radio-group>
-      </div>
+    <div class="d-flex justify-center">
+      <v-radio-group v-model="airState" row @change="changeAirState" :dense="isMobile">
+        <v-radio :label="$t('Common.制空権確保')" :value="0" />
+        <v-radio :label="$t('Common.航空優勢')" :value="1" />
+        <v-radio :label="$t('Common.航空劣勢')" :value="2" />
+      </v-radio-group>
     </div>
     <div class="graph-area">
       <div class="contact-graph">
         <doughnut-chart :data="graphData" :options="options" :title-text="$t('Result.対敵通常艦隊')" />
+        <div class="total-contact">
+          <div>{{ $t("Result.合計触接率") }}</div>
+          <div>{{ rates[airState].sumRate.toFixed(1) }} %</div>
+        </div>
       </div>
       <div class="contact-graph">
         <doughnut-chart :data="unionGraphData" :options="unionOptions" :title-text="$t('Result.対敵連合艦隊')" />
-      </div>
-      <div class="total-contact">
-        <div>{{ $t("Result.合計触接率") }}</div>
-        <div>{{ rates[airState].sumRate.toFixed(1) }} %</div>
-      </div>
-      <div class="total-contact-union">
-        <div>{{ $t("Result.合計触接率") }}</div>
-        <div>{{ unionRates[airState].sumRate.toFixed(1) }} %</div>
+        <div class="total-contact">
+          <div>{{ $t("Result.合計触接率") }}</div>
+          <div>{{ unionRates[airState].sumRate.toFixed(1) }} %</div>
+        </div>
       </div>
     </div>
     <div class="contact-legends">
@@ -32,7 +29,7 @@
         <div class="ml-2">{{ legend.text }}</div>
       </div>
     </div>
-    <div>{{ $t("Result.対敵通常艦隊") }}</div>
+    <div class="mt-2 mt-sm-0 text-caption text-sm-body-2">{{ $t("Result.対敵通常艦隊") }}</div>
     <div class="contact-row header-row">
       <div class="text-left">{{ $t("Result.制空状態") }}</div>
       <div>{{ $t("Result.触接開始率") }}</div>
@@ -49,7 +46,7 @@
       <div>{{ data.contact112.toFixed(1) }} %</div>
       <div>{{ data.sumRate.toFixed(1) }} %</div>
     </div>
-    <div class="mt-2">{{ $t("Result.対敵連合艦隊") }}</div>
+    <div class="mt-2 text-caption text-sm-body-2">{{ $t("Result.対敵連合艦隊") }}</div>
     <div class="contact-row header-row">
       <div class="text-left">{{ $t("Result.制空状態") }}</div>
       <div>{{ $t("Result.触接開始率") }}</div>
@@ -71,30 +68,32 @@
 
 <style scoped>
 .graph-area {
-  display: flex;
-  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
 }
 .contact-graph {
-  width: 50%;
+  position: relative;
   z-index: 1;
 }
 .contact-graph > div {
   margin-left: auto;
   margin-right: auto;
 }
-.total-contact,
-.total-contact-union {
-  text-align: center;
-  position: absolute;
-  width: 200px;
-  top: 50%;
-}
 .total-contact {
-  left: calc(25% - 100px);
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  right: 0;
+  left: 0;
+  font-size: 12px;
 }
-.total-contact-union {
-  right: calc(25% - 100px);
+@media (min-width: 600px) {
+  .total-contact {
+    font-size: unset;
+  }
 }
+
 .contact-legends {
   display: flex;
   flex-wrap: wrap;
@@ -104,7 +103,7 @@
 .contact-legends > div {
   width: 10%;
   min-width: 120px;
-  margin-top: 1rem;
+  margin-top: 10px;
 }
 .legend-color-label {
   display: inline-block;
@@ -187,10 +186,14 @@ export default Vue.extend({
       },
     } as DoughnutGraphOption,
     graphLegends: [] as { text: string; color: string }[],
+    isMobile: true,
   }),
   created() {
     // 初期化はお早めに
     this.calculate();
+  },
+  mounted() {
+    this.isMobile = window.innerWidth < 600;
   },
   methods: {
     calculate() {
@@ -204,6 +207,7 @@ export default Vue.extend({
       for (let i = 0; i < 4; i += 1) {
         this.graphLegends.push({ text: `${this.$t(`Result.${contactGraphLabels[i]}`)}`, color: contactGraphColors[i] });
       }
+      this.isMobile = window.innerWidth < 600;
     },
     changeAirState(): void {
       this.graphData = this.getGraphData(this.rates[this.airState]);

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card>
+    <v-card class="enemy-list-card">
       <div class="d-flex pt-2 pb-1 pr-2">
         <div class="align-self-center ml-3">{{ $t("Enemies.敵艦選択") }}</div>
         <v-spacer />
@@ -9,16 +9,15 @@
         </v-btn>
       </div>
       <v-divider />
-      <div class="d-flex px-2 pt-2">
-        <div class="align-self-center">
-          <v-text-field :label="$t('ItemList.図鑑id 名称検索')" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify" />
+      <div class="d-flex px-2 pt-sm-2">
+        <div>
+          <v-text-field :label="$t('ItemList.図鑑id 名称検索')" v-model="keyword" clearable @input="filter()" prepend-inner-icon="mdi-magnify" hide-details />
         </div>
-        <div class="ml-5 align-self-center">
+        <div class="ml-sm-5">
           <v-checkbox v-model="isLandBase" @change="filter()" :label="$t('Enemies.地上施設')" />
         </div>
-        <v-spacer />
       </div>
-      <div class="d-flex flex-wrap mx-3">
+      <div class="d-flex flex-wrap mx-sm-3">
         <div
           v-for="(i, index) in types"
           :key="index"
@@ -32,7 +31,7 @@
         </div>
       </div>
       <v-divider class="mx-3" />
-      <div class="enemy-table-container pa-3">
+      <div class="enemy-table-container px-2 px-sm-3 pb-2">
         <div v-for="(row, i) in enemies" :key="`type${i}`">
           <div class="type-divider">
             <div class="caption text--secondary">{{ needTrans ? $t(row.name) : row.name }}</div>
@@ -87,8 +86,12 @@
 </template>
 
 <style scoped>
+.enemy-list-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .enemy-table-container {
-  height: 64vh;
   overflow-y: scroll;
   overscroll-behavior: contain;
 }
@@ -97,6 +100,14 @@
   grid-template-columns: 1fr;
 }
 @media (min-width: 600px) {
+  .enemy-list-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .enemy-table-container {
+    height: 64vh;
+  }
   .enemy-table-body {
     grid-template-columns: 1fr 1fr;
   }

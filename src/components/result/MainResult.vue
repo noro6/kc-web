@@ -29,8 +29,8 @@
       </v-tooltip>
     </div>
     <v-divider class="mb-3" />
-    <v-alert border="left" dense outlined type="info" class="ma-3 body-2" v-if="!moreCalculateRequested && !capturing">
-      <div class="d-flex">
+    <v-alert border="left" dense outlined type="info" class="ma-1 ma-sm-3 body-2" v-if="!moreCalculateRequested && !capturing">
+      <div class="d-flex flex-wrap">
         <div class="align-self-center">
           {{ $t("Result.出撃x回分の計算結果が表示されています。", { number: calculateCount.toLocaleString() }) }}
         </div>
@@ -41,11 +41,11 @@
         </div>
       </div>
     </v-alert>
-    <v-alert border="left" dense outlined type="warning" class="ma-3 body-2" v-if="existUnknownEnemy">
+    <v-alert border="left" dense outlined type="warning" class="ma-1 ma-sm-3 body-2" v-if="existUnknownEnemy">
       <div>{{ $t("Enemies.搭載数が未確定の敵艦が含まれています。") }}{{ $t("Result.計算結果が実際の制空状態と異なる可能性があります。") }}</div>
     </v-alert>
-    <div class="px-3">
-      <div class="d-flex">
+    <div class="px-1 px-sm-3 scrollable-table">
+      <div class="d-flex flex-wrap">
         <div class="body-2">{{ $t("Result.戦闘開始時の搭載数推移") }}</div>
         <div class="caption ml-auto" v-show="!capturing">※ {{ $t("Result.行クリックで詳細計算画面展開") }}</div>
       </div>
@@ -55,9 +55,9 @@
             <th class="text-center">{{ $t("Fleet.艦娘") }}</th>
             <th class="text-center">{{ $t("Fleet.装備") }}</th>
             <th v-for="i in battleCount" :key="i" :class="`td-battle${i - 1}`">{{ $t("Enemies.x戦目", { number: i }) }}</th>
-            <th>{{ $t("Result.出撃後") }}</th>
-            <th>{{ $t("Result.全滅率") }}</th>
-            <th class="pr-1">{{ $t("Result.棒立ち率") }}</th>
+            <th class="pl-1 pl-sm-0">{{ $t("Result.出撃後") }}</th>
+            <th class="pl-1 pl-sm-0">{{ $t("Result.全滅率") }}</th>
+            <th class="pl-1 pl-sm-0 pr-1">{{ $t("Result.棒立ち率") }}</th>
           </tr>
         </thead>
         <tbody>
@@ -68,7 +68,7 @@
               </td>
               <td :class="`text-left item-input type-${item.data.iconTypeId}`">
                 <div class="d-flex">
-                  <div class="d-none d-sm-block px-0 px-md-1">
+                  <div class="px-0 px-md-1">
                     <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="25" width="25" />
                   </div>
                   <div class="align-self-center item-name text-truncate">
@@ -85,7 +85,7 @@
             </tr>
           </template>
           <tr>
-            <td class="text-center" rowspan="2">{{ $t("Common.制空値") }}({{ $t("Common.平均") }})</td>
+            <td class="text-center text-no-wrap" rowspan="2">{{ $t("Common.制空値") }}({{ $t("Common.平均") }})</td>
             <td class="text-center py-1">{{ $t("Fleet.自艦隊") }}</td>
             <td v-for="(result, i) in results" :key="i" class="pr-md-1" :class="`td-battle${i}`">{{ result.avgAirPower }}</td>
             <td class="text-center header-td" colspan="3">
@@ -164,11 +164,11 @@
       </table>
       <v-divider />
     </div>
-    <v-tabs v-model="tab" class="px-3">
+    <v-tabs v-model="tab" class="px-1 px-sm-3" show-arrows center-active>
       <v-tab v-for="(enemyFleet, i) in battles" :key="i" :href="`#battle${i}`" @click="changedTab(i)">{{ $t("Enemies.x戦目", { number: i + 1 }) }}</v-tab>
     </v-tabs>
     <v-divider class="mx-3" />
-    <div class="d-flex px-3 mt-6">
+    <div class="d-flex px-1 px-sm-3 mt-6">
       <div>
         <v-select
           class="form-input"
@@ -189,7 +189,7 @@
         </div>
       </v-tooltip>
     </div>
-    <v-card class="ma-3 py-3 pr-4 pl-2">
+    <v-card class="mx-1 mx-sm-3 my-2 py-3 pr-2 pr-sm-4 pl-2">
       <div class="d-flex mt-1">
         <div class="bar-label" />
         <div class="flex-grow-1 d-flex">
@@ -235,127 +235,137 @@
         </div>
       </div>
     </v-card>
-    <v-card class="ma-3 py-3 px-2">
+    <v-card class="mx-1 mx-sm-3 my-2 py-3 px-2">
       <div class="body-2 px-2 mb-1">{{ $t("Result.各フェーズ制空状態の確率") }}</div>
-      <table>
-        <thead>
-          <tr>
-            <th />
-            <th>{{ $t("Common.制空値") }}</th>
-            <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
-            <th class="pr-sm-1">{{ $t("Common.確保") }}</th>
-            <th class="pr-sm-1">{{ $t("Common.優勢") }}</th>
-            <th class="pr-sm-1">{{ $t("Common.拮抗") }}</th>
-            <th class="pr-sm-1">{{ $t("Common.劣勢") }}</th>
-            <th class="pr-sm-1">{{ $t("Common.喪失") }}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(ab, i) in airbaseWaveResults" :key="`${i}`" class="cursor-pointer" @click="clickedAirbaseRow(ab.baseIndex)">
-            <td>{{ ab.text }}</td>
-            <td>{{ ab.result.avgAirPower }}</td>
-            <td>{{ airPowerBorders(ab.result.avgEnemyAirPower) }}</td>
-            <td v-for="(rate, j) in ab.result.rates" :key="`${i}-${j}`" class="pr-sm-1 py-1">
-              <span v-if="rate">{{ rate }} %</span>
-              <span v-else-if="j < 5">-</span>
-            </td>
-          </tr>
-          <tr>
-            <td>{{ $t("Result.本隊") }}</td>
-            <td>{{ fleet.mainResult.avgAirPower }}</td>
-            <td>{{ airPowerBorders(fleet.mainResult.avgEnemyAirPower) }}</td>
-            <td v-for="(rate, i) in fleet.mainResult.rates" :key="i" class="pr-sm-1 py-1">
-              <span v-if="rate">{{ rate }} %</span>
-              <span v-else-if="i < 5">-</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <v-divider />
-    </v-card>
-    <v-card class="ma-3 py-3 px-2">
-      <div class="body-2 px-2">{{ $t("Result.敵機残数") }}</div>
-      <table>
-        <thead>
-          <tr>
-            <th class="text-center">{{ $t("Result.敵艦") }}</th>
-            <th class="text-center">{{ $t("Fleet.装備") }}</th>
-            <th>{{ $t("Result.初期搭載") }}</th>
-            <th>{{ $t("Result.残数平均") }}</th>
-            <th>{{ $t("Result.全滅率") }}</th>
-            <th>{{ $t("Result.棒立ち率") }}</th>
-            <th class="pr-1" v-if="!capturing">{{ $t("Result.詳細") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(row, i) in enemyTableData">
-            <tr v-for="(item, j) in row.items" :key="`${i}-${j}`">
-              <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">
-                {{ getEnemyName(row.enemy.data.name) }}
-              </td>
-              <td :class="`text-left d-flex item-input py-1 type-${item.data.iconTypeId}`">
-                <div class="d-none d-sm-block px-0 px-md-1">
-                  <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20" />
-                </div>
-                <div class="align-self-center item-name text-truncate">
-                  {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
-                </div>
-              </td>
-              <td>{{ item.fullSlot }}</td>
-              <td>{{ item.slotResult }}</td>
-              <td>{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
-              <td class="pr-1" v-if="j === 0" :rowspan="row.items.length">
-                {{ row.allDeathRate > 0 ? `${row.allDeathRate} %` : "-" }}
-              </td>
-              <td v-if="j === 0 && !capturing" :rowspan="row.items.length">
-                <v-btn color="primary" icon small @click="viewDetail(row.enemy, row.index)">
-                  <v-icon>mdi-information-outline</v-icon>
-                </v-btn>
+      <div class="scrollable-table">
+        <table>
+          <thead>
+            <tr>
+              <th />
+              <th class="pr-1">{{ $t("Common.制空値") }}</th>
+              <th class="pr-1">
+                {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})
+              </th>
+              <th class="pr-1">{{ $t("Common.確保") }}</th>
+              <th class="pr-1">{{ $t("Common.優勢") }}</th>
+              <th class="pr-1">{{ $t("Common.拮抗") }}</th>
+              <th class="pr-1">{{ $t("Common.劣勢") }}</th>
+              <th class="pr-1">{{ $t("Common.喪失") }}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(ab, i) in airbaseWaveResults" :key="`${i}`" class="cursor-pointer" @click="clickedAirbaseRow(ab.baseIndex)">
+              <td class="text-no-wrap pr-1">{{ ab.text }}</td>
+              <td class="text-no-wrap pr-1">{{ ab.result.avgAirPower }}</td>
+              <td class="text-no-wrap pr-1">{{ airPowerBorders(ab.result.avgEnemyAirPower) }}</td>
+              <td v-for="(rate, j) in ab.result.rates" :key="`${i}-${j}`" class="pr-1 py-1 text-no-wrap">
+                <span v-if="rate">{{ rate }} %</span>
+                <span v-else-if="j < 5">-</span>
               </td>
             </tr>
-          </template>
-        </tbody>
-      </table>
-      <v-divider />
+            <tr>
+              <td class="text-no-wrap pr-1">{{ $t("Result.本隊") }}</td>
+              <td class="text-no-wrap pr-1">{{ fleet.mainResult.avgAirPower }}</td>
+              <td class="text-no-wrap pr-1">{{ airPowerBorders(fleet.mainResult.avgEnemyAirPower) }}</td>
+              <td v-for="(rate, i) in fleet.mainResult.rates" :key="i" class="pr-1 py-1 text-no-wrap">
+                <span v-if="rate">{{ rate }} %</span>
+                <span v-else-if="i < 5">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <v-divider />
+      </div>
     </v-card>
-    <v-card class="ma-3 py-3 px-2">
+    <v-card class="mx-1 mx-sm-3 my-2 py-3 px-2">
+      <div class="body-2 px-2">{{ $t("Result.敵機残数") }}</div>
+      <div class="scrollable-table">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-center">{{ $t("Result.敵艦") }}</th>
+              <th class="text-center">{{ $t("Fleet.装備") }}</th>
+              <th class="pl-1 pl-sm-0">{{ $t("Result.初期搭載") }}</th>
+              <th class="pl-1 pl-sm-0">{{ $t("Result.残数平均") }}</th>
+              <th class="pl-1 pl-sm-0">{{ $t("Result.全滅率") }}</th>
+              <th class="pl-1 pl-sm-0">{{ $t("Result.棒立ち率") }}</th>
+              <th class="pl-1 pl-sm-0 pr-1" v-if="!capturing">{{ $t("Result.詳細") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="(row, i) in enemyTableData">
+              <tr v-for="(item, j) in row.items" :key="`${i}-${j}`">
+                <td class="td-enemy-name text-truncate" v-if="j === 0" :rowspan="row.items.length">
+                  {{ getEnemyName(row.enemy.data.name) }}
+                </td>
+                <td :class="`text-left d-flex item-input py-1 type-${item.data.iconTypeId}`">
+                  <div class="px-0 px-md-1">
+                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="20" width="20" />
+                  </div>
+                  <div class="align-self-center item-name text-truncate">
+                    {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                  </div>
+                </td>
+                <td>{{ item.fullSlot }}</td>
+                <td>{{ item.slotResult }}</td>
+                <td>{{ item.deathRate > 0 ? `${item.deathRate} %` : "-" }}</td>
+                <td class="pr-1" v-if="j === 0" :rowspan="row.items.length">
+                  {{ row.allDeathRate > 0 ? `${row.allDeathRate} %` : "-" }}
+                </td>
+                <td v-if="j === 0 && !capturing" :rowspan="row.items.length">
+                  <v-btn color="primary" icon small @click="viewDetail(row.enemy, row.index)">
+                    <v-icon>mdi-information-outline</v-icon>
+                  </v-btn>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <v-divider />
+      </div>
+    </v-card>
+    <v-card class="mx-1 mx-sm-3 my-2 py-3 px-2">
       <div class="body-2 px-2">{{ $t("Result.支援艦隊") }}</div>
-      <table>
-        <thead>
-          <tr>
-            <th class="text-left py-1 pl-3">{{ $t("Result.艦隊") }}</th>
-            <th class="text-left">{{ $t("Result.種別") }}</th>
-            <th>{{ $t("Common.制空値") }}</th>
-            <th>{{ $t("Result.対潜支援制空") }}</th>
-            <th>{{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})</th>
-            <th class="pr-2">{{ $t("Common.確保") }}</th>
-            <th class="pr-2">{{ $t("Common.優勢") }}</th>
-            <th class="pr-2">{{ $t("Common.拮抗") }}</th>
-            <th class="pr-2">{{ $t("Common.劣勢") }}</th>
-            <th class="pr-2">{{ $t("Common.喪失") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, i) in supportsTableRow" :key="`support_${i}`">
-            <td class="text-left py-2 pl-3">{{ $t("Fleet.第x艦隊", { number: row.number }) }}</td>
-            <td class="text-left">{{ row.typeName }}</td>
-            <td>{{ row.airPower }}</td>
-            <td>{{ row.aswAirPower }}</td>
-            <td>{{ row.enemyAirPower }}</td>
-            <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
-              <span v-if="rate">{{ rate }} %</span>
-              <span v-else>-</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <v-divider />
+      <div class="scrollable-table">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left py-1 pl-3">{{ $t("Result.艦隊") }}</th>
+              <th class="text-left pl-1 pr-2">{{ $t("Result.種別") }}</th>
+              <th class="pr-2">{{ $t("Common.制空値") }}</th>
+              <th class="pr-2">{{ $t("Result.対潜支援制空") }}</th>
+              <th class="pr-2">
+                {{ $t("Common.敵制空値") }}( {{ $t("Common.確保") }} / {{ $t("Common.優勢") }} / {{ $t("Common.拮抗") }} / {{ $t("Common.劣勢") }})
+              </th>
+              <th class="pr-2">{{ $t("Common.確保") }}</th>
+              <th class="pr-2">{{ $t("Common.優勢") }}</th>
+              <th class="pr-2">{{ $t("Common.拮抗") }}</th>
+              <th class="pr-2">{{ $t("Common.劣勢") }}</th>
+              <th class="pr-2">{{ $t("Common.喪失") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in supportsTableRow" :key="`support_${i}`">
+              <td class="text-left py-2 pl-3 text-no-wrap">{{ $t("Fleet.第x艦隊", { number: row.number }) }}</td>
+              <td class="text-left pl-1 text-no-wrap">{{ row.typeName }}</td>
+              <td>{{ row.airPower }}</td>
+              <td>{{ row.aswAirPower }}</td>
+              <td>{{ row.enemyAirPower }}</td>
+              <td v-for="(rate, j) in row.rates" :key="`support_row${i}_rate${j}`" class="pr-2">
+                <span v-if="rate">{{ rate }} %</span>
+                <span v-else>-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <v-divider />
+      </div>
       <div class="pl-2 caption mt-1">※ {{ $t("Result.制空値は航空支援専用の制空値です。熟練度や改修値に影響されません。") }}</div>
       <div class="pl-2 caption">※ {{ $t("Result.敵制空値は本隊航空戦終了時点での制空値の平均です。") }}</div>
     </v-card>
-    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
-      <v-card>
+    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog" :fullscreen="isMobile">
+      <v-card :class="{ fullscreen: isMobile }">
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("Result.詳細計算") }}</div>
           <v-spacer />
@@ -365,6 +375,7 @@
         </div>
         <v-divider />
         <plane-detail-result
+          class="detail-result-container"
           v-if="!destroyDialog && detailParent"
           :arg-parent="detailParent"
           :index="detailIndex"
@@ -408,6 +419,15 @@
   cursor: pointer;
 }
 
+.scrollable-table {
+  overflow-x: auto;
+}
+@media (min-width: 600px) {
+  .scrollable-table {
+    overflow-x: unset;
+  }
+}
+
 table {
   font-size: 0.75em;
   text-align: right;
@@ -425,6 +445,7 @@ table thead tr {
 
 table th {
   opacity: 0.8;
+  white-space: nowrap;
 }
 table tr td {
   border-top: 1px solid rgba(128, 128, 128, 0.25);
@@ -437,10 +458,11 @@ table tr td.border-top-none {
 table tbody tr:hover {
   background-color: rgba(128, 128, 128, 0.05);
 }
-.td-ship-name {
+td.td-ship-name {
   font-size: 12px;
   text-align: center;
   width: 100px;
+  white-space: nowrap;
 }
 .td-enemy-name {
   font-size: 12px;
@@ -593,6 +615,15 @@ td.item-input {
 .theme--dark .captured .v-card {
   border: 1px solid #444;
 }
+
+.fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.fullscreen .detail-result-container {
+  overflow-y: auto;
+}
 </style>
 
 <script lang="ts">
@@ -674,6 +705,7 @@ export default Vue.extend({
     fuelCorr: '',
     ammoCorr: '',
     detailEditableItems: [] as Item[],
+    isMobile: true,
   }),
   computed: {
     formations(): Formation[] {
@@ -996,6 +1028,7 @@ export default Vue.extend({
         this.detailFleetIndex = this.displayBattle;
       }
       this.destroyDialog = false;
+      this.isMobile = window.innerWidth < 600;
       this.detailDialog = true;
     },
     updateDetailFormItems(items: Item[]) {

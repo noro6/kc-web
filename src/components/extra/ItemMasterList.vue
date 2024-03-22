@@ -58,6 +58,7 @@
           nextIcon: 'mdi-chevron-right',
           'items-per-page-options': [50, 100, 150],
         }"
+      mobile-breakpoint="0"
       >
         <template v-slot:[`header.name`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.fire`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -128,7 +129,7 @@
         </template>
       </v-simple-table>
     </v-card>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
   </div>
@@ -198,6 +199,7 @@
 
 .v-card >>> .v-data-table th,
 .v-card >>> .v-data-table td {
+  white-space: nowrap;
   padding: 0 8px !important;
 }
 
@@ -331,6 +333,7 @@ export default Vue.extend({
     shipListDialog: false,
     shipDialogWidth: 1200,
     itemStock: [] as ItemStock[],
+    isMobile: true,
   }),
   mounted() {
     const all = this.$store.state.items as ItemMaster[];
@@ -427,6 +430,7 @@ export default Vue.extend({
       this.setItems();
     },
     setItems() {
+      this.isMobile = window.innerWidth < 600;
       const items = [];
       const types = Const.ITEM_TYPES_ALT.filter((v) => this.selectedTypes.includes(v.id))
         .map((v) => v.types)

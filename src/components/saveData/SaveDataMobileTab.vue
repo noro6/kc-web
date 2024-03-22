@@ -1,107 +1,80 @@
 <template>
-  <div id="active-tab-list">
-    <draggable animation="150" class="d-flex" handle=".drag-tab-handle" @end="sortEnd" v-if="!reload">
+  <div>
+    <v-divider class="mb-1"></v-divider>
+    <div class="save-data-items" v-if="!reload">
+      <div class="save-data-item pa-0 new-item">
+        <v-btn block @click.stop="addNewFile()" plain text>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </div>
       <div
-        class="tab-item"
+        class="save-data-item"
         v-for="(saveData, i) in viewData"
         :id="saveData.id"
         :key="i"
         :class="{ active: saveData.isMain }"
         @click="clickSaveData(saveData)"
-        @mousedown.middle="handleCloseTab(saveData, $event)"
         @keypress.enter="clickSaveData(saveData)"
         @keypress.delete="handleCloseTab(saveData)"
       >
-        <div class="drag-tab-handle tab-item-icon">
-          <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
-          <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
-        </div>
-        <v-tooltip bottom color="black" open-delay="300">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="tab-item-name text-truncate" v-bind="attrs" v-on="on">{{ saveData.name }}</div>
-          </template>
-          <span>{{ saveData.name }}</span>
-        </v-tooltip>
-        <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
-          <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
+        <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
+        <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
+        <div class="save-data-name text-truncate">{{ saveData.name }}</div>
+        <v-btn icon @click.stop="showNameEditDialog(saveData)" small v-if="!saveData.isUnsaved">
+          <v-icon small>mdi-pencil</v-icon>
+        </v-btn>
+        <div class="btn-close">
+          <v-btn icon @click.stop="handleCloseTab(saveData, $event)" small>
             <v-icon small>mdi-close</v-icon>
           </v-btn>
         </div>
       </div>
-      <div
-        v-if="externalData && externalData.length"
-        class="tab-item cursor-pointer"
-        :class="{ active: isExternalMain || showExternals }"
-        :id="saveData.id"
-        @click="showExternalMenu($event)"
-        @keypress.enter="showExternalMenu($event)"
-      >
-        <div class="tab-item-icon">
-          <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
-        </div>
-        <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} ( {{ externalData.length }} )</div>
-        <v-menu
-          v-model="showExternals"
-          absolute
-          :position-x="externalsX"
-          :position-y="externalsY"
-          :close-on-content-click="false"
-          dark
-          transition="slide-y-transition"
-        >
-          <v-card>
-            <div class="external-tabs">
+      <v-expansion-panels class="pa-0 mt-3" v-if="externalData.length">
+        <v-expansion-panel>
+          <v-expansion-panel-header class="px-4 py-1">
+            <div class="d-flex align-center">
+              <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
+              <div>{{ $t("Common.外部データ") }} ( {{ externalData.length }} )</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content class="px-0">
+            <div class="save-data-items">
               <div
                 v-for="(saveData, i) in externalData"
                 :key="`ex_${i}`"
-                class="external-tab-item"
+                class="save-data-item"
                 :class="{ active: saveData.isMain }"
                 @click="clickSaveData(saveData)"
-                @mousedown.middle="handleCloseTab(saveData, $event)"
                 @keypress.enter="clickSaveData(saveData)"
                 @keypress.delete="handleCloseTab(saveData)"
               >
-                <div class="tab-item-icon">
-                  <v-icon small>mdi-file-import</v-icon>
-                </div>
-                <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
+                <v-icon small>mdi-file-import</v-icon>
+                <div class="save-data-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
                 <div class="ml-auto caption font-weight-bold">{{ externalWorlds[i] }}</div>
-                <div class="ml-1 btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
-                  <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
-                    <v-icon small>mdi-close</v-icon>
-                  </v-btn>
-                </div>
+                <v-btn icon @click.stop="handleCloseTab(saveData, $event)" small>
+                  <v-icon small>mdi-close</v-icon>
+                </v-btn>
+              </div>
+              <div>
+                <v-btn block outlined color="warning" small @click.stop="closeExternalConfirmDialog = true">
+                  {{ $t("Common.削除") }}
+                </v-btn>
               </div>
             </div>
-          </v-card>
-        </v-menu>
-        <div class="ml-auto btn-close text--secondary align-self-center">
-          <v-btn icon x-small @click.stop="closeExternalConfirmDialog = true">
-            <v-icon small>mdi-close</v-icon>
-          </v-btn>
-        </div>
-      </div>
-      <div class="tab-add-button">
-        <v-btn icon small @click.stop="addNewFile()">
-          <v-icon small>mdi-plus</v-icon>
-        </v-btn>
-      </div>
-    </draggable>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="580">
-      <v-card class="pa-3">
-        <div class="mx-4 mt-4">
-          <div class="body-2">{{ $t("SaveData.未保存の変更内容がありますが、このまま編成タブを閉じますか？") }}</div>
-          <div class="mt-3 caption">
-            {{ $t("SaveData.戻って保存するには、サイト上部の保存ボタンを押してください。") }}
-          </div>
-          <div class="caption">{{ $t("SaveData.変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。") }}</div>
-        </div>
+      <v-card class="py-3 px-4">
+        <div class="body-2 mt-4">{{ $t("SaveData.未保存の変更内容がありますが、このまま編成タブを閉じますか？") }}</div>
+        <div class="caption mt-2">{{ $t("SaveData.変更内容を破棄してタブを閉じる場合は、このままOKボタンを押してください。") }}</div>
         <v-divider class="mt-4" />
-        <div class="d-flex mt-1">
-          <div class="ml-4">
-            <v-checkbox v-model="disabledConfirm" :label="$t('SaveData.次回以降表示しない')" hide-details dense />
-            <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
-          </div>
+        <div>
+          <v-checkbox v-model="disabledConfirm" :label="$t('SaveData.次回以降表示しない')" hide-details dense />
+          <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
+        </div>
+        <div class="d-flex mt-3">
           <v-btn class="ml-auto align-self-end" color="red" dark @click.stop="closeTab(deleteConfirmData)">{{ $t("Common.OK") }}</v-btn>
           <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="deleteConfirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
@@ -109,7 +82,7 @@
     </v-dialog>
     <v-dialog v-model="editDialog" transition="scroll-x-transition" width="800">
       <v-card class="pa-3">
-        <div class="mx-4 mt-4">
+        <div class="mt-4">
           <v-text-field
             v-model.trim="editedName"
             dense
@@ -136,7 +109,7 @@
             <div class="align-self-center">
               <v-icon x-large :color="selectedColor">{{ editedIsDirectory ? "mdi-folder" : "mdi-file" }}</v-icon>
             </div>
-            <div class="ml-1 flex-grow-1 d-flex justify-space-around">
+            <div class="color-select-items">
               <div v-for="color in fileColors" :key="`color${color}`" class="my-1">
                 <v-btn fab light x-small :color="color" @click="selectedColor = color">
                   <v-icon v-if="color === selectedColor">mdi-check-bold</v-icon>
@@ -145,9 +118,9 @@
             </div>
           </div>
           <div class="d-flex mt-3 align-center">
-            <div class="text--secondary caption ml-auto">{{ $t("Common.最終更新日時") }}</div>
+            <div class="text--secondary caption">{{ $t("Common.最終更新日時") }}</div>
             <div class="text--secondary caption ml-3">{{ lastModified }}</div>
-            <v-btn class="ml-6" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
+            <v-btn class="ml-auto" color="success" @click.stop="commitName" :disabled="isNameEmpty || !editDialog">{{ $t("Common.更新") }}</v-btn>
           </div>
         </div>
       </v-card>
@@ -166,116 +139,58 @@
 </template>
 
 <style scoped>
-#active-tab-list {
-  font-size: 12px;
-  width: 100%;
+.save-data-items {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 4px;
 }
-.tab-item,
-.external-tab-item {
+.save-data-item {
+  opacity: 0.5;
+  padding: 4px 6px;
+  border: 2px solid rgba(128, 128, 128, 0.5);
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  flex: 1 1 auto;
-  overflow: hidden;
-  max-width: 200px;
-  min-width: 60px;
-  opacity: 0.6;
-  border-right: 1px solid rgb(64, 64, 64);
-  border-left: 1px solid transparent;
+  transition: 0.2s ease-out;
 }
-.tab-item:hover,
-.external-tab-item:hover {
-  opacity: 0.8;
-  background-color: rgba(128, 128, 128, 0.4);
+.save-data-item.active {
+  opacity: 1;
+  border-color: #1867c0;
 }
-.tab-item.active,
-.external-tab-item.active {
-  background-color: rgb(64, 64, 64);
-  border-left: 1px solid rgb(64, 64, 64);
+.save-data-item.new-item {
   opacity: 1;
 }
-
-.drag-tab-handle {
-  cursor: move !important;
-}
-.tab-item-icon {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-left: 0.3rem;
-  height: 28px;
-}
-
-.tab-item-name {
-  margin-left: 0.25rem;
-  flex-grow: 1;
-  user-select: none;
-}
-
-.btn-close.edited {
-  position: relative;
-}
-.btn-close.edited::before {
-  content: "";
-  position: absolute;
-  background-color: #eee;
-  border-radius: 50%;
-  top: 5px;
-  right: 5px;
-  width: 10px;
-  height: 10px;
-  transition: 0.2s;
-}
-.btn-close.edited .v-icon {
-  opacity: 0;
-}
-.btn-close.edited:hover::before {
-  opacity: 0;
-}
-.btn-close.edited:hover .v-icon {
-  opacity: 1;
-}
-.tab-add-button {
-  opacity: 0.8;
-  margin-left: 0.25rem;
-  text-align: center;
-  align-self: center;
-}
-
-.external-tabs {
-  background-color: #0a0a0c !important;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-.external-tab-item {
-  width: 200px;
-  opacity: 0.7;
-  border-right-color: transparent;
-  border-top: 1px solid rgb(64, 64, 64);
+.save-data-name {
+  margin-left: 4px;
   font-size: 12px;
+  width: 1px;
+  flex-grow: 1;
 }
-.external-tab-item.active {
-  border-left: unset !important;
-}
-.cursor-pointer {
-  cursor: pointer;
+
+.color-select-items {
+  margin-left: 6px;
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
-import draggable from 'vuedraggable';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting from '@/classes/siteSetting';
 import Const from '@/classes/const';
 import max from 'lodash/max';
 
 export default Vue.extend({
-  name: 'SaveDataTab',
-  components: { draggable },
+  name: 'SaveDataMobileTab',
   props: {
     saveData: {
       type: SaveData,
       required: true,
+    },
+    handleClose: {
+      type: Function,
     },
   },
   data: () => ({
@@ -351,26 +266,6 @@ export default Vue.extend({
   methods: {
     textFieldFocused(focusEvent: FocusEvent) {
       if (focusEvent) (focusEvent.target as HTMLInputElement).select();
-    },
-    sortEnd() {
-      const base = document.getElementById('active-tab-list') as HTMLElement;
-      const itemElements = base.getElementsByClassName('tab-item');
-
-      for (let i = 0; i < this.viewData.length; i += 1) {
-        const data = this.viewData[i];
-        const targetElement = document.getElementById(data.id);
-        if (targetElement) {
-          const index = ([].slice.call(itemElements) as HTMLElement[]).indexOf(targetElement);
-          data.activeOrder = index ?? 0;
-        }
-      }
-
-      // インデックスが変更になったので
-      this.$store.dispatch('updateSaveData', this.saveData);
-      this.reload = true;
-      this.$nextTick(() => {
-        this.reload = false;
-      });
     },
     showNameEditDialog(data: SaveData) {
       this.editedFile = data;
@@ -504,19 +399,9 @@ export default Vue.extend({
         if (!this.$route.path.endsWith('/aircalc')) {
           this.$router.push('aircalc');
         }
-      } else {
-        this.showNameEditDialog(data);
       }
-    },
-    showExternalMenu(e: MouseEvent) {
-      if (e && e.target && e.target instanceof HTMLElement && e.target.closest('.tab-item')) {
-        const rect = (e.target.closest('.tab-item') as HTMLElement).getBoundingClientRect();
-        this.externalsX = rect.left;
-        this.externalsY = rect.bottom;
 
-        this.setExternalWorlds();
-        this.showExternals = true;
-      }
+      this.handleClose();
     },
     setExternalWorlds() {
       // 海域の情報だけぶっこ抜く処理

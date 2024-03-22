@@ -95,8 +95,8 @@
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :is-airbase-mode="true" />
     </v-tooltip>
-    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
-      <v-card class="px-2 pb-2" v-if="!destroyDialog">
+    <v-dialog width="1200" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog" :fullscreen="isFullscreen">
+      <v-card class="px-2 pb-2" :class="{ fullscreen: isFullscreen }" v-if="!destroyDialog">
         <div class="d-flex pt-2 pb-1">
           <div class="align-self-center ml-3">{{ $t("Airbase.基地航空隊詳細") }}</div>
           <div class="align-self-center ml-3 body-2">-{{ $t("Airbase.第x基地航空隊", { number: index + 1 }) }}</div>
@@ -111,7 +111,7 @@
           <v-tab href="#detail">{{ $t("Result.残機数詳細") }}</v-tab>
         </v-tabs>
         <v-divider />
-        <v-tabs-items v-model="tab">
+        <v-tabs-items v-model="tab" class="tab-item-container" touchless>
           <v-tab-item value="contact">
             <contact-rates :fleet="value" />
           </v-tab-item>
@@ -146,6 +146,15 @@
 
 body.item-ui-border .item-input-divider {
   display: none !important;
+}
+
+.fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.fullscreen .tab-item-container {
+  overflow-y: auto;
 }
 </style>
 
@@ -211,6 +220,7 @@ export default Vue.extend({
     tooltipY: 0,
     destroyDialog: false,
     detailDialog: false,
+    isFullscreen: true,
     visibleResource: false,
     emptyResult: new AirCalcResult(),
     detailEditableItems: [] as Item[],
@@ -303,6 +313,7 @@ export default Vue.extend({
     viewDetail(): void {
       this.detailEditableItems = [];
       this.destroyDialog = false;
+      this.isFullscreen = window.innerWidth < 600;
       this.detailDialog = true;
     },
     closeDetail() {

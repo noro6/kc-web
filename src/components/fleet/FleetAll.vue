@@ -56,7 +56,7 @@
     <div class="d-flex align-center flex-wrap mx-2">
       <v-menu v-model="levelMenu" :close-on-content-click="false" @input="onLevelMenuToggle">
         <template v-slot:activator="{ on, attrs }">
-          <div class="form-input mt-5 mr-2" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
+          <div class="admin-level mt-5 mr-2" v-bind="attrs" v-on="on" v-ripple="{ class: 'info--text' }">
             <v-text-field type="number" dense hide-details :label="$t('Fleet.司令部Lv')" v-model.number="fleetInfo.admiralLevel" readonly />
           </div>
         </template>
@@ -64,7 +64,7 @@
           <v-text-field class="form-input" v-model.number="level" max="120" min="1" hide-details type="number" :label="$t('Fleet.司令部Lv')" />
         </v-card>
       </v-menu>
-      <div class="mr-2 mt-5">
+      <div class="mr-2 mt-5 d-none d-sm-block">
         <v-select
           class="form-input"
           :label="$t('Common.陣形')"
@@ -86,11 +86,11 @@
           @change="changedInfo"
         />
       </div>
-      <div class="mt-5" v-if="fleetInfo.isUnion">
+      <div class="mt-5 d-none d-sm-block" v-if="fleetInfo.isUnion">
         <v-checkbox :label="$t('Fleet.12隻表示')" dense hide-details v-model="show12" @change="changedShow12" />
       </div>
     </div>
-    <v-tabs class="px-2 mt-1" v-model="tab" center-active show-arrows @change="changedTab">
+    <v-tabs class="px-2 mt-1 fleet-tabs-container" v-model="tab" center-active show-arrows @change="changedTab">
       <v-tab
         v-for="i in fleetCount"
         :key="i"
@@ -235,13 +235,13 @@
         </div>
       </v-tab-item>
     </v-tabs-items>
-    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" @input="toggleShipListDialog">
+    <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" @input="toggleShipListDialog" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth" @input="toggleItemListDialog">
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth" @input="toggleItemListDialog" :fullscreen="isMobile">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
-    <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="900">
+    <v-dialog v-model="tempShipListDialog" transition="scroll-x-transition" width="900" :fullscreen="isMobile">
       <v-card v-if="tempShipListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Fleet.艦娘クリップボード") }}</div>
@@ -336,7 +336,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="tempFleetListDialog" transition="scroll-x-transition" width="900">
+    <v-dialog v-model="tempFleetListDialog" transition="scroll-x-transition" width="900" :fullscreen="isMobile">
       <v-card v-if="tempFleetListDialog">
         <div class="d-flex pb-1 px-2 pt-2">
           <div class="align-self-center ml-3">{{ $t("Fleet.艦隊クリップボード") }}</div>
@@ -370,7 +370,7 @@
             </v-btn>
           </div>
           <v-divider class="mt-3 mb-2" v-if="tempFleet.ships.some((v) => !v.isEmpty)" />
-          <div class="d-flex ml-2 mb-2">
+          <div class="d-flex flex-wrap ml-2 mb-2">
             <div class="align-self-center d-flex">
               <div class="body-2 align-self-end">{{ $t("Fleet.クリップボード") }}</div>
               <div class="ml-3 align-self-end caption" v-if="tempFleetList.length">※ {{ $t("Fleet.クリックで展開") }}</div>
@@ -439,7 +439,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="640" @input="onBulkUpdateDialogToggle">
+    <v-dialog v-model="bulkUpdateDialog" transition="scroll-x-transition" width="640" @input="onBulkUpdateDialogToggle" :fullscreen="isMobile">
       <v-card>
         <div class="d-flex pt-2 pb-1 pr-2">
           <div class="align-self-center ml-3">{{ $t("Common.一括設定") }}</div>
@@ -449,7 +449,7 @@
           </v-btn>
         </div>
         <v-divider />
-        <div class="px-5 pt-2 pb-5">
+        <div class="px-2 px-sm-4 pt-2 pb-5">
           <div>
             <div class="d-flex">
               <div class="caption">{{ $t("Common.適用対象") }}</div>
@@ -473,7 +473,7 @@
             <div class="caption">Lv</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex align-end justify-space-between">
+          <div class="d-flex flex-wrap align-end justify-space-between">
             <v-btn outlined @click.stop="setShipLevel(1)" color="grey">Lv1</v-btn>
             <v-btn outlined @click.stop="setShipLevel(50)" color="primary">Lv50</v-btn>
             <v-btn outlined @click.stop="setShipLevel(80)" color="teal">Lv80</v-btn>
@@ -490,7 +490,7 @@
             <div class="caption">{{ $t("Common.熟練度") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex justify-space-between">
+          <div class="d-flex flex-wrap justify-space-between">
             <div v-for="i in 9" :key="i - 1" v-ripple class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)">
               <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
               <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>
@@ -501,7 +501,7 @@
             <div class="caption">{{ $t("Common.改修値") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex justify-space-between">
+          <div class="d-flex flex-wrap justify-space-between">
             <div v-for="i in 11" :key="i" class="remodel-list-item" v-ripple @click="setRemodel(i - 1)" @keypress.enter="setRemodel(i - 1)">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
@@ -511,8 +511,8 @@
             <div class="caption">{{ $t("Common.艦載機搭載数") }}</div>
             <div class="header-divider" />
           </div>
-          <div class="d-flex mt-3">
-            <div class="flex-grow-1 mx-2">
+          <div class="d-flex flex-wrap">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(1)" block color="red">{{ $t("ItemList.x機", { number: 1 }) }}</v-btn>
@@ -522,7 +522,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(2)" block color="orange darken-4">{{ $t("ItemList.x機", { number: 2 }) }}</v-btn>
@@ -532,7 +532,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(3)" block color="yellow darken-4">{{ $t("ItemList.x機", { number: 3 }) }}</v-btn>
@@ -542,7 +542,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(5)" block color="light-green">{{ $t("ItemList.x機", { number: 5 }) }}</v-btn>
@@ -552,7 +552,7 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-tooltip bottom color="black" :disabled="isNotJapanese">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn v-bind="attrs" v-on="on" outlined @click="setSlot(17)" block color="success">{{ $t("ItemList.x機", { number: 17 }) }}</v-btn>
@@ -562,25 +562,29 @@
                 </div>
               </v-tooltip>
             </div>
-            <div class="flex-grow-1 mx-2">
+            <div class="flex-grow-1 mx-2 mt-3">
               <v-btn outlined @click="resetSlot" block>{{ $t("Common.初期値") }}</v-btn>
             </div>
           </div>
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600">
+    <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600" :fullscreen="isMobile">
       <item-preset-component
         v-if="itemPresetDialog"
         v-model="tempShip"
         :handle-expand-item-preset="expandItemPreset"
         :handle-close="closeDialog"
+        :is-mobile="isMobile"
       ></item-preset-component>
     </v-dialog>
   </v-card>
 </template>
 
 <style scoped>
+.admin-level {
+  width: 80px;
+}
 .form-input {
   width: 120px;
 }
@@ -729,6 +733,11 @@
 .ship-level-input {
   width: 72px;
 }
+
+.fleet-tabs-container >>> div.v-slide-group__next,
+.fleet-tabs-container >>> div.v-slide-group__prev {
+  min-width: unset !important;
+}
 </style>
 
 <style>
@@ -817,6 +826,7 @@ export default Vue.extend({
     shipDialogTarget: [-1, -1],
     tab: 'fleet0',
     itemDialogWidth: 1200,
+    isMobile: true,
     shipDialogWidth: 1200,
     level: 120,
     levelMenu: false,
@@ -1108,23 +1118,27 @@ export default Vue.extend({
     async showItemList(fleetIndex: number, shipIndex: number, slotIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.itemDialogTarget = [fleetIndex, shipIndex, slotIndex];
+      this.isMobile = window.innerWidth < 600;
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, slotIndex);
     },
     async showBatchItemList(fleetIndex: number, shipIndex: number) {
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.itemDialogTarget = [fleetIndex, shipIndex];
+      this.isMobile = window.innerWidth < 600;
       await (this.itemListDialog = true);
       // 一括モードで起動(第四引数 補強増設の分+1)
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, 0, [], ship.data.slotCount + 1);
     },
     async showShipList(fleetIndex: number, shipIndex: number) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
+      this.isMobile = window.innerWidth < 600;
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
     },
     async showBatchShipList(fleetIndex: number) {
       this.shipDialogTarget = [fleetIndex, 0];
+      this.isMobile = window.innerWidth < 600;
       await (this.shipListDialog = true);
       // 一括モードtrueで起動
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(true, this.fleetInfo.fleets[fleetIndex].ships.length);
@@ -1133,6 +1147,7 @@ export default Vue.extend({
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.shipDialogTarget = [fleetIndex, shipIndex];
       this.tempShip = cloneDeep(ship);
+      this.isMobile = window.innerWidth < 600;
       this.itemPresetDialog = true;
     },
     createTray(fleetIndex: number, shipIndex: number) {
@@ -1154,6 +1169,7 @@ export default Vue.extend({
       const ship = this.fleetInfo.fleets[fleetIndex].ships[shipIndex];
       this.shipDialogTarget = [fleetIndex, shipIndex];
       this.tempShip = cloneDeep(ship);
+      this.isMobile = window.innerWidth < 600;
       this.tempShipListDialog = true;
       this.enabledPushTempShip = true;
     },
@@ -1192,6 +1208,7 @@ export default Vue.extend({
       const fleet = this.fleetInfo.fleets[fleetIndex];
       this.shipDialogTarget = [fleetIndex, 0];
       this.tempFleet = cloneDeep(fleet);
+      this.isMobile = window.innerWidth < 600;
       this.tempFleetListDialog = true;
       this.enabledPushTempFleet = true;
     },

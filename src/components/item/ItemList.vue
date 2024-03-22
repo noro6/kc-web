@@ -12,35 +12,47 @@
           prepend-inner-icon="mdi-magnify"
         />
       </div>
-      <div class="ml-1 filter-select">
-        <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()" />
-      </div>
-      <div class="filter-value-input">
-        <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
-      </div>
-      <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
-      <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
-        <v-btn @click="resetFilter()" icon small>
-          <v-icon>mdi-trash-can-outline</v-icon>
-        </v-btn>
-      </div>
+      <template v-if="!isMobile">
+        <div class="ml-1 filter-select">
+          <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()" />
+        </div>
+        <div class="filter-value-input">
+          <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
+        </div>
+        <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
+        <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
+          <v-btn @click="resetFilter()" icon small>
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+        </div>
+      </template>
       <v-spacer />
-      <div class="d-none d-sm-block mr-5">
-        <v-btn-toggle dense v-model="multiLine" borderless mandatory>
-          <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
-            <v-icon color="white">mdi-view-headline</v-icon>
-          </v-btn>
-          <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
-            <v-icon color="white">mdi-view-comfy</v-icon>
-          </v-btn>
-        </v-btn-toggle>
-      </div>
+      <template v-if="!isMobile">
+        <div class="mr-5">
+          <v-btn-toggle dense v-model="multiLine" borderless mandatory>
+            <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
+              <v-icon color="white">mdi-view-headline</v-icon>
+            </v-btn>
+            <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
+              <v-icon color="white">mdi-view-comfy</v-icon>
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+      </template>
+      <template v-else>
+        <v-btn icon @click="filterDialog = true">
+          <v-icon>mdi-filter</v-icon>
+        </v-btn>
+        <v-btn icon @click="sortDialog = true">
+          <v-icon>mdi-sort</v-icon>
+        </v-btn>
+      </template>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
     <v-divider />
-    <div class="item-filter-container px-3 py-1">
+    <div class="item-filter-container px-3 py-1" v-if="!isMobile">
       <template v-if="!isBatchMode || !isCheckedOnly">
         <v-checkbox v-model="isEnemyMode" @change="filter()" hide-details dense :label="$t('ItemList.敵装備')" />
         <div class="d-flex manual-checkbox" v-if="!isAirbaseMode">
@@ -59,10 +71,10 @@
           </v-btn>
           <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
         </div>
-        <div class="d-flex manual-checkbox" v-if="enabledNightAircraftFilter">
+        <div v-if="enabledNightAircraftFilter">
           <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
         </div>
-        <div class="d-flex manual-checkbox" v-if="enabledAAResistFilter">
+        <div v-if="enabledAAResistFilter">
           <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
         </div>
         <template v-if="type === 14">
@@ -99,7 +111,7 @@
         <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})</v-btn>
       </div>
     </div>
-    <div class="type-selector-container" :class="{ 'ml-3': multiLine, 'ml-1': !multiLine }">
+    <div class="type-selector-container" :class="{ 'ml-3': multiLine && !isMobile, 'ml-1': !multiLine }">
       <div
         v-ripple="{ class: 'info--text' }"
         class="type-selector"
@@ -131,8 +143,10 @@
         {{ $t("Fleet.選択済") }}
       </div>
     </div>
-    <v-divider :class="{ 'mx-3': multiLine }" />
-    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine, 'table-mode': !multiLine }">
+    <v-divider :class="{ 'mx-3': multiLine && !isMobile }" />
+    <!-- 装備表示一覧部分 -->
+    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine && !isMobile, 'table-mode': !multiLine, 'px-2': isMobile }">
+      <!-- 一列表示モード用 装備ステータスヘッダー部分 -->
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div class="pl-1">
           <v-btn icon small @click="sortDialog = true">
@@ -179,13 +193,15 @@
           </div>
         </div>
       </div>
+      <!-- 装備表示部分 -->
       <div v-for="(data, i) in itemListData" :key="i">
-        <div class="type-divider" v-if="multiLine">
+        <div class="type-divider" v-if="multiLine && !isMobile">
           <div class="caption text--secondary">{{ $t(`EType.${data.typeName}`) }}</div>
           <div class="type-divider-border" />
         </div>
         <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
           <div class="list-item-container" v-if="!multiLine && data.items.length">
+            <!-- 一列表示モードの場合の装備個別表示処理コチラ -->
             <div
               v-for="(item, i) in data.items"
               :key="`item-${i}`"
@@ -251,6 +267,7 @@
               <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}</div>
             </div>
           </div>
+          <!-- 複数列表示モードの場合の装備個別表示処理コチラ(あとスマホ) -->
           <template v-else>
             <div
               v-for="(v, i) in data.items"
@@ -262,6 +279,7 @@
                 'has-bonus': !isCheckedOnly && v.sumBonus,
                 'has-bad-bonus': !isCheckedOnly && v.sumBonus < 0,
                 'ignore-bonus': sortExcludeSynergyStatus,
+                mobile: isMobile,
                 selected: v.batchListIndexes.length,
                 disabled: !isCheckedOnly && v.disabled,
               }"
@@ -288,31 +306,41 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="item-name-container"
-                :class="{ 'is-special': v.item.data.isSpecial }"
-                @mouseenter="bootTooltip(v.item, v.bonus, $event)"
-                @mouseleave="clearTooltip"
-                @focus="bootTooltip(v.item, v.bonus, $event)"
-                @blur="clearTooltip"
-              >
-                <div class="text-truncate">
-                  {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
+              <div class="flex-grow-1">
+                <div class="d-flex align-center">
+                  <div
+                    class="item-name-container"
+                    :class="{ 'is-special': v.item.data.isSpecial }"
+                    @mouseenter="bootTooltip(v.item, v.bonus, $event)"
+                    @mouseleave="clearTooltip"
+                    @focus="bootTooltip(v.item, v.bonus, $event)"
+                    @blur="clearTooltip"
+                  >
+                    <div class="text-truncate">
+                      {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
+                    </div>
+                  </div>
+                  <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
+                    <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
+                    <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
+                    <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                    <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+                  </div>
+                  <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
+                    <v-icon small color="teal accent-4">mdi-star</v-icon>
+                    <span class="teal--text text--accent-4">{{ v.remodel }}</span>
+                  </div>
+                  <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
+                    <span>&times;</span>
+                    <span>{{ v.count }}</span>
+                  </div>
                 </div>
-              </div>
-              <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
-                <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-                <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
-                <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
-                <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
-              </div>
-              <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
-                <v-icon small color="teal accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4">{{ v.remodel }}</span>
-              </div>
-              <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
-                <span>&times;</span>
-                <span>{{ v.count }}</span>
+                <div class="mobile-sub-status" v-if="isMobile">
+                  <div v-for="key in viewStatus" class="mobile-sub-status-value" :key="`status${key}`">
+                    <div class="sub-status-header">{{ $t(`Statuses.${key}`) }}</div>
+                    <div>{{ formatStatus(v, key) }}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </template>
@@ -359,7 +387,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog">
+    <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog" :fullscreen="isMobile">
       <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
     <v-dialog v-model="sortDialog" width="600">
@@ -387,6 +415,210 @@
         <v-divider />
         <div class="d-flex mt-3 justify-end">
           <v-btn color="secondary" @click="resetOrdering">{{ $t("Common.リセット") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="filterDialog" @input="toggleFilterDialog" fullscreen>
+      <v-card class="filter-dialog-card">
+        <div class="d-flex px-2 py-1 align-center">
+          <div class="body-2">{{ $t("Common.絞り込み") }}</div>
+          <v-spacer></v-spacer>
+          <v-switch
+            class="mt-0"
+            v-if="itemStock.length && !isEnemyMode"
+            :label="$t('ItemList.所持装備反映')"
+            v-model="isStockOnly"
+            @click="clickedStockOnly"
+            dense
+            :disabled="!!batchList.length || !itemStock.length || isEnemyMode"
+            hide-details
+          />
+          <v-btn class="ml-3" icon @click="closeFilterDialog()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider />
+        <div class="filter-mobile-inputs pa-2">
+          <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" />
+          <div class="d-flex">
+            <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" />
+            <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
+            <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
+              <v-btn @click="resetFilter()" icon small>
+                <v-icon>mdi-trash-can-outline</v-icon>
+              </v-btn>
+            </div>
+          </div>
+        </div>
+        <v-divider></v-divider>
+        <v-list dense class="pt-0">
+          <template v-if="!isBatchMode || !isCheckedOnly">
+            <template v-if="type === 14">
+              <v-list-item @click="includeSonar = !includeSonar">
+                <v-list-item-icon>
+                  <v-icon v-if="includeSonar" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.ソナー')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="includeDepthCharge = !includeDepthCharge">
+                <v-list-item-icon>
+                  <v-icon v-if="includeDepthCharge" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.爆雷')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="includeDepthChargeLauncher = !includeDepthChargeLauncher">
+                <v-list-item-icon>
+                  <v-icon v-if="includeDepthChargeLauncher" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.爆雷投射機')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+            </template>
+            <template v-if="type === 5">
+              <v-list-item @click="includeTorpedo = !includeTorpedo">
+                <v-list-item-icon>
+                  <v-icon v-if="includeTorpedo" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.魚雷')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="includeSPTorpedo = !includeSPTorpedo">
+                <v-list-item-icon>
+                  <v-icon v-if="includeSPTorpedo" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.特殊潜航艇')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="includeSVTorpedo = !includeSVTorpedo">
+                <v-list-item-icon>
+                  <v-icon v-if="includeSVTorpedo" color="primary">mdi-checkbox-marked</v-icon>
+                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="$t('EType.潜水艦魚雷')"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider></v-divider>
+            </template>
+            <v-list-item v-if="!isAirbaseMode" @click="toggleAffectingRangeFilter()">
+              <v-list-item-icon>
+                <v-icon color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
+                <v-icon color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
+                <v-icon v-else>mdi-minus-box-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="$t('ItemList.射程増加')"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="!isAirbaseMode"></v-divider>
+            <v-list-item v-if="setting.displayBonusKey" @click="isSpecialOnly = !isSpecialOnly" :disabled="isEnemyMode">
+              <v-list-item-icon>
+                <v-icon v-if="isSpecialOnly" color="primary">mdi-checkbox-marked</v-icon>
+                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="$t('ItemList.特効装備')"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="setting.displayBonusKey"></v-divider>
+            <v-list-item v-if="enabledNightAircraftFilter" @click="onlyNightAircraft = !onlyNightAircraft">
+              <v-list-item-icon>
+                <v-icon v-if="onlyNightAircraft" color="primary">mdi-checkbox-marked</v-icon>
+                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="$t('ItemList.夜間機')"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="enabledNightAircraftFilter"></v-divider>
+            <v-list-item v-if="enabledAAResistFilter" @click="onlyAAResistAircraft = !onlyAAResistAircraft">
+              <v-list-item-icon>
+                <v-icon v-if="onlyAAResistAircraft" color="primary">mdi-checkbox-marked</v-icon>
+                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="$t('ItemList.射撃回避')"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="enabledAAResistFilter"></v-divider>
+            <v-list-item v-if="type === 7" @click="toggleLandBaseAttackFilter()" :disabled="isEnemyMode">
+              <v-list-item-icon>
+                <v-icon color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
+                <v-icon color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
+                <v-icon v-else>mdi-minus-box-outline</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="$t('ItemList.対地攻撃')"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider v-if="type === 7"></v-divider>
+          </template>
+          <v-list-item v-if="isStockOnly" @click="sortExcludeRemodelStatus = !sortExcludeRemodelStatus" :disabled="isEnemyMode">
+            <v-list-item-icon>
+              <v-icon v-if="sortExcludeRemodelStatus" color="primary">mdi-checkbox-marked</v-icon>
+              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('ItemList.改修値無効')"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider v-if="isStockOnly"></v-divider>
+          <v-list-item v-if="!isAirbaseMode" @click="sortExcludeSynergyStatus = !sortExcludeSynergyStatus" :disabled="isEnemyMode">
+            <v-list-item-icon>
+              <v-icon v-if="sortExcludeSynergyStatus" color="primary">mdi-checkbox-marked</v-icon>
+              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('ItemList.装備シナジー無効')"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider v-if="!isAirbaseMode"></v-divider>
+          <v-list-item v-if="!isBatchMode || !isCheckedOnly" @click="isEnemyMode = !isEnemyMode">
+            <v-list-item-icon>
+              <v-icon v-if="isEnemyMode" color="primary">mdi-checkbox-marked</v-icon>
+              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('ItemList.敵装備')"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider v-if="!isBatchMode || !isCheckedOnly"></v-divider>
+          <v-list-item @click="showBlacklist()">
+            <v-list-item-icon>
+              <v-icon>mdi-eye-off</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>
+                <span>{{ $t("ItemList.ブラックリスト") }}</span>
+                ({{ setting.blacklistItemIds.length }})
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider></v-divider>
+        </v-list>
+        <div class="mt-auto">
+          <v-btn
+            block
+            text
+            @click="
+              filter();
+              filterDialog = false;
+            "
+            ><v-icon>mdi-close</v-icon>{{ $t("Common.閉じる") }}</v-btn
+          >
         </div>
       </v-card>
     </v-dialog>
@@ -422,21 +654,35 @@
 
 <style scoped>
 .list-card {
+  display: flex;
+  flex-direction: column;
   position: relative;
+  height: 100vh;
 }
 
 #item-table-body {
   overflow-y: auto;
-  height: 65vh;
   overscroll-behavior: contain;
 }
-#item-table-body.table-mode {
-  overflow-y: unset;
-  height: unset;
-  min-height: 65vh;
-}
-.item-search-text {
-  width: 150px;
+
+@media (min-width: 600px) {
+  .list-card {
+    display: block;
+    flex-direction: unset;
+    position: relative;
+    height: unset;
+  }
+  #item-table-body {
+    height: 65vh;
+  }
+  #item-table-body.table-mode {
+    overflow-y: unset;
+    height: unset;
+    min-height: 65vh;
+  }
+  .item-search-text {
+    width: 150px;
+  }
 }
 
 .filter-select {
@@ -454,7 +700,12 @@
 
 .sort-selector {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+@media (min-width: 600px) {
+  .sort-selector {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
 .sort-key {
   text-align: center;
@@ -569,11 +820,20 @@
   padding-right: 12px;
   padding-left: 12px;
 }
+.list-item.mobile {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+}
 .list-item.no-stock:hover {
   background-color: rgba(255, 128, 128, 0.1);
 }
 .list-item.has-bonus {
   border-color: rgba(3, 169, 244, 0.8);
+  border-bottom-left-radius: 0.2rem;
+  border-bottom-right-radius: 0.2rem;
 }
 .list-item.single.has-bonus {
   padding-left: 6px;
@@ -612,6 +872,10 @@
   width: 10px;
   height: 34px;
   margin-left: 0.1rem;
+}
+.mobile .item-name-container {
+  font-size: 14px;
+  height: unset;
 }
 .is-special {
   color: #3cac42;
@@ -836,6 +1100,42 @@
   right: 12px;
   top: 8px;
 }
+
+/** スマホ版表示 */
+.mobile-sub-status {
+  margin-left: 0.1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.mobile-sub-status-value {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.sub-status-header {
+  opacity: 0.7;
+  margin-right: 8px;
+  font-size: 11px;
+}
+.filter-dialog-card {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.filter-dialog-card >>> .v-list {
+  background-color: transparent !important;
+}
+.filter-dialog-card .type-selector {
+  padding: 0.4rem 0.6rem;
+  font-size: 14px;
+  transition: 0.2s;
+}
+.filter-mobile-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 4px;
+}
 </style>
 
 <script lang="ts">
@@ -971,6 +1271,7 @@ export default Vue.extend({
     blacklistDialog: false,
     blacklistItems: [] as number[],
     sortDialog: false,
+    filterDialog: false,
     decidedItem: false,
     wikiDialog: false,
     showMenu: false,
@@ -985,6 +1286,7 @@ export default Vue.extend({
     isCheckedOnly: false,
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     itemListHeight: 100,
+    isMobile: true,
   }),
   mounted() {
     this.types = [];
@@ -1018,6 +1320,8 @@ export default Vue.extend({
       this.filterStatusItems.push({ text: `${this.$t(`Common.${text}`)}`, value: key });
       this.sortKeyItems.push({ text, value: key });
     }
+
+    this.updateIsMobile();
   },
   computed: {
     isAirbaseMode(): boolean {
@@ -1102,6 +1406,27 @@ export default Vue.extend({
         return classes;
       };
     },
+    mobileItemHeaderText() {
+      return (key: string, items: string[]) => {
+        const classes: string[] = ['item-status'];
+        if (key === this.sortKey && this.isDesc) classes.push('desc');
+        else if (key === this.sortKey && !this.isDesc) classes.push('asc');
+
+        const index = items.findIndex((v) => v === key);
+        if (index >= 0) {
+          classes.push(`order-${index}`);
+
+          // おケツの方ほどpaddingをとりたい
+          const padding = index - 1;
+          if (padding > 0) {
+            classes.push(`pr-${padding}`);
+          }
+        } else {
+          classes.push('d-none');
+        }
+        return classes;
+      };
+    },
     formatStatus() {
       return (v: viewItem, key: string) => {
         const item = v.item as unknown as sortItem;
@@ -1155,6 +1480,12 @@ export default Vue.extend({
     },
   },
   methods: {
+    updateIsMobile() {
+      this.isMobile = window.innerWidth < 600;
+      if (this.isMobile) {
+        this.changeMultiLine(true);
+      }
+    },
     changeType(type = 0): void {
       this.isCheckedOnly = false;
       this.type = type;
@@ -1379,6 +1710,8 @@ export default Vue.extend({
       this.filter();
     },
     filter() {
+      this.updateIsMobile();
+
       if (!this.batchList.length && this.isCheckedOnly) {
         // 一括配備モードのゴミ掃除 => 一件も選択装備がないのに選択装備のみフィルタがあった場合
         this.isCheckedOnly = false;
@@ -1767,6 +2100,9 @@ export default Vue.extend({
           }
           const isActualFilterKey = filterKey.indexOf('actual') >= 0 || actualKey.includes(filterKey);
           this.viewItems = (this.viewItems as []).filter((v: { item: sortItem }) => {
+            if (this.filterStatus === 'antiAirBonus') {
+              return (v.item.antiAirBonus as number) / 100 >= filterValue;
+            }
             if (isActualFilterKey) {
               return v.item[filterKey] >= filterValue;
             }
@@ -1776,6 +2112,11 @@ export default Vue.extend({
             return (v.item.data as { [key: string]: number })[filterKey] >= filterValue;
           });
         }
+      }
+
+      // スマホ版は表示ステータスを3つ程度まで減らす デザインが無理すぎる
+      if (this.isMobile) {
+        this.viewStatus = this.viewStatus.splice(0, 4);
       }
 
       // ソートを行う
@@ -1906,7 +2247,7 @@ export default Vue.extend({
       const key = this.sortKey;
       const desc = this.isDesc ? 1 : -1;
 
-      if (!this.multiLine && key !== 'name' && key !== 'id' && !this.viewStatus.includes(key)) {
+      if ((!this.multiLine || this.isMobile) && key !== 'name' && key !== 'id' && !this.viewStatus.includes(key)) {
         // ソート対象が一覧になかった場合、ケツのviewStatusをソート項目に置き換え
         this.viewStatus[this.viewStatus.length - 1] = key;
       }
@@ -1940,7 +2281,7 @@ export default Vue.extend({
     },
     bootTooltip(item: Item, bonus: ItemBonusStatus, e: MouseEvent | FocusEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledItemTooltip) {
+      if (setting.disabledItemTooltip || this.isMobile) {
         return;
       }
       const div = e.target as HTMLDivElement;
@@ -1974,6 +2315,15 @@ export default Vue.extend({
     toggleBlacklistDialog() {
       if (!this.blacklistDialog) {
         this.filter();
+      }
+    },
+    closeFilterDialog() {
+      this.filterDialog = false;
+      this.toggleFilterDialog();
+    },
+    toggleFilterDialog() {
+      if (!this.filterDialog) {
+        this.changedFilter();
       }
     },
     openWiki(item: ItemMaster) {

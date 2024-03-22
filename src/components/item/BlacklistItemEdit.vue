@@ -1,7 +1,16 @@
 <template>
-  <v-card>
-    <div class="d-flex py-2 pl-6 pr-2">
-      <div class="item-search-text">
+  <v-card class="blacklist-card">
+    <div class="d-flex pa-2">
+      <v-checkbox :disabled="!!keyword" v-model="blacklistOnly" @change="filter()" hide-details dense :label="$t('ItemList.ブラックリスト登録済み装備')" />
+      <v-spacer />
+      <v-btn icon @click="close">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </div>
+    <v-divider />
+    <div class="px-1 px-sm-3 pt-3">
+      <div class="body-2 mb-2 ml-2">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
+      <div class="input-field">
         <v-text-field
           :placeholder="$t('ItemList.図鑑id 名称検索')"
           clearable
@@ -10,45 +19,28 @@
           hide-details
           dense
           prepend-inner-icon="mdi-magnify"
+          :disabled="blacklistOnly"
         />
+        <v-select
+          dense
+          v-model="type"
+          hide-details
+          :items="types"
+          item-value="id"
+          :item-text="(item) => $t('EType.' + item.text)"
+          @input="filter()"
+          :label="$t('Database.カテゴリ')"
+          :disabled="blacklistOnly"
+        ></v-select>
       </div>
-      <v-checkbox
-        class="ml-3"
-        :disabled="!!keyword"
-        v-model="blacklistOnly"
-        @change="filter()"
-        hide-details
-        dense
-        :label="$t('ItemList.ブラックリスト登録済み装備')"
-      />
-      <v-spacer />
-      <v-btn icon @click="close">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+      <v-divider class="mt-1" />
     </div>
-    <v-divider />
-    <div class="pt-3">
-      <div class="body-2 mb-2 ml-2">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
-      <div class="d-flex flex-wrap">
-        <div
-          v-for="i in types"
-          :key="i.id"
-          v-ripple="{ class: 'info--text' }"
-          class="type-selector"
-          :class="{ active: type === i.id, disabled: keyword || blacklistOnly }"
-          @click="changeType(i.id)"
-          @keypress="changeType(i.id)"
-        >
-          <v-img :src="`./img/type/type${i.id}.png`" height="32" width="32" />
-        </div>
-      </div>
-      <v-divider />
-      <v-simple-table fixed-header height="52vh" dense>
+    <div class="list-table px-1 px-sm-3">
+      <v-simple-table dense>
         <template v-slot:default>
           <thead>
             <tr>
-              <th class="text-center"></th>
-              <th class="text-right item-id">id</th>
+              <th class="icon-td"></th>
               <th class="text-left">{{ $t("Common.装備名称") }}</th>
             </tr>
           </thead>
@@ -65,19 +57,19 @@
               @focus="bootTooltip(item.data, $event)"
               @blur="clearTooltip"
             >
-              <td class="icon-td text-center">
+              <td class="text-center">
                 <v-icon v-if="item.isBlacklisted" color="grey">mdi-eye-off</v-icon>
               </td>
-              <td class="item-id">
-                <div class="info--text caption">{{ item.data.id }}</div>
-              </td>
               <td class="item-name">
-                <div class="d-flex align-center py-1">
+                <div class="d-flex align-center">
                   <div>
                     <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
                   </div>
-                  <div class="ml-1" :class="{ 'is-special': item.data.isSpecial }">
-                    {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                  <div class="ml-1">
+                    <div class="info--text caption text-id">id {{ item.data.id }}</div>
+                    <div class="text-name" :class="{ 'is-special': item.data.isSpecial }">
+                      {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
+                    </div>
                   </div>
                 </div>
               </td>
@@ -89,7 +81,7 @@
     <v-divider />
     <div class="d-flex px-3 py-3">
       <v-spacer />
-      <v-btn color="secondary" :dark="existsBlacklist" :disabled="!existsBlacklist" @click.stop="removeAll()">
+      <v-btn color="secondary" :dark="existsBlacklist" :disabled="!existsBlacklist" @click.stop="removeAll()" :block="isMobile">
         {{ $t("ItemList.全解除") }}
       </v-btn>
     </div>
@@ -100,53 +92,27 @@
 </template>
 
 <style scoped>
-.item-search-text {
-  width: 180px;
+.input-field {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6px;
 }
-
-.type-selector {
-  border: 1px solid transparent;
-  padding: 0.25rem 0.6rem;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.type-selector:hover {
-  background-color: rgba(128, 200, 255, 0.2);
-}
-.type-selector.active {
-  border-color: rgba(33, 150, 243, 0.4);
-  background-color: rgba(33, 150, 243, 0.1);
-}
-.type-selector.disabled {
-  opacity: 0.4;
-  background-color: transparent;
-  pointer-events: none;
-}
-.type-all-text {
-  width: 32px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 0.9em;
-  align-self: center;
-}
-.type-divider {
-  margin-top: 1.25rem;
-  display: flex;
-  width: 100%;
-}
-.type-divider-border {
-  margin-left: 1rem;
-  align-self: center;
-  flex-grow: 1;
-  border-top: 1px solid rgba(128, 128, 128, 0.2);
+td,
+th {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 .icon-td {
-  width: 60px;
+  width: 50px;
 }
-.item-id {
-  width: 60px;
-  text-align: right;
+.text-id {
+  font-size: 12px;
+  font-weight: bold;
+}
+.text-name {
+  font-size: 12px;
 }
 .is-special {
   color: #3cac42;
@@ -162,6 +128,25 @@
 
 .blacklisted td > div {
   opacity: 0.4;
+}
+
+.blacklist-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.list-table {
+  overflow-y: auto;
+}
+@media (min-width: 600px) {
+  .blacklist-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .list-table {
+    height: 65vh;
+  }
 }
 </style>
 
@@ -199,6 +184,7 @@ export default Vue.extend({
     tooltipItem: new Item(),
     tooltipX: 0,
     tooltipY: 0,
+    isMobile: true,
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -230,10 +216,10 @@ export default Vue.extend({
   methods: {
     changeType(type = 0): void {
       this.type = type;
-
       this.filter();
     },
     filter() {
+      this.isMobile = window.innerWidth < 600;
       this.items = [];
 
       const word = this.keyword ? this.keyword.toUpperCase() : '';
@@ -291,7 +277,7 @@ export default Vue.extend({
     },
     bootTooltip(item: ItemMaster, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledItemTooltip) {
+      if (setting.disabledItemTooltip || window.innerWidth < 600) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

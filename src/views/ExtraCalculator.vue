@@ -13,15 +13,15 @@
       <v-tabs-items v-model="tab" :touchless="true">
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘の基本ステータスの確認と比較を行えます。") }}</div>
-          <div class="pa-2">
+          <div class="pa-1">
             <ship-master-list />
           </div>
-          <div class="pa-2">
+          <div class="pa-1">
             <v-card class="pa-3">
               <ship-status-compare />
             </v-card>
           </div>
-          <div class="pa-2">
+          <div class="pa-1">
             <v-card class="pa-3">
               <ship-item-synergy />
             </v-card>
@@ -29,13 +29,13 @@
         </v-tab-item>
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.装備の基本ステータスの確認と比較を行えます。") }}</div>
-          <div class="pa-2">
+          <div class="pa-1">
             <item-master-list />
           </div>
         </v-tab-item>
         <v-tab-item>
           <div class="my-3 mx-2 body-2">{{ $t("Extra.艦娘と装備から、指定した対潜値と必要なLvを計算します。") }}</div>
-          <div class="pa-2">
+          <div class="pa-1">
             <required-asw-calculator />
           </div>
         </v-tab-item>
@@ -47,7 +47,7 @@
           <div class="my-3 mx-2 body-2">
             {{ $t("Extra.指定した敵艦が登場する海域を検索します。データが更新されていない場合もあるので、あくまで参考程度に。") }}
           </div>
-          <div class="pa-2">
+          <div class="pa-1">
             <enemy-searcher />
           </div>
         </v-tab-item>
@@ -55,7 +55,7 @@
           <div class="my-3 mx-2 body-2">
             {{ $t("Extra.敵艦の対空砲火ランキングです。見かけたら気を付けるか覚悟しましょう。") }}
           </div>
-          <div class="pa-2">
+          <div class="pa-1">
             <enemy-aa-ranking />
           </div>
         </v-tab-item>

@@ -1,17 +1,17 @@
 <template>
-  <div class="ma-4">
+  <div class="ma-sm-4">
     <div class="mb-3">
       <v-icon x-large>mdi-database-cog</v-icon>
       <span class="ml-1">{{ $t("Home.艦娘 / 装備管理") }}</span>
     </div>
-    <v-tabs v-model="tab">
+    <v-tabs v-model="tab" show-arrows class="feature-tab">
       <v-tab>{{ $t("Fleet.艦娘") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Fleet.装備") }}</v-tab>
       <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Common.共有") }}</v-tab>
     </v-tabs>
     <v-divider />
-    <v-tabs-items v-model="tab" :touchless="true">
+    <v-tabs-items v-model="tab" touchless>
       <v-tab-item>
         <ships />
       </v-tab-item>
@@ -19,7 +19,7 @@
         <items />
       </v-tab-item>
       <v-tab-item>
-        <div class="general-container px-4 my-2">
+        <div class="general-container px-1 px-sm-4 my-2">
           <div class="tutorial_box pa-0">
             <v-card v-if="$i18n.locale === 'ja'" elevation="0">
               <v-alert border="left" dense outlined type="warning">
@@ -90,7 +90,7 @@
                 <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
                 <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
               </v-radio-group>
-              <div class="min-level-input">
+              <div class="min-level-input mt-3 mt-sm-0">
                 <v-text-field
                   type="number"
                   :max="maxLevel"
@@ -124,7 +124,7 @@
                 <v-radio :label="$t('Database.未ロックの艦娘も含める')" :value="true" />
                 <v-radio :label="$t('Database.ロック済みの艦娘のみ')" :value="false" />
               </v-radio-group>
-              <div class="min-level-input" v-if="!showHowToDoIt">
+              <div class="min-level-input mt-3 mt-sm-0" v-if="!showHowToDoIt">
                 <v-text-field
                   type="number"
                   :max="maxLevel"
@@ -335,6 +335,11 @@
 </template>
 
 <style scoped>
+.feature-tab >>> div.v-slide-group__next,
+.feature-tab >>> div.v-slide-group__prev {
+  min-width: unset !important;
+}
+
 .v-window.v-item-group {
   height: 100%;
   overflow: unset;
@@ -344,8 +349,17 @@
 }
 .tutorial_box {
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1.5rem;
+  margin: 12px auto;
+  padding: 8px;
+  font-size: 14px;
+}
+@media (min-width: 600px) {
+  .tutorial_box {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    font-size: unset;
+  }
 }
 .copy_code {
   margin-top: 16px;

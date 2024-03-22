@@ -19,7 +19,7 @@
             <div class="align-self-center">
               <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
             </div>
-            <div class="ml-1">
+            <div class="ml-1 d-none d-sm-block">
               <div class="level-area">Lv {{ ship.level }}</div>
               <div class="caption">{{ getShipName(ship.data) }}</div>
             </div>
@@ -41,8 +41,8 @@
             <div class="mx-1">
               <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" width="30" height="30" />
             </div>
-            <div class="body-2 text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
-            <template v-if="item.data.isTorpedoAttacker">
+            <div class="text-truncate item-name">{{ needTrans ? $t(`${item.data.name}`) : item.data.name }}</div>
+            <template v-if="item.data.isTorpedoAttacker && !isMobile">
               <div class="ml-auto">{{ $t("Common.雷装") }}</div>
               <div class="item-torpedo">{{ item.data.torpedo }}</div>
               <template v-if="item.crewTorpedoBonus || item.attackerTorpedoBonus">
@@ -51,7 +51,7 @@
                 <div>)</div>
               </template>
             </template>
-            <template v-else-if="item.data.isAttacker">
+            <template v-else-if="item.data.isAttacker && !isMobile">
               <div class="ml-auto">{{ $t("Common.爆装") }}</div>
               <div class="item-torpedo">{{ item.data.bomber }}</div>
               <template v-if="item.crewBomberBonus || item.attackerTorpedoBonus">
@@ -151,8 +151,15 @@
   text-align: right;
 }
 .item-name {
+  font-size: 11px;
   flex-grow: 1;
   width: 10px;
+}
+@media (min-width: 660px) {
+  .item-name {
+    font-size: unset;
+    width: 10px;
+  }
 }
 
 .header-divider {
@@ -191,6 +198,7 @@ export default Vue.extend({
     calcManager: new CalcManager(),
     selectedShipIndex: 0,
     selectedItemIndex: 0,
+    isMobile: true,
   }),
   mounted() {
     const saveData = this.$store.state.mainSaveData as SaveData;
@@ -203,6 +211,8 @@ export default Vue.extend({
     this.$nextTick(() => {
       this.clickedShip(this.selectedShipIndex);
     });
+
+    this.isMobile = window.innerWidth < 600;
   },
   computed: {
     needTrans(): boolean {
@@ -237,6 +247,7 @@ export default Vue.extend({
           this.selectedItemIndex = newItemIndex;
         }
       }
+      this.isMobile = window.innerWidth < 600;
       this.clickedItem(this.selectedItemIndex);
     },
     clickedItem(index: number) {

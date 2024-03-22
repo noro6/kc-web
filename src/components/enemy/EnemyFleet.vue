@@ -14,7 +14,12 @@
       <v-spacer />
       <div v-if="capturing && fleet.nodeName" class="mr-2">{{ fleet.nodeName }}</div>
       <div v-if="!capturing" class="mr-1">
-        <v-btn outlined small color="primary" @click.stop="showWorldList">{{ fleet.nodeName ? fleet.nodeName : $t("Enemies.海域選択") }}</v-btn>
+        <v-btn class="d-none d-sm-block" outlined small @click.stop="showWorldList">
+          {{ fleet.nodeName ? fleet.nodeName : $t("Enemies.海域選択") }}
+        </v-btn>
+        <v-btn class="d-sm-none" icon small color="primary" @click.stop="showWorldList">
+          <v-icon>mdi-sync</v-icon>
+        </v-btn>
       </div>
       <div v-if="existEnemy && !capturing">
         <v-btn color="primary" icon small @click="clickedInfo()">
@@ -26,7 +31,7 @@
       </div>
     </div>
     <div class="px-2">
-      <div class="d-flex mb-1 justify-space-between">
+      <div class="select-container">
         <div class="cell-type-select">
           <v-select dense v-model="fleet.cellType" hide-details :items="cellTypes" @change="changedCombo()" />
         </div>
@@ -34,21 +39,21 @@
           <v-select dense v-model="fleet.formation" hide-details :items="formations" @change="changedCombo()" />
         </div>
       </div>
-      <div class="d-flex">
-        <div class="caption text--secondary">{{ $t("Common.艦隊防空") }}</div>
-        <div class="ml-1 caption">{{ fleet.fleetAntiAir }}</div>
+      <div class="d-flex total-status">
+        <div class="text--secondary">{{ $t("Common.艦隊防空") }}</div>
+        <div class="ml-1">{{ fleet.fleetAntiAir }}</div>
         <v-spacer />
-        <div class="mx-1 caption text--secondary">{{ $t("Common.制空") }}</div>
-        <div class="body-2 enemy-air-power">{{ fleet.fullAirPower }}</div>
-        <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
+        <div class="mx-1 text--secondary">{{ $t("Common.制空") }}</div>
+        <div class="enemy-air-power">{{ fleet.fullAirPower }}</div>
+        <div class="ml-1" v-if="fleet.existUnknownEnemy">&#x3f;</div>
       </div>
-      <div class="d-flex">
-        <div class="caption text--secondary">{{ $t("Common.半径") }}</div>
-        <div class="ml-1 caption">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
+      <div class="d-flex total-status">
+        <div class="text--secondary">{{ $t("Common.半径") }}</div>
+        <div class="ml-1">{{ fleet.radius ? fleet.radius.join(" or ") : 0 }}</div>
         <v-spacer />
-        <div class="mx-1 caption text--secondary">{{ $t("Common.基地制空") }}</div>
-        <div class="body-2 enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
-        <div class="ml-1 caption" v-if="fleet.existUnknownEnemy">&#x3f;</div>
+        <div class="mx-1 text--secondary">{{ $t("Common.基地制空") }}</div>
+        <div class="enemy-air-power">{{ fleet.fullAirbaseAirPower }}</div>
+        <div class="ml-1" v-if="fleet.existUnknownEnemy">&#x3f;</div>
       </div>
     </div>
     <v-divider />
@@ -81,19 +86,21 @@
             </div>
           </div>
           <div v-if="enemy.data.id === 0" class="enemy-name text-center text--secondary">{{ $t("Enemies.敵艦選択") }}</div>
-          <div class="ml-auto pl-1 caption text--secondary">{{ $t("Common.制空") }}</div>
+          <div class="d-none d-sm-block ml-auto pl-1 caption text--secondary">{{ $t("Common.制空") }}</div>
           <div
-            class="body-2 enemy-air-power"
+            class="d-none d-sm-block enemy-air-power"
             :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }"
             v-if="enemy.fullAirPower === enemy.fullLBAirPower"
           >
             {{ enemy.fullAirPower }}
           </div>
-          <div class="caption enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>({{ enemy.fullLBAirPower }})</div>
+          <div class="d-none d-sm-block enemy-air-power" :class="{ 'orange--text text--darken-2': enemy.data.isUnknown }" v-else>
+            ({{ enemy.fullLBAirPower }})
+          </div>
         </template>
       </div>
     </div>
-    <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog">
+    <v-dialog width="1100" v-model="detailDialog" transition="scroll-x-transition" @input="toggleDetailDialog" :fullscreen="isMobile">
       <enemy-detail v-if="!destroyDialog" :handle-show-item-list="showItemList" :fleet="fleet" :handleClose="closeDetail" />
     </v-dialog>
     <v-dialog width="400" v-model="menuDialog" transition="scroll-x-transition" @input="toggleMenuDialog">
@@ -120,7 +127,13 @@
 
 <style scoped>
 .battle-title {
-  cursor: move;
+  font-size: 14px;
+}
+@media (min-width: 600px) {
+  .battle-title {
+    font-size: unset;
+    cursor: move;
+  }
 }
 
 .v-btn--outlined {
@@ -134,12 +147,18 @@
   cursor: pointer;
   height: 30px;
   position: relative;
+  justify-content: space-around;
 }
 .enemy-list-item:hover {
   background-color: rgba(128, 128, 128, 0.2);
 }
 .enemy-list-item.disabled-stage2 {
   opacity: 0.4;
+}
+@media (min-width: 600px) {
+  .enemy-list-item {
+    justify-content: unset;
+  }
 }
 
 .enemy-img {
@@ -164,10 +183,23 @@
   width: 120px;
   font-size: 0.7em;
 }
+.total-status {
+  font-size: 11px;
+}
 .enemy-air-power {
-  width: 30px;
+  font-size: 11px;
+  width: 24px;
   text-align: right;
   white-space: nowrap;
+}
+@media (min-width: 600px) {
+  .total-status {
+    font-size: 12px;
+  }
+  .enemy-air-power {
+    font-size: 12px;
+    width: 30px;
+  }
 }
 
 .type-divider {
@@ -182,14 +214,35 @@
   border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
-.formation-select,
-.cell-type-select {
-  width: 94px;
+.select-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-bottom: 4px;
 }
-
 .formation-select >>> .v-input--dense .v-select__selection,
 .cell-type-select >>> .v-input--dense .v-select__selection {
-  font-size: 0.75em !important;
+  font-size: 11px !important;
+}
+@media (min-width: 600px) {
+  .select-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .formation-select,
+  .cell-type-select {
+    width: 94px;
+  }
+  .formation-select >>> .v-input--dense .v-select__selection,
+  .cell-type-select >>> .v-input--dense .v-select__selection {
+    font-size: 0.75em !important;
+  }
+}
+</style>
+
+<style>
+.captured .formation-select,
+.captured .cell-type-select {
+  width: 94px !important;
 }
 </style>
 
@@ -236,6 +289,7 @@ export default Vue.extend({
     },
   },
   data: () => ({
+    isMobile: true,
     detailDialog: false,
     destroyDialog: false,
     enabledTooltip: false,
@@ -287,6 +341,7 @@ export default Vue.extend({
       this.menuDialog = false;
     },
     async clickedInfo() {
+      this.isMobile = window.innerWidth < 600;
       this.detailDialog = true;
       this.destroyDialog = false;
     },

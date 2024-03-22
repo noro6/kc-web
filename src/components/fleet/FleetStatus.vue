@@ -55,7 +55,7 @@
     <div>
       <div>{{ $t("Common.遠征ステータスチェッカー") }}</div>
     </div>
-    <v-alert v-if="includePlane" border="left" dense outlined type="warning" class="my-2">
+    <v-alert v-if="includePlane" border="left" dense outlined type="warning" class="my-2 text-caption text-sm-body-2">
       {{
         $t(
           "Common.艦隊に艦載機が含まれています。遠征における艦載機の性能に対する補正の計算式が不明なため、遠征のステータス調整に利用する際は十分注意してください。"
@@ -92,7 +92,7 @@
           </thead>
           <tbody>
             <tr v-for="(row, i) in expeditionRows" :key="`expedition${i}`" :class="{ 'tr-lack': row.failed }">
-              <td>{{ row.id }} : {{ row.name }}</td>
+              <td class="text-no-wrap">{{ row.id }} : {{ row.name }}</td>
               <td class="text-right">
                 <v-icon v-if="row.flagshipLevel >= 0" color="success" small>mdi-check</v-icon>
                 <v-icon v-else color="error" small>mdi-close</v-icon>
@@ -137,11 +137,16 @@
 </template>
 
 <style scoped>
-.structure-text {
-  width: 220px;
+@media (min-width: 660px) {
+  .structure-text {
+    width: 220px;
+  }
+  .structure-text.sub {
+    width: 200px;
+  }
 }
-.structure-text.sub {
-  width: 200px;
+.v-data-table th {
+  white-space: nowrap;
 }
 .v-data-table tbody tr.tr-escort {
   background-color: rgba(128, 128, 128, 0.1);
@@ -157,7 +162,7 @@
 }
 .ship-name {
   flex-grow: 1;
-  width: 10px;
+  width: 72px;
 }
 .status-area {
   display: inline-block;

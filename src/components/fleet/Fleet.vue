@@ -7,7 +7,7 @@
       <v-btn @click="removeFleet" color="secondary" class="ml-3">{{ $t("Fleet.艦隊削除") }}</v-btn>
     </div>
     <div class="d-flex px-1 flex-wrap align-center">
-      <div v-if="isShipAllEmpty" class="d-capture-none">
+      <div v-if="isShipAllEmpty" class="d-capture-none d-none d-sm-block">
         <v-btn color="primary" @click.stop="batchDeploy">{{ $t("Fleet.一括編成") }}</v-btn>
       </div>
       <fleet-info-header v-if="!isShipAllEmpty" :value="value" :index="index" :isUnion="isUnion" :unionFleet="unionFleet" :admiralLv="admiralLv" />

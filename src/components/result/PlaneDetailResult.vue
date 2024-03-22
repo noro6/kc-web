@@ -2,18 +2,18 @@
   <div>
     <div class="display-toggle mt-2 mx-2">
       <v-btn-toggle dense v-model="visibleSlotRate" borderless mandatory>
-        <v-btn :value="true" :class="{ 'blue darken-2 white--text': visibleSlotRate }" @click.stop="visibleSlotRate = true">
+        <v-btn :value="true" :class="{ 'blue darken-2 white--text': visibleSlotRate }" @click.stop="visibleSlotRate = true" block>
           <v-icon>mdi-chart-line</v-icon>
           <span>{{ $t("Result.残機数詳細") }}</span>
         </v-btn>
-        <v-btn :value="false" :class="{ 'red darken-2 white--text': !visibleSlotRate }" @click.stop="visibleSlotRate = false">
+        <v-btn :value="false" :class="{ 'red darken-2 white--text': !visibleSlotRate }" @click.stop="visibleSlotRate = false" block>
           <v-icon>mdi-fire</v-icon>
           <span>{{ $t("Result.火力計算") }}</span>
         </v-btn>
       </v-btn-toggle>
     </div>
     <div class="detail-container pb-2">
-      <div class="slot-rate-container mt-2" :class="{ show: visibleSlotRate }">
+      <div class="slot-rate-container" :class="{ show: visibleSlotRate }">
         <div class="border-window pa-2">
           <div class="header-content">
             <div v-if="!isAirbase && editableParent" class="d-flex px-2 align-center">
@@ -94,7 +94,7 @@
         <airstrike-calculator ref="airstrikeCalculator" :arg-parent="editableParent" :changed-defense-fleet="changeDefenseIndex" />
       </v-card>
     </div>
-    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition">
+    <v-dialog v-model="itemListDialog" :width="itemDialogWidth" transition="scroll-x-transition" :fullscreen="isMobile">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemList" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
@@ -105,9 +105,8 @@
 
 <style scoped>
 .slot-rate-container {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-  padding: 0.5rem;
+  margin-top: 8px;
+  padding: 8px;
   display: none;
 }
 .fire-calc-container {
@@ -118,6 +117,10 @@
 .slot-rate-container.show,
 .fire-calc-container.show {
   display: block;
+}
+.display-toggle .v-btn-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 @media (min-width: 1000px) {
   .display-toggle {
@@ -296,6 +299,7 @@ export default Vue.extend({
     targetDialog: false,
     dialogSlot: -1,
     itemDialogWidth: 1200,
+    isMobile: true,
     manager: new CalcManager(),
     editableParent: null as Airbase | Ship | Enemy | null,
     fleetResult: null as AirCalcResult | null,
@@ -519,10 +523,12 @@ export default Vue.extend({
 
       if (this.isAirbase) {
         const original = this.manager.airbaseInfo.airbases[this.index];
+        this.isMobile = window.innerWidth < 600;
         await (this.itemListDialog = true);
         (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, slot, usedItems);
       } else if (this.isShip) {
         const original = this.manager.fleetInfo.fleets[this.fleetIndex].ships[this.index];
+        this.isMobile = window.innerWidth < 600;
         await (this.itemListDialog = true);
         (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(original, slot, usedItems);
       }
@@ -566,7 +572,7 @@ export default Vue.extend({
     },
     bootTooltip(item: Item, index: number, e: MouseEvent | FocusEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (!item.data.id || setting.disabledItemTooltip) {
+      if (!item.data.id || setting.disabledItemTooltip || this.isMobile || window.innerWidth < 600) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

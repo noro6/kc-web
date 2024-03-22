@@ -1,37 +1,127 @@
 <template>
-  <div class="mt-8">
-    <div class="d-flex my-3 mx-4">
-      <div class="align-self-center mr-5">{{ $t("Database.集計対象Lv") }}</div>
-      <div class="range-input">
-        <v-text-field
-          :label="$t('Database.Lv下限')"
-          type="number"
-          :max="levelRange[1]"
-          min="1"
-          dense
-          v-model.trim="levelRange[0]"
-          hide-details
-          @input="analyze()"
-        />
-      </div>
-      <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="analyze()">
-      </v-range-slider>
-      <div class="range-input">
-        <v-text-field
-          :label="$t('Database.Lv上限')"
-          type="number"
-          :max="maxLevel"
-          :min="levelRange[0]"
-          dense
-          v-model.trim="levelRange[1]"
-          hide-details
-          @input="analyze()"
-        />
+  <div class="mt-sm-8">
+    <div class="d-sm-flex my-3 mx-1">
+      <div class="align-self-center mr-5 mb-2 mb-sm-0">{{ $t("Database.集計対象Lv") }}</div>
+      <div class="d-flex align-center flex-grow-1">
+        <div class="range-input">
+          <v-text-field
+            :label="$t('Database.Lv下限')"
+            type="number"
+            :max="levelRange[1]"
+            min="1"
+            dense
+            v-model.trim="levelRange[0]"
+            hide-details
+            @input="analyze()"
+          />
+        </div>
+        <v-range-slider v-model="levelRange" dense thumb-label min="1" :max="maxLevel" hide-details class="pt-2 align-center mx-2" @change="analyze()">
+        </v-range-slider>
+        <div class="range-input">
+          <v-text-field
+            :label="$t('Database.Lv上限')"
+            type="number"
+            :max="maxLevel"
+            :min="levelRange[0]"
+            dense
+            v-model.trim="levelRange[1]"
+            hide-details
+            @input="analyze()"
+          />
+        </div>
       </div>
     </div>
     <v-card class="pa-1">
       <v-divider />
-      <v-simple-table dense>
+      <v-simple-table dense v-if="isMobile">
+        <template v-slot:default>
+          <tbody>
+            <tr>
+              <th>{{ $t("Database.合計艦娘数") }}</th>
+              <td class="text-right">{{ allShipCount.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.ケッコン艦") }}</th>
+              <td class="text-right">{{ allMarriageCount.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.補強増設艦") }}</th>
+              <td class="text-right">{{ allExSlotCount.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.耐久改修合計") }}</th>
+              <td class="text-right">{{ totalHPImprovement.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.対潜改修合計") }}</th>
+              <td class="text-right">{{ totalASWImprovement.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.運改修合計") }}</th>
+              <td class="text-right">{{ totalLuckImprovement.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>{{ $t("Database.まるゆ指数") }}</th>
+              <td class="text-right">{{ maruyuRank.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showBlueprintPlanDialog()" :disabled="!totalBluePrintsPlan">
+                  {{ $t("Database.改装設計図必要数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalBluePrintsPlan.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showActionReportPlanDialog()" :disabled="!totalActionReportsPlan">
+                  {{ $t("Database.戦闘詳報必要数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalActionReportsPlan.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showCatapultPlanDialog()" :disabled="!totalCatapultsPlan">
+                  {{ $t("Database.カタパルト必要数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalCatapultsPlan.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showBlueprintUseDialog()" :disabled="!totalCatapultsPlan">
+                  {{ $t("Database.改装設計図消費数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalBluePrints.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showActionReportUseDialog()" :disabled="!totalCatapultsPlan">
+                  {{ $t("Database.戦闘詳報消費数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalActionReports.toLocaleString() }}</td>
+            </tr>
+            <tr>
+              <th>
+                <v-btn small text class="pl-0" @click.stop="showCatapultUseDialog()" :disabled="!totalCatapultsPlan">
+                  {{ $t("Database.カタパルト消費数") }}
+                  <v-icon small>mdi-magnify</v-icon>
+                </v-btn>
+              </th>
+              <td class="text-right">{{ totalCatapults.toLocaleString() }}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+      <v-simple-table dense v-else>
         <template v-slot:default>
           <thead>
             <tr>
@@ -69,7 +159,7 @@
         </template>
       </v-simple-table>
       <v-divider />
-      <v-simple-table dense>
+      <v-simple-table dense v-if="!isMobile">
         <template v-slot:default>
           <thead>
             <tr>
@@ -124,7 +214,7 @@
         </template>
       </v-simple-table>
     </v-card>
-    <v-card class="my-3 pa-1">
+    <v-card class="my-3 pa-1 ship-type-analytics">
       <v-divider />
       <v-simple-table>
         <template v-slot:default>
@@ -158,7 +248,7 @@
       </v-simple-table>
     </v-card>
     <div class="graph-area">
-      <v-card class="py-4">
+      <v-card class="pa-4">
         <div class="d-flex justify-center">
           <div class="body-2">{{ $t("Database.艦種別Lv帯分析") }}</div>
         </div>
@@ -196,21 +286,22 @@
         <stacked-bar :data="stackedBarData" :options="stackedBarOption" />
       </div>
     </v-card>
-    <v-dialog v-model="detailDialog" width="720">
-      <v-card>
+    <v-dialog v-model="detailDialog" width="720" :fullscreen="isMobile">
+      <v-card class="detail-card">
         <div class="d-flex justify-end pa-2">
           <v-btn icon @click="detailDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
         <v-divider class="mx-2" />
-        <div class="detail-content pa-4">
+        <div class="detail-content pa-1 pa-sm-4">
           <v-expansion-panels v-for="(row, i) in reportPlans" :key="`row${i}`" class="mt-2" v-model="row.open">
             <v-expansion-panel>
               <v-expansion-panel-header hide-actions class="py-2 pl-2">
                 <div class="d-flex align-center">
                   <div>
-                    <v-img :src="`./img/ship/${row.master.id}.png`" height="40" width="160" />
+                    <v-img v-if="isMobile" :src="`./img/ship/${row.master.id}.png`" height="30" width="120" />
+                    <v-img v-else :src="`./img/ship/${row.master.id}.png`" height="40" width="160" />
                   </div>
                   <div class="ml-1 flex-grow-1">
                     <div class="primary--text caption">Lv.{{ row.stock.level }}</div>
@@ -219,18 +310,18 @@
                     </div>
                   </div>
                   <v-slide-y-reverse-transition>
-                    <div class="ml-auto d-flex" v-if="row.open !== 0">
-                      <div class="d-flex align-center" :class="{ 'opacity-10': !row.blueprints }">
+                    <div class="ml-auto d-flex" v-if="row.open !== 0 || isMobile">
+                      <div class="d-sm-flex align-center" :class="{ 'opacity-10': !row.blueprints }">
                         <img :src="`./img/util/blueprint.png`" height="40" width="40" alt="blueprint" />
-                        <div class="ml-1 body-2">x {{ row.blueprints }}</div>
+                        <div class="ml-1 text-right body-2">x {{ row.blueprints }}</div>
                       </div>
-                      <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.actionReports }">
+                      <div class="ml-1 ml-sm-3 d-sm-flex align-center" :class="{ 'opacity-10': !row.actionReports }">
                         <img :src="`./img/util/actionReport.png`" height="40" width="40" alt="actionReport" />
-                        <div class="ml-1 body-2">x {{ row.actionReports }}</div>
+                        <div class="ml-1 text-right body-2">x {{ row.actionReports }}</div>
                       </div>
-                      <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !row.catapults }">
+                      <div class="ml-1 ml-sm-3 d-sm-flex align-center" :class="{ 'opacity-10': !row.catapults }">
                         <img :src="`./img/util/catapult.png`" height="40" width="40" alt="catapult" />
-                        <div class="ml-1 body-2">x {{ row.catapults }}</div>
+                        <div class="ml-1 text-right body-2">x {{ row.catapults }}</div>
                       </div>
                     </div>
                   </v-slide-y-reverse-transition>
@@ -238,40 +329,43 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-divider />
-                <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-flex mt-2">
-                  <div class="next-arrow-container" v-if="!usedMode">
-                    <div class="mr-3">
-                      <v-icon v-if="detail.requireEXP" color="warning">mdi-arrow-right-bold</v-icon>
-                      <v-icon v-else color="success">mdi-arrow-right-bold</v-icon>
+                <div v-for="(detail, j) in row.details" :key="`row${i}_${j}`" class="d-sm-flex mt-2">
+                  <div class="d-flex flex-grow-1">
+                    <div class="next-arrow-container" v-if="!usedMode">
+                      <div class="mr-3">
+                        <v-icon v-if="detail.requireEXP" color="warning">mdi-arrow-right-bold</v-icon>
+                        <v-icon v-else color="success">mdi-arrow-right-bold</v-icon>
+                      </div>
+                      <div class="next-level" :class="{ 'warning--text': detail.requireEXP, 'success--text': !detail.requireEXP }">
+                        <span class="caption">Lv.</span><span class="body-2">{{ detail.base.nextLv }}</span>
+                      </div>
                     </div>
-                    <div class="next-level" :class="{ 'warning--text': detail.requireEXP, 'success--text': !detail.requireEXP }">
-                      <span class="caption">Lv.</span><span class="body-2">{{ detail.base.nextLv }}</span>
+                    <div class="align-self-center">
+                      <v-img v-if="isMobile" :src="`./img/ship/${detail.next.id}.png`" height="30" width="120" />
+                      <v-img v-else :src="`./img/ship/${detail.next.id}.png`" height="40" width="160" />
+                    </div>
+                    <div class="ml-1 flex-grow-1 align-self-center">
+                      <template v-if="!usedMode">
+                        <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
+                        <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
+                      </template>
+                      <div class="d-flex">
+                        <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>
+                      </div>
                     </div>
                   </div>
-                  <div class="align-self-center">
-                    <v-img :src="`./img/ship/${detail.next.id}.png`" height="40" width="160" />
-                  </div>
-                  <div class="ml-1 flex-grow-1 align-self-center">
-                    <template v-if="!usedMode">
-                      <div class="caption warning--text" v-if="detail.requireEXP">{{ $t("Database.残exp") }} {{ detail.requireEXP.toLocaleString() }}</div>
-                      <div class="caption success--text" v-else><v-icon color="success" small>mdi-check-circle-outline</v-icon></div>
-                    </template>
-                    <div class="d-flex">
-                      <div class="ship-name text-truncate">{{ getShipName(detail.next) }}</div>
-                    </div>
-                  </div>
-                  <div class="ml-auto d-flex align-self-center">
+                  <div class="ml-auto d-flex align-self-center justify-center">
                     <div class="d-flex align-center" :class="{ 'opacity-10': !detail.blueprints }">
                       <v-img :src="`./img/util/blueprint.png`" height="40" width="40" />
-                      <div class="ml-1 body-2">x {{ detail.blueprints }}</div>
+                      <div class="ml-1 body-2 text-right">x {{ detail.blueprints }}</div>
                     </div>
                     <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.actionReports }">
                       <v-img :src="`./img/util/actionReport.png`" height="40" width="40" />
-                      <div class="ml-1 body-2">x {{ detail.actionReports }}</div>
+                      <div class="ml-1 body-2 text-right">x {{ detail.actionReports }}</div>
                     </div>
                     <div class="ml-3 d-flex align-center" :class="{ 'opacity-10': !detail.catapults }">
                       <v-img :src="`./img/util/catapult.png`" height="40" width="40" />
-                      <div class="ml-1 body-2">x {{ detail.catapults }}</div>
+                      <div class="ml-1 body-2 text-right">x {{ detail.catapults }}</div>
                     </div>
                   </div>
                 </div>
@@ -296,22 +390,39 @@
 }
 
 .graph-area {
-  display: grid;
-  grid-template-columns: 1fr;
-  margin-top: 1rem;
-  column-gap: 1rem;
-  row-gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
 }
 
 @media (min-width: 1100px) {
   .graph-area {
+    display: grid;
+    margin-top: 1rem;
+    column-gap: 1rem;
+    row-gap: 1rem;
     grid-template-columns: 1fr 1fr;
   }
 }
 
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .detail-content {
-  height: 70vh;
   overflow-y: auto;
+}
+@media (min-width: 600px) {
+  .detail-card {
+    display: block;
+    flex-direction: unset;
+    height: unset;
+  }
+  .detail-content {
+    height: 70vh;
+    overflow-y: auto;
+  }
 }
 
 .ship-name {
@@ -332,6 +443,15 @@
   white-space: nowrap;
   left: -4px;
   bottom: -4px;
+}
+
+table th,
+table td {
+  white-space: nowrap;
+}
+
+table {
+  overflow: auto;
 }
 </style>
 
@@ -477,6 +597,7 @@ export default Vue.extend({
     totalActionReports: 0,
     totalCatapults: 0,
     detailDialog: false,
+    isMobile: true,
     usedMode: false,
     onlyBlueprint: false,
     onlyActionReport: false,
@@ -534,6 +655,7 @@ export default Vue.extend({
   },
   methods: {
     analyze() {
+      this.isMobile = window.innerWidth < 600;
       const all = this.$store.state.ships as ShipMaster[];
       let shipStock = this.$store.state.shipStock as ShipStock[];
 
@@ -943,6 +1065,7 @@ export default Vue.extend({
       array.sort((a, b) => a.master.sort - b.master.sort);
       this.reportPlans = array;
 
+      this.isMobile = window.innerWidth < 600;
       this.detailDialog = true;
     },
     expandAll() {

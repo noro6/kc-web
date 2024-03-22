@@ -13,7 +13,7 @@
     <v-tabs-items v-model="tab" :touchless="true">
       <v-tab-item>
         <div class="d-flex align-center mt-3 pr-5 flex-wrap">
-          <div class="ml-3">
+          <div class="ml-3 mb-3 mb-sm-0">
             <v-select
               prepend-inner-icon="mdi-magnify"
               v-model="questType"
@@ -23,28 +23,34 @@
               dense
             />
           </div>
-          <div class="ml-auto mr-12">
+          <div class="ml-auto">
             <div class="d-flex justify-end">
               <div class="mr-3">{{ $t("Extra.戦果砲残弾合計") }}</div>
               <div class="total-ranking-point">{{ totalRankingPoint }}</div>
             </div>
-            <div class="d-flex justify-end caption">
-              <div class="mr-1">{{ $t("Extra.クォータリー") }}</div>
-              <div>{{ totalQuarterlyRankingPoint }}</div>
-              <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.イヤーリー") }}</div>
-              <div>{{ totalYearlyRankingPoint }}</div>
-              <div class="mx-2">/</div>
-              <div class="mr-1">{{ $t("Extra.単発") }}</div>
-              <div>{{ totalOnceRankingPoint }}</div>
+            <div class="d-sm-flex justify-end caption">
+              <div class="d-flex justify-end">
+                <div class="mr-1">{{ $t("Extra.クォータリー") }}</div>
+                <div>{{ totalQuarterlyRankingPoint }}</div>
+                <div class="mx-2 d-none d-sm-block">/</div>
+              </div>
+              <div class="d-flex justify-end">
+                <div class="mr-1">{{ $t("Extra.イヤーリー") }}</div>
+                <div>{{ totalYearlyRankingPoint }}</div>
+                <div class="mx-2 d-none d-sm-block">/</div>
+              </div>
+              <div class="d-flex justify-end">
+                <div class="mr-1">{{ $t("Extra.単発") }}</div>
+                <div>{{ totalOnceRankingPoint }}</div>
+              </div>
             </div>
           </div>
         </div>
         <div class="pa-2">
           <v-expansion-panels multiple>
             <v-expansion-panel v-for="(quest, i) in uncompletedQuests" :key="i" v-show="questType === 'All' || quest.type === questType">
-              <v-expansion-panel-header class="py-3">
-                <div class="mr-3">
+              <v-expansion-panel-header class="py-3 px-2 px-sm-3" :hide-actions="isMobile">
+                <div class="mr-sm-3">
                   <div class="d-flex align-center">
                     <div class="quest-icon">
                       <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48" />
@@ -57,13 +63,13 @@
                     <div class="ml-4 flex-grow-1">
                       <div class="quest-title">
                         <div class="d-flex align-center">
-                          <div class="flex-grow-1 mr-3">
+                          <div class="flex-grow-1 mr-1 text-caption text-sm-body-2">
                             {{ $t(`Extra.${quest.name}`) }}
                           </div>
                           <template v-if="quest.type !== 'Once'">
                             <div class="ml-auto d-flex align-center text-no-wrap">
                               <div class="mr-1 caption">{{ $t("Extra.あと") }}</div>
-                              <div>{{ timeRemaining[i] }}</div>
+                              <div class="text-body-2">{{ timeRemaining[i] }}</div>
                             </div>
                           </template>
                         </div>
@@ -89,26 +95,41 @@
                         <div class="resource-reward">{{ quest.bauxite }}</div>
                       </div>
                     </div>
-                    <div class="ml-3">
-                      <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
+                    <div class="ml-3 d-none d-sm-flex align-center">
+                      <div>
+                        <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
+                      </div>
+                      <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
                     </div>
-                    <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
                   </div>
                 </div>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-divider />
-                <div class="d-flex flex-wrap">
+                <div class="check-item-container">
                   <div v-for="(check, j) in quest.requires" :key="`req${j}`" class="check-container">
-                    <v-checkbox v-model="check.isComplete" @change="updateState" hide-details :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`" />
+                    <v-checkbox
+                      v-model="check.isComplete"
+                      :dense="isMobile"
+                      @change="updateState"
+                      hide-details
+                      :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"
+                    />
                   </div>
                 </div>
-                <div class="mt-6 d-flex align-center">
-                  <v-btn v-if="quest.getProgressValue === 100" color="primary" @click="confirmComplete(quest)">{{ $t("Extra.達成") }}</v-btn>
-                  <v-btn v-else depressed color="secondary" @click="confirmComplete(quest)">{{ $t("Extra.達成") }}</v-btn>
-                  <div class="ml-auto caption">{{ $t("Extra.wikiで開く") }}:</div>
-                  <v-btn text color="info" :href="`https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99#id-${quest.id}`" target="_blank">Japan wiki</v-btn>
-                  <v-btn text color="info" :href="`https://en.kancollewiki.net/Quests#${quest.id}`" target="_blank">English wiki</v-btn>
+                <div class="mt-3 mt-sm-6 d-sm-flex align-center">
+                  <v-btn v-if="quest.getProgressValue === 100" color="primary" @click="confirmComplete(quest)" :block="isMobile">{{ $t("Extra.達成") }}</v-btn>
+                  <v-btn v-else depressed color="secondary" @click="confirmComplete(quest)" :block="isMobile">{{ $t("Extra.達成") }}</v-btn>
+                  <div class="ml-sm-auto mt-3 mt-sm-0">
+                    <div class="wiki-button">
+                      <v-btn outlined :block="isMobile" color="info" :href="`https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99#id-${quest.id}`" target="_blank">
+                        Japan wiki
+                      </v-btn>
+                      <v-btn outlined :block="isMobile" color="info" :href="`https://en.kancollewiki.net/Quests#${quest.id}`" target="_blank">
+                        English wiki
+                      </v-btn>
+                    </div>
+                  </div>
                 </div>
               </v-expansion-panel-content>
             </v-expansion-panel>
@@ -116,12 +137,12 @@
         </div>
       </v-tab-item>
       <v-tab-item class="pt-3">
-        <v-card class="py-3 px-6 mx-3 my-1" v-for="(quest, i) in completedQuests" :key="i">
+        <v-card class="py-3 px-2 px-sm-6 mx-3 my-1" v-for="(quest, i) in completedQuests" :key="i">
           <div class="d-flex align-center">
             <div class="flex-grow-1">
               <div class="quest-title">
-                <div class="d-flex align-center">
-                  <div class="flex-grow-1 mr-3">
+                <div class="d-flex flex-wrap align-center">
+                  <div class="flex-grow-1 mr-3 text-body-2">
                     {{ $t(`Extra.${quest.name}`) }}
                   </div>
                   <div class="ml-auto text-no-wrap caption">
@@ -139,10 +160,12 @@
                 <div class="progress-count">{{ quest.requires.length }} / {{ quest.requires.length }}</div>
               </div>
             </div>
-            <div class="ml-6">
-              <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
+            <div class="ml-2 ml-sm-6 d-sm-flex align-center">
+              <div>
+                <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
+              </div>
+              <div class="text-center text-sm-right ranking-point-reward">{{ quest.rankingPoint }}</div>
             </div>
-            <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
           </div>
         </v-card>
       </v-tab-item>
@@ -228,9 +251,21 @@
   text-align: right;
 }
 
-.check-container {
-  min-width: 128px;
-  margin-right: 2rem;
+.check-item-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (min-width: 600px) {
+  .check-item-container {
+    display: flex;
+    column-gap: 24px;
+  }
+}
+
+.wiki-button {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8px;
 }
 </style>
 
@@ -262,6 +297,7 @@ export default Vue.extend({
     snackBarText: '',
     timeRemaining: [] as string[],
     intervalId: 0,
+    isMobile: true,
   }),
   mounted() {
     this.initializeQuests();
@@ -446,6 +482,7 @@ export default Vue.extend({
       this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
     },
     setTimeRemaining() {
+      this.isMobile = window.innerWidth < 600;
       const today = this.getToday();
       const todayTime = today.getTime();
       let needUpdate = false;

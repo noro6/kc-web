@@ -373,6 +373,13 @@ export default Vue.extend({
       if (document.getElementById('dragging-item')) {
         return;
       }
+
+      if (window.innerWidth < 600 && this.setting.simulationCount === 5000) {
+        // モバイル初期設定の計算回数を抑制
+        this.setting.simulationCount = 1000;
+        this.$store.dispatch('updateSetting', this.setting);
+      }
+
       const manager = this.calcManager;
 
       if (count > 0) {

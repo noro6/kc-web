@@ -6,11 +6,11 @@
     </div>
     <v-divider />
     <div class="px-2 mt-3 mb-1">
-      <v-alert border="left" outlined type="error" class="my-2 body-2">
+      <v-alert border="left" outlined type="error" class="my-2 text-caption text-sm-body-2">
         {{ $t("EnemyEdit.本機能は計算結果に大きな影響を及ぼすため、理解できる方のみ利用してください。") }}
       </v-alert>
-      <div class="body-2">{{ $t("EnemyEdit.指定した敵艦の装備や搭載数を自由に変更できます。") }}</div>
-      <div class="body-2">{{ $t("EnemyEdit.設定内容はお使いのブラウザでのみ有効で、各種共有機能等による共有は行いません。") }}</div>
+      <div class="text-caption text-sm-body-2">{{ $t("EnemyEdit.指定した敵艦の装備や搭載数を自由に変更できます。") }}</div>
+      <div class="text-caption text-sm-body-2">{{ $t("EnemyEdit.設定内容はお使いのブラウザでのみ有効で、各種共有機能等による共有は行いません。") }}</div>
       <div class="my-3">
         <v-btn color="teal" dark @click="showEnemyList()">{{ $t("EnemyEdit.編集する敵艦を選択") }}</v-btn>
       </div>
@@ -83,10 +83,10 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200">
+    <v-dialog v-model="enemyListDialog" transition="scroll-x-transition" width="1200" :fullscreen="isMobile">
       <enemy-list :handle-decide-enemy="putEnemy" :handleClose="closeEnemyList" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth">
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth" :fullscreen="isMobile">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeItemDialog" :handle-change-width="changeWidth" />
     </v-dialog>
   </v-card>
@@ -140,6 +140,7 @@
 .manual-enemies-container {
   display: grid;
   grid-template-columns: 1fr;
+  overflow-x: hidden;
 }
 @media (min-width: 1000px) {
   .manual-enemies-container {
@@ -178,6 +179,7 @@ export default Vue.extend({
     itemListDialog: false,
     itemDialogWidth: 1200,
     editingItemIndex: 0,
+    isMobile: true,
   }),
   mounted() {
     this.items = this.$store.state.items as ItemMaster[];
@@ -216,6 +218,7 @@ export default Vue.extend({
     putEnemy(enemy: EnemyMaster) {
       if (enemy && enemy.id) {
         this.editingEnemy = Enemy.createEnemyFromMaster(cloneDeep(enemy), false, this.items);
+        this.isMobile = window.innerWidth < 600;
         this.enemyEditDialog = true;
       }
     },
@@ -224,6 +227,7 @@ export default Vue.extend({
       const enemy = dbManualEnemies[index];
       if (enemy) {
         this.editingEnemy = Enemy.createEnemyFromMaster(enemy, false, this.items);
+        this.isMobile = window.innerWidth < 600;
         this.enemyEditDialog = true;
       }
     },
