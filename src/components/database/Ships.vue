@@ -1862,9 +1862,6 @@ export default Vue.extend({
         }
       }
 
-      console.log(sumCount);
-      console.log(rowData.length);
-
       // ソート
       rowData.sort((a, b) => a.ship.sort - b.ship.sort);
 
