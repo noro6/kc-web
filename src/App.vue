@@ -24,17 +24,17 @@
       <v-btn class="header-btn" :disabled="!isAirCalcPage" text @click.stop="clickedShare" v-if="!isMobile">
         <v-icon small>mdi-share-variant</v-icon>{{ $t("Common.共有") }}
       </v-btn>
-      <v-tooltip bottom>
+      <v-tooltip bottom v-if="!isMobile">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked" v-if="!isMobile">
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledUndo" v-bind="attrs" v-on="on" @click="undoClicked">
             <v-icon small>mdi-undo-variant</v-icon>
           </v-btn>
         </template>
         <span>{{ $t("Common.元に戻す") }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <v-tooltip bottom v-if="!isMobile">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledRedo" v-bind="attrs" v-on="on" @click="redoClicked" v-if="!isMobile">
+          <v-btn class="arrow-btn" text :disabled="!isAirCalcPage || !enabledRedo" v-bind="attrs" v-on="on" @click="redoClicked">
             <v-icon small>mdi-redo-variant</v-icon>
           </v-btn>
         </template>
@@ -935,7 +935,9 @@ export default Vue.extend({
 
     document.addEventListener('keyup', this.keyupHandler);
     document.addEventListener('keydown', this.keydownHandler);
-    this.updateIsMobile();
+    this.$nextTick(() => {
+      this.updateIsMobile();
+    });
   },
   methods: {
     updateIsMobile() {
