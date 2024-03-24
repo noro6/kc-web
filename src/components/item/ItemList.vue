@@ -460,7 +460,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.ソナー')"></v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.ソナー") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeDepthCharge = !includeDepthCharge">
@@ -469,7 +469,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.爆雷')"></v-list-item-title>
+                  <v-list-item-title>{{ $t('EType.爆雷') }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeDepthChargeLauncher = !includeDepthChargeLauncher">
@@ -478,7 +478,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.爆雷投射機')"></v-list-item-title>
+                  <v-list-item-title>{{ $t('EType.爆雷投射機') }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -490,7 +490,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.魚雷')"></v-list-item-title>
+                  <v-list-item-title>{{ $t('EType.魚雷') }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeSPTorpedo = !includeSPTorpedo">
@@ -499,7 +499,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.特殊潜航艇')"></v-list-item-title>
+                  <v-list-item-title>{{ $t('EType.特殊潜航艇') }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeSVTorpedo = !includeSVTorpedo">
@@ -508,7 +508,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="$t('EType.潜水艦魚雷')"></v-list-item-title>
+                  <v-list-item-title>{{ $t('EType.潜水艦魚雷') }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -520,7 +520,7 @@
                 <v-icon v-else>mdi-minus-box-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="$t('ItemList.射程増加')"></v-list-item-title>
+                <v-list-item-title>{{ $t('ItemList.射程増加') }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="!isAirbaseMode"></v-divider>
@@ -530,7 +530,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="$t('ItemList.特効装備')"></v-list-item-title>
+                <v-list-item-title>{{ $t('ItemList.特効装備') }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="setting.displayBonusKey"></v-divider>
@@ -540,7 +540,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="$t('ItemList.夜間機')"></v-list-item-title>
+                <v-list-item-title>{{ $t('ItemList.夜間機') }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="enabledNightAircraftFilter"></v-divider>
@@ -550,7 +550,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="$t('ItemList.射撃回避')"></v-list-item-title>
+                <v-list-item-title>{{ $t('ItemList.射撃回避') }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="enabledAAResistFilter"></v-divider>
@@ -561,7 +561,7 @@
                 <v-icon v-else>mdi-minus-box-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="$t('ItemList.対地攻撃')"></v-list-item-title>
+                <v-list-item-title>{{ $t('ItemList.対地攻撃') }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="type === 7"></v-divider>
@@ -572,7 +572,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title v-text="$t('ItemList.改修値無効')"></v-list-item-title>
+              <v-list-item-title>{{ $t('ItemList.改修値無効') }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="isStockOnly"></v-divider>
@@ -582,7 +582,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title v-text="$t('ItemList.装備シナジー無効')"></v-list-item-title>
+              <v-list-item-title>{{ $t('ItemList.装備シナジー無効') }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="!isAirbaseMode"></v-divider>
@@ -592,7 +592,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title v-text="$t('ItemList.敵装備')"></v-list-item-title>
+              <v-list-item-title>{{ $t('ItemList.敵装備') }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="!isBatchMode || !isCheckedOnly"></v-divider>
@@ -1335,7 +1335,7 @@ export default Vue.extend({
     },
     itemListData(): { typeName: string; items: { item: Item; count: number; text: string }[] }[] {
       const targetItems = this.viewItems;
-      if (this.multiLine) {
+      if (this.multiLine && !this.isMobile) {
         const depthChargeLauncher = { id: 1700, name: '爆雷投射機', sortKey: [] };
         // 種別に応じて分けたい
         const types = Const.ITEM_API_TYPE.concat();
