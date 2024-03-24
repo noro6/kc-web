@@ -21,7 +21,7 @@
       </v-tooltip>
       <v-tooltip bottom color="black">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn icon @click="bulkUpdateDialog = true" v-bind="attrs" v-on="on">
+          <v-btn icon @click="showBulkUpdateDialog()" v-bind="attrs" v-on="on">
             <v-icon>mdi-wrench</v-icon>
           </v-btn>
         </template>
@@ -486,6 +486,23 @@
               <v-btn @click.stop="setShipLevel(allShipLevel)" color="success">{{ $t("Common.適用") }} </v-btn>
             </div>
           </div>
+          <div class="d-flex mt-6">
+            <div class="caption">{{ $t("Common.リセット") }}</div>
+            <div class="header-divider" />
+          </div>
+          <v-container>
+            <v-row>
+              <v-col cols="4">
+                <v-btn block outlined @click="resetFleetLuck()">{{ $t("Common.運改修") }}</v-btn>
+              </v-col>
+              <v-col cols="4">
+                <v-btn block outlined @click="resetFleetHP()">{{ $t("Database.耐久改修") }}</v-btn>
+              </v-col>
+              <v-col cols="4">
+                <v-btn block outlined @click="resetFleetAsw()">{{ $t("Database.対潜改修") }}</v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
           <div class="d-flex mt-6">
             <div class="caption">{{ $t("Common.熟練度") }}</div>
             <div class="header-divider" />
@@ -1728,6 +1745,15 @@ export default Vue.extend({
       this.allShipLevel = level;
       this.bulkUpdateAllShip({ level });
     },
+    resetFleetAsw() {
+      this.bulkUpdateAllShip({ asw: 0 });
+    },
+    resetFleetLuck() {
+      this.bulkUpdateAllShip({ luck: 0 });
+    },
+    resetFleetHP() {
+      this.bulkUpdateAllShip({ hp: 0 });
+    },
     bulkUpdateAllShip(shipBuilder: ShipBuilder) {
       // 指定ビルダーで装備情報一括更新
       const { fleets } = this.fleetInfo;
@@ -1737,7 +1763,9 @@ export default Vue.extend({
         }
         const { ships } = fleets[i];
         for (let j = 0; j < ships.length; j += 1) {
-          ships[j] = new Ship({ ship: ships[j], level: shipBuilder.level });
+          ships[j] = new Ship({
+            ship: ships[j], level: shipBuilder.level, hp: shipBuilder.hp, asw: shipBuilder.asw, luck: shipBuilder.luck,
+          });
         }
         fleets[i] = new Fleet({ fleet: fleets[i] });
       }
@@ -1818,6 +1846,10 @@ export default Vue.extend({
       const newShips = Optimizer.getOptimizedFighterFleet(ships);
       this.value.fleets[this.value.mainFleetIndex] = new Fleet({ ships: newShips });
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
+    },
+    showBulkUpdateDialog() {
+      this.isMobile = window.innerWidth < 600;
+      this.bulkUpdateDialog = true;
     },
     initializeOutput() {
       // 画像出力初期化

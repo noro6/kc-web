@@ -302,6 +302,17 @@ export default class Ship implements ShipBase {
       }
     }
 
+    // 異常値によるステータス修正
+    if (this.asw === 0 && this.data.minAsw && this.data.maxAsw) {
+      this.asw = Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
+    }
+    if (this.luck === 0 && this.data.luck) {
+      this.luck = this.data.luck;
+    }
+    if (this.hp === 0) {
+      this.hp = this.data.hp;
+    }
+
     // レベルによる耐久修正
     if (this.level > 99 && this.hp < this.data.hp2) {
       this.hp = this.data.hp2;
