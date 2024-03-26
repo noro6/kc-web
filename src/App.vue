@@ -953,6 +953,7 @@ export default Vue.extend({
       if (this.$route.path !== path) this.$router.push({ path });
     },
     showSiteSetting() {
+      this.updateIsMobile();
       this.configDialog = true;
     },
     async loadURLInformation() {

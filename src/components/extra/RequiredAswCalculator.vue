@@ -7,6 +7,7 @@
           :index="0"
           :handle-show-ship-list="showShipList"
           :handle-show-item-list="showItemList"
+          :handle-show-batch-item-list="showBatchItemList"
           :handle-close-ship="removeShip"
           :handle-show-item-preset="showItemPreset"
           :fix-down="ship.fixDown"
@@ -119,7 +120,7 @@
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
-    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" :width="itemDialogWidth" :fullscreen="isMobile">
+    <v-dialog v-model="itemListDialog" transition="scroll-x-transition" @input="toggleItemListDialog" :width="itemDialogWidth" :fullscreen="isMobile">
       <item-list ref="itemList" :handle-equip-item="equipItem" :handle-close="closeDialog" :handle-change-width="changeWidth" />
     </v-dialog>
     <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600" :fullscreen="isMobile">
@@ -183,7 +184,7 @@ import ShipInput from '@/components/fleet/ShipInput.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
 import ItemList from '@/components/item/ItemList.vue';
 import ItemPresetComponent from '@/components/item/ItemPreset.vue';
-import Ship, { ShipBuilder } from '@/classes/fleet/ship';
+import Ship from '@/classes/fleet/ship';
 import Fleet from '@/classes/fleet/fleet';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
@@ -289,10 +290,18 @@ export default Vue.extend({
       await (this.itemListDialog = true);
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(this.ship, slotIndex, this.ship.items);
     },
+    async showBatchItemList(x: number) {
+      this.itemDialogTargetIndex = x;
+      this.isMobile = window.innerWidth < 600;
+      await (this.itemListDialog = true);
+      // 一括モードで起動(第四引数 補強増設の分+1)
+      (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(this.ship, 0, [], this.ship.data.slotCount + 1);
+    },
     closeDialog() {
       this.itemListDialog = false;
       this.shipListDialog = false;
       this.itemPresetDialog = false;
+      this.toggleItemListDialog();
     },
     changeWidth(width: number) {
       this.itemDialogWidth = width;
@@ -355,56 +364,47 @@ export default Vue.extend({
       this.maxAsw = newShip.data.maxAsw;
     },
     equipItem(item: Item) {
-      const master = item.data;
       this.itemListDialog = false;
       const slotIndex = this.itemDialogTargetIndex;
       const { ship } = this;
-      let newShip: Ship;
-
-      // 新しい装備配列を生成
-      const items = ship.items.concat();
-      // 初期熟練度設定
       const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
-      let level = 0;
-      if (initialLevels) {
-        // 設定情報より初期熟練度を解決
-        const initData = initialLevels.find((v) => v.id === master.apiTypeId);
-        if (initData) {
-          level = initData.level;
-        }
-      }
-
-      if (slotIndex < items.length) {
-        if (item.data.apiTypeId === 41 && ship.data.type2 === 90) {
-          // 日進 & 大型飛行艇
-          items[slotIndex] = new Item({
-            item: items[slotIndex],
-            master,
-            remodel: item.remodel,
-            level,
-            slot: 1,
-          });
-        } else {
-          // 装備を置き換え
-          items[slotIndex] = new Item({
-            item: items[slotIndex],
-            master,
-            remodel: item.remodel,
-            level,
-          });
-        }
-        // 装備を変更した艦娘インスタンス再生成
-        newShip = new Ship({ ship, items });
-      } else if (slotIndex === Const.EXPAND_SLOT_INDEX) {
-        // 補強増設を変更した艦娘インスタンス再生成
-        const builder: ShipBuilder = { ship, exItem: new Item({ item: ship.exItem, master, remodel: item.remodel }) };
-        newShip = new Ship(builder);
-      } else {
-        // 搭載失敗
-        return;
-      }
-
+      const newShip = ship.putItem(item, slotIndex, initialLevels);
       this.fleet = new Fleet({ ships: [newShip] });
+    },
+    toggleItemListDialog() {
+      // 装備一覧が閉じられたとき
+      if (!this.itemListDialog) {
+        // 一括モードかチェック
+        const dialog = this.$refs.itemList as InstanceType<typeof ItemList>;
+        let ship = new Ship({ ship: this.ship });
+
+        if (dialog && dialog.isBatchMode && dialog.batchList.length) {
+          // 一括編成モードで何らかの選択があったと判定されたため、上書き展開
+          const initialLevels = (this.$store.state.siteSetting as SiteSetting).planeInitialLevels;
+
+          for (let slot = 0; slot < ship.items.length; slot += 1) {
+            const item = dialog.batchList[slot];
+            if (item && item.item.data.id && ShipValidation.isValidItem(ship.data, item.item.data, slot)) {
+              ship = ship.putItem(item.item, slot, initialLevels);
+            } else {
+              ship = ship.putItem(new Item(), slot, initialLevels);
+            }
+          }
+
+          // 補強増設ある？
+          const exItem = dialog.batchList[ship.data.slotCount];
+          if (exItem && ShipValidation.isValidItem(ship.data, exItem.item.data, Const.EXPAND_SLOT_INDEX, exItem.item.remodel)) {
+            ship = ship.putItem(dialog.batchList[ship.data.slotCount].item, Const.EXPAND_SLOT_INDEX, initialLevels);
+          } else {
+            ship = ship.putItem(new Item(), Const.EXPAND_SLOT_INDEX, initialLevels);
+          }
+
+          dialog.isBatchMode = false;
+          dialog.batchList = [];
+
+          this.fleet = new Fleet({ ships: [ship] });
+        }
+      }
     },
     removeShip() {
       this.fleet = new Fleet();

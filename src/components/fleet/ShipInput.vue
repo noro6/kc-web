@@ -283,7 +283,7 @@
             <v-icon>mdi-eye-off</v-icon>
           </v-btn>
           <div class="btn-item-reset">
-            <v-tooltip bottom color="black" v-if="!hideActiveButton">
+            <v-tooltip bottom color="black">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn icon small v-bind="attrs" v-on="on" @click.stop="resetItems()">
                   <v-icon>mdi-close</v-icon>
