@@ -8,7 +8,7 @@
       </v-btn>
     </div>
     <v-divider />
-    <div class="d-flex flex-wrap align-center py-3 pl-4 pr-3">
+    <div class="d-flex flex-wrap align-center py-3 px-2 px-sm-3">
       <div class="caption mr-3">{{ $t("Database.表示") }}</div>
       <v-btn
         small
@@ -51,12 +51,12 @@
         {{ $t("Database.除籍") }}
       </v-btn>
       <v-spacer></v-spacer>
-      <div class="d-flex caption" v-if="showExpMode">
+      <div class="d-flex caption mt-3 mt-sm-0" v-if="showExpMode">
         <div class="mr-1">{{ $t("Database.増加経験値合計") }}</div>
         <div>{{ totalDiffExp ? totalDiffExp.toLocaleString() : 0 }}</div>
       </div>
       <v-switch
-        class="ml-3 mt-0 pt-0"
+        class="ml-1 ml-sm-3 mt-3 mt-sm-0 pt-0"
         v-model="showExpMode"
         :disabled="noDiff"
         hide-details
@@ -66,11 +66,11 @@
       />
     </div>
     <v-divider />
-    <v-simple-table fixed-header height="66vh" dense>
+    <v-simple-table fixed-header :height="isMobile ? '80vh' : '66vh'" dense>
       <template v-slot:default>
         <tbody>
           <tr v-for="(row, i) in diffs" :key="`diff${i}`">
-            <td>
+            <td class="image-td">
               <div class="d-flex align-center text-left">
                 <div class="mr-1">
                   <v-img :src="`./img/ship/${row.ship.id}.png`" height="30" width="120" />
@@ -83,12 +83,17 @@
                 </div>
               </div>
             </td>
-            <td class="text-center">
+            <td class="text-center" v-if="!isMobile">
               <v-chip v-if="row.type === 1" color="error" small>{{ $t("Database.新規") }}</v-chip>
               <v-chip v-if="row.type === 2" color="success" small>{{ $t("Database.更新") }}</v-chip>
               <v-chip v-if="row.type === 3" color="secondary" small>{{ $t("Database.除籍") }}</v-chip>
             </td>
-            <td class="caption">
+            <td class="caption text-td">
+              <div v-if="isMobile">
+                <v-chip v-if="row.type === 1" color="error" small>{{ $t("Database.新規") }}</v-chip>
+                <v-chip v-if="row.type === 2" color="success" small>{{ $t("Database.更新") }}</v-chip>
+                <v-chip v-if="row.type === 3" color="secondary" small>{{ $t("Database.除籍") }}</v-chip>
+              </div>
               <div v-if="row.type === 1 && !showExpMode">{{ $t("Database.着任しました。") }}</div>
               <div v-if="row.type === 3 && !showExpMode">{{ $t("Database.除籍されました。") }}</div>
               <template v-if="row.logs">
@@ -110,31 +115,37 @@
                   </template>
                   <template v-else-if="log.title === 'Lv'">
                     <div>{{ $t("Database.Lvが上昇しました。") }}</div>
-                    <div class="level-text">{{ log.old }}</div>
-                    <div class="ml-2">
-                      <v-icon small>mdi-arrow-right-thin</v-icon>
+                    <div class="d-flex">
+                      <div class="level-text">{{ log.old }}</div>
+                      <div class="ml-2">
+                        <v-icon small>mdi-arrow-right-thin</v-icon>
+                      </div>
+                      <div class="level-text">{{ log.current }}</div>
+                      <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                     </div>
-                    <div class="level-text">{{ log.current }}</div>
-                    <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                   </template>
                   <template v-else-if="showExpMode && log.title === 'exp'">
                     <div class="exp-text">{{ log.old }}</div>
-                    <div class="ml-2">
-                      <v-icon small>mdi-arrow-right-thin</v-icon>
+                    <div class="d-flex">
+                      <div class="ml-2">
+                        <v-icon small>mdi-arrow-right-thin</v-icon>
+                      </div>
+                      <div class="exp-text">
+                        {{ log.current }}
+                      </div>
+                      <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                     </div>
-                    <div class="exp-text">
-                      {{ log.current }}
-                    </div>
-                    <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                   </template>
                   <template v-else>
                     <div>{{ $t("Database.xしました。", { x: log.title }) }}</div>
-                    <div class="level-text">{{ log.old }}</div>
-                    <div class="ml-2">
-                      <v-icon small>mdi-arrow-right-thin</v-icon>
+                    <div class="d-flex">
+                      <div class="level-text">{{ log.old }}</div>
+                      <div class="ml-2">
+                        <v-icon small>mdi-arrow-right-thin</v-icon>
+                      </div>
+                      <div class="level-text">{{ log.current }}</div>
+                      <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                     </div>
-                    <div class="level-text">{{ log.current }}</div>
-                    <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                   </template>
                 </div>
               </template>
@@ -172,6 +183,22 @@ tbody td {
 .exp-text {
   width: 72px;
   text-align: right;
+}
+.image-td {
+  padding-right: 0px !important;
+  padding-left: 8px !important;
+}
+.text-td {
+  padding-left: 4px !important;
+}
+@media (min-width: 600px) {
+  .image-td {
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+  }
+  .text-td {
+    padding-left: 16px !important;
+  }
 }
 </style>
 
@@ -213,6 +240,7 @@ export default Vue.extend({
     showDiffs: true,
     showExpulsions: true,
     totalDiffExp: 0,
+    isMobile: true,
   }),
   mounted() {
     this.generateTable();
@@ -246,6 +274,7 @@ export default Vue.extend({
       return ship.name || '';
     },
     generateTable() {
+      this.isMobile = window.innerWidth < 600;
       const all = this.$store.state.ships as ShipMaster[];
       const currentStock = this.$store.state.shipStock as ShipStock[];
       const diff = this.$store.state.shipStockDiff as ShipStockDiff;

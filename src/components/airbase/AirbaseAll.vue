@@ -74,7 +74,7 @@
         <v-btn icon @click="resetAirbaseAll">
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
-        <v-menu offset-y>
+        <v-menu offset-y left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-dots-horizontal</v-icon>

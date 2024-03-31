@@ -7841,7 +7841,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, torpedo: 1, accuracy: 2 },
-          shipBase: [971],
+          shipBase: [971, 972],
           num: 1,
         },
         {
@@ -7887,6 +7887,85 @@ export default class ItemBonus {
           bonus: { firePower: 1 },
           shipType: [13, 14],
           remodel: 8,
+        },
+      ],
+    },
+    {
+      ids: [527],
+      bonuses: [
+        {
+          bonus: {
+            antiAir: 2, accuracy: 1, avoid: 1, scout: 2,
+          },
+          shipCountry: Const.GBR,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2 },
+          shipClass: [88],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [67],
+          num: 1,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.GBR,
+          remodel: 2,
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.GBR,
+          remodel: 4,
+          num: 1,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.GBR,
+          remodel: 7,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 10,
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [528],
+      bonuses: [
+        {
+          bonus: { firePower: 1, accuracy: 2, avoid: 1 },
+          shipCountry: Const.GBR,
+        },
+        {
+          bonus: { firePower: 1, avoid: 1 },
+          shipClass: [108],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.GBR,
+          remodel: 2,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 4,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.GBR,
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 10,
         },
       ],
     },

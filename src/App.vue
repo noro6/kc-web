@@ -128,8 +128,8 @@
         </v-btn>
       </v-fab-transition>
       <v-fab-transition v-if="isAirCalcPage && isMobile">
-        <v-btn color="success" class="side-btn" dark fab small @click="saveCurrentData()">
-          <v-icon small>mdi-content-save</v-icon>
+        <v-btn color="success" class="side-btn no-sp" dark fab @click="saveCurrentData()">
+          <v-icon>mdi-content-save</v-icon>
         </v-btn>
       </v-fab-transition>
       <v-fab-transition>
@@ -576,16 +576,21 @@
     <v-dialog v-model="shareDialog" width="500">
       <share-dialog :handle-close="() => (shareDialog = false)" ref="shareDialog" @inform="inform" />
     </v-dialog>
-    <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog">
+    <v-dialog v-model="fleetSelectDialog" width="760" @input="toggleFleetSelectDialog" :fullscreen="isMobile">
       <v-card class="px-5 py-3" v-if="selectableFleets.length > 1">
-        <div>{{ $t("Home.艦隊選択") }}</div>
-        <v-divider class="my-3" />
-        <div class="body-2">{{ $t("Home.取り込む艦隊を選択し、取り込みボタンを押してください。") }}</div>
+        <div class="d-flex mx-1 pl-2 py-1 align-center">
+          <div>{{ $t("Home.艦隊選択") }}</div>
+          <v-btn class="ml-auto" icon @click="fleetSelectDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider class="mb-3" />
+        <div class="text-caption text-sm-body-2 px-2 px-sm-0">{{ $t("Home.取り込む艦隊を選択し、取り込みボタンを押してください。") }}</div>
         <div
           v-for="(row, i) in selectableFleets"
           :key="`fleet_${i}`"
           v-ripple="{ class: 'info--text' }"
-          class="selectable-fleet-container"
+          class="selectable-fleet-container mx-2 mx-sm-0"
           :class="{ selected: row.selected }"
           @click.stop="row.selected = !row.selected"
           @keypress="row.selected = !row.selected"
@@ -604,16 +609,30 @@
             </div>
           </div>
         </div>
-        <div class="d-flex mt-2">
-          <div>
+        <div class="d-flex flex-wrap mt-2">
+          <div class="px-2 px-sm-0">
             <v-checkbox v-model="setting.importAllDeck" :label="$t('Home.常に全艦隊取り込む')" hide-details dense />
-            <div class="caption ml-1">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
+            <div class="caption ml-1 mt-2 mt-sm-0">{{ $t("Home.チェックすると、次回以降、常に全ての艦隊を取り込むようになります。") }}</div>
             <div class="caption ml-1">{{ $t("Home.この設定は、設定からいつでも変更できます。") }}</div>
           </div>
-          <v-btn class="ml-auto align-self-end" color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">{{
-            $t("Common.取込")
-          }}</v-btn>
-          <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          <template v-if="!isMobile">
+            <v-btn class="ml-sm-auto align-self-end" color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">
+              {{ $t("Common.取込") }}
+            </v-btn>
+            <v-btn class="ml-4 align-self-end" color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
+          </template>
+          <v-container v-else>
+            <v-row>
+              <v-col cols="6">
+                <v-btn block color="primary" @click.stop="importSelectedFleet()" :disabled="!selectedAnyFleet">
+                  {{ $t("Common.取込") }}
+                </v-btn>
+              </v-col>
+              <v-col cols="6">
+                <v-btn block color="secondary" @click.stop="fleetSelectDialog = false">{{ $t("Common.戻る") }}</v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
         </div>
       </v-card>
     </v-dialog>
@@ -650,7 +669,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="shipStockDiffDialog" transition="scroll-x-transition" width="800">
+    <v-dialog v-model="shipStockDiffDialog" transition="scroll-x-transition" width="800" :fullscreen="isMobile">
       <ship-import-diff v-if="shipStockDiffDialog" :handle-close="() => (shipStockDiffDialog = false)" />
     </v-dialog>
     <v-dialog v-model="mobileTabDialog" fullscreen>
@@ -878,6 +897,7 @@ export default Vue.extend({
     },
     getShipStockDiff(value: ShipStockDiff) {
       if (value.diffs.length || value.newcomers.length || value.expulsionShips.length) {
+        this.updateIsMobile();
         this.shipStockDiffDialog = true;
       }
     },
@@ -1115,6 +1135,7 @@ export default Vue.extend({
         }
         if (this.selectableFleets.length > 1) {
           // 有効な艦隊が2つ以上
+          this.updateIsMobile();
           this.fleetSelectDialog = true;
           // 一時退避
           this.tempManager = manager;
@@ -1814,6 +1835,9 @@ export default Vue.extend({
   position: absolute;
   top: -48px;
   right: 2px;
+}
+.side-btn.no-sp {
+  top: -58px;
 }
 .side-btn.no-2 {
   top: -92px;
