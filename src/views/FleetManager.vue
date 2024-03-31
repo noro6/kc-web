@@ -9,6 +9,7 @@
       <v-tab :disabled="loading">{{ $t("Fleet.装備") }}</v-tab>
       <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Common.共有") }}</v-tab>
+      <v-tab :disabled="loading">{{ $t("Common.統計") }}</v-tab>
     </v-tabs>
     <v-divider />
     <v-tabs-items v-model="tab" touchless>
@@ -285,6 +286,9 @@
           </div>
         </v-card>
       </v-tab-item>
+      <v-tab-item>
+        <fleet-statics />
+      </v-tab-item>
     </v-tabs-items>
     <div class="info-area">
       <v-divider class="mb-2" />
@@ -403,6 +407,7 @@ import max from 'lodash/max';
 import { v4 as uuidv4 } from 'uuid';
 import Ships from '@/components/database/Ships.vue';
 import Items from '@/components/database/Items.vue';
+import FleetStatics from '@/components/database/FleetStatics.vue';
 import Convert from '@/classes/convert';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
@@ -419,7 +424,7 @@ import Const from '@/classes/const';
 
 export default Vue.extend({
   name: 'FleetManager',
-  components: { Ships, Items },
+  components: { Ships, Items, FleetStatics },
   data: () => ({
     tab: 0,
     includeUnLockedShip: true,
