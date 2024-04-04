@@ -70,7 +70,7 @@
           </div>
         </template>
         <v-card>
-          <div class="d-flex">
+          <div class="d-flex flex-column flex-sm-row">
             <div v-for="i in 11" :key="i" @click="setRemodel(i - 1)" @keypress.enter="setRemodel(i - 1)" class="remodel-list-item">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ i - 1 }}</span>
@@ -88,7 +88,7 @@
           </div>
         </template>
         <v-card>
-          <div class="d-flex">
+          <div class="d-flex flex-column flex-sm-row">
             <div
               v-for="i in 9"
               :key="i - 1"
