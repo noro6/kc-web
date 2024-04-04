@@ -375,6 +375,7 @@ export default {
       '共有URLを生成': 'Create shared link URL',
       'Twitterで共有': 'Share on Twitter',
       '作戦室で開く': 'Open in the FleetHub(作戦室)',
+      '羅針盤シミュで開く': 'Open in the Compass Sim.',
       'デッキビルダーで開く': 'Open in the DeckBuilder(デッキビルダー)',
       'URLの発行に失敗しました。': 'Failed to create shared link URL.',
       '未保存の変更内容がありますが、このまま編成タブを閉じますか？': 'There are unsaved changes, do you want to close the tab?',
