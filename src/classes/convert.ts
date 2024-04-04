@@ -1382,4 +1382,16 @@ export default class Convert {
     const json = LZString.decompressFromEncodedURIComponent(str);
     return FirebaseManager.restoreShipsString(json ?? '[]');
   }
+
+  /**
+   * 汎用
+   * @static
+   * @param {string} str
+   * @returns
+   * @memberof Convert
+   */
+  public static restoreItemTest(str: string) {
+    const json = LZString.decompressFromEncodedURIComponent(str);
+    return FirebaseManager.restoreItemsString(json ?? '[]');
+  }
 }
