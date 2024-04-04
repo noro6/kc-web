@@ -350,7 +350,7 @@ export default Vue.extend({
     },
     bootTooltip(item: Item, e: MouseEvent) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      if (!item.data.id || setting.disabledItemTooltip) {
+      if (!item.data.id || setting.disabledItemTooltip || window.innerWidth < 600) {
         return;
       }
       const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;

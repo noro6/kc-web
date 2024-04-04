@@ -43,6 +43,18 @@
           <v-icon>mdi-anchor</v-icon>{{ $t("SaveData.作戦室で開く") }}
         </v-btn>
       </div>
+      <div class="my-6">
+        <v-btn
+          block
+          color="orange lighten-4"
+          light
+          :disabled="!minDeckBuilder"
+          :href="`https://x-20a.github.io/compass/?predeck=${encodeURIComponent(minDeckBuilder)}`"
+          target="_blank"
+        >
+          <v-icon>mdi-compass-outline</v-icon>{{ $t("SaveData.羅針盤シミュで開く") }}
+        </v-btn>
+      </div>
       <div class="my-6" v-if="saveData && !saveData.isUnsaved">
         <v-btn block color="deep-purple" class="white--text" :disabled="!saveData || saveData.isUnsaved" @click="showUploadDialog">
           <v-icon>mdi-upload</v-icon>{{ $t("Common.編成アップロード") }}
@@ -138,6 +150,22 @@ export default Vue.extend({
         return '';
       }
       return Convert.createDeckBuilderToString(manager, this.$store.state.cellInfos);
+    },
+    minDeckBuilder(): string {
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return '';
+      }
+      const manager = saveData.tempData[saveData.tempIndex];
+      if (!manager) {
+        return '';
+      }
+      const deck = Convert.createDeckBuilder(manager, this.$store.state.cellInfos);
+      delete deck.a1;
+      delete deck.a2;
+      delete deck.a3;
+      delete deck.s;
+      return JSON.stringify(deck);
     },
   },
   methods: {

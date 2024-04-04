@@ -117,21 +117,7 @@ export default class FirebaseManager {
 
       const itemsJSONString = LZString.decompressFromEncodedURIComponent(itemsString);
       if (itemsJSONString) {
-        const itemsJSON = JSON.parse(itemsJSONString) as ([number, number[]] | [number])[];
-        for (let i = 0; i < itemsJSON.length; i += 1) {
-          const data = itemsJSON[i];
-          const newStock = new ItemStock(+data[0]);
-          const n = data[1];
-          if (n) {
-            for (let remodel = 0; remodel <= 10; remodel += 1) {
-              const count = n[remodel];
-              if (count) {
-                newStock.num[remodel] = +count;
-              }
-            }
-          }
-          result.itemStocks.push(newStock);
-        }
+        result.itemStocks = FirebaseManager.restoreItemsString(itemsJSONString);
       }
     } catch (error) {
       console.error(error);
@@ -184,6 +170,27 @@ export default class FirebaseManager {
         }
         array.push(newStock);
       }
+    }
+
+    return array;
+  }
+
+  public static restoreItemsString(str: string) {
+    const array: ItemStock[] = [];
+    const itemsJSON = JSON.parse(str) as ([number, number[]] | [number])[];
+    for (let i = 0; i < itemsJSON.length; i += 1) {
+      const data = itemsJSON[i];
+      const newStock = new ItemStock(+data[0]);
+      const n = data[1];
+      if (n) {
+        for (let remodel = 0; remodel <= 10; remodel += 1) {
+          const count = n[remodel];
+          if (count) {
+            newStock.num[remodel] = +count;
+          }
+        }
+      }
+      array.push(newStock);
     }
 
     return array;
