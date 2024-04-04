@@ -48,8 +48,8 @@
           block
           color="orange lighten-4"
           light
-          :disabled="!deckBuilder"
-          :href="`https://x-20a.github.io/compass/?predeck=${encodeURIComponent(deckBuilder)}`"
+          :disabled="!minDeckBuilder"
+          :href="`https://x-20a.github.io/compass/?predeck=${encodeURIComponent(minDeckBuilder)}`"
           target="_blank"
         >
           <v-icon>mdi-compass-outline</v-icon>{{ $t("SaveData.羅針盤シミュで開く") }}
@@ -150,6 +150,22 @@ export default Vue.extend({
         return '';
       }
       return Convert.createDeckBuilderToString(manager, this.$store.state.cellInfos);
+    },
+    minDeckBuilder(): string {
+      const saveData = this.$store.state.mainSaveData as SaveData;
+      if (!saveData) {
+        return '';
+      }
+      const manager = saveData.tempData[saveData.tempIndex];
+      if (!manager) {
+        return '';
+      }
+      const deck = Convert.createDeckBuilder(manager, this.$store.state.cellInfos);
+      delete deck.a1;
+      delete deck.a2;
+      delete deck.a3;
+      delete deck.s;
+      return JSON.stringify(deck);
     },
   },
   methods: {
