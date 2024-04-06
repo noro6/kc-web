@@ -1209,6 +1209,7 @@ export default Vue.extend({
     shipStock: [] as ShipStock[],
     page: 1,
     isAvoidSpoiler: true,
+    showDeviation: false,
     filterDialog: false,
     searchWord: '' as string | undefined,
     onlyStock: false,

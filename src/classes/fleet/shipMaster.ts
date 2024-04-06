@@ -251,4 +251,32 @@ export default class ShipMaster {
     array = [name].concat(array);
     return array;
   }
+
+  /**
+   * コンバート改装を持つ艦の未改造を取得
+   * @static
+   * @param {ShipMaster[]} ships
+   * @return {*}  {ShipMaster[]}
+   * @memberof ShipMaster
+   */
+  static getConvertOriginalShips(ships: ShipMaster[]): ShipMaster[] {
+    const finals = ships.filter((v) => v.isFinal);
+    const originalIds: { id: number, isConvert: boolean }[] = [];
+    for (let i = 0; i < finals.length; i += 1) {
+      const final = finals[i];
+
+      const checked = originalIds.find((v) => v.id === final.originalId);
+      if (!checked) {
+        // なければプッシュ
+        originalIds.push({ id: final.originalId, isConvert: false });
+        continue;
+      } else {
+        // あればtrueにする
+        checked.isConvert = true;
+      }
+    }
+
+    const hasConvertOriginalIds = originalIds.filter((v) => v.isConvert).map((v) => v.id);
+    return ships.filter((v) => hasConvertOriginalIds.includes(v.id));
+  }
 }

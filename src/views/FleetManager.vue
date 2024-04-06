@@ -9,7 +9,7 @@
       <v-tab :disabled="loading">{{ $t("Fleet.装備") }}</v-tab>
       <v-tab :disabled="readOnlyMode || loading">{{ $t("Database.反映") }}</v-tab>
       <v-tab :disabled="loading">{{ $t("Common.共有") }}</v-tab>
-      <v-tab :disabled="loading">{{ $t("Common.統計") }}</v-tab>
+      <v-tab :disabled="loading">{{ $t("Database.統計") }}</v-tab>
     </v-tabs>
     <v-divider />
     <v-tabs-items v-model="tab" touchless>

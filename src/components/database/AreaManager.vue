@@ -91,6 +91,7 @@
                   @mouseleave="clearTooltip"
                   @focus="bootTooltip(ship, $event)"
                   @blur="clearTooltip"
+                  draggable="false"
                 >
                   <div class="ship-img">
                     <img :src="`./img/ship/${ship.data.id}.png`" :alt="`ship${ship.data.id}`" />
@@ -278,6 +279,9 @@
 }
 .ship-img-container {
   position: relative;
+}
+.ship-img-container img {
+  pointer-events: none;
 }
 .ship-img {
   height: 36px;

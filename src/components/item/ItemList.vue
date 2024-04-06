@@ -1749,10 +1749,10 @@ export default Vue.extend({
           }
         }
 
-        if (this.type === 14) {
+        if (this.type === 14 || this.type === 40) {
           // ソ爆投フィルタ
           if (!this.includeSonar) {
-            result = result.filter((v) => v.apiTypeId !== 14);
+            result = result.filter((v) => v.apiTypeId !== 14 && v.apiTypeId !== 40);
           }
           if (!this.includeDepthCharge) {
             result = result.filter((v) => v.iconTypeId !== 1700);
