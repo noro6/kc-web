@@ -1391,6 +1391,8 @@ export default Vue.extend({
       this.batchMax = batchMax;
       this.batchList = [];
 
+      this.updateIsMobile();
+
       this.decidedShip = false;
       // 現行の在籍艦娘情報を更新
       this.shipStock = this.$store.state.shipStock as ShipStock[];
@@ -1427,7 +1429,9 @@ export default Vue.extend({
       this.filter();
 
       this.$nextTick(() => {
-        (this.$refs.inputBox as HTMLInputElement).focus();
+        if (!this.isMobile) {
+          (this.$refs.inputBox as HTMLInputElement).focus();
+        }
       });
     },
     filter() {
