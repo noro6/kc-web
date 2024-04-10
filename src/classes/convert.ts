@@ -673,6 +673,7 @@ export default class Convert {
       // 艦隊データ
       const { fleets, fleetType } = manager.fleetInfo;
       for (let i = 0; i < fleets.length; i += 1) {
+        if (i >= 4) break;
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
         if (ships.length) {
           const builder = { name: `第${i + 1}艦隊`, t: fleetType };

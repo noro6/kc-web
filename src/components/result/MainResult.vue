@@ -948,8 +948,8 @@ export default Vue.extend({
         if (airbase.mode === AB_MODE.BATTLE) {
           fuel += airbase.fuel + airbase.totalSupplyFuel;
           ammo += airbase.ammo;
-          steel += airbase.steel;
           bauxite += airbase.totalSupplyBauxite;
+          steel += airbase.totalUsedSteel;
         }
       }
 

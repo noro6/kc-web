@@ -37,7 +37,7 @@ export default class Calculator {
       /** ======= 基地航空隊 第1波 ======= */
       if (wave1 === battle) {
         /** ======= 基地噴式強襲 ======= */
-        if (airbase.hasJet) {
+        if (airbase.hasJet && !enemyFleet.isAirRaidCell) {
           Calculator.shootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
         }
 
@@ -58,8 +58,7 @@ export default class Calculator {
       /** ======= 基地航空隊 第2波 ======= */
       if (wave2 === battle) {
         /** ======= 基地噴式強襲 ======= */
-        if (airbase.hasJet && airbase.isSeparate) {
-          // 分散のときだけ
+        if (airbase.hasJet && airbase.isSeparate && !enemyFleet.isAirRaidCell) {
           Calculator.shootDownAirbaseJet(airbase, enemyFleet.noCutInStage2);
         }
 
@@ -210,6 +209,7 @@ export default class Calculator {
     const jetPhaseResult = Calculator.shootDownJetPhase(airbase.items, stage2List);
     // 基地噴式強襲フェーズ経過による制空値更新
     airbase.airPower = Math.floor(jetPhaseResult.sumAirPower * airbase.reconCorr);
+    airbase.totalUsedSteel += Math.floor(jetPhaseResult.usedSteel);
   }
 
   /**

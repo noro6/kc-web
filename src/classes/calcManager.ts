@@ -95,6 +95,7 @@ export default class CalcManager {
       airbases[i].resultWave2 = new AirCalcResult();
       airbases[i].totalSupplyFuel = 0;
       airbases[i].totalSupplyBauxite = 0;
+      airbases[i].totalUsedSteel = 0;
       for (let j = 0; j < airbases[i].items.length; j += 1) {
         airbases[i].items[j].deathRate = 0;
       }
@@ -240,6 +241,7 @@ export default class CalcManager {
         displayAirbase.resultWave2 = lb.resultWave2;
         displayAirbase.totalSupplyFuel = Math.round(lb.totalSupplyFuel / maxCount);
         displayAirbase.totalSupplyBauxite = Math.round(lb.totalSupplyBauxite / maxCount);
+        displayAirbase.totalUsedSteel = Math.round(lb.totalUsedSteel / maxCount);
 
         for (let j = 0; j < lb.items.length; j += 1) {
           // 表示用のitem
