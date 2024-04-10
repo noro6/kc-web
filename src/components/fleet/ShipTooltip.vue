@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <div class="d-flex mt-1">
+  <div class="py-2">
+    <div class="d-flex">
       <div class="align-self-center">
         <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120" />
       </div>
       <div class="ml-3 align-self-center">
         <div class="primary--text level-text">Lv {{ value.level }}</div>
-        <div class="">
+        <div class="text-caption">
           <span>{{ getShipName(value.data) }}</span>
         </div>
       </div>
@@ -133,8 +133,8 @@
             <div class="text-left" :key="`sp_1${i}`">
               <span :class="{ 'orange--text text--lighten-2': row.text !== '合計' }" label outlined>{{ $t(`Fleet.${row.text}`) }}</span>
             </div>
-            <div :key="`sp_2${i}`">{{ row.rate[0] }} %</div>
-            <div :key="`sp_3${i}`">{{ row.rate[1] }} %</div>
+            <div :key="`sp_2${i}`">{{ row.rate[0].toFixed(1) }} %</div>
+            <div :key="`sp_3${i}`">{{ row.rate[1].toFixed(1) }} %</div>
           </template>
         </div>
       </template>
@@ -142,7 +142,7 @@
         <v-divider class="my-1" />
         <div class="special-attack-table night">
           <div class="grey--text text--lighten-1 caption">{{ $t("Fleet.夜間特殊攻撃") }}</div>
-          <div class="grey--text text--lighten-1">{{ $t("Fleet.通常") }}</div>
+          <div class="grey--text text--lighten-1 text-caption">{{ $t("Fleet.通常") }}</div>
           <div class="d-flex justify-end">
             <div>
               <v-img :src="`./img/type/icon24.png`" height="25" width="25" />
@@ -180,36 +180,20 @@
         <div>{{ chuhaRate }}</div>
       </div>
       <v-divider class="my-1" />
-      <div v-if="prevShip || nextShip" class="remodel-table">
-        <template v-if="prevShip">
-          <div class="text-left grey--text text--lighten-1">Prev</div>
+      <template v-if="versions && versions.length">
+        <div v-for="(ship, i) in versions" class="remodel-table mt-1" :key="`v${i}`">
           <div>
-            <v-img :src="`./img/ship/${prevShip.id}.png`" height="30" width="120" />
+            <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120" />
           </div>
-          <div>
-            <div class="text-left caption">
-              <div class="primary--text level-text">{{ prevLv ? `Lv ${prevLv}` : "-" }}</div>
-              <div>
-                {{ getShipName(prevShip) }}
-              </div>
+          <div class="text-container">
+            <div class="primary--text level-text" v-if="versions[i - 1]">Lv {{ versions[i - 1].nextLv }}</div>
+            <div class="primary--text level-text" v-else>-</div>
+            <div class="name-text text-truncate">
+              {{ getShipName(ship) }}
             </div>
           </div>
-        </template>
-        <template v-if="nextShip">
-          <div class="text-left grey--text text--lighten-1">Next</div>
-          <div>
-            <v-img :src="`./img/ship/${nextShip.id}.png`" height="30" width="120" />
-          </div>
-          <div>
-            <div class="text-left caption">
-              <div class="primary--text level-text">Lv {{ value.data.nextLv }}</div>
-              <div>
-                {{ getShipName(nextShip) }}
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -225,6 +209,7 @@
   display: grid;
   grid-template-columns: repeat(6, auto);
   column-gap: 0.5rem;
+  font-size: 0.9em;
 }
 .status-container > div:nth-child(3n - 1) {
   text-align: right;
@@ -233,6 +218,7 @@
 .status-container > div:nth-child(3n) {
   text-align: left;
 }
+
 .bonus {
   margin-left: 4px;
   margin-right: 4px;
@@ -266,6 +252,7 @@
 .damage-rate-table {
   display: grid;
   grid-template-columns: repeat(2, auto);
+  font-size: 0.9em;
 }
 .damage-rate-table > div {
   text-align: right;
@@ -277,7 +264,18 @@
 .remodel-table {
   align-items: center;
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: 120px 1fr;
+  column-gap: 0.25rem;
+  position: relative;
+}
+.text-container {
+  position: absolute;
+  left: 124px;
+  font-size: 12px;
+}
+.remodel-table .level-text {
+  height: 12px;
+  margin-bottom: 2px;
 }
 </style>
 
@@ -411,29 +409,11 @@ export default Vue.extend({
       // なければデフォルトで。
       return Math.floor(this.value.baseDayBattleFirePower);
     },
-    prevShip(): ShipMaster | undefined {
+    versions(): ShipMaster[] {
       const ships = this.$store.state.ships as ShipMaster[];
-      const prev = ships.find((v) => v.id === this.value.data.beforeId);
-      return prev;
-    },
-    prevLv(): number {
-      if (this.prevShip && this.prevShip.version) {
-        const ship = this.prevShip;
-        const ships = this.$store.state.ships as ShipMaster[];
-        const prev = ships.find((v) => v.id === ship.beforeId);
-        return prev ? prev.nextLv : 0;
-      }
-      return 0;
-    },
-    nextShip(): ShipMaster | null {
-      const ships = this.$store.state.ships as ShipMaster[];
-      const master = this.value.data;
-      // 候補取得
-      const versions = ships.filter((v) => v.originalId === master.originalId).sort((a, b) => a.version - b.version);
-      // 現在のver
-      const index = versions.findIndex((v) => v.id === master.id);
-      const next = versions[index + 1];
-      return next;
+      const versions = ships.filter((v) => v.originalId === this.value.data.originalId);
+      versions.sort((a, b) => a.version - b.version);
+      return versions;
     },
   },
   methods: {

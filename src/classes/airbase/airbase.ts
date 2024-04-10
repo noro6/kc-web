@@ -87,6 +87,9 @@ export default class Airbase {
   /** 補充時ボーキ合計 */
   public totalSupplyBauxite = 0;
 
+  /** 使用鋼材合計 */
+  public totalUsedSteel = 0;
+
   constructor(builder: AirbaseBuilder = {}) {
     if (builder.airbase) {
       this.items = builder.items !== undefined ? builder.items : builder.airbase.items.concat();
@@ -191,7 +194,7 @@ export default class Airbase {
     let maxReconRadius = 1;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
-      if (item.data.id) {
+      if (item.data.id && item.fullSlot) {
         // 最も短い半径を更新
         minRadius = item.data.radius < minRadius ? item.data.radius : minRadius;
 

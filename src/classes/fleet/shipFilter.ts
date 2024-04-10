@@ -108,6 +108,9 @@ export default class ShipFilter {
   /** お気に入りのみ */
   public onlyBookmarked = false;
 
+  /** ケッコン艦のみ */
+  public onlyMarriage = false;
+
   /** スロット数3 */
   public slotCount3 = false;
 

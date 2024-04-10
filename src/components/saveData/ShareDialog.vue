@@ -162,6 +162,8 @@ export default Vue.extend({
       }
       const deck = Convert.createDeckBuilder(manager, this.$store.state.cellInfos);
       delete deck.a1;
+      delete deck.f3;
+      delete deck.f4;
       delete deck.a2;
       delete deck.a3;
       delete deck.s;

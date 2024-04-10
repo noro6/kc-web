@@ -162,7 +162,7 @@
             </div>
             <div class="body-2 mb-3">{{ $t("Database.閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。") }}</div>
             <v-alert v-show="!createdURL" class="mt-2 pa-1 caption" dense type="warning" outlined>
-              <div>{{ $t("Database.現在、URL発行時に送信された艦隊データを用いた新たな機能を開発中です。") }}</div>
+              <div>{{ $t("Database.統計タブにて集計されるデータとして利用してもよいかどうかを設定します。") }}</div>
               <div>
                 {{
                   $t(

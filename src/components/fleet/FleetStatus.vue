@@ -92,11 +92,12 @@
           </thead>
           <tbody>
             <tr v-for="(row, i) in expeditionRows" :key="`expedition${i}`" :class="{ 'tr-lack': row.failed }">
-              <td class="text-no-wrap">{{ row.id }} : {{ row.name }}</td>
+              <td class="text-no-wrap caption">{{ row.id }} : {{ row.name }}</td>
               <td class="text-right">
                 <v-icon v-if="row.flagshipLevel >= 0" color="success" small>mdi-check</v-icon>
                 <v-icon v-else color="error" small>mdi-close</v-icon>
                 <span class="status-area" v-if="row.flagshipLevel < 0">{{ row.flagshipLevel }}</span>
+                <span class="status-area" v-else>+{{ row.flagshipLevel }}</span>
               </td>
               <td class="text-right">
                 <v-icon v-if="row.level >= 0" color="success" small>mdi-check</v-icon>
@@ -184,7 +185,7 @@ import Const from '../../classes/const';
 type ExpeditionRow = {
   id: string;
   name: string;
-  flagshipLevel: string;
+  flagshipLevel: number;
   level: string;
   fire: number;
   antiAir: number;
@@ -320,7 +321,7 @@ export default Vue.extend({
           this.expeditionRows.push({
             id: expedition.id,
             name: expedition.name,
-            flagshipLevel: flagshipLevel >= 0 ? '' : `${flagshipLevel}`,
+            flagshipLevel,
             level: level >= 0 ? '' : `${level}`,
             fire,
             antiAir,
