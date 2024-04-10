@@ -293,7 +293,7 @@
             hide-details
             dense
             outlined
-            :placeholder="isShipMode ? '例: 春雨' : '例: ドラム缶'"
+            :placeholder="isShipMode ? '例: 春雨' : '例: 12.7cm連装砲C型改三H'"
             prepend-inner-icon="mdi-magnify"
           />
         </div>
@@ -348,7 +348,7 @@
             hide-details
             dense
             outlined
-            :placeholder="isShipMode ? '例: 春雨' : '例: ドラム缶'"
+            :placeholder="isShipMode ? '例: 春雨' : '例: 12.7cm連装砲C型改三H'"
             prepend-inner-icon="mdi-magnify"
           />
         </div>
