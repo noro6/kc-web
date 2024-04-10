@@ -210,7 +210,7 @@
             </div>
             <div class="flex-grow-1 ml-1">
               <div class="d-flex ship-caption">
-                <div class="primary--text ship-level mr-1">
+                <div class="primary--text ship-level">
                   <template v-if="isStockOnly">Lv {{ data.level }}</template>
                   <template v-else>id {{ data.ship.id }}</template>
                 </div>
@@ -269,9 +269,9 @@
         <div class="d-flex pt-2 pb-1 px-2">
           <div class="align-self-center ml-3 body-2">{{ $t("Common.絞り込み") }}</div>
           <v-spacer />
-          <div v-if="shipStock.length">
+          <div v-if="shipStock.length" class="align-self-center">
             <v-switch
-              class="mr-3 mt-1"
+              class="mr-3 mt-0 pt-0"
               v-model="isStockOnly"
               :label="$t('Fleet.在籍艦娘反映')"
               @click="clickedStockOnly()"
@@ -474,6 +474,7 @@
               >{{ $t("Fleet.補強増設") }}</manual-checkbox
             >
             <v-checkbox v-model="shipFilter.onlyBookmarked" dense hide-details :label="$t('Fleet.お気に入り')" />
+            <v-checkbox v-if="isStockOnly" v-model="shipFilter.onlyMarriage" dense hide-details :label="$t('Fleet.ケッコン艦')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.ステータス") }}</div>
@@ -1109,6 +1110,7 @@ export default Vue.extend({
       { text: '回避', value: 'avoid' },
       { text: '燃料', value: 'fuel' },
       { text: '弾薬', value: 'ammo' },
+      { text: '燃料+弾薬', value: 'resource' },
       { text: '射程', value: 'range' },
       { text: '運改修', value: 'luckRemodel' },
       { text: '搭載数', value: 'slotSize' },
@@ -1759,7 +1761,10 @@ export default Vue.extend({
                 // 耐久4n系フィルタ
                 continue;
               }
-
+              if (this.shipFilter.onlyMarriage && viewShip.level < 100) {
+                // ケッコン艦のみ
+                continue;
+              }
               // 国籍で絞る
               if (forbiddenNationalities.includes(master.type2) || (withoutJapan && Const.JPN.includes(master.type2))) {
                 continue;
@@ -1929,6 +1934,10 @@ export default Vue.extend({
             v.sortValue = v.level >= 100 ? Math.max(Math.floor(v.ship.fuel * 0.85), 1) : v.ship.fuel;
           } else if (key === 'ammo') {
             v.sortValue = v.level >= 100 ? Math.max(Math.floor(v.ship.ammo * 0.85), 1) : v.ship.ammo;
+          } else if (key === 'resource') {
+            const fuel = v.level >= 100 ? Math.max(Math.floor(v.ship.fuel * 0.85), 1) : v.ship.fuel;
+            const ammo = v.level >= 100 ? Math.max(Math.floor(v.ship.ammo * 0.85), 1) : v.ship.ammo;
+            v.sortValue = fuel + ammo;
           } else {
             v.sortValue = (v.ship as unknown as { [key: string]: number })[key];
           }

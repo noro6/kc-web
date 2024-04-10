@@ -64,6 +64,7 @@
                   <v-checkbox dense v-model="onlyStock" hide-details :label="$t('Database.未着任艦非表示')" :disabled="onlyNoStock" />
                   <v-checkbox dense v-model="onlyNoStock" hide-details :label="$t('Database.未着任艦のみ')" :disabled="onlyStock" />
                   <v-checkbox dense v-model="onlyBookmarked" hide-details :label="$t('Fleet.お気に入り')" />
+                  <v-checkbox dense v-model="onlyMarriage" hide-details :label="$t('Fleet.ケッコン艦')" />
                   <manual-checkbox :ok="onlyReleaseExSlot" :ng="withoutReleaseExSlot" :toggle="toggleExSlotFilter">{{ $t("Fleet.補強増設") }}</manual-checkbox>
                 </div>
               </div>
@@ -1224,6 +1225,7 @@ export default Vue.extend({
     isKamisha: false,
     isNotKamisha: false,
     onlyBookmarked: false,
+    onlyMarriage: false,
     levelRange: [1, Const.MAX_LEVEL],
     luckRange: [1, 200],
     luckImpRange: [0, 100],
@@ -1606,6 +1608,7 @@ export default Vue.extend({
       this.onlyStock = false;
       this.onlyNoStock = false;
       this.onlyBookmarked = false;
+      this.onlyMarriage = false;
       this.onlyReleaseExSlot = false;
       this.withoutReleaseExSlot = false;
       this.isDaihatsu = false;
@@ -1836,6 +1839,8 @@ export default Vue.extend({
         if (stockData.area && !this.selectedArea.includes(stockData.area)) return false;
         // お気に入りフィルタ
         if (this.onlyBookmarked && !favorites.includes(stockData.id)) return false;
+        // ケッコン艦フィルタ
+        if (this.onlyMarriage && stockData.level < 100) return false;
 
         return true;
       });
