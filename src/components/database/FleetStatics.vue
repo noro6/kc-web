@@ -1,28 +1,144 @@
 <template>
   <div class="mt-3 result-all-container">
-    <div class="mr-3"><v-btn @click="fetchAnalyticsResult()">取得</v-btn></div>
-    <v-btn-toggle class="my-2" dense v-model="isShipMode" borderless mandatory>
-      <v-btn :value="true" :class="{ 'blue darken-2 white--text': isShipMode }" @click.stop="setShipTables()" block>
-        <span>{{ $t("Fleet.艦娘") }}</span>
-      </v-btn>
-      <v-btn :value="false" :class="{ 'green darken-2 white--text': !isShipMode }" @click.stop="setItemTables()" block>
-        <span>{{ $t("Fleet.装備") }}</span>
-      </v-btn>
-    </v-btn-toggle>
-    <!-- 結果表示欄 -->
-    <v-expansion-panels focusable>
-      <v-expansion-panel>
-        <v-expansion-panel-header min-height="10" class="py-0">
-          <div class="d-flex align-center">
-            <v-icon>mdi-format-list-numbered</v-icon>
-            <div class="ml-2">{{ $t("Database.全体統計データ") }}</div>
-          </div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <div v-if="isShipMode" class="mt-3">
-            <!-- 艦娘分析モード -->
-            <div class="d-flex flex-wrap">
-              <!-- カテゴリ選択欄 -->
+    <div v-if="!analyzeResult.ships || !analyzeResult.ships.length">
+      <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t('Database.統計データ取得') }}</v-btn>
+    </div>
+    <template v-else>
+      <v-btn-toggle class="mb-2" dense v-model="isShipMode" borderless mandatory>
+        <v-btn :value="true" :class="{ 'blue darken-2 white--text': isShipMode }" @click.stop="setShipTables()" block>
+          <span>{{ $t("Fleet.艦娘") }}</span>
+        </v-btn>
+        <v-btn :value="false" :class="{ 'green darken-2 white--text': !isShipMode }" @click.stop="setItemTables()" block>
+          <span>{{ $t("Fleet.装備") }}</span>
+        </v-btn>
+      </v-btn-toggle>
+      <!-- 結果表示欄 -->
+      <v-expansion-panels focusable>
+        <v-expansion-panel>
+          <v-expansion-panel-header min-height="10" class="py-0">
+            <div class="d-flex align-center">
+              <v-icon>mdi-format-list-numbered</v-icon>
+              <div class="ml-2">{{ $t("Database.全体統計データ") }}</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <div v-if="isShipMode" class="mt-3">
+              <!-- 艦娘分析モード -->
+              <div class="d-flex flex-wrap">
+                <!-- カテゴリ選択欄 -->
+                <button v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: shipType === -1 }" @click="changeShipType(-1)">
+                  <div class="type-all-text">ALL</div>
+                </button>
+                <button
+                  v-for="(i, index) in shipTypes"
+                  :key="index"
+                  v-ripple="{ class: 'info--text' }"
+                  class="type-selector"
+                  :class="{ active: index === shipType }"
+                  @click="changeShipType(index)"
+                >
+                  {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
+                </button>
+              </div>
+              <div class="d-flex flex-wrap mb-1">
+                <v-checkbox v-model="includeInitial" dense :label="$t('Fleet.未改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
+                <v-checkbox v-model="includeIntermediate" dense :label="$t('Fleet.中間改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
+                <v-checkbox v-model="includeFinal" dense :label="$t('Fleet.最終改造')" :error="errorRemodel" @click="setShipTables()" />
+              </div>
+            </div>
+            <!-- 装備分析モード -->
+            <div v-else class="mt-3">
+              <div class="d-flex flex-wrap">
+                <!-- カテゴリ選択欄 -->
+                <button v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: itemType === -1 }" @click="changeItemType(-1)">
+                  <div class="type-all-text item">ALL</div>
+                </button>
+                <button
+                  v-for="i in itemTypes"
+                  :key="i.id"
+                  v-ripple="{ class: 'info--text' }"
+                  class="type-selector"
+                  :class="{ active: itemType === i.id }"
+                  @click="changeItemType(i.id)"
+                >
+                  <div>
+                    <v-img :src="`./img/type/type${i.id}.png`" height="25" width="25" />
+                  </div>
+                </button>
+              </div>
+              <v-divider></v-divider>
+              <!-- 改修値選択欄 -->
+              <div class="d-flex flex-wrap mb-1">
+                <button v-ripple="{ class: 'info--text' }" class="type-selector" :class="{ active: selectedRemodel === -1 }" @click="changeRemodel(-1)">
+                  <div class="type-all-text">ALL</div>
+                </button>
+                <button
+                  v-for="i in 11"
+                  :key="i"
+                  v-ripple="{ class: 'info--text' }"
+                  class="type-selector"
+                  :class="{ active: selectedRemodel === i - 1 }"
+                  @click="changeRemodel(i - 1)"
+                >
+                  <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                  <span class="teal--text text--accent-4">{{ i - 1 }}</span>
+                </button>
+              </div>
+            </div>
+            <div v-if="!isNotJapanese && !isShipMode" class="mb-1 caption d-none d-md-block text--secondary">Ctrlキー + 装備をクリックでwikiを展開します。</div>
+            <div class="ranking-cards">
+              <v-card v-for="(table, i) in viewTables" :key="`table${i}`" outlined>
+                <div class="pa-2 d-flex flex-wrap align-end">
+                  <div class="ml-1 body-2">{{ table.title ? $t(`Database.${table.title}`) : "" }}</div>
+                  <v-spacer></v-spacer>
+                  <v-btn color="secondary" small @click="showFullTable(table)" :disabled="!table.top10.length || table.items.length < 11">
+                    {{ $t("Database.さらに見る") }}
+                  </v-btn>
+                </div>
+                <v-divider></v-divider>
+                <v-simple-table dense :class="{ 'my-6': !table.top10.length }">
+                  <tbody>
+                    <tr v-for="(row, rank) in table.top10" :key="rank" class="clickable" @click="clickedRaw(row.data, $event)">
+                      <td v-if="!isMobile" class="py-1 pr-0 text-right">{{ rank + 1 }}</td>
+                      <td class="py-1 pr-0">
+                        <div class="d-flex align-center">
+                          <template v-if="isShipMode">
+                            <!-- 艦娘モードの時 -->
+                            <div>
+                              <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
+                            </div>
+                            <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
+                          </template>
+                          <template v-else>
+                            <!-- 装備モードの時 -->
+                            <div>
+                              <v-img v-if="row.data.id" :src="`./img/type/icon${row.data.iconTypeId}.png`" height="30" width="30" />
+                            </div>
+                            <div class="ml-1 ship-name text-caption text-truncate">{{ needTrans ? $t(`${row.data.name}`) : row.data.name }}</div>
+                            <div v-if="selectedRemodel >= 1">
+                              <v-icon x-small color="teal accent-4">mdi-star</v-icon>
+                              <span class="teal--text text--accent-4">{{ selectedRemodel }}</span>
+                            </div>
+                          </template>
+                        </div>
+                      </td>
+                      <td class="py-1 text-right value-td">{{ row.value }}</td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </v-card>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-expansion-panel v-if="isShipMode && shipStock.length">
+          <v-expansion-panel-header min-height="10" class="py-0">
+            <div class="d-flex align-center">
+              <v-icon>mdi-account-details</v-icon>
+              <div class="ml-2">{{ $t("Database.自分のデータと比較") }}</div>
+            </div>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <div class="d-flex flex-wrap mt-3">
               <button v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: shipType === -1 }" @click="changeShipType(-1)">
                 <div class="type-all-text">ALL</div>
               </button>
@@ -42,201 +158,124 @@
               <v-checkbox v-model="includeIntermediate" dense :label="$t('Fleet.中間改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
               <v-checkbox v-model="includeFinal" dense :label="$t('Fleet.最終改造')" :error="errorRemodel" @click="setShipTables()" />
             </div>
-          </div>
-          <!-- 装備分析モード -->
-          <div v-else class="mt-3">
-            <div class="d-flex flex-wrap">
-              <!-- カテゴリ選択欄 -->
-              <button v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: itemType === -1 }" @click="changeItemType(-1)">
-                <div class="type-all-text item">ALL</div>
-              </button>
-              <button
-                v-for="i in itemTypes"
-                :key="i.id"
-                v-ripple="{ class: 'info--text' }"
-                class="type-selector"
-                :class="{ active: itemType === i.id }"
-                @click="changeItemType(i.id)"
-              >
-                <div>
-                  <v-img :src="`./img/type/type${i.id}.png`" height="25" width="25" />
-                </div>
-              </button>
-            </div>
-            <v-divider></v-divider>
-            <!-- 改修値選択欄 -->
-            <div class="d-flex flex-wrap mb-1">
-              <button v-ripple="{ class: 'info--text' }" class="type-selector" :class="{ active: selectedRemodel === -1 }" @click="changeRemodel(-1)">
-                <div class="type-all-text">ALL</div>
-              </button>
-              <button
-                v-for="i in 11"
-                :key="i"
-                v-ripple="{ class: 'info--text' }"
-                class="type-selector"
-                :class="{ active: selectedRemodel === i - 1 }"
-                @click="changeRemodel(i - 1)"
-              >
-                <v-icon x-small color="teal accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4">{{ i - 1 }}</span>
-              </button>
-            </div>
-          </div>
-          <div v-if="!isNotJapanese && !isShipMode" class="mb-1 caption d-none d-md-block text--secondary">Ctrlキー + 装備をクリックでwikiを展開します。</div>
-          <div class="ranking-cards">
-            <v-card v-for="(table, i) in viewTables" :key="`table${i}`" outlined>
-              <div class="pa-2 d-flex flex-wrap align-end">
-                <div class="ml-1 body-2">{{ table.title ? $t(`Database.${table.title}`) : "" }}</div>
-                <v-spacer></v-spacer>
-                <v-btn color="secondary" small @click="showFullTable(table)" :disabled="!table.top10.length || table.items.length < 11">
-                  {{ $t("Database.さらに見る") }}
-                </v-btn>
+            <div class="ranking-cards">
+              <div class="py-3 px-10">
+                <v-simple-table>
+                  <tr>
+                    <td>{{ $t("Database.総経験値平均") }}</td>
+                    <td class="text-right py-1">{{ Math.floor(analyzeResult.avgTotalExp).toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Database.標準偏差") }}</td>
+                    <td class="text-right py-1">{{ Math.floor(analyzeResult.divTotalExp).toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td class="pt-10 text-caption">{{ $t("Database.あなたのデータ") }}</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Database.総経験値") }}</td>
+                    <td class="text-right py-1">{{ totalExp.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t("Database.偏差値") }}</td>
+                    <td class="text-right py-1">
+                      <v-chip
+                        :color="getChipColor(expDeviation)"
+                        :light="expDeviation <= 55 && expDeviation > 38"
+                        :dark="expDeviation > 55 || expDeviation <= 38"
+                      >
+                        {{ expDeviation.toFixed(1) }}
+                      </v-chip>
+                    </td>
+                  </tr>
+                </v-simple-table>
               </div>
-              <v-divider></v-divider>
-              <v-simple-table dense :class="{ 'my-6': !table.top10.length }">
-                <tbody>
-                  <tr v-for="(row, rank) in table.top10" :key="rank" class="clickable" @click="clickedRaw(row.data, $event)">
-                    <td v-if="!isMobile" class="py-1 pr-0 text-right">{{ rank + 1 }}</td>
-                    <td class="py-1 pr-0">
-                      <div class="d-flex align-center">
-                        <template v-if="isShipMode">
-                          <!-- 艦娘モードの時 -->
+              <v-card outlined>
+                <div class="pa-2 d-flex align-end">
+                  <div class="body-2">{{ $t("Database.艦娘偏差値") }} TOP10</div>
+                  <v-spacer></v-spacer>
+                  <v-btn color="secondary" small @click="showFullDeviationTable()">{{ $t("Database.さらに見る") }}</v-btn>
+                </div>
+                <v-divider></v-divider>
+                <v-simple-table dense :class="{ 'my-6': !deviations.length }">
+                  <tbody>
+                    <tr v-for="(row, rank) in deviationTop10s" :key="rank" class="clickable" @click="clickedRaw(row.data, $event)">
+                      <td v-if="!isMobile" class="py-1 pr-0 text-right">{{ rank + 1 }}</td>
+                      <td class="py-1 pr-0">
+                        <div class="d-flex align-center">
                           <div>
                             <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
                           </div>
                           <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
-                        </template>
-                        <template v-else>
-                          <!-- 装備モードの時 -->
-                          <div>
-                            <v-img v-if="row.data.id" :src="`./img/type/icon${row.data.iconTypeId}.png`" height="30" width="30" />
-                          </div>
-                          <div class="ml-1 ship-name text-caption text-truncate">{{ needTrans ? $t(`${row.data.name}`) : row.data.name }}</div>
-                          <div v-if="selectedRemodel >= 1">
-                            <v-icon x-small color="teal accent-4">mdi-star</v-icon>
-                            <span class="teal--text text--accent-4">{{ selectedRemodel }}</span>
-                          </div>
-                        </template>
-                      </div>
-                    </td>
-                    <td class="py-1 text-right value-td">{{ row.value }}</td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
-            </v-card>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel v-if="isShipMode">
-        <v-expansion-panel-header min-height="10" class="py-0">
-          <div class="d-flex align-center">
-            <v-icon>mdi-account-details</v-icon>
-            <div class="ml-2">{{ $t("Database.自分のデータと比較") }}</div>
-          </div>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <div class="d-flex flex-wrap mt-3">
-            <button v-ripple="{ class: 'info--text' }" class="type-selector d-flex" :class="{ active: shipType === -1 }" @click="changeShipType(-1)">
-              <div class="type-all-text">ALL</div>
-            </button>
-            <button
-              v-for="(i, index) in shipTypes"
-              :key="index"
-              v-ripple="{ class: 'info--text' }"
-              class="type-selector"
-              :class="{ active: index === shipType }"
-              @click="changeShipType(index)"
-            >
-              {{ isNotJapanese ? $t(`SType.${i.text}`) : i.text }}
-            </button>
-          </div>
-          <div class="d-flex flex-wrap mb-1">
-            <v-checkbox v-model="includeInitial" dense :label="$t('Fleet.未改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
-            <v-checkbox v-model="includeIntermediate" dense :label="$t('Fleet.中間改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
-            <v-checkbox v-model="includeFinal" dense :label="$t('Fleet.最終改造')" :error="errorRemodel" @click="setShipTables()" />
-          </div>
-          <div class="ranking-cards">
-            <v-card outlined>
-              <div class="pa-2 d-flex align-end">
-                <div class="body-2">{{ $t("Database.艦娘偏差値") }} TOP10</div>
-                <v-spacer></v-spacer>
-                <v-btn color="secondary" small @click="showFullDeviationTable()">{{ $t("Database.さらに見る") }}</v-btn>
-              </div>
-              <v-divider></v-divider>
-              <v-simple-table dense :class="{ 'my-6': !deviations.length }">
-                <tbody>
-                  <tr v-for="(row, rank) in deviationTop10s" :key="rank" class="clickable" @click="clickedRaw(row.data, $event)">
-                    <td v-if="!isMobile" class="py-1 pr-0 text-right">{{ rank + 1 }}</td>
-                    <td class="py-1 pr-0">
-                      <div class="d-flex align-center">
-                        <div>
-                          <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
                         </div>
-                        <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
-                      </div>
-                    </td>
-                    <td class="py-1 text-right">{{ row.level }}</td>
-                    <td class="py-1 text-right">
-                      <v-chip small :color="row.color" :light="row.deviation < 55 && row.deviation >= 30" :dark="row.deviation >= 55">
-                        {{ row.deviation.toFixed(1) }}
-                      </v-chip>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
-            </v-card>
-          </div>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <div class="mt-10" v-if="isShipMode">
-      <div>{{ $t("Database.その他のデータ") }}</div>
-      <v-divider class="mb-3"></v-divider>
-      <v-expansion-panels focusable>
-        <v-expansion-panel v-if="isShipMode">
-          <v-expansion-panel-header min-height="10" class="py-0">
-            <div class="d-flex align-center">
-              <v-icon>mdi-swap-horizontal</v-icon>
-              <div class="ml-2">{{ $t("Database.コンバート艦") }}</div>
-            </div>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <div class="convert-results">
-              <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
-                <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
-                  <div>
-                    <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
-                  </div>
-                  <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
-                  <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
-                </div>
-              </v-card>
-            </div>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-        <v-expansion-panel v-if="!isShipMode">
-          <v-expansion-panel-header min-height="10" class="py-0">
-            <div class="d-flex align-center">
-              <v-icon>mdi-swap-horizontal</v-icon>
-              <div class="ml-2">改修値平均</div>
-            </div>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
-            <div class="convert-results">
-              <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
-                <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
-                  <div>
-                    <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
-                  </div>
-                  <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
-                  <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
-                </div>
+                      </td>
+                      <td class="py-1 text-right">{{ row.level }}</td>
+                      <td class="py-1 text-right">
+                        <v-chip small :color="row.color" :light="row.isLight" :dark="row.isDark">
+                          {{ row.deviation.toFixed(1) }}
+                        </v-chip>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
               </v-card>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </div>
+      <div class="mt-10" v-if="isShipMode">
+        <div>{{ $t("Database.その他のデータ") }}</div>
+        <v-divider class="mb-3"></v-divider>
+        <v-expansion-panels focusable>
+          <v-expansion-panel v-if="isShipMode">
+            <v-expansion-panel-header min-height="10" class="py-0">
+              <div class="d-flex align-center">
+                <v-icon>mdi-swap-horizontal</v-icon>
+                <div class="ml-2">{{ $t("Database.コンバート艦") }}</div>
+              </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <div class="convert-results">
+                <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
+                  <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
+                    <div>
+                      <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
+                    </div>
+                    <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
+                    <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
+                  </div>
+                </v-card>
+              </div>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+          <v-expansion-panel v-if="!isShipMode">
+            <v-expansion-panel-header min-height="10" class="py-0">
+              <div class="d-flex align-center">
+                <v-icon>mdi-swap-horizontal</v-icon>
+                <div class="ml-2">改修値平均</div>
+              </div>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <div class="convert-results">
+                <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
+                  <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
+                    <div>
+                      <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
+                    </div>
+                    <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
+                    <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
+                  </div>
+                </v-card>
+              </div>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+        <div class="mt-3">
+          <v-alert type="info" outlined>その他、閲覧、比較したいデータ募集中！</v-alert>
+        </div>
+      </div>
+    </template>
     <!-- ダイアログの類 -->
     <v-dialog v-model="fullTableDialog" width="500" :fullscreen="isMobile">
       <v-card class="full-table-card">
@@ -563,7 +602,6 @@ import ShipMaster from '@/classes/fleet/shipMaster';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getDatabase, ref, onValue } from 'firebase/database';
 import { decompressFromEncodedURIComponent } from 'lz-string';
-import mockData from '@/classes/mockData';
 import Const from '../../classes/const';
 
 interface MinifyAnalyzeResult {
@@ -730,6 +768,9 @@ export default Vue.extend({
     deviations: [] as { data: ShipMaster; level: number; deviation: number; color: string; isLight: boolean; isDark: boolean }[],
     /** コンバート艦どっち？リスト */
     convertRemodelResults: [] as { base: ShipMaster; versions: { data: ShipMaster; rate: number }[] }[],
+    totalExp: 0,
+    expDeviation: 0,
+    loading: false,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -740,8 +781,10 @@ export default Vue.extend({
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'setItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
+        this.setItemTables();
       } else if (mutation.type === 'setShipStock') {
         this.shipStock = state.shipStock as ShipStock[];
+        this.setShipTables();
       }
     });
   },
@@ -824,131 +867,77 @@ export default Vue.extend({
       }
     },
     async fetchAnalyticsResult() {
+      this.loading = true;
       // 匿名ログイン
-      // const auth = getAuth();
-      // await signInAnonymously(auth);
+      const auth = getAuth();
+      await signInAnonymously(auth);
 
-      // const db = getDatabase();
-      // onValue(
-      //   ref(db, '/analyze_result'),
-      //   (snapshot) => {
-      //     const raw = snapshot.val();
-      //     console.log(raw);
-      //     const decoded = decompressFromEncodedURIComponent(raw);
-      //     console.log(decoded);
-      //     if (decoded) {
-      //       const min = JSON.parse(decoded) as MinifyAnalyzeResult;
-      //       this.analyzeResult = {
-      //         avgTotalExp: min.a,
-      //         divTotalExp: min.d,
-      //         sumTotalExp: min.se,
-      //         itemCount: min.ic,
-      //         items: min.is.map((v) => {
-      //           const data = this.allItemMaster.find((x) => x.id === v.i) ?? new ItemMaster();
-      //           return {
-      //             id: v.i,
-      //             data,
-      //             onceCount: v.oc,
-      //             totalCount: v.tc,
-      //             levels: v.rm,
-      //           };
-      //         }),
-      //         shipCount: min.sc,
-      //         ships: min.ss.map((v) => {
-      //           const data = this.allShipMaster.find((x) => x.id === v.i) ?? new ShipMaster();
-      //           return {
-      //             id: v.i,
-      //             data,
-      //             totalCount: v.tc,
-      //             maxCount: v.mx,
-      //             totalImproveHP: v.hp,
-      //             totalImproveASW: v.as,
-      //             totalImproveLuck: v.lu,
-      //             releaseExCount: v.rc,
-      //             totalSeaRibbonCount: v.sc,
-      //             totalWhiteTasukiCount: v.wt,
-      //             onceMarriageCount: v.mc,
-      //             onceCount: v.oc,
-      //             avgLevel: v.av,
-      //             divLevel: v.dv,
-      //           };
-      //         }),
-      //       };
-      //     } else {
-      //       this.analyzeResult = {
-      //         ships: [],
-      //         items: [],
-      //         sumTotalExp: 0,
-      //         avgTotalExp: 0,
-      //         divTotalExp: 0,
-      //         itemCount: 0,
-      //         shipCount: 0,
-      //       };
-      //     }
-
-      //     this.setItemTables();
-      //     this.setShipTables();
-      //   },
-      //   { onlyOnce: true },
-      // );
-
-      const mock = mockData;
-      const decoded = decompressFromEncodedURIComponent(mock);
-      if (decoded) {
-        const min = JSON.parse(decoded) as MinifyAnalyzeResult;
-        this.analyzeResult = {
-          avgTotalExp: min.a,
-          divTotalExp: min.d,
-          sumTotalExp: min.se,
-          itemCount: min.ic,
-          items: min.is.map((v) => {
-            const data = this.allItemMaster.find((x) => x.id === v.i) ?? new ItemMaster();
-            return {
-              id: v.i,
-              data,
-              onceCount: v.oc,
-              totalCount: v.tc,
-              maxCount: v.mx,
-              maxCounts: v.ms,
-              levels: v.rm,
+      const db = getDatabase();
+      onValue(
+        ref(db, '/analyze_result'),
+        (snapshot) => {
+          const raw = snapshot.val();
+          const decoded = decompressFromEncodedURIComponent(raw);
+          if (decoded) {
+            const min = JSON.parse(decoded) as MinifyAnalyzeResult;
+            this.analyzeResult = {
+              avgTotalExp: min.a,
+              divTotalExp: min.d,
+              sumTotalExp: min.se,
+              itemCount: min.ic,
+              items: min.is.map((v) => {
+                const data = this.allItemMaster.find((x) => x.id === v.i) ?? new ItemMaster();
+                return {
+                  id: v.i,
+                  data,
+                  onceCount: v.oc,
+                  totalCount: v.tc,
+                  levels: v.rm,
+                  maxCount: v.mx,
+                  maxCounts: v.ms,
+                };
+              }),
+              shipCount: min.sc,
+              ships: min.ss.map((v) => {
+                const data = this.allShipMaster.find((x) => x.id === v.i) ?? new ShipMaster();
+                return {
+                  id: v.i,
+                  data,
+                  totalCount: v.tc,
+                  maxCount: v.mx,
+                  totalImproveHP: v.hp,
+                  totalImproveASW: v.as,
+                  totalImproveLuck: v.lu,
+                  releaseExCount: v.rc,
+                  totalSeaRibbonCount: v.sc,
+                  totalWhiteTasukiCount: v.wt,
+                  onceMarriageCount: v.mc,
+                  onceCount: v.oc,
+                  avgLevel: v.av,
+                  divLevel: v.dv,
+                  maxExp: v.me,
+                };
+              }),
             };
-          }),
-          shipCount: min.sc,
-          ships: min.ss.map((v) => {
-            const data = this.allShipMaster.find((x) => x.id === v.i) ?? new ShipMaster();
-            return {
-              id: v.i,
-              data,
-              totalCount: v.tc,
-              maxCount: v.mx,
-              maxExp: v.me,
-              totalImproveHP: v.hp,
-              totalImproveASW: v.as,
-              totalImproveLuck: v.lu,
-              releaseExCount: v.rc,
-              totalSeaRibbonCount: v.sc,
-              totalWhiteTasukiCount: v.wt,
-              onceMarriageCount: v.mc,
-              onceCount: v.oc,
-              avgLevel: v.av,
-              divLevel: v.dv,
+          } else {
+            this.analyzeResult = {
+              ships: [],
+              items: [],
+              sumTotalExp: 0,
+              avgTotalExp: 0,
+              divTotalExp: 0,
+              itemCount: 0,
+              shipCount: 0,
             };
-          }),
-        };
-      } else {
-        this.analyzeResult = {
-          ships: [],
-          items: [],
-          sumTotalExp: 0,
-          avgTotalExp: 0,
-          divTotalExp: 0,
-          itemCount: 0,
-          shipCount: 0,
-        };
-      }
+          }
 
-      this.setItemTables();
-      this.setShipTables();
+          this.setItemTables();
+          this.setShipTables();
+
+          this.loading = false;
+        },
+        { onlyOnce: true },
+      );
     },
     changeShipType(type = 0) {
       this.shipType = type;
@@ -1122,6 +1111,8 @@ export default Vue.extend({
     setDeviations() {
       const stocks = this.shipStock;
       this.deviations = [];
+      this.totalExp = 0;
+      this.expDeviation = 0;
 
       if (!stocks.length) {
         return;
@@ -1133,6 +1124,8 @@ export default Vue.extend({
       for (let i = 0; i < stocks.length; i += 1) {
         const stock = stocks[i];
         const data = this.allShipMaster.find((v) => v.id === stock.id);
+        this.totalExp += stock.exp;
+
         const result = this.analyzeResult.ships.find((v) => v.id === stock.id);
         if (!data || !result) continue;
 
@@ -1149,28 +1142,20 @@ export default Vue.extend({
 
         // 偏差値を取得
         const deviation = ((stock.level - result.avgLevel) / result.divLevel) * 10 + 50;
-        let color = 'error';
-        if (deviation > 80) color = 'indigo';
-        else if (deviation > 70) color = 'blue darken-3';
-        else if (deviation > 65) color = 'blue';
-        else if (deviation > 60) color = 'teal';
-        else if (deviation > 55) color = 'green';
-        else if (deviation > 53) color = 'lime';
-        else if (deviation > 47) color = 'yellow';
-        else if (deviation > 45) color = 'amber';
-        else if (deviation > 38) color = 'orange';
-        else if (deviation > 30) color = 'deep-orange';
         this.deviations.push({
           data,
           level: stock.level,
           deviation,
-          color,
+          color: this.getChipColor(deviation),
           isLight: deviation <= 55 && deviation > 38,
           isDark: deviation > 55 || deviation <= 38,
         });
       }
 
       this.deviations.sort((a, b) => b.deviation - a.deviation);
+      if (this.analyzeResult.divTotalExp) {
+        this.expDeviation = ((this.totalExp - this.analyzeResult.avgTotalExp) / this.analyzeResult.divTotalExp) * 10 + 50;
+      }
     },
     extendAnalyze() {
       // コンバート艦の集計
@@ -1296,6 +1281,19 @@ export default Vue.extend({
         return `${array.map((v) => this.translate(v)).join('')}`;
       }
       return ship.name ? ship.name : '';
+    },
+    getChipColor(value: number) {
+      if (value > 80) return 'indigo';
+      if (value > 70) return 'blue darken-3';
+      if (value > 65) return 'blue';
+      if (value > 60) return 'teal';
+      if (value > 55) return 'green';
+      if (value > 53) return 'lime';
+      if (value > 47) return 'yellow';
+      if (value > 45) return 'amber';
+      if (value > 38) return 'orange';
+      if (value > 30) return 'deep-orange';
+      return 'error';
     },
     clickedRaw(data: ItemMaster | ShipMaster, event: MouseEvent) {
       if (!this.isShipMode && event && event.ctrlKey && data && data instanceof ItemMaster && !data.isEnemyItem) {
