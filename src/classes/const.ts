@@ -980,7 +980,7 @@ export default class Const {
       id: 46, text: '46種', rateBonus: 1.55, c1: 8, c2: 1, rate: 50, remarks: '榛名改二乙',
     },
     {
-      id: 47, text: '47種', rateBonus: 1.25, c1: 2, c2: 1, rate: 70, remarks: '白露型改二',
+      id: 47, text: '47種', rateBonus: 1.3, c1: 2, c2: 1, rate: 70, remarks: '白露型改二',
     },
   ];
 
