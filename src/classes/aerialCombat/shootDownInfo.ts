@@ -333,6 +333,16 @@ export default class ShootDownInfo {
       // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
       if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
     }
+    if (type2 === 23 && ship.data.antiAir >= 70) {
+      // 白露型対空70以上
+      // 春雨砲所持
+      const hasHrusameGun = items.some((v) => v.data.id === 529);
+      // 25mm対空機銃増備
+      const has25mmAAGun = items.some((v) => v.data.id === 505);
+      // 対空4以上の電探所持
+      const hasSPAntiAirRadar = items.some((v) => (v.data.apiTypeId === 12 || v.data.apiTypeId === 13) && v.data.antiAir >= 4);
+      if (hasHrusameGun && (hasSPAntiAirRadar || has25mmAAGun)) cutInIds.push(47);
+    }
 
     // 汎用
     // 全ての水上艦 => 判定できないが必須装備が潜水艦を弾ける

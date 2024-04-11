@@ -782,6 +782,7 @@
 import Vue from 'vue';
 import cloneDeep from 'lodash/cloneDeep';
 import html2canvas from 'html2canvas';
+import party from 'party-js';
 import { Lang } from 'gkcoi/dist/lang';
 import { DeckBuilder, Theme } from 'gkcoi/dist/type';
 import { generate } from 'gkcoi';
@@ -884,6 +885,7 @@ export default Vue.extend({
     generateError: '',
     allShipLevel: 99,
     maxLevel: Const.MAX_LEVEL,
+    sparkleMouseEvent: null as MouseEvent | null,
   }),
   mounted() {
     if (this.$i18n.locale === 'en') {
@@ -895,6 +897,8 @@ export default Vue.extend({
 
     this.tempShipList = this.$store.state.tempShipList ?? [];
     this.tempFleetList = this.$store.state.tempFleetList ?? [];
+
+    party.resolvableShapes.flower = "<img src='./img/util/flower.png' />";
   },
   watch: {
     bulkUpdateDialog(value: boolean) {
@@ -1147,9 +1151,10 @@ export default Vue.extend({
       // 一括モードで起動(第四引数 補強増設の分+1)
       (this.$refs.itemList as InstanceType<typeof ItemList>).initialFilter(ship, 0, [], ship.data.slotCount + 1);
     },
-    async showShipList(fleetIndex: number, shipIndex: number) {
+    async showShipList(fleetIndex: number, shipIndex: number, event: MouseEvent) {
       this.shipDialogTarget = [fleetIndex, shipIndex];
       this.isMobile = window.innerWidth < 600;
+      this.sparkleMouseEvent = event;
       await (this.shipListDialog = true);
       (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
     },
@@ -1300,6 +1305,15 @@ export default Vue.extend({
       const fleetIndex = this.shipDialogTarget[0];
       const index = this.shipDialogTarget[1];
       const fleet = this.fleetInfo.fleets[fleetIndex];
+
+      if (viewShip.ship.id === 975 && this.sparkleMouseEvent) {
+        party.sparkles(this.sparkleMouseEvent, {
+          lifetime: 1.2,
+          size: party.variation.range(0.5, 1),
+          count: 14,
+          shapes: 'flower',
+        });
+      }
 
       // 置き換え処理
       this.replaceShip(viewShip, fleetIndex, index);
@@ -1764,7 +1778,11 @@ export default Vue.extend({
         const { ships } = fleets[i];
         for (let j = 0; j < ships.length; j += 1) {
           ships[j] = new Ship({
-            ship: ships[j], level: shipBuilder.level, hp: shipBuilder.hp, asw: shipBuilder.asw, luck: shipBuilder.luck,
+            ship: ships[j],
+            level: shipBuilder.level,
+            hp: shipBuilder.hp,
+            asw: shipBuilder.asw,
+            luck: shipBuilder.luck,
           });
         }
         fleets[i] = new Fleet({ fleet: fleets[i] });

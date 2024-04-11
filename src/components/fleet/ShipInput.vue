@@ -12,7 +12,7 @@
     @dragover.prevent
   >
     <template v-if="ship.isEmpty && !ship.isTray">
-      <div class="empty-ship d-flex align-center" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
+      <div class="empty-ship d-flex align-center" v-ripple="{ class: 'info--text' }" @click.stop="showShipList($event)" @keypress.enter="showShipList($event)">
         <v-icon small class="mr-1">mdi-plus</v-icon>
         <div>{{ shipName }}</div>
         <div class="empty-temp-list" v-if="handleShowTempShipList || handleCreateTray">
@@ -41,8 +41,8 @@
           class="align-self-center ship-img-container"
           v-if="!isNoShip"
           v-ripple="{ class: 'info--text' }"
-          @click.stop="showShipList"
-          @keypress.enter="showShipList"
+          @click.stop="showShipList($event)"
+          @keypress.enter="showShipList($event)"
         >
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip" @focus="bootShipTooltip($event)" @blur="clearTooltip">
             <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
@@ -114,7 +114,7 @@
               </v-card>
             </v-menu>
           </div>
-          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList" @keypress.enter="showShipList">
+          <div class="d-flex pl-1 clickable-status" v-ripple="{ class: 'info--text' }" @click.stop="showShipList($event)" @keypress.enter="showShipList($event)">
             <div class="ship-name text-truncate" :class="{ 'no-stock': ship.noStock }">{{ shipName }}</div>
           </div>
         </div>
@@ -777,10 +777,10 @@ export default Vue.extend({
         this.handleShowBatchItemList(this.index);
       }
     },
-    showShipList(): void {
+    showShipList(event: MouseEvent): void {
       // 艦娘indexを付与してFleet.vueへスルーパス
       this.clearTooltip();
-      this.handleShowShipList(this.index);
+      this.handleShowShipList(this.index, event);
     },
     showTempShip() {
       // 一時保存領域の展開

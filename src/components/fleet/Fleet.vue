@@ -338,8 +338,8 @@ export default Vue.extend({
       // 艦娘indexを解決してFleetAll.vueへパス
       this.handleShowBatchItemList(this.index, shipIndex);
     },
-    showShipList(index: number) {
-      this.handleShowShipList(this.index, index);
+    showShipList(index: number, event: MouseEvent) {
+      this.handleShowShipList(this.index, index, event);
     },
     batchDeploy() {
       if (this.handleShowBatchShipList) {
