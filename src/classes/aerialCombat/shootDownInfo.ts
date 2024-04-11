@@ -336,12 +336,12 @@ export default class ShootDownInfo {
     if (type2 === 23 && ship.data.antiAir >= 70) {
       // 白露型対空70以上
       // 春雨砲所持
-      const hasHrusameGun = items.some((v) => v.data.id === 529);
+      const harusameGunCount = items.filter((v) => v.data.id === 529).length;
       // 25mm対空機銃増備
       const has25mmAAGun = items.some((v) => v.data.id === 505);
       // 対空4以上の電探所持
       const hasSPAntiAirRadar = items.some((v) => (v.data.apiTypeId === 12 || v.data.apiTypeId === 13) && v.data.antiAir >= 4);
-      if (hasHrusameGun && (hasSPAntiAirRadar || has25mmAAGun)) cutInIds.push(47);
+      if (harusameGunCount >= 2 || (harusameGunCount && (hasSPAntiAirRadar || has25mmAAGun))) cutInIds.push(47);
     }
 
     // 汎用
