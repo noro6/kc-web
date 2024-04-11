@@ -1,7 +1,7 @@
 <template>
   <div class="mt-3 result-all-container">
     <div v-if="!analyzeResult.ships || !analyzeResult.ships.length">
-      <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t('Database.統計データ取得') }}</v-btn>
+      <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t("Database.統計データ取得") }}</v-btn>
     </div>
     <template v-else>
       <v-btn-toggle class="mb-2" dense v-model="isShipMode" borderless mandatory>
@@ -1256,7 +1256,10 @@ export default Vue.extend({
         items.sort((a, b) => b.maxCounts[this.selectedRemodel] - a.maxCounts[this.selectedRemodel]);
         this.viewTables.push({
           title: '最多所持数',
-          top10: items.slice(0, 10).map((v) => ({ data: v.data, value: v.maxCounts[this.selectedRemodel].toLocaleString() })),
+          top10: items
+            .filter((v) => v.maxCounts[this.selectedRemodel])
+            .slice(0, 10)
+            .map((v) => ({ data: v.data, value: v.maxCounts[this.selectedRemodel].toLocaleString() })),
           items: items
             .filter((v) => v.maxCounts[this.selectedRemodel])
             .map((v) => ({ data: v.data, value: v.maxCounts[this.selectedRemodel].toLocaleString() })),
