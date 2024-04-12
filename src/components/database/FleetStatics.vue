@@ -1,9 +1,28 @@
 <template>
   <div class="mt-3 result-all-container">
-    <div v-if="!analyzeResult.ships || !analyzeResult.ships.length">
-      <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t("Database.統計データ取得") }}</v-btn>
+    <div v-if="!analyzeResult.ships || !analyzeResult.ships.length" class="mb-2">
+      <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t("Database.集計の結果を閲覧する") }}</v-btn>
     </div>
-    <template v-else>
+    <div class="mb-2" v-if="!isTempStockMode && shipStock && shipStock.length && !isSubmitted">
+      <v-btn @click="confirmDialog = true" color="success">{{ $t("Database.自分のデータを送信する") }}</v-btn>
+    </div>
+    <v-alert v-if="isSubmitted" type="success" outlined dense>
+      {{ $t("Database.送信しました") }}
+    </v-alert>
+    <v-dialog v-model="confirmDialog" width="400">
+      <v-card class="pa-3">
+        <div class="ma-4 text-body-2">
+          <div class="my-2">{{ $t("Database.あなたの艦隊、装備データを統計データの集計対象として送信します。") }}</div>
+          <div class="my-2">{{ $t("Database.集計は一日一回実行されます。データを送信した後すぐに反映はされませんのでご注意ください。") }}</div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="success" :loading="loading" dark @click.stop="sendStockData">{{ $t("Database.データ送信") }}</v-btn>
+          <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <template v-if="analyzeResult.ships && analyzeResult.ships.length">
       <v-btn-toggle class="mb-2" dense v-model="isShipMode" borderless mandatory>
         <v-btn :value="true" :class="{ 'blue darken-2 white--text': isShipMode }" @click.stop="setShipTables()" block>
           <span>{{ $t("Fleet.艦娘") }}</span>
@@ -594,15 +613,20 @@ tr:hover .ship-name:not(.no-pointer) {
 
 <script lang="ts">
 import Vue from 'vue';
+import { v4 as uuidv4 } from 'uuid';
+import Const from '@/classes/const';
+import Convert from '@/classes/convert';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipStock from '@/classes/fleet/shipStock';
 import ShipMaster from '@/classes/fleet/shipMaster';
-import { getAuth, signInAnonymously } from 'firebase/auth';
-import { getDatabase, ref, onValue } from 'firebase/database';
+import FirebaseManager from '@/classes/firebaseManager';
 import { decompressFromEncodedURIComponent } from 'lz-string';
-import Const from '../../classes/const';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import {
+  getDatabase, ref, onValue, set,
+} from 'firebase/database';
 
 interface MinifyAnalyzeResult {
   a: number;
@@ -771,6 +795,8 @@ export default Vue.extend({
     totalExp: 0,
     expDeviation: 0,
     loading: false,
+    confirmDialog: false,
+    isSubmitted: false,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -782,9 +808,11 @@ export default Vue.extend({
       if (mutation.type === 'setItemStock') {
         this.itemStock = state.itemStock as ItemStock[];
         this.setItemTables();
+        this.isSubmitted = false;
       } else if (mutation.type === 'setShipStock') {
         this.shipStock = state.shipStock as ShipStock[];
         this.setShipTables();
+        this.isSubmitted = false;
       }
     });
   },
@@ -938,6 +966,49 @@ export default Vue.extend({
         },
         { onlyOnce: true },
       );
+    },
+    async sendStockData() {
+      this.loading = true;
+      const shipStock = this.$store.state.shipStock as ShipStock[];
+      const itemStock = this.$store.state.itemStock as ItemStock[];
+      const stockData = FirebaseManager.createFirebaseStockObject(shipStock, itemStock);
+
+      if (this.isTempStockMode || (!stockData.ships && !stockData.items)) {
+        this.loading = false;
+        return;
+      }
+
+      try {
+        const db = getDatabase();
+        // 匿名ログイン
+        const auth = getAuth();
+        signInAnonymously(auth)
+          .then(() => {
+            const setting = this.$store.state.siteSetting as SiteSetting;
+            // 念のためuuidなければ発行
+            if (!setting.userId) {
+              setting.userId = uuidv4();
+            }
+            // 集計用データ送信
+            set(ref(db, `user_stocks/${setting.userId}`), {
+              ships: stockData.ships,
+              items: stockData.items,
+              date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
+            });
+            // サイト設定を保存
+            this.$store.dispatch('updateSetting', setting);
+            this.loading = false;
+            this.isSubmitted = true;
+            this.confirmDialog = false;
+          })
+          .catch((error) => {
+            console.error(error);
+            this.loading = false;
+          });
+      } catch (error) {
+        console.error(error);
+        this.loading = false;
+      }
     },
     changeShipType(type = 0) {
       this.shipType = type;
