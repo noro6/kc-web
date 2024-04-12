@@ -994,12 +994,18 @@ export default Vue.extend({
               ships: stockData.ships,
               items: stockData.items,
               date: Convert.formatDate(new Date(), 'yy/MM/dd HH:mm:ss'),
-            });
-            // サイト設定を保存
-            this.$store.dispatch('updateSetting', setting);
-            this.loading = false;
-            this.isSubmitted = true;
-            this.confirmDialog = false;
+            })
+              .then(() => {
+                // サイト設定を保存
+                this.$store.dispatch('updateSetting', setting);
+                this.loading = false;
+                this.isSubmitted = true;
+                this.confirmDialog = false;
+              })
+              .catch((error) => {
+                console.error(error);
+                this.loading = false;
+              });
           })
           .catch((error) => {
             console.error(error);
