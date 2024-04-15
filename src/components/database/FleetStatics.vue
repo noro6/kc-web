@@ -15,10 +15,10 @@
           <div class="my-2">{{ $t("Database.あなたの艦隊、装備データを統計データの集計対象として送信します。") }}</div>
           <div class="my-2">{{ $t("Database.集計は一日一回実行されます。データを送信した後すぐに反映はされませんのでご注意ください。") }}</div>
         </div>
-        <v-alert type="error" outlined dense> 本機能は一時停止中です。 </v-alert>
+        <v-alert v-if="hasManualData" type="error" outlined dense>本機能は一時停止中です。</v-alert>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :loading="loading" dark disabled>{{ $t("Database.データ送信") }}</v-btn>
+          <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData">{{ $t("Database.データ送信") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
         </div>
       </v-card>
@@ -909,6 +909,13 @@ export default Vue.extend({
     },
     async fetchAnalyticsResult() {
       this.loading = true;
+
+      if (this.hasManualData) {
+        this.loading = false;
+        this.confirmDialog = false;
+        return;
+      }
+
       // 匿名ログイン
       const auth = getAuth();
       await signInAnonymously(auth);
