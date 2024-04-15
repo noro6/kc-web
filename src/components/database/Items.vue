@@ -744,9 +744,11 @@ export default Vue.extend({
 
         if (stock) {
           stock.num = this.editedStock;
+          stock.isManualInput = true;
         } else {
           const newData = new ItemStock(itemId);
           newData.num = this.editedStock;
+          newData.isManualInput = true;
           this.itemStock.push(newData);
         }
 

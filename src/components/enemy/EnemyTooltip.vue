@@ -105,6 +105,18 @@ export default Vue.extend({
       if (this.value.data.name.indexOf('深海日棲姫') >= 0) {
         return false;
       }
+      if (this.value.data.name.indexOf('船渠棲姫') >= 0) {
+        return false;
+      }
+      if (this.value.data.name.indexOf('深海梅棲姫') >= 0) {
+        return false;
+      }
+      if (this.value.data.name.indexOf('深海雨雲姫') >= 0) {
+        return false;
+      }
+      if (this.value.data.name.indexOf('深海玉棲姫') >= 0) {
+        return false;
+      }
       if (this.value.data.name.indexOf('米駆逐棲姫') >= 0) {
         return true;
       }

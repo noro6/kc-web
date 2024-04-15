@@ -1956,6 +1956,7 @@ export default Vue.extend({
       // 経験値算出
       const exp = Const.LEVEL_BORDERS.find((v) => v.lv === stockData.level);
       stockData.exp = exp ? exp.req : 0;
+      stockData.isManualInput = true;
 
       return cloneDeep(stockData);
     },

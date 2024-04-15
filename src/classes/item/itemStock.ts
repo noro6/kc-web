@@ -10,6 +10,9 @@ export default class ItemStock {
   /** 改修値別所持数 */
   public num = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+  /** 手動更新フラグ */
+  public isManualInput = false;
+
   constructor(id: number, remodel = -1) {
     this.id = id;
     if (remodel >= 0 && remodel < this.num.length) {

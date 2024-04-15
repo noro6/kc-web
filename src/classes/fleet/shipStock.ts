@@ -48,6 +48,9 @@ export default class ShipStock {
   /** たすきとかりぼんとか */
   public spEffectItems: SpecialEffectItem[] = [];
 
+  /** 手動更新フラグ */
+  public isManualInput = false;
+
   /**
    * 艦隊分析コードを生成
    * @static

@@ -15,9 +15,10 @@
           <div class="my-2">{{ $t("Database.あなたの艦隊、装備データを統計データの集計対象として送信します。") }}</div>
           <div class="my-2">{{ $t("Database.集計は一日一回実行されます。データを送信した後すぐに反映はされませんのでご注意ください。") }}</div>
         </div>
+        <v-alert type="error" outlined dense> 本機能は一時停止中です。 </v-alert>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :loading="loading" dark @click.stop="sendStockData">{{ $t("Database.データ送信") }}</v-btn>
+          <v-btn class="ml-auto" color="success" :loading="loading" dark disabled>{{ $t("Database.データ送信") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
         </div>
       </v-card>
@@ -857,6 +858,18 @@ export default Vue.extend({
     },
     errorRemodel() {
       return !this.includeInitial && !this.includeIntermediate && !this.includeFinal;
+    },
+    hasManualData() {
+      if (this.shipStock && this.shipStock.length) {
+        if (this.shipStock.some((v) => v.isManualInput)) {
+          return true;
+        }
+      }
+      if (this.itemStock && this.itemStock.length) {
+        return this.itemStock.some((v) => v.isManualInput);
+      }
+
+      return false;
     },
   },
   beforeDestroy() {
