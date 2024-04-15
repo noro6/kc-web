@@ -910,12 +910,6 @@ export default Vue.extend({
     async fetchAnalyticsResult() {
       this.loading = true;
 
-      if (this.hasManualData) {
-        this.loading = false;
-        this.confirmDialog = false;
-        return;
-      }
-
       // 匿名ログイン
       const auth = getAuth();
       await signInAnonymously(auth);
@@ -989,6 +983,13 @@ export default Vue.extend({
     },
     async sendStockData() {
       this.loading = true;
+
+      if (this.hasManualData) {
+        this.loading = false;
+        this.confirmDialog = false;
+        return;
+      }
+
       const shipStock = this.$store.state.shipStock as ShipStock[];
       const itemStock = this.$store.state.itemStock as ItemStock[];
       const stockData = FirebaseManager.createFirebaseStockObject(shipStock, itemStock);
