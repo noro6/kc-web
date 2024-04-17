@@ -951,7 +951,6 @@ export default Vue.extend({
     w.loadItemData = this.setItemStock;
     w.loadDeckBuilder = this.loadAndOpenFromDeckBuilder;
     // const stock = Convert.restoreTest('');
-    // const stock = Convert.restoreTest('');
     // console.log(ShipStock.createFleetAnalyticsCode(stock));
     // const itemStock = Convert.restoreItemTest('');
     // console.log(ItemStock.createFleetAnalyticsCode(itemStock));

@@ -183,7 +183,7 @@ export default class SpecialAttack {
     }
 
     // 空母カットイン判定
-    if (parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 8)) {
+    if (parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 8) && parent.data.speed !== 0) {
       // 艦攻は必須
       const bomberCount = items.filter((v) => v.fullSlot && v.data.apiTypeId === 7).length;
       // FBA => 艦攻 + 艦爆 + 艦戦
