@@ -9,13 +9,16 @@
     <v-alert v-if="isSubmitted" type="success" outlined dense>
       {{ $t("Database.送信しました") }}
     </v-alert>
-    <v-dialog v-model="confirmDialog" width="400">
+    <v-dialog v-model="confirmDialog" width="660">
       <v-card class="pa-3">
         <div class="ma-4 text-body-2">
           <div class="my-2">{{ $t("Database.あなたの艦隊、装備データを統計データの集計対象として送信します。") }}</div>
           <div class="my-2">{{ $t("Database.集計は一日一回実行されます。データを送信した後すぐに反映はされませんのでご注意ください。") }}</div>
         </div>
-        <v-alert v-if="hasManualData" type="error" outlined dense>本機能は一時停止中です。</v-alert>
+        <v-alert v-if="hasManualData" type="error" outlined dense class="text-body-2">
+          <div>手動でのデータ更新を行った艦隊データは集計対象外となりました。</div>
+          <div>データ送信を行う場合は、この画面を閉じ、「反映」タブの手順で艦隊、装備データを更新してください。</div>
+        </v-alert>
         <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData">{{ $t("Database.データ送信") }}</v-btn>
