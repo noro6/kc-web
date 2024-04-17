@@ -132,6 +132,8 @@ export default Vue.extend({
       this.tab = 5;
       this.$router.replace({ path: '/extra' });
     }
+
+    window.scroll({ top: 0, behavior: 'smooth' });
   },
   computed: {
     completed() {

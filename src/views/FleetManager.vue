@@ -465,6 +465,8 @@ export default Vue.extend({
       this.tab = 2;
       this.showHowToDoIt = true;
     }
+
+    window.scroll({ top: 0, behavior: 'smooth' });
   },
   computed: {
     completed() {
