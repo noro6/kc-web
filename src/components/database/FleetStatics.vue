@@ -21,7 +21,7 @@
         </v-alert>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData">{{ $t("Database.データ送信") }}</v-btn>
+          <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData" @click="sendStockData">{{ $t("Database.データ送信") }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
         </div>
       </v-card>
