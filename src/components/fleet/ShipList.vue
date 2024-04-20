@@ -292,11 +292,11 @@
         </div>
         <v-divider class="mx-2" />
         <div class="filter-dialog-body pr-1 pb-2">
-          <div class="d-flex" v-if="isMobile">
+          <div class="d-flex" v-if="isStockOnly && isMobile">
             <div class="caption">{{ $t("Database.お札") }}</div>
             <div class="header-divider" />
           </div>
-          <div v-if="isMobile">
+          <div v-if="isStockOnly && isMobile">
             <div class="filter-img">
               <!-- 作戦参加中 -->
               <img v-show="shipFilter.hasAreaOnly" @click="toggleAreaFilter" @keypress="toggleAreaFilter" :src="`./img/util/filtered1.png`" alt="area-img-1" />
