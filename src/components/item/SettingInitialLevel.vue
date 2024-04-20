@@ -18,7 +18,7 @@
       </div>
     </template>
     <v-card>
-      <div class="d-flex">
+      <div class="d-flex flex-column flex-sm-row">
         <div v-for="i in 9" :key="i - 1" v-ripple="{ class: 'info--text' }" class="level-list-item" @click="setLevel(i - 1)" @keypress.enter="setLevel(i - 1)">
           <v-img :src="`./img/util/prof${i - 1}.png`" width="18" height="24" />
           <span class="level-list-value">{{ getLevelValue(i - 1) }}</span>

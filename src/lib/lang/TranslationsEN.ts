@@ -162,6 +162,7 @@ export default {
       'なし': 'None',
       '鎮守府秋刀魚祭り': 'Saury Festival',
       'ソート': 'Order',
+      '読み': 'Alphabetical',
       '昇順': 'Ascending',
       '降順': 'Descending',
       '燃料': 'Fuel',
@@ -256,6 +257,7 @@ export default {
       '在籍艦娘データ': 'Ship Data',
       '所持装備データ': 'Equipment Data',
       '艦隊URL出力履歴': 'URL Output History',
+      '装備変更時の比較画面の表示': 'Display of comparison dialog when changing equipment',
     },
     Home: {
       '制空権シミュレータ': 'Simulator',
