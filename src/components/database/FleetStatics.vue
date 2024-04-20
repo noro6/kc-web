@@ -1005,7 +1005,7 @@ export default Vue.extend({
 
       const db = getDatabase();
       onValue(
-        ref(db, '/analyze_result_2'),
+        ref(db, '/analyze_result'),
         (snapshot) => {
           const raw = snapshot.val();
           const decoded = decompressFromEncodedURIComponent(raw);
