@@ -105,6 +105,8 @@ export default new Vuex.Store({
     disabledDatabase: false,
     /** 海域札数 */
     areaCount: 0,
+    /** 遠征チェック海域 */
+    checkedExpeditionWorlds: [] as number[],
   },
   mutations: {
     setShips: (state, values: Master.MasterShip[]) => {
@@ -298,6 +300,9 @@ export default new Vuex.Store({
     setDisabledDatabase: (state, value: boolean) => {
       state.disabledDatabase = value;
     },
+    updateExpeditionWorlds: (state, values: number[]) => {
+      state.checkedExpeditionWorlds = values;
+    },
   },
   actions: {
     updateSaveData(context, value: SaveData) {
@@ -401,6 +406,9 @@ export default new Vuex.Store({
         context.state.kcWebDatabase.setting.put(value, 'setting');
       }
       context.commit('updateSetting', value);
+    },
+    updateExpeditionWorlds(context, values: number[]) {
+      context.commit('updateExpeditionWorlds', values);
     },
     setSearchedList(context, values: UploadedPreset[]) {
       context.commit('setSearchedList', values);

@@ -212,13 +212,19 @@ export default Vue.extend({
   mounted() {
     const worlds = this.$store.state.worlds as MasterWorld[];
     this.worlds = [];
+    const checked = this.$store.state.checkedExpeditionWorlds as number[];
+
     for (let i = 0; i < worlds.length; i += 1) {
       const data = worlds[i];
       if (Const.EXPEDITIONS.some((v) => v.world === data.world)) {
+        let isChecked = true;
+        if (checked && checked.length && !checked.includes(data.world)) {
+          isChecked = false;
+        }
         this.worlds.push({
           world: data.world,
           text: data.name,
-          isChecked: true,
+          isChecked,
         });
       }
     }
@@ -331,6 +337,9 @@ export default Vue.extend({
           });
         }
       }
+
+      const worlds = this.worlds.filter((v) => v.isChecked).map((v) => v.world);
+      this.$store.dispatch('updateExpeditionWorlds', worlds);
     },
     toggleAllWorld() {
       // いずれか1つでも未チェックがあれば全チェック => 全チェック状態だった場合のみチェックを解除ということ。
