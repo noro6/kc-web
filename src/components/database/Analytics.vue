@@ -853,7 +853,7 @@ export default Vue.extend({
       this.totalHPImprovement = totalHPImprovement;
       this.totalLuckImprovement = totalLuckImprovement;
       this.totalASWImprovement = totalASWImprovement;
-      // まるゆ指数 => - (ケッコン艦 * (4.5)) / 1.6 + まるゆ所持数 * 1.6
+      // まるゆ指数 => 総運改修値 - (ケッコン艦 * (4.5)) / 1.6 + まるゆ所持数 * 1.6
       this.maruyuRank = Math.max(Math.floor(maruyuCount * 1.6 + (totalLuckImprovement - this.allMarriageCount * 4.5) / 1.6), 0);
 
       this.totalBluePrintsPlan = totalBluePrintsPlan;

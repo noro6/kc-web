@@ -3,6 +3,18 @@
     <div v-if="!analyzeResult.ships || !analyzeResult.ships.length" class="mb-2">
       <v-btn @click="fetchAnalyticsResult()" :loading="loading" color="primary">{{ $t("Database.集計の結果を閲覧する") }}</v-btn>
     </div>
+    <v-dialog v-model="errorDialog" width="400">
+      <v-card class="pa-3">
+        <div class="mx-2 my-4 text-body-2">
+          <div>{{ $t("Database.集計データが取得できませんでした。") }}</div>
+          <div class="mt-2">{{ $t("Database.一度、サイトの再読み込みをしてみてください。それでも取得できない場合は集計中かも。") }}</div>
+        </div>
+        <v-divider class="my-2" />
+        <div class="d-flex">
+          <v-btn class="ml-auto" color="secondary" @click.stop="errorDialog = false">{{ $t("Common.閉じる") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
     <div class="mb-2" v-if="!isTempStockMode && shipStock && shipStock.length && !isSubmitted">
       <v-btn @click="confirmDialog = true" color="success">{{ $t("Database.自分のデータを送信する") }}</v-btn>
     </div>
@@ -21,7 +33,9 @@
         </v-alert>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData" @click="sendStockData">{{ $t("Database.データ送信") }}</v-btn>
+          <v-btn class="ml-auto" color="success" :loading="loading" dark :disabled="hasManualData" @click="sendStockData">{{
+            $t("Database.データ送信")
+          }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Database.やっぱやめとく") }}</v-btn>
         </div>
       </v-card>
@@ -181,39 +195,7 @@
               <v-checkbox v-model="includeIntermediate" dense :label="$t('Fleet.中間改造')" :error="errorRemodel" class="mr-3" @click="setShipTables()" />
               <v-checkbox v-model="includeFinal" dense :label="$t('Fleet.最終改造')" :error="errorRemodel" @click="setShipTables()" />
             </div>
-            <div class="ranking-cards">
-              <div class="py-3 px-10">
-                <v-simple-table>
-                  <tr>
-                    <td>{{ $t("Database.総経験値平均") }}</td>
-                    <td class="text-right py-1">{{ Math.floor(analyzeResult.avgTotalExp).toLocaleString() }}</td>
-                  </tr>
-                  <tr>
-                    <td>{{ $t("Database.標準偏差") }}</td>
-                    <td class="text-right py-1">{{ Math.floor(analyzeResult.divTotalExp).toLocaleString() }}</td>
-                  </tr>
-                  <tr>
-                    <td class="pt-10 text-caption">{{ $t("Database.あなたのデータ") }}</td>
-                    <td></td>
-                  </tr>
-                  <tr>
-                    <td>{{ $t("Database.総経験値") }}</td>
-                    <td class="text-right py-1">{{ totalExp.toLocaleString() }}</td>
-                  </tr>
-                  <tr>
-                    <td>{{ $t("Database.偏差値") }}</td>
-                    <td class="text-right py-1">
-                      <v-chip
-                        :color="getChipColor(expDeviation)"
-                        :light="expDeviation <= 55 && expDeviation > 38"
-                        :dark="expDeviation > 55 || expDeviation <= 38"
-                      >
-                        {{ expDeviation.toFixed(1) }}
-                      </v-chip>
-                    </td>
-                  </tr>
-                </v-simple-table>
-              </div>
+            <div class="your-data-area">
               <v-card outlined>
                 <div class="pa-2 d-flex align-end">
                   <div class="body-2">{{ $t("Database.艦娘偏差値") }} TOP10</div>
@@ -243,6 +225,36 @@
                   </tbody>
                 </v-simple-table>
               </v-card>
+              <div class="your-data-container">
+                <v-simple-table>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th class="text-no-wrap text-right">{{ $t("Database.サーバー平均") }}</th>
+                      <th class="text-no-wrap text-right">{{ $t("Database.サーバー中央値") }}</th>
+                      <th class="text-no-wrap text-right">{{ $t("Database.あなたのデータ") }}</th>
+                      <th class="text-no-wrap text-center">{{ $t("Database.偏差値") }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, i) in deviationTable" :key="`dev${i}`">
+                      <td class="text-no-wrap">{{ $t(`Database.${row.title}`) }}</td>
+                      <td class="text-right">{{ Math.floor(row.avg).toLocaleString() }}</td>
+                      <td class="text-right">{{ Math.floor(row.med).toLocaleString() }}</td>
+                      <td class="text-right">{{ row.value.toLocaleString() }}</td>
+                      <td class="text-center py-1">
+                        <v-chip
+                          :color="getChipColor(row.deviation)"
+                          :light="row.deviation <= 55 && row.deviation > 38"
+                          :dark="row.deviation > 55 || row.deviation <= 38"
+                        >
+                          {{ row.deviation.toFixed(1) }}
+                        </v-chip>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </div>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -513,6 +525,29 @@
   }
 }
 
+.your-data-area {
+  display: grid;
+  grid-template-columns: auto;
+  row-gap: 20px;
+  column-gap: 20px;
+  justify-content: center;
+}
+.your-data-area > div {
+  max-width: 800px;
+}
+.your-data-container {
+  overflow-x: auto;
+}
+@media (min-width: 1200px) {
+  .your-data-area {
+    display: grid;
+    grid-template-columns: 540px 1fr;
+  }
+  .your-data-area > div {
+    max-width: unset;
+  }
+}
+
 tr.clickable {
   cursor: pointer;
 }
@@ -633,11 +668,23 @@ import {
 } from 'firebase/database';
 
 interface MinifyAnalyzeResult {
-  a: number;
-  d: number;
-  ic: number;
-  sc: number;
-  se: number;
+  avgTotalExp: number;
+  divTotalExp: number;
+  medTotalExp: number;
+  avgImproveAsw: number;
+  medImproveAsw: number;
+  divImproveAsw: number;
+  avgImproveLuck: number;
+  medImproveLuck: number;
+  divImproveLuck: number;
+  avgImproveHP: number;
+  medImproveHP: number;
+  divImproveHP: number;
+  avgMaruyu: number;
+  medMaruyu: number;
+  divMaruyu: number;
+  itemCount: number;
+  shipCount: number;
   is: {
     i: number;
     oc: number;
@@ -661,6 +708,7 @@ interface MinifyAnalyzeResult {
     me: number;
     wt: number;
     sc: number;
+    md: number;
   }[];
 }
 
@@ -681,6 +729,8 @@ interface AnalyzeShipResult {
   totalImproveASW: number;
   /** 本艦娘の練度の平均 */
   avgLevel: number;
+  /** 本艦娘の練度の中央値 */
+  medLevel: number;
   /** 本艦娘の練度の標準偏差 */
   divLevel: number;
   /** 本艦娘に指輪を渡したの提督の総数 */
@@ -715,12 +765,36 @@ interface AnalyzeItemResult {
 }
 
 interface AnalyzeResult {
-  /** 総経験値合計 */
-  sumTotalExp: number;
   /** 総経験値平均 */
   avgTotalExp: number;
+  /** 総経験値中央値 */
+  medTotalExp: number;
   /** 総経験値標準偏差 */
   divTotalExp: number;
+  /** 対潜改修平均 */
+  avgImproveAsw: number;
+  /** 対潜改修中央値 */
+  medImproveAsw: number;
+  /** 対潜改修標準偏差 */
+  divImproveAsw: number;
+  /** 運改修平均 */
+  avgImproveLuck: number;
+  /** 運改修中央値 */
+  medImproveLuck: number;
+  /** 運改修標準偏差 */
+  divImproveLuck: number;
+  /** 耐久改修平均 */
+  avgImproveHP: number;
+  /** 耐久改修中央値 */
+  medImproveHP: number;
+  /** 耐久改修標準偏差 */
+  divImproveHP: number;
+  /** まるゆ指数平均 */
+  avgMaruyu: number;
+  /** まるゆ指数中央値 */
+  medMaruyu: number;
+  /** まるゆ指数標準偏差 */
+  divMaruyu: number;
   /** 装備有効データ総数 */
   itemCount: number;
   /** 艦娘有効データ総数 */
@@ -784,9 +858,21 @@ export default Vue.extend({
     analyzeResult: {
       ships: [],
       items: [],
-      sumTotalExp: 0,
       avgTotalExp: 0,
       divTotalExp: 0,
+      medTotalExp: 0,
+      avgImproveAsw: 0,
+      medImproveAsw: 0,
+      divImproveAsw: 0,
+      avgImproveLuck: 0,
+      medImproveLuck: 0,
+      divImproveLuck: 0,
+      avgImproveHP: 0,
+      medImproveHP: 0,
+      divImproveHP: 0,
+      avgMaruyu: 0,
+      medMaruyu: 0,
+      divMaruyu: 0,
       itemCount: 0,
       shipCount: 0,
     } as AnalyzeResult,
@@ -796,11 +882,11 @@ export default Vue.extend({
     deviations: [] as { data: ShipMaster; level: number; deviation: number; color: string; isLight: boolean; isDark: boolean }[],
     /** コンバート艦どっち？リスト */
     convertRemodelResults: [] as { base: ShipMaster; versions: { data: ShipMaster; rate: number }[] }[],
-    totalExp: 0,
-    expDeviation: 0,
+    deviationTable: [] as { title: string; avg: number; med: number; value: number; deviation: number }[],
     loading: false,
     confirmDialog: false,
     isSubmitted: false,
+    errorDialog: false,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -919,17 +1005,29 @@ export default Vue.extend({
 
       const db = getDatabase();
       onValue(
-        ref(db, '/analyze_result'),
+        ref(db, '/analyze_result_2'),
         (snapshot) => {
           const raw = snapshot.val();
           const decoded = decompressFromEncodedURIComponent(raw);
           if (decoded) {
             const min = JSON.parse(decoded) as MinifyAnalyzeResult;
             this.analyzeResult = {
-              avgTotalExp: min.a,
-              divTotalExp: min.d,
-              sumTotalExp: min.se,
-              itemCount: min.ic,
+              avgTotalExp: min.avgTotalExp ?? 0,
+              medTotalExp: min.medTotalExp ?? 0,
+              divTotalExp: min.divTotalExp ?? 0,
+              avgImproveAsw: min.avgImproveAsw ?? 0,
+              medImproveAsw: min.medImproveAsw ?? 0,
+              divImproveAsw: min.divImproveAsw ?? 0,
+              avgImproveLuck: min.avgImproveLuck ?? 0,
+              medImproveLuck: min.medImproveLuck ?? 0,
+              divImproveLuck: min.divImproveLuck ?? 0,
+              avgImproveHP: min.avgImproveHP ?? 0,
+              medImproveHP: min.medImproveHP ?? 0,
+              divImproveHP: min.divImproveHP ?? 0,
+              avgMaruyu: min.avgMaruyu ?? 0,
+              medMaruyu: min.medMaruyu ?? 0,
+              divMaruyu: min.divMaruyu ?? 0,
+              itemCount: min.itemCount ?? 0,
               items: min.is.map((v) => {
                 const data = this.allItemMaster.find((x) => x.id === v.i) ?? new ItemMaster();
                 return {
@@ -942,7 +1040,7 @@ export default Vue.extend({
                   maxCounts: v.ms,
                 };
               }),
-              shipCount: min.sc,
+              shipCount: min.shipCount ?? 0,
               ships: min.ss.map((v) => {
                 const data = this.allShipMaster.find((x) => x.id === v.i) ?? new ShipMaster();
                 return {
@@ -960,6 +1058,7 @@ export default Vue.extend({
                   onceCount: v.oc,
                   avgLevel: v.av,
                   divLevel: v.dv,
+                  medLevel: v.md,
                   maxExp: v.me,
                 };
               }),
@@ -968,12 +1067,28 @@ export default Vue.extend({
             this.analyzeResult = {
               ships: [],
               items: [],
-              sumTotalExp: 0,
               avgTotalExp: 0,
+              medTotalExp: 0,
               divTotalExp: 0,
+              avgImproveAsw: 0,
+              medImproveAsw: 0,
+              divImproveAsw: 0,
+              avgImproveLuck: 0,
+              medImproveLuck: 0,
+              divImproveLuck: 0,
+              avgImproveHP: 0,
+              medImproveHP: 0,
+              divImproveHP: 0,
+              avgMaruyu: 0,
+              medMaruyu: 0,
+              divMaruyu: 0,
               itemCount: 0,
               shipCount: 0,
             };
+          }
+
+          if (!this.analyzeResult.shipCount) {
+            this.errorDialog = true;
           }
 
           this.setItemTables();
@@ -1093,6 +1208,11 @@ export default Vue.extend({
         top10: ships.slice(0, 10).map((v) => ({ data: v.data, value: v.totalCount.toLocaleString() })),
         items: ships.slice(0, maxTableRows).map((v) => ({ data: v.data, value: v.totalCount.toLocaleString() })),
       });
+      this.viewTables.push({
+        title: '平均在籍数',
+        top10: ships.slice(0, 10).map((v) => ({ data: v.data, value: (v.totalCount / baseCount).toFixed(1) })),
+        items: ships.map((v) => ({ data: v.data, value: (v.totalCount / baseCount).toFixed(1) })),
+      });
       ships.sort((a, b) => b.maxCount - a.maxCount);
       this.viewTables.push({
         title: '最多在籍数',
@@ -1120,9 +1240,15 @@ export default Vue.extend({
 
       ships.sort((a, b) => b.avgLevel - a.avgLevel);
       this.viewTables.push({
-        title: '平均Lv',
+        title: 'Lv平均',
         top10: ships.slice(0, 10).map((v) => ({ data: v.data, value: v.avgLevel.toFixed(1) })),
         items: ships.slice(0, maxTableRows).map((v) => ({ data: v.data, value: v.avgLevel.toFixed(1) })),
+      });
+      ships.sort((a, b) => b.medLevel - a.medLevel);
+      this.viewTables.push({
+        title: 'Lv中央値',
+        top10: ships.slice(0, 10).map((v) => ({ data: v.data, value: v.medLevel })),
+        items: ships.slice(0, maxTableRows).map((v) => ({ data: v.data, value: v.medLevel })),
       });
 
       ships.sort((a, b) => b.releaseExCount / b.totalCount - a.releaseExCount / a.totalCount);
@@ -1212,8 +1338,13 @@ export default Vue.extend({
     setDeviations() {
       const stocks = this.shipStock;
       this.deviations = [];
-      this.totalExp = 0;
-      this.expDeviation = 0;
+      this.deviationTable = [];
+      let totalExp = 0;
+      let totalImproveHP = 0;
+      let totalImproveASW = 0;
+      let totalImproveLuck = 0;
+      let marriageCount = 0;
+      let maruyuCount = 0;
 
       if (!stocks.length) {
         return;
@@ -1225,7 +1356,12 @@ export default Vue.extend({
       for (let i = 0; i < stocks.length; i += 1) {
         const stock = stocks[i];
         const data = this.allShipMaster.find((v) => v.id === stock.id);
-        this.totalExp += stock.exp;
+        totalExp += stock.exp;
+        totalImproveHP += stock.improvement.hp;
+        totalImproveASW += stock.improvement.asw;
+        totalImproveLuck += stock.improvement.luck;
+        marriageCount += stock.level > 99 ? 1 : 0;
+        maruyuCount += stock.id === 163 || stock.id === 402 ? 1 : 0;
 
         const result = this.analyzeResult.ships.find((v) => v.id === stock.id);
         if (!data || !result) continue;
@@ -1253,9 +1389,53 @@ export default Vue.extend({
         });
       }
 
+      const maruyuIndex = Math.max(Math.floor(maruyuCount * 1.6 + (totalImproveLuck - marriageCount * 4.5) / 1.6), 0);
+
       this.deviations.sort((a, b) => b.deviation - a.deviation);
       if (this.analyzeResult.divTotalExp) {
-        this.expDeviation = ((this.totalExp - this.analyzeResult.avgTotalExp) / this.analyzeResult.divTotalExp) * 10 + 50;
+        this.deviationTable.push({
+          title: '総経験値',
+          avg: this.analyzeResult.avgTotalExp,
+          med: this.analyzeResult.medTotalExp,
+          value: totalExp,
+          deviation: ((totalExp - this.analyzeResult.avgTotalExp) / this.analyzeResult.divTotalExp) * 10 + 50,
+        });
+      }
+      if (this.analyzeResult.divImproveLuck) {
+        this.deviationTable.push({
+          title: '総運改修値',
+          avg: this.analyzeResult.avgImproveLuck,
+          med: this.analyzeResult.medImproveLuck,
+          value: totalImproveLuck,
+          deviation: ((totalImproveLuck - this.analyzeResult.avgImproveLuck) / this.analyzeResult.divImproveLuck) * 10 + 50,
+        });
+      }
+      if (this.analyzeResult.divImproveHP) {
+        this.deviationTable.push({
+          title: '総耐久改修値',
+          avg: this.analyzeResult.avgImproveHP,
+          med: this.analyzeResult.medImproveHP,
+          value: totalImproveHP,
+          deviation: ((totalImproveHP - this.analyzeResult.avgImproveHP) / this.analyzeResult.divImproveHP) * 10 + 50,
+        });
+      }
+      if (this.analyzeResult.divImproveAsw) {
+        this.deviationTable.push({
+          title: '総対潜改修値',
+          avg: this.analyzeResult.avgImproveAsw,
+          med: this.analyzeResult.medImproveAsw,
+          value: totalImproveASW,
+          deviation: ((totalImproveASW - this.analyzeResult.avgImproveAsw) / this.analyzeResult.divImproveAsw) * 10 + 50,
+        });
+      }
+      if (this.analyzeResult.divMaruyu) {
+        this.deviationTable.push({
+          title: 'まるゆ指数',
+          avg: this.analyzeResult.avgMaruyu,
+          med: this.analyzeResult.medMaruyu,
+          value: maruyuIndex,
+          deviation: ((maruyuIndex - this.analyzeResult.avgMaruyu) / this.analyzeResult.divMaruyu) * 10 + 50,
+        });
       }
     },
     extendAnalyze() {
@@ -1423,7 +1603,7 @@ export default Vue.extend({
         this.detailData.items.push({ header: '総運改修値', value: target.totalImproveLuck.toLocaleString() });
         this.detailData.items.push({ header: '総耐久改修値', value: target.totalImproveHP.toLocaleString() });
         this.detailData.items.push({ header: '総対潜改修値', value: target.totalImproveASW.toLocaleString() });
-        this.detailData.items.push({ header: '平均Lv', value: target.avgLevel.toLocaleString() });
+        this.detailData.items.push({ header: 'Lv平均', value: target.avgLevel.toLocaleString() });
         this.detailData.items.push({ header: 'Lv標準偏差', value: target.divLevel.toLocaleString() });
         this.detailData.avgLevel = target.avgLevel;
         this.detailData.divLevel = target.divLevel;
