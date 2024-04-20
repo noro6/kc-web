@@ -346,8 +346,6 @@
           <div class="filter-input-container">
             <v-checkbox v-model="shipFilter.midgetSubmarineOK" :disabled="!visibleMidgetSubmarineFilter" dense hide-details :label="$t('Fleet.甲標的')" />
             <v-checkbox v-model="shipFilter.largeSearchlightOK" dense hide-details :label="$t('Fleet.大型探照灯')" />
-            <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" dense hide-details :label="$t('Fleet.増設副砲')" />
-            <v-checkbox v-model="shipFilter.canEquipExRadarOnly" dense hide-details :label="$t('Fleet.増設電探')" />
           </div>
           <div class="filter-input-container mt-1">
             <manual-checkbox
@@ -390,6 +388,30 @@
               imgPath="./img/type/type27.png"
               :disabled="!visibleArmorFilter"
             />
+          </div>
+          <div class="d-flex mt-4">
+            <div class="caption">{{ $t("ItemList.補強増設") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <manual-checkbox
+              :ok="shipFilter.isReleaseExSlotOnly"
+              :ng="shipFilter.isNotReleaseExSlotOnly"
+              :toggle="toggleExSlotFilter"
+              :disabled="!isStockOnly"
+              >{{ $t("Fleet.開放") }}</manual-checkbox
+            >
+          </div>
+          <div class="filter-input-container">
+            <v-checkbox v-model="shipFilter.canEquip13RadarOnly" dense hide-details :label="$t('Fleet.13号電探系')" />
+            <v-checkbox v-model="shipFilter.canEquip22RadarOnly" dense hide-details :label="$t('Fleet.22号電探系')" />
+            <v-checkbox v-model="shipFilter.canEquipMastRadarOnly" dense hide-details :label="$t('Fleet.電探マスト')" />
+            <v-checkbox v-model="shipFilter.canEquipRadarOnly" dense hide-details :label="$t('Fleet.その他電探')" />
+            <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" dense hide-details :label="$t('EType.副砲')" />
+            <v-checkbox v-model="shipFilter.canEquipExCommanderOnly" dense hide-details :label="$t('EType.司令部施設')" />
+            <v-checkbox v-model="shipFilter.canEquipExDepthChargeOnly" dense hide-details :label="$t('EType.爆雷')" />
+            <v-checkbox v-model="shipFilter.canEquipExArmorOnly" dense hide-details :label="$t('EType.追加装甲')" />
+            <v-checkbox v-model="shipFilter.canEquipExTankOnly" dense hide-details :label="$t('EType.特型内火艇')" />
           </div>
           <div class="d-flex mt-4">
             <div class="caption">{{ $t("Common.耐久") }}</div>
@@ -466,13 +488,6 @@
           <div class="filter-input-container">
             <v-checkbox v-model="shipFilter.escortCarrierOnly" dense hide-details :label="$t('Fleet.護衛空母')" :disabled="!visibleEscortCarrierFilter" />
             <v-checkbox v-model="shipFilter.onlyAutoOASW" dense hide-details :label="$t('Fleet.自動先制対潜')" />
-            <manual-checkbox
-              :ok="shipFilter.isReleaseExSlotOnly"
-              :ng="shipFilter.isNotReleaseExSlotOnly"
-              :toggle="toggleExSlotFilter"
-              :disabled="!isStockOnly"
-              >{{ $t("Fleet.補強増設") }}</manual-checkbox
-            >
             <v-checkbox v-model="shipFilter.onlyBookmarked" dense hide-details :label="$t('Fleet.お気に入り')" />
             <v-checkbox v-if="isStockOnly" v-model="shipFilter.onlyMarriage" dense hide-details :label="$t('Fleet.ケッコン艦')" />
           </div>
@@ -1114,6 +1129,7 @@ export default Vue.extend({
       { text: '射程', value: 'range' },
       { text: '運改修', value: 'luckRemodel' },
       { text: '搭載数', value: 'slotSize' },
+      { text: '読み', value: 'yomi' },
     ],
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     multiLine: true,
@@ -1170,7 +1186,7 @@ export default Vue.extend({
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
     displayLuck(): boolean {
-      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck' || this.sortKey === 'range' || this.sortKey === 'luckRemodel';
+      return !this.sortKey || this.sortKey === 'level' || this.sortKey === 'luck' || this.sortKey === 'range' || this.sortKey === 'luckRemodel' || this.sortKey === 'yomi';
     },
     selectedSortText(): string {
       if (this.sortKey) {
@@ -1610,15 +1626,39 @@ export default Vue.extend({
             result = result.filter((v) => isValid(v, light));
           }
         }
-        if (this.shipFilter.canEquipExRadarOnly) {
-          // 増設電探
+        if (this.shipFilter.canEquip13RadarOnly) {
+          // 増設13号電探
           const radar0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 27);
-          const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 28);
-          const radar2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 142);
-          const radar3 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 506);
-          if (radar0 && radar1 && radar2 && radar3) {
+          const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 506);
+          if (radar0 && radar1) {
             const ex = Const.EXPAND_SLOT_INDEX;
-            result = result.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10) || isValid(v, radar2, ex, 10) || isValid(v, radar3, ex, 10));
+            result = result.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
+          }
+        }
+        if (this.shipFilter.canEquip22RadarOnly) {
+          // 増設22号電探
+          const radar0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 28);
+          const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 517);
+          if (radar0 && radar1) {
+            const ex = Const.EXPAND_SLOT_INDEX;
+            result = result.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
+          }
+        }
+        if (this.shipFilter.canEquipMastRadarOnly) {
+          // 増設13号電探マスト
+          const radar0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 506);
+          if (radar0) {
+            const ex = Const.EXPAND_SLOT_INDEX;
+            result = result.filter((v) => isValid(v, radar0, ex, 10));
+          }
+        }
+        if (this.shipFilter.canEquipRadarOnly) {
+          // 増設その他の電探限定
+          const radar0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 527);
+          const radar1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 528);
+          if (radar0 && radar1) {
+            const ex = Const.EXPAND_SLOT_INDEX;
+            result = result.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
           }
         }
         if (this.shipFilter.canEquipExSubGunOnly) {
@@ -1627,6 +1667,37 @@ export default Vue.extend({
           const subGun2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 275);
           if (subGun1 && subGun2) {
             result = result.filter((v) => isValid(v, subGun1, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, subGun2, Const.EXPAND_SLOT_INDEX, 10));
+          }
+        }
+        if (this.shipFilter.canEquipExCommanderOnly) {
+          // 増設司令部
+          const commander = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 107);
+          if (commander) {
+            result = result.filter((v) => isValid(v, commander, Const.EXPAND_SLOT_INDEX, 10));
+          }
+        }
+        if (this.shipFilter.canEquipExTankOnly) {
+          // 増設カミ車
+          const tank0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 525);
+          const tank1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 526);
+          if (tank0 && tank1) {
+            result = result.filter((v) => isValid(v, tank0, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, tank1, Const.EXPAND_SLOT_INDEX, 10));
+          }
+        }
+        if (this.shipFilter.canEquipExArmorOnly) {
+          // 増設バルジ搭載可能
+          const armor1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 72);
+          const armor2 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 73);
+          if (armor1 && armor2) {
+            result = result.filter((v) => isValid(v, armor1, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, armor2, Const.EXPAND_SLOT_INDEX, 10));
+          }
+        }
+        if (this.shipFilter.canEquipExDepthChargeOnly) {
+          // 増設爆雷搭載可能
+          const item0 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 226);
+          const item1 = (this.$store.state.items as ItemMaster[]).find((v) => v.id === 227);
+          if (item0 && item1) {
+            result = result.filter((v) => isValid(v, item0, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, item1, Const.EXPAND_SLOT_INDEX, 10));
           }
         }
         if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {
@@ -1906,10 +1977,12 @@ export default Vue.extend({
             resultShips.push({ typeName: type.name, ships, needOrOver: false });
           }
         }
+      } else if (this.sortKey === 'yomi') {
+        viewShips.sort((a, b) => a.ship.yomi.localeCompare(b.ship.yomi));
+        resultShips.push({ typeName: '', ships: viewShips, needOrOver: false });
       } else {
         // 何らかのソート値がある場合
         const key = this.sortKey;
-
         let maxValue = 0;
         for (let i = 0; i < viewShips.length; i += 1) {
           const v = viewShips[i];

@@ -66,8 +66,29 @@ export default class ShipFilter {
   /** 増設副砲あり限定 */
   public canEquipExSubGunOnly = false;
 
-  /** 増設電探あり限定 */
-  public canEquipExRadarOnly = false;
+  /** 増設13号電探限定 */
+  public canEquip13RadarOnly = false;
+
+  /** 増設22号電探限定 */
+  public canEquip22RadarOnly = false;
+
+  /** 増設その他の電探限定 */
+  public canEquipRadarOnly = false;
+
+  /** 増設電マ限定 */
+  public canEquipMastRadarOnly = false;
+
+  /** 増設司令部限定 */
+  public canEquipExCommanderOnly = false;
+
+  /** 増設カミ車限定 */
+  public canEquipExTankOnly = false;
+
+  /** 増設バルジ限定 */
+  public canEquipExArmorOnly = false;
+
+  /** 増設爆雷限定 */
+  public canEquipExDepthChargeOnly = false;
 
   /** 速力高速を含む */
   public includeFast = true;
