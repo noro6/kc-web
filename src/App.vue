@@ -411,6 +411,13 @@
                   <v-radio label="jpg" :value="'jpg'" />
                 </v-radio-group>
               </div>
+              <div class="site-setting-header">
+                <div class="body-2">{{ $t("Setting.装備変更時の比較画面の表示") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="site-setting-body">
+                <v-checkbox v-model="setting.showItemCompareDialog" dense :label="$t('ItemList.装備選択時は常に表示する')" />
+              </div>
             </div>
             <div>
               <div class="site-setting-header">
