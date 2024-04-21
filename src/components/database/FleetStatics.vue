@@ -1397,7 +1397,7 @@ export default Vue.extend({
         });
       }
 
-      const maruyuIndex = Math.max(Math.floor(maruyuCount * 1.6 + (totalImproveLuck - marriageCount * 4.5) / 1.6), 0);
+      const maruyuIndex = Math.max(Math.floor(maruyuCount + (totalImproveLuck - marriageCount * 4.5) / 1.6), 0);
 
       this.deviations.sort((a, b) => b.deviation - a.deviation);
       if (this.analyzeResult.divTotalExp) {
