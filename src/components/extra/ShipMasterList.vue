@@ -659,195 +659,116 @@ export default Vue.extend({
       }
 
       const isValid = ShipValidation.isValidItem;
-
-      const items = this.$store.state.items as ItemMaster[];
-
+      const filterShip = (argShips: ShipMaster[], itemIds: number[], isNg = false, isEx = false): ShipMaster[] => {
+        const items = (this.$store.state.items as ItemMaster[]).filter((v) => itemIds.includes(v.id));
+        if (items.length) {
+          const slot = isEx ? Const.EXPAND_SLOT_INDEX : -1;
+          if (isNg) return argShips.filter((v) => v.slotCount && items.every((item) => !isValid(v, item, slot, 10)));
+          return argShips.filter((v) => v.slotCount && items.some((item) => isValid(v, item, slot, 10)));
+        }
+        return argShips;
+      };
       if (this.shipFilter.landingCraftOK) {
         // 大発搭載可能
-        const daihatsu = items.find((v) => v.id === 68);
-        if (daihatsu) {
-          ships = ships.filter((v) => isValid(v, daihatsu));
-        }
+        ships = filterShip(ships, [68]);
       } else if (this.shipFilter.landingCraftNG) {
         // 大発搭載不可
-        const daihatsu = items.find((v) => v.id === 68);
-        if (daihatsu) {
-          ships = ships.filter((v) => !isValid(v, daihatsu));
-        }
+        ships = filterShip(ships, [68], true);
       }
-
       if (this.shipFilter.tankOK) {
         // 内火艇搭載可能
-        const tank = items.find((v) => v.id === 167);
-        if (tank) {
-          ships = ships.filter((v) => isValid(v, tank));
-        }
+        ships = filterShip(ships, [167]);
       } else if (this.shipFilter.tankNG) {
         // 内火艇搭載不可
-        const tank = items.find((v) => v.id === 167);
-        if (tank) {
-          ships = ships.filter((v) => !isValid(v, tank));
-        }
+        ships = filterShip(ships, [167], true);
       }
-
       if (this.visibleCommanderFilter) {
         if (this.shipFilter.commanderOK) {
-          // 司令部搭載可能
-          const commander = items.find((v) => v.id === 107);
-          if (commander) {
-            ships = ships.filter((v) => isValid(v, commander));
-          }
+          // 司令部搭載可
+          ships = filterShip(ships, [107]);
         } else if (this.shipFilter.commanderNG) {
           // 司令部搭載不可
-          const commander = items.find((v) => v.id === 107);
-          if (commander) {
-            ships = ships.filter((v) => !isValid(v, commander));
-          }
+          ships = filterShip(ships, [107], true);
         }
       }
       if (this.visibleArmorFilter) {
         if (this.shipFilter.armorOK) {
           // バルジ搭載可能
-          const armor1 = items.find((v) => v.id === 72);
-          const armor2 = items.find((v) => v.id === 73);
-          if (armor1 && armor2) {
-            ships = ships.filter((v) => isValid(v, armor1) || isValid(v, armor2));
-          }
+          ships = filterShip(ships, [72, 73]);
         } else if (this.shipFilter.armorNG) {
           // バルジ搭載不可
-          const armor1 = items.find((v) => v.id === 72);
-          const armor2 = items.find((v) => v.id === 73);
-          if (armor1 && armor2) {
-            ships = ships.filter((v) => !isValid(v, armor1) && !isValid(v, armor2));
-          }
+          ships = filterShip(ships, [72, 73], true);
         }
       }
       if (this.visibleSpBomberFilter) {
         if (this.shipFilter.spBomberOK) {
           // 水爆搭載可(Lateでテスト)
-          const bomber = items.find((v) => v.id === 194);
-          if (bomber) {
-            ships = ships.filter((v) => isValid(v, bomber));
-          }
+          ships = filterShip(ships, [194]);
         } else if (this.shipFilter.spBomberNG) {
           // 水爆搭載不可(Lateでテスト)
-          const bomber = items.find((v) => v.id === 194);
-          if (bomber) {
-            ships = ships.filter((v) => !isValid(v, bomber));
-          }
+          ships = filterShip(ships, [194], true);
         }
       }
       if (this.visibleFighterFilter) {
         if (this.shipFilter.fighterOK) {
           // 戦闘機搭載可
-          const fighter = items.find((v) => v.id === 19);
-          const fighter2 = items.find((v) => v.id === 165);
-          if (fighter && fighter2) {
-            ships = ships.filter((v) => isValid(v, fighter) || isValid(v, fighter2));
-          }
+          ships = filterShip(ships, [19, 165]);
         } else if (this.shipFilter.fighterNG) {
           // 戦闘機搭載不可
-          const fighter = items.find((v) => v.id === 19);
-          const fighter2 = items.find((v) => v.id === 165);
-          if (fighter && fighter2) {
-            ships = ships.filter((v) => !isValid(v, fighter) && !isValid(v, fighter2));
-          }
+          ships = filterShip(ships, [19, 165], true);
         }
       }
       if (this.shipFilter.midgetSubmarineOK && this.visibleMidgetSubmarineFilter) {
         // 甲標的搭載可
-        const midgetSubmarine = items.find((v) => v.id === 41);
-        if (midgetSubmarine) {
-          ships = ships.filter((v) => isValid(v, midgetSubmarine));
-        }
+        ships = filterShip(ships, [41]);
       }
       if (this.shipFilter.largeSearchlightOK) {
         // 大型探照灯搭載可
-        const light = items.find((v) => v.id === 140);
-        if (light) {
-          ships = ships.filter((v) => isValid(v, light));
-        }
+        ships = filterShip(ships, [140]);
       }
       if (this.shipFilter.canEquip13RadarOnly) {
         // 増設13号電探
-        const radar0 = items.find((v) => v.id === 27);
-        const radar1 = items.find((v) => v.id === 506);
-        if (radar0 && radar1) {
-          const ex = Const.EXPAND_SLOT_INDEX;
-          ships = ships.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
-        }
+        ships = filterShip(ships, [27, 506], false, true);
       }
       if (this.shipFilter.canEquip22RadarOnly) {
         // 増設22号電探
-        const radar0 = items.find((v) => v.id === 28);
-        const radar1 = items.find((v) => v.id === 517);
-        if (radar0 && radar1) {
-          const ex = Const.EXPAND_SLOT_INDEX;
-          ships = ships.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
-        }
+        ships = filterShip(ships, [28, 517], false, true);
       }
       if (this.shipFilter.canEquipMastRadarOnly) {
         // 増設13号電探マスト
-        const radar0 = items.find((v) => v.id === 506);
-        if (radar0) {
-          const ex = Const.EXPAND_SLOT_INDEX;
-          ships = ships.filter((v) => isValid(v, radar0, ex, 10));
-        }
+        ships = filterShip(ships, [506], false, true);
       }
       if (this.shipFilter.canEquipRadarOnly) {
         // 増設その他の電探限定
-        const radar0 = items.find((v) => v.id === 527);
-        const radar1 = items.find((v) => v.id === 528);
-        if (radar0 && radar1) {
-          const ex = Const.EXPAND_SLOT_INDEX;
-          ships = ships.filter((v) => isValid(v, radar0, ex, 10) || isValid(v, radar1, ex, 10));
-        }
+        ships = filterShip(ships, [527, 528], false, true);
       }
       if (this.shipFilter.canEquipExSubGunOnly) {
         // 増設副砲
-        const subGun1 = items.find((v) => v.id === 220);
-        const subGun2 = items.find((v) => v.id === 275);
-        if (subGun1 && subGun2) {
-          ships = ships.filter((v) => isValid(v, subGun1, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, subGun2, Const.EXPAND_SLOT_INDEX, 10));
-        }
+        ships = filterShip(ships, [220, 275, 524], false, true);
       }
       if (this.shipFilter.canEquipExCommanderOnly) {
         // 増設司令部
-        const commander = items.find((v) => v.id === 107);
-        if (commander) {
-          ships = ships.filter((v) => isValid(v, commander, Const.EXPAND_SLOT_INDEX, 10));
-        }
+        ships = filterShip(ships, [107, 272, 413], false, true);
       }
       if (this.shipFilter.canEquipExTankOnly) {
         // 増設カミ車
-        const tank0 = items.find((v) => v.id === 525);
-        const tank1 = items.find((v) => v.id === 526);
-        if (tank0 && tank1) {
-          ships = ships.filter((v) => isValid(v, tank0, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, tank1, Const.EXPAND_SLOT_INDEX, 10));
-        }
+        ships = filterShip(ships, [167, 525, 526], false, true);
       }
       if (this.shipFilter.canEquipExArmorOnly) {
         // 増設バルジ搭載可能
-        const armor1 = items.find((v) => v.id === 72);
-        const armor2 = items.find((v) => v.id === 73);
-        if (armor1 && armor2) {
-          ships = ships.filter((v) => isValid(v, armor1, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, armor2, Const.EXPAND_SLOT_INDEX, 10));
-        }
+        ships = filterShip(ships, [72, 73, 268], false, true);
       }
       if (this.shipFilter.canEquipExDepthChargeOnly) {
         // 増設爆雷搭載可能
-        const item0 = items.find((v) => v.id === 226);
-        const item1 = items.find((v) => v.id === 227);
-        if (item0 && item1) {
-          ships = ships.filter((v) => isValid(v, item0, Const.EXPAND_SLOT_INDEX, 10) || isValid(v, item1, Const.EXPAND_SLOT_INDEX, 10));
-        }
+        ships = filterShip(ships, [226, 227], false, true);
       }
-
       this.ships = ships.sort((a, b) => a.sort - b.sort);
     },
     resetFilter() {
       this.keyword = '';
       this.shipFilter = new ShipFilter();
+      this.shipFilter.includeInitial = false;
+      this.shipFilter.includeIntermediate = false;
       this.initShips();
     },
     toggleFilterDialog() {

@@ -230,19 +230,19 @@
                   <thead>
                     <tr>
                       <th></th>
-                      <th class="text-no-wrap text-right">{{ $t("Database.サーバー平均") }}</th>
-                      <th class="text-no-wrap text-right">{{ $t("Database.サーバー中央値") }}</th>
-                      <th class="text-no-wrap text-right">{{ $t("Database.あなたのデータ") }}</th>
-                      <th class="text-no-wrap text-center">{{ $t("Database.偏差値") }}</th>
+                      <th class="text-no-wrap pr-0 text-right">{{ $t("Database.サーバー平均") }}</th>
+                      <th class="text-no-wrap pr-0 text-right">{{ $t("Database.サーバー中央値") }}</th>
+                      <th class="text-no-wrap pr-0 text-right">{{ $t("Database.あなたのデータ") }}</th>
+                      <th class="text-no-wrap pr-0 text-center">{{ $t("Database.偏差値") }}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(row, i) in deviationTable" :key="`dev${i}`">
                       <td class="text-no-wrap">{{ $t(`Database.${row.title}`) }}</td>
-                      <td class="text-right">{{ Math.floor(row.avg).toLocaleString() }}</td>
-                      <td class="text-right">{{ Math.floor(row.med).toLocaleString() }}</td>
-                      <td class="text-right">{{ row.value.toLocaleString() }}</td>
-                      <td class="text-center py-1">
+                      <td class="text-right pr-0">{{ Math.floor(row.avg).toLocaleString() }}</td>
+                      <td class="text-right pr-0">{{ Math.floor(row.med).toLocaleString() }}</td>
+                      <td class="text-right pr-0">{{ row.value.toLocaleString() }}</td>
+                      <td class="text-center pr-0 py-1">
                         <v-chip
                           :color="getChipColor(row.deviation)"
                           :light="row.deviation <= 55 && row.deviation > 38"
@@ -545,6 +545,14 @@
   }
   .your-data-area > div {
     max-width: unset;
+  }
+  .drawer-fixed .your-data-area {
+    grid-template-columns: auto 1fr;
+  }
+}
+@media (min-width: 1600px) {
+  .drawer-fixed .your-data-area {
+    grid-template-columns: 500px 1fr;
   }
 }
 
