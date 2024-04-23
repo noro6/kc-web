@@ -4590,6 +4590,36 @@ export default class ItemBonus {
           bonus: { avoid: 1 },
           shipBase: [614],
         },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [61],
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [614],
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [61],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [61],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [61],
+          remodel: 10,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipBase: [614],
+          remodel: 10,
+        },
       ],
     },
     {
@@ -6138,6 +6168,18 @@ export default class ItemBonus {
           shipClass: [79],
           requiresId: [245, 246, 468],
         },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          shipClass: [79],
+          requiresId: [468],
+          requiresIdLevel: 9,
+        },
+        {
+          bonus: { firePower: 1, avoid: 1, accuracy: 1 },
+          shipClass: [79],
+          requiresId: [468],
+          requiresIdLevel: 10,
+        },
       ],
     },
     {
@@ -6165,6 +6207,11 @@ export default class ItemBonus {
           bonus: { firePower: 1, accuracy: 1 },
           shipClass: [79],
           remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipClass: [79],
+          remodel: 9,
         },
         {
           bonus: { accuracy: 1 },
@@ -6368,6 +6415,32 @@ export default class ItemBonus {
           bonus: { firePower: 1, accuracy: 1 },
           shipCountry: Const.FRA,
           remodel: 10,
+        },
+        {
+          bonus: { accuracy: 2 },
+          shipClass: [79],
+          requiresId: [468],
+          requiresIdLevel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [79],
+          requiresId: [468],
+          requiresIdLevel: 10,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [79],
+          remodel: 7,
+          requiresId: [468],
+          requiresIdLevel: 10,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [79],
+          remodel: 9,
+          requiresId: [468],
+          requiresIdLevel: 10,
         },
       ],
     },
@@ -7555,6 +7628,14 @@ export default class ItemBonus {
           num: 1,
         },
         {
+          bonus: {
+            firePower: 1, accuracy: 1, antiAir: 4, avoid: 3,
+          },
+          requiresId: [450],
+          requiresIdLevel: 4,
+          num: 1,
+        },
+        {
           bonus: { accuracy: 1 },
           remodel: 7,
           num: 1,
@@ -8073,6 +8154,122 @@ export default class ItemBonus {
         {
           bonus: { accuracy: 1 },
           shipCountry: Const.GBR,
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [76, 114],
+      bonuses: [
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+        },
+      ],
+    },
+    {
+      ids: [114],
+      bonuses: [
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 8,
+        },
+        {
+          bonus: { armor: 1 },
+          shipCountry: Const.DEU,
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [123],
+      bonuses: [
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 5,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [124],
+      bonuses: [
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.DEU,
+          requiresId: [76, 114, 123],
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.DEU,
+          remodel: 8,
+          requiresId: [123],
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 10,
+          requiresId: [123],
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.DEU,
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 10,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.ITA,
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.ITA,
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.ITA,
           remodel: 10,
         },
       ],
