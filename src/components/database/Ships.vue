@@ -617,7 +617,7 @@
               <div class="range-input">
                 <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details />
               </div>
-              <v-slider class="ml-5 mr-3 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
+              <v-slider class="mx-2 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
             </div>
             <div class="level-buttons">
               <v-btn color="teal" block dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">Lv99</v-btn>
@@ -636,7 +636,7 @@
               />
             </div>
             <v-slider
-              class="ml-5 align-self-center"
+              class="mx-2 align-self-center"
               hide-details
               :max="versionButtons[version].maxLuck"
               :min="versionButtons[version].luck"
@@ -648,13 +648,29 @@
             <div class="range-input">
               <v-text-field :label="$t('Database.耐久改修')" type="number" max="2" min="0" v-model="editRow.stockData.improvement.hp" hide-details />
             </div>
-            <v-slider class="ml-5 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label></v-slider>
+            <v-slider class="mx-2 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label></v-slider>
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
-              <v-text-field :label="$t('Database.対潜改修')" type="number" max="9" min="0" v-model="editRow.stockData.improvement.asw" hide-details />
+              <v-text-field
+                :label="$t('Database.対潜改修')"
+                type="number"
+                max="9"
+                min="0"
+                v-model="editRow.stockData.improvement.asw"
+                hide-details
+                :disabled="!editRow.ship.maxAsw"
+              />
             </div>
-            <v-slider class="ml-5 align-self-center" hide-details max="9" min="0" v-model="editRow.stockData.improvement.asw" thumb-label></v-slider>
+            <v-slider
+              class="mx-2 align-self-center"
+              hide-details
+              max="9"
+              min="0"
+              v-model="editRow.stockData.improvement.asw"
+              :disabled="!editRow.ship.maxAsw"
+              thumb-label
+            ></v-slider>
           </div>
           <div class="mt-8">
             <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" hide-details />
