@@ -1207,8 +1207,8 @@ export default class Ship implements ShipBase {
       totalBonus.armor -= 1;
     } else if (this.spEffectItemId === 2 && totalBonus.firePower && totalBonus.avoid) {
       // 白たすき
-      totalBonus.firePower -= 1;
-      totalBonus.avoid -= 1;
+      totalBonus.firePower -= 2;
+      totalBonus.avoid -= 2;
     }
 
     return totalBonus;
