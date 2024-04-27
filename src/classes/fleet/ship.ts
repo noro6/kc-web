@@ -1200,6 +1200,17 @@ export default class Ship implements ShipBase {
       totalBonus.scout -= totalEmptyBonus.scout ?? 0;
     }
 
+    // 海色リボン 白たすきの分を引く
+    if (this.spEffectItemId === 1 && totalBonus.torpedo && totalBonus.armor) {
+      // 海色リボン
+      totalBonus.torpedo -= 1;
+      totalBonus.armor -= 1;
+    } else if (this.spEffectItemId === 2 && totalBonus.firePower && totalBonus.avoid) {
+      // 白たすき
+      totalBonus.firePower -= 1;
+      totalBonus.avoid -= 1;
+    }
+
     return totalBonus;
   }
 
