@@ -109,6 +109,14 @@ export default class ShipValidation {
           return item.id === 524;
         }
       }
+
+      if (ship.type2 === 48) {
+        // Z1型駆逐艦
+        if (item.apiTypeId === 13) {
+          // 大型電探はFuMO25 レーダーのみ
+          return [124].includes(item.id);
+        }
+      }
     }
 
     // 特定艦娘判定
