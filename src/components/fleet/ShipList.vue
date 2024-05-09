@@ -1612,7 +1612,7 @@ export default Vue.extend({
         }
         if (this.shipFilter.canEquipRadarOnly) {
           // 増設その他の電探限定
-          result = filterShip(result, [124, 527, 528], false, true);
+          result = filterShip(result, [30, 124, 142, 410, 460, 527, 528], false, true);
         }
         if (this.shipFilter.canEquipExSubGunOnly) {
           // 増設副砲

@@ -1132,6 +1132,31 @@ export default class ItemBonus {
           num: 1,
           remodel: 4,
         },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [54],
+          remodel: 6,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipClass: [54],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [54],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [54],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [54],
+          remodel: 10,
+        },
       ],
     },
     {
@@ -1622,6 +1647,56 @@ export default class ItemBonus {
         {
           bonus: { firePower: 3 },
           shipBase: [89],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [78],
+          remodel: 3,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [78],
+          remodel: 5,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [78],
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [78],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [78],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [78],
+          remodel: 10,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipBase: [89],
+          remodel: 3,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [89],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipBase: [89],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [89],
+          remodel: 10,
         },
       ],
     },
@@ -8270,6 +8345,41 @@ export default class ItemBonus {
         {
           bonus: { firePower: 1 },
           shipCountry: Const.ITA,
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [252],
+      bonuses: [
+        {
+          bonus: { avoid: 1 },
+          shipClass: [78, 112],
+          remodel: 4,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [78, 112],
+          remodel: 6,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [78, 112],
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipClass: [78, 112],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [78, 112],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [78, 112],
           remodel: 10,
         },
       ],

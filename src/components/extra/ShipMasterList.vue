@@ -740,7 +740,7 @@ export default Vue.extend({
       }
       if (this.shipFilter.canEquipRadarOnly) {
         // 増設その他の電探限定
-        ships = filterShip(ships, [124, 527, 528], false, true);
+        ships = filterShip(ships, [30, 124, 142, 410, 460, 527, 528], false, true);
       }
       if (this.shipFilter.canEquipExSubGunOnly) {
         // 増設副砲
