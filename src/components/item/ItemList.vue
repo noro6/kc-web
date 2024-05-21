@@ -214,6 +214,7 @@
                 'ignore-bonus': sortExcludeSynergyStatus,
                 selected: item.batchListIndexes.length,
                 disabled: !isCheckedOnly && item.disabled,
+                'lack-remodel': item.lackRemodel,
               }"
               @click="clickedItem(item, $event)"
               @keypress.enter="clickedItem(item, $event)"
@@ -257,8 +258,8 @@
                 <v-icon v-else :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
               </div>
               <div class="item-remodel caption mr-1" v-if="isStockOnly && item.remodel > 0">
-                <v-icon small color="teal accent-4">mdi-star</v-icon>
-                <span class="teal--text text--accent-4">{{ item.remodel }}</span>
+                <v-icon small>mdi-star</v-icon>
+                <span>{{ item.remodel }}</span>
               </div>
               <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
                 <span>&times;</span>
@@ -327,8 +328,8 @@
                     <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
                   </div>
                   <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
-                    <v-icon small color="teal accent-4">mdi-star</v-icon>
-                    <span class="teal--text text--accent-4">{{ v.remodel }}</span>
+                    <v-icon small>mdi-star</v-icon>
+                    <span>{{ v.remodel }}</span>
                   </div>
                   <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
                     <span>&times;</span>
@@ -469,7 +470,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t('EType.爆雷') }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.爆雷") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeDepthChargeLauncher = !includeDepthChargeLauncher">
@@ -478,7 +479,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t('EType.爆雷投射機') }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.爆雷投射機") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -490,7 +491,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t('EType.魚雷') }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.魚雷") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeSPTorpedo = !includeSPTorpedo">
@@ -499,7 +500,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t('EType.特殊潜航艇') }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.特殊潜航艇") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="includeSVTorpedo = !includeSVTorpedo">
@@ -508,7 +509,7 @@
                   <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>{{ $t('EType.潜水艦魚雷') }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("EType.潜水艦魚雷") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -520,7 +521,7 @@
                 <v-icon v-else>mdi-minus-box-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ $t('ItemList.射程増加') }}</v-list-item-title>
+                <v-list-item-title>{{ $t("ItemList.射程増加") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="!isAirbaseMode"></v-divider>
@@ -530,7 +531,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ $t('ItemList.特効装備') }}</v-list-item-title>
+                <v-list-item-title>{{ $t("ItemList.特効装備") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="setting.displayBonusKey"></v-divider>
@@ -540,7 +541,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ $t('ItemList.夜間機') }}</v-list-item-title>
+                <v-list-item-title>{{ $t("ItemList.夜間機") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="enabledNightAircraftFilter"></v-divider>
@@ -550,7 +551,7 @@
                 <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ $t('ItemList.射撃回避') }}</v-list-item-title>
+                <v-list-item-title>{{ $t("ItemList.射撃回避") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="enabledAAResistFilter"></v-divider>
@@ -561,7 +562,7 @@
                 <v-icon v-else>mdi-minus-box-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title>{{ $t('ItemList.対地攻撃') }}</v-list-item-title>
+                <v-list-item-title>{{ $t("ItemList.対地攻撃") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider v-if="type === 7"></v-divider>
@@ -572,7 +573,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>{{ $t('ItemList.改修値無効') }}</v-list-item-title>
+              <v-list-item-title>{{ $t("ItemList.改修値無効") }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="isStockOnly"></v-divider>
@@ -582,7 +583,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>{{ $t('ItemList.装備シナジー無効') }}</v-list-item-title>
+              <v-list-item-title>{{ $t("ItemList.装備シナジー無効") }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="!isAirbaseMode"></v-divider>
@@ -592,7 +593,7 @@
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>{{ $t('ItemList.敵装備') }}</v-list-item-title>
+              <v-list-item-title>{{ $t("ItemList.敵装備") }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="!isBatchMode || !isCheckedOnly"></v-divider>
@@ -884,10 +885,23 @@
   color: #66bb6a;
 }
 .no-stock .item-name-container {
-  color: rgb(255, 100, 100);
+  color: #ff6464;
+}
+.lack-remodel .item-name-container {
+  color: #ff6964;
 }
 .item-remodel {
   width: 32px;
+  color: #00bfa5;
+}
+.item-remodel >>> .v-icon {
+  color: #00bfa5;
+}
+.lack-remodel .item-remodel {
+  color: #ff6464;
+}
+.lack-remodel .item-remodel >>> .v-icon {
+  color: #ff6464;
 }
 .opacity0 {
   opacity: 0;
@@ -1173,6 +1187,8 @@ type viewItem = {
   batchListIndexes: number[];
   /** 一括装備モード 搭載不可の場合true */
   disabled: boolean;
+  /** 改修値がもう少しあれば搭載できるやつ */
+  lackRemodel: boolean;
 };
 
 const actualKey = ['tp', 'airPower', 'defenseAirPower', 'antiAirWeight', 'antiAirBonus', 'nightBattleFirePower'];
@@ -1823,7 +1839,7 @@ export default Vue.extend({
       let usedItem = this.usedItems.concat();
       const withoutRemodel = this.sortExcludeRemodelStatus && this.isStockOnly;
       const withoutSynergy = this.sortExcludeSynergyStatus;
-      const viewItems = [];
+      const viewItems: viewItem[] = [];
       const iniLevels = this.setting.planeInitialLevels;
       const { slot } = this;
       if (!this.isEnemyMode && this.isStockOnly) {
@@ -1875,6 +1891,7 @@ export default Vue.extend({
             }
 
             let disabled = false;
+            let lackRemodel = false;
             if (this.itemParent instanceof Ship) {
               // 一括モード 現在の装備スロットに搭載できるかどうかを判定
               const parent = this.itemParent;
@@ -1882,8 +1899,14 @@ export default Vue.extend({
                 // 一括モードの際は消さずに赤くする
                 disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex, remodel);
               } else if (!ShipValidation.isValidItem(parent.data, master, this.slotIndex, remodel)) {
-                // 通常モード 消す
-                continue;
+                // 通常モード
+                if (this.slotIndex === Const.EXPAND_SLOT_INDEX && ShipValidation.isValidItem(parent.data, master, this.slotIndex, 10)) {
+                  // 敗者復活
+                  lackRemodel = true;
+                } else {
+                  // 搭載不可、消す
+                  continue;
+                }
               }
             }
             viewItems.push({
@@ -1898,6 +1921,7 @@ export default Vue.extend({
               aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
               batchListIndexes,
               disabled,
+              lackRemodel,
             });
           }
         }
@@ -1925,6 +1949,7 @@ export default Vue.extend({
           }
 
           let disabled = false;
+          let lackRemodel = false;
           if (this.itemParent instanceof Ship) {
             // 現在の装備スロットに搭載できるかどうかを最終判定
             const parent = this.itemParent;
@@ -1932,8 +1957,14 @@ export default Vue.extend({
               // 一括モードの際は消さずに赤くする
               disabled = this.isBatchListMax || !ShipValidation.isValidItem(parent.data, master, this.currentBatchIndex, 0);
             } else if (!ShipValidation.isValidItem(parent.data, master, this.slotIndex, 0)) {
-              // 通常モード 消す
-              continue;
+              // 通常モード
+              if (this.slotIndex === Const.EXPAND_SLOT_INDEX && ShipValidation.isValidItem(parent.data, master, this.slotIndex, 10)) {
+                // 敗者復活
+                lackRemodel = true;
+              } else {
+                // 搭載不可、消す
+                continue;
+              }
             }
           }
           viewItems.push({
@@ -1948,6 +1979,7 @@ export default Vue.extend({
             aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
             batchListIndexes,
             disabled,
+            lackRemodel,
           });
         }
       }
