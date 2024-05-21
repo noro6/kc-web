@@ -282,9 +282,9 @@ export default class AerialFirePowerCalculator {
         break;
       case 53:
         // 大型陸上機
-        typeMultipliers[0] = 1;
+        typeMultipliers[0] = 0.8;
         actualTorpedo = isLandBase ? item.actualBomber : item.actualTorpedo;
-        adj = 1;
+        adj = 1.8;
         break;
       default:
         break;

@@ -650,10 +650,6 @@ export default class Item {
         // 四式重爆 飛龍(熟練)+イ号一型甲 誘導弾 だけなぜか0.75 つよい
         return 0.75 * Math.sqrt(this.remodel);
       }
-      if (this.data.isShinzan) {
-        // 深山系だけなぜか0.55疑惑 よわい
-        return 0.55 * Math.sqrt(this.remodel);
-      }
       // その他 0.7
       return 0.7 * Math.sqrt(this.remodel);
     }
