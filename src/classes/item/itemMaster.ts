@@ -278,6 +278,9 @@ export default class ItemMaster {
     if (data.id === 303) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('Bofors15.2cm連装砲 Model1930')}`;
     }
+    if (data.id === 313) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('5inch単装砲 Mk.30 改')}`;
+    }
     if (data.id === 389) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('TBM-3W ＋ 3S')}`;
     }
