@@ -85,6 +85,14 @@ export default class Optimizer {
         { id: 17, items: [gun, machineGun] },
       ];
     }
+    if (shipId === 470 || shipId === 979) {
+      // 霞改二乙 稲木改二 => 17種, 18種, 31種
+      const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21 });
+      return [
+        { id: 17, items: [gun, machineGun] },
+        { id: 18, items: [specialMachineGun] },
+      ];
+    }
     if (shipId === 418) {
       // 皐月改二 => 18種
       cutInPreset.push({ id: 18, items: [specialMachineGun] });

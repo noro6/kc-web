@@ -890,10 +890,10 @@ export default class Const {
       id: 16, text: '16種', rateBonus: 1.4, c1: 4, c2: 1, rate: 62, remarks: '霞改二乙 / 夕張改二',
     },
     {
-      id: 17, text: '17種', rateBonus: 1.25, c1: 2, c2: 1, rate: 57, remarks: '霞改二乙',
+      id: 17, text: '17種', rateBonus: 1.25, c1: 2, c2: 1, rate: 57, remarks: '霞改二乙 / 稲木改二',
     },
     {
-      id: 18, text: '18種', rateBonus: 1.2, c1: 2, c2: 1, rate: 59, remarks: '皐月改二',
+      id: 18, text: '18種', rateBonus: 1.2, c1: 2, c2: 1, rate: 59, remarks: '皐月改二 / 稲木改二',
     },
     {
       id: 19, text: '19種', rateBonus: 1.45, c1: 5, c2: 1, rate: 60, remarks: '鬼怒改二',
@@ -932,7 +932,7 @@ export default class Const {
       id: 30, text: '30種', rateBonus: 1.3, c1: 3, c2: 1, rate: 50, remarks: '天龍改二',
     },
     {
-      id: 31, text: '31種', rateBonus: 1.25, c1: 2, c2: 1, rate: 50, remarks: '天龍改二',
+      id: 31, text: '31種', rateBonus: 1.25, c1: 2, c2: 1, rate: 50, remarks: '天龍改二 / 稲木改二',
     },
     {
       id: 32, text: '32種', rateBonus: 1.2, c1: 3, c2: 1, rate: 60, remarks: '金剛型改二 / 英艦',

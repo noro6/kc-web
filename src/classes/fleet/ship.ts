@@ -937,8 +937,8 @@ export default class Ship implements ShipBase {
           // タービン => 高速
           return 10;
         }
-      } else if (this.data.type2 === 109) {
-        // 潜高型
+      } else if (this.data.type2 === 109 || this.data.id === 979) {
+        // 潜高型, 稲木改二
         if (hasTurbine && newModelBoilerCount) {
           // タービン + 新型缶 => 高速+
           return 15;

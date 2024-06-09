@@ -327,13 +327,7 @@ export default class ShootDownInfo {
       if (hasYamatoRadar && syuchu10cmCount && hasMore6AAKiju) cutInIds.push(44);
       // 45種（大和電探 + 10cm高角砲集中配備）
       if (hasYamatoRadar && syuchu10cmCount) cutInIds.push(45);
-    }
-    if (shipId === 593) {
-      // 榛名改二乙
-      // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
-      if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
-    }
-    if (type2 === 23 && ship.data.antiAir >= 70) {
+    } else if (type2 === 23 && ship.data.antiAir >= 70) {
       // 白露型対空70以上
       // 春雨砲所持
       const harusameGunCount = items.filter((v) => v.data.id === 529).length;
@@ -342,6 +336,19 @@ export default class ShootDownInfo {
       // 対空4以上の電探所持
       const hasSPAntiAirRadar = items.some((v) => (v.data.apiTypeId === 12 || v.data.apiTypeId === 13) && v.data.antiAir >= 4);
       if (harusameGunCount >= 2 || (harusameGunCount && (hasSPAntiAirRadar || has25mmAAGun))) cutInIds.push(47);
+    } else if (shipId === 979) {
+      // 稲木改二
+      // 17種 (高角砲, 対空機銃)
+      if (hasKokaku && (kijuCount || specialKijuCount)) cutInIds.push(17);
+      // 18種 (特殊機銃)
+      if (specialKijuCount) cutInIds.push(18);
+      // 31種 (高角砲2)
+      if (allKokaku >= 2) cutInIds.push(31);
+    }
+    if (shipId === 593) {
+      // 榛名改二乙
+      // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
+      if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
     }
 
     // 汎用
