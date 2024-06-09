@@ -31,9 +31,17 @@ export type Bonus = {
   requiresIdNum?: number;
   /** 必須の組み合わせ装備idの改修値 requiresIdに一致する装備の最低限必要改修★数 */
   requiresIdLevel?: number;
+  /** 必須の組み合わせ装備id */
+  requiresId2?: number[];
+  /** 必須の組み合わせ装備idの改修値 requiresIdに一致する装備の最低限必要改修★数 */
+  requiresIdLevel2?: number;
   /** 該当装備の最低限必要改修★数 */
   remodel?: number;
-  /** 存在する場合、上記の条件を全て満たしている装備の最低限の個数 4連装酸素魚雷辺りがわかりやすい */
+  /**
+   * これがなければ累積可能
+   * 存在する場合、上記の条件を全て満たしている装備の最低限の個数 4連装酸素魚雷辺りがわかりやすい
+   * 2024/06現在、この値が「ない≒累積可能」場合は、require系の条件は一切存在しない
+   */
   num?: number;
 }
 
@@ -7869,8 +7877,10 @@ export default class ItemBonus {
           bonus: {
             firePower: 1, accuracy: 1, antiAir: 4, avoid: 3,
           },
-          requiresId: [450],
-          requiresIdLevel: 4,
+          requiresId: [267, 366],
+          requiresIdLevel: 3,
+          requiresId2: [450],
+          requiresIdLevel2: 4,
           num: 1,
         },
         {
@@ -8544,6 +8554,221 @@ export default class ItemBonus {
           bonus: { firePower: 1 },
           shipClass: [78, 112],
           remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [530],
+      bonuses: [
+        {
+          bonus: { firePower: 2 },
+          shipId: [149, 150, 151, 152, 593],
+        },
+        {
+          bonus: { firePower: 3 },
+          shipId: [591, 954],
+        },
+        {
+          bonus: { firePower: 4 },
+          shipId: [592],
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipId: [149, 150, 151, 152],
+        },
+        {
+          bonus: { antiAir: 2 },
+          shipId: [591, 592, 954],
+        },
+        {
+          bonus: { antiAir: 3 },
+          shipId: [593],
+        },
+        {
+          bonus: { firePower: 1, accuracy: 2 },
+          shipId: [592],
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [592],
+          remodel: 2,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [592],
+          remodel: 4,
+        },
+        {
+          bonus: { armor: 1 },
+          shipId: [592],
+          remodel: 6,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [592],
+          remodel: 7,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [592],
+          remodel: 8,
+        },
+        {
+          bonus: { armor: 1 },
+          shipId: [592],
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [592],
+          remodel: 10,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [150, 152, 591, 954],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [150, 152, 591, 954],
+          remodel: 2,
+        },
+        {
+          bonus: { armor: 1 },
+          shipId: [150, 152, 591, 954],
+          remodel: 4,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [150, 152, 591, 954],
+          remodel: 6,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [150, 152, 591, 954],
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [150, 152, 591, 954],
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [149, 151, 593],
+          remodel: 4,
+        },
+        {
+          bonus: { armor: 1 },
+          shipId: [149, 151, 593],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [149, 151, 593],
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 3, accuracy: 3, avoid: 3 },
+          shipId: [592],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 2 },
+          shipId: [592],
+          num: 2,
+        },
+        {
+          bonus: { accuracy: 2 },
+          shipId: [592],
+          num: 3,
+        },
+        {
+          bonus: { accuracy: 2 },
+          shipId: [592],
+          num: 4,
+        },
+        {
+          bonus: { firePower: 2, accuracy: 2, avoid: 2 },
+          shipId: [149, 150, 151, 152, 591, 593, 954],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 3 },
+          shipId: [152, 591, 592],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2 },
+          shipId: [150, 954],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [149, 151, 593],
+          requiresSR: 1,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [149, 150, 151, 152, 591, 592, 593, 954],
+          requiresAccR: 1,
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 6 },
+          shipId: [591, 592, 593, 954],
+          requiresId: [174],
+          num: 1,
+        },
+        {
+          bonus: { torpedo: 1 },
+          shipId: [591, 592, 593, 954],
+          requiresId: [174],
+          requiresIdLevel: 6,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [591, 592, 593, 954],
+          requiresId: [174],
+          requiresIdLevel: 8,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [591, 592, 593, 954],
+          requiresId: [174],
+          requiresIdLevel: 10,
+          num: 1,
+        },
+        {
+          bonus: {
+            firePower: 2, torpedo: 2, accuracy: 2, avoid: 3,
+          },
+          shipId: [591, 592, 593, 954],
+          requiresAccR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2 },
+          shipId: [591, 592],
+          requiresAccR: 1,
+          num: 1,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [593, 954],
+          requiresAccR: 1,
+          num: 1,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipId: [591, 592, 593, 954],
+          num: 2,
         },
       ],
     },

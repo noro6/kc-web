@@ -138,7 +138,25 @@
                     <span class="teal--text text--accent-4 caption" v-if="detail.raw.requiresIdLevel === 10">max</span>
                     <span class="teal--text text--accent-4 body-2" v-else-if="detail.raw.requiresIdLevel">&plus;{{ detail.raw.requiresIdLevel }}</span>
                   </div>
+                  <div v-if="detail.raw.requiresIdNum" class="ml-1 align-self-end">x{{ detail.raw.requiresIdNum }}</div>
                   <div v-if="k + 1 < detail.raw.requiresId.length" class="mx-1 text--secondary">or</div>
+                </div>
+              </div>
+              <!-- 特定装備条件 -->
+              <div v-if="detail.raw.requiresId2" class="d-flex flex-wrap">
+                <div v-for="(id, k) in detail.raw.requiresId2" :key="`requires-${id}`" class="d-flex align-center">
+                  <div class="mr-1 text--secondary">&plus;</div>
+                  <div>
+                    <v-img :src="`./img/type/icon${getItem(id).iconTypeId}.png`" height="20" width="20" />
+                  </div>
+                  <div>{{ needTrans ? $t(`${getItem(id).name}`) : getItem(id).name }}</div>
+                  <div v-if="detail.raw.requiresIdLevel2">
+                    <v-icon small class="teal--text text--accent-4">mdi-star</v-icon>
+                    <span class="teal--text text--accent-4 caption" v-if="detail.raw.requiresIdLevel2 === 10">max</span>
+                    <span class="teal--text text--accent-4 body-2" v-else-if="detail.raw.requiresIdLevel2">&plus;{{ detail.raw.requiresIdLevel2 }}</span>
+                  </div>
+                  <div v-if="detail.raw.requiresIdNum2" class="ml-1 align-self-end">x{{ detail.raw.requiresIdNum2 }}</div>
+                  <div v-if="k + 1 < detail.raw.requiresId2.length" class="mx-1 text--secondary">or</div>
                 </div>
               </div>
             </div>
@@ -168,17 +186,17 @@
               <div>{{ $t("Common.対潜") }}</div>
               <div :class="{ 'bad-value': detail.bonus.asw < 0 }">{{ detail.bonus.asw }}</div>
             </div>
-            <div v-if="row.show.scout" :class="{ 'no-change': !detail.bonus.scout }" class="bonus-status-item">
-              <div>{{ $t("Common.索敵") }}</div>
-              <div :class="{ 'bad-value': detail.bonus.scout < 0 }">{{ detail.bonus.scout }}</div>
+            <div v-if="row.show.accuracy" :class="{ 'no-change': !detail.bonus.accuracy }" class="bonus-status-item">
+              <div>{{ $t("Common.命中") }}</div>
+              <div :class="{ 'bad-value': detail.bonus.accuracy < 0 }">{{ detail.bonus.accuracy }}</div>
             </div>
             <div v-if="row.show.avoid" :class="{ 'no-change': !detail.bonus.avoid }" class="bonus-status-item">
               <div>{{ $t("Common.回避") }}</div>
               <div :class="{ 'bad-value': detail.bonus.avoid < 0 }">{{ detail.bonus.avoid }}</div>
             </div>
-            <div v-if="row.show.accuracy" :class="{ 'no-change': !detail.bonus.accuracy }" class="bonus-status-item">
-              <div>{{ $t("Common.命中") }}</div>
-              <div :class="{ 'bad-value': detail.bonus.accuracy < 0 }">{{ detail.bonus.accuracy }}</div>
+            <div v-if="row.show.scout" :class="{ 'no-change': !detail.bonus.scout }" class="bonus-status-item">
+              <div>{{ $t("Common.索敵") }}</div>
+              <div :class="{ 'bad-value': detail.bonus.scout < 0 }">{{ detail.bonus.scout }}</div>
             </div>
             <div v-if="row.show.range" :class="{ 'no-change': !detail.bonus.range }" class="bonus-status-item">
               <div>{{ $t("Common.射程") }}</div>
@@ -482,12 +500,14 @@ export default Vue.extend({
         scout: 0,
         accuracy: 0,
       };
+      /** 敵装備以外の全装備 */
       const shipItems = this.allItems.filter((v) => !v.isEnemyItem);
       for (let i = 0; i < shipItems.length; i += 1) {
+        /** チェック中の装備 */
         const item = shipItems[i];
         /** この装備に対するボーナスの入れ物 */
         let viewBonuses: { raw: Bonus; bonus: ItemBonusStatus; remodel: number; items: Item[]; hasCond: boolean }[] = [];
-        // この装備が主語になっているボーナス情報を全取得
+        /** この装備が主語になっているボーナス情報 */
         const fitRaw = raw.filter((v) => (v.ids && v.ids.includes(item.id)) || (v.types && v.types.includes(item.apiTypeId)));
 
         /** ボーナス部分を取り出して統合したもの */
@@ -497,10 +517,14 @@ export default Vue.extend({
         }
 
         bonuses.sort((a, b) => {
-          // 個数制限(num)があるやつを手前に持ってくる
+          // 個数制限(num、累積不可のもの)があるやつを手前に持ってくる
           if (a.num && !b.num) return -1;
           if (!a.num && b.num) return 1;
           if (a.num && b.num) return a.num - b.num;
+          // 改修値が低いものを手前に
+          if (a.remodel && !b.remodel) return 1;
+          if (!a.remodel && b.remodel) return -1;
+          if (a.remodel && b.remodel) return a.remodel - b.remodel;
           return 0;
         });
 
@@ -522,8 +546,11 @@ export default Vue.extend({
         for (let j = 0; j < bonuses.length; j += 1) {
           /** 装備ボーナスのオブジェクト */
           const bonus = bonuses[j];
+          /** 主語の装備のインスタンス化(改修値があればそれも設定済み) */
           const tempItem = new Item({ master: item, remodel: bonus.remodel ? bonus.remodel : 0 });
+          /** このボーナスを得るために必要な装備群 */
           const requiredItems: Item[] = [];
+          /** ボーナスを得るために必要な別の装備 基本ステータスは全て0で調整 */
           let subItem = new Item();
 
           // 改修対応していない装備の改修値条件は非表示
@@ -575,102 +602,137 @@ export default Vue.extend({
           }
 
           if (subItem.data.id) {
-            requiredItems.push(subItem);
+            if (bonus.requiresIdNum) {
+              // 別の装備が必要で、かつその個数も複数必要なやつ
+              const master = shipItems.find((v) => bonus.requiresId && bonus.requiresId.includes(v.id));
+              for (let k = 0; k < bonus.requiresIdNum; k += 1) {
+                requiredItems.push(new Item({ master, remodel: bonus.requiresIdLevel ? bonus.requiresIdLevel : 0 }));
+              }
+            } else {
+              requiredItems.push(subItem);
+            }
+
+            if (bonus.requiresId2) {
+              // 必須装備 その2条件
+              // 指定装備
+              const master = shipItems.find((v) => bonus.requiresId2 && bonus.requiresId2.includes(v.id));
+              // コレが搭載できないようならこのボーナスは無効
+              if (!master || !ShipValidation.isValidItem(this.ship.data, master, 1)) {
+                continue;
+              }
+              requiredItems.push(new Item({ master, remodel: bonus.requiresIdLevel2 ? bonus.requiresIdLevel2 : 0 }));
+            }
           } else if (bonus.num && bonus.num > 1) {
+            // 別の装備がなくても発動するが、個数が必要な装備の場合
             for (let count = 0; count < bonus.num - 1; count += 1) {
               requiredItems.push(new Item({ master: item, remodel: bonus.remodel ? bonus.remodel : 0 }));
             }
           }
 
-          /** 今チェックしている装備ボーナスの発生する組み合わせを装備してみる艦娘オブジェクト */
-          const tempShip = new Ship({ master: this.ship.data, items: requiredItems, exItem: tempItem });
+          if (!bonus.num) {
+            // 累積可能ボーナスについて (累積可能 ≒ bonus.num の値が「ない」もの。いまところ、別装備が必要かつ累積可能であるものは存在しないっぽい）
+            // その代わり、改修値に応じて累積可能ボーナスが徐々に追加されていくのが主流。
+            // つまり、低改修値の累積可能ボーナスを先に格納し、高改修値のボーナスにそれらを引き継いでいく。
+            // 低改修値のボーナスが先に格納されるように、上の方ですでにbonusのソートを済ませてある。
 
-          if (!bonus.num && !requiredItems.length) {
-            // 単独装備かつ累積可能であるボーナスの取り扱いについて (累積可能 ≒ bonus.num の値がないもの)
-            // 1. 搭載し続けても不動である純粋な累積可能ボーナス値を算出したい
-            // 2. ダブる可能性があるので同じ補正値であるなら無視もしたい
-            // Q. 単独装備でないかつ累積可能であるボーナスをどうする? そもそもそんなボーナスあるんか？いまんとこなさそう。
-            // 累積可能部分を算出するために、限界まで追加
-            const baseItem = new Item({ master: item, remodel: tempItem.remodel });
-            const tempItems1: Item[] = [];
-            const tempItems2: Item[] = [];
-            for (let t = 0; t < this.ship.data.slotCount; t += 1) {
-              tempItems1.push(baseItem);
-              tempItems2.push(baseItem);
+            // 全く同じ装備かつ改修値のものがあるかチェック
+            const sameBonus = viewBonuses.find((v) => !v.raw.num && v.remodel === tempItem.remodel);
+            if (sameBonus) {
+              // 見つかったので、単純に加算
+              sameBonus.bonus.accuracy = (sameBonus.bonus.accuracy ?? 0) + (bonus.bonus.accuracy ?? 0);
+              sameBonus.bonus.antiAir = (sameBonus.bonus.antiAir ?? 0) + (bonus.bonus.antiAir ?? 0);
+              sameBonus.bonus.armor = (sameBonus.bonus.armor ?? 0) + (bonus.bonus.armor ?? 0);
+              sameBonus.bonus.asw = (sameBonus.bonus.asw ?? 0) + (bonus.bonus.asw ?? 0);
+              sameBonus.bonus.avoid = (sameBonus.bonus.avoid ?? 0) + (bonus.bonus.avoid ?? 0);
+              sameBonus.bonus.bomber = (sameBonus.bonus.bomber ?? 0) + (bonus.bonus.bomber ?? 0);
+              sameBonus.bonus.firePower = (sameBonus.bonus.firePower ?? 0) + (bonus.bonus.firePower ?? 0);
+              sameBonus.bonus.range = (sameBonus.bonus.range ?? 0) + (bonus.bonus.range ?? 0);
+              sameBonus.bonus.scout = (sameBonus.bonus.scout ?? 0) + (bonus.bonus.scout ?? 0);
+              sameBonus.bonus.torpedo = (sameBonus.bonus.torpedo ?? 0) + (bonus.bonus.torpedo ?? 0);
+            } else {
+              /** 引き継ぐために、低改修値のボーナスを精査 */
+              const lowRemodelBonuses = viewBonuses.filter((v) => !v.raw.num && v.remodel < tempItem.remodel);
+              if (lowRemodelBonuses.length) {
+                // 低改修値のボーナスが見つかったので加算しつつ追加する
+                const viewBonus = {
+                  raw: bonus,
+                  hasCond: !!bonus.remodel,
+                  bonus: {
+                    accuracy: bonus.bonus.accuracy ?? 0,
+                    antiAir: bonus.bonus.antiAir ?? 0,
+                    armor: bonus.bonus.armor ?? 0,
+                    asw: bonus.bonus.asw ?? 0,
+                    avoid: bonus.bonus.avoid ?? 0,
+                    bomber: bonus.bonus.bomber ?? 0,
+                    firePower: bonus.bonus.firePower ?? 0,
+                    range: bonus.bonus.range ?? 0,
+                    scout: bonus.bonus.scout ?? 0,
+                    torpedo: bonus.bonus.torpedo ?? 0,
+                  },
+                  remodel: tempItem.remodel,
+                  items: [tempItem],
+                };
+
+                // 一つ前の低改修値のボーナスを加算
+                const lowBonus = lowRemodelBonuses[lowRemodelBonuses.length - 1].bonus;
+                viewBonus.bonus.accuracy += lowBonus.accuracy ?? 0;
+                viewBonus.bonus.antiAir += lowBonus.antiAir ?? 0;
+                viewBonus.bonus.armor += lowBonus.armor ?? 0;
+                viewBonus.bonus.asw += lowBonus.asw ?? 0;
+                viewBonus.bonus.avoid += lowBonus.avoid ?? 0;
+                viewBonus.bonus.bomber += lowBonus.bomber ?? 0;
+                viewBonus.bonus.firePower += lowBonus.firePower ?? 0;
+                viewBonus.bonus.range += lowBonus.range ?? 0;
+                viewBonus.bonus.scout += lowBonus.scout ?? 0;
+                viewBonus.bonus.torpedo += lowBonus.torpedo ?? 0;
+
+                viewBonuses.push(viewBonus);
+              } else {
+                // 低改修値のボーナスが見つからなかったのでそのまま追加
+                viewBonuses.push({
+                  raw: bonus,
+                  hasCond: !!bonus.remodel,
+                  bonus: {
+                    accuracy: bonus.bonus.accuracy ?? 0,
+                    antiAir: bonus.bonus.antiAir ?? 0,
+                    armor: bonus.bonus.armor ?? 0,
+                    asw: bonus.bonus.asw ?? 0,
+                    avoid: bonus.bonus.avoid ?? 0,
+                    bomber: bonus.bonus.bomber ?? 0,
+                    firePower: bonus.bonus.firePower ?? 0,
+                    range: bonus.bonus.range ?? 0,
+                    scout: bonus.bonus.scout ?? 0,
+                    torpedo: bonus.bonus.torpedo ?? 0,
+                  },
+                  remodel: tempItem.remodel,
+                  items: [tempItem],
+                });
+              }
             }
-            const multiShip1 = new Ship({ master: this.ship.data, items: tempItems1 });
-            const testShip = new Ship({ master: this.ship.data, items: tempItems2, exItem: baseItem });
-            // ボーナスの差分を採ることで、純粋な『累積可能ボーナス』が得られた
-            if (testShip.itemBonusStatus.accuracy) testShip.itemBonusStatus.accuracy -= multiShip1.itemBonusStatus.accuracy ?? 0;
-            if (testShip.itemBonusStatus.antiAir) testShip.itemBonusStatus.antiAir -= multiShip1.itemBonusStatus.antiAir ?? 0;
-            if (testShip.itemBonusStatus.armor) testShip.itemBonusStatus.armor -= multiShip1.itemBonusStatus.armor ?? 0;
-            if (testShip.itemBonusStatus.asw) testShip.itemBonusStatus.asw -= multiShip1.itemBonusStatus.asw ?? 0;
-            if (testShip.itemBonusStatus.avoid) testShip.itemBonusStatus.avoid -= multiShip1.itemBonusStatus.avoid ?? 0;
-            if (testShip.itemBonusStatus.bomber) testShip.itemBonusStatus.bomber -= multiShip1.itemBonusStatus.bomber ?? 0;
-            if (testShip.itemBonusStatus.firePower) testShip.itemBonusStatus.firePower -= multiShip1.itemBonusStatus.firePower ?? 0;
-            if (testShip.itemBonusStatus.range) testShip.itemBonusStatus.range -= multiShip1.itemBonusStatus.range ?? 0;
-            if (testShip.itemBonusStatus.scout) testShip.itemBonusStatus.scout -= multiShip1.itemBonusStatus.scout ?? 0;
-            if (testShip.itemBonusStatus.torpedo) testShip.itemBonusStatus.torpedo -= multiShip1.itemBonusStatus.torpedo ?? 0;
-
-            if (
-              !testShip.itemBonusStatus.accuracy
-              && !testShip.itemBonusStatus.antiAir
-              && !testShip.itemBonusStatus.armor
-              && !testShip.itemBonusStatus.asw
-              && !testShip.itemBonusStatus.avoid
-              && !testShip.itemBonusStatus.bomber
-              && !testShip.itemBonusStatus.firePower
-              && !testShip.itemBonusStatus.range
-              && !testShip.itemBonusStatus.scout
-              && !testShip.itemBonusStatus.torpedo
-            ) {
-              // 全部0なら特になし => 潜水艦の53艦首みたいなアレ
-              continue;
-            }
-
-            // 上記で求めた純粋な『累積可能ボーナス』を持つ他のデータが既に存在しているかどうかをチェック
-            if (
-              !viewBonuses.some(
-                (v) => ((!v.raw.remodel && !baseItem.remodel) || v.raw.remodel === baseItem.remodel)
-                  && v.bonus.accuracy === testShip.itemBonusStatus.accuracy
-                  && v.bonus.antiAir === testShip.itemBonusStatus.antiAir
-                  && v.bonus.armor === testShip.itemBonusStatus.armor
-                  && v.bonus.asw === testShip.itemBonusStatus.asw
-                  && v.bonus.avoid === testShip.itemBonusStatus.avoid
-                  && v.bonus.bomber === testShip.itemBonusStatus.bomber
-                  && v.bonus.firePower === testShip.itemBonusStatus.firePower
-                  && v.bonus.range === testShip.itemBonusStatus.range
-                  && v.bonus.scout === testShip.itemBonusStatus.scout
-                  && v.bonus.torpedo === testShip.itemBonusStatus.torpedo,
-              )
-            ) {
-              // この『累積可能ボーナス』は初めてのため追加可能
+          } else {
+            /** 今チェックしている装備ボーナスの発生する組み合わせを装備してみる艦娘オブジェクト */
+            const tempShip = new Ship({ master: this.ship.data, items: requiredItems, exItem: tempItem });
+            // 累積不可のボーナス
+            const allItems = requiredItems.concat(tempItem);
+            // 全く同じ装備構成がないかどうかをチェック
+            if (!viewBonuses.some((v) => isEqual(allItems, v.items))) {
               viewBonuses.push({
                 raw: bonus,
-                hasCond: !!(bonus.remodel || bonus.requiresAR || bonus.requiresAccR || bonus.requiresId || bonus.requiresSR || bonus.requiresType),
-                bonus: testShip.itemBonusStatus,
+                hasCond: !!(
+                  (bonus.num && bonus.num > 1)
+                  || bonus.remodel
+                  || bonus.requiresAR
+                  || bonus.requiresAccR
+                  || bonus.requiresId
+                  || bonus.requiresIdNum
+                  || bonus.requiresSR
+                  || bonus.requiresType
+                ),
+                bonus: tempShip.itemBonusStatus,
                 remodel: tempItem.remodel,
-                items: requiredItems.concat(tempItem),
+                items: allItems,
               });
             }
-          } else if (!viewBonuses.some((v) => isEqual(requiredItems, v.items))) {
-            // 同じ装備構成かどうかをチェック
-
-            viewBonuses.push({
-              raw: bonus,
-              hasCond: !!(
-                (bonus.num && bonus.num > 1)
-                || bonus.remodel
-                || bonus.requiresAR
-                || bonus.requiresAccR
-                || bonus.requiresId
-                || bonus.requiresSR
-                || bonus.requiresType
-              ),
-              bonus: tempShip.itemBonusStatus,
-              remodel: tempItem.remodel,
-              items: requiredItems.concat(tempItem),
-            });
           }
         }
 

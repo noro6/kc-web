@@ -1046,6 +1046,7 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < bonusData.length; i += 1) {
       const { types, ids, bonuses } = bonusData[i];
       if ((types || ids) && bonuses) {
+        /** ボーナスの発生ベースとなる装備 */
         let fitItems: Item[] | undefined;
 
         // そもそもの存在チェック
@@ -1094,16 +1095,36 @@ export default class Ship implements ShipBase {
           }
           // 装備固有id判定
           if (bonus.requiresId) {
+            /** このボーナス発生に必要な装備id 複数ある場合はいずれか */
             const requiredItems = bonus.requiresId;
+            /** このボーナス発生に必要な装備の最低改修値 */
             const requireRemodel = bonus.requiresIdLevel ?? 0;
+            /** 現在搭載中の装備のうち、ボーナス発生に必要な装備たち */
             const targetItems = items.filter((v) => requiredItems.includes(v.data.id));
             // 個数判定
             if (bonus.requiresIdNum && targetItems.length < bonus.requiresIdNum) {
+              // ボーナス発生に必要な装備個数がたりなかったので却下
               continue;
             } else if (requireRemodel && !targetItems.some((v) => v.remodel >= requireRemodel)) {
+              // ボーナス発生に必要な装備の改修値が足りなかったので却下
               continue;
             } else if (!targetItems.length) {
+              // ボーナス発生に必要な装備がなかったので却下
               continue;
+            } else if (bonus.requiresId2) {
+              /** このボーナス発生に必要な装備id 複数ある場合はいずれか */
+              const requiredItems2 = bonus.requiresId2;
+              /** このボーナス発生に必要な装備の最低改修値 */
+              const requireRemodel2 = bonus.requiresIdLevel2 ?? 0;
+              /** 現在搭載中の装備のうち、ボーナス発生に必要な装備たち */
+              const targetItems2 = items.filter((v) => requiredItems2.includes(v.data.id));
+              if (!targetItems2.length) {
+                // ボーナス発生に必要な装備がなかったので却下
+                continue;
+              } else if (requireRemodel2 && !targetItems2.some((v) => v.remodel >= requireRemodel2)) {
+                // ボーナス発生に必要な装備の改修値が足りなかったので却下
+                continue;
+              }
             }
           }
           // 装備種別判定
