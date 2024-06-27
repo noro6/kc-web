@@ -518,6 +518,10 @@ export default class Const {
     {
       shipId: 724, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369, 490],
     },
+    // 初月改二 4スロットに 主砲、魚雷系 不可
+    {
+      shipId: 968, index: [4], itemType: [1, 5], itemIDs: [0],
+    },
   ];
 
   /**
