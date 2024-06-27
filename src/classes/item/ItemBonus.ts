@@ -7895,8 +7895,10 @@ export default class ItemBonus {
           bonus: {
             firePower: 1, accuracy: 1, antiAir: 4, avoid: 3,
           },
-          requiresId: [450],
-          requiresIdLevel: 4,
+          requiresId: [267, 366],
+          requiresIdLevel: 3,
+          requiresId2: [450],
+          requiresIdLevel2: 4,
           num: 1,
         },
         {
