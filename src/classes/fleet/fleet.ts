@@ -407,7 +407,7 @@ export default class Fleet {
   public static getSmokeTriggerRate2(argShips: Ship[]): number[] {
     const ships = argShips.filter((v) => v.isActive && !v.isEmpty);
     /** 発煙搭載数 + 改搭載数*2 */
-    let smokeA = 0;
+    let N = 0;
     /** 煙幕の改修値合計 */
     let totalSmokeRemodel = 0;
     /** 煙幕改の改修値合計 */
@@ -419,37 +419,39 @@ export default class Fleet {
         const item = items[j];
         if (item.data.id === 500) {
           // 通常煙幕
-          smokeA += 1;
+          N += 1;
           totalSmokeRemodel += +item.remodel;
         } else if (item.data.id === 501) {
           // 煙幕改
-          smokeA += 2;
+          N += 2;
           totalSmokeKaiRemodel += +item.remodel;
         }
       }
     }
 
+    const R = 0.3 * totalSmokeRemodel + 0.5 * totalSmokeKaiRemodel;
+
     /** 旗艦の運 */
     const flagshipLuck = ships[0].luck;
     /** 発動判定p0: https://twitter.com/yukicacoon/status/1739480992090632669  */
-    const k = Math.ceil(Math.sqrt(flagshipLuck) + 0.3 * totalSmokeRemodel + 0.5 * totalSmokeKaiRemodel);
+    const k = Math.ceil(Math.sqrt(flagshipLuck) + R);
     /** 発動率 */
-    const triggerRate = 1 - Math.max(3.2 - 0.2 * k - smokeA, 0);
+    const triggerRate = 1 - Math.max(3.2 - 0.2 * k - N, 0);
 
-    if (smokeA >= 3) {
-      const triple = Math.min(3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 15) + 1, 100);
+    if (N >= 3 || (N + 0.2 * R) >= 3) {
+      const triple = Math.min(3 * Math.ceil(5 * N + 1.5 * Math.sqrt(flagshipLuck) + R - 15) + 1, 100);
       const double = 30 - (triple > 70 ? (triple - 70) : 0);
       const single = Math.max(100 - triple - double, 0);
       return [single, double, triple].map((v) => v * triggerRate);
     }
-    if (smokeA === 2) {
+    if (N === 2) {
       const triple = 0;
-      const double = Math.min(3 * Math.ceil(5 * smokeA + 1.5 * Math.sqrt(flagshipLuck) + 0.5 * totalSmokeKaiRemodel + 0.3 * totalSmokeRemodel - 5) + 1, 100);
+      const double = Math.min(3 * Math.ceil(5 * N + 1.5 * Math.sqrt(flagshipLuck) + R - 5) + 1, 100);
       const single = Math.max(100 - triple - double, 0);
       return [single, double, triple].map((v) => v * triggerRate);
     }
 
-    if (smokeA < 1) {
+    if (N < 1) {
       return [0, 0, 0];
     }
 
