@@ -49,10 +49,16 @@ export default class Optimizer {
       // 2本目の高角砲探索(1本目の高角砲を間引く)
       const gun1Index = items.findIndex((v) => v.data.id === gun.data.id && v.remodel === gun.remodel);
       const gun2 = Optimizer.getBestAAItem(ship, isStockMode ? items.filter((v, i) => i !== gun1Index) : items, { iconTypeId: 16 });
+
+      const HatsudukiGunIndex = items.findIndex((v) => v.data.id === 533) ?? new Item();
+      const HatsudukiGun = items[HatsudukiGunIndex] ?? new Item();
+      const HatsudukiGun2 = items.find((v, i) => v.data.id === 533 && (isStockMode ? i !== HatsudukiGunIndex : true)) ?? new Item();
+      const antiAirSPRadar = Optimizer.getBestAAItem(ship, items, { iconTypeId: 11, minAA: 4 });
       return [
         { id: 1, items: [gun, gun2, radar] },
         { id: 2, items: [gun, radar] },
         { id: 3, items: [gun, gun2] },
+        { id: 48, items: [HatsudukiGun, HatsudukiGun2, antiAirSPRadar] },
       ];
     }
     if (shipId === 428) {
@@ -73,9 +79,7 @@ export default class Optimizer {
     if (shipId === 622) {
       // 夕張改二 => 16種
       const machineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21 });
-      return [
-        { id: 16, items: [gun, antiAirRadar, machineGun] },
-      ];
+      cutInPreset.push({ id: 16, items: [gun, antiAirRadar, machineGun] });
     }
     if (shipId === 470) {
       // 霞改二乙 => 16種, 17種
@@ -113,7 +117,7 @@ export default class Optimizer {
       // 文月改二 => 22種
       cutInPreset.push({ id: 22, items: [specialMachineGun] });
     }
-    if (shipId === 329 || shipId === 530) {
+    if (shipId === 530 || shipId === 539) {
       // UIT-25 伊504 => 23種
       const weakMachineGun = Optimizer.getBestAAItem(ship, items, { apiTypeId: 21, maxAA: 8 });
       return [{ id: 22, items: [weakMachineGun] }];
@@ -179,7 +183,9 @@ export default class Optimizer {
       const rocketLauncher2 = items.find((v, i) => v.data.id === 301 && (isStockMode ? i !== rocketIndex : true)) ?? new Item();
 
       // のちの条件分岐で榛名改二乙があるため return しない
-      cutInPreset.push({ id: 32, items: [mainGun, ponpon] });
+      if (ship.data.isBB) {
+        cutInPreset.push({ id: 32, items: [mainGun, ponpon] });
+      }
       cutInPreset.push({ id: 32, items: [rocketLauncher, ponpon] });
       cutInPreset.push({ id: 32, items: [rocketLauncher, rocketLauncher2] });
     }
@@ -198,17 +204,17 @@ export default class Optimizer {
       const radarGFCSMk37 = items.find((v) => v.data.id === 307) ?? new Item();
 
       // あるやつから詰め込む
-      const ci3637Items = [];
-      if (gun5inchKai.data.id) ci3637Items.push(gun5inchKai);
-      if (gun5inchKai2.data.id) ci3637Items.push(gun5inchKai2);
-      if (ci3637Items.length < 2 && gun5inch.data.id) ci3637Items.push(gun5inch);
-      if (ci3637Items.length < 2) ci3637Items.push(gun5inch2);
+      const ci36Items = [];
+      if (gun5inchKai.data.id) ci36Items.push(gun5inchKai);
+      if (gun5inchKai2.data.id) ci36Items.push(gun5inchKai2);
+      if (ci36Items.length < 2 && gun5inch.data.id) ci36Items.push(gun5inch);
+      if (ci36Items.length < 2) ci36Items.push(gun5inch2);
 
       return [
         { id: 34, items: [GFCSGun, GFCSGun2] },
         { id: 35, items: [GFCSGun, gun5inchKai] },
-        { id: 36, items: ci3637Items.concat(radarGFCSMk37) },
-        { id: 37, items: ci3637Items },
+        { id: 36, items: ci36Items.concat(radarGFCSMk37) },
+        { id: 37, items: [gun5inchKai, gun5inchKai2] },
       ];
     }
     if (ship.data.type2 === 99) {
@@ -259,6 +265,20 @@ export default class Optimizer {
       const gun356Kai3 = items.find((v) => v.data.id === 502) ?? new Item();
       cutInPreset.push({ id: 46, items: [gun356Kai4.data.id ? gun356Kai4 : gun356Kai3, antiAirRadar, specialMachineGun] });
     }
+    if (ship.data.type2 === 23 && ship.data.antiAir >= 70) {
+      // 白露型対空70以上
+      // 春雨砲所持
+      const harusameGunIndex = items.findIndex((v) => v.data.id === 529) ?? new Item();
+      const harusameGun = items[harusameGunIndex] ?? new Item();
+      const harusameGun2 = items.find((v, i) => v.data.id === 529 && (isStockMode ? i !== harusameGunIndex : true)) ?? new Item();
+      // 25mm対空機銃増備
+      const add25mmAAGun = items.find((v) => v.data.id === 505) ?? new Item();
+      // 対空4以上の電探所持
+      const antiAirSPRadar = Optimizer.getBestAAItem(ship, items, { iconTypeId: 11, minAA: 4 });
+      cutInPreset.push({ id: 47, items: [harusameGun, harusameGun2] });
+      cutInPreset.push({ id: 47, items: [harusameGun, antiAirSPRadar] });
+      cutInPreset.push({ id: 47, items: [harusameGun, add25mmAAGun] });
+    }
 
     if (cutInPreset.length < 2) {
       // 汎用
@@ -276,7 +296,7 @@ export default class Optimizer {
       cutInPreset.push({ id: 13, items: [specialGun, antiAirRadar, specialMachineGun] });
     }
 
-    return cutInPreset.filter((x) => x.items.some((y) => y.data.id));
+    return cutInPreset.sort((a, b) => a.id - b.id);
   }
 
   /**

@@ -203,6 +203,8 @@ export default class ShootDownInfo {
       if (hasKokaku && hasRadar) cutInIds.push(2);
       // 3種 (高角砲2) 共存なし
       if (allKokaku >= 2) cutInIds.push(3);
+      // 48種 (初月砲2, 対空4以上の電探)
+      if (items.filter((v) => v.data.id === 533).length >= 2 && items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4)) cutInIds.push(48);
     } else if (shipId === 428) {
       // 摩耶様改二
       // 10種 (高角砲, 特殊機銃, 対空電探)
@@ -334,7 +336,7 @@ export default class ShootDownInfo {
       // 25mm対空機銃増備
       const has25mmAAGun = items.some((v) => v.data.id === 505);
       // 対空4以上の電探所持
-      const hasSPAntiAirRadar = items.some((v) => (v.data.apiTypeId === 12 || v.data.apiTypeId === 13) && v.data.antiAir >= 4);
+      const hasSPAntiAirRadar = items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4);
       if (harusameGunCount >= 2 || (harusameGunCount && (hasSPAntiAirRadar || has25mmAAGun))) cutInIds.push(47);
     } else if (shipId === 979) {
       // 稲木改二

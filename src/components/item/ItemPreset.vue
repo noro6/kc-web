@@ -570,46 +570,46 @@ export default Vue.extend({
         items = allItems.concat();
       }
 
-      // 対空CI用のプリセットを取得
+      /** 対空CI用のプリセットを取得 */
       const aaciItems = Optimizer.getShipAACITriggerItems(parent, items, isStockMode);
-      // 全装備あり状態の対空CI装備取得
+      /** 全装備あり状態の対空CI装備取得 */
       const assumedItems = Optimizer.getShipAACITriggerItems(parent, allItems);
 
       this.uniquePresets = [];
 
-      for (let i = 0; i < aaciItems.length; i += 1) {
-        const row = aaciItems[i];
-        const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === row.id);
+      for (let i = 0; i < assumedItems.length; i += 1) {
+        const assumedRow = assumedItems[i];
+        const cutIn = Const.ANTI_AIR_CUTIN.find((v) => v.id === assumedRow.id);
         if (!cutIn) continue;
+        const row = aaciItems[i] ?? { id: assumedRow.id, items: [] };
 
         const preset = new ItemPreset();
         preset.id = cutIn.id;
-        preset.items = row.items.map((v, j) => {
-          const item = { id: v.data.id, remodel: v.remodel, assumedId: 0 };
-          // 見つかってない場合は理想装備を搭載
-          if (!item.id) item.assumedId = assumedItems[i].items[j].data.id;
-          return item;
+
+        // 理想装備をベースに、プリセット装備プロパティを埋める
+        preset.items = assumedRow.items.map((v, j) => {
+          // 所持装備あり設定から同一の装備情報を取得しようとする
+          const rowItem = row.items[j];
+          if (rowItem && rowItem.data.id) {
+            return { id: rowItem.data.id, remodel: rowItem.remodel };
+          }
+          return { id: 0, remodel: 0, assumedId: v.data.id };
         });
         preset.name = `${preset.id}種`;
         // 理想の装備がない疑惑アリ
-        const isLack = row.items.some((v) => !v.data.id);
+        const isLack = preset.items.some((v) => !v.id);
 
         // おケツの装備はなるべく増設にしたいのでそのチェック
-        let lastItem = row.items[row.items.length - 1];
-        const isAssumeExItem = !lastItem.data.id;
-        if (isAssumeExItem) {
-          // おケツの理想装備
-          const assumedItem = allItemMasters.find((v) => v.id === preset.items[preset.items.length - 1].assumedId);
-          lastItem = assumedItem ? new Item({ master: assumedItem }) : new Item();
-        }
-
+        const lastItem = assumedRow.items[assumedRow.items.length - 1];
         if (ShipValidation.isValidItem(parent.data, lastItem.data, Const.EXPAND_SLOT_INDEX, lastItem.remodel)) {
-          // 増設にのりそうなので、ケツの装備を通常装備枠から消す
-          preset.exItem = { id: lastItem.data.id, remodel: lastItem.remodel };
-          // 見つかってない場合は理想装備を搭載
-          if (isAssumeExItem) {
+          const rowExItem = row.items[assumedRow.items.length - 1];
+          if (rowExItem && rowExItem.data.id) {
+            preset.exItem = { id: rowExItem.data.id, remodel: rowExItem.remodel };
+          } else if (!row.items[assumedRow.items.length - 1] || !row.items[assumedRow.items.length - 1].data.id) {
+            // 見つかってない場合は理想装備を搭載
             preset.exItem = { id: 0, remodel: lastItem.remodel, assumedId: lastItem.data.id };
           }
+          // ケツの装備を通常装備枠から消す
           preset.items.splice(-1);
         }
 
