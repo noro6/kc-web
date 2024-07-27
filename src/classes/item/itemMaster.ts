@@ -263,9 +263,6 @@ export default class ItemMaster {
 
   /** 装備の日本wikiURLを返却 */
   public static getWikiURL(data: ItemMaster): string {
-    if (data.id === 122) {
-      return `https://wikiwiki.jp/kancolle/${encodeURI('10cm高角砲＋高射装置')}`;
-    }
     if (data.id === 144) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
     }

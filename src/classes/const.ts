@@ -444,6 +444,8 @@ export default class Const {
 
     { id: 79, name: 'Richelieu級' },
     { id: 70, name: 'C.Teste級' },
+    { id: 128, name: 'La Galissonnière級' },
+    { id: 129, name: 'Mogador級' },
 
     { id: 73, name: 'Гангут級' },
     { id: 81, name: 'Ташкент級' },
@@ -629,7 +631,7 @@ export default class Const {
 
   public static readonly DEU = [47, 48, 55, 57, 63];
 
-  public static readonly FRA = [70, 79];
+  public static readonly FRA = [70, 79, 128, 129];
 
   public static readonly RUS = [73, 81];
 
@@ -987,7 +989,7 @@ export default class Const {
       id: 47, text: '47種', rateBonus: 1.3, c1: 2, c2: 1, rate: 70, remarks: '白露型改二',
     },
     {
-      id: 48, text: '48種', rateBonus: 1.75, c1: 8, c2: 1, rate: 60, remarks: '秋月型',
+      id: 48, text: '48種', rateBonus: 1.75, c1: 8, c2: 1, rate: 65, remarks: '秋月型',
     },
   ];
 
