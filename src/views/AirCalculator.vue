@@ -1,12 +1,28 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="general-container d-flex my-2 px-4 py-0" v-if="true">
-      <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
-      <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
-        <v-radio :label="$t('Common.なし')" value="" />
-        <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
-        <v-radio label="【参考】2023夏イベ" value="57-5" />
-      </v-radio-group>
+    <v-card class="general-container my-2 px-4 py-0" v-if="true">
+      <div class="d-flex">
+        <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
+        <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
+          <v-radio :label="$t('Common.なし')" value="" />
+          <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
+          <v-radio label="2023夏イベ" value="57-5" />
+          <v-radio label="2024夏イベ" value="59-1" />
+        </v-radio-group>
+      </div>
+      <div class="pb-3" v-if="setting.displayBonusKey">
+        <div>参考元: <a href="https://x.com/yukicacoon/status/1818175260862316787" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <div class="text--secondary caption">※ 簡略化のため、個別マス特効の表示は行わず、昨年2023年版の表記を採用しています。詳しい対応関係は上記参考元ツイート、およびそのツリーを参照してください。</div>
+        <div class="mt-3 body-2">表示の見方、搭載のススメ：</div>
+        <div class="ml-2">
+          <div class="body-2 mt-2">艦娘に搭載する際は、数字を見ます。違う数字が多いほど特効効果が上昇します。1, 2, 3 全ての機体を搭載できればベストです。</div>
+          <div class="caption">例： F4F-3、Ju87C改、Barracuda Mk.II</div>
+          <div class="body-2 mt-2">
+            基地に配備する際は、アルファベットを見ます。違うアルファベットが多いほど特効効果が上昇します。A, B どちらも配備できればベストです。
+          </div>
+          <div class="caption">例： SM.79 bis、Mosquito FB Mk.VI</div>
+        </div>
+      </div>
     </v-card>
     <div class="general-container d-flex">
       <template v-if="!sortMode">

@@ -87,9 +87,9 @@
       </template>
     </v-app-bar>
     <v-main>
-      <div class="event-banner mb-3" v-if="false">
-        <v-img class="banner-normal" :src="`./img/util/bn_240229.png`" />
-        <v-img class="banner-on" :src="`./img/util/bn_240229_on.png`" />
+      <div class="event-banner mb-3" v-if="true">
+        <v-img class="banner-normal" :src="`./img/util/bn_240726.png`" />
+        <v-img class="banner-on" :src="`./img/util/bn_240726_on.png`" />
       </div>
       <div v-if="readOnlyMode" :class="{ 'px-2 px-md-4': !isManagerPage, 'px-6 px-md-8': isManagerPage }">
         <v-alert border="left" class="mb-2" outlined type="info" :class="{ 'info-container': !isManagerPage }" dense>
