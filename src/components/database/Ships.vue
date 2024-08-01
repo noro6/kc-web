@@ -341,7 +341,7 @@
                 v-model="manualValue"
                 :items="manualValues"
                 item-value="value"
-                :item-text="(item) => $t('Common.' + item.text)"
+                :item-text="(item) => $t(`Common.${item.text}`)"
                 @input="filter()"
                 prepend-inner-icon="mdi-eye"
                 :background-color="$vuetify.theme.dark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.6)'"
@@ -365,7 +365,7 @@
               }"
               mobile-breakpoint="0"
             >
-              <template v-slot:[`header.name`]></template>
+              <template v-slot:[`header.name`] />
               <template v-slot:[`header.hp`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.impLuck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -471,7 +471,7 @@
             <div class="d-flex flex-wrap">
               <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container pa-1 pa-sm-2 mb-2 mr-sm-2">
                 <div class="mx-2 mt-1">{{ getShipTypeName(typeData.typeName) }}</div>
-                <div class="type-divider"></div>
+                <div class="type-divider" />
                 <div class="ship-cards">
                   <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-sm-1 px-1 px-sm-2 pt-1">
                     <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
@@ -617,7 +617,7 @@
               <div class="range-input">
                 <v-text-field :label="$t('Database.練度(Lv)')" type="number" :max="maxLevel" min="1" v-model="editRow.stockData.level" hide-details />
               </div>
-              <v-slider class="mx-2 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label></v-slider>
+              <v-slider class="mx-2 align-self-center" hide-details :max="maxLevel" min="1" v-model="editRow.stockData.level" thumb-label />
             </div>
             <div class="level-buttons">
               <v-btn color="teal" block dark class="mr-1 align-self-center" @click.stop="editRow.stockData.level = 99">Lv99</v-btn>
@@ -642,13 +642,13 @@
               :min="versionButtons[version].luck"
               v-model="editLuck"
               thumb-label
-            ></v-slider>
+            />
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
               <v-text-field :label="$t('Database.耐久改修')" type="number" max="2" min="0" v-model="editRow.stockData.improvement.hp" hide-details />
             </div>
-            <v-slider class="mx-2 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label></v-slider>
+            <v-slider class="mx-2 align-self-center" hide-details max="2" min="0" v-model="editRow.stockData.improvement.hp" thumb-label />
           </div>
           <div class="d-flex mt-8">
             <div class="range-input">
@@ -670,7 +670,7 @@
               v-model="editRow.stockData.improvement.asw"
               :disabled="!editRow.ship.maxAsw"
               thumb-label
-            ></v-slider>
+            />
           </div>
           <div class="mt-8">
             <v-checkbox v-model="editRow.stockData.releaseExpand" :label="$t('Database.補強増設開放済')" hide-details />
