@@ -760,8 +760,13 @@ export default Vue.extend({
 
         this.$store.dispatch('updateShipStock', stocks);
       }
+
+      this.resetChildMouseEvent(e);
     },
     dragEnd(e: DragEvent) {
+      this.resetChildMouseEvent(e);
+    },
+    resetChildMouseEvent(e: DragEvent) {
       // まずは一時的に消していた全てのarea-cardの子要素マウスイベントを復活
       const shipContainerList = document.getElementsByClassName('area-card');
       for (let i = 0; i < shipContainerList.length; i += 1) {
@@ -780,8 +785,10 @@ export default Vue.extend({
       }
 
       const target = e.target as HTMLDivElement;
-      target.style.opacity = '1';
-      target.id = '';
+      if (target) {
+        target.style.opacity = '1';
+        target.id = '';
+      }
     },
     captureTagManager() {
       // 背景色とかを塗るフラグ立て
