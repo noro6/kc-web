@@ -190,6 +190,9 @@ export default class SiteSetting {
       this.savedShipListFilter = ShipFilter.restore(setting.savedShipListFilter);
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
       this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '59-1';
+      if (this.displayBonusKey === '57-5') {
+        this.displayBonusKey = '59-1';
+      }
       // this.displayBonusKey = '';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
@@ -289,7 +292,7 @@ export default class SiteSetting {
         { id: 26, level: 0 },
       ];
       this.contentOrder = [];
-      this.displayBonusKey = '';
+      this.displayBonusKey = '59-1';
       this.blacklistItemIds = [337];
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;

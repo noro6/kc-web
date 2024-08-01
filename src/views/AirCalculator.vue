@@ -11,9 +11,9 @@
         </v-radio-group>
       </div>
       <div class="pb-3" v-if="setting.displayBonusKey">
-        <div>参考元: <a href="https://x.com/yukicacoon/status/1818175260862316787" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <div>参考元: <a href="https://x.com/yukicacoon/status/1818869482548609511" target="_blank">@yukicacoon 様のツイートより</a></div>
         <div class="text--secondary caption">※ 簡略化のため、個別マス特効の表示は行わず、昨年2023年版の表記を採用しています。詳しい対応関係は上記参考元ツイート、およびそのツリーを参照してください。</div>
-        <div class="mt-3 body-2">表示の見方、搭載のススメ：</div>
+        <div class="mt-3 body-2">表示の見方、搭載のしかた：</div>
         <div class="ml-2">
           <div class="body-2 mt-2">艦娘に搭載する際は、数字を見ます。違う数字が多いほど特効効果が上昇します。1, 2, 3 全ての機体を搭載できればベストです。</div>
           <div class="caption">例： F4F-3、Ju87C改、Barracuda Mk.II</div>
