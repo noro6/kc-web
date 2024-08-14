@@ -1434,6 +1434,11 @@ export default Vue.extend({
         this.isStockOnly = !!this.shipStock.length;
       }
 
+      // 装備がなければ解除
+      if (this.isStockOnly && !this.shipStock.length) {
+        this.isStockOnly = false;
+      }
+
       // 現在の計算画面内で配備されている艦娘を列挙する
       this.usedShips = [];
       const mainData = this.$store.state.mainSaveData as SaveData;

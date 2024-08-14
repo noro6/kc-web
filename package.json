@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.4.3",
-    "axios": "^1.6.2",
+    "axios": "^1.7.4",
     "chart.js": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "core-js": "^3.6.5",

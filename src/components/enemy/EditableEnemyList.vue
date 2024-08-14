@@ -213,6 +213,7 @@ export default Vue.extend({
   },
   methods: {
     showEnemyList() {
+      this.isMobile = window.innerWidth < 600;
       this.enemyListDialog = true;
     },
     putEnemy(enemy: EnemyMaster) {

@@ -1558,6 +1558,11 @@ export default Vue.extend({
         this.isReadonlyMode = true;
       }
 
+      // 装備がなければ解除
+      if (this.isStockOnly && !this.itemStock.length) {
+        this.isStockOnly = false;
+      }
+
       // 搭載数情報を格納
       const isExpand = slotIndex === Const.EXPAND_SLOT_INDEX;
       if (isExpand) {
