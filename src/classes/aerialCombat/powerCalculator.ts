@@ -366,10 +366,10 @@ export default class AerialFirePowerCalculator {
       // 旧ダイソン
       specialEnemyMultipliers.push(isAirbaseMode ? 1.7 : 1.4);
       specialEnemyMultipliers.push(isAirbaseMode ? 3 : 2.2);
-    } else if ([1696, 1697, 1698].includes(defense.data.id) && isAirbaseMode) {
+    } else if ([1696, 1697, 1698].includes(defense.data.id)) {
       // 夏ダイソン
-      specialEnemyMultipliers.push(1);
-      specialEnemyMultipliers.push(2.2);
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.5 : 1.3);
+      specialEnemyMultipliers.push(isAirbaseMode ? 1.8 : 1.8);
     } else if (defense.data.id === 1586) {
       // 旧空母棲姫
       specialEnemyMultipliers.push(isAirbaseMode ? 1.7 : 1.7);
