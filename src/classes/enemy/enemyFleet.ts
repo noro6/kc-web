@@ -207,7 +207,7 @@ export default class EnemyFleet {
     this.isSkipAerialCombatCell = this.cellType === CELL_TYPE.NIGHT || this.cellType === CELL_TYPE.RADAR;
     this.isAirRaidCell = this.cellType === CELL_TYPE.AIR_RAID;
     this.isAerialCombatCell = this.cellType === CELL_TYPE.AERIAL_COMBAT;
-    this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AIR_RAID || this.cellType === CELL_TYPE.AERIAL_COMBAT || this.cellType === CELL_TYPE.AIR_SUPPORTED_ASW;
+    this.isSurfaceCell = this.cellType === CELL_TYPE.NORMAL || this.cellType === CELL_TYPE.GRAND || this.cellType === CELL_TYPE.AERIAL_COMBAT;
     this.isAswSupportCell = false;
 
     // 計算により算出するステータス
