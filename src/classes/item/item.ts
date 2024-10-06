@@ -1035,7 +1035,11 @@ export default class Item {
           scout = Math.ceil(scout + 0.14 * remodel);
           break;
         case 59:
+        case 539:
+        case 543:
           // 零式水上観測機
+          // SOC Seagull 後期型(熟練)
+          // SBD VS-2(偵察飛行隊)
           scout = Math.ceil(scout + 0.2 * remodel);
           break;
         case 61:

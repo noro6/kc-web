@@ -274,6 +274,9 @@ export default class AerialFirePowerCalculator {
           } else if (shipType === SHIP_TYPE.AO || shipType === SHIP_TYPE.AO_2) {
             // 補給艦 1.3倍
             B25Modifiers = 1.3;
+          } else if (shipType === SHIP_TYPE.AV) {
+            // 水母系 1.75倍
+            B25Modifiers = 1.75;
           }
         } else {
           // 陸攻 上記以外
