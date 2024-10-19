@@ -14,7 +14,7 @@ export default class SpecialAttack {
      */
   public static getNightBattleSpecialAttackRate(parent: Ship | Enemy, isFlagship: boolean): { text: string, rate: number[], multiplier?: number }[] {
     const items = parent.items.concat(parent.exItem);
-    const specialAttacks: { text: string, value: number, multiplier?: number }[] = [];
+    const specialAttacks: { text: string, value: number, multiplier?: number, isZuiun?: boolean }[] = [];
 
     const mainGunCount = items.filter((v) => [1, 2, 3].includes(v.data.apiTypeId)).length;
     const subGunCount = items.filter((v) => v.data.apiTypeId === 4).length;
@@ -48,6 +48,13 @@ export default class SpecialAttack {
       }
     }
 
+    // 夜間瑞雲
+    if (mainGunCount >= 2 && items.some((v) => v.data.id === 490)) {
+      if (parent.data.type === SHIP_TYPE.CL || parent.data.type === SHIP_TYPE.CAV || parent.data.type === SHIP_TYPE.AV || parent.data.type === SHIP_TYPE.BBV) {
+        specialAttacks.push({ text: '瑞雲CI', value: 135, isZuiun: true });
+      }
+    }
+
     // 汎用CI判定
     if (mainGunCount >= 3) {
       specialAttacks.push({ text: '主主主CI', value: 140 });
@@ -66,7 +73,7 @@ export default class SpecialAttack {
     }
 
     // 連撃
-    if (!specialAttacks.length && (mainGunCount + subGunCount) >= 2 && !parent.enabledAircraftNightAttack) {
+    if (!specialAttacks.filter((v) => !v.isZuiun).length && (mainGunCount + subGunCount) >= 2 && !parent.enabledAircraftNightAttack) {
       specialAttacks.push({ text: '連撃', value: 0 });
     }
 
@@ -94,16 +101,16 @@ export default class SpecialAttack {
       }
     }
 
-    // 旗艦補正 +15
+    /** 旗艦補正 +15 */
     const flagshipCorr = isFlagship ? 15 : 0;
-    // 損傷補正 あるなら +18
+    /** 損傷補正 あるなら +18 */
     const damageCorr = 0;
     // const damageCorr = 18;
-    // 味方探照灯補正 +7
+    /** 味方探照灯補正 */
     const lightCorr = 7;
-    // 味方照明弾補正 +4
+    /** 味方照明弾補正 */
     const starShellCorr = 4;
-    // 見張員補正
+    /** 見張員補正 */
     let personnelCorr = hasPersonnel ? 5 : 0;
     if (hasSkilledPersonnel && (parent.data.type === SHIP_TYPE.DD || parent.data.type === SHIP_TYPE.CL || parent.data.type === SHIP_TYPE.CLT)) {
       // 水雷見張員補正 => 駆逐 & 軽巡級 +7
@@ -116,23 +123,73 @@ export default class SpecialAttack {
       const attack = specialAttacks[i];
 
       if (!attack.value) {
-        results.push({ text: attack.text, rate: [0.99, 0.99, 0.99, 0.99] });
+        const rate = [
+          sumRates[0] * 0.99,
+          sumRates[1] * 0.99,
+          sumRates[2] * 0.99,
+          sumRates[3] * 0.99,
+        ];
+        sumRates[0] -= rate[0];
+        sumRates[1] -= rate[1];
+        sumRates[2] -= rate[2];
+        sumRates[3] -= rate[3];
+        results.push({ text: attack.text, rate });
         continue;
       }
 
+      /** CI項 */
       let chip = 0;
       if (parent.luck >= 50) {
         chip = Math.floor(65 + Math.floor(Math.sqrt(parent.luck - 50)) + 0.8 * Math.sqrt(parent.level));
       } else {
         chip = Math.floor(15 + parent.luck + 0.75 * Math.sqrt(parent.level));
       }
-      chip += (flagshipCorr + personnelCorr + damageCorr);
-      const rate = [
-        sumRates[0] * (chip / attack.value),
-        sumRates[1] * ((chip + lightCorr) / attack.value),
-        sumRates[2] * ((chip + starShellCorr) / attack.value),
-        sumRates[3] * ((chip + lightCorr + starShellCorr) / attack.value),
-      ];
+      chip += flagshipCorr + personnelCorr + damageCorr;
+
+      let rate = [];
+      if (attack.isZuiun) {
+        personnelCorr -= hasSkilledPersonnel ? 7 : 0;
+        // 瑞雲CI
+        rate = [
+          // 通常
+          sumRates[0] * (chip / attack.value),
+          // 探照灯 -5
+          sumRates[1] * ((chip - 5) / attack.value),
+          // 照明弾 -10
+          sumRates[2] * ((chip - 10) / attack.value),
+          // 探照灯 + 照明弾
+          sumRates[3] * ((chip - 5 - 10) / attack.value),
+        ];
+
+        if (parent.surfaceRadarCount) {
+          rate[0] += (sumRates[0] - rate[0]) * (chip / attack.value);
+          rate[1] += (sumRates[1] - rate[1]) * ((chip - 5) / attack.value);
+          rate[2] += (sumRates[2] - rate[2]) * ((chip - 10) / attack.value);
+          rate[3] += (sumRates[3] - rate[3]) * ((chip - 5 - 10) / attack.value);
+        }
+        if (parent.items.filter((v) => v.data.id === 490).length >= 2) {
+          rate[0] += (sumRates[0] - rate[0]) * (chip / attack.value);
+          rate[1] += (sumRates[1] - rate[1]) * ((chip - 5) / attack.value);
+          rate[2] += (sumRates[2] - rate[2]) * ((chip - 10) / attack.value);
+          rate[3] += (sumRates[3] - rate[3]) * ((chip - 5 - 10) / attack.value);
+        }
+        if (mainGunCount >= 3) {
+          rate[0] += (sumRates[0] - rate[0]) * (chip / attack.value);
+          rate[1] += (sumRates[1] - rate[1]) * ((chip - 5) / attack.value);
+          rate[2] += (sumRates[2] - rate[2]) * ((chip - 10) / attack.value);
+          rate[3] += (sumRates[3] - rate[3]) * ((chip - 5 - 10) / attack.value);
+        }
+
+        // parent.surfaceRadarCount によって複数判定？
+      } else {
+        // それ以外
+        rate = [
+          sumRates[0] * (chip / attack.value),
+          sumRates[1] * ((chip + lightCorr) / attack.value),
+          sumRates[2] * ((chip + starShellCorr) / attack.value),
+          sumRates[3] * ((chip + lightCorr + starShellCorr) / attack.value),
+        ];
+      }
       sumRates[0] -= rate[0];
       sumRates[1] -= rate[1];
       sumRates[2] -= rate[2];

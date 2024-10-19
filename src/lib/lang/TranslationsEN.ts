@@ -499,6 +499,7 @@ export default {
       '夜襲CIB': 'CV CI (x1.20)',
       '光電管彗星CI': 'Suisei CI',
       '夜襲CIC': 'CV CI (x1.18)',
+      '瑞雲CI': 'Zuiun CI',
       '合計': 'Total',
       '搭載数': 'Slots',
       '最終戦闘までの撃墜数に応じて、搭載数を自動設定します。': 'Automatically sets the number of slots according the number of shots down until the final battle.',
