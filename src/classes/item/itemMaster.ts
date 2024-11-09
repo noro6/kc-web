@@ -247,6 +247,7 @@ export default class ItemMaster {
     // 特効テキストを用意
     this.bonuses = [];
     const bonuses = Const.SPECIAL_GROUP.filter((v) => v.items.includes(this.id));
+
     for (let i = 0; i < bonuses.length; i += 1) {
       const bonus = bonuses[i];
       const already = this.bonuses.find((v) => v.key === bonus.key);

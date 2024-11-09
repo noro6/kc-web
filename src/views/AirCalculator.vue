@@ -1,15 +1,15 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="general-container my-2 px-4 py-0" v-if="false">
+    <v-card class="general-container my-2 px-4 py-0" v-if="true">
       <div class="d-flex">
         <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
         <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
           <v-radio :label="$t('Common.なし')" value="" />
-          <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
+          <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" />
           <!-- <v-radio label="24夏イベ【前段】" value="59-1" /> -->
         </v-radio-group>
       </div>
-      <div class="pb-3" v-if="setting.displayBonusKey">
+      <div class="pb-3" v-if="setting.displayBonusKey === '59-1'">
         <div>参考元: <a href="https://x.com/yukicacoon/status/1818869482548609511" target="_blank">@yukicacoon 様のツイートより</a></div>
         <div class="text--secondary caption">※ 簡略化のため、個別マス特効の表示は行わず、昨年2023年版の表記を採用しています。詳しい対応関係は上記参考元ツイート、およびそのツリーを参照してください。</div>
         <div class="mt-3 body-2">表示の見方、搭載のしかた：</div>
