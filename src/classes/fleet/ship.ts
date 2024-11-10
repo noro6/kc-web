@@ -1311,6 +1311,12 @@ export default class Ship implements ShipBase {
       // 軽空母 / 護衛空母
       const hasAswPlane = items.some((v) => v.fullSlot && v.data.isAswPlane);
       const hasEmptyASWPlane = items.some((v) => v.fullSlot === 0 && v.data.isAswPlane);
+
+      if (this.data.id === 508 || this.data.id === 509) {
+        // 鈴熊はできない
+        return false;
+      }
+
       if (hasSonar && (hasAswPlane || items.some((v) => v.data.isAttacker && v.data.asw >= 1))) {
         // => 表示対潜値100 + ソナー + (対潜値1以上の艦攻/艦爆 or 対潜哨戒機 or 回転翼機)
         if (this.displayStatus.asw >= 100) {

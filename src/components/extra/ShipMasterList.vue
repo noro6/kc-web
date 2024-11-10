@@ -728,7 +728,7 @@ export default Vue.extend({
       }
       if (this.shipFilter.canEquip13RadarOnly) {
         // 増設13号電探
-        ships = filterShip(ships, [27, 506], false, true);
+        ships = filterShip(ships, [27, 106], false, true);
       }
       if (this.shipFilter.canEquip22RadarOnly) {
         // 増設22号電探

@@ -117,6 +117,9 @@ export default Vue.extend({
       if (this.value.data.name.indexOf('深海玉棲姫') >= 0) {
         return false;
       }
+      if (this.value.data.name.indexOf('防空埋護姫') >= 0) {
+        return false;
+      }
       if (this.value.data.name.indexOf('外南洋駆逐棲姫') >= 0) {
         return false;
       }
