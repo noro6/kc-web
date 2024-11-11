@@ -48,8 +48,8 @@
           block
           color="orange lighten-4"
           light
-          :disabled="!minDeckBuilder"
-          :href="`https://x-20a.github.io/compass/?predeck=${encodeURIComponent(minDeckBuilder)}`"
+          :disabled="!compressFleetOnlyDeckBuilder"
+          :href="`https://x-20a.github.io/compass/?pdz=${encodeURIComponent(compressFleetOnlyDeckBuilder)}`"
           target="_blank"
         >
           <v-icon>mdi-compass-outline</v-icon>{{ $t("SaveData.羅針盤シミュで開く") }}
@@ -112,6 +112,7 @@ import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import Convert from '@/classes/convert';
 import SaveData from '@/classes/saveData/saveData';
 import FirebaseManager from '@/classes/firebaseManager';
+import LZString from 'lz-string';
 
 export default Vue.extend({
   name: 'ShareDialog',
@@ -151,7 +152,7 @@ export default Vue.extend({
       }
       return Convert.createDeckBuilderToString(manager, this.$store.state.cellInfos);
     },
-    minDeckBuilder(): string {
+    compressFleetOnlyDeckBuilder() {
       const saveData = this.$store.state.mainSaveData as SaveData;
       if (!saveData) {
         return '';
@@ -162,12 +163,10 @@ export default Vue.extend({
       }
       const deck = Convert.createDeckBuilder(manager, this.$store.state.cellInfos);
       delete deck.a1;
-      delete deck.f3;
-      delete deck.f4;
       delete deck.a2;
       delete deck.a3;
       delete deck.s;
-      return JSON.stringify(deck);
+      return LZString.compressToEncodedURIComponent(JSON.stringify(deck));
     },
   },
   methods: {
