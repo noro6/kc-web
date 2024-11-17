@@ -205,8 +205,8 @@ export default class Airbase {
       }
     }
 
-    // 対潜哨戒機が存在したら半径延長無効
-    const containAswPlane = this.items.some((v) => v.data.isAswPlane && !v.data.isAttacker);
+    // 対潜哨戒機(非攻撃)が存在したら半径延長無効
+    const containAswPlane = this.items.some((v) => v.data.isAswPlane && !v.data.isAswBomber1 && !v.data.isAswBomber2);
     if (!containAswPlane && maxReconRadius > minRadius) {
       // 偵察機による半径拡張
       return Math.round(minRadius + Math.min(Math.sqrt(maxReconRadius - minRadius), 3));

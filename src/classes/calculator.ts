@@ -234,7 +234,7 @@ export default class Calculator {
       if (item.data.isJet) {
         // ジェットなら0.6倍 切り捨て
         item.slot -= Math.floor(down * 0.6);
-      } else if (item.data.isAswPlane && !item.data.isAttacker) {
+      } else if (item.data.isAswPlane && !item.data.isAswBomber1 && !item.data.isAswBomber2) {
         // 対潜哨戒機なら0.91倍 切り捨て
         item.slot -= Math.floor(down * 0.91);
       } else {
@@ -242,7 +242,7 @@ export default class Calculator {
       }
 
       // ====== STAGE2 ======
-      if (item.data.isAttacker) {
+      if (item.data.isAttacker || item.data.isAswBomber2) {
         // 撃墜担当を選出
         const index = Math.floor(Math.random() * randomRange);
         if (Math.random() >= 0.5) {
@@ -372,7 +372,7 @@ export default class Calculator {
       if (item.data.isJet) {
         // ジェットなら0.6倍 切り捨て
         item.slot -= Math.floor(down * 0.6);
-      } else if (item.data.isAswPlane && !item.data.isAttacker) {
+      } else if (item.data.isAswPlane && !item.data.isAswBomber1) {
         // 対潜哨戒機なら0.91倍 切り捨て
         item.slot -= Math.floor(down * 0.91);
       } else {
@@ -527,7 +527,7 @@ export default class Calculator {
         if (item.data.isJet) {
           // ジェットなら0.6倍 切り捨て
           item.slot -= Math.floor(down * 0.6);
-        } else if (item.data.isAswPlane && !item.data.isAttacker) {
+        } else if (item.data.isAswPlane && !item.data.isAswBomber1 && !item.data.isAswBomber2) {
           // 対潜哨戒機なら0.91倍 切り捨て
           item.slot -= Math.floor(down * 0.91);
         } else {

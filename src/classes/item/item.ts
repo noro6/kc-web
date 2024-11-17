@@ -437,7 +437,7 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAirPower(): number {
-    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane || (this.data.isAswPlane && !this.data.isAttacker)) {
+    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane || (this.data.isAswPlane && !this.data.antiAir)) {
       return 0;
     }
     const type = this.data.apiTypeId;
@@ -477,11 +477,6 @@ export default class Item {
 
     // 内部熟練度ボーナス
     sum += Math.sqrt(this.level / 10);
-
-    // if (this.data.id === 138) {
-    //   // 二式大艇 搭載4★4で制空+1
-    //   sum += (this.remodel >= 4 && this.fullSlot === 4 ? 1 : 0);
-    // }
 
     return sum;
   }

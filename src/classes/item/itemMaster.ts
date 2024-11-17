@@ -95,6 +95,12 @@ export default class ItemMaster {
   /** 対潜哨戒機フラグ */
   public readonly isAswPlane: boolean;
 
+  /** 対潜哨戒機爆装ありフラグ 爆装4以上 (一式戦 隼II型改(20戦隊) / 熟練) */
+  public readonly isAswBomber1: boolean;
+
+  /** 対潜哨戒機爆装ありフラグ2 爆装1以上 爆装4未満 (三式指揮連絡機改二) */
+  public readonly isAswBomber2: boolean;
+
   /** オートジャイロフラグ */
   public readonly isAutoGyro: boolean;
 
@@ -205,7 +211,9 @@ export default class ItemMaster {
     this.isFighter = Const.FIGHTERS.includes(this.apiTypeId);
     this.isAswPlane = Const.ASW_PLANES.includes(this.apiTypeId);
     this.isAutoGyro = this.apiTypeId === 25;
-    this.isAttacker = Const.ATTACKERS.includes(this.apiTypeId) || (this.isAswPlane && this.bomber > 0 && !this.isAutoGyro);
+    this.isAswBomber1 = this.isAswPlane && !this.isAutoGyro && this.bomber >= 4;
+    this.isAswBomber2 = this.isAswPlane && !this.isAutoGyro && this.bomber < 4 && this.bomber > 0;
+    this.isAttacker = Const.ATTACKERS.includes(this.apiTypeId) || this.isAswBomber1;
     this.isRecon = Const.RECONNAISSANCES.includes(this.apiTypeId);
     this.isABAttacker = Const.AB_ATTACKERS.includes(this.apiTypeId);
     this.isBakusen = Const.BAKUSEN.includes(this.id);

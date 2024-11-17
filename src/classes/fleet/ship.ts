@@ -978,8 +978,8 @@ export default class Ship implements ShipBase {
     let bonus = 0;
     for (let i = 0; i < this.items.length; i += 1) {
       const item = this.items[i];
-      // 対象は搭載数が存在する攻撃機か大型飛行艇
-      if (item.slot > 0 && (item.data.isAttacker || item.data.apiTypeId === 41)) {
+      // 対象は搭載数が存在する攻撃機か大型飛行艇(api_id: 41)か対潜哨戒機
+      if (item.slot > 0 && (item.data.isAttacker || item.data.apiTypeId === 41 || (item.data.isAswBomber2))) {
         // 熟練度定数C
         const c = [0, 1, 2, 3, 4, 5, 7, 10][item.levelAlt];
 
