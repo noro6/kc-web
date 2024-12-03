@@ -78,7 +78,7 @@ export default class Item {
   /** 熟練度による制空値増分 */
   public readonly bonusAirPower: number;
 
-  /** 装備索敵 計算で利用 (装備の素の索敵値 + 改修係数×√★)×装備係数 */
+  /** 装備索敵 計算で利用 (装備の素の索敵値 + 改修係数 × √★) × 装備係数 */
   public readonly itemScout: number;
 
   /** 装備加重対空値 */

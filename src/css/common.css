@@ -277,7 +277,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .item-input.type-6,
-.item-input.type-12,
 .item-input.type-15,
 .item-input.type-16,
 .item-input.type-21,
@@ -290,7 +289,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .item-input.type-6:hover,
-.item-input.type-12:hover,
 .item-input.type-15:hover,
 .item-input.type-16:hover,
 .item-input.type-21:hover,
@@ -327,21 +325,14 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     box-shadow: inset 0 0 24px rgba(210, 120, 20, 0.4) !important;
 }
 
-.item-input.type-13 {
-    box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.15) !important;
-    border-color: rgb(255, 125, 125) !important;
-}
-
-.item-input.type-13:hover {
-    box-shadow: inset 0 0 24px rgba(255, 125, 125, 0.4) !important;
-}
-
+.item-input.type-13,
 .item-input.type-14,
 .item-input.type-34 {
     box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.25) !important;
     border-color: rgb(196, 196, 196) !important;
 }
 
+.item-input.type-13:hover,
 .item-input.type-14:hover,
 .item-input.type-34:hover {
     box-shadow: inset 0 0 20px rgba(196, 196, 196, 0.4) !important;
@@ -437,11 +428,13 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     box-shadow: inset 0 0 24px rgba(135, 150, 75, 0.4) !important;
 }
 
+.item-input.type-12,
 .item-input.type-31 {
     box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.15) !important;
     border-color: rgb(255, 55, 55) !important;
 }
 
+.item-input.type-12:hover,
 .item-input.type-31:hover {
     box-shadow: inset 0 0 24px rgba(255, 55, 55, 0.4) !important;
 }
@@ -524,7 +517,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 }
 
 .captured .item-input.type-6,
-.captured .item-input.type-12,
 .captured .item-input.type-15,
 .captured .item-input.type-16,
 .captured .item-input.type-21,
@@ -546,10 +538,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     background: rgba(210, 120, 20, 0.075) !important;
 }
 
-.captured .item-input.type-13 {
-    background: rgba(255, 125, 125, 0.075) !important;
-}
-
+.captured .item-input.type-13,
 .captured .item-input.type-14,
 .captured .item-input.type-34 {
     background: rgba(196, 196, 196, 0.1) !important;
@@ -596,6 +585,7 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     background: rgba(135, 150, 75, 0.1) !important;
 }
 
+.captured .item-input.type-12,
 .captured .item-input.type-31 {
     background: rgba(255, 55, 55, 0.075) !important;
 }
