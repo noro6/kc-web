@@ -247,7 +247,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-4,
 .item-input.type-9,
 .item-input.type-19,
-.item-input.type-27,
 .item-input.type-39,
 .item-input.type-40 {
     box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.15) !important;
@@ -257,7 +256,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .item-input.type-4:hover,
 .item-input.type-9:hover,
 .item-input.type-19:hover,
-.item-input.type-27:hover,
 .item-input.type-39:hover,
 .item-input.type-40:hover {
     box-shadow: inset 0 0 24px rgba(255, 255, 70, 0.4) !important;
@@ -377,12 +375,14 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     box-shadow: inset 0 0 20px rgba(150, 125, 175, 0.5) !important;
 }
 
-.item-input.type-24 {
+.item-input.type-24,
+.item-input.type-27 {
     box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.15) !important;
     border-color: rgba(240, 130, 60) !important;
 }
 
-.item-input.type-24:hover {
+.item-input.type-24:hover,
+.item-input.type-27:hover {
     box-shadow: inset 0 0 24px rgba(240, 130, 60, 0.4) !important;
 }
 
@@ -504,7 +504,6 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
 .captured .item-input.type-4,
 .captured .item-input.type-9,
 .captured .item-input.type-19,
-.captured .item-input.type-27,
 .captured .item-input.type-39,
 .captured .item-input.type-40 {
     background: rgba(255, 255, 70, 0.075) !important;
@@ -562,7 +561,8 @@ body.item-ui-border.item-ui-bold.item-ui-radius .item-input {
     background: rgba(150, 125, 175, 0.1) !important;
 }
 
-.captured .item-input.type-24 {
+.captured .item-input.type-24,
+.captured .item-input.type-27 {
     background: rgba(240, 130, 60, 0.075) !important;
 }
 
