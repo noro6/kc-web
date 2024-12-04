@@ -830,7 +830,7 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static readonly ANTI_AIR_CUT_IN_PRIORITIES = [38, 39, 40, 42, 41, 10, 43, 46, 11, 25, 48, 1, 34, 44, 26, 4, 2, 35, 36, 27, 45, 19, 21, 29, 16, 14, 3, 5, 6, 28, 37, 33, 30, 8, 13, 15, 7, 20, 24, 32, 12, 31, 47, 17, 18, 22, 9, 23];
+  public static readonly ANTI_AIR_CUT_IN_PRIORITIES = [38, 39, 40, 42, 41, 10, 43, 46, 11, 25, 48, 1, 34, 44, 26, 4, 2, 35, 36, 27, 45, 49, 19, 21, 29, 16, 14, 3, 5, 6, 28, 37, 33, 30, 8, 13, 15, 7, 20, 24, 32, 12, 31, 47, 17, 18, 22, 9, 23];
 
   /**
    * 対空CI
@@ -984,6 +984,9 @@ export default class Const {
     },
     {
       id: 48, text: '48種', rateBonus: 1.75, c1: 8, c2: 1, rate: 65, remarks: '秋月型',
+    },
+    {
+      id: 49, text: '49種', rateBonus: 1.5, c1: 5, c2: 1, rate: 50, remarks: '藤波改二',
     },
   ];
 

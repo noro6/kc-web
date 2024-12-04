@@ -346,6 +346,10 @@ export default class ShootDownInfo {
       if (specialKijuCount) cutInIds.push(18);
       // 31種 (高角砲2)
       if (allKokaku >= 2) cutInIds.push(31);
+    } else if (shipId === 981) {
+      // 藤波改二
+      // 49種 (特殊高角砲2, 対空電探)
+      if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(49);
     }
     if (shipId === 593) {
       // 榛名改二乙
