@@ -128,6 +128,9 @@
             >{{ $t("Fleet.で登録されている在籍、所持情報をもとに、なるべくいい感じになるように置き換えます。") }}
           </div>
         </div>
+        <div class="mt-3">
+          <v-checkbox v-model="ignoreItem" hide-details dense label="装備を据え置く" />
+        </div>
         <div class="mt-6 body-2">{{ $t("Fleet.存在しない艦娘、装備の置換方法を選択してください。") }}</div>
         <div>
           <v-radio-group v-model="altMode" dense class="mt-2">
@@ -211,6 +214,7 @@ export default Vue.extend({
     editedRemarks: '',
     syncCurrentDataDialog: false,
     altMode: 0,
+    ignoreItem: false,
   }),
   mounted() {
     this.unsubscribe = this.$store.subscribe((mutation, state) => {
@@ -539,7 +543,7 @@ export default Vue.extend({
       // いなければ外すモードかどうか
       const toEmpty = this.altMode === 1;
       // 艦隊データの反映
-      const result = Optimizer.reflectStockData(manager, shipStock, itemStock, toEmpty);
+      const result = Optimizer.reflectStockData(manager, shipStock, itemStock, toEmpty, this.ignoreItem);
       // 2回計算が行われそうなので片方は再計算フラグを落としておく
       result.airbaseInfo.calculated = true;
 

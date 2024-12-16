@@ -429,7 +429,7 @@ export default class Optimizer {
    * @return {*}  {Fleet[]}
    * @memberof Optimizer
    */
-  public static reflectStockData(manager: CalcManager, ships: ShipStock[], items: ItemStock[], toEmpty: boolean): { airbaseInfo: AirbaseInfo, fleetInfo: FleetInfo } {
+  public static reflectStockData(manager: CalcManager, ships: ShipStock[], items: ItemStock[], toEmpty: boolean, ignoreItem = false): { airbaseInfo: AirbaseInfo, fleetInfo: FleetInfo } {
     /** ======= 基地データの反映 ======= */
     const { airbases } = manager.airbaseInfo;
     const newAirbases: Airbase[] = [];
@@ -438,7 +438,7 @@ export default class Optimizer {
       // 装備のチェックをする
       const newItems: Item[] = [];
       for (let j = 0; j < airbase.items.length; j += 1) {
-        newItems.push(Optimizer.getReflectedItem(airbase.items[j], items, toEmpty));
+        newItems.push(Optimizer.getReflectedItem(airbase.items[j], items, toEmpty, false, ignoreItem));
       }
       // 装備の精査が終わったので置き換え
       newAirbases.push(new Airbase({ airbase, items: newItems }));
@@ -509,10 +509,10 @@ export default class Optimizer {
         // 装備のチェックをする
         const newItems: Item[] = [];
         for (let k = 0; k < newShip.items.length; k += 1) {
-          newItems.push(Optimizer.getReflectedItem(newShip.items[k], items, toEmpty));
+          newItems.push(Optimizer.getReflectedItem(newShip.items[k], items, toEmpty, false, ignoreItem));
         }
         // 補強増設
-        const exItem = Optimizer.getReflectedItem(newShip.exItem, items, toEmpty, !newShip.releaseExpand);
+        const exItem = Optimizer.getReflectedItem(newShip.exItem, items, toEmpty, !newShip.releaseExpand, ignoreItem);
 
         // 装備の精査も終わったのでやっと置き換えられる
         newShips.push(new Ship({
@@ -534,19 +534,20 @@ export default class Optimizer {
    * 装備在庫より、装備を置換したものを返却する。
    * 在庫に存在すれば最も改修値の高いものを置き換える
    * 在庫に存在しなければ外すかそのまま
-   * @private
-   * @static
    * @param {Item} item ベース装備
    * @param {ItemStock[]} stock 装備在庫
    * @param {boolean} toEmpty trueならば存在しなかったときに空の装備を返却する
    * @param {boolean} noStock 手動エラー
-   * @return {*}  {Item}
-   * @memberof Optimizer
+   * @param {boolean} ignore 無視するかどうか
+   * @returns
    */
-  private static getReflectedItem(item: Item, stock: ItemStock[], toEmpty: boolean, noStock = false): Item {
+  private static getReflectedItem(item: Item, stock: ItemStock[], toEmpty: boolean, noStock = false, ignore = false): Item {
     if (!item.data.id) {
       // 空の装備はそのまま
       return item;
+    }
+    if (ignore) {
+      return new Item({ item });
     }
     const stockItem = stock.find((v) => v.id === item.data.id && v.num.some((remodel) => remodel > 0));
     if (stockItem) {
