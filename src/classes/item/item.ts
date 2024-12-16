@@ -1021,13 +1021,10 @@ export default class Item {
           scout = Math.ceil(scout + 0.1 * remodel);
           break;
         case 25:
-        case 138:
-        case 163:
         case 304:
         case 370:
         case 239:
           // 零式水上偵察機
-          // 二式大艇
           // Ro.43水偵
           // S9 Osprey
           // Swordfish Mk.II改(水偵型)
@@ -1035,6 +1032,7 @@ export default class Item {
           scout = Math.ceil(scout + 0.14 * remodel);
           break;
         case 59:
+        case 178:
         case 539:
         case 543:
           // 零式水上観測機
@@ -1045,6 +1043,12 @@ export default class Item {
         case 61:
           // 二式艦上偵察機
           scout = Math.ceil(scout + 0.25 * remodel);
+          break;
+        case 138:
+        case 163:
+          // 二式大艇
+          // PBY-5A Catalina
+          scout = Math.ceil(scout + 0.3 * remodel);
           break;
         case 151:
           // 試製景雲(艦偵型)
