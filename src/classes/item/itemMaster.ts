@@ -267,7 +267,7 @@ export default class ItemMaster {
       }
     }
 
-    this.isNightAircraftItem = this.iconTypeId === 45 || this.iconTypeId === 46 || [154, 242, 243, 244, 320].includes(this.id);
+    this.isNightAircraftItem = [45, 46, 58].includes(this.iconTypeId) || [154, 242, 243, 244, 320].includes(this.id);
   }
 
   /** 装備の日本wikiURLを返却 */
