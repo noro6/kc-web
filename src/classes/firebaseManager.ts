@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   child, get, getDatabase, ref,
 } from 'firebase/database';
@@ -204,27 +205,14 @@ export default class FirebaseManager {
    * @memberof FirebaseManager
    */
   public static async getShortURL(url: string): Promise<string> {
-    if (!url) return '';
-    const data = {
-      longDynamicLink: `https://aircalc.page.link/?link=${url}`,
-      suffix: { option: 'SHORT' },
-    };
-
+    if (!url) {
+      return '';
+    }
     let createdURL = '';
-    const response = await fetch('https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyC_rEnvKFFlZv54xvxP8MXPht081xYol4s', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).catch((error) => console.error(error));
+    const response = await axios.get(`https://tinyurl.com/api-create.php?url=${url}`).catch((error) => console.error(error));
 
-    if (response) {
-      await response.json().then((json) => {
-        if (json.error || !json.shortLink) {
-          console.log(json.error);
-        } else {
-          createdURL = json.shortLink;
-        }
-      });
+    if (response && response.data) {
+      createdURL = response.data;
     }
 
     return createdURL;

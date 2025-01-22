@@ -196,8 +196,8 @@ export default Vue.extend({
       FirebaseManager.getShortURL(url).then((shortUrl) => {
         if (shortUrl) {
           window.open(`https://twitter.com/share?url=${shortUrl}`);
+          this.loadingTwitter = false;
         }
-        this.loadingTwitter = false;
       });
     },
     copyURL() {
