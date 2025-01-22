@@ -153,6 +153,13 @@
             </div>
             <div class="filter-input-container">
               <v-checkbox
+                v-model="shipFilter.slotCount2"
+                dense
+                hide-details
+                :label="$t('Fleet.2スロ以上')"
+                :disabled="shipFilter.slotCount3 ||shipFilter.slotCount4 || shipFilter.slotCount5"
+              />
+              <v-checkbox
                 v-model="shipFilter.slotCount3"
                 dense
                 hide-details
@@ -636,6 +643,8 @@ export default Vue.extend({
         else if (this.shipFilter.slotCount4 && ship.slotCount < 4) continue;
         // 3スロ
         else if (this.shipFilter.slotCount3 && ship.slotCount < 3) continue;
+        // 2スロ
+        else if (this.shipFilter.slotCount2 && ship.slotCount < 2) continue;
         // 耐久4n系フィルタ
         if (
           (!this.shipFilter.HPIs4n && ship.hp % 4 === 0)

@@ -522,6 +522,7 @@ export default {
       '大型探照灯': 'Large Searchlight',
       '護衛空母': 'Escort Carrier',
       '装備スロット数': 'Number of slots',
+      '2スロ以上': '2 or more',
       '3スロ以上': '3 or more',
       '4スロ以上': '4 or more',
       '5スロ以上': '5 or more',

@@ -132,6 +132,9 @@ export default class ShipFilter {
   /** ケッコン艦のみ */
   public onlyMarriage = false;
 
+  /** スロット数2 */
+  public slotCount2 = false;
+
   /** スロット数3 */
   public slotCount3 = false;
 
