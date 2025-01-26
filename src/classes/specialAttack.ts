@@ -91,7 +91,7 @@ export default class SpecialAttack {
         specialAttacks.push({ text: '夜爆CI', value: 120, multiplier: 1.20 });
       }
       if (nightFighterCount && nightPlaneCount >= 3) {
-        if (nightFighterCount !== 2 || nightAttackerCount !== 1) {
+        if (nightFighterCount !== nightPlaneCount) {
           specialAttacks.push({ text: '夜襲CIC', value: 130, multiplier: 1.18 });
         }
       }
