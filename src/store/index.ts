@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.48.35',
+    siteVersion: '2.48.36',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -51,6 +51,8 @@ export default new Vuex.Store({
     shipStockDiff: new ShipStockDiff(),
     /** 所持艦隊マスタdiffを作成するかどうか デフォルトtrue 管理画面での手動更新時はいちいち出てうざいのでfalse */
     needShipStockDiff: true,
+    /** 読み込んだ艦隊情報stockid */
+    readStockId: '',
     /** 一時展開中装備マスタ */
     tempItemStock: [] as ItemStock[],
     /** 一時展開中艦隊マスタ */
@@ -243,6 +245,9 @@ export default new Vuex.Store({
     setNeedShipStockDiff: (state, value: boolean) => {
       state.needShipStockDiff = value;
     },
+    updateReadStockId: (state, value: string) => {
+      state.readStockId = value;
+    },
     updateTempItemStock: (state, values: ItemStock[]) => {
       state.tempItemStock = values;
     },
@@ -350,6 +355,9 @@ export default new Vuex.Store({
     },
     setNeedShipStockDiff: (context, value: boolean) => {
       context.commit('setNeedShipStockDiff', value);
+    },
+    updateReadStockId: (context, value: string) => {
+      context.commit('updateReadStockId', value);
     },
     updateTempItemStock: (context, values: ItemStock[]) => {
       context.commit('updateTempItemStock', values);

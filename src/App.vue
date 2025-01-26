@@ -1007,6 +1007,8 @@ export default Vue.extend({
           // デッキビルダー解析
           this.inform('編成の読み込みが完了しました。');
         } else if (this.urlParameters.stockid) {
+          this.$store.dispatch('updateReadStockId', this.urlParameters.stockid);
+
           // 所持情報データ解析
           const stockData = await FirebaseManager.getAndRestoreStockData(this.urlParameters.stockid);
 
@@ -1608,6 +1610,7 @@ export default Vue.extend({
       this.readResultColor = isError ? 'error' : 'success';
     },
     async resetTempData() {
+      this.$store.dispatch('updateReadStockId', '');
       this.$store.dispatch('updateTempShipStock', []);
       this.$store.dispatch('updateTempItemStock', []);
       this.$store.dispatch('updateTempDate', '');

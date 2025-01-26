@@ -161,13 +161,35 @@
               {{ $t("Database.発行された情報は閲覧専用です。発行されたURLを他人に公開しても、自分の艦娘や装備情報が書き換えられてしまうことはありません。") }}
             </div>
             <div class="body-2 mb-3">{{ $t("Database.閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。") }}</div>
-            <div class="shared-url-container">
-              <div class="d-flex align-center">
-                <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || readOnlyMode" @click="requestURLKey()">{{
-                  $t("Database.共有URL作成")
-                }}</v-btn>
+            <v-alert border="left" class="mb-2" outlined type="info" dense v-if="readOnlyMode && tempURL">
+              <div class="body-2">
+                <div>現在、旧URL廃止に伴うURL移行期間中により、展開中の艦隊情報のURLが再生成されています。</div>
+              </div>
+            </v-alert>
+            <div :class="{ 'shared-url-container': !readOnlyMode }">
+              <div class="d-flex">
+                <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || readOnlyMode" @click="requestURLKey()">
+                  {{ $t("Database.共有URL作成")}}
+                </v-btn>
+                <div class="flex-grow-1">
+                  <v-text-field
+                    class="ml-3 w-5"
+                    v-if="readOnlyMode && tempURL"
+                    id="created-url"
+                    v-show="readOnlyMode"
+                    readonly
+                    append-icon="mdi-content-copy"
+                    outlined
+                    dense
+                    v-model="tempURL"
+                    :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : ''"
+                    @click:append="copyURL"
+                    @blur="clearURLHint"
+                  ></v-text-field>
+                </div>
               </div>
               <v-text-field
+                v-if="!readOnlyMode"
                 id="created-url"
                 v-show="createdURL"
                 readonly
@@ -376,6 +398,10 @@
 .min-level-input {
   width: 120px;
 }
+
+.w-5 {
+  width: 50%;
+}
 </style>
 
 <script lang="ts">
@@ -428,6 +454,7 @@ export default Vue.extend({
     maxLevel: Const.MAX_LEVEL,
     importMinLevel: 1,
     yearTab: 0,
+    tempURL: '',
   }),
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
@@ -788,6 +815,9 @@ export default Vue.extend({
         // 閲覧モード
         shipStock = this.$store.state.tempShipStock as ShipStock[];
         itemStock = this.$store.state.tempItemStock as ItemStock[];
+        const sotckId = this.$store.state.readStockId as string;
+        const { location } = document;
+        this.tempURL = `${location.protocol}//${location.host}${location.pathname}?stockid=${sotckId}`;
       }
 
       this.kantaiAnalyticsShipsCode = ShipStock.createFleetAnalyticsCode(shipStock);
