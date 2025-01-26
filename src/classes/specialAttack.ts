@@ -75,7 +75,8 @@ export default class SpecialAttack {
       const nightFighterCount = items.filter((v) => v.data.iconTypeId === 45 && v.fullSlot).length;
       const nightAttackerCount = items.filter((v) => v.data.iconTypeId === 46 && v.fullSlot).length;
       const nightSuiseiCount = items.filter((v) => v.data.id === 320 && v.fullSlot).length;
-      const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + items.filter((v) => [154, 242, 243, 244, 1582, 1618].includes(v.data.id) && v.fullSlot).length;
+      const nightBomberCount = items.filter((v) => v.data.iconTypeId === 58 && v.fullSlot).length;
+      const nightPlaneCount = nightFighterCount + nightAttackerCount + nightSuiseiCount + nightBomberCount + items.filter((v) => [154, 242, 243, 244, 1582, 1618].includes(v.data.id) && v.fullSlot).length;
       if (nightFighterCount >= 2 && nightAttackerCount) {
         specialAttacks.push({ text: '夜襲CIA', value: 105, multiplier: 1.25 });
       }
@@ -86,6 +87,8 @@ export default class SpecialAttack {
         specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
       } else if (nightAttackerCount && nightSuiseiCount) {
         specialAttacks.push({ text: '光電管彗星CI', value: 120, multiplier: 1.20 });
+      } else if ((nightFighterCount || nightAttackerCount || nightSuiseiCount) && nightBomberCount) {
+        specialAttacks.push({ text: '夜爆CI', value: 120, multiplier: 1.20 });
       }
       if (nightFighterCount && nightPlaneCount >= 3) {
         if (nightFighterCount !== 2 || nightAttackerCount !== 1) {

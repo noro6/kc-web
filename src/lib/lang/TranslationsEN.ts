@@ -498,6 +498,7 @@ export default {
       '夜襲CIA': 'CV CI (x1.25)',
       '夜襲CIB': 'CV CI (x1.20)',
       '光電管彗星CI': 'Suisei CI',
+      '夜爆CI': 'Bomber CI',
       '夜襲CIC': 'CV CI (x1.18)',
       '合計': 'Total',
       '搭載数': 'Slots',
