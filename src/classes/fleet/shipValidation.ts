@@ -110,7 +110,7 @@ export default class ShipValidation {
         }
       }
 
-      if (ship.type2 === 48) {
+      if (ship.type2 === 48 && ship.version >= 2) {
         // Z1型駆逐艦
         if (item.apiTypeId === 13) {
           // 大型電探はFuMO25 レーダーのみ
