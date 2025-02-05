@@ -780,6 +780,9 @@ export default Vue.extend({
       this.shipFilter.includeIntermediate = false;
       this.initShips();
     },
+    closeFilterDialog() {
+      this.filterDialog = false;
+    },
     toggleFilterDialog() {
       if (!this.filterDialog) {
         // 検索かける
