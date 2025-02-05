@@ -1105,6 +1105,7 @@ export default Vue.extend({
             score = scores[coefficient - 1];
             if (lastBattle.nodeName === 'M' || lastBattle.nodeName === 'P') {
               if (nodeList.includes('M') && score < 47) LoS = 47;
+              else if (nodeList.includes('J') && score < 37) LoS = 37;
             }
             break;
           case 75:
