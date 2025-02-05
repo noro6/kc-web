@@ -767,6 +767,8 @@ export default Vue.extend({
         // 所持情報データ解析
         const stockData = await FirebaseManager.getAndRestoreStockData(history.key);
         if (stockData.shipStocks.length || stockData.itemStocks.length) {
+          const { location } = document;
+          this.tempURL = `${location.protocol}//${location.host}${location.pathname}?stockid=${history.key}`;
           // 一時所持情報にセット
           this.$store.dispatch('updateTempShipStock', stockData.shipStocks);
           this.$store.dispatch('updateTempItemStock', stockData.itemStocks);
@@ -815,9 +817,11 @@ export default Vue.extend({
         // 閲覧モード
         shipStock = this.$store.state.tempShipStock as ShipStock[];
         itemStock = this.$store.state.tempItemStock as ItemStock[];
-        const sotckId = this.$store.state.readStockId as string;
-        const { location } = document;
-        this.tempURL = `${location.protocol}//${location.host}${location.pathname}?stockid=${sotckId}`;
+        const stockId = this.$store.state.readStockId as string;
+        if (stockId) {
+          const { location } = document;
+          this.tempURL = `${location.protocol}//${location.host}${location.pathname}?stockid=${stockId}`;
+        }
       }
 
       this.kantaiAnalyticsShipsCode = ShipStock.createFleetAnalyticsCode(shipStock);
