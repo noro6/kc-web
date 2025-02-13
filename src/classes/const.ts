@@ -995,7 +995,7 @@ export default class Const {
       id: 51, text: '51種', rateBonus: 1.35, c1: 5, c2: 1, rate: 50, remarks: '吹雪改二 / 白雪改二',
     },
     {
-      id: 52, text: '52種', rateBonus: 1.35, c1: 4, c2: 1, rate: 50, remarks: '吹雪改二 / 白雪改二',
+      id: 52, text: '52種', rateBonus: 1.4, c1: 4, c2: 1, rate: 50, remarks: '吹雪改二 / 白雪改二',
     },
   ];
 
