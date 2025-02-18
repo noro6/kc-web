@@ -886,6 +886,8 @@ export default Vue.extend({
     allShipLevel: 99,
     maxLevel: Const.MAX_LEVEL,
     sparkleMouseEvent: null as MouseEvent | null,
+    backScrollY: 0,
+    backScrollX: 0,
   }),
   mounted() {
     if (this.$i18n.locale === 'en') {
@@ -920,6 +922,20 @@ export default Vue.extend({
           this.tab = `fleet${current}`;
         }
       },
+    },
+    itemListDialog(value: boolean) {
+      if (value) {
+        this.saveMainScroll();
+      } else {
+        this.restoreMainScroll();
+      }
+    },
+    shipListDialog(value: boolean) {
+      if (value) {
+        this.saveMainScroll();
+      } else {
+        this.restoreMainScroll();
+      }
     },
   },
   computed: {
@@ -1983,6 +1999,21 @@ export default Vue.extend({
         return this.$t(`${name}`);
       }
       return name || `${this.$t('Fleet.未装備')}`;
+    },
+    saveMainScroll() {
+      this.backScrollY = window.scrollY;
+      this.backScrollX = window.scrollX;
+
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this.backScrollY}px`;
+      document.body.style.left = `${this.backScrollX}px`;
+    },
+    restoreMainScroll() {
+      document.body.style.position = '';
+      document.body.style.top = '0px';
+      document.body.style.left = '0px';
+
+      window.scrollTo({ top: this.backScrollY, left: this.backScrollX });
     },
   },
 });

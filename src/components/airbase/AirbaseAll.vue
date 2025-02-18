@@ -772,6 +772,8 @@ export default Vue.extend({
     tempAirbaseList: [] as Airbase[],
     enabledPushTempAirbase: true,
     isMobile: true,
+    backScrollY: 0,
+    backScrollX: 0,
   }),
   computed: {
     airbaseInfo(): AirbaseInfo {
@@ -1133,6 +1135,30 @@ export default Vue.extend({
         return this.$t(`${name}`);
       }
       return name || `${this.$t('Fleet.未装備')}`;
+    },
+    saveMainScroll() {
+      this.backScrollY = window.scrollY;
+      this.backScrollX = window.scrollX;
+
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this.backScrollY}px`;
+      document.body.style.left = `${this.backScrollX}px`;
+    },
+    restoreMainScroll() {
+      document.body.style.position = '';
+      document.body.style.top = '0px';
+      document.body.style.left = '0px';
+
+      window.scrollTo({ top: this.backScrollY, left: this.backScrollX });
+    },
+  },
+  watch: {
+    itemListDialog(value: boolean) {
+      if (value) {
+        this.saveMainScroll();
+      } else {
+        this.restoreMainScroll();
+      }
     },
   },
 });
