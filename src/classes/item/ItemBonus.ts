@@ -1,12 +1,22 @@
 import Const from '../const';
 
 export type ItemBonusStatus = {
-  firePower?: number, torpedo?: number, antiAir?: number, armor?: number, asw?: number, scout?: number, avoid?: number, accuracy?: number, bomber?: number, range?: number, fromTypeId?: number
-}
+  firePower?: number;
+  torpedo?: number;
+  antiAir?: number;
+  armor?: number;
+  asw?: number;
+  scout?: number;
+  avoid?: number;
+  accuracy?: number;
+  bomber?: number;
+  range?: number;
+  fromTypeId?: number;
+};
 
 export type Bonus = {
   /** 上昇するステータス */
-  bonus: ItemBonusStatus
+  bonus: ItemBonusStatus;
   /** 艦型(未改造id) */
   shipBase?: number[];
   /** 艦型(白露型 など) */
@@ -43,13 +53,13 @@ export type Bonus = {
    * 2024/06現在、この値が「ない≒累積可能」場合は、require系の条件は一切存在しない
    */
   num?: number;
-}
+};
 
 export type Bonuses = {
-  types?: number[]
-  ids?: number[]
-  bonuses: Bonus[]
-}
+  types?: number[];
+  ids?: number[];
+  bonuses: Bonus[];
+};
 
 export default class ItemBonus {
   /**
@@ -2142,8 +2152,39 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { avoid: 7, armor: 2 },
-          shipBase: [100, 101],
+          shipBase: [100, 101, 511],
           num: 1,
+        },
+        {
+          bonus: { avoid: 7, armor: 2 },
+          shipId: [200, 290],
+          num: 1,
+        },
+        {
+          bonus: { avoid: 1 },
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          remodel: 9,
+        },
+        {
+          bonus: { avoid: 1 },
+          remodel: 10,
+        },
+        {
+          bonus: { accuracy: 1, avoid: 2, asw: 1 },
+          shipBase: [35, 63, 64, 100, 101, 114, 511, 516, 574],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1, avoid: 4, asw: 2 },
+          requiresId: [402],
+          remodel: 7,
         },
       ],
     },

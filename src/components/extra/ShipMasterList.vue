@@ -432,6 +432,12 @@ export default Vue.extend({
         value: 'luck',
       },
       {
+        text: '運上限',
+        filterable: false,
+        align: 'end',
+        value: 'maxLuck',
+      },
+      {
         text: '燃料',
         filterable: false,
         align: 'end',
