@@ -2178,7 +2178,7 @@ export default class ItemBonus {
         },
         {
           bonus: { accuracy: 1, avoid: 2, asw: 1 },
-          shipBase: [35, 63, 64, 100, 101, 114, 511, 516, 574],
+          shipBase: [35, 63, 64, 100, 101, 114, 511, 516, 574, 1001],
           remodel: 7,
         },
         {
@@ -2237,7 +2237,7 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, armor: 1 },
-          shipClass: [73, 81],
+          shipCountry: Const.RUS,
         },
         {
           bonus: { firePower: 2, armor: 1 },
@@ -2253,11 +2253,11 @@ export default class ItemBonus {
       ids: [283],
       bonuses: [
         {
-          bonus: { firePower: 1, torpedo: 3, armor: 1 },
-          shipClass: [73, 81],
+          bonus: { firePower: 1, torpedo: 6, armor: 1 },
+          shipCountry: Const.RUS,
         },
         {
-          bonus: { firePower: 1, torpedo: 3, armor: 1 },
+          bonus: { firePower: 1, torpedo: 6, armor: 1 },
           shipId: [147],
         },
       ],
@@ -5116,7 +5116,7 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: {
-            firePower: 1, torpedo: 5, armor: 1, avoid: 2,
+            firePower: 1, torpedo: 8, armor: 1, avoid: 2,
           },
           shipId: [147],
         },
@@ -5128,13 +5128,13 @@ export default class ItemBonus {
         },
         {
           bonus: {
-            firePower: 1, torpedo: 5, armor: 1, avoid: 2,
+            firePower: 1, torpedo: 8, armor: 1, avoid: 2,
           },
-          shipClass: [73, 81],
+          shipCountry: Const.RUS,
         },
         {
           bonus: { firePower: 2 },
-          shipClass: [73, 81],
+          shipCountry: Const.RUS,
           requiresId: [282],
           num: 1,
         },
@@ -10090,6 +10090,50 @@ export default class ItemBonus {
             firePower: 3, accuracy: 2, avoid: 1, asw: 3,
           },
           requiresId: [402],
+        },
+      ],
+    },
+    {
+      ids: [555],
+      bonuses: [
+        {
+          bonus: { firePower: 1 },
+          remodel: 3,
+        },
+        {
+          bonus: { accuracy: 1 },
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 2, accuracy: 1, asw: 1 },
+          shipBase: [1001],
+        },
+        {
+          bonus: {
+            firePower: 1, accuracy: 1, antiAir: 3, avoid: 2,
+          },
+          shipBase: [1001],
+          requiresId: [556],
+        },
+        {
+          bonus: { firePower: 1, avoid: 2, asw: 1 },
+          shipBase: [1001],
+          requiresId: [402],
+        },
+      ],
+    },
+    {
+      ids: [556],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 1, accuracy: 1, avoid: 1, antiAir: 3,
+          },
+          shipBase: [511, 1001],
         },
       ],
     },

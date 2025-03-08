@@ -18,7 +18,12 @@
       </div>
       <div class="map-img-area">
         <div class="background-map">
-          <img :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`" alt="map-img" />
+          <img
+            :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`"
+            @error="handleImageError"
+            :key="mapImageSrc"
+            alt="map-img"
+          />
         </div>
         <div class="dummy-map">
           <svg xmlns="http://www.w3.org/2000/svg" width="467px" viewBox="0 0 467 268">
@@ -485,6 +490,7 @@ export default Vue.extend({
     tooltipEnemy: new Enemy(),
     tooltipX: 0,
     tooltipY: 0,
+    mapImageSrc: '',
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -771,6 +777,10 @@ export default Vue.extend({
       const setting = this.$store.state.siteSetting as SiteSetting;
       setting.showHPandArmor = this.showHP;
       this.$store.dispatch('updateSetting', setting);
+    },
+    handleImageError(e: Event) {
+      const imgElement = e.target as HTMLImageElement;
+      imgElement.src = `https://res.cloudinary.com/aircalc/kc-web/maps/${this.area}_temp.webp`;
     },
   },
 });
