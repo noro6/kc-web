@@ -624,7 +624,9 @@ export default Vue.extend({
           if (d.area === defense.area) {
             const count = this.argParent.items.filter((v) => d.items.includes(v.data.id)).length;
             if (!count) continue;
-            if (d.multi) {
+            if (d.once) {
+              this.calcArgs.manualAfterCapBonus = d.bonus;
+            } else if (d.multi) {
               // 乗算モード
               this.calcArgs.manualAfterCapBonus *= d.bonus ** count;
             } else {

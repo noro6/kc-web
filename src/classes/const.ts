@@ -245,6 +245,15 @@ export default class Const {
     {
       area: 566, node: '', items: [493, 492], bonus: 1.175, multi: true,
     },
+    {
+      area: 601, node: '', items: [170, 388, 454, 493, 554], bonus: 1.16, multi: true, once: true,
+    },
+    {
+      area: 602, node: '', items: [170, 388, 454, 493, 554], bonus: 1.16, multi: true, once: true,
+    },
+    {
+      area: 603, node: '', items: [170, 388, 454, 493, 554], bonus: 1.16, multi: true, once: true,
+    },
   ];
 
   public static readonly ITEM_API_TYPE = [
@@ -454,7 +463,7 @@ export default class Const {
    */
   public static readonly EXPANDED_ITEM_TYPE = [17, 21, 23, 27, 28, 36, 39, 43, 44, 51];
 
-  // 特定の艦娘が特定スロットに装備『できない！』やつ
+  // 特定の艦娘が特定スロットに装備『できない！』やつ 99で増設
   public static readonly FORBIDDEN_LINK_SHIP_ITEM = [
     // 伊勢改二 第3，4，5スロットに 主砲系
     {
@@ -519,6 +528,45 @@ export default class Const {
     // 初月改二 4スロットに 主砲、魚雷、大型電探系 不可
     {
       shipId: 968, index: [4], itemType: [1, 5, 13], itemIDs: [0],
+    },
+    // 阿武隈全て 増設に中型バルジ不可
+    {
+      shipId: 114, index: [100], itemType: [27], itemIDs: [0],
+    },
+    {
+      shipId: 200, index: [100], itemType: [27], itemIDs: [0],
+    },
+    {
+      shipId: 290, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // 多摩 増設に中型バルジ不可
+    {
+      shipId: 100, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // 木曾 増設に中型バルジ不可
+    {
+      shipId: 101, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // Gotland 増設に中型バルジ不可
+    {
+      shipId: 574, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // Ташкент 増設に中型バルジ不可
+    {
+      shipId: 395, index: [100], itemType: [27], itemIDs: [0],
+    },
+    {
+      shipId: 516, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // Гангут 増設に中型バルジ不可
+    {
+      shipId: 511, index: [100], itemType: [27], itemIDs: [0],
+    },
+    {
+      shipId: 512, index: [100], itemType: [27], itemIDs: [0],
+    },
+    {
+      shipId: 513, index: [100], itemType: [27], itemIDs: [0],
     },
   ];
 
