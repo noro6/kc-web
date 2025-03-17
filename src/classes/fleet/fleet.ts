@@ -47,6 +47,12 @@ export default class Fleet {
   /** 輸送量 */
   public readonly tp: number;
 
+  /** 輸送量(戦車)随伴 */
+  public readonly escortTP2: number;
+
+  /** 輸送量(戦車) */
+  public readonly tp2: number;
+
   /** 航空戦が可能な機体ありなし(主力 & 随伴) */
   public readonly hasPlane: boolean;
 
@@ -121,6 +127,8 @@ export default class Fleet {
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
     this.tp = 0;
+    this.tp2 = 0;
+    this.escortTP2 = 0;
     this.fullAirPower = 0;
     this.supportAirPower = 0;
     this.supportAswAirPower = 0;
@@ -146,9 +154,21 @@ export default class Fleet {
         this.supportAswAirPower += ship.supportAswAirPower;
         this.tp += ship.tp;
 
+        if (ship.isEscort) {
+          this.escortTP2 += ship.tp2;
+        } else {
+          this.tp2 += ship.tp2;
+        }
+
         if (!hasAdditionalTP && ship.data.id === 487) {
           // 鬼怒改二がいたらTPボーナス(1回のみ)
           this.tp += 8;
+
+          if (ship.isEscort) {
+            this.tp2 += 5.2;
+          } else {
+            this.escortTP2 += 5.2;
+          }
           hasAdditionalTP = true;
         }
         sumShipRos += ship.scout;
@@ -248,6 +268,9 @@ export default class Fleet {
 
     this.supportTypes = this.getSupportTypes();
     this.enabledAswSupport = this.supportTypes.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
+
+    // TP切り捨て
+    this.tp2 = Math.floor(this.tp2) + Math.floor(this.escortTP2);
   }
 
   /**

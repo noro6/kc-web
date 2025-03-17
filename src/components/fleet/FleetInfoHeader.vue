@@ -17,6 +17,21 @@
           <img :src="`./img/type/icon50.png`" height="24" width="24" alt="夜偵" />
           <div class="ml-1 mr-2 body-2">{{ nightContactRate }}%</div>
         </div>
+        <!-- 索敵値 -->
+        <div class="d-flex align-center justify-md-space-between flex-grow-1">
+          <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
+            <img :src="`./img/type/icon11.png`" height="20" width="20" alt="係数" />
+            <div class="option-status-label">{{ i + 1 }}</div>
+            <div class="ml-2 body-2">{{ scout }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap align-center">
+        <!-- 速力 -->
+        <div class="d-flex align-center" v-if="actualFleet.fleetSpeed">
+          <div class="caption text--secondary">{{ $t("Common.速力") }}</div>
+          <div class="ml-1 mr-2 caption">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
+        </div>
         <!-- TP -->
         <div class="mr-2 d-flex">
           <div class="option-status d-flex">
@@ -33,26 +48,27 @@
             </div>
           </div>
         </div>
+        <!-- TP戦車 -->
+        <div class="mr-2 d-flex">
+          <div class="option-status d-flex">
+            <img :src="`./img/type/icon36.png`" height="24" width="24" alt="TP" />
+            <div class="option-status-label label-tp">TP</div>
+            <div class="ml-2 body-2 align-self-center tp d-flex">
+              <div>{{ actualFleet.tp2 }}</div>
+              <div class="status-label">S</div>
+            </div>
+            <div class="ml-2 mr-1">/</div>
+            <div class="body-2 align-self-center tp d-flex">
+              <div>{{ tpA }}</div>
+              <div class="status-label">A</div>
+            </div>
+          </div>
+        </div>
         <!-- 煙幕 -->
         <div class="d-flex align-center">
           <div class="d-flex align-center mr-1" v-for="(rate, i) in fleetSmoke" :key="i">
             <img :src="`./img/type/smoke${i + 1}.png`" height="24" width="27" :alt="`${i + 1}重煙幕`" />
             <div class="body-2">{{ rate.toFixed(0) }}%</div>
-          </div>
-        </div>
-      </div>
-      <div class="d-flex flex-wrap align-center">
-        <!-- 速力 -->
-        <div class="d-flex align-center" v-if="actualFleet.fleetSpeed">
-          <div class="caption text--secondary">{{ $t("Common.速力") }}</div>
-          <div class="ml-1 mr-2 caption">{{ $t(`Fleet.${actualFleet.fleetSpeed}`) }}{{ $t(`Fleet.艦隊`) }}</div>
-        </div>
-        <!-- 索敵値 -->
-        <div class="d-flex align-center justify-md-space-between flex-grow-1">
-          <div class="option-status d-flex mr-1" v-for="(scout, i) in fleetScouts" :key="i">
-            <img :src="`./img/type/icon11.png`" height="20" width="20" alt="係数" />
-            <div class="option-status-label">{{ i + 1 }}</div>
-            <div class="ml-2 body-2">{{ scout }}</div>
           </div>
         </div>
       </div>
@@ -264,6 +280,12 @@ export default Vue.extend({
         return Math.floor(this.unionFleet.tp * 0.7);
       }
       return Math.floor(this.value.tp * 0.7);
+    },
+    tp2A(): number {
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        return Math.floor(this.unionFleet.tp2 * 0.7);
+      }
+      return Math.floor(this.value.tp2 * 0.7);
     },
     actualFleet(): Fleet {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {

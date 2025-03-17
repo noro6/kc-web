@@ -134,6 +134,9 @@ export default class Ship implements ShipBase {
   /** 輸送量 */
   public readonly tp: number;
 
+  /** 輸送量(戦車) */
+  public readonly tp2: number;
+
   /** 速力 */
   public readonly speed: number;
 
@@ -383,6 +386,7 @@ export default class Ship implements ShipBase {
 
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
+    this.tp2 = this.getTransportPower2();
 
     /** 対潜支援参加可能な艦種であるかどうか */
     const enabledASWSupport = [SHIP_TYPE.CVL, SHIP_TYPE.AV, SHIP_TYPE.AO, SHIP_TYPE.AO_2, SHIP_TYPE.LHA, SHIP_TYPE.CL, +SHIP_TYPE.CT].includes(this.data.type);
@@ -452,6 +456,7 @@ export default class Ship implements ShipBase {
       this.itemAsw += item.data.asw;
       // 輸送量
       this.tp += item.tp;
+      this.tp2 += item.tp2;
       // 装甲値
       this.actualArmor += item.data.armor;
 
@@ -1424,6 +1429,51 @@ export default class Ship implements ShipBase {
 
       case SHIP_TYPE.AS:
         return 7;
+
+      default:
+        return 0;
+    }
+  }
+
+  /**
+   * 艦種 艦娘毎によるTPを返却
+   * @private
+   * @returns {number}
+   * @memberof Ship
+   */
+  private getTransportPower2(): number {
+    // 艦種固定値
+    switch (this.data.type) {
+      case SHIP_TYPE.DD:
+        return 3.25;
+
+      case SHIP_TYPE.CL:
+        return 1.3;
+
+      case SHIP_TYPE.CT:
+        return 3.9;
+
+      case SHIP_TYPE.CAV:
+        return 2.6;
+
+      case SHIP_TYPE.BBV:
+        return 4.55;
+
+      case SHIP_TYPE.AO:
+      case SHIP_TYPE.AO_2:
+        return 9.75;
+
+      case SHIP_TYPE.AV:
+        return 5.85;
+
+      case SHIP_TYPE.LHA:
+        return 7.8;
+
+      case SHIP_TYPE.SSV:
+        return 0.65;
+
+      case SHIP_TYPE.AS:
+        return 4.55;
 
       default:
         return 0;
