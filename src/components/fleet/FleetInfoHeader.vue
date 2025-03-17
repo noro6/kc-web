@@ -282,10 +282,30 @@ export default Vue.extend({
       return Math.floor(this.value.tp * 0.7);
     },
     tp2A(): number {
-      if (this.isUnion && this.index <= 1 && this.unionFleet) {
-        return Math.floor(this.unionFleet.tp2 * 0.7);
+      const showDebug = this.value.ships.every((v) => !v.isEscort);
+      if (showDebug) {
+        console.log('検証デバッグ用(そのうち消えます)');
       }
-      return Math.floor(this.value.tp2 * 0.7);
+
+      let displayValue = 0;
+      if (this.isUnion && this.index <= 1 && this.unionFleet) {
+        if (showDebug) {
+          console.log(`主力艦隊TP(戦車): INT(${Math.floor(1000 * this.unionFleet.mainTP2) / 1000}) = ${Math.floor(this.unionFleet.mainTP2)}`);
+          console.log(`随伴艦隊TP(戦車): INT(${Math.floor(1000 * this.unionFleet.escortTP2) / 1000}) = ${Math.floor(this.unionFleet.escortTP2)}`);
+          console.log(`連合艦隊TP(戦車): ${Math.floor(this.unionFleet.mainTP2)} + ${Math.floor(this.unionFleet.escortTP2)} = ${Math.floor(this.unionFleet.tp2)}`);
+        }
+        displayValue = Math.floor(this.unionFleet.tp2 * 0.7);
+      } else {
+        if (showDebug) {
+          console.log(`艦隊TP(戦車): INT(${Math.floor(this.value.mainTP2)}) = ${Math.floor(this.value.tp2)}`);
+        }
+        displayValue = Math.floor(this.value.tp2 * 0.7);
+      }
+
+      if (showDebug) {
+        console.log('');
+      }
+      return displayValue;
     },
     actualFleet(): Fleet {
       if (this.isUnion && this.index <= 1 && this.unionFleet) {

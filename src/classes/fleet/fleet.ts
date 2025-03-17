@@ -47,6 +47,9 @@ export default class Fleet {
   /** 輸送量 */
   public readonly tp: number;
 
+  /** 輸送量(戦車)主力 */
+  public readonly mainTP2: number;
+
   /** 輸送量(戦車)随伴 */
   public readonly escortTP2: number;
 
@@ -127,7 +130,7 @@ export default class Fleet {
     const formation = Const.FORMATIONS.find((v) => v.value === this.formation);
     this.fleetAntiAir = this.getFleetAntiAir(formation);
     this.tp = 0;
-    this.tp2 = 0;
+    this.mainTP2 = 0;
     this.escortTP2 = 0;
     this.fullAirPower = 0;
     this.supportAirPower = 0;
@@ -157,7 +160,7 @@ export default class Fleet {
         if (ship.isEscort) {
           this.escortTP2 += ship.tp2;
         } else {
-          this.tp2 += ship.tp2;
+          this.mainTP2 += ship.tp2;
         }
 
         if (!hasAdditionalTP && ship.data.id === 487) {
@@ -167,7 +170,7 @@ export default class Fleet {
           if (ship.isEscort) {
             this.escortTP2 += 8;
           } else {
-            this.tp2 += 8;
+            this.mainTP2 += 8;
           }
           hasAdditionalTP = true;
         }
@@ -269,17 +272,8 @@ export default class Fleet {
     this.supportTypes = this.getSupportTypes();
     this.enabledAswSupport = this.supportTypes.includes(SUPPORT_TYPE.ANTI_SUBMARINE);
 
-    if (this.tp2 && this.isUnion) {
-      console.log('検証デバッグ用(そのうち消えます) この表示は、連合艦隊かつTPが1以上の値である場合に表示されます');
-      console.log(`主力艦隊TP(戦車): INT(${Math.floor(1000 * this.tp2) / 1000}) = ${Math.floor(this.tp2)}`);
-      if (this.escortTP2) {
-        console.log(`随伴艦隊TP(戦車): INT(${Math.floor(1000 * this.escortTP2) / 1000}) = ${Math.floor(this.escortTP2)}`);
-        console.log(`連合艦隊TP(戦車): ${Math.floor(this.tp2)} + ${Math.floor(this.escortTP2)} = ${Math.floor(this.tp2) + Math.floor(this.escortTP2)}`);
-      }
-      console.log('');
-    }
     // TP切り捨て
-    this.tp2 = Math.floor(this.tp2) + Math.floor(this.escortTP2);
+    this.tp2 = Math.floor(this.mainTP2) + Math.floor(this.escortTP2);
   }
 
   /**
