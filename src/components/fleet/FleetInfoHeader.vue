@@ -59,7 +59,7 @@
             </div>
             <div class="ml-2 mr-1">/</div>
             <div class="body-2 align-self-center tp d-flex">
-              <div>{{ tpA }}</div>
+              <div>{{ tp2A }}</div>
               <div class="status-label">A</div>
             </div>
           </div>
