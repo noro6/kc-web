@@ -1025,8 +1025,8 @@ export default class Item {
           return 0.65;
         }
         if (this.data.apiTypeId === 30) {
-          // ドラム缶
-          return 33.25;
+          // ドラム缶(暫定)
+          return 3.25;
         }
         return 0;
     }
