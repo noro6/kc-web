@@ -394,7 +394,7 @@ export default class Const {
     { id: 123, name: '敷島型' },
     { id: 126, name: '改氷川丸級' },
     { id: 127, name: '巡潜乙型改一' },
-    { id: 130, name: '砕氷艦' },
+    { id: 130, name: '大泊型' },
 
     { id: 47, name: 'Bismarck級' },
     { id: 55, name: 'Admiral Hipper級' },

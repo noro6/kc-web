@@ -1008,13 +1008,13 @@ export default class Item {
         return 14.2;
       case 167:
         // 特二式内火艇
-        return 9.2;
+        return 9.3;
       case 526:
         // 特四式内火艇改
-        return 8.2;
+        return 8.3;
       case 525:
         // 特四式内火艇
-        return 6.2;
+        return 6.3;
       default:
         if (this.data.apiTypeId === 24) {
           // その他大発系
