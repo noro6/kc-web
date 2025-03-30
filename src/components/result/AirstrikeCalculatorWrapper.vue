@@ -17,7 +17,7 @@
             @keypress.enter="clickedItem(i)"
           >
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
             </div>
             <div class="ml-1 d-none d-sm-block">
               <div class="level-area">Lv {{ ship.level }}</div>

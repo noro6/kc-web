@@ -9,7 +9,7 @@
           <template v-if="ship.id">
             <div class="d-flex align-center" @click="showShipList()" @keypress.enter="showShipList()" v-ripple="{ class: 'primary--text' }">
               <div>
-                <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${ship.id}.png`" height="30" width="120" />
               </div>
               <div class="ml-2 caption">{{ getShipName(ship) }}</div>
             </div>

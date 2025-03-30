@@ -142,7 +142,7 @@
                           <template v-if="isShipMode">
                             <!-- 艦娘モードの時 -->
                             <div>
-                              <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
+                              <v-img v-if="row.data.id" :src="`./img/ship/banner/${row.data.id}.png`" height="30" width="120" />
                             </div>
                             <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
                           </template>
@@ -210,7 +210,7 @@
                       <td class="py-1 pr-0">
                         <div class="d-flex align-center">
                           <div>
-                            <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
+                            <v-img v-if="row.data.id" :src="`./img/ship/banner/${row.data.id}.png`" height="30" width="120" />
                           </div>
                           <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
                         </div>
@@ -275,7 +275,7 @@
                 <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
                   <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
                     <div>
-                      <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
+                      <v-img v-if="version.data.id" :src="`./img/ship/banner/${version.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
                     <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
@@ -296,7 +296,7 @@
                 <v-card v-for="(row, i) in convertRemodelResults" :key="`convert_${i}`" class="px-2 py-1" outlined>
                   <div class="d-flex align-center my-1" v-for="(version, j) in row.versions" :key="`version${j}`">
                     <div>
-                      <v-img v-if="version.data.id" :src="`./img/ship/${version.data.id}.png`" height="30" width="120" />
+                      <v-img v-if="version.data.id" :src="`./img/ship/banner/${version.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="ml-1 convert-ship-name text-caption text-truncate">{{ getShipName(version.data) }}</div>
                     <div class="ml-auto text-right text-no-wrap">{{ version.rate }} <span class="text-body-2">%</span></div>
@@ -342,7 +342,7 @@
                     <div class="d-flex align-center">
                       <template v-if="isShipMode">
                         <div>
-                          <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
+                          <v-img v-if="row.data.id" :src="`./img/ship/banner/${row.data.id}.png`" height="30" width="120" />
                         </div>
                         <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
                       </template>
@@ -396,7 +396,7 @@
                   <td class="px-0">
                     <div class="d-flex align-center">
                       <div>
-                        <v-img v-if="row.data.id" :src="`./img/ship/${row.data.id}.png`" height="30" width="120" />
+                        <v-img v-if="row.data.id" :src="`./img/ship/banner/${row.data.id}.png`" height="30" width="120" />
                       </div>
                       <div class="ml-1 ship-name text-caption text-truncate">{{ getShipName(row.data) }}</div>
                     </div>
@@ -420,7 +420,7 @@
           <div class="d-flex align-center flex-grow-1">
             <template v-if="isShipMode">
               <div>
-                <v-img v-if="detailData.data.id" :src="`./img/ship/${detailData.data.id}.png`" height="30" width="120" />
+                <v-img v-if="detailData.data.id" :src="`./img/ship/banner/${detailData.data.id}.png`" height="30" width="120" />
               </div>
               <div class="ml-1 detail-name text-caption text-sm-body-2 text-truncate">{{ getShipName(detailData.data) }}</div>
             </template>

@@ -140,7 +140,7 @@
               @blur="clearTooltip"
             >
               <td class="px-1">
-                <v-img :src="`./img/ship/${row.ship.data.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${row.ship.data.id}.png`" height="30" width="120" />
               </td>
               <td class="pr-1">{{ row.ship.hp }}</td>
               <td class="pr-1">{{ row.ship.actualArmor }}</td>

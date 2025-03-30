@@ -256,7 +256,7 @@
             <v-card class="temp-ship">
               <div class="d-flex ml-1">
                 <div class="align-self-center">
-                  <v-img :src="`./img/ship/${tempShip.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${tempShip.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
@@ -305,7 +305,7 @@
             <v-card class="temp-ship" v-ripple="{ class: 'info--text' }" v-for="(temp, i) in tempShipList" :key="`tempShip${i}`" @click="popTempShip(temp)">
               <div class="d-flex ml-1">
                 <div class="align-self-center">
-                  <v-img :src="`./img/ship/${temp.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${temp.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center ml-1 flex-grow-1">
                   <div class="d-flex">
@@ -354,7 +354,7 @@
                 <div v-for="(ship, i) in tempFleet.ships" :key="`ship_${i}`">
                   <div v-if="ship.data.id" class="mr-1">
                     <div>
-                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+                      <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="d-flex">
                       <div v-for="(item, j) in ship.items.concat(ship.exItem)" :key="`ship${i}_item${j}`">
@@ -404,7 +404,7 @@
                 <div v-for="(ship, j) in temp.ships" :key="`fleet${i}_ship_${j}`" class="mr-1">
                   <div v-if="ship.data.id">
                     <div>
-                      <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+                      <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
                     </div>
                     <div class="d-flex">
                       <div v-for="(item, k) in ship.items.concat(ship.exItem)" :key="`fleet${i}_ship${j}_item${k}`">
@@ -1960,7 +1960,10 @@ export default Vue.extend({
         theme: this.gkcoiTheme,
         cmt: saveData.remarks,
       }) as DeckBuilder;
-      generate(gkcoiBuilder)
+      generate(gkcoiBuilder, {
+        start2URL: 'https://raw.githubusercontent.com/noro6/kc-web/master/public/START2.json',
+        shipURL: 'https://raw.githubusercontent.com/noro6/kc-web/master/public/img/ship',
+      })
         .then((canvas) => {
           canvas.style.maxWidth = '100%';
           imageArea.appendChild(canvas);

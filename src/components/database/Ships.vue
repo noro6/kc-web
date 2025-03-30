@@ -391,7 +391,7 @@
                     <div class="d-none d-md-flex align-center">
                       <div class="edit-stock-img" @mouseenter="bootTooltip(item, $event)" @mouseleave="clearTooltip" @focus="clearTooltip" @blur="clearTooltip">
                         <div class="ship-table-img-container" :class="{ no_ship: item.count === 0, 'avoid-spoiler': isAvoidSpoiler }">
-                          <img :src="`./img/ship/${item.ship.id}.png`" :alt="`ship-${item.ship.id}`" height="40" width="160" />
+                          <img :src="`./img/ship/banner/${item.ship.id}.png`" :alt="`ship-${item.ship.id}`" height="40" width="160" />
                         </div>
                         <div class="area-banner mt-1" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
                           <v-img :src="`./img/tags/area${item.stockData.area}.webp`" height="52" width="38" />
@@ -409,7 +409,7 @@
                     <div class="d-flex d-md-none align-center">
                       <div class="edit-stock-img">
                         <div class="ship-table-img-container dense" :class="{ no_ship: item.count === 0, 'avoid-spoiler': isAvoidSpoiler }">
-                          <img :src="`./img/ship/${item.ship.id}.png`" :alt="`ship-${item.ship.id}`" height="30" width="120" />
+                          <img :src="`./img/ship/banner/${item.ship.id}.png`" :alt="`ship-${item.ship.id}`" height="30" width="120" />
                         </div>
                         <div class="area-banner min" v-if="item.stockData.area > 0 && item.stockData.area <= maxAreas">
                           <v-img :src="`./img/tags/area${item.stockData.area}.webp`" height="44" width="32" />
@@ -481,7 +481,7 @@
                         <div v-if="row.count" class="caption align-self-end text-no-wrap">{{ $t("Database.在籍") }} {{ row.count }}</div>
                       </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0, 'avoid-spoiler': isAvoidSpoiler }">
-                        <img class="status-img" :src="`./img/ship/${row.master.id}.png`" :alt="`ship-${row.master.id}`" />
+                        <img class="status-img" :src="`./img/ship/banner/${row.master.id}.png`" :alt="`ship-${row.master.id}`" />
                       </div>
                       <div
                         v-for="(data, j) in row.detail"
@@ -598,7 +598,7 @@
         <div class="ship-edit-card-body">
           <div class="d-md-flex">
             <div class="align-self-center edit-stock-img">
-              <v-img :src="`./img/ship/${versionButtons[version].id}.png`" height="40" width="160" />
+              <v-img :src="`./img/ship/banner/${versionButtons[version].id}.png`" height="40" width="160" />
               <div class="area-banner" v-if="editRow.stockData.area > 0 && editRow.stockData.area <= maxAreas">
                 <v-img :src="`./img/tags/area${editRow.stockData.area}.webp`" height="58" width="42" />
               </div>

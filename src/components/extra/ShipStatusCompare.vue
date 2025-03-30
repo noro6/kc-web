@@ -17,7 +17,7 @@
               <v-btn v-if="ship.isEmpty" text @click="showShipList(i)"><v-icon>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}</v-btn>
               <div v-else class="d-flex justify-end">
                 <div class="ship-img" @click="showShipList(i)" @keypress.enter="showShipList(i)" v-ripple="{ class: 'text-primary' }">
-                  <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
                 </div>
               </div>
             </th>

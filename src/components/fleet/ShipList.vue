@@ -194,7 +194,7 @@
           >
             <div class="ship-img" @mouseenter="bootTooltip(data, $event)" @mouseleave="clearTooltip" @focus="bootTooltip(data, $event)" @blur="clearTooltip">
               <div>
-                <v-img :src="`./img/ship/${data.ship.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${data.ship.id}.png`" height="30" width="120" />
               </div>
               <div class="area-banner" v-if="data.area > 0 && data.area <= maxAreas">
                 <v-img :src="`./img/tags/area${data.area}.webp`" height="40" width="29" />

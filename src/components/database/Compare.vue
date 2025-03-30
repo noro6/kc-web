@@ -57,7 +57,7 @@
               <template v-if="row.stock1">
                 <td class="text-left pl-0" :class="{ more: row.isMore, less: row.isLess, exist: !row.stock2 }">
                   <div class="ship-img-area">
-                    <v-img :src="`./img/ship/${row.id}.png`" height="36" width="144" />
+                    <v-img :src="`./img/ship/banner/${row.id}.png`" height="36" width="144" />
                   </div>
                 </td>
                 <td :class="{ more: row.isMore, less: row.isLess, exist: !row.stock2 }">{{ row.stock1.level }}</td>
@@ -72,7 +72,7 @@
               <template v-if="row.stock2">
                 <td class="text-left pl-0" :class="{ more: row.isLess, less: row.isMore, exist: !row.stock1 }">
                   <div class="ship-img-area">
-                    <v-img :src="`./img/ship/${row.id}.png`" height="36" width="144" />
+                    <v-img :src="`./img/ship/banner/${row.id}.png`" height="36" width="144" />
                   </div>
                 </td>
                 <td :class="{ more: row.isLess, less: row.isMore, exist: !row.stock1 }">{{ row.stock2.level }}</td>

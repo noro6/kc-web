@@ -27,7 +27,7 @@
       <v-card class="px-3 py-2 flex-grow-1">
         <template v-if="!isAirbaseMode && exchangeParent && itemParent && itemParent.data.id">
           <div class="d-flex align-center">
-            <div><v-img :src="`./img/ship/${exchangeParent.data.id}.png`" height="30" width="120" /></div>
+            <div><v-img :src="`./img/ship/banner/${exchangeParent.data.id}.png`" height="30" width="120" /></div>
             <div class="ml-1">
               <div class="level-text light-blue--text caption">Lv {{ exchangeParent.level }}</div>
               <div class="caption">{{ getShipName(exchangeParent.data) }}</div>

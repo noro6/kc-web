@@ -79,7 +79,7 @@
             @blur="clearTooltip"
           >
             <div class="enemy-img">
-              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
               <div v-if="enemy.hasRadar" class="radar-icon">
                 <v-img :src="`./img/type/icon11.png`" height="22" width="22" />
               </div>

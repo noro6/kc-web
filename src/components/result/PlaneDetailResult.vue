@@ -18,7 +18,7 @@
           <div class="header-content">
             <div v-if="!isAirbase && editableParent" class="d-flex px-2 align-center">
               <div>
-                <v-img :src="`./img/ship/${editableParent.data.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${editableParent.data.id}.png`" height="30" width="120" />
               </div>
               <div class="px-2">
                 <div v-if="editableParent.data.id > 1500" class="parent-id">id {{ editableParent.data.id }}</div>

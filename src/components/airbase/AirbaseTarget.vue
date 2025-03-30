@@ -41,7 +41,7 @@
         <div v-for="(enemy, i) in tooltipFleet.enemies" :key="`preview_enemy${i}`" class="d-flex">
           <template v-if="enemy.data.id">
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
             </div>
             <div class="ml-1 align-self-center caption">
               <div class="enemy-id info--text">id {{ enemy.data.id }}</div>

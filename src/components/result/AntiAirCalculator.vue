@@ -82,7 +82,7 @@
             <tr v-for="(item, i) in stage2Data" :key="i" class="stage2-row" :class="{ warn: item.sum >= attackerSlot / 2, danger: item.sum >= attackerSlot }">
               <td class="d-flex align-center text-left">
                 <div class="mr-2">
-                  <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${item.id}.png`" height="30" width="120" />
                 </div>
                 <div class="d-none d-sm-block flex-grow-1">
                   <div class="stage2-id primary--text" v-if="item.isEnemy">id {{ item.id }}</div>
@@ -119,7 +119,7 @@
             <tbody>
               <tr v-for="(item, i) in antiAirCutIns" :key="i" class="stage2-row">
                 <td class="px-2 text-left">
-                  <v-img v-if="item.id" :src="`./img/ship/${item.id}.png`" height="30" width="120" />
+                  <v-img v-if="item.id" :src="`./img/ship/banner/${item.id}.png`" height="30" width="120" />
                   <span v-else class="no-cutin-span caption">{{ $t("Result.不発") }}</span>
                 </td>
                 <td>{{ item.cutInId ? item.cutInId : "-" }}</td>

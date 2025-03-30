@@ -45,7 +45,7 @@
           @keypress.enter="showShipList($event)"
         >
           <div class="ship-img" @mouseenter="bootShipTooltip($event)" @mouseleave="clearTooltip" @focus="bootShipTooltip($event)" @blur="clearTooltip">
-            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+            <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="area-banner" v-if="ship.area > 0 && ship.area <= maxAreas">
             <v-img :src="`./img/tags/area${ship.area}.webp`" height="40" width="29" />

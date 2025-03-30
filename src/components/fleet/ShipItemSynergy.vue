@@ -8,7 +8,7 @@
       <template v-if="ship.data.id">
         <div class="ship-input" @click="showShipList()" @keypress.enter="showShipList()" v-ripple="{ class: 'primary--text' }">
           <div>
-            <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+            <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
           </div>
           <div class="ml-2 caption">{{ getShipName(ship.data) }}</div>
         </div>

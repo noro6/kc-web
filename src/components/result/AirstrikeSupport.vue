@@ -17,7 +17,7 @@
             @keypress.enter="clickedShip(i)"
           >
             <div class="align-self-center">
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@
             >
               <td class="d-flex pl-1 enemy-name-td">
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${row.enemy.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${row.enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center d-none d-sm-block flex-grow-1">
                   <div class="text-left enemy-id primary--text">id {{ row.enemy.data.id }}</div>

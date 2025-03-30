@@ -73,7 +73,7 @@
             <td class="image-td">
               <div class="d-flex align-center text-left">
                 <div class="mr-1">
-                  <v-img :src="`./img/ship/${row.ship.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${row.ship.id}.png`" height="30" width="120" />
                 </div>
                 <div class="d-none d-sm-block flex-grow-1">
                   <div class="ship-level primary--text">Lv {{ row.level }}</div>

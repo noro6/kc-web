@@ -94,7 +94,7 @@
                   draggable="false"
                 >
                   <div class="ship-img">
-                    <img :src="`./img/ship/${ship.data.id}.png`" :alt="`ship${ship.data.id}`" />
+                    <img :src="`./img/ship/banner/${ship.data.id}.png`" :alt="`ship${ship.data.id}`" />
                   </div>
                   <div class="slot-ex-img" v-if="ship.expand">
                     <img :src="`./img/util/slot_ex.png`" alt="slot_ex" />
@@ -128,7 +128,7 @@
         <div class="ma-4">
           <div class="d-flex mb-3" v-if="confirmShip">
             <div>
-              <v-img :src="`./img/ship/${confirmShip.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${confirmShip.data.id}.png`" height="30" width="120" />
             </div>
             <div class="ship-status-name">
               <div class="ship-status">

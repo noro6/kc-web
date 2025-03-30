@@ -300,8 +300,8 @@
               <v-expansion-panel-header hide-actions class="py-2 pl-2">
                 <div class="d-flex align-center">
                   <div>
-                    <v-img v-if="isMobile" :src="`./img/ship/${row.master.id}.png`" height="30" width="120" />
-                    <v-img v-else :src="`./img/ship/${row.master.id}.png`" height="40" width="160" />
+                    <v-img v-if="isMobile" :src="`./img/ship/banner/${row.master.id}.png`" height="30" width="120" />
+                    <v-img v-else :src="`./img/ship/banner/${row.master.id}.png`" height="40" width="160" />
                   </div>
                   <div class="ml-1 flex-grow-1">
                     <div class="primary--text caption">Lv.{{ row.stock.level }}</div>
@@ -341,8 +341,8 @@
                       </div>
                     </div>
                     <div class="align-self-center">
-                      <v-img v-if="isMobile" :src="`./img/ship/${detail.next.id}.png`" height="30" width="120" />
-                      <v-img v-else :src="`./img/ship/${detail.next.id}.png`" height="40" width="160" />
+                      <v-img v-if="isMobile" :src="`./img/ship/banner/${detail.next.id}.png`" height="30" width="120" />
+                      <v-img v-else :src="`./img/ship/banner/${detail.next.id}.png`" height="40" width="160" />
                     </div>
                     <div class="ml-1 flex-grow-1 align-self-center">
                       <template v-if="!usedMode">

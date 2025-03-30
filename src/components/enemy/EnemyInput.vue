@@ -2,7 +2,7 @@
   <v-card class="ma-1 pa-2 enemy-preview">
     <div class="d-flex">
       <div class="align-self-center">
-        <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+        <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
       </div>
       <div class="flex-grow-1">
         <div class="d-flex caption flex-wrap">

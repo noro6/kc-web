@@ -100,7 +100,7 @@
           <td class="px-0 py-1">
             <div class="d-none d-md-flex align-center">
               <div class="ship-img">
-                <v-img :src="`./img/ship/${item.master.id}.png`" height="35" width="140" />
+                <v-img :src="`./img/ship/banner/${item.master.id}.png`" height="35" width="140" />
                 <div class="slot-ex-img" v-if="item.stock.releaseExpand">
                   <v-img :src="`./img/util/slot_ex.png`" height="30" width="30" />
                 </div>
@@ -109,7 +109,7 @@
             </div>
             <div class="d-flex d-md-none align-center">
               <div class="ship-img">
-                <v-img :src="`./img/ship/${item.master.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${item.master.id}.png`" height="30" width="120" />
                 <div class="slot-ex-img min" v-if="item.stock.releaseExpand">
                   <v-img :src="`./img/util/slot_ex.png`" height="25" width="25" />
                 </div>

@@ -612,7 +612,7 @@
           </div>
           <div class="d-flex flex-wrap">
             <div v-for="(ship, i) in row.fleet.ships" :key="`ship_${i}`">
-              <v-img v-if="ship.data.id" :src="`./img/ship/${ship.data.id}.png`" height="25" width="100" />
+              <v-img v-if="ship.data.id" :src="`./img/ship/banner/${ship.data.id}.png`" height="25" width="100" />
             </div>
           </div>
         </div>

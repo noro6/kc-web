@@ -4,7 +4,7 @@
       <v-btn class="mr-3" color="teal" dark @click="showEnemyList()">{{ $t("Extra.検索する敵艦を選択") }}</v-btn>
       <div class="d-flex flex-wrap" v-if="targetEnemy.data.id">
         <div class="align-self-center">
-          <v-img :src="`./img/ship/${targetEnemy.data.id}.png`" height="30" width="120" />
+          <v-img :src="`./img/ship/banner/${targetEnemy.data.id}.png`" height="30" width="120" />
         </div>
         <div class="flex-grow-1 mr-3">
           <div class="d-flex caption flex-wrap">
@@ -109,7 +109,7 @@
                 @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">
@@ -137,7 +137,7 @@
                 @blur="clearTooltip"
               >
                 <div class="align-self-center mr-1">
-                  <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+                  <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
                 </div>
                 <div class="align-self-center flex-grow-1">
                   <div class="d-flex text-id">

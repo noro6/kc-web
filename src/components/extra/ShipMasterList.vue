@@ -227,7 +227,7 @@
       <template v-slot:[`header.fuel`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`header.ammo`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
       <template v-slot:[`item.id`]="{ item }">
-        <v-img :src="`./img/ship/${item.id}.png`" height="30" width="120" />
+        <v-img :src="`./img/ship/banner/${item.id}.png`" height="30" width="120" />
       </template>
       <template v-slot:[`item.name`]="{ item }">
         <div class="ship-name text-truncate caption" :title="item.name">{{ getShipName(item) }}</div>

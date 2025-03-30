@@ -35,7 +35,7 @@
               <div class="enemy-name">{{ getShipName(enemy.data.name) }}</div>
             </div>
             <div>
-              <v-img :src="`./img/ship/${enemy.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${enemy.data.id}.png`" height="30" width="120" />
             </div>
             <div class="enemy-status">
               <div>{{ $t("Common.制空") }}</div>

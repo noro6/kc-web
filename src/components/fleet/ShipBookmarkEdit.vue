@@ -51,7 +51,7 @@
             @keypress.enter="toggleBookmark(ship)"
           >
             <div>
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
             </div>
             <div class="bookmarked-icon" v-if="ship.isBookmarked"><v-icon color="pink lighten-2" small>mdi-heart</v-icon></div>
             <div class="flex-grow-1 ml-1">

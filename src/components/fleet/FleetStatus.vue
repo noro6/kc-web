@@ -28,7 +28,7 @@
           <tr v-for="(ship, i) in ships" :key="`ship${i}`" :class="{ 'tr-escort': ship.isEscort }">
             <td class="d-flex align-center pl-0">
               <div>
-                <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+                <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
               </div>
               <div class="d-flex flex-grow-1 ml-1">
                 <div class="ship-name text-truncate">{{ getShipName(ship.data) }}</div>

@@ -35,12 +35,12 @@
           <v-divider />
           <div class="d-flex flex-wrap my-1">
             <div v-for="(ship, j) in preset.ships" :key="`ship${i}_${j}`">
-              <v-img v-if="ship.data.id && ship.isActive" :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+              <v-img v-if="ship.data.id && ship.isActive" :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
             </div>
           </div>
           <div class="d-flex flex-wrap my-1" v-if="preset.ships2 && preset.ships2.length">
             <div v-for="(ship, j) in preset.ships2" :key="`ship${i}_${j}`">
-              <v-img :src="`./img/ship/${ship.data.id}.png`" height="30" width="120" />
+              <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
             </div>
           </div>
           <div class="preset-memo" v-if="preset.memo">{{ preset.memo }}</div>

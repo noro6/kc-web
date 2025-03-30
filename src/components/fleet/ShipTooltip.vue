@@ -2,7 +2,7 @@
   <div class="py-2">
     <div class="d-flex">
       <div class="align-self-center">
-        <v-img :src="`./img/ship/${value.data.id}.png`" height="30" width="120" />
+        <v-img :src="`./img/ship/banner/${value.data.id}.png`" height="30" width="120" />
       </div>
       <div class="ml-3 align-self-center">
         <div class="primary--text level-text">Lv {{ value.level }}</div>
@@ -183,7 +183,7 @@
       <template v-if="versions && versions.length">
         <div v-for="(ship, i) in versions" class="remodel-table mt-1" :key="`v${i}`">
           <div>
-            <v-img :src="`./img/ship/${ship.id}.png`" height="30" width="120" />
+            <v-img :src="`./img/ship/banner/${ship.id}.png`" height="30" width="120" />
           </div>
           <div class="text-container">
             <div class="primary--text level-text" v-if="versions[i - 1]">Lv {{ versions[i - 1].nextLv }}</div>
