@@ -150,6 +150,9 @@ export default class Item {
   /** 輸送量(戦車) */
   public readonly tp2: number;
 
+  /** 輸送量(戦車) */
+  public readonly tp3: number;
+
   /** 基地1出撃燃料 */
   public readonly fuel: number;
 
@@ -217,7 +220,7 @@ export default class Item {
   public needRecord = false;
 
   /** 補給前搭載数分布 */
-  public dist: number[] = []
+  public dist: number[] = [];
 
   /** 棒立ち率特定のための親識別用index => FleetクラスのallPlaneに突っ込む際、装備者がわからなくなるため特定したい */
   public parentIndex = -1;
@@ -263,6 +266,7 @@ export default class Item {
     this.antiAirBonus = this.getAntiAirBonus();
     this.tp = this.getTransportPower();
     this.tp2 = this.getTransportPower2();
+    this.tp3 = this.getTransportPower3();
     this.reconCorr = this.getReconCorr();
     this.reconCorrDefense = this.getReconCorrDefense();
     this.contactSelectRates = this.getContactSelectRates();
@@ -1033,6 +1037,79 @@ export default class Item {
   }
 
   /**
+   * 輸送量(戦車)を返却
+   * @private
+   * @returns {number}
+   * @memberof Item
+   */
+  private getTransportPower3(): number {
+    switch (this.data.id) {
+      case 230:
+        // 特大発動艇+戦車第11連隊
+        return 18.4;
+      case 449:
+        // 特大発動艇+一式砲戦車
+        return 28.4;
+      case 499:
+        // 陸軍歩兵部隊+チハ改
+        return 13;
+      case 514:
+        // 特大発動艇+Ⅲ号戦車J型
+        return 21.4;
+      case 495:
+        // 特大発動艇+チハ改
+        return 19.4;
+      case 482:
+        // 特大発動艇+Ⅲ号戦車(北アフリカ仕様)
+        return 16.4;
+      case 355:
+        // M4A1 DD
+        return 20.4;
+      case 498:
+        // 九七式中戦車 新砲塔(チハ改)
+        return 10;
+      case 494:
+        // 特大発動艇+チハ
+        return 17.4;
+      case 436:
+        // 大発動艇(II号戦車/北アフリカ仕様)
+        return 14.4;
+      case 497:
+        // 九七式中戦車(チハ)
+        return 8;
+      case 496:
+        // 陸軍歩兵部隊
+        return 5;
+      case 166:
+        // 大発動艇(八九式中戦車&陸戦隊)
+        return 12.4;
+      case 167:
+        // 特二式内火艇
+        return 19.6;
+      case 526:
+        // 特四式内火艇改
+        return 19.6;
+      case 525:
+        // 特四式内火艇
+        return 16.6;
+      default:
+        if (this.data.apiTypeId === 24) {
+          // その他大発系
+          return 6.4;
+        }
+        if (this.data.apiTypeId === 43) {
+          // おにぎり
+          return 0.8;
+        }
+        if (this.data.apiTypeId === 30) {
+          // ドラム缶(暫定)
+          return 4;
+        }
+        return 0;
+    }
+  }
+
+  /**
    * 出撃時偵察機補正を返却
    * @private
    * @return {*}  {number}
@@ -1064,17 +1141,18 @@ export default class Item {
     // 防空時補正
     if (this.data.apiTypeId === 49) {
       // 陸上偵察機補正
-      return (this.data.scout === 9 ? 1.24 : 1.18);
+      return this.data.scout === 9 ? 1.24 : 1.18;
     }
     if (this.data.apiTypeId === 9) {
       // 艦上偵察機補正
-      return (this.data.scout > 8 ? 1.3 : 1.2);
+      return this.data.scout > 8 ? 1.3 : 1.2;
     }
     if (this.data.isRecon) {
       // それ以外の偵察機補正
       if (this.data.scout > 8) {
         return 1.16;
-      } if (this.data.scout === 8) {
+      }
+      if (this.data.scout === 8) {
         return 1.13;
       }
       return 1.1;
@@ -1188,11 +1266,7 @@ export default class Item {
     }
     // 触接開始率 = int(sum(索敵 * sqrt(搭載)) + 1) / (70 - 15 * c)
     const a = Math.floor(sumContactValue) + 1;
-    const contactStartRate = [
-      Math.min(a / 25, 1),
-      Math.min(a / 40, 1),
-      Math.min(a / 55, 1),
-    ];
+    const contactStartRate = [Math.min(a / 25, 1), Math.min(a / 40, 1), Math.min(a / 55, 1)];
 
     // 実触接率 = [ 0:確保, 1:優勢, 2:劣勢 ]
     const actualContactRate = [
@@ -1212,7 +1286,7 @@ export default class Item {
         // 全て選択されない確率の導出
         for (let j = 0; j < contact120[i].length; j += 1) {
           // 発動しない率
-          sum *= (1 - contact120[i][j]);
+          sum *= 1 - contact120[i][j];
         }
 
         // 選択される率
@@ -1224,7 +1298,7 @@ export default class Item {
       if (contact117[i].length) {
         sum = 1;
         for (let j = 0; j < contact117[i].length; j += 1) {
-          sum *= (1 - contact117[i][j]);
+          sum *= 1 - contact117[i][j];
         }
         const rate = tmpRate * (1 - sum);
         actualContactRate[i].contact117 = rate;
@@ -1234,7 +1308,7 @@ export default class Item {
       if (contact112[i].length) {
         sum = 1;
         for (let j = 0; j < contact112[i].length; j += 1) {
-          sum *= (1 - contact112[i][j]);
+          sum *= 1 - contact112[i][j];
         }
         const rate = tmpRate * (1 - sum);
         actualContactRate[i].contact112 = rate;
@@ -1243,13 +1317,25 @@ export default class Item {
 
     const contactTable = [
       {
-        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+        startRate: 0,
+        contact120: 0,
+        contact117: 0,
+        contact112: 0,
+        sumRate: 0,
       },
       {
-        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+        startRate: 0,
+        contact120: 0,
+        contact117: 0,
+        contact112: 0,
+        sumRate: 0,
       },
       {
-        startRate: 0, contact120: 0, contact117: 0, contact112: 0, sumRate: 0,
+        startRate: 0,
+        contact120: 0,
+        contact117: 0,
+        contact112: 0,
+        sumRate: 0,
       },
     ];
     // 制空状態3つループ

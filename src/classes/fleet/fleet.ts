@@ -56,6 +56,9 @@ export default class Fleet {
   /** 輸送量(戦車) */
   public readonly tp2: number;
 
+  /** 輸送量(戦車) */
+  public readonly tp3: number;
+
   /** 航空戦が可能な機体ありなし(主力 & 随伴) */
   public readonly hasPlane: boolean;
 
@@ -132,6 +135,7 @@ export default class Fleet {
     this.tp = 0;
     this.mainTP2 = 0;
     this.escortTP2 = 0;
+    this.tp3 = 0;
     this.fullAirPower = 0;
     this.supportAirPower = 0;
     this.supportAswAirPower = 0;
@@ -156,6 +160,7 @@ export default class Fleet {
         this.supportAirPower += ship.supportAirPower;
         this.supportAswAirPower += ship.supportAswAirPower;
         this.tp += ship.tp;
+        this.tp3 += ship.tp3;
 
         if (ship.isEscort) {
           this.escortTP2 += ship.tp2;
@@ -166,6 +171,7 @@ export default class Fleet {
         if (!hasAdditionalTP && ship.data.id === 487) {
           // 鬼怒改二がいたらTPボーナス(1回のみ)
           this.tp += 8;
+          this.tp3 += 8;
 
           if (ship.isEscort) {
             this.escortTP2 += 8;
@@ -274,6 +280,7 @@ export default class Fleet {
 
     // TP切り捨て
     this.tp2 = Math.floor(this.mainTP2) + Math.floor(this.escortTP2);
+    this.tp3 = Math.floor(this.tp3);
   }
 
   /**
