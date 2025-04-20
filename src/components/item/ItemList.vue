@@ -283,6 +283,7 @@
                 mobile: isMobile,
                 selected: v.batchListIndexes.length,
                 disabled: !isCheckedOnly && v.disabled,
+                'lack-remodel': v.lackRemodel
               }"
               @click="clickedItem(v, $event)"
               @keypress.enter="clickedItem(v, $event)"
