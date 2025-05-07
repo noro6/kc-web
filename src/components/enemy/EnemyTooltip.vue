@@ -115,7 +115,7 @@ export default Vue.extend({
         return false;
       }
       if (this.value.data.name.indexOf('深海玉棲姫') >= 0) {
-        return false;
+        return true;
       }
       if (this.value.data.name.indexOf('防空埋護姫') >= 0) {
         return false;
@@ -129,6 +129,9 @@ export default Vue.extend({
       if (this.value.data.name.indexOf('米駆逐棲姫') >= 0) {
         return true;
       }
+      if (this.value.data.name.indexOf('駆逐ラ級') >= 0) {
+        return true;
+      }
       return this.value.items.some((v) => v.data.apiTypeId === 22) || (this.value.isSubmarine && this.value.level >= 10);
     },
     hasOASW(): boolean {
@@ -136,6 +139,7 @@ export default Vue.extend({
         (this.value.data.type === 7 && this.value.items.some((v) => [1574, 1575, 1586].includes(v.data.id)))
         || [1623, 1624, 1862, 1690, 1691, 1692, 1849, 1850, 1851, 1927, 1928, 1929, 1930, 1931, 1932, 1947].includes(this.value.data.id)
         || [2204, 2205, 2206, 2207, 2208, 2209, 2216, 2217, 2218, 2219, 2220, 2221].includes(this.value.data.id)
+        || this.value.data.name.indexOf('駆逐ラ級') >= 0
       );
     },
     specialAttacks(): string[] {

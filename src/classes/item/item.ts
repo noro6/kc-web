@@ -1187,7 +1187,6 @@ export default class Item {
           scout = Math.ceil(scout + 0.14 * remodel);
           break;
         case 59:
-        case 178:
         case 539:
         case 543:
           // 零式水上観測機
@@ -1202,10 +1201,11 @@ export default class Item {
         case 138:
         case 163:
           // 二式大艇
-          // PBY-5A Catalina
           scout = Math.ceil(scout + 0.3 * remodel);
           break;
         case 151:
+        case 178:
+          // PBY-5A Catalina
           // 試製景雲(艦偵型)
           scout = Math.ceil(scout + 0.4 * remodel);
           break;
