@@ -1573,7 +1573,7 @@ export default class Ship implements ShipBase {
    * @memberof AerialFirePowerCalculator
    */
   public getAircraftNightAttackPrePower(contactBonus = 0, isLandBase = false): number {
-    // 艦娘の素火力 + 熟練甲板ボーナス(火力青字 + 爆装青地)
+    // 艦娘の素火力 + 熟練甲板ボーナス(火力青字 + 爆装青字)
     let power = this.data.fire + this.nightAttackCrewFireBonus + this.nightAttackCrewBomberBonus;
     if (this.itemBonusStatus.torpedo) {
       // 雷装ボーナス
@@ -1594,7 +1594,7 @@ export default class Ship implements ShipBase {
         power += (item.data.fire + (item.data.isTorpedoAttacker ? item.data.torpedo : item.data.bomber));
       }
       const totalStatus = item.data.fire + item.data.torpedo + item.data.bomber + item.data.asw;
-      if (item.data.iconTypeId === 45 || item.data.iconTypeId === 46) {
+      if (item.data.iconTypeId === 45 || item.data.iconTypeId === 46 || item.data.iconTypeId === 58) {
         // 夜間飛行機搭載補正 = A(3.0) × 搭載数 + B(0.45) × (火力 + 雷装 + 爆装 + 対潜) × √(搭載数) + √(★)
         power += (3 * item.fullSlot + 0.45 * totalStatus * Math.sqrt(item.fullSlot) + Math.sqrt(item.remodel));
       } else {
