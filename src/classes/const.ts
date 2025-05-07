@@ -561,12 +561,12 @@ export default class Const {
     {
       shipId: 574, index: [100], itemType: [27], itemIDs: [0],
     },
-    // Ташкент 増設に中型バルジ不可
+    // Ташкент 全スロットに中型バルジ不可
     {
-      shipId: 395, index: [100], itemType: [27], itemIDs: [0],
+      shipId: 395, index: [1, 2, 3, 4, 100], itemType: [27], itemIDs: [0],
     },
     {
-      shipId: 516, index: [100], itemType: [27], itemIDs: [0],
+      shipId: 516, index: [1, 2, 3, 4, 100], itemType: [27], itemIDs: [0],
     },
     // Гангут 増設に中型バルジ不可
     {
@@ -577,6 +577,20 @@ export default class Const {
     },
     {
       shipId: 513, index: [100], itemType: [27], itemIDs: [0],
+    },
+    // Киров 全スロットに北方迷彩以外不可
+    {
+      shipId: 1001, index: [1, 2, 3, 4], itemType: [], itemIDs: [72, 203],
+    },
+    {
+      shipId: 1006, index: [1, 2, 3, 4], itemType: [], itemIDs: [72, 203],
+    },
+    // Киров 補強増設にバルジ不可
+    {
+      shipId: 1001, index: [100], itemType: [27], itemIDs: [],
+    },
+    {
+      shipId: 1006, index: [100], itemType: [27], itemIDs: [],
     },
   ];
 
