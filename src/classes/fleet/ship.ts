@@ -562,7 +562,7 @@ export default class Ship implements ShipBase {
     }
 
     // 空母夜襲発動判定
-    this.enabledAircraftNightAttack = this.data.isCV && ([545, 599, 610, 883].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)));
+    this.enabledAircraftNightAttack = this.data.isCV && ([545, 599, 610, 883, 1008].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)));
 
     if (this.enabledAircraftNightAttack) {
       // 空母夜襲火力に置き換え
@@ -668,8 +668,8 @@ export default class Ship implements ShipBase {
       sumRemodelBonusFirePower += items[i].bonusFire;
     }
 
-    if (ship.data.isCV || ([352, 717].includes(ship.data.id) && items.some((v) => v.data.isAttacker && v.data.apiTypeId !== 11 && !v.data.isAswPlane))) {
-      // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆)
+    if (ship.data.isCV || ([352, 717, 1008].includes(ship.data.id) && items.some((v) => v.data.isAttacker && v.data.apiTypeId !== 11 && !v.data.isAswPlane))) {
+      // 空母系 or (速吸 or 山汐丸 + 艦攻艦爆 or しまね丸 + 艦攻艦爆)
       dayBattleFirePower = Math.floor(1.5 * (ship.displayStatus.firePower + ship.displayStatus.torpedo + Math.floor(1.3 * ship.displayStatus.bomber) + sumRemodelBonusFirePower + correct)) + 55;
     } else {
       dayBattleFirePower = ship.displayStatus.firePower + sumRemodelBonusFirePower + correct + 5;
