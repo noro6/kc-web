@@ -172,7 +172,7 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 2, avoid: 1 },
-          shipId: [955, 956, 960, 981],
+          shipId: [955, 956, 960, 981, 983],
           requiresAR: 1,
           num: 1,
         },
@@ -271,7 +271,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
         },
       ],
     },
@@ -1213,7 +1213,7 @@ export default class ItemBonus {
           bonus: {
             firePower: 1, accuracy: 1, antiAir: 1, avoid: 2,
           },
-          shipId: [955, 956, 960, 981],
+          shipId: [955, 956, 960, 981, 983],
           remodel: 4,
           num: 1,
         },
@@ -1311,11 +1311,11 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1, avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
         },
         {
           bonus: { antiAir: 2, avoid: 2 },
-          shipId: [981],
+          shipId: [981, 983],
           requiresAR: 1,
           num: 1,
         },
@@ -1370,22 +1370,22 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1 },
-          shipId: [426, 981, 986, 987],
+          shipId: [426, 981, 983, 986, 987],
           remodel: 7,
         },
         {
           bonus: { avoid: 1 },
-          shipId: [426, 981, 986, 987],
+          shipId: [426, 981, 983, 986, 987],
           remodel: 8,
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [426, 981, 986, 987],
+          shipId: [426, 981, 983, 986, 987],
           remodel: 9,
         },
         {
           bonus: { firePower: 1 },
-          shipId: [426, 981, 986, 987],
+          shipId: [426, 981, 983, 986, 987],
           remodel: 10,
         },
       ],
@@ -2004,11 +2004,11 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1 },
-          shipId: [542, 543, 563, 564, 569, 578, 981],
+          shipId: [542, 543, 563, 564, 569, 578, 981, 983],
         },
         {
           bonus: { firePower: 1, torpedo: 3, avoid: 2 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 981, 983],
           requiresSR: 1,
           num: 1,
         },
@@ -2065,7 +2065,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1 },
-          shipId: [542, 543, 563, 564, 569, 578, 981],
+          shipId: [542, 543, 563, 564, 569, 578, 981, 983],
         },
         {
           bonus: { firePower: 2 },
@@ -2073,14 +2073,14 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 3, firePower: 1, accuracy: 1 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           num: 1,
         },
         {
           bonus: {
             firePower: 2, torpedo: 4, avoid: 2, accuracy: 2,
           },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           requiresSR: 1,
           num: 1,
         },
@@ -2094,13 +2094,13 @@ export default class ItemBonus {
           bonus: {
             firePower: 1, antiAir: 5, avoid: 3, accuracy: 1,
           },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           requiresAR: 1,
           num: 1,
         },
         {
           bonus: { antiAir: 2, firePower: 2 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           num: 2,
         },
         {
@@ -2110,17 +2110,17 @@ export default class ItemBonus {
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           remodel: 5,
         },
         {
           bonus: { firePower: 1 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           remodel: 8,
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981],
+          shipId: [229, 542, 543, 563, 564, 569, 578, 648, 649, 955, 956, 960, 961, 981, 983],
           remodel: 10,
         },
         {
@@ -2322,7 +2322,7 @@ export default class ItemBonus {
           bonus: { torpedo: 2, avoid: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           num: 1,
         },
@@ -2330,7 +2330,7 @@ export default class ItemBonus {
           bonus: { torpedo: 2, avoid: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           num: 2,
         },
@@ -2338,7 +2338,7 @@ export default class ItemBonus {
           bonus: { firePower: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           num: 1,
           remodel: 10,
@@ -2347,7 +2347,7 @@ export default class ItemBonus {
           bonus: { firePower: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           num: 2,
           remodel: 10,
@@ -2356,7 +2356,7 @@ export default class ItemBonus {
           bonus: { torpedo: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           shipClass: [30],
           num: 1,
@@ -2366,7 +2366,7 @@ export default class ItemBonus {
           bonus: { torpedo: 1 },
           shipId: [
             144, 145, 198, 199, 463, 464, 468, 469, 470, 489, 490, 497, 498, 542, 543, 563, 564, 566, 567, 568, 569, 578, 587, 588, 648, 649, 651, 656, 667,
-            670, 915, 951, 955, 956, 960, 961, 975, 981,
+            670, 915, 951, 955, 956, 960, 961, 975, 981, 983,
           ],
           shipClass: [30],
           num: 2,
@@ -8116,7 +8116,7 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1, avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           num: 1,
         },
         {
@@ -8133,7 +8133,7 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1, avoid: 2 },
-          shipId: [981],
+          shipId: [981, 983],
           requiresAR: 1,
           num: 1,
         },
@@ -8321,7 +8321,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, accuracy: 1, avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           num: 1,
         },
         {
@@ -9426,22 +9426,22 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 4,
         },
         {
           bonus: { avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 6,
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 8,
         },
         {
           bonus: { firePower: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 10,
         },
       ],
@@ -10098,27 +10098,27 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 2,
         },
         {
           bonus: { firePower: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 4,
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 6,
         },
         {
           bonus: { antiAir: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 8,
         },
         {
           bonus: { avoid: 1 },
-          shipId: [981],
+          shipId: [981, 983],
           remodel: 10,
         },
       ],
