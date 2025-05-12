@@ -344,7 +344,7 @@ export default class ShootDownInfo {
       if (specialKijuCount) cutInIds.push(18);
       // 31種 (高角砲2)
       if (allKokaku >= 2) cutInIds.push(31);
-    } else if (shipId === 981 || shipId === 986 || shipId === 426) {
+    } else if (shipId === 981 || shipId === 983 || shipId === 986 || shipId === 426) {
       // 藤波改二 / 吹雪改二 / 白雪改二
       // 49種 (特殊高角砲2, 対空電探)
       if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(49);
@@ -366,8 +366,8 @@ export default class ShootDownInfo {
       const hasSPAntiAirRadar = items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4);
       // 50種 (10cm連装高角砲改どっちかx2, 対空4電探, 94高射装置)
       if (aaGunCount + aaGun2Count >= 2 && hasSPAntiAirRadar && kosha94Count) cutInIds.push(50);
-      if (shipId === 986 || shipId === 426) {
-        // 吹雪改二 / 白雪改二
+      if ([986, 426, 987, 981, 983].includes(shipId)) {
+        // 吹雪改二 / 白雪改二 / 初雪改二 / 藤波改二 / 浜波改二
         // 対空5以上の機銃所持
         const hasMore5AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 5);
         // 51種 (10cm連装高角砲改どっちか, 対空4電探, 対空5機銃)
