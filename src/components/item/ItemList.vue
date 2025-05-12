@@ -1348,7 +1348,7 @@ export default Vue.extend({
       return this.itemParent instanceof Ship;
     },
     isAircraftMode(): boolean {
-      return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717].includes(this.itemParent.data.id));
+      return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717, 1008].includes(this.itemParent.data.id));
     },
     itemListData(): { typeName: string; items: { item: Item; count: number; text: string }[] }[] {
       const targetItems = this.viewItems;

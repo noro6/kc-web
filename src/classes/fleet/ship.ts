@@ -562,7 +562,7 @@ export default class Ship implements ShipBase {
     }
 
     // 空母夜襲発動判定
-    this.enabledAircraftNightAttack = this.data.isCV && ([545, 599, 610, 883, 1008].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)));
+    this.enabledAircraftNightAttack = (this.data.isCV && ([545, 599, 610, 883].includes(this.data.id) || (items.some((w) => w.data.id === 258 || w.data.id === 259)))) || this.data.id === 1008;
 
     if (this.enabledAircraftNightAttack) {
       // 空母夜襲火力に置き換え
