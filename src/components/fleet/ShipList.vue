@@ -1651,8 +1651,8 @@ export default Vue.extend({
           result = result.filter((v) => v.isCV && v.minAsw);
         }
         if (this.shipFilter.onlyAutoOASW) {
-          // 自動先制対潜のみ
-          result = result.filter((v) => [141, 478, 624, 394, 893, 681, 906, 920].includes(v.id) || (v.type2 === 91 && v.id !== 941));
+          // 自動先制対潜のみ (除Heywood Richard)
+          result = result.filter((v) => [141, 478, 624, 394, 893, 681, 906, 920].includes(v.id) || (v.type2 === 91 && v.id !== 941 && v.id !== 942));
         }
         if (this.shipFilter.onlyBookmarked) {
           // お気に入りのみ
