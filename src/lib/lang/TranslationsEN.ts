@@ -592,6 +592,9 @@ export default {
       '装備を自由に置くスペースです。': 'Free equipment storage',
       '一括編成': 'Bath Deploy',
       '選択済': 'Checked',
+      '実装': 'Implement',
+      '第1期': 'Phase 1',
+      '第2期': 'Phase 2',
     },
     Enemies: {
       '海域': 'World',

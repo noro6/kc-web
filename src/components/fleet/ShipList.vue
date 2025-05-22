@@ -499,6 +499,14 @@
             <v-checkbox v-if="isStockOnly" v-model="shipFilter.onlyMarriage" dense hide-details :label="$t('Fleet.ケッコン艦')" />
           </div>
           <div class="d-flex mt-4">
+            <div class="caption align-self-center">{{ $t("Fleet.実装") }}</div>
+            <div class="header-divider" />
+          </div>
+          <div class="filter-input-container">
+            <v-checkbox v-model="phase1" dense hide-details :label="$t('Fleet.第1期')" :error="!phase1 && !phase2" />
+            <v-checkbox v-model="phase2" dense hide-details :label="$t('Fleet.第2期')" :error="!phase1 && !phase2" />
+          </div>
+          <div class="d-flex mt-4">
             <div class="caption">{{ $t("Fleet.ステータス") }}</div>
             <div class="header-divider" />
           </div>
@@ -1163,6 +1171,8 @@ export default Vue.extend({
     isCheckedOnly: false,
     uniqueIdSearch: '',
     isMobile: true,
+    phase1: true,
+    phase2: true,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1673,6 +1683,16 @@ export default Vue.extend({
           result = result.filter((v) => v.slotCount >= 2);
         }
 
+        // 実装日
+        if (!this.phase1) {
+          // 第一期実装艦を省く
+          result = result.filter((v) => (v.id > 550 || [299, 378, 379, 381, 382, 501, 502, 506, 507, 514, 520, 522, 527, 528, 533, 534, 536, 538].includes(v.id)) && ![550, 551, 552, 553, 555, 556, 557, 558, 560, 561, 565, 566, 567, 568, 605, 606, 678, 679, 680, 681, 685].includes(v.id));
+        }
+        if (!this.phase2) {
+          // 第二期実装艦を省く
+          result = result.filter((v) => (v.id <= 550 || [551, 552, 553, 555, 556, 557, 558, 560, 561, 565, 566, 567, 568, 605, 606, 678, 679, 680, 681, 685].includes(v.id)) && ![299, 378, 379, 381, 382, 501, 502, 506, 507, 514, 520, 522, 527, 528, 533, 534, 536, 538].includes(v.id));
+        }
+
         // 火力フィルタ
         const minFire = this.shipFilter.fireRange[0];
         const maxFire = this.shipFilter.fireRange[1];
@@ -2134,6 +2154,8 @@ export default Vue.extend({
     },
     resetFilter() {
       this.keyword = '';
+      this.phase1 = true;
+      this.phase2 = true;
       this.shipFilter = new ShipFilter();
       this.filter();
     },

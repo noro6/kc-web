@@ -96,6 +96,14 @@
                 />
               </div>
               <div class="d-flex mt-6">
+                <div class="caption">{{ $t("Fleet.実装") }}</div>
+                <div class="header-divider" />
+              </div>
+              <div class="filter-input-container">
+                <v-checkbox v-model="phase1" dense hide-details :label="$t('Fleet.第1期')" :error="!phase1 && !phase2" />
+                <v-checkbox v-model="phase2" dense hide-details :label="$t('Fleet.第2期')" :error="!phase1 && !phase2" />
+              </div>
+              <div class="d-flex mt-6">
                 <div class="caption">{{ $t("Fleet.ステータス") }}</div>
                 <div class="header-divider" />
               </div>
@@ -1258,6 +1266,8 @@ export default Vue.extend({
     HPIs4n: true,
     includeFast: true,
     includeSlow: true,
+    phase1: true,
+    phase2: true,
     types: [] as { text: string; value: number; isChecked: boolean }[],
     nationalities: [
       {
@@ -1648,6 +1658,8 @@ export default Vue.extend({
       this.HPIs4n = true;
       this.includeFast = true;
       this.includeSlow = true;
+      this.phase1 = true;
+      this.phase2 = true;
 
       for (let i = 0; i < this.types.length; i += 1) {
         this.types[i].isChecked = true;
@@ -1817,6 +1829,10 @@ export default Vue.extend({
         if (!this.includeIntermediate && !(ship.version === 0 || ship.isFinal)) return false;
         // 最終改造状態で絞る
         if (!this.includeFinal && ship.isFinal) return false;
+        // 第一期で絞る => 第一期がoffかつ第一期艦に該当したら false
+        if (!this.phase1 && (ship.id <= 550 || [551, 552, 553, 555, 556, 557, 558, 560, 561, 565, 566, 567, 568, 605, 606, 678, 679, 680, 681, 685].includes(ship.id)) && ![299, 378, 379, 381, 382, 501, 502, 506, 507, 514, 520, 522, 527, 528, 533, 534, 536, 538].includes(ship.id)) return false;
+        // 第二期で絞る => 第二期がoffかつ第二期艦に該当したら false
+        if (!this.phase2 && (ship.id > 550 || [299, 378, 379, 381, 382, 501, 502, 506, 507, 514, 520, 522, 527, 528, 533, 534, 536, 538].includes(ship.id)) && ![550, 551, 552, 553, 555, 556, 557, 558, 560, 561, 565, 566, 567, 568, 605, 606, 678, 679, 680, 681, 685].includes(ship.id)) return false;
         // 練度で絞る
         if (stockData.level < minLevel || stockData.level > maxLevel) return false;
         // 対潜改修で絞る
