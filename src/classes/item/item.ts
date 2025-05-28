@@ -871,9 +871,12 @@ export default class Item {
     } else if (this.data.apiTypeId === 21) {
       // 機銃
       total = this.data.antiAir * 3;
-    } else if (this.data.iconTypeId === 11) {
-      // 電探
+    } else if (this.data.apiTypeId === 12) {
+      // 小型電探
       total = this.data.antiAir * 1.5;
+    } else if (this.data.apiTypeId === 13) {
+      // 大型電探
+      total = this.data.antiAir * 1.8;
     }
 
     // 艦船対空改修補正 = 装備倍率 * √★
