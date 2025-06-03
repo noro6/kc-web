@@ -143,7 +143,7 @@ export default class ShootDownInfo {
           antiAirWeight = Math.floor((Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1);
         } else {
           // 艦船加重対空値(味方側式) => int(((素対空 / 2 + Σ(装備対空値 * 装備倍率)) + 装備対空ボーナス * 0.8) * 対空射撃回避補正)
-          antiAirWeight = Math.floor(Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight) + itemBonusAntiAir * 0.8) * avoid1);
+          antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight + itemBonusAntiAir * 0.8) * avoid1);
         }
         // 加重対空格納
         stage2[j].antiAirWeightList.push(antiAirWeight);
@@ -360,13 +360,12 @@ export default class ShootDownInfo {
       const kosha94Count = items.filter((v) => v.data.id === 121).length;
       // 対空4以上の電探所持
       const hasSPAntiAirRadar = items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4);
-      // 49種 (特殊高角砲2, 対空電探)
-      if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(49);
-      // 50種 (10cm連装高角砲改どっちかx2, 対空4電探, 94高射装置)
-      if (aaGunCount + aaGun2Count >= 2 && hasSPAntiAirRadar && kosha94Count) cutInIds.push(50);
-
       // 秋月型以外
       if (type2 !== 54) {
+        // 49種 (特殊高角砲2, 対空電探)
+        if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(49);
+        // 50種 (10cm連装高角砲改どっちかx2, 対空4電探, 94高射装置)
+        if (aaGunCount + aaGun2Count >= 2 && hasSPAntiAirRadar && kosha94Count) cutInIds.push(50);
         const hasMore5AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 5);
         // 51種 (10cm連装高角砲改どっちか, 対空4電探, 対空5機銃)
         if ((aaGunCount || aaGun2Count) && hasSPAntiAirRadar && hasMore5AAKiju) cutInIds.push(51);
