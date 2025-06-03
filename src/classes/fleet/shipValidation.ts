@@ -175,6 +175,11 @@ export default class ShipValidation {
       }
     }
 
+    // 北方迷彩対応 実機の判定がよくわからんのでここで
+    if (item.apiTypeId === 27 && [114, 200, 290, 100, 101, 574, 395, 516, 511, 512, 513, 995, 1000, 1001, 1006].includes(ship.id)) {
+      // 北方迷彩なら通常スロット OK、それ以外 NG
+      return item.id === 268 && slotIndex !== Const.EXPAND_SLOT_INDEX;
+    }
     // 最終チェック
     return types.includes(item.apiTypeId);
   }

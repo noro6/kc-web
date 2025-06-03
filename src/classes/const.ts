@@ -533,59 +533,6 @@ export default class Const {
     {
       shipId: 968, index: [4], itemType: [1, 5, 13], itemIDs: [0],
     },
-    // 阿武隈全て 増設に中型バルジ不可
-    {
-      shipId: 114, index: [100], itemType: [27], itemIDs: [0],
-    },
-    {
-      shipId: 200, index: [100], itemType: [27], itemIDs: [0],
-    },
-    {
-      shipId: 290, index: [100], itemType: [27], itemIDs: [0],
-    },
-    // 多摩 増設に中型バルジ不可
-    {
-      shipId: 100, index: [100], itemType: [27], itemIDs: [0],
-    },
-    // 木曾 増設に中型バルジ不可
-    {
-      shipId: 101, index: [100], itemType: [27], itemIDs: [0],
-    },
-    // Gotland 増設に中型バルジ不可
-    {
-      shipId: 574, index: [100], itemType: [27], itemIDs: [0],
-    },
-    // Ташкент 全スロットに中型バルジ不可
-    {
-      shipId: 395, index: [1, 2, 3, 4, 100], itemType: [27], itemIDs: [0],
-    },
-    {
-      shipId: 516, index: [1, 2, 3, 4, 100], itemType: [27], itemIDs: [0],
-    },
-    // Гангут 増設に中型バルジ不可
-    {
-      shipId: 511, index: [100], itemType: [27], itemIDs: [0],
-    },
-    {
-      shipId: 512, index: [100], itemType: [27], itemIDs: [0],
-    },
-    {
-      shipId: 513, index: [100], itemType: [27], itemIDs: [0],
-    },
-    // Киров 全スロットに北方迷彩以外不可
-    {
-      shipId: 1001, index: [1, 2, 3, 4], itemType: [], itemIDs: [72, 203],
-    },
-    {
-      shipId: 1006, index: [1, 2, 3, 4], itemType: [], itemIDs: [72, 203],
-    },
-    // Киров 補強増設にバルジ不可
-    {
-      shipId: 1001, index: [100], itemType: [27], itemIDs: [],
-    },
-    {
-      shipId: 1006, index: [100], itemType: [27], itemIDs: [],
-    },
   ];
 
   /**
