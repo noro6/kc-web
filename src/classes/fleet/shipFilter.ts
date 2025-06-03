@@ -234,7 +234,7 @@ export default class ShipFilter {
    * @param data
    * @returns
    */
-  public static restore(data: ShipFilter | undefined) {
+  public static restore(data: ShipFilter | undefined): ShipFilter {
     if (!data) {
       return new ShipFilter();
     }
@@ -251,6 +251,14 @@ export default class ShipFilter {
       }
     });
 
-    return isLack ? new ShipFilter() : data;
+    if (isLack) {
+      return new ShipFilter();
+    }
+
+    // Lv上限解放による補正
+    if (data.levelRange[1] === Const.MAX_LEVEL - 5) {
+      data.levelRange[1] = Const.MAX_LEVEL;
+    }
+    return data;
   }
 }
