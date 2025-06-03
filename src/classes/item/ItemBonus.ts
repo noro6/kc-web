@@ -10214,5 +10214,109 @@ export default class ItemBonus {
         },
       ],
     },
+    {
+      ids: [64],
+      bonuses: [
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.DEU,
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 9,
+        },
+        {
+          bonus: { antiAir: 1, firePower: 1, accuracy: 1 },
+          shipCountry: Const.DEU,
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [83, 534],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          shipBase: [83, 534],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [559],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 8, accuracy: 6, antiAir: 1, avoid: 2,
+          },
+          shipCountry: Const.DEU,
+        },
+        {
+          bonus: { firePower: 3, accuracy: 2, avoid: 1 },
+          shipBase: [83, 534],
+        },
+      ],
+    },
+    {
+      ids: [158],
+      bonuses: [
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.DEU,
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.DEU,
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1, antiAir: 1, avoid: 1 },
+          shipCountry: Const.DEU,
+          remodel: 9,
+        },
+        {
+          bonus: {
+            firePower: 1, accuracy: 1, antiAir: 1, avoid: 2,
+          },
+          shipCountry: Const.DEU,
+          remodel: 10,
+        },
+        {
+          bonus: { antiAir: 1, avoid: 1 },
+          shipBase: [83, 534],
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1, antiAir: 1, avoid: 1 },
+          shipBase: [83, 534],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [560],
+      bonuses: [
+        {
+          bonus: {
+            firePower: 3, accuracy: 3, antiAir: 4, avoid: 5,
+          },
+          shipCountry: Const.DEU,
+        },
+        {
+          bonus: {
+            firePower: 1, accuracy: 1, antiAir: 2, avoid: 3,
+          },
+          shipBase: [83, 534],
+        },
+      ],
+    },
   ];
 }
