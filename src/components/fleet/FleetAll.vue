@@ -303,7 +303,7 @@
           </div>
           <div class="temp-ship-list">
             <v-card class="temp-ship" v-ripple="{ class: 'info--text' }" v-for="(temp, i) in tempShipList" :key="`tempShip${i}`" @click="popTempShip(temp)">
-              <div class="d-flex ml-1">
+              <div class="d-flex ml-1 preset-header">
                 <div class="align-self-center">
                   <v-img :src="`./img/ship/banner/${temp.data.id}.png`" height="30" width="120" />
                 </div>
@@ -316,6 +316,11 @@
                     <div class="temp-ship-name">{{ getShipName(temp.data) }}</div>
                   </div>
                 </div>
+              </div>
+              <div class="delete-button">
+                <v-btn icon @click.stop="deleteTempShip(i)">
+                  <v-icon>mdi-trash-can-outline</v-icon>
+                </v-btn>
               </div>
               <v-divider class="mb-1" />
               <div v-for="(item, j) in temp.items.concat(temp.exItem)" :key="`tempShip${i}item${j}`" class="temp-item">
@@ -651,6 +656,15 @@
 }
 
 /** 以下、一時保存リスト用 */
+.preset-header {
+  position: relative;
+}
+.delete-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .temp-ship-list,
 .temp-fleet-list {
   min-height: 240px;
@@ -1236,6 +1250,10 @@ export default Vue.extend({
       this.fleetInfo.fleets[fleetIndex] = new Fleet({ fleet });
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));
       this.tempShipListDialog = false;
+    },
+    deleteTempShip(index: number) {
+      this.tempShipList = this.tempShipList.filter((v, i) => i !== index);
+      this.$store.dispatch('updateTempShipList', this.tempShipList);
     },
     resetTempShipList() {
       // 一時保存リストリセット
