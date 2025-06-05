@@ -521,11 +521,13 @@ export default Vue.extend({
               const { ships } = manager.fleetInfo.fleets[i];
               for (let j = 0; j < ships.length; j += 1) {
                 const ship = ships[j];
-                const shipItems = ship.items.filter((v) => v.data.id);
-                if (shipItems.length) {
-                  usedItems = usedItems.concat(shipItems.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+                if (ship.isActive) {
+                  const shipItems = ship.items.filter((v) => v.data.id);
+                  if (shipItems.length) {
+                    usedItems = usedItems.concat(shipItems.map((v) => ({ id: v.data.id, remodel: v.remodel, isChecked: false })));
+                  }
+                  if (ship.exItem.data.id > 0) usedItems.push({ id: ship.exItem.data.id, remodel: ship.exItem.remodel, isChecked: false });
                 }
-                if (ship.exItem.data.id > 0) usedItems.push({ id: ship.exItem.data.id, remodel: ship.exItem.remodel, isChecked: false });
               }
             }
             // 基地航空隊データから装備全取得

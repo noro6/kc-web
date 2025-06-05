@@ -376,12 +376,55 @@
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" :is-airbase-mode="isAirbaseMode" />
     </v-tooltip>
-    <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="400">
+    <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="auto" scrollable>
       <v-card class="pa-3">
-        <div class="ma-4">
+        <div class="mx-4 my-2">
           <div>{{ $t("Common.既に配備されています。") }}</div>
           <div class="caption mt-2">※ {{ $t("Common.配備を押せば無視して配備できます。") }}</div>
         </div>
+        <v-divider />
+        <template v-if="confirmFleets.some(v => v.ships.length)">
+          <div class="mt-2 ml-4 caption">{{ $t("ItemList.この装備を積んでいる艦") }}</div>
+          <div class="detected-parents px-4">
+            <div v-for="fleet in confirmFleets" :key="`fleet${fleet.fleet}`">
+              <template v-if="fleet.ships.length">
+                <div class="caption text--secondary">{{ $t("Fleet.第x艦隊", { number: fleet.fleet + 1 }) }}</div>
+                <div class="detected-ships-container mb-2">
+                  <div v-for="ship in fleet.ships" :key="`ship${ship.ship.data.id}`">
+                    <div class="d-flex align-center">
+                      <div class="ship-img mb-1">
+                        <img :src="`./img/ship/banner/${ship.ship.data.id}.png`" :alt="`ship${ship.ship.data.id}`" />
+                      </div>
+                      <div class="flex-grow-1 ml-1">
+                        <div class="d-flex ship-caption">
+                          <div class="primary--text ship-level">
+                            Lv {{ ship.ship.level }}
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <div class="ship-name text-truncate">{{ getShipName(ship.ship.data) }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+        <template v-if="confirmAirbases.length">
+          <div class="px-4">
+            <div class="caption text--secondary">{{ $t("Airbase.基地航空隊") }}</div>
+            <div v-for="airbase in confirmAirbases" :key="`airbase${airbase.no}`">
+              <div class="d-flex align-center">
+                <div class="ship-img mb-1">
+                  <img :src="`./img/util/airbase.png`" :alt="`airbase`" />
+                </div>
+                <div class="body-2 ml-1">{{ $t("Airbase.第x基地航空隊", { number: airbase.no + 1 }) }}</div>
+              </div>
+            </div>
+          </div>
+        </template>
         <v-divider class="my-2" />
         <div class="d-flex">
           <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem, $event)">{{ $t("Common.配備") }}</v-btn>
@@ -1151,6 +1194,45 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 4px;
 }
+.detected-parents {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.detected-ships-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 2px;
+  column-gap: 0.25rem;
+}
+@media (min-width: 600px) {
+  .detected-ships-container {
+    display: grid;
+    grid-template-columns: 220px 220px;
+    column-gap: 0.25rem;
+  }
+}
+.ship-img {
+  height: 30px;
+}
+.ship-img img {
+  height: 30px;
+  width: 120px;
+}
+.ship-caption {
+  font-size: 11px;
+  margin-left: 0.1rem;
+}
+.ship-level {
+  min-width: 36px;
+}
+.ship-name {
+  flex-grow: 1;
+  font-size: 0.8em;
+  width: 10px;
+  margin-left: 0.1rem;
+  overflow: hidden;
+  white-space: nowrap;
+}
 </style>
 
 <script lang="ts">
@@ -1170,6 +1252,7 @@ import SaveData from '@/classes/saveData/saveData';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import { cloneDeep } from 'lodash';
 import ItemBonus, { ItemBonusStatus } from '@/classes/item/ItemBonus';
+import ShipMaster from '@/classes/fleet/shipMaster';
 
 type sortItem = { [key: string]: number | { [key: string]: number } };
 type viewItem = {
@@ -1252,6 +1335,8 @@ export default Vue.extend({
     usedItems: [] as Item[],
     confirmDialog: false,
     confirmItem: { item: new Item(), count: 0 },
+    confirmFleets: [] as { fleet: number; ships: { ship: Ship; count: number }[] }[],
+    confirmAirbases: [] as { no: number; count: number }[],
     headerItems: [
       { text: '火力', key: 'actualFire' },
       { text: '砲戦火力', key: 'dayBattleFirePower' },
@@ -1339,6 +1424,49 @@ export default Vue.extend({
     }
 
     this.updateIsMobile();
+  },
+  watch: {
+    confirmDialog(value: boolean) {
+      if (value && this.confirmItem) {
+        this.confirmFleets = [];
+        this.confirmAirbases = [];
+
+        const item = this.confirmItem;
+        // 現在の計算画面内で配備されている装備を列挙する
+        const mainData = this.$store.state.mainSaveData as SaveData;
+        if (mainData) {
+          const manager = mainData.tempData[mainData.tempIndex];
+          if (manager) {
+            // 艦隊データから同じ装備持ってる人を探す
+            for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
+              const { ships } = manager.fleetInfo.fleets[i];
+              if (!this.confirmFleets[i]) {
+                this.confirmFleets[i] = { fleet: i, ships: [] };
+              }
+              for (let j = 0; j < ships.length; j += 1) {
+                const ship = ships[j];
+                if (ship.isActive) {
+                  const items = ship.items.filter((v) => v.data.id === item.item.data.id && v.remodel === item.item.remodel);
+                  if (items.length) {
+                    this.confirmFleets[i].ships.push({ ship, count: items.length });
+                  }
+                }
+              }
+            }
+
+            // 基地航空隊データから装備全取得
+            const { airbases } = manager.airbaseInfo;
+            for (let i = 0; i < airbases.length; i += 1) {
+              const airbase = airbases[i];
+              const items = airbase.items.filter((v) => v.data.id === item.item.data.id && v.remodel === item.item.remodel);
+              if (items.length) {
+                this.confirmAirbases.push({ no: i, count: items.length });
+              }
+            }
+          }
+        }
+      }
+    },
   },
   computed: {
     isAirbaseMode(): boolean {
@@ -1588,8 +1716,10 @@ export default Vue.extend({
             for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
               const { ships } = manager.fleetInfo.fleets[i];
               for (let j = 0; j < ships.length; j += 1) {
-                allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
-                if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+                if (ships[j].isActive) {
+                  allItems = allItems.concat(ships[j].items.filter((v) => v.data.id > 0));
+                  if (ships[j].exItem.data.id > 0) allItems.push(ships[j].exItem);
+                }
               }
             }
 
@@ -2404,6 +2534,16 @@ export default Vue.extend({
     toggleCompareSetting() {
       // 設定書き換え
       this.$store.dispatch('updateSetting', this.setting);
+    },
+    translate(v: string): string {
+      return v ? `${this.$t(v)}` : '';
+    },
+    getShipName(ship: ShipMaster) {
+      if (this.needTrans) {
+        const shipName = ShipMaster.getSuffix(ship);
+        return `${shipName.map((v) => this.translate(v)).join('')}`;
+      }
+      return ship.name || '';
     },
   },
 });
