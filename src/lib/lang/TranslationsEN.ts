@@ -802,7 +802,7 @@ export default {
       '一括配備': 'Batch Deploy',
       '選択済': 'Checked',
       '補': 'Ex',
-      'この装備を積んでいる艦': 'Ships equipped...',
+      'この装備を搭載している艦': 'Ships equipped...',
     },
     Database: {
       '在籍艦娘 / 所持装備データ読込中': 'Now Loading',

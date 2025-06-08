@@ -384,7 +384,7 @@
         </div>
         <v-divider />
         <template v-if="confirmFleets.some(v => v.ships.length)">
-          <div class="mt-2 ml-4 caption">{{ $t("ItemList.この装備を積んでいる艦") }}</div>
+          <div class="mt-2 ml-4 caption">{{ $t("ItemList.この装備を搭載している艦") }}</div>
           <div class="detected-parents px-4">
             <div v-for="fleet in confirmFleets" :key="`fleet${fleet.fleet}`">
               <template v-if="fleet.ships.length">
@@ -1445,8 +1445,9 @@ export default Vue.extend({
               }
               for (let j = 0; j < ships.length; j += 1) {
                 const ship = ships[j];
+                const equippedItems = ship.items.concat(ship.exItem);
                 if (ship.isActive) {
-                  const items = ship.items.filter((v) => v.data.id === item.item.data.id && v.remodel === item.item.remodel);
+                  const items = equippedItems.filter((v) => v.data.id === item.item.data.id && v.remodel === item.item.remodel);
                   if (items.length) {
                     this.confirmFleets[i].ships.push({ ship, count: items.length });
                   }
