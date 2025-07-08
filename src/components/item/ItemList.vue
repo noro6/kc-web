@@ -2,22 +2,16 @@
   <v-card class="list-card">
     <div class="d-flex py-2 pr-2 align-center">
       <div class="item-search-text ml-3">
-        <v-text-field
-          :placeholder="$t('ItemList.図鑑id 名称検索')"
-          clearable
-          v-model="keyword"
-          @input="filter()"
-          hide-details
-          dense
-          prepend-inner-icon="mdi-magnify"
-        />
+        <v-text-field :placeholder="$t('ItemList.図鑑id 名称検索')" clearable v-model="keyword" @input="filter()" hide-details
+          dense prepend-inner-icon="mdi-magnify" />
       </div>
       <template v-if="!isMobile">
         <div class="ml-1 filter-select">
           <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" @change="changedFilter()" />
         </div>
         <div class="filter-value-input">
-          <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" @input="changedFilter()" />
+          <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0"
+            @input="changedFilter()" />
         </div>
         <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
         <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
@@ -30,10 +24,12 @@
       <template v-if="!isMobile">
         <div class="mr-5">
           <v-btn-toggle dense v-model="multiLine" borderless mandatory>
-            <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }" @click.stop="changeMultiLine(false)">
+            <v-btn :value="false" :class="{ primary: !multiLine, secondary: multiLine }"
+              @click.stop="changeMultiLine(false)">
               <v-icon color="white">mdi-view-headline</v-icon>
             </v-btn>
-            <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }" @click.stop="changeMultiLine(true)">
+            <v-btn :value="true" :class="{ primary: multiLine, secondary: !multiLine }"
+              @click.stop="changeMultiLine(true)">
               <v-icon color="white">mdi-view-comfy</v-icon>
             </v-btn>
           </v-btn-toggle>
@@ -61,7 +57,9 @@
             <v-icon class="manual-icon" color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
             <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
           </v-btn>
-          <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">{{ $t("ItemList.射程増加") }}</span>
+          <span @click="toggleAffectingRangeFilter()" @keypress="toggleAffectingRangeFilter()">
+            {{ $t("ItemList.射程増加") }}
+          </span>
         </div>
         <div class="d-flex manual-checkbox" v-if="type === 7 && !isEnemyMode">
           <v-btn icon @click="toggleLandBaseAttackFilter()" class="manual-checkbox-button">
@@ -69,18 +67,22 @@
             <v-icon class="manual-icon" color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
             <v-icon class="manual-icon" v-else>mdi-minus-box-outline</v-icon>
           </v-btn>
-          <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">{{ $t("ItemList.対地攻撃") }}</span>
+          <span @click="toggleLandBaseAttackFilter()" @keypress="toggleLandBaseAttackFilter()">
+            {{ $t("ItemList.対地攻撃") }}
+          </span>
         </div>
         <div v-if="enabledNightAircraftFilter">
           <v-checkbox v-model="onlyNightAircraft" @click="filter()" hide-details dense :label="$t('ItemList.夜間機')" />
         </div>
         <div v-if="enabledAAResistFilter">
-          <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense :label="$t('ItemList.射撃回避')" />
+          <v-checkbox v-model="onlyAAResistAircraft" @click="filter()" hide-details dense
+            :label="$t('ItemList.射撃回避')" />
         </div>
         <template v-if="type === 14">
           <v-checkbox v-model="includeSonar" @click="filter()" hide-details dense :label="$t('EType.ソナー')" />
           <v-checkbox v-model="includeDepthCharge" @click="filter()" hide-details dense :label="$t('EType.爆雷')" />
-          <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense :label="$t('EType.爆雷投射機')" />
+          <v-checkbox v-model="includeDepthChargeLauncher" @click="filter()" hide-details dense
+            :label="$t('EType.爆雷投射機')" />
         </template>
         <template v-if="type === 5">
           <v-checkbox v-model="includeTorpedo" @click="filter()" hide-details dense :label="$t('EType.魚雷')" />
@@ -92,60 +94,40 @@
         </div>
       </template>
       <div v-if="isStockOnly && !multiLine && !isEnemyMode">
-        <v-checkbox v-model="sortExcludeRemodelStatus" @click="filter()" hide-details dense :label="$t('ItemList.改修値無効')" />
+        <v-checkbox v-model="sortExcludeRemodelStatus" @click="filter()" hide-details dense
+          :label="$t('ItemList.改修値無効')" />
       </div>
       <div v-if="!multiLine && !isAirbaseMode && !isEnemyMode">
-        <v-checkbox v-model="sortExcludeSynergyStatus" @click="filter()" hide-details dense :label="$t('ItemList.装備シナジー無効')" />
+        <v-checkbox v-model="sortExcludeSynergyStatus" @click="filter()" hide-details dense
+          :label="$t('ItemList.装備シナジー無効')" />
       </div>
       <div class="ml-auto mt-1 d-flex align-center">
-        <v-switch
-          v-if="itemStock.length && !isEnemyMode"
-          class="mt-0 mr-2"
-          :label="$t('ItemList.所持装備反映')"
-          v-model="isStockOnly"
-          @click="clickedStockOnly"
-          dense
-          hide-details
-          :disabled="!!batchList.length"
-        />
-        <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{ setting.blacklistItemIds.length }})</v-btn>
+        <v-switch v-if="itemStock.length && !isEnemyMode" class="mt-0 mr-2" :label="$t('ItemList.所持装備反映')"
+          v-model="isStockOnly" @click="clickedStockOnly" dense hide-details :disabled="!!batchList.length" />
+        <v-btn color="secondary" @click="showBlacklist()" small><v-icon>mdi-eye-off</v-icon>({{
+          setting.blacklistItemIds.length }})</v-btn>
       </div>
     </div>
     <div class="type-selector-container" :class="{ 'ml-3': multiLine && !isMobile, 'ml-1': !multiLine }">
-      <div
-        v-ripple="{ class: 'info--text' }"
-        class="type-selector"
+      <div v-ripple="{ class: 'info--text' }" class="type-selector"
         :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
-        @click="changeType(-1)"
-        @keypress="changeType(-1)"
-      >
+        @click="changeType(-1)" @keypress="changeType(-1)">
         <div class="type-all-text">ALL</div>
       </div>
-      <div
-        v-for="i in enabledTypes"
-        :key="i.id"
-        v-ripple="{ class: 'info--text' }"
-        class="type-selector"
+      <div v-for="i in enabledTypes" :key="i.id" v-ripple="{ class: 'info--text' }" class="type-selector"
         :class="{ active: type === i.id && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
-        @click="changeType(i.id)"
-        @keypress="changeType(i.id)"
-      >
+        @click="changeType(i.id)" @keypress="changeType(i.id)">
         <v-img :src="`./img/type/type${isAirbaseMode && i.id === 17 ? 26 : i.id}.png`" height="32" width="32" />
       </div>
-      <div
-        v-if="batchList.length"
-        v-ripple="{ class: 'info--text' }"
-        class="type-selector"
-        :class="{ active: isCheckedOnly, disabled: keyword }"
-        @click="toggleCheckedOnly"
-        @keypress="toggleCheckedOnly"
-      >
+      <div v-if="batchList.length" v-ripple="{ class: 'info--text' }" class="type-selector"
+        :class="{ active: isCheckedOnly, disabled: keyword }" @click="toggleCheckedOnly" @keypress="toggleCheckedOnly">
         {{ $t("Fleet.選択済") }}
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine && !isMobile }" />
     <!-- 装備表示一覧部分 -->
-    <div id="item-table-body" class="pb-2" :class="{ 'ml-3': multiLine && !isMobile, 'table-mode': !multiLine, 'px-2': isMobile }">
+    <div id="item-table-body" class="pb-2"
+      :class="{ 'ml-3': multiLine && !isMobile, 'table-mode': !multiLine, 'px-2': isMobile }">
       <!-- 一列表示モード用 装備ステータスヘッダー部分 -->
       <div v-if="!multiLine && viewItems.length" class="item-status-header">
         <div class="pl-1">
@@ -153,24 +135,16 @@
             <v-icon small>mdi-sort</v-icon>
           </v-btn>
         </div>
-        <div
-          class="item-status text-left flex-grow-1"
-          @click="toggleSortKey('name')"
-          @keypress="toggleSortKey('name')"
-          :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }"
-        >
+        <div class="item-status text-left flex-grow-1" @click="toggleSortKey('name')" @keypress="toggleSortKey('name')"
+          :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }">
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.装備名称`) }}</div>
         </div>
-        <div
-          v-for="(data, i) in headerItems"
-          :key="`item${i}`"
-          @click="toggleSortKey(data.key)"
-          @keypress="toggleSortKey(data.key)"
-          :class="itemHeaderClasses(data.key, viewStatus)"
-        >
+        <div v-for="(data, i) in headerItems" :key="`item${i}`" @click="toggleSortKey(data.key)"
+          @keypress="toggleSortKey(data.key)" :class="itemHeaderClasses(data.key, viewStatus)">
           <div><v-icon small>mdi-chevron-down</v-icon>{{ $t(`Common.${data.text}`) }}</div>
         </div>
-        <div @click="toggleSortKey('airPower')" @keypress="toggleSortKey('airPower')" :class="itemHeaderClasses('airPower', viewStatus)">
+        <div @click="toggleSortKey('airPower')" @keypress="toggleSortKey('airPower')"
+          :class="itemHeaderClasses('airPower', viewStatus)">
           <div class="d-flex">
             <div class="align-self-center ml-auto">
               <v-icon small>mdi-chevron-down</v-icon>
@@ -181,7 +155,8 @@
             </div>
           </div>
         </div>
-        <div @click="toggleSortKey('defenseAirPower')" @keypress="toggleSortKey('defenseAirPower')" :class="itemHeaderClasses('defenseAirPower', viewStatus)">
+        <div @click="toggleSortKey('defenseAirPower')" @keypress="toggleSortKey('defenseAirPower')"
+          :class="itemHeaderClasses('defenseAirPower', viewStatus)">
           <div class="d-flex">
             <div class="align-self-center ml-auto">
               <v-icon small>mdi-chevron-down</v-icon>
@@ -199,15 +174,12 @@
           <div class="caption text--secondary">{{ $t(`EType.${data.typeName}`) }}</div>
           <div class="type-divider-border" />
         </div>
-        <div class="type-item-container" :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
+        <div class="type-item-container"
+          :class="{ multi: multiLine, 'batch-mode': isBatchMode, 'batch-max': isBatchListMax }">
           <div class="list-item-container" v-if="!multiLine && data.items.length">
             <!-- 一列表示モードの場合の装備個別表示処理コチラ -->
-            <div
-              v-for="(item, i) in data.items"
-              :key="`item-${i}`"
-              v-ripple="{ class: item.count ? 'info--text' : 'red--text' }"
-              class="list-item single"
-              :class="{
+            <div v-for="(item, i) in data.items" :key="`item-${i}`"
+              v-ripple="{ class: item.count ? 'info--text' : 'red--text' }" class="list-item single" :class="{
                 'no-stock': !item.count,
                 'has-bonus': !isCheckedOnly && item.sumBonus,
                 'has-bad-bonus': !isCheckedOnly && item.sumBonus < 0,
@@ -215,11 +187,8 @@
                 selected: item.batchListIndexes.length,
                 disabled: !isCheckedOnly && item.disabled,
                 'lack-remodel': item.lackRemodel,
-              }"
-              @click="clickedItem(item, $event)"
-              @keypress.enter="clickedItem(item, $event)"
-              @contextmenu="showItemMenu(item, $event)"
-            >
+              }" @click="clickedItem(item, $event)" @keypress.enter="clickedItem(item, $event)"
+              @contextmenu="showItemMenu(item, $event)">
               <div>
                 <div>
                   <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
@@ -239,23 +208,21 @@
                   </div>
                 </div>
               </div>
-              <div
-                class="item-name-container"
-                :class="{ 'is-special': item.item.data.isSpecial }"
-                @mouseenter="bootTooltip(item.item, item.bonus, $event)"
-                @mouseleave="clearTooltip"
-                @focus="bootTooltip(item.item, item.bonus, $event)"
-                @blur="clearTooltip"
-              >
+              <div class="item-name-container" :class="{ 'is-special': item.item.data.isSpecial }"
+                @mouseenter="bootTooltip(item.item, item.bonus, $event)" @mouseleave="clearTooltip"
+                @focus="bootTooltip(item.item, item.bonus, $event)" @blur="clearTooltip">
                 <div class="text-truncate">
                   {{ needTrans ? $t(`${item.item.data.name}`) : item.item.data.name }}
                 </div>
               </div>
               <div v-if="!isCheckedOnly && item.sumBonus" class="bonus-icon">
                 <v-icon v-if="item.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-                <v-icon v-else-if="item.sumBonus <= 2" :color="item.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
-                <v-icon v-else-if="item.sumBonus <= 5" :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
-                <v-icon v-else :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+                <v-icon v-else-if="item.sumBonus <= 2" :color="item.batchListIndexes.length ? 'success' : 'light-blue'"
+                  class="pt-1">mdi-chevron-up</v-icon>
+                <v-icon v-else-if="item.sumBonus <= 5"
+                  :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                <v-icon v-else
+                  :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
               </div>
               <div class="item-remodel caption mr-1" v-if="isStockOnly && item.remodel > 0">
                 <v-icon small>mdi-star</v-icon>
@@ -265,17 +232,14 @@
                 <span>&times;</span>
                 <span>{{ item.count }}</span>
               </div>
-              <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}</div>
+              <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}
+              </div>
             </div>
           </div>
           <!-- 複数列表示モードの場合の装備個別表示処理コチラ(あとスマホ) -->
           <template v-else>
-            <div
-              v-for="(v, i) in data.items"
-              :key="i"
-              v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
-              class="list-item"
-              :class="{
+            <div v-for="(v, i) in data.items" :key="i" v-ripple="{ class: v.count ? 'info--text' : 'red--text' }"
+              class="list-item" :class="{
                 'no-stock': !v.count,
                 'has-bonus': !isCheckedOnly && v.sumBonus,
                 'has-bad-bonus': !isCheckedOnly && v.sumBonus < 0,
@@ -284,11 +248,8 @@
                 selected: v.batchListIndexes.length,
                 disabled: !isCheckedOnly && v.disabled,
                 'lack-remodel': v.lackRemodel
-              }"
-              @click="clickedItem(v, $event)"
-              @keypress.enter="clickedItem(v, $event)"
-              @contextmenu="showItemMenu(v, $event)"
-            >
+              }" @click="clickedItem(v, $event)" @keypress.enter="clickedItem(v, $event)"
+              @contextmenu="showItemMenu(v, $event)">
               <div>
                 <div>
                   <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
@@ -310,23 +271,21 @@
               </div>
               <div class="flex-grow-1">
                 <div class="d-flex align-center">
-                  <div
-                    class="item-name-container"
-                    :class="{ 'is-special': v.item.data.isSpecial }"
-                    @mouseenter="bootTooltip(v.item, v.bonus, $event)"
-                    @mouseleave="clearTooltip"
-                    @focus="bootTooltip(v.item, v.bonus, $event)"
-                    @blur="clearTooltip"
-                  >
+                  <div class="item-name-container" :class="{ 'is-special': v.item.data.isSpecial }"
+                    @mouseenter="bootTooltip(v.item, v.bonus, $event)" @mouseleave="clearTooltip"
+                    @focus="bootTooltip(v.item, v.bonus, $event)" @blur="clearTooltip">
                     <div class="text-truncate">
                       {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
                     </div>
                   </div>
                   <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
                     <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
-                    <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'" class="pt-1">mdi-chevron-up</v-icon>
-                    <v-icon v-else-if="v.sumBonus <= 5" :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
-                    <v-icon v-else :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
+                    <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'"
+                      class="pt-1">mdi-chevron-up</v-icon>
+                    <v-icon v-else-if="v.sumBonus <= 5"
+                      :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-double-up</v-icon>
+                    <v-icon v-else
+                      :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
                   </div>
                   <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
                     <v-icon small>mdi-star</v-icon>
@@ -348,18 +307,21 @@
           </template>
         </div>
       </div>
-      <div v-show="viewItems.length === 0" class="body-2 text-center mt-6">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
+      <div v-show="viewItems.length === 0" class="body-2 text-center mt-6">{{ $t("Common.探したけど見つからなかったよ") }}&#128546;
+      </div>
     </div>
     <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
       <v-list dense class="caption" v-if="menuItem">
-        <v-list-item link @click="compareItem()" :disabled="!isAirbaseMode && !isShipMode">{{ $t("ItemList.装備比較") }}</v-list-item>
-        <v-list-item link @click="clickedItem(menuItem)">{{ $t("Common.配備") }}</v-list-item>
+        <v-list-item link @click="compareItem()" :disabled="!isAirbaseMode && !isShipMode">{{ $t("ItemList.装備比較")
+        }}</v-list-item>
+        <v-list-item link @click="clickedItem(menuItem, $event)">{{ $t("Common.配備") }}</v-list-item>
         <v-menu v-model="remodelChangeMenu" offset-x max-width="72" v-if="isStockOnly && !isReadonlyMode">
           <template v-slot:activator="{ on, attrs }">
             <v-list-item link v-bind="attrs" v-on="on">{{ $t("ItemList.改修値変更") }}</v-list-item>
           </template>
           <v-list dense class="caption">
-            <v-list-item link v-for="remodel in 11" :key="`change-remodel-${remodel}`" @click="changeRemodel(menuItem.item, 11 - remodel)">
+            <v-list-item link v-for="remodel in 11" :key="`change-remodel-${remodel}`"
+              @click="changeRemodel(menuItem.item, 11 - remodel)">
               <v-icon small color="teal accent-4">mdi-star</v-icon>
               <span class="teal--text text--accent-4">{{ 11 - remodel }}</span>
             </v-list-item>
@@ -369,11 +331,13 @@
           {{ $t("ItemList.装備名コピー") }}
           <input id="item-name-box" readonly :value="menuItem.item.data.name" />
         </v-list-item>
-        <v-list-item link @click="openWiki(menuItem.item.data)" :disabled="menuItem.item.data.isEnemyItem">{{ $t("ItemList.wikiを開く") }}</v-list-item>
+        <v-list-item link @click="openWiki(menuItem.item.data)" :disabled="menuItem.item.data.isEnemyItem">{{
+          $t("ItemList.wikiを開く") }}</v-list-item>
         <v-list-item link @click="showMenu = false">{{ $t("ItemList.メニューを閉じる") }}</v-list-item>
       </v-list>
     </v-menu>
-    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
+    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition"
+      :position-x="tooltipX" :position-y="tooltipY">
       <item-tooltip v-model="tooltipItem" :bonus="tooltipBonus" :is-airbase-mode="isAirbaseMode" />
     </v-tooltip>
     <v-dialog v-model="confirmDialog" transition="scroll-x-transition" width="auto" scrollable>
@@ -427,7 +391,8 @@
         </template>
         <v-divider class="my-2" />
         <div class="d-flex">
-          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem, $event)">{{ $t("Common.配備") }}</v-btn>
+          <v-btn class="ml-auto" color="primary" dark @click.stop="clickedItem(confirmItem, $event)">{{ $t("Common.配備")
+          }}</v-btn>
           <v-btn class="ml-4" color="secondary" @click.stop="confirmDialog = false">{{ $t("Common.戻る") }}</v-btn>
         </div>
       </v-card>
@@ -468,16 +433,9 @@
         <div class="d-flex px-2 py-1 align-center">
           <div class="body-2">{{ $t("Common.絞り込み") }}</div>
           <v-spacer></v-spacer>
-          <v-switch
-            class="mt-0"
-            v-if="itemStock.length && !isEnemyMode"
-            :label="$t('ItemList.所持装備反映')"
-            v-model="isStockOnly"
-            @click="clickedStockOnly"
-            dense
-            :disabled="!!batchList.length || !itemStock.length || isEnemyMode"
-            hide-details
-          />
+          <v-switch class="mt-0" v-if="itemStock.length && !isEnemyMode" :label="$t('ItemList.所持装備反映')"
+            v-model="isStockOnly" @click="clickedStockOnly" dense
+            :disabled="!!batchList.length || !itemStock.length || isEnemyMode" hide-details />
           <v-btn class="ml-3" icon @click="closeFilterDialog()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -611,7 +569,8 @@
             </v-list-item>
             <v-divider v-if="type === 7"></v-divider>
           </template>
-          <v-list-item v-if="isStockOnly" @click="sortExcludeRemodelStatus = !sortExcludeRemodelStatus" :disabled="isEnemyMode">
+          <v-list-item v-if="isStockOnly" @click="sortExcludeRemodelStatus = !sortExcludeRemodelStatus"
+            :disabled="isEnemyMode">
             <v-list-item-icon>
               <v-icon v-if="sortExcludeRemodelStatus" color="primary">mdi-checkbox-marked</v-icon>
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
@@ -621,7 +580,8 @@
             </v-list-item-content>
           </v-list-item>
           <v-divider v-if="isStockOnly"></v-divider>
-          <v-list-item v-if="!isAirbaseMode" @click="sortExcludeSynergyStatus = !sortExcludeSynergyStatus" :disabled="isEnemyMode">
+          <v-list-item v-if="!isAirbaseMode" @click="sortExcludeSynergyStatus = !sortExcludeSynergyStatus"
+            :disabled="isEnemyMode">
             <v-list-item-icon>
               <v-icon v-if="sortExcludeSynergyStatus" color="primary">mdi-checkbox-marked</v-icon>
               <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
@@ -655,15 +615,10 @@
           <v-divider></v-divider>
         </v-list>
         <div class="mt-auto">
-          <v-btn
-            block
-            text
-            @click="
-              filter();
-              filterDialog = false;
-            "
-            ><v-icon>mdi-close</v-icon>{{ $t("Common.閉じる") }}</v-btn
-          >
+          <v-btn block text @click="
+            filter();
+          filterDialog = false;
+          "><v-icon>mdi-close</v-icon>{{ $t("Common.閉じる") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -674,18 +629,15 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex" :is-airbase-mode="isAirbaseMode"></item-compare>
+        <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex"
+          :is-airbase-mode="isAirbaseMode"></item-compare>
         <v-divider class="my-2" />
         <div class="d-flex flex-wrap">
-          <v-checkbox
-            v-model="setting.showItemCompareDialog"
-            @click="toggleCompareSetting"
-            hide-details
-            dense
-            :label="$t('ItemList.装備選択時は常に表示する')"
-          />
+          <v-checkbox v-model="setting.showItemCompareDialog" @click="toggleCompareSetting" hide-details dense
+            :label="$t('ItemList.装備選択時は常に表示する')" />
           <div class="ml-auto">
-            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem)" v-if="!isBatchMode">{{ $t("Common.配備") }}</v-btn>
+            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem, $event)" v-if="!isBatchMode">{{
+              $t("Common.配備") }}</v-btn>
             <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</v-btn>
           </div>
         </div>
@@ -717,14 +669,17 @@
     position: relative;
     height: unset;
   }
+
   #item-table-body {
     height: 65vh;
   }
+
   #item-table-body.table-mode {
     overflow-y: unset;
     height: unset;
     min-height: 65vh;
   }
+
   .item-search-text {
     width: 150px;
   }
@@ -733,12 +688,15 @@
 .filter-select {
   width: 100px;
 }
+
 .filter-value-select {
   width: 32px;
 }
+
 .filter-value-select input {
   text-align: right !important;
 }
+
 .filter-value-input {
   width: 60px;
 }
@@ -747,11 +705,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
+
 @media (min-width: 600px) {
   .sort-selector {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
+
 .sort-key {
   text-align: center;
   cursor: pointer;
@@ -765,17 +725,20 @@
   column-gap: 4px;
 }
 
-.item-filter-container >>> .v-input--checkbox label {
+.item-filter-container>>>.v-input--checkbox label {
   left: -5px !important;
   font-size: 12px;
 }
-.item-filter-container >>> .v-input--switch label {
+
+.item-filter-container>>>.v-input--switch label {
   font-size: 12px;
 }
+
 .type-selector-container {
   display: flex;
   flex-wrap: wrap;
 }
+
 .type-selector {
   display: flex;
   align-items: center;
@@ -786,18 +749,22 @@
   cursor: pointer;
   transition: 0.2s;
 }
+
 .type-selector:hover {
   background-color: rgba(128, 200, 255, 0.2);
 }
+
 .type-selector.active {
   border-color: rgba(33, 150, 243, 0.4);
   background-color: rgba(33, 150, 243, 0.1);
 }
+
 .type-selector.disabled {
   opacity: 0.4;
   background-color: transparent;
   pointer-events: none;
 }
+
 .type-selector.batch-max {
   opacity: 0.4;
 }
@@ -812,6 +779,7 @@
   display: flex;
   width: 100%;
 }
+
 .type-divider-border {
   margin-left: 1rem;
   align-self: center;
@@ -823,16 +791,19 @@
   display: grid;
   grid-template-columns: 1fr;
 }
+
 @media (min-width: 600px) {
   .type-item-container.multi {
     grid-template-columns: 1fr 1fr;
   }
 }
+
 @media (min-width: 880px) {
   .type-item-container.multi {
     grid-template-columns: 1fr 1fr 1fr;
   }
 }
+
 @media (min-width: 1100px) {
   .type-item-container.multi {
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -857,14 +828,17 @@
   border: 1px solid transparent;
   user-select: none;
 }
+
 .list-item:hover {
   background-color: rgba(0, 164, 255, 0.1);
 }
+
 .list-item.single {
   margin: 1px;
   padding-right: 12px;
   padding-left: 12px;
 }
+
 .list-item.mobile {
   padding-top: 2px;
   padding-bottom: 2px;
@@ -872,27 +846,34 @@
   border-bottom-right-radius: 0;
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 }
+
 .list-item.no-stock:hover {
   background-color: rgba(255, 128, 128, 0.1);
 }
+
 .list-item.has-bonus {
   border-color: rgba(3, 169, 244, 0.8);
   border-bottom-left-radius: 0.2rem;
   border-bottom-right-radius: 0.2rem;
 }
+
 .list-item.single.has-bonus {
   padding-left: 6px;
   border-left: 6px solid rgba(3, 169, 244, 0.8);
 }
+
 .list-item.has-bonus.has-bad-bonus {
   border-color: rgba(239, 83, 80, 0.8);
 }
+
 .list-item.has-bonus.ignore-bonus {
   border-color: rgba(3, 169, 244, 0.4);
 }
+
 .list-item.has-bonus.has-bad-bonus.ignore-bonus {
   border-color: rgba(239, 83, 80, 0.4);
 }
+
 .bonus-icon {
   position: absolute;
   left: -4px;
@@ -900,15 +881,19 @@
   font-size: 0.8em;
   filter: drop-shadow(0 0 2px #fff);
 }
+
 .theme--dark .bonus-icon {
   filter: drop-shadow(0 0 2px #000);
 }
+
 .ignore-bonus .bonus-icon {
   opacity: 0.4;
 }
-.list-item > div {
+
+.list-item>div {
   align-self: center;
 }
+
 .item-name-container {
   display: flex;
   align-items: center;
@@ -918,38 +903,49 @@
   height: 34px;
   margin-left: 0.1rem;
 }
+
 .mobile .item-name-container {
   font-size: 14px;
   height: unset;
 }
+
 .is-special {
   color: #3cac42;
 }
+
 .theme--dark .is-special {
   color: #66bb6a;
 }
+
 .no-stock .item-name-container {
   color: #ff6464;
 }
+
 .lack-remodel .item-name-container {
   color: #ff6964;
 }
+
 .item-remodel {
   width: 32px;
   color: #00bfa5;
 }
-.item-remodel >>> .v-icon {
+
+.item-remodel>>>.v-icon {
   color: #00bfa5;
 }
+
 .lack-remodel .item-remodel {
   color: #ff6464;
 }
-.lack-remodel .item-remodel >>> .v-icon {
+
+.lack-remodel .item-remodel>>>.v-icon {
   color: #ff6464;
 }
+
 .opacity0 {
   opacity: 0;
 }
+
 .item-count {
   margin-left: 1px;
   width: 22px;
@@ -974,9 +970,11 @@
   top: 0px;
   animation: special-text infinite 3s;
 }
+
 .list-item.single.has-bonus .item-special-text {
   left: -1px;
 }
+
 .multi .item-special-text {
   left: 0px;
 }
@@ -984,28 +982,35 @@
 .batch-mode .list-item {
   opacity: 0.8;
 }
+
 .batch-mode .list-item.selected {
   border-color: #4caf50;
   opacity: 1;
 }
+
 .batch-mode .list-item .item-name {
   position: relative;
 }
+
 .batch-mode .batch-index-container {
   position: absolute;
   display: flex;
   top: 1px;
   right: 56%;
 }
+
 .batch-mode .has-bonus .batch-index-container {
   right: calc(56% + 3px);
 }
+
 .multi.batch-mode .batch-index-container {
   right: 1px;
 }
+
 .multi.batch-mode .has-bonus .batch-index-container {
   right: 2px;
 }
+
 .batch-mode .batch-index {
   z-index: 1;
   border-radius: 10px;
@@ -1020,9 +1025,11 @@
   justify-content: center;
   background-color: #4caf50;
 }
+
 .batch-mode .list-item.disabled .item-name-container {
   color: rgb(255, 100, 100);
 }
+
 .batch-mode.batch-max .list-item.disabled {
   opacity: 0.4;
 }
@@ -1034,25 +1041,32 @@
   filter: drop-shadow(0 0 1px #000);
   animation: special-text infinite 3s;
 }
+
 .theme--dark .saury-bonus {
   filter: drop-shadow(0 0 3px #000);
 }
+
 .list-item.single.has-bonus .saury-bonus {
   left: -5px;
 }
+
 .multi .saury-bonus {
   left: -5px;
 }
+
 @keyframes special-text {
   0% {
     opacity: 0;
   }
+
   15% {
     opacity: 1;
   }
+
   85% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -1069,20 +1083,24 @@
   z-index: 2;
   top: 0;
 }
+
 .theme--dark .item-status-header {
   /** 追従するためrgba使用できない */
   background-color: rgb(62, 62, 66);
 }
+
 .deep-sea .theme--dark .item-status-header {
   /** 追従するためrgba使用できない */
   background-color: rgb(52, 56, 72);
 }
+
 .item-status {
   align-self: center;
   text-align: right;
   width: 10%;
   font-size: 0.8em;
 }
+
 .item-status-header .item-status {
   padding-right: 4px;
   font-size: 11px;
@@ -1093,25 +1111,31 @@
   min-height: 34px;
   display: table;
 }
-.item-status-header .item-status > div {
+
+.item-status-header .item-status>div {
   display: table-cell;
   vertical-align: middle;
 }
+
 .item-status-header .item-status.desc,
 .item-status-header .item-status.asc,
 .item-status-header .item-status:hover {
   opacity: 1;
 }
+
 .item-status-header .item-status:hover {
   background-color: rgba(128, 200, 255, 0.1);
 }
+
 .item-status-header .item-status .v-icon {
   opacity: 0;
 }
+
 .item-status-header .item-status.desc .v-icon,
 .item-status-header .item-status.asc .v-icon {
   opacity: 1;
 }
+
 .item-status-header .item-status.asc .v-icon {
   transform: rotate(180deg);
 }
@@ -1121,13 +1145,16 @@
   cursor: pointer;
   height: 32px;
 }
+
 .manual-checkbox-button {
   position: relative;
   bottom: -2px;
 }
+
 .manual-icon {
   font-size: 20px !important;
 }
+
 .manual-checkbox span {
   position: relative;
   left: -3px;
@@ -1153,6 +1180,7 @@
   position: relative;
   padding-top: 24px !important;
 }
+
 .compare-close-button {
   position: absolute;
   right: 12px;
@@ -1165,45 +1193,54 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
+
 .mobile-sub-status-value {
   display: flex;
   align-items: center;
   font-size: 12px;
   opacity: 0.8;
 }
+
 .sub-status-header {
   opacity: 0.7;
   margin-right: 8px;
   font-size: 11px;
 }
+
 .filter-dialog-card {
   height: 100vh;
   display: flex;
   flex-direction: column;
 }
-.filter-dialog-card >>> .v-list {
+
+.filter-dialog-card>>>.v-list {
   background-color: transparent !important;
 }
+
 .filter-dialog-card .type-selector {
   padding: 0.4rem 0.6rem;
   font-size: 14px;
   transition: 0.2s;
 }
+
 .filter-mobile-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 4px;
 }
+
 .detected-parents {
   max-height: 50vh;
   overflow-y: auto;
 }
+
 .detected-ships-container {
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 2px;
   column-gap: 0.25rem;
 }
+
 @media (min-width: 600px) {
   .detected-ships-container {
     display: grid;
@@ -1211,20 +1248,25 @@
     column-gap: 0.25rem;
   }
 }
+
 .ship-img {
   height: 30px;
 }
+
 .ship-img img {
   height: 30px;
   width: 120px;
 }
+
 .ship-caption {
   font-size: 11px;
   margin-left: 0.1rem;
 }
+
 .ship-level {
   min-width: 36px;
 }
+
 .ship-name {
   flex-grow: 1;
   font-size: 0.8em;
@@ -1334,7 +1376,7 @@ export default Vue.extend({
     itemStock: [] as ItemStock[],
     usedItems: [] as Item[],
     confirmDialog: false,
-    confirmItem: { item: new Item(), count: 0 },
+    confirmItem: {} as unknown as viewItem,
     confirmFleets: [] as { fleet: number; ships: { ship: Ship; count: number }[] }[],
     confirmAirbases: [] as { no: number; count: number }[],
     headerItems: [
@@ -1479,7 +1521,7 @@ export default Vue.extend({
     isAircraftMode(): boolean {
       return this.itemParent instanceof Ship && (this.itemParent.data.isCV || [352, 717, 1008].includes(this.itemParent.data.id));
     },
-    itemListData(): { typeName: string; items: { item: Item; count: number; text: string }[] }[] {
+    itemListData(): { typeName: string; items: viewItem[] }[] {
       const targetItems = this.viewItems;
       if (this.multiLine && !this.isMobile) {
         const depthChargeLauncher = { id: 1700, name: '爆雷投射機', sortKey: [] };
@@ -2273,7 +2315,7 @@ export default Vue.extend({
               return (v.item.antiAirBonus as number) / 100 >= filterValue;
             }
             if (isActualFilterKey) {
-              return v.item[filterKey] >= filterValue;
+              return (v.item[filterKey] as number) >= filterValue;
             }
             if (this.isCostFilter) {
               return (v.item.data as { [key: string]: number }).cost <= filterValue;

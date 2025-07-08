@@ -37,7 +37,7 @@
             v-model="sortKey"
             :items="sortKeys"
             item-value="value"
-            :item-text="(item) => $t('Common.' + item.text)"
+            :item-text="getSortItemText"
             @input="filter()"
             clearable
             prepend-inner-icon="mdi-sort-descending"
@@ -371,6 +371,13 @@
               :toggle="toggleFighterFilter"
               imgPath="./img/type/type4500.png"
               :disabled="!visibleFighterFilter"
+            />
+            <manual-checkbox
+              mode="img"
+              :ok="shipFilter.aswPlaneOK"
+              :ng="shipFilter.aswPlaneNG"
+              :toggle="toggleAswPlaneFilter"
+              imgPath="./img/type/type25.png"
             />
             <manual-checkbox
               mode="img"
@@ -1257,6 +1264,16 @@ export default Vue.extend({
       }
       return this.type === -1;
     },
+    visibleAswPlaneFilter(): boolean {
+      // 対潜機搭載可フィルタ表示制御
+      for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
+        const type = this.selectedShipTypes[i];
+        if ([+SHIP_TYPE.CL, SHIP_TYPE.CA, SHIP_TYPE.FBB, SHIP_TYPE.BB, SHIP_TYPE.BBB, SHIP_TYPE.CVL, SHIP_TYPE.CV].includes(type)) {
+          return true;
+        }
+      }
+      return this.type === -1;
+    },
     visibleArmorFilter(): boolean {
       // バルジ搭載可フィルタ表示制御
       for (let i = 0; i < this.selectedShipTypes.length; i += 1) {
@@ -1387,6 +1404,16 @@ export default Vue.extend({
         this.shipFilter.fighterNG = false;
       } else {
         this.shipFilter.fighterOK = true;
+      }
+    },
+    toggleAswPlaneFilter() {
+      if (this.shipFilter.aswPlaneOK) {
+        this.shipFilter.aswPlaneOK = false;
+        this.shipFilter.aswPlaneNG = true;
+      } else if (this.shipFilter.aswPlaneNG) {
+        this.shipFilter.aswPlaneNG = false;
+      } else {
+        this.shipFilter.aswPlaneOK = true;
       }
     },
     toggleCommanderFilter() {
@@ -1575,6 +1602,13 @@ export default Vue.extend({
         } else if (this.shipFilter.tankNG) {
           // 内火艇搭載不可
           result = filterShip(result, [167], true);
+        }
+        if (this.shipFilter.aswPlaneOK) {
+          // 対潜機搭載可
+          result = filterShip(result, [326, 491, 549]);
+        } else if (this.shipFilter.aswPlaneNG) {
+          // 対潜機搭載不可
+          result = filterShip(result, [326, 491, 549], true);
         }
         if (this.visibleCommanderFilter) {
           if (this.shipFilter.commanderOK) {
@@ -2180,6 +2214,9 @@ export default Vue.extend({
       if (!this.bookmarksDialog) {
         this.filter();
       }
+    },
+    getSortItemText(item: { text: string }): string {
+      return `${this.$t(`Common.${item.text}`)}`;
     },
   },
 });

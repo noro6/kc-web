@@ -42,6 +42,12 @@ export default class ShipFilter {
   /** 水上爆撃系搭載NG */
   public spBomberNG = false;
 
+  /** 対潜機搭載OK */
+  public aswPlaneOK = false;
+
+  /** 対潜機搭載NG */
+  public aswPlaneNG = false;
+
   /** 甲標的系搭載可能 */
   public midgetSubmarineOK = false;
 
