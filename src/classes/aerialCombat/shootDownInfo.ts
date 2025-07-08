@@ -23,11 +23,26 @@ export default class ShootDownInfo {
   /** 対空砲火可能艦数 */
   public maxRange: number;
 
-  constructor(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, antiAirCutIn: AntiAirCutIn, border: number, formation?: Formation, isAirRaid = false) {
+  constructor(
+    ships: ShipBase[],
+    isEnemy: boolean,
+    isUnion: boolean,
+    antiAirCutIn: AntiAirCutIn,
+    border: number,
+    formation?: Formation,
+    isAirRaid = false,
+  ) {
     if (formation) {
       this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, formation, antiAirCutIn, isAirRaid);
     } else {
-      this.shootDownStatusList = ShootDownInfo.getStage2(ships, isEnemy, isUnion, Const.FORMATIONS[0], antiAirCutIn, isAirRaid);
+      this.shootDownStatusList = ShootDownInfo.getStage2(
+        ships,
+        isEnemy,
+        isUnion,
+        Const.FORMATIONS[0],
+        antiAirCutIn,
+        isAirRaid,
+      );
     }
     this.maxRange = ships.length;
     this.border = border;
@@ -46,21 +61,35 @@ export default class ShootDownInfo {
    * @return {*}  {ShootDownStatus[]}
    * @memberof ShootDownInfo
    */
-  public static getStage2(ships: ShipBase[], isEnemy: boolean, isUnion: boolean, formation: Formation, cutIn: AntiAirCutIn, isAirRaid?: boolean, avoid?: AvoidType): ShootDownStatus[] {
+  public static getStage2(
+    ships: ShipBase[],
+    isEnemy: boolean,
+    isUnion: boolean,
+    formation: Formation,
+    cutIn: AntiAirCutIn,
+    isAirRaid?: boolean,
+    avoid?: AvoidType,
+  ): ShootDownStatus[] {
     const stage2: ShootDownStatus[] = [];
     const shipCount = ships.length;
     if (shipCount === 0) {
       // 全てが0のデータ
       for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
         stage2.push({
-          antiAirWeightList: [0], fixDownList: [0], rateDownList: [0], minimumDownList: [0],
+          antiAirWeightList: [0],
+          fixDownList: [0],
+          rateDownList: [0],
+          minimumDownList: [0],
         });
       }
       return stage2;
     }
     for (let i = 0; i < Const.AVOID_TYPE.length; i += 1) {
       stage2.push({
-        antiAirWeightList: [], fixDownList: [], rateDownList: [], minimumDownList: [],
+        antiAirWeightList: [],
+        fixDownList: [],
+        rateDownList: [],
+        minimumDownList: [],
       });
     }
     // 陣形補正
@@ -140,7 +169,9 @@ export default class ShootDownInfo {
         let antiAirWeight = 0;
         if (isEnemy) {
           // 艦船加重対空値(敵側式) => int((int(sqrt(素対空 + 装備対空)) + Σ(装備対空値 * 装備倍率)) * 対空射撃回避補正)
-          antiAirWeight = Math.floor((Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1);
+          antiAirWeight = Math.floor(
+            (Math.floor(Math.sqrt(ship.antiAir + sumItemAntiAir)) + sumAntiAirWeight) * avoid1,
+          );
         } else {
           // 艦船加重対空値(味方側式) => int(((素対空 / 2 + Σ(装備対空値 * 装備倍率)) + 装備対空ボーナス * 0.8) * 対空射撃回避補正)
           antiAirWeight = Math.floor(Math.floor(ship.antiAir / 2 + sumAntiAirWeight + itemBonusAntiAir * 0.8) * avoid1);
@@ -156,7 +187,15 @@ export default class ShootDownInfo {
         // 割合撃墜 => int(0.02 * 0.25 * 機数[あとで] * 艦船加重対空値 * 連合補正)
         stage2[j].rateDownList.push(0.02 * 0.25 * antiAirWeight * unionFactor);
         // 固定撃墜 => int((加重対空値 + int(最終艦隊防空 + 対空青字ボーナス * 0.6)) * 基本定数(0.25) * 敵味方航空戦補正 * 連合補正 * 対空CI変動ボーナス)
-        stage2[j].fixDownList.push(Math.floor((antiAirWeight + Math.floor(fleetAABonus + itemBonusAntiAir * 0.6)) * 0.25 * aerialCorr * unionFactor * cutInBonus1));
+        stage2[j].fixDownList.push(
+          Math.floor(
+            (antiAirWeight + Math.floor(fleetAABonus + itemBonusAntiAir * 0.6))
+              * 0.25
+              * aerialCorr
+              * unionFactor
+              * cutInBonus1,
+          ),
+        );
 
         // 最低保証 => int(対空CI固定ボーナスA * 対空射撃補正A + 対空CI固定ボーナスB * 対空射撃補正B)
         const minimum = Math.floor(cutInBonusA * avoid3 + cutInBonusB * avoid4);
@@ -177,9 +216,7 @@ export default class ShootDownInfo {
     const cutInIds: number[] = [];
     // 装備一覧
     const items = ship.items.concat(ship.exItem);
-    const {
-      kokakuCount, specialKijuCount, specialKokakuCount, antiAirRadarCount, koshaCount, kijuCount,
-    } = ship;
+    const { kokakuCount, specialKijuCount, specialKokakuCount, antiAirRadarCount, koshaCount, kijuCount } = ship;
     // 艦型
     const { type2 } = ship.data;
     // 艦娘id
@@ -201,8 +238,14 @@ export default class ShootDownInfo {
       if (hasKokaku && hasRadar) cutInIds.push(2);
       // 3種 (高角砲2) 共存なし
       if (allKokaku >= 2) cutInIds.push(3);
-      // 48種 (初月砲2, 対空4以上の電探)
-      if (items.filter((v) => v.data.id === 533).length >= 2 && items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4)) cutInIds.push(48);
+      // 48種 (初月砲2, 対空4以上の電探、秋月型改)
+      if (
+        ship.data.version >= 1
+        && items.filter((v) => v.data.id === 533).length >= 2
+        && items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4)
+      ) {
+        cutInIds.push(48);
+      }
     } else if (shipId === 428) {
       // 摩耶様改二
       // 10種 (高角砲, 特殊機銃, 対空電探)
@@ -239,7 +282,7 @@ export default class ShootDownInfo {
       // 文月改二
       // 22種 (特殊機銃)
       if (specialKijuCount) cutInIds.push(22);
-    } else if (shipId === 329 || shipId === 530) {
+    } else if (shipId === 539 || shipId === 530) {
       // UIT-25 伊504
       // 23種 (通常機銃)
       if (kijuCount) cutInIds.push(23);
@@ -364,12 +407,12 @@ export default class ShootDownInfo {
       if (type2 !== 54) {
         // 49種 (特殊高角砲2, 対空電探)
         if (specialKokakuCount >= 2 && antiAirRadarCount) cutInIds.push(49);
-        // 50種 (10cm連装高角砲改どっちかx2, 対空4電探, 94高射装置)
-        if (aaGunCount + aaGun2Count >= 2 && hasSPAntiAirRadar && kosha94Count) cutInIds.push(50);
         const hasMore5AAKiju = items.some((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 5);
         // 51種 (10cm連装高角砲改どっちか, 対空4電探, 対空5機銃)
         if ((aaGunCount || aaGun2Count) && hasSPAntiAirRadar && hasMore5AAKiju) cutInIds.push(51);
       }
+      // 50種 (10cm連装高角砲改どっちかx2, 対空4電探, 94高射装置)
+      if (aaGunCount + aaGun2Count >= 2 && hasSPAntiAirRadar && kosha94Count) cutInIds.push(50);
       // 52種 (10cm連装高角砲改2, 94高射装置)
       if (aaGun2Count >= 2 && kosha94Count) cutInIds.push(52);
     }
@@ -390,7 +433,11 @@ export default class ShootDownInfo {
     // 9種 (高角砲, 高射装置)
     if (hasKokaku && koshaCount) cutInIds.push(9);
     // 12種 (特殊機銃, 素対空値3以上の機銃, 対空電探)
-    if (specialKijuCount && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2 && antiAirRadarCount) cutInIds.push(12);
+    if (
+      specialKijuCount
+      && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2
+      && antiAirRadarCount
+    ) cutInIds.push(12);
     // 13種 (特殊機銃, 特殊高角砲, 対空電探, 摩耶改二以外)
     if (specialKijuCount && specialKokakuCount && antiAirRadarCount && shipId !== 428) cutInIds.push(13);
 
