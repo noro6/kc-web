@@ -28,7 +28,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.49.1',
+    siteVersion: '2.49.2',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -77,12 +77,12 @@ export default new Vuex.Store({
     quests: [] as Quest[],
     /** 編成セーブデータルート */
     saveData: new SaveData(),
-    /** 特定艦娘が装備可能な装備カテゴリ */
-    equipShips: [] as Master.MasterEquipmentShip[],
-    /** 艦種マスタ */
+    /** 特定艦娘が補強増設に装備可能な装備（api_mst_equip_exslot_ship） */
+    exSlotEquipShips: {} as Master.MasterEquipmentExSlot,
+    /** 特定艦娘が装備可能な装備カテゴリ（api_mst_equip_ship） */
+    equipShips: {} as Master.MasterEquipmentShip,
+    /** 艦種マスタ（api_mst_stype） */
     shipTypes: [] as Master.MasterShipType[],
-    /** 特定艦娘が補強増設に装備可能な装備id */
-    exSlotEquipShips: [] as Master.FormattedMasterEquipmentExSlot[],
     /** 現在展開中の計算データ */
     calcManager: undefined as CalcManager | undefined,
     /** 現在展開中のセーブデータ */
@@ -142,53 +142,10 @@ export default new Vuex.Store({
       state.items = items;
     },
     setExSlotEquipShips: (state, values: Master.MasterEquipmentExSlot) => {
-      // あまりにもアレすぎるので変換する
-      const data: Master.FormattedMasterEquipmentExSlot[] = [];
-      Object.keys(values).forEach((v) => {
-        if (+v && values[v]) {
-          const row: Master.FormattedMasterEquipmentExSlot = {
-            api_slotitem_id: +v,
-            api_ship_ids: [],
-            api_stypes: [],
-            api_ctypes: [],
-            api_req_level: 0,
-          };
-
-          const {
-            // eslint-disable-next-line camelcase
-            api_ship_ids, api_stypes, api_ctypes, api_req_level,
-          } = values[v];
-          // eslint-disable-next-line camelcase
-          if (api_ship_ids) {
-            Object.keys(api_ship_ids).forEach((x) => {
-              if (+x && api_ship_ids[x]) row.api_ship_ids.push(+x);
-            });
-          }
-          // eslint-disable-next-line camelcase
-          if (api_stypes) {
-            Object.keys(api_stypes).forEach((x) => {
-              if (+x && api_stypes[x]) row.api_stypes.push(+x);
-            });
-          }
-          // eslint-disable-next-line camelcase
-          if (api_ctypes) {
-            Object.keys(api_ctypes).forEach((x) => {
-              if (+x && api_ctypes[x]) row.api_ctypes.push(+x);
-            });
-          }
-          // eslint-disable-next-line camelcase
-          if (api_req_level) {
-            // eslint-disable-next-line camelcase
-            row.api_req_level = +api_req_level;
-          }
-
-          data.push(row);
-        }
-      });
-      state.exSlotEquipShips = data;
+      state.exSlotEquipShips = values;
     },
-    setEquipShips: (state, values: Master.MasterEquipmentShip[]) => {
-      state.equipShips = values;
+    setEquipShips: (state, value: Master.MasterEquipmentShip) => {
+      state.equipShips = value;
     },
     setShipTypes: (state, values: Master.MasterShipType[]) => {
       state.shipTypes = values;
@@ -228,7 +185,16 @@ export default new Vuex.Store({
             if (!old) {
               // 過去データにいない
               diff.newcomers.push(current);
-            } else if (old && (current.id !== old.id || current.exp !== old.exp || current.level !== old.level || current.releaseExpand !== old.releaseExpand || current.improvement.hp !== old.improvement.hp || current.improvement.asw !== old.improvement.asw || current.improvement.luck !== old.improvement.luck)) {
+            } else if (
+              old
+              && (current.id !== old.id
+                || current.exp !== old.exp
+                || current.level !== old.level
+                || current.releaseExpand !== old.releaseExpand
+                || current.improvement.hp !== old.improvement.hp
+                || current.improvement.asw !== old.improvement.asw
+                || current.improvement.luck !== old.improvement.luck)
+            ) {
               // 過去データと何か違っていたので差分あり
               diff.diffs.push(old);
             }
@@ -425,21 +391,32 @@ export default new Vuex.Store({
       // ロード画面を入れる
       context.commit('completed', false);
 
-      const getCellJson = (url: string): Promise<void> => axios.get(url)
-        .then((response) => {
-          const cells: CellMaster[] = [];
-          const masters = response.data.patterns;
-          for (let i = 0; i < masters.length; i += 1) {
-            cells.push(new CellMaster(masters[i] as RawCell));
-          }
-          context.commit('setCells', cells);
-        });
+      const getCellJson = (url: string): Promise<void> => axios.get(url).then((response) => {
+        const cells: CellMaster[] = [];
+        const masters = response.data.patterns;
+        for (let i = 0; i < masters.length; i += 1) {
+          cells.push(new CellMaster(masters[i] as RawCell));
+        }
+        context.commit('setCells', cells);
+      });
 
       // マスタ問い合わせ
-      getDownloadURL(ref(getStorage(), 'cells.json')).then((url) => {
-        getCellJson(url).then(() => {
-          context.commit('completed', true);
-        }).catch((error) => {
+      getDownloadURL(ref(getStorage(), 'cells.json'))
+        .then((url) => {
+          getCellJson(url)
+            .then(() => {
+              context.commit('completed', true);
+            })
+            .catch((error) => {
+              console.error(error);
+              // バックアップデータを読み出す
+              getCellJson('./master_bk/cells.json').then(() => {
+                console.log('セル(backup)利用');
+                context.commit('completed', true);
+              });
+            });
+        })
+        .catch((error) => {
           console.error(error);
           // バックアップデータを読み出す
           getCellJson('./master_bk/cells.json').then(() => {
@@ -447,38 +424,41 @@ export default new Vuex.Store({
             context.commit('completed', true);
           });
         });
-      }).catch((error) => {
-        console.error(error);
-        // バックアップデータを読み出す
-        getCellJson('./master_bk/cells.json').then(() => {
-          console.log('セル(backup)利用');
-          context.commit('completed', true);
-        });
-      });
     },
     loadData: async (context) => {
-      const getMasterJson = (url: string): Promise<void> => axios.get(url)
-        .then((response) => {
-          if (response.status !== 200 || !response.data) {
-            return;
-          }
-          const master = response.data as Master.Master;
-          context.commit('setItems', master.items);
-          context.commit('setShips', master.ships);
-          context.commit('setEnemies', master.enemies);
-          context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
-          context.commit('setEquipShips', master.api_mst_equip_ship);
-          context.commit('setShipTypes', master.api_mst_stype);
-          context.commit('setWorlds', master.worlds);
-          context.commit('setMaps', master.maps);
-          context.commit('setCellInfos', master.cells);
-          context.commit('setAreaCount', master.area_count);
-        });
+      const getMasterJson = (url: string): Promise<void> => axios.get(url).then((response) => {
+        if (response.status !== 200 || !response.data) {
+          return;
+        }
+        const master = response.data as Master.Master;
+        context.commit('setItems', master.items);
+        context.commit('setShips', master.ships);
+        context.commit('setEnemies', master.enemies);
+        context.commit('setExSlotEquipShips', master.api_mst_equip_exslot_ship);
+        context.commit('setEquipShips', master.api_mst_equip_ship);
+        context.commit('setShipTypes', master.api_mst_stype);
+        context.commit('setWorlds', master.worlds);
+        context.commit('setMaps', master.maps);
+        context.commit('setCellInfos', master.cells);
+        context.commit('setAreaCount', master.area_count);
+      });
 
-      getDownloadURL(ref(getStorage(), 'master.json')).then((url) => {
-        getMasterJson(url).then(() => {
-          context.commit('completed', true);
-        }).catch((error) => {
+      getDownloadURL(ref(getStorage(), 'master.json'))
+        .then((url) => {
+          getMasterJson(url)
+            .then(() => {
+              context.commit('completed', true);
+            })
+            .catch((error) => {
+              console.error(error);
+              // バックアップデータを読み出す
+              getMasterJson('./master_bk/master.json').then(() => {
+                console.log('マスター(backup)利用');
+                context.commit('completed', true);
+              });
+            });
+        })
+        .catch((error) => {
           console.error(error);
           // バックアップデータを読み出す
           getMasterJson('./master_bk/master.json').then(() => {
@@ -486,14 +466,6 @@ export default new Vuex.Store({
             context.commit('completed', true);
           });
         });
-      }).catch((error) => {
-        console.error(error);
-        // バックアップデータを読み出す
-        getMasterJson('./master_bk/master.json').then(() => {
-          console.log('マスター(backup)利用');
-          context.commit('completed', true);
-        });
-      });
     },
     loadSaveData: async (context) => {
       // ロード画面を入れる
@@ -597,8 +569,7 @@ export default new Vuex.Store({
       }
     },
   },
-  modules: {
-  },
+  modules: {},
   getters: {
     getShipStockDiff: (state) => state.shipStockDiff,
     getCompletedAll: (state) => state.completed && state.saveDataLoadCompleted && state.settingLoadCompleted,

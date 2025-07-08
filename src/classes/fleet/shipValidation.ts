@@ -10,154 +10,97 @@ import ShipMaster from './shipMaster';
  */
 export default class ShipValidation {
   /**
- * 引数の装備を搭載できるかどうかを返却
- * @param {ItemMaster} item
- * @return {*}  {boolean}
- * @memberof Ship
- */
+   * 引数の装備を搭載できるかどうかを返却
+   * @param {ItemMaster} item
+   * @return {*}  {boolean}
+   * @memberof Ship
+   */
   public static isValidItem(ship: ShipMaster, item: ItemMaster, slotIndex = -1, remodel = 0): boolean {
     // 未指定の場合はなんでもOK
     if (ship.id === 0) {
       return true;
     }
-    // 装備可能カテゴリ
-    let types: number[] = [];
-    // 補強増設かどうか
-    const isExpandSlot = slotIndex === Const.EXPAND_SLOT_INDEX;
-    // 艦種
-    const { type } = ship;
 
-    // 装備可能条件マスタ
-    const itemLink = store.state.equipShips;
-
-    if (!isExpandSlot) {
-      // 特定装備判定
-      // 試製景雲
-      if (item.id === 151) {
-        // 装甲空母ならOK
-        return type === SHIP_TYPE.CVB;
-      }
-      // 15m二重測距儀+21号電探改二
-      if (item.id === 142 || item.id === 460) {
-        // 戦艦系のみ
-        if (!ship.isBB) {
-          return false;
-        }
-        const special = itemLink.find((v) => v.api_ship_id === ship.id);
-        if (special && !special.api_equip_type.includes(13)) {
-          // 特定艦で大型電探が省かれていたらアウト
-          return false;
-        }
-        return true;
-      }
-      // 51cm連装砲系
-      if (item.id === 128 || item.id === 281 || item.id === 465) {
-        // 長門型改以上か大和型のみ
-        return ship.type2 === 37 || (ship.type2 === 19 && ship.version > 0);
-      }
-      // 5inch連装砲(副砲配置)集中配備
-      if (item.id === 467) {
-        // 重巡、戦艦系、正規(装甲)空母のみ搭載可
-        if (type === SHIP_TYPE.CA || ship.isBB || type === SHIP_TYPE.CV || type === SHIP_TYPE.CVB) {
-          return true;
-        }
+    // Ho229 艦娘搭載不可
+    if (item.id === 561) {
+      return false;
+    }
+    // 試製景雲 => 偵察機だけど装甲空母以外搭載不可
+    if (item.id === 151 && ship.type !== SHIP_TYPE.CVB) {
+      return false;
+    }
+    // 15m二重測距儀+21号電探改二系列 => 戦艦系以外搭載不可
+    if ((item.id === 142 || item.id === 460) && !ship.isBB) {
+      return false;
+    }
+    // 51cm連装砲系 => 長門型改以上か大和型のみ搭載可
+    if (item.id === 128 || item.id === 281 || item.id === 465) {
+      if (ship.type2 !== 37 && !(ship.type2 === 19 && ship.version > 0)) {
         return false;
       }
-
-      if (ship.id === 945) {
-        // 第百一号輸送艦
-        if (item.apiTypeId === 1) {
-          // 小口径主砲は単装砲系のみ
-          return [229, 379, 382].includes(item.id);
-        }
-      } else if (ship.id === 727) {
-        // 第百一号輸送艦改
-        if (item.apiTypeId === 1) {
-          // 小口径主砲は単装砲系のみ
-          return [229, 379, 382].includes(item.id);
-        }
-        if (item.apiTypeId === 4) {
-          // 副砲は8cm系のみ
-          return [66, 220].includes(item.id);
-        }
-      }
-
-      if (ship.id === 166) {
-        // あきつ丸
-        if (item.apiTypeId === 35) {
-          // 航空要員は寒冷地装備&甲板要員のみ
-          return item.id === 402;
-        }
-      }
-
-      if (ship.id === 352 || ship.id === 460) {
-        // 速吸
-        if (item.apiTypeId === 4) {
-          // 副砲は12cm単装高角砲＋25mm機銃増備のみ
-          return item.id === 524;
-        }
-      }
-
-      if (ship.id === 699) {
-        // 宗谷(特務艦)
-        if (item.apiTypeId === 1) {
-          // 小口径主砲は12cm単装高角砲のみ
-          return item.id === 48;
-        }
-        if (item.apiTypeId === 4) {
-          // 副砲は12cm単装高角砲＋25mm機銃増備のみ
-          return item.id === 524;
-        }
-      }
-
-      if (ship.type2 === 48 && ship.version >= 2) {
-        // Z1型駆逐艦
-        if (item.apiTypeId === 13) {
-          // 大型電探はFuMO25 レーダーのみ
-          return [124].includes(item.id);
-        }
+    }
+    // 5inch連装砲(副砲配置)集中配備 => 重巡、戦艦系、正規(装甲)空母のみ搭載可
+    if (item.id === 467) {
+      if (ship.type !== SHIP_TYPE.CA && !ship.isBB && ship.type !== SHIP_TYPE.CV && ship.type !== SHIP_TYPE.CVB) {
+        return false;
       }
     }
 
-    // 特定艦娘判定
-    const special = itemLink.find((v) => v.api_ship_id === ship.id);
-    if (special) {
-      // 特殊装備カテゴリ枠から取得
-      types = special.api_equip_type;
-    } else {
-      // 通常艦種装備可能から取得
-      const normal = store.state.shipTypes.find((v) => v.api_id === type);
+    /**
+     * api_mst_equip_ship
+     * 艦娘に対する装備可能情報（マスタ情報より優先される）
+     * 例: { 1: { api_equip_type: { 1: [1, 2, 3], 2: null } } }
+     * 1: 艦娘ID
+     * api_equip_type: 装備可能カテゴリ
+     * 1: 装備可能カテゴリID
+     * [1, 2, 3]: 装備可能カテゴリIDに対応する装備IDの配列、nullの場合、このカテゴリの装備は全て装備可能
+     */
+    let apiEquipType: { [key: number]: number[] | null } | undefined = store.state.equipShips[ship.id]?.api_equip_type;
+    if (!apiEquipType) {
+      /**
+       * api_mst_stype から取得
+       * 例: { api_id: 1, api_name: '海防艦', api_equip_type: [1, 2, 3] } の配列
+       * api_id: 艦種ID
+       * api_name: 艦種名
+       * api_equip_type: 装備可能カテゴリIDの数値配列。数値配列なので、個別装備の情報は持っていない
+       */
+      const normal = store.state.shipTypes.find((v) => v.api_id === ship.type);
       if (normal) {
-        types = normal.api_equip_type;
+        apiEquipType = {};
+        // 通常艦種装備可能カテゴリから取得した場合は全て許可 => 元の作りが装備種別IDの配列なので、個別装備の情報がない
+        normal.api_equip_type.forEach((v) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          apiEquipType![v] = null;
+        });
       }
     }
 
-    // 補強増設枠
-    if (isExpandSlot) {
-      // 艦娘特別装備枠マスタより解決できた場合は搭載可能
-      if (store.state.exSlotEquipShips.find) {
-        const sp = store.state.exSlotEquipShips.find((v) => v.api_slotitem_id === item.id);
-        const normalCheck = types.includes(item.apiTypeId);
-        if (sp && normalCheck && (sp.api_ship_ids.includes(ship.id) || sp.api_stypes.includes(ship.type) || sp.api_ctypes.includes(ship.type2))) {
-          // 改修条件が追加された
-          if (!sp.api_req_level || remodel >= sp.api_req_level) {
+    // 補強増設枠かどうか
+    if (slotIndex === Const.EXPAND_SLOT_INDEX) {
+      /**
+       * api_ship_ids: 装備IDに対応する艦娘IDの配列、nullの場合はとりあえず装備不可
+       * api_stypes: 装備IDに対応する艦種ID（駆逐、海防...）の配列、nullの場合はとりあえず装備不可
+       * api_ctypes: 装備IDに対応する艦型ID（白露型、Fletcher級...）の配列、nullの場合はとりあえず装備不可
+       * api_req_level: 装備IDに対応する最低限必要な改修値、このキーがない場合は制限なし
+       */
+      const exSlot = store.state.exSlotEquipShips[item.id];
+      if (exSlot) {
+        const apiShipIds = Object.keys(exSlot.api_ship_ids || {});
+        const apiStypes = Object.keys(exSlot.api_stypes || {});
+        const apiCtypes = Object.keys(exSlot.api_ctypes || {});
+        let isOK = apiShipIds.includes(`${ship.id}`) || apiStypes.includes(`${ship.type}`) || apiCtypes.includes(`${ship.type2}`);
+        // 敗者復活 => タービンが stype:99 なのでようわからんけどそれ。ただし、海防艦のように api_equip_type に存在していなければアウト
+        isOK = isOK || (apiStypes.includes('99') && Object.keys(apiEquipType || {}).some((v) => v === `${item.apiTypeId}`));
+        if (isOK) {
+          // 改修条件 => api_req_level がないか、またはちゃんと上回っているか
+          if (!exSlot.api_req_level || remodel >= exSlot.api_req_level) {
             return true;
           }
+          return false;
         }
       }
-
-      if (item.id === 34 || item.id === 87) {
-        // 缶を弾く => タービンはOKのため
-        return false;
-      }
-
-      // 基本的に潜水艦電探はダメ OKなら上の条件で通ってるはず
-      if (item.apiTypeId === 51) {
-        return false;
-      }
-
       // 補強増設可能装備で絞る
-      types = types.filter((v) => Const.EXPANDED_ITEM_TYPE.includes(v));
+      apiEquipType = Object.fromEntries(Object.entries(apiEquipType || {}).filter(([key]) => Const.EXPANDED_ITEM_TYPE.includes(Number(key))));
     }
 
     // スロット番号制限チェック
@@ -175,12 +118,20 @@ export default class ShipValidation {
       }
     }
 
-    // 北方迷彩対応 実機の判定がよくわからんのでここで
-    if (item.apiTypeId === 27 && [114, 200, 290, 100, 101, 574, 395, 516, 511, 512, 513, 995, 1000, 1001, 1006].includes(ship.id)) {
-      // 北方迷彩なら通常スロット OK、それ以外 NG
-      return item.id === 268 && slotIndex !== Const.EXPAND_SLOT_INDEX;
-    }
     // 最終チェック
-    return types.includes(item.apiTypeId);
+    // 1. ちゃんと装備種別IDのキーがあるか
+    if (apiEquipType && Object.keys(apiEquipType).find((v) => v === `${item.apiTypeId}`)) {
+      // 2. 装備種別IDのキーがある場合はその装備種別IDの配列に装備IDが含まれているか
+      const itemIds = apiEquipType?.[item.apiTypeId];
+      if (itemIds) {
+        // 3. 装備種別IDの配列に該当の装備IDが含まれているか
+        return itemIds.includes(item.id);
+      }
+      // null なら問題なし
+      return true;
+    }
+
+    // 装備種別IDのキーすらない場合は終わり
+    return false;
   }
 }

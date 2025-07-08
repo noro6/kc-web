@@ -43,6 +43,9 @@ export default class ItemPreset {
   /** プリセット補強増設装備 */
   public exItem: PresetItem = { id: 0, remodel: 0 };
 
+  /** 足りないかどうか */
+  public isLack = false;
+
   /**
    * 旧プリセデータを変換
    * @static
