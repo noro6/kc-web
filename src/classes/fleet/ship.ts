@@ -1257,7 +1257,7 @@ export default class Ship implements ShipBase {
     }
 
     // 無条件先制対潜 初期値50
-    if (this.data.minAsw >= 50) {
+    if (this.data.minAsw >= 50 && !this.data.isCV && !this.data.isBB) {
       return true;
     }
 
