@@ -462,18 +462,19 @@ export default class Const {
 
   /**
    * 補強増設に搭載可能
+   * そうそうかわんないけど、定期的に api_mst_equip_exslot チェックして更新
    * @static
    * @memberof Const
    */
-  public static readonly EXPANDED_ITEM_TYPE = [17, 21, 23, 27, 28, 36, 39, 43, 44, 51];
+  public static readonly EXPANDED_ITEM_TYPE = [16, 21, 23, 27, 28, 36, 39, 43, 44];
 
   // 特定の艦娘が特定スロットに装備『できない！』やつ 99で増設
   public static readonly FORBIDDEN_LINK_SHIP_ITEM = [
-    // 伊勢改二 第3，4，5スロットに 主砲系
+    // 伊勢改二 3，4，5スロットに 主砲系
     {
       shipId: 553, index: [3, 4, 5], itemType: [2, 3], itemIDs: [0],
     },
-    // 日向改二 第3，4，5スロットに 主砲系
+    // 日向改二 3，4，5スロットに 主砲系
     {
       shipId: 554, index: [3, 4, 5], itemType: [2, 3], itemIDs: [0],
     },
@@ -512,22 +513,6 @@ export default class Const {
     // 矢矧改二乙 4スロットに 魚雷系 不可
     {
       shipId: 668, index: [4], itemType: [5], itemIDs: [0],
-    },
-    // Richelieu改 全スロットに 瑞雲系
-    {
-      shipId: 392, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369, 490],
-    },
-    // Jean Bart改 全スロットに 瑞雲系
-    {
-      shipId: 724, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 207, 208, 237, 322, 323, 367, 368, 369, 490],
-    },
-    // Valiant 全スロットに 瑞雲系
-    {
-      shipId: 927, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 194, 207, 208, 237, 322, 323, 368, 369, 490],
-    },
-    // Valiant改 全スロットに 瑞雲系
-    {
-      shipId: 733, index: [1, 2, 3, 4, 5], itemType: [0], itemIDs: [26, 62, 79, 80, 81, 194, 207, 208, 237, 322, 323, 368, 369, 490],
     },
     // 初月改二 4スロットに 主砲、魚雷、大型電探系 不可
     {
@@ -833,6 +818,9 @@ export default class Const {
     },
     {
       value: 4, text: '超', c1: 0.5, c2: 0.5, c3: 0.4, c4: 0.5,
+    },
+    {
+      value: 5, text: '超+', c1: 0.4, c2: 0.4, c3: 0.4, c4: 0.5,
     },
     {
       value: Const.MANUAL_AVOID, text: '任意', c1: 1, c2: 1, c3: 1, c4: 1,

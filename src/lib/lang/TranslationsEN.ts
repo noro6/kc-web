@@ -82,9 +82,10 @@ export default {
       '配置コスト': 'Cost',
       '射撃回避': 'AA Resist',
       '回避性能': {
-        '超': 'High+',
+        '超+': 'Super+',
+        '超': 'Super',
         '強': 'High',
-        '中': 'Avg',
+        '中': 'Mid',
         '弱': 'Low',
         '任意': 'Manual',
         'なし': 'None',
