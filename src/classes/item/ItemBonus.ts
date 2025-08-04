@@ -10018,6 +10018,16 @@ export default class ItemBonus {
           shipBase: [1001],
         },
         {
+          bonus: { firePower: 1 },
+          shipBase: [1001],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 2 },
+          shipBase: [1001],
+          remodel: 10,
+        },
+        {
           bonus: { firePower: 1, accuracy: 1, antiAir: 3, avoid: 2 },
           shipBase: [1001],
           requiresId: [556],

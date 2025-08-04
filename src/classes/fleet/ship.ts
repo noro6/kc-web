@@ -798,9 +798,9 @@ export default class Ship implements ShipBase {
    */
   public static getCIValue(level: number, luck: number): number {
     if (luck >= 50) {
-      return Math.floor(65 + Math.sqrt(luck - 50) + 0.8 * Math.sqrt(level));
+      return 65 + Math.floor(Math.sqrt(luck - 50)) + Math.floor(0.8 * Math.sqrt(level));
     }
-    return Math.floor(15 + luck + 0.75 * Math.sqrt(level));
+    return 15 + luck + Math.floor(0.75 * Math.sqrt(level));
   }
 
   /**
