@@ -812,17 +812,26 @@ export default class Ship implements ShipBase {
    * @memberof Ship
    */
   public static getRequiredLevelCI(target: number, luck: number): number {
+    const MAX_LEVEL = Const.MAX_LEVEL + 200;
     if (luck >= 50) {
-      if (target - (65 + Math.sqrt(luck - 50)) >= 0) {
-        return Math.ceil((25 * (target - (65 + Math.sqrt(luck - 50))) ** 2) / 16);
-      }
-      return 0;
+      const base = 65 + Math.floor(Math.sqrt(luck - 50));
+      const t = target - base;
+      if (t <= 0) return 0;
+      let cand = Math.ceil((t * t) / (0.8 * 0.8));
+      cand = Math.max(1, Math.min(MAX_LEVEL, cand));
+      while (cand <= MAX_LEVEL && Ship.getCIValue(cand, luck) < target) cand += 1;
+      while (cand > 1 && Ship.getCIValue(cand - 1, luck) >= target) cand -= 1;
+      return Ship.getCIValue(MAX_LEVEL, luck) >= target ? cand : 0;
     }
 
-    if (target - (15 + luck) >= 0) {
-      return Math.ceil((16 * (target - (15 + luck)) ** 2) / 9);
-    }
-    return 0;
+    const base = 15 + luck;
+    const t = target - base;
+    if (t <= 0) return 0;
+    let cand = Math.ceil((t * t) / (0.75 * 0.75));
+    cand = Math.max(1, Math.min(MAX_LEVEL, cand));
+    while (cand <= MAX_LEVEL && Ship.getCIValue(cand, luck) < target) cand += 1;
+    while (cand > 1 && Ship.getCIValue(cand - 1, luck) >= target) cand -= 1;
+    return Ship.getCIValue(MAX_LEVEL, luck) >= target ? cand : 0;
   }
 
   /**
