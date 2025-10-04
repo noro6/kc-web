@@ -18,7 +18,7 @@
               prepend-inner-icon="mdi-magnify"
               v-model="questType"
               :items="questTypes"
-              :item-text="(item) => `${$t(`Extra.${item.text}`)}`"
+              :item-text="getQuestTypeText"
               hide-details
               dense
             />
@@ -107,7 +107,7 @@
               <v-expansion-panel-content>
                 <v-divider />
                 <div class="check-item-container">
-                  <div v-for="(check, j) in quest.requires" :key="`req${j}`" class="check-container">
+                  <div v-for="(check, j) in quest.requires" :key="`req${j}`">
                     <v-checkbox
                       v-model="check.isComplete"
                       :dense="isMobile"
@@ -258,6 +258,7 @@
 @media (min-width: 600px) {
   .check-item-container {
     display: flex;
+    flex-wrap: wrap;
     column-gap: 24px;
   }
 }
@@ -347,6 +348,9 @@ export default Vue.extend({
   },
   watch: {},
   methods: {
+    getQuestTypeText(item: { value: string; text: string }): string {
+      return `${this.$t(`Extra.${item.text}`)}`;
+    },
     initializeQuests(resetAll = false) {
       if (this.intervalId) {
         // タイマー動いていたらいったんストップ
@@ -379,8 +383,8 @@ export default Vue.extend({
           });
         }
 
-        // 全リセットでないなら復元を試行
-        if (!resetAll) {
+        // 全リセット時でも単発(Once)は復元を試行
+        if (!resetAll || quest.type === 'Once') {
           // 保存されている任務達成状況から値を復元(あれば)
           const savedQuest = savedQuests.find((v) => v.id === quest.id);
           if (savedQuest) {
