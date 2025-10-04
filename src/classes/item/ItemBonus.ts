@@ -1381,6 +1381,14 @@ export default class ItemBonus {
           bonus: { firePower: 1, avoid: 2, scout: 3 },
           shipClass: [7, 8, 9, 13, 29, 31],
         },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [
+            1, 5, 10, 12, 18, 22, 23, 28, 30, 38, 54, 66, 101, 4, 16, 20, 21, 34, 41, 52, 56, 7, 8, 9, 13, 29, 31,
+          ],
+          remodel: 10,
+          num: 1,
+        },
       ],
     },
     {
@@ -5577,6 +5585,46 @@ export default class ItemBonus {
         {
           bonus: { firePower: 2, antiAir: 2, avoid: 2 },
           shipId: [707],
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.USA,
+          remodel: 7,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.USA,
+          remodel: 8,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.USA,
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.USA,
+          remodel: 10,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipType: [7],
+          remodel: 6,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipType: [7],
+          remodel: 8,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipType: [7],
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipType: [7],
+          remodel: 10,
         },
       ],
     },
@@ -10167,6 +10215,51 @@ export default class ItemBonus {
         },
         {
           bonus: { accuracy: 1 },
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [28],
+      bonuses: [
+        {
+          bonus: { avoid: 1 },
+          shipBase: [44, 583],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipBase: [44, 583],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipBase: [44, 583],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [44, 583],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [88, 240, 506, 517],
+      bonuses: [
+        {
+          bonus: { avoid: 1 },
+          shipBase: [44, 583],
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipBase: [44, 583],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipBase: [44, 583],
           remodel: 10,
         },
       ],

@@ -5,16 +5,6 @@
       <div class="ml-1 body-2">v{{ $store.state.siteVersion }}</div>
     </div>
     <div class="content">
-      <v-alert border="left" class="mb-2 pt-2" outlined>
-        <div class="text-h6">■ お知らせ</div>
-        <div>2025/01/22 以前に本サイトにて作成した共有 URL が廃止されます。</div>
-        <div>詳しくはこちらの記事をご確認ください。</div>
-        <div>
-          <a target="_blank" href="https://note.com/noro_rakugaki/n/n13e129137d74" >【お知らせ】制空シミュで作成した共有URL の廃止について</a>
-        </div>
-      </v-alert>
-    </div>
-    <div class="content">
       <div class="body-2">{{ $t("Home.メインメニュー") }}</div>
       <v-divider></v-divider>
       <div class="main-content-buttons">
