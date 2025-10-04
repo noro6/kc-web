@@ -478,9 +478,6 @@ export default Vue.extend({
     resetAllQuest() {
       this.initializeQuests(true);
 
-      // ローカルの任務群に保存
-      this.$store.dispatch('updateQuests', this.allQuests);
-
       this.confirmResetDialog = false;
       this.snackBar = true;
       this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
