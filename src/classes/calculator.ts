@@ -290,8 +290,8 @@ export default class Calculator {
         }
         continue;
       }
-      // 鋼材のお支払い
-      usedSteel += Math.round(item.slot * item.data.cost * 0.2);
+      // 鋼材のお支払い 重噴式(Ho229等)は1.2倍
+      usedSteel += Math.round(item.slot * item.data.cost * 0.2 * (item.data.isHeavyJet ? 1.2 : 1));
 
       // ====== STAGE1 ======
       // ジェット補正で0.6倍 切り捨て 確保固定
