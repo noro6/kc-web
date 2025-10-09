@@ -110,6 +110,9 @@ export default class ItemMaster {
   /** 噴式機フラグ */
   public readonly isJet: boolean;
 
+  /** 重噴式フラグ (Ho229 等) */
+  public readonly isHeavyJet: boolean;
+
   /** カテゴリ(爆戦)フラグ */
   public readonly isBakusen: boolean;
 
@@ -220,7 +223,10 @@ export default class ItemMaster {
     this.isRocket = Const.ROCKET.includes(this.id);
     this.isLateModelTorpedo = Const.LATE_MODEL_TORPEDO.includes(this.id);
     this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
+    // 噴式機判定
     this.isJet = this.apiTypeId === 57;
+    // 重噴式 (Ho229) 判定: アイコン種別 59
+    this.isHeavyJet = this.iconTypeId === 59;
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);
     this.isStrictDepthCharge = Const.STRICT_DEPTH_CHARGE.includes(this.id);
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);

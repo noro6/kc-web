@@ -322,7 +322,12 @@ export default class Item {
       this.fuel = this.fullSlot;
       this.ammo = Math.ceil(this.fullSlot * 0.6);
       this.bauxite = this.data.cost * (this.data.isRecon ? 4 : 18);
-      this.steel = this.data.isJet ? Math.round(this.fullSlot * this.data.cost * 0.2) : 0;
+      if (this.data.isJet) {
+        const steelMultiplier = this.data.isHeavyJet ? 1.2 : 1;
+        this.steel = Math.round(this.fullSlot * this.data.cost * 0.2 * steelMultiplier);
+      } else {
+        this.steel = 0;
+      }
 
       if (this.data.isABAttacker) {
         // 陸攻補正
