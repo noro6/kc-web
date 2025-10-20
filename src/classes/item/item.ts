@@ -700,6 +700,10 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAntiAir(): number {
+    if (this.data.id === 486 || this.data.id === 487) {
+      // 零式艦戦64型(制空戦闘機仕様) と、その爆戦
+      return 0.3 * this.remodel;
+    }
     // 艦戦 夜戦 水戦
     if (this.data.isFighter) {
       return 0.2 * this.remodel;
