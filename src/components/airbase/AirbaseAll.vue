@@ -821,13 +821,13 @@ export default Vue.extend({
         if (cell1 && cell1.radius.some((v) => airbase.radius < v)) {
           hasVariableRadius = !!hasVariableRadius || cell1.radius.length > 1;
           // 6-4基地半径緩和チェック
-          if (cell1.area !== 64 || cell1.nodeName !== 'N' || !airbase.hasJet) {
+          if (cell1.area !== 64 || cell1.nodeName !== 'N' || !airbase.hasJet || !airbase.can64BaseRadiusRelax) {
             errors.push(i + 1);
           }
         } else if (cell2 && cell2.radius.some((v) => airbase.radius < v)) {
           hasVariableRadius = !!hasVariableRadius || cell2.radius.length > 1;
           // 6-4基地半径緩和チェック
-          if (cell2.area !== 64 || cell2.nodeName !== 'N' || !airbase.hasJet) {
+          if (cell2.area !== 64 || cell2.nodeName !== 'N' || !airbase.hasJet || !airbase.can64BaseRadiusRelax) {
             errors.push(i + 1);
           }
         }

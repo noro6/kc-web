@@ -48,6 +48,9 @@ export default class Airbase {
   /** 噴式機ありなし */
   public readonly hasJet: boolean;
 
+  /** 6-4基地半径緩和できるジェット機ありなし */
+  public readonly can64BaseRadiusRelax: boolean;
+
   /** 出撃時燃料消費 */
   public readonly fuel: number;
 
@@ -117,6 +120,7 @@ export default class Airbase {
     this.defenseAirPower = 0;
     this.rocketCount = 0;
     this.hasJet = false;
+    this.can64BaseRadiusRelax = false;
     this.reconCorr = 1;
     this.reconCorrDefense = 1;
     this.superHighAirRaidTypeAItemCount = 0;
@@ -139,6 +143,9 @@ export default class Airbase {
       }
       if (!this.hasJet && item.data.isJet) {
         this.hasJet = true;
+
+        // Ho229 以外のジェット機があるかどうか => なければ半径緩和できない
+        this.can64BaseRadiusRelax = this.items.some((v) => v.data.isJet && !v.data.isHeavyJet);
       }
 
       // この航空隊の偵察機補正を取得
