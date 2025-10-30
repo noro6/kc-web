@@ -985,7 +985,9 @@ export default class Item {
     switch (this.data.id) {
       case 230:
         // 特大発動艇+戦車第11連隊
-        return 46.2;
+        // return 46.2;
+        // 2025秋イベにて通常輸送量に
+        return 5.3;
       case 449:
         // 特大発動艇+一式砲戦車
         return 40.2;

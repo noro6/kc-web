@@ -76,7 +76,7 @@
           </div>
         </div>
         <!-- TP戦車 -->
-        <div class="mr-3 d-flex">
+        <!-- <div class="mr-3 d-flex">
           <div class="option-status d-flex">
             <img :src="`./img/type/icon36.png`" height="24" width="24" alt="TP" />
             <div class="option-status-label label-tp">TP</div>
@@ -90,7 +90,7 @@
               <div class="status-label">A</div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
     <div class="sp-header d-sm-none d-capture-none">
