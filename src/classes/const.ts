@@ -441,6 +441,8 @@ export default class Const {
     { id: 112, name: 'Illustrious級' },
     { id: 108, name: 'Town級' },
     { id: 82, name: 'J級' },
+    { id: 134, name: 'Courageous級' },
+    { id: 135, name: 'Glorious級' },
 
     { id: 79, name: 'Richelieu級' },
     { id: 70, name: 'C.Teste級' },
@@ -456,6 +458,8 @@ export default class Const {
     { id: 98, name: 'De Ruyter級' },
 
     { id: 96, name: 'Perth級' },
+
+    { id: 133, name: 'Norge級' },
 
     { id: 42, name: '(霧の艦隊?)' },
   ];
@@ -621,7 +625,7 @@ export default class Const {
 
   public static readonly ITA = [58, 61, 64, 68, 80, 92, 113, 124];
 
-  public static readonly GBR = [67, 78, 82, 88, 108, 112];
+  public static readonly GBR = [67, 78, 82, 88, 108, 112, 134, 135];
 
   public static readonly DEU = [47, 48, 55, 57, 63];
 
@@ -634,6 +638,8 @@ export default class Const {
   public static readonly AUS = [96];
 
   public static readonly NLD = [98];
+
+  public static readonly NOR = [133];
 
   /**
    * 陣形一覧
