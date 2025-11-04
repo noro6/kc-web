@@ -389,7 +389,8 @@ export default class Ship implements ShipBase {
 
     // 輸送量(艦娘分)
     this.tp = this.getTransportPower();
-    this.tp2 = this.getTransportPower2();
+    // this.tp2 = this.getTransportPower2();
+    this.tp2 = this.getTransportPower() * 0.75;
     this.tp3 = this.getTransportPower3();
 
     /** 対潜支援参加可能な艦種であるかどうか */
@@ -1451,6 +1452,7 @@ export default class Ship implements ShipBase {
 
   /**
    * 艦種 艦娘毎によるTPを返却
+   * 2025春イベ
    * @private
    * @returns {number}
    * @memberof Ship

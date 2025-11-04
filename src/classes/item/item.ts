@@ -265,7 +265,7 @@ export default class Item {
     this.bonusScout = this.getBonusScout();
     this.antiAirBonus = this.getAntiAirBonus();
     this.tp = this.getTransportPower();
-    this.tp2 = this.getTransportPower2();
+    this.tp2 = this.getTransportPower() * 0.75 + this.getTransportPower2();
     this.tp3 = this.getTransportPower3();
     this.reconCorr = this.getReconCorr();
     this.reconCorrDefense = this.getReconCorrDefense();
@@ -985,66 +985,85 @@ export default class Item {
     switch (this.data.id) {
       case 230:
         // 特大発動艇+戦車第11連隊
+        // 2025春イベ
         // return 46.2;
-        // 2025秋イベにて通常輸送量に
-        return 5.3;
+        // 2025秋イベ
+        return 13;
       case 449:
         // 特大発動艇+一式砲戦車
-        return 40.2;
+        // return 40.2;
+        return 15;
       case 499:
         // 陸軍歩兵部隊+チハ改
-        return 38;
+        // return 38;
+        return 14;
       case 514:
         // 特大発動艇+Ⅲ号戦車J型
-        return 32.2;
+        // return 32.2;
+        return 17;
       case 495:
         // 特大発動艇+チハ改
-        return 28.2;
+        // return 28.2;
+        return 13;
       case 482:
         // 特大発動艇+Ⅲ号戦車(北アフリカ仕様)
-        return 27.2;
+        // return 27.2;
+        return 13;
       case 355:
         // M4A1 DD
-        return 24.2;
+        // return 24.2;
+        return 14;
       case 498:
         // 九七式中戦車 新砲塔(チハ改)
-        return 23;
+        // return 23;
+        return 9;
       case 494:
         // 特大発動艇+チハ
-        return 22.2;
+        // return 22.2;
+        return 11;
       case 436:
         // 大発動艇(II号戦車/北アフリカ仕様)
-        return 21.2;
+        // return 21.2;
+        return 10;
       case 497:
         // 九七式中戦車(チハ)
-        return 17;
+        // return 17;
+        return 7;
       case 496:
         // 陸軍歩兵部隊
-        return 15;
+        // return 15;
+        return 5;
       case 166:
         // 大発動艇(八九式中戦車&陸戦隊)
-        return 14.2;
+        // return 14.2;
+        return 8;
       case 167:
         // 特二式内火艇
-        return 9.3;
+        // return 9.3;
+        return 11;
       case 526:
         // 特四式内火艇改
-        return 8.3;
+        // return 8.3;
+        return 12;
       case 525:
         // 特四式内火艇
-        return 6.3;
+        // return 6.3;
+        return 10;
       default:
         if (this.data.apiTypeId === 24) {
           // その他大発系
-          return 5.2;
+          // return 5.2;
+          return 0;
         }
         if (this.data.apiTypeId === 43) {
           // おにぎり
-          return 0.65;
+          // return 0.65;
+          return 0;
         }
         if (this.data.apiTypeId === 30) {
           // ドラム缶(暫定)
-          return 3.25;
+          // return 3.25;
+          return 0;
         }
         return 0;
     }

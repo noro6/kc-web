@@ -299,7 +299,7 @@ export default class Const {
     { id: 21, name: '対空機銃', sortKey: ['antiAir', 'accuracy', 'fire', 'armor', 'avoid'] },
     { id: 22, name: '特殊潜航艇', sortKey: ['torpedo', 'accuracy', 'avoid', 'scout'] },
     { id: 23, name: '応急修理要員' },
-    { id: 24, name: '上陸用舟艇', sortKey: ['fire', 'antiAir', 'armor', 'avoid', 'scout', 'tp'] },
+    { id: 24, name: '上陸用舟艇', sortKey: ['fire', 'antiAir', 'armor', 'avoid', 'tp', 'tp2'] },
     { id: 25, name: '回転翼機' },
     { id: 26, name: '対潜哨戒機' },
     { id: 27, name: '追加装甲(中型)' },
@@ -742,7 +742,7 @@ export default class Const {
       id: 21, text: '機銃', viewStatus: ['antiAir', 'actualFire', 'actualAccuracy', 'actualArmor', 'antiAirWeight', 'antiAirBonus'], types: [21],
     },
     {
-      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'actualArmor', 'tp'], types: [24, 30, 46, 52],
+      id: 24, text: '上陸用舟艇', viewStatus: ['actualFire', 'antiAir', 'actualScout', 'actualAvoid', 'tp', 'tp2'], types: [24, 30, 46, 52],
     },
     {
       id: 47, text: '陸攻', viewStatus: ['actualTorpedo', 'actualBomber', 'actualAntiAir', 'radius', 'cost', 'avoidId'], types: [47, 53],
