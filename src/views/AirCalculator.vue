@@ -6,14 +6,14 @@
         <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
           <v-radio :label="$t('Common.なし')" value="" />
           <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
-          <v-radio label="25夏イベ" value="61-1" />
+          <v-radio label="25秋イベ前段" value="61-1" />
         </v-radio-group>
       </div>
       <div class="pb-3 body-2" v-if="setting.displayBonusKey === '61-1'">
         <div>参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank">@yukicacoon 様のツイートより</a></div>
         <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
         <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
-        <div>C1, C2, C3 カテゴリは基地のみ有効です。艦娘に積んでも意味ナシ。</div>
+        <div>基地はC1, C2, C3 カテゴリのみ有効です。</div>
       </div>
     </v-card>
     <div class="general-container d-flex">
