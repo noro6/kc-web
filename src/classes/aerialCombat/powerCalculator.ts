@@ -156,7 +156,7 @@ export default class AerialFirePowerCalculator {
     const typeMultipliers = [0];
 
     /** 航空戦定数 基本は25だが…？ */
-    let airstrikeModifiers = 25;
+    let airstrikeModifiers = [25];
     /** 実利用雷装(爆装)値 */
     let actualTorpedo = 0;
     /** 搭載数補正 */
@@ -178,6 +178,7 @@ export default class AerialFirePowerCalculator {
         if (!isAirbaseMode) {
           typeMultipliers[0] = 0.8;
           typeMultipliers.push(1.5);
+          airstrikeModifiers.push(25);
         }
         break;
       case 7:
@@ -189,7 +190,8 @@ export default class AerialFirePowerCalculator {
       case 57:
         // 噴式機
         actualTorpedo = item.actualBomber;
-        typeMultipliers[0] = 0.7071;
+        typeMultipliers[0] = 0.7;
+        airstrikeModifiers = [18, 25];
         if (isAirbaseMode) {
           // 噴式フェーズ(基地)
           typeMultipliers.push(1);
@@ -214,6 +216,7 @@ export default class AerialFirePowerCalculator {
       case 47:
         // 陸上攻撃機
         typeMultipliers[0] = 0.8;
+        airstrikeModifiers = [20];
 
         if (isLandBase) {
           // 対陸上型 => 爆装値で計算
@@ -313,13 +316,13 @@ export default class AerialFirePowerCalculator {
       if (args.isUnion) {
         if (args.fleetType === FLEET_TYPE.TCF) {
           // 対輸送連合艦隊時補正(主力: -20, 随伴: -20)
-          airstrikeModifiers -= 20;
+          airstrikeModifiers = airstrikeModifiers.map((modifier) => modifier - 20);
         } else if (defense.isEscort) {
           // 対連合艦隊時補正(随伴: -20)
-          airstrikeModifiers -= 20;
+          airstrikeModifiers = airstrikeModifiers.map((modifier) => modifier - 20);
         } else {
           // 対連合艦隊時補正(主力: -10)
-          airstrikeModifiers -= 10;
+          airstrikeModifiers = airstrikeModifiers.map((modifier) => modifier - 10);
         }
       }
     }
@@ -327,13 +330,17 @@ export default class AerialFirePowerCalculator {
     const terms = [];
 
     for (let i = 0; i < typeMultipliers.length; i += 1) {
-      // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数) + 航空戦定数}
-      const baseFirePower = typeMultipliers[i] * (actualTorpedo * Math.sqrt(adj * args.slot) + airstrikeModifiers);
+      const airstrikeModifier = airstrikeModifiers[i] ?? 25;
+      // 基本攻撃力 = 種別倍率 × {(雷装 or 爆装) × √(搭載数補正 × 搭載数)} + 航空戦定数
+      // 2025-11-04 航空戦定数を種別倍率の乗算から切り分け（https://x.com/yukicacoon/status/1985320796081058223）
+      //   => 陸攻の航空戦定数を 20 に調整
+      //   => 噴式機の噴式フェーズでない航空戦定数を 18 に調整
+      const baseFirePower = typeMultipliers[i] * (actualTorpedo * Math.sqrt(adj * args.slot)) + airstrikeModifier;
       // キャップ前攻撃力 = 基本攻撃力 * B-25補正 * 陸偵補正
       const preCapFirePower = baseFirePower * B25Modifiers * args.rikuteiBonus;
 
       terms.push({
-        airstrikeModifiers,
+        airstrikeModifiers: airstrikeModifiers[i],
         baseFirePower,
         preCapFirePower,
         actualTorpedo,
