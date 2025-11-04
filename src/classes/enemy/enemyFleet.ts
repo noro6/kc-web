@@ -268,7 +268,7 @@ export default class EnemyFleet {
         this.isAswSupportCell = true;
       }
 
-      if (this.isAllPT && enemy.data.name.indexOf('PT') < 0) {
+      if (this.isAllPT && enemy.data.name.indexOf('PT') < 0 && enemy.data.name.indexOf('Schnellboot') < 0) {
         this.isAllPT = false;
       }
 
