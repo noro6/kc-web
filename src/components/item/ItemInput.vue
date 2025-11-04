@@ -55,9 +55,11 @@
         <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
       </div>
       <!-- 特効装備表記 -->
-      <div class="item-special-text" v-else-if="bonusText">
-        <div class="align-self-center">{{ bonusText }}</div>
-      </div>
+      <template v-else-if="bonusText.length">
+        <div v-for="(text, index) in bonusText" :key="text" class="item-special-text" :class="[specialTextColorByText(text), specialTextIndexClass(index)]">
+          <div class="align-self-center">{{ text }}</div>
+        </div>
+      </template>
     </div>
     <template v-if="!isNoItem && (!readonly || item.remodel > 0 || item.level > 0)">
       <!-- 改修値 -->
@@ -206,11 +208,28 @@
   padding-left: 4px;
   padding-right: 4px;
   min-width: 26px;
-  border-radius: 0.1rem;
+  border-radius: 0.15rem;
   right: 0px;
   height: 24px;
   top: 0px;
 }
+
+/* インデックス（0-3）に応じた右→左のオフセット */
+.item-special-text.index0 { transform: translateX(0px); }
+.item-special-text.index1 { transform: translateX(-28px); }
+.item-special-text.index2 { transform: translateX(-56px); }
+.item-special-text.index3 { transform: translateX(-84px); }
+
+/* テキスト内容に応じた色（頻出順で主要色を割り当て） */
+.item-special-text.color-A3 { border-color: #2196F3; box-shadow: inset 0 0 3px #2196F3; }
+.item-special-text.color-C2 { border-color: #4CAF50; box-shadow: inset 0 0 3px #4CAF50; }
+.item-special-text.color-A2 { border-color: #F44336; box-shadow: inset 0 0 3px #F44336; }
+.item-special-text.color-C3 { border-color: #FF9800; box-shadow: inset 0 0 3px #FF9800; }
+.item-special-text.color-A1 { border-color: #3F51B5; box-shadow: inset 0 0 3px #3F51B5; }
+.item-special-text.color-B1 { border-color: #009688; box-shadow: inset 0 0 3px #009688; }
+.item-special-text.color-B2 { border-color: #9C27B0; box-shadow: inset 0 0 3px #9C27B0; }
+.item-special-text.color-B3 { border-color: #757575; box-shadow: inset 0 0 3px #757575; }
+.item-special-text.color-B4 { border-color: #2e2e2e; box-shadow: inset 0 0 3px #2e2e2e; }
 
 .saury-bonus {
   position: absolute;
@@ -503,13 +522,13 @@ export default Vue.extend({
       }
       return classes.join(' ');
     },
-    bonusText(): string {
+    bonusText(): string[] {
       if (!this.value.data.id || !this.value.data.bonuses.length || !this.setting.displayBonusKey) {
-        return '';
+        return [];
       }
       const key = this.setting.displayBonusKey;
       const bonus = this.value.data.bonuses.find((v) => v.key === key);
-      return bonus ? bonus.text : '';
+      return bonus ? bonus.text : [];
     },
     deathIndicatorColor(): string {
       // 全滅率インジケーターのカラー設定 表示有無もこれの返り値で判定
@@ -755,6 +774,16 @@ export default Vue.extend({
 
       // drag処理の終了
       this.draggingNow = false;
+    },
+    specialTextIndexClass(index: number) {
+      const i = index % 4;
+      return `index${i}`;
+    },
+    specialTextColorByText(text: string) {
+      const key = String(text).toUpperCase();
+      const known = ['A3', 'C2', 'A2', 'C3', 'A1', 'B1', 'B2', 'B3', 'B4'];
+      const match = known.find((v) => v === key);
+      return match ? `color-${match}` : 'color-A3';
     },
   },
 });

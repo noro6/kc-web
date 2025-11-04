@@ -198,9 +198,11 @@
                   <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
                   <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
                 </div>
-                <div class="item-special-text" v-else-if="item.text">
-                  <div class="align-self-center">{{ item.text }}</div>
-                </div>
+                <template v-else-if="item.text.length">
+                  <div v-for="(text, index) in item.text" :key="text" class="item-special-text" :class="[specialTextColorByText(text), specialTextIndexClass(index)]">
+                    <div class="align-self-center">{{ text }}</div>
+                  </div>
+                </template>
                 <!-- 一括配備モード用インデックス -->
                 <div v-if="item.batchListIndexes.length" class="batch-index-container">
                   <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
@@ -259,9 +261,11 @@
                   <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
                   <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
                 </div>
-                <div class="item-special-text" v-else-if="v.text">
-                  <div class="align-self-center">{{ v.text }}</div>
-                </div>
+                <template v-else-if="v.text.length">
+                  <div v-for="(text, index) in v.text" :key="text" class="item-special-text" :class="[specialTextColorByText(text), specialTextIndexClass(index)]">
+                    <div class="align-self-center">{{ text }}</div>
+                  </div>
+                </template>
                 <!-- 一括配備モード用インデックス -->
                 <div v-if="v.batchListIndexes.length" class="batch-index-container">
                   <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
@@ -964,12 +968,29 @@
   justify-content: center;
   min-width: 22px;
   font-size: 12px;
-  padding: 0px 3px;
-  border-radius: 0.1rem;
+  padding: 0px 2px;
+  border-radius: 0.2rem;
   left: 5px;
-  top: 0px;
+  top: -8px;
   animation: special-text infinite 3s;
 }
+
+/* テキストの色バリエーション（最大4種） */
+.item-special-text.index0 { transform: translateX(0px); }
+.item-special-text.index1 { transform: translateX(24px); }
+.item-special-text.index2 { transform: translateX(48px); }
+.item-special-text.index3 { transform: translateX(72px); }
+
+/* テキスト内容に応じた色（頻出順で主要色を割り当て） */
+.item-special-text.color-A3 { border-color: #2196F3; box-shadow: inset 0 0 3px #2196F3; }
+.item-special-text.color-C2 { border-color: #4CAF50; box-shadow: inset 0 0 3px #4CAF50; }
+.item-special-text.color-A2 { border-color: #F44336; box-shadow: inset 0 0 3px #F44336; }
+.item-special-text.color-C3 { border-color: #FF9800; box-shadow: inset 0 0 3px #FF9800; }
+.item-special-text.color-A1 { border-color: #3F51B5; box-shadow: inset 0 0 3px #3F51B5; }
+.item-special-text.color-B1 { border-color: #009688; box-shadow: inset 0 0 3px #009688; }
+.item-special-text.color-B2 { border-color: #9C27B0; box-shadow: inset 0 0 3px #9C27B0; }
+.item-special-text.color-B3 { border-color: #757575; box-shadow: inset 0 0 3px #757575; }
+.item-special-text.color-B4 { border-color: #535353; box-shadow: inset 0 0 3px #535353; }
 
 .list-item.single.has-bonus .item-special-text {
   left: -1px;
@@ -1306,7 +1327,7 @@ type viewItem = {
   remodel: number;
   sumBonus: number;
   bonus: ItemBonusStatus;
-  text: string;
+  text: string[];
   dayBattleFirePower: number;
   aircraftDayBattleFirePower: number;
   /** 一括編成リストのインデックスたち */
@@ -1317,7 +1338,7 @@ type viewItem = {
   lackRemodel: boolean;
 };
 
-const actualKey = ['tp', 'airPower', 'defenseAirPower', 'antiAirWeight', 'antiAirBonus', 'nightBattleFirePower'];
+const actualKey = ['tp', 'tp2', 'airPower', 'defenseAirPower', 'antiAirWeight', 'antiAirBonus', 'nightBattleFirePower'];
 
 export default Vue.extend({
   name: 'ItemList',
@@ -1399,6 +1420,7 @@ export default Vue.extend({
       { text: '半径', key: 'radius' },
       { text: 'コスト', key: 'cost' },
       { text: 'TP', key: 'tp' },
+      { text: 'TP2', key: 'tp2' },
       { text: '射撃回避', key: 'avoidId' },
       { text: '射程', key: 'actualRange' },
     ],
@@ -2095,7 +2117,7 @@ export default Vue.extend({
               remodel,
               sumBonus: 0,
               bonus: {},
-              text: bonus ? bonus.text : '',
+              text: bonus ? bonus.text : [],
               dayBattleFirePower: item.dayBattleFirePower,
               aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
               batchListIndexes,
@@ -2153,7 +2175,7 @@ export default Vue.extend({
             sumBonus: 0,
             remodel: 0,
             bonus: {},
-            text: bonus ? bonus.text : '',
+            text: bonus ? bonus.text : [],
             dayBattleFirePower: item.dayBattleFirePower,
             aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
             batchListIndexes,
@@ -2587,6 +2609,16 @@ export default Vue.extend({
         return `${shipName.map((v) => this.translate(v)).join('')}`;
       }
       return ship.name || '';
+    },
+    specialTextIndexClass(index: number) {
+      const i = index % 4;
+      return `index${i}`;
+    },
+    specialTextColorByText(text: string) {
+      const key = String(text).toUpperCase();
+      const known = ['A3', 'C2', 'A2', 'C3', 'A1', 'B1', 'B2', 'B3', 'B4'];
+      const match = known.find((v) => v === key);
+      return match ? `color-${match}` : 'color-A3';
     },
   },
 });

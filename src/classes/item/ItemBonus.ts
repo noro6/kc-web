@@ -705,6 +705,37 @@ export default class ItemBonus {
       ],
     },
     {
+      ids: [53],
+      bonuses: [
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.JPN,
+          remodel: 7,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.JPN,
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.JPN,
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.JPN,
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipType: [11, 18],
+          shipCountry: Const.JPN,
+          remodel: 10,
+        },
+      ],
+    },
+    {
       ids: [58],
       bonuses: [
         {
@@ -2168,7 +2199,7 @@ export default class ItemBonus {
         },
         {
           bonus: { antiAir: 1, avoid: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           num: 1,
         },
         {
@@ -2188,7 +2219,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 2, scout: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           num: 1,
         },
         {
@@ -2815,7 +2846,7 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, armor: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { avoid: -2 },
@@ -2840,7 +2871,7 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { antiAir: 2, armor: 1, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
       ],
     },
@@ -3600,7 +3631,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, antiAir: 2, avoid: 2 },
@@ -3732,7 +3763,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, avoid: 2, scout: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
       ],
     },
@@ -3758,7 +3789,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, asw: 2, avoid: 2, scout: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
       ],
     },
@@ -3784,7 +3815,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, asw: 2, avoid: 2, scout: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
       ],
     },
@@ -3805,7 +3836,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2, asw: 3, avoid: 2, scout: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 4, avoid: 1, scout: 1 },
@@ -3841,7 +3872,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 3, asw: 1, avoid: 2, scout: 3 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 3, avoid: 2, scout: 2 },
@@ -4062,7 +4093,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, torpedo: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, torpedo: 1 },
@@ -4085,7 +4116,12 @@ export default class ItemBonus {
         },
         {
           bonus: { asw: 1, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 96, 108, 112],
+          shipClass: [96],
+          num: 1,
+        },
+        {
+          bonus: { asw: 1, avoid: 1 },
+          shipCountry: Const.GBR,
           num: 1,
         },
       ],
@@ -4105,7 +4141,7 @@ export default class ItemBonus {
         },
         {
           bonus: { asw: 2, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           num: 1,
         },
         {
@@ -5469,12 +5505,12 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1 },
           remodel: 3,
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1 },
@@ -5529,12 +5565,12 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1 },
           remodel: 5,
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1 },
@@ -5559,7 +5595,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
@@ -5576,7 +5612,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, avoid: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, antiAir: 1 },
@@ -5633,15 +5669,24 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, antiAir: 2, avoid: 2, scout: 2 },
-          shipClass: [78, 112],
+          shipClass: [78, 112, 135],
         },
         {
           bonus: { firePower: 2, antiAir: 2, avoid: 2, scout: 2 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1, scout: 1 },
           shipCountry: Const.USA,
+        },
+        {
+          bonus: { avoid: 1, accuracy: 1 },
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 10,
         },
       ],
     },
@@ -5650,21 +5695,21 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, torpedo: 3 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 2,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 6,
         },
         {
           bonus: { accuracy: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 8,
         },
         {
@@ -5678,41 +5723,41 @@ export default class ItemBonus {
       bonuses: [
         {
           bonus: { firePower: 2, asw: 2, torpedo: 1, scout: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { asw: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 2,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 4,
         },
         {
           bonus: { asw: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 6,
         },
         {
           bonus: { accuracy: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 7,
         },
         {
           bonus: { torpedo: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 8,
         },
         {
           bonus: { firePower: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 9,
         },
         {
           bonus: { asw: 1 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
           remodel: 10,
         },
         {
@@ -5846,7 +5891,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 2, avoid: 3 },
-          shipClass: [67, 78, 82, 88, 108, 112],
+          shipCountry: Const.GBR,
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 2 },
@@ -10260,6 +10305,149 @@ export default class ItemBonus {
         {
           bonus: { firePower: 1 },
           shipBase: [44, 583],
+          remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [564],
+      bonuses: [
+        {
+          bonus: { firePower: 2, accuracy: 1 },
+          shipClass: [34, 133],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [34, 133],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [34, 133],
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [34, 133],
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [34, 133],
+          remodel: 10,
+        },
+        {
+          bonus: { accuracy: 1, avoid: 1 },
+          shipClass: [34, 133],
+          requiresId: [565],
+          num: 1,
+        },
+        {
+          bonus: { firePower: 2 },
+          shipClass: [34, 133],
+          num: 2,
+        },
+      ],
+    },
+    {
+      ids: [565],
+      bonuses: [
+        {
+          bonus: { firePower: 1, accuracy: 2 },
+          shipClass: [26, 34, 133],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [26, 34, 133],
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [26, 34, 133],
+          remodel: 8,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [26, 34, 133],
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [26, 34, 133],
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 2, accuracy: 1, avoid: 1 },
+          shipClass: [26, 34, 133],
+          num: 2,
+        },
+      ],
+    },
+    {
+      ids: [566],
+      bonuses: [
+        {
+          bonus: { firePower: 1, accuracy: 1 },
+          shipCountry: Const.GBR,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipCountry: Const.GBR,
+          remodel: 7,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.GBR,
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
+          remodel: 10,
+        },
+        {
+          bonus: { firePower: 1, accuracy: 1, avoid: 2 },
+          shipClass: [134],
+        },
+        {
+          bonus: { firePower: 3, accuracy: 1, antiAir: 1, avoid: 1 },
+          shipClass: [134],
+          requiresId: [190, 192],
+          requiresIdNum: 2,
+          num: 1,
+        },
+      ],
+    },
+    {
+      ids: [567],
+      bonuses: [
+        {
+          bonus: { avoid: 2, antiAir: 1 },
+          shipCountry: Const.GBR,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.GBR,
+          remodel: 7,
+        },
+        {
+          bonus: { antiAir: 1 },
+          shipCountry: Const.GBR,
+          remodel: 8,
+        },
+        {
+          bonus: { avoid: 1 },
+          shipCountry: Const.GBR,
+          remodel: 9,
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipCountry: Const.GBR,
           remodel: 10,
         },
       ],

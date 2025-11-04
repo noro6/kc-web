@@ -147,7 +147,7 @@ export default class ItemMaster {
   public readonly isEnemyItem: boolean;
 
   /** 特効情報 */
-  public readonly bonuses: { key: string, text: string }[];
+  public readonly bonuses: { key: string, text: string[] }[];
 
   /** 基地配備時の最大搭載数 */
   public readonly airbaseMaxSlot: number;
@@ -266,10 +266,10 @@ export default class ItemMaster {
       const bonus = bonuses[i];
       const already = this.bonuses.find((v) => v.key === bonus.key);
       if (already) {
-        // 既に同じキーのものがあるなら特効文字列を結合
-        already.text += bonus.text;
+        // 既に同じキーのものがあるなら追加
+        already.text.push(bonus.text);
       } else {
-        this.bonuses.push({ key: bonus.key, text: bonus.text });
+        this.bonuses.push({ key: bonus.key, text: [bonus.text] });
       }
     }
 

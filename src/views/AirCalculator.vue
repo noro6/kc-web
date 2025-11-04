@@ -6,22 +6,14 @@
         <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
           <v-radio :label="$t('Common.なし')" value="" />
           <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
-          <v-radio label="24夏イベ ※参考" value="59-1" />
+          <v-radio label="25夏イベ" value="61-1" />
         </v-radio-group>
       </div>
-      <div class="pb-3" v-if="setting.displayBonusKey === '59-1'">
-        <div class="error--text font-weight-bold mb-3">去年の夏イベ欧州のデータを再表示しています。今回のイベントも同じかどうかはまだわかんない</div>
-        <div>参考元: <a href="https://x.com/yukicacoon/status/1818869482548609511" target="_blank">@yukicacoon 様のツイートより</a></div>
-        <div class="text--secondary caption">※ 簡略化のため、個別マス特効の表示は行わず、昨年2023年版の表記を採用しています。詳しい対応関係は上記参考元ツイート、およびそのツリーを参照してください。</div>
-        <div class="mt-3 body-2">表示の見方、搭載のしかた：</div>
-        <div class="ml-2">
-          <div class="body-2 mt-2">艦娘に搭載する際は、数字を見ます。違う数字が多いほど特効効果が上昇します。1, 2, 3 全ての機体を搭載できればベストです。</div>
-          <div class="caption">例： F4F-3、Ju87C改、Barracuda Mk.II</div>
-          <div class="body-2 mt-2">
-            基地に配備する際は、アルファベットを見ます。違うアルファベットが多いほど特効効果が上昇します。A, B どちらも配備できればベストです。
-          </div>
-          <div class="caption">例： SM.79 bis、Mosquito FB Mk.VI</div>
-        </div>
+      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '61-1'">
+        <div>参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
+        <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
+        <div>C1, C2, C3 カテゴリは基地のみ有効です。艦娘に積んでも意味ナシ。</div>
       </div>
     </v-card>
     <div class="general-container d-flex">
