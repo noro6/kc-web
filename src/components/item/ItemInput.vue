@@ -50,7 +50,7 @@
     >
       {{ itemName }}
       <!-- 秋刀魚特効表示特別対応 -->
-      <div class="saury-bonus" v-if="bonusText === 'Saury'">
+      <div class="saury-bonus" v-if="bonusText[0] === 'Saury'">
         <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
         <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
       </div>

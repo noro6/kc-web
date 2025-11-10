@@ -194,7 +194,7 @@
                   <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
                 <!-- 秋刀魚特効表示特別対応 -->
-                <div class="saury-bonus" v-if="item.text === 'Saury'">
+                <div class="saury-bonus" v-if="item.text[0] === 'Saury'">
                   <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
                   <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
                 </div>
@@ -257,7 +257,7 @@
                   <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
                 <!-- 秋刀魚特効表示特別対応 -->
-                <div class="saury-bonus" v-if="v.text === 'Saury'">
+                <div class="saury-bonus" v-if="v.text[0] === 'Saury'">
                   <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
                   <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
                 </div>
