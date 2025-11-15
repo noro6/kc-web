@@ -1690,6 +1690,15 @@ export default Vue.extend({
     },
   },
   methods: {
+    getContextualBonuses(master: ItemMaster) {
+      const bonuses = master.bonuses || [];
+      if (this.isAirbaseMode) {
+        // 基地表示時は艦娘専用の特効は除外
+        return bonuses.filter((b) => !b.isOnlyShip);
+      }
+      // 艦娘表示時は基地専用の特効は除外
+      return bonuses.filter((b) => !b.isOnlyAB);
+    },
     updateIsMobile() {
       this.isMobile = window.innerWidth < 600;
       if (this.isMobile) {
@@ -2000,7 +2009,7 @@ export default Vue.extend({
         }
         if (this.isSpecialOnly && bonusKey) {
           // 特効フィルタ
-          result = result.filter((v) => v.bonuses.find((x) => x.key === bonusKey));
+          result = result.filter((v) => this.getContextualBonuses(v).find((x) => x.key === bonusKey));
         }
 
         // カテゴリ検索
@@ -2057,7 +2066,7 @@ export default Vue.extend({
 
           // 熟練度 設定値より
           const level = iniLevel ? iniLevel.level : 0;
-          const bonus = bonusKey ? master.bonuses.find((v) => v.key === bonusKey) : null;
+          const bonus = bonusKey ? this.getContextualBonuses(master).find((v) => v.key === bonusKey) : null;
 
           // 改修値★10～0 だけ回す
           for (let remodel = 10; remodel >= 0; remodel -= 1) {
@@ -2132,7 +2141,7 @@ export default Vue.extend({
           const master = result[i];
           const iniLevel = iniLevels.find((v) => v.id === master.apiTypeId);
           const level = iniLevel ? iniLevel.level : 0;
-          const bonus = bonusKey ? master.bonuses.find((v) => v.key === bonusKey) : null;
+          const bonus = bonusKey ? this.getContextualBonuses(master).find((v) => v.key === bonusKey) : null;
           const item = new Item({
             master,
             slot,

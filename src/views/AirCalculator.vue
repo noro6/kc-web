@@ -6,7 +6,9 @@
         <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
           <v-radio :label="$t('Common.なし')" value="" />
           <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" />
-          <v-radio label="25秋イベ前段" value="61-1" />
+          <v-radio label="25秋 前段" value="61-1" />
+          <v-radio label="25秋 E-4" value="61-4" />
+          <v-radio label="25秋 E-5" value="61-5" />
         </v-radio-group>
       </div>
       <div class="pb-3 body-2" v-if="setting.displayBonusKey === '61-1'">

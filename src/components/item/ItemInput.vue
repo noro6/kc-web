@@ -527,7 +527,10 @@ export default Vue.extend({
         return [];
       }
       const key = this.setting.displayBonusKey;
-      const bonus = this.value.data.bonuses.find((v) => v.key === key);
+      const { bonuses } = this.value.data;
+      const isAirbase = this.itemParent instanceof Airbase;
+      const contextual = isAirbase ? bonuses.filter((b) => !b.isOnlyShip) : bonuses.filter((b) => !b.isOnlyAB);
+      const bonus = contextual.find((v) => v.key === key);
       return bonus ? bonus.text : [];
     },
     deathIndicatorColor(): string {
