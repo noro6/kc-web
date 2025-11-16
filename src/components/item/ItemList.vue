@@ -2066,7 +2066,9 @@ export default Vue.extend({
 
           // 熟練度 設定値より
           const level = iniLevel ? iniLevel.level : 0;
-          const bonus = bonusKey ? this.getContextualBonuses(master).find((v) => v.key === bonusKey) : null;
+          const bonusTexts = bonusKey
+            ? this.getContextualBonuses(master).filter((v) => v.key === bonusKey).flatMap((v) => v.text)
+            : [];
 
           // 改修値★10～0 だけ回す
           for (let remodel = 10; remodel >= 0; remodel -= 1) {
@@ -2126,7 +2128,7 @@ export default Vue.extend({
               remodel,
               sumBonus: 0,
               bonus: {},
-              text: bonus ? bonus.text : [],
+              text: Array.from(new Set(bonusTexts)),
               dayBattleFirePower: item.dayBattleFirePower,
               aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
               batchListIndexes,
@@ -2141,7 +2143,9 @@ export default Vue.extend({
           const master = result[i];
           const iniLevel = iniLevels.find((v) => v.id === master.apiTypeId);
           const level = iniLevel ? iniLevel.level : 0;
-          const bonus = bonusKey ? this.getContextualBonuses(master).find((v) => v.key === bonusKey) : null;
+          const bonusTexts = bonusKey
+            ? this.getContextualBonuses(master).filter((v) => v.key === bonusKey).flatMap((v) => v.text)
+            : [];
           const item = new Item({
             master,
             slot,
@@ -2184,7 +2188,7 @@ export default Vue.extend({
             sumBonus: 0,
             remodel: 0,
             bonus: {},
-            text: bonus ? bonus.text : [],
+            text: Array.from(new Set(bonusTexts)),
             dayBattleFirePower: item.dayBattleFirePower,
             aircraftDayBattleFirePower: item.aircraftDayBattleFirePower,
             batchListIndexes,

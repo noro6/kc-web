@@ -530,8 +530,8 @@ export default Vue.extend({
       const { bonuses } = this.value.data;
       const isAirbase = this.itemParent instanceof Airbase;
       const contextual = isAirbase ? bonuses.filter((b) => !b.isOnlyShip) : bonuses.filter((b) => !b.isOnlyAB);
-      const bonus = contextual.find((v) => v.key === key);
-      return bonus ? bonus.text : [];
+      const texts = contextual.filter((v) => v.key === key).flatMap((v) => v.text);
+      return Array.from(new Set(texts));
     },
     deathIndicatorColor(): string {
       // 全滅率インジケーターのカラー設定 表示有無もこれの返り値で判定

@@ -258,45 +258,39 @@ export default class ItemMaster {
       this.iconTypeId = 1700;
     }
 
-    // 特効テキストを用意（同一キー・同一テキストの重複と文脈差異を正規化）
+    // 特効テキストを用意（key+text 単位で文脈を保持し、重複は統合）
     this.bonuses = [];
     const rawBonuses = Const.SPECIAL_GROUP.filter((v) => v.items.includes(this.id));
-    // key ごとに集約し、テキスト単位で文脈(AB/Ship/General)を統合
-    const grouped: {
-      [key: string]: { texts: Set<string>; abOnly: boolean; shipOnly: boolean; general: boolean };
-    } = {};
+    type ByKeyText = { isOnlyAB: boolean; isOnlyShip: boolean; general: boolean };
+    const groupedByKeyText: { [key: string]: ByKeyText } = {};
     for (let i = 0; i < rawBonuses.length; i += 1) {
       const b = rawBonuses[i];
-      if (!grouped[b.key]) {
-        grouped[b.key] = { texts: new Set<string>(), abOnly: false, shipOnly: false, general: false };
+      const k = `${b.key}::${b.text}`;
+      if (!groupedByKeyText[k]) {
+        groupedByKeyText[k] = { isOnlyAB: false, isOnlyShip: false, general: false };
       }
-      grouped[b.key].texts.add(b.text);
+      const r = groupedByKeyText[k];
       const isABOnly = !!b.isOnlyAB && !b.isOnlyShip;
       const isShipOnly = !!b.isOnlyShip && !b.isOnlyAB;
       const isGeneral = !b.isOnlyAB && !b.isOnlyShip;
-      grouped[b.key].abOnly = grouped[b.key].abOnly || isABOnly;
-      grouped[b.key].shipOnly = grouped[b.key].shipOnly || isShipOnly;
-      grouped[b.key].general = grouped[b.key].general || isGeneral;
+      r.isOnlyAB = r.isOnlyAB || isABOnly;
+      r.isOnlyShip = r.isOnlyShip || isShipOnly;
+      r.general = r.general || isGeneral;
     }
-    // 出力: テキストは重複排除。文脈は総合判定（両方に存在 or General があれば両方表示）
-    Object.keys(grouped).forEach((key) => {
-      const g = grouped[key];
+    Object.keys(groupedByKeyText).forEach((k) => {
+      const [key, text] = k.split('::');
+      const g = groupedByKeyText[k];
       let isOnlyAB = false;
       let isOnlyShip = false;
       if (!g.general) {
-        if (g.abOnly && !g.shipOnly) {
+        if (g.isOnlyAB && !g.isOnlyShip) {
           isOnlyAB = true;
-        } else if (g.shipOnly && !g.abOnly) {
+        } else if (g.isOnlyShip && !g.isOnlyAB) {
           isOnlyShip = true;
         }
-        // abOnly と shipOnly の両方が立っている場合は両方で表示したいのでどちらの限定もしない
+        // 両方に存在する場合は限定なし（両文脈で表示）
       }
-      this.bonuses.push({
-        key,
-        text: Array.from(g.texts),
-        isOnlyAB,
-        isOnlyShip,
-      });
+      this.bonuses.push({ key, text: [text], isOnlyAB, isOnlyShip });
     });
 
     this.isNightAircraftItem = [45, 46, 58].includes(this.iconTypeId) || [154, 242, 243, 244, 320].includes(this.id);
