@@ -132,6 +132,9 @@ export default Vue.extend({
       if (this.value.data.name.indexOf('駆逐ラ級') >= 0) {
         return true;
       }
+      if (this.value.data.name.indexOf('標準型戦艦棲姫') >= 0) {
+        return false;
+      }
       return this.value.items.some((v) => v.data.apiTypeId === 22) || (this.value.isSubmarine && this.value.level >= 10);
     },
     hasOASW(): boolean {
