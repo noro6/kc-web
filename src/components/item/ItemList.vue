@@ -739,6 +739,8 @@
 }
 
 .type-selector-container {
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
   display: flex;
   flex-wrap: wrap;
 }
