@@ -94,7 +94,12 @@ export default class ShipValidation {
         if (isOK) {
           // 改修条件 => api_req_level がないか、またはちゃんと上回っているか
           if (!exSlot.api_req_level || remodel >= exSlot.api_req_level) {
-            return true;
+            // 通常スロットで装備可能な装備種別かどうかもチェック
+            // 補強増設は通常装備できないものを特別に装備可能にするが、
+            // そもそも装備種別自体が許可されていないものは装備不可
+            if (Object.keys(apiEquipType || {}).includes(`${item.apiTypeId}`)) {
+              return true;
+            }
           }
           return false;
         }
