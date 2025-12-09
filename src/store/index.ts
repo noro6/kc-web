@@ -32,7 +32,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.49.15',
+    siteVersion: '2.49.16',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -395,11 +395,7 @@ export default new Vuex.Store({
       // ロード画面を入れる
       context.commit('completed', false);
 
-      const getCellJson = (url: string, useCache = false): Promise<void> => axios.get(url, {
-        // no-cache: 毎回サーバーに検証リクエストを送る（ETag/Last-Modified）
-        // 変更なし → 304 Not Modified（データ転送なし）、変更あり → 新データ取得
-        headers: useCache ? {} : { 'Cache-Control': 'no-cache' },
-      }).then((response) => {
+      const getCellJson = (url: string): Promise<void> => axios.get(url).then((response) => {
         const cells: CellMaster[] = [];
         const masters = response.data.patterns;
         for (let i = 0; i < masters.length; i += 1) {
@@ -423,11 +419,7 @@ export default new Vuex.Store({
         });
     },
     loadData: async (context) => {
-      const getMasterJson = (url: string, useCache = false): Promise<void> => axios.get(url, {
-        // no-cache: 毎回サーバーに検証リクエストを送る（ETag/Last-Modified）
-        // 変更なし → 304 Not Modified（データ転送なし）、変更あり → 新データ取得
-        headers: useCache ? {} : { 'Cache-Control': 'no-cache' },
-      }).then((response) => {
+      const getMasterJson = (url: string): Promise<void> => axios.get(url).then((response) => {
         if (response.status !== 200 || !response.data) {
           return;
         }
