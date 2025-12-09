@@ -19,7 +19,7 @@
       <div class="map-img-area">
         <div class="background-map">
           <img
-            :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${area}.webp`"
+            :src="`./img/maps/${area}.webp`"
             @error="handleImageError"
             :key="mapImageSrc"
             alt="map-img"
@@ -257,7 +257,7 @@
     </v-dialog>
     <v-dialog width="1200" v-model="expandMapDialog">
       <v-card class="py-3 map-container">
-        <v-img class="mx-auto" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/details/${area}.webp`" />
+        <v-img class="mx-auto" :src="`./img/maps/details/${area}.webp`" />
       </v-card>
     </v-dialog>
     <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
@@ -780,7 +780,7 @@ export default Vue.extend({
     },
     handleImageError(e: Event) {
       const imgElement = e.target as HTMLImageElement;
-      imgElement.src = `https://res.cloudinary.com/aircalc/kc-web/maps/${this.area}_temp.webp`;
+      imgElement.src = `./img/maps/${this.area}_temp.webp`;
     },
   },
 });

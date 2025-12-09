@@ -80,7 +80,7 @@
       <v-card class="py-6 px-3" v-if="selectedCell">
         <div class="text-center body-2">( {{ selectedCell.area }} ) {{ selectedCell.name }}</div>
         <div class="my-3">
-          <v-img class="mx-auto" width="467" height="268" :src="`https://res.cloudinary.com/aircalc/kc-web/maps/${selectedArea}.webp`" />
+          <v-img class="mx-auto" width="467" height="268" :src="`./img/maps/${selectedArea}.webp`" />
         </div>
         <div class="d-flex align-center body-2">
           <div class="text--secondary caption">{{ $t("Enemies.セル") }}</div>
