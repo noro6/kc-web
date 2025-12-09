@@ -780,7 +780,8 @@ export default Vue.extend({
     },
     handleImageError(e: Event) {
       const imgElement = e.target as HTMLImageElement;
-      imgElement.src = `./img/maps/${this.area}_temp.webp`;
+      imgElement.src = './img/maps/dummy.webp';
+      // imgElement.src = `./img/maps/${this.area}_temp.webp`;
     },
   },
 });
