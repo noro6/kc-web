@@ -544,6 +544,10 @@ export default class Const {
     {
       shipId: 968, index: [4], itemType: [1, 5, 13], itemIDs: [0],
     },
+    // 秋月改二 4スロットに 主砲、魚雷、大型電探系 不可
+    {
+      shipId: 963, index: [4], itemType: [1, 5, 13], itemIDs: [0],
+    },
   ];
 
   /**
