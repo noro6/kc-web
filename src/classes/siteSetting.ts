@@ -190,8 +190,8 @@ export default class SiteSetting {
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = ShipFilter.restore(setting.savedShipListFilter);
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
-      this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '';
-      // this.displayBonusKey = '';
+      // this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '';
+      this.displayBonusKey = '';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
@@ -291,7 +291,7 @@ export default class SiteSetting {
       ];
       this.contentOrder = [];
       // this.displayBonusKey = 'Saury';
-      this.displayBonusKey = '61-1';
+      this.displayBonusKey = '';
       this.blacklistItemIds = [337];
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;

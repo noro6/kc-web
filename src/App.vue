@@ -87,7 +87,7 @@
       </template>
     </v-app-bar>
     <v-main>
-      <div class="event-banner mb-3" v-if="true">
+      <div class="event-banner mb-3" v-if="false">
         <v-img class="banner-normal" :src="`./img/util/bn_251029.png`" />
         <v-img class="banner-on" :src="`./img/util/bn_251029_on.png`" />
       </div>
