@@ -92,7 +92,7 @@ export default class SiteSetting {
   public importAllDeck: boolean;
 
   /** 言語 */
-  public locale: 'ja' | 'en';
+  public locale: 'ja' | 'en' | 'cn';
 
   /** 艦娘 装備名を翻訳しないフラグ */
   public nameIsNotTranslate: boolean;
@@ -184,7 +184,8 @@ export default class SiteSetting {
       this.disabledItemTooltip = !!setting.disabledItemTooltip;
       this.disabledShipTooltip = !!setting.disabledShipTooltip;
       this.importAllDeck = !!setting.importAllDeck;
-      this.locale = setting.locale ? setting.locale : 'ja';
+      // 言語設定 (古いデータ/不正値は ja にフォールバック)
+      this.locale = setting.locale === 'ja' || setting.locale === 'en' || setting.locale === 'cn' ? setting.locale : 'ja';
       this.nameIsNotTranslate = !!setting.nameIsNotTranslate;
       this.savedItemListFilter = setting.savedItemListFilter ? setting.savedItemListFilter : [{ parent: 'ship', key: 'actualFire', value: 0 }, { parent: 'airbase', key: 'radius', value: 0 }];
       this.savedShipListFilter = ShipFilter.restore(setting.savedShipListFilter);

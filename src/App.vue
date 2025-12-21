@@ -291,6 +291,7 @@
                 <div>
                   <v-btn class="mr-2" @click="changeLocale('ja')" :class="{ primary: isJapanese, secondary: !isJapanese }">日本語</v-btn>
                   <v-btn class="mr-2" @click="changeLocale('en')" :class="{ primary: isEnglish, secondary: !isEnglish }">English</v-btn>
+                  <v-btn class="mr-2" @click="changeLocale('cn')" :class="{ primary: isChinese, secondary: !isChinese }">中文</v-btn>
                 </div>
                 <div>
                   <v-checkbox v-model="setting.nameIsNotTranslate" hide-details dense :disabled="isJapanese" :label="$t('Setting.艦娘や装備名は翻訳しない')" />
@@ -867,6 +868,9 @@ export default Vue.extend({
     },
     isEnglish(): boolean {
       return this.setting.locale === 'en';
+    },
+    isChinese(): boolean {
+      return this.setting.locale === 'cn';
     },
     needTrans(): boolean {
       return !this.isJapanese && !this.setting.nameIsNotTranslate;
@@ -1479,12 +1483,10 @@ export default Vue.extend({
       this.setting.themeDetail = theme;
       this.updateItemUI();
     },
-    changeLocale(local: 'ja' | 'en') {
+    changeLocale(local: 'ja' | 'en' | 'cn') {
       this.setting.locale = local;
       this.$i18n.locale = local;
-      if (local === 'ja' || local === 'en') {
-        document.getElementsByTagName('html')[0].lang = local;
-      }
+      document.getElementsByTagName('html')[0].lang = local === 'cn' ? 'zh-CN' : local;
       this.$vuetify.lang.current = local;
     },
     toggleItemUIHasBorder() {
