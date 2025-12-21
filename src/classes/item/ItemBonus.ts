@@ -267,7 +267,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, accuracy: 1, avoid: 1 },
-          shipId: [968],
+          shipId: [963, 968],
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
@@ -438,7 +438,7 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           num: 1,
         },
       ],
@@ -1309,11 +1309,11 @@ export default class ItemBonus {
         },
         {
           bonus: { firePower: 1, antiAir: 1, avoid: 1 },
-          shipId: [968],
+          shipId: [963, 968],
         },
         {
           bonus: { firePower: 1, accuracy: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           requiresAR: 1,
         },
         {
@@ -7478,7 +7478,7 @@ export default class ItemBonus {
       ],
     },
     {
-      ids: [485],
+      ids: [485, 568],
       bonuses: [
         {
           bonus: { firePower: 1, antiAir: 3, avoid: 2 },
@@ -7507,6 +7507,19 @@ export default class ItemBonus {
         {
           bonus: { accuracy: 1 },
           remodel: 10,
+        },
+      ],
+    },
+    {
+      ids: [568],
+      bonuses: [
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [9],
+        },
+        {
+          bonus: { firePower: 1 },
+          shipId: [501, 506],
         },
       ],
     },
@@ -9344,27 +9357,27 @@ export default class ItemBonus {
         },
         {
           bonus: { avoid: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           remodel: 1,
         },
         {
           bonus: { antiAir: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           remodel: 3,
         },
         {
           bonus: { accuracy: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           remodel: 5,
         },
         {
           bonus: { avoid: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           remodel: 7,
         },
         {
           bonus: { firePower: 1 },
-          shipId: [968],
+          shipId: [963, 968],
           remodel: 9,
         },
         {
