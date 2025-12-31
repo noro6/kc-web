@@ -230,7 +230,7 @@ export default class ShipFilter {
     {
       text: 'その他',
       value: 7,
-      filter: Const.AUS.concat(Const.SWE).concat(Const.NLD).concat(Const.NOR),
+      filter: Const.AUS.concat(Const.SWE).concat(Const.NLD).concat(Const.NOR).concat(Const.THA),
       isChecked: true,
     },
   ];

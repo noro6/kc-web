@@ -483,6 +483,8 @@ export default class Const {
 
     { id: 133, name: 'Norge級' },
 
+    { id: 137, name: 'Thonburi級' },
+
     { id: 42, name: '(霧の艦隊?)' },
   ];
 
@@ -666,6 +668,8 @@ export default class Const {
   public static readonly NLD = [98];
 
   public static readonly NOR = [133];
+
+  public static readonly THA = [137];
 
   /**
    * 陣形一覧

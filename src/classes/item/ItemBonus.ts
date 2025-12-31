@@ -702,6 +702,16 @@ export default class ItemBonus {
           requiresId: [410],
           num: 1,
         },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [137],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [137],
+          remodel: 10,
+        },
       ],
     },
     {
@@ -1098,6 +1108,16 @@ export default class ItemBonus {
         {
           bonus: { firePower: 1 },
           shipId: [501, 502, 506, 507],
+        },
+        {
+          bonus: { accuracy: 1 },
+          shipClass: [137],
+          remodel: 9,
+        },
+        {
+          bonus: { firePower: 1 },
+          shipClass: [137],
+          remodel: 10,
         },
       ],
     },
