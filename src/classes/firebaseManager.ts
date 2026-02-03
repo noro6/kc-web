@@ -208,13 +208,18 @@ export default class FirebaseManager {
     if (!url) {
       return '';
     }
-    let createdURL = '';
-    const response = await axios.get(`https://tinyurl.com/api-create.php?url=${url}`).catch((error) => console.error(error));
-
-    if (response && response.data) {
-      createdURL = response.data;
+    const base = (process.env.VUE_APP_SHORTENER_BASE_URL || '').replace(/\/$/, '');
+    if (base) {
+      try {
+        const response = await axios.post(`${base}/api/shorten`, { url }, { timeout: 10_000 });
+        const shortUrl = response?.data?.shortUrl as string | undefined;
+        if (shortUrl) {
+          return shortUrl;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
-
-    return createdURL;
+    return url;
   }
 }
