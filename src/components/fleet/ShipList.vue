@@ -1688,7 +1688,7 @@ export default Vue.extend({
         }
         if (this.shipFilter.canEquipExDepthChargeOnly) {
           // 増設爆雷搭載可能
-          result = filterShip(result, [226, 227], false, true);
+          result = filterShip(result, [226, 227, 346, 569], false, true);
         }
         if (this.shipFilter.escortCarrierOnly && this.visibleEscortCarrierFilter) {
           // 護衛空母のみ
