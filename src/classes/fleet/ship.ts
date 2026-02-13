@@ -867,8 +867,8 @@ export default class Ship implements ShipBase {
 
     if (this.data.speed === 10) {
       // 高速
-      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2) || this.data.id === 951) {
-        // 島風型, Ташкент級, 天津風改二, 大鳳型, 翔鶴型, 利根型, 最上型
+      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2) || this.data.id === 951 || this.data.id === 1031) {
+        // 島風型, Ташкент級, 天津風改二, 大鳳型, 翔鶴型, 利根型, 最上型, 飛龍改三
         if ((hasTurbine && newModelBoilerCount) || (hasTurbine && totalBoilerCount >= 2) || remodeledNewModelBoilerCount >= 2) {
           // タービン + 新型缶 または タービン + いずれかの缶x2 または 改修★+7以上の新型缶x2 => 最速
           return 20;
