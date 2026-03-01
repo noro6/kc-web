@@ -416,6 +416,13 @@ export default class ShootDownInfo {
       // 52種 (10cm連装高角砲改2, 94高射装置)
       if (aaGun2Count >= 2 && kosha94Count) cutInIds.push(52);
     }
+    if (shipId === 1031) {
+      // 飛龍改三
+      // 53種 (対空9以上の高角砲所持, 対空4以上の電探所持)
+      const hasSPAntiAirRadar = items.some((v) => v.data.iconTypeId === 11 && v.data.antiAir >= 4);
+      const hasMore9Kokaku = items.some((v) => v.data.iconTypeId === 16 && v.data.antiAir >= 9);
+      if (hasMore9Kokaku && hasSPAntiAirRadar) cutInIds.push(53);
+    }
 
     // 汎用
     // 全ての水上艦 => 判定できないが必須装備が潜水艦を弾ける
@@ -438,8 +445,8 @@ export default class ShootDownInfo {
       && items.filter((v) => v.data.apiTypeId === 21 && v.data.antiAir >= 3).length >= 2
       && antiAirRadarCount
     ) cutInIds.push(12);
-    // 13種 (特殊機銃, 特殊高角砲, 対空電探, 摩耶改二以外)
-    if (specialKijuCount && specialKokakuCount && antiAirRadarCount && shipId !== 428) cutInIds.push(13);
+    // 13種 (特殊機銃, 特殊高角砲, 対空電探, 摩耶改二以外、飛龍改三以外)
+    if (specialKijuCount && specialKokakuCount && antiAirRadarCount && shipId !== 428 && shipId !== 1031) cutInIds.push(13);
 
     // マスタより、対空CIオブジェクトを格納
     const antiAirCutIns: AntiAirCutIn[] = [];
