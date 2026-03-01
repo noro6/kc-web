@@ -224,7 +224,7 @@ export default class ItemMaster {
     this.isLateModelTorpedo = Const.LATE_MODEL_TORPEDO.includes(this.id);
     this.isShinzan = Const.AB_ATTACKERS_LARGE.includes(this.apiTypeId);
     // 噴式機判定
-    this.isJet = this.apiTypeId === 57;
+    this.isJet = this.iconTypeId === 60 || this.apiTypeId === 57;
     // 重噴式 (Ho229) 判定: アイコン種別 59
     this.isHeavyJet = this.iconTypeId === 59;
     this.enabledAttackLandBase = Const.ENABLED_LAND_BASE_ATTACK.includes(this.id);

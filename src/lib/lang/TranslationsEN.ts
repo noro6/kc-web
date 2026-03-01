@@ -1164,6 +1164,7 @@ export default {
       '大型陸上機': 'Large LB Aircraft',
       '噴式戦闘機': 'Jet Fighter',
       '噴式戦闘爆撃機': 'Jet Fighter-Bomber',
+      '噴式艦上戦闘機': 'Jet Fighter Aircraft',
       '噴式攻撃機': 'Jet Torpedo Bomber',
       '噴式偵察機': 'Jet Recon Aircraft',
       '大型電探(II)': 'Large Radar (2)',

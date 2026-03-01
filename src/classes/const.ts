@@ -151,7 +151,7 @@ export default class Const {
   ];
 
   /** 航空戦に関係する装備カテゴリ */
-  public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 25, 26, 41, 45, 47, 48, 49, 53, 57];
+  public static readonly PLANE_TYPES = [6, 7, 8, 9, 10, 11, 25, 26, 41, 45, 47, 48, 49, 53, 56, 57];
 
   /** 空母のみ搭載可である機体カテゴリ */
   public static readonly CB_PLANE_TYPES = [6, 7, 8, 9, 57];
@@ -163,7 +163,7 @@ export default class Const {
   public static readonly AB_PLANE_TYPES = [47, 48, 49, 53];
 
   /** 艦戦カテゴリ */
-  public static readonly FIGHTERS = [6, 45, 48];
+  public static readonly FIGHTERS = [6, 45, 48, 56];
 
   /** 攻撃機カテゴリ */
   public static readonly ATTACKERS = [7, 8, 11, 47, 53, 57];
@@ -281,11 +281,12 @@ export default class Const {
   ];
 
   public static readonly ITEM_API_TYPE = [
-    { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
+    { id: 6, name: '艦上戦闘機', sortKey: ['antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'cost'] },
     { id: 7, name: '艦上爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'asw', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
     { id: 8, name: '艦上攻撃機', sortKey: ['torpedo', 'antiAir', 'accuracy', 'asw', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
     { id: 9, name: '艦上偵察機', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 57, name: '噴式戦闘爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
+    { id: 56, name: '噴式艦上戦闘機', sortKey: ['antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'cost'] },
     { id: 10, name: '水上偵察機', sortKey: ['scout', 'accuracy', 'avoid', 'antiAir', 'radius', 'avoidId', 'cost'] },
     { id: 11, name: '水上爆撃機', sortKey: ['bomber', 'antiAir', 'accuracy', 'avoid', 'scout', 'radius', 'avoidId', 'cost'] },
     { id: 45, name: '水上戦闘機', sortKey: ['antiAir', 'avoid', 'accuracy', 'scout', 'radius', 'cost'] },
@@ -722,7 +723,7 @@ export default class Const {
       id: 5, text: '魚雷', viewStatus: ['actualTorpedo', 'nightBattleFirePower', 'actualFire', 'actualAccuracy', 'actualAvoid', 'actualArmor'], types: [5, 22, 32],
     },
     {
-      id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'actualAvoid', 'radius', 'airPower'], types: [6],
+      id: 6, text: '艦戦', viewStatus: ['antiAir', 'actualAntiAir', 'actualAccuracy', 'actualAvoid', 'radius', 'airPower'], types: [6, 56],
     },
     {
       id: 7, text: '艦爆', viewStatus: ['actualBomber', 'actualAntiAir', 'actualAccuracy', 'actualAsw', 'radius', 'avoidId'], types: [7],
@@ -734,7 +735,7 @@ export default class Const {
       id: 9, text: '艦偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAntiAir', 'radius', 'cost'], types: [9],
     },
     {
-      id: 57, text: '噴式機', viewStatus: ['actualBomber', 'actualAccuracy', 'actualAntiAir', 'avoidId', 'airPower', 'cost'], types: [57],
+      id: 57, text: '噴式機', viewStatus: ['actualBomber', 'actualAccuracy', 'actualAntiAir', 'avoidId', 'airPower', 'cost'], types: [57, 56],
     },
     {
       id: 10, text: '水偵', viewStatus: ['actualScout', 'actualFire', 'actualAccuracy', 'actualAsw', 'radius', 'cost'], types: [10],
