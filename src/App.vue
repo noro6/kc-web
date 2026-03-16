@@ -109,6 +109,7 @@
             @inform="inform"
             @showSiteSetting="showSiteSetting"
             @downloadBackupFile="downloadBackupFile"
+            @openBackupPrompt="openBackupPrompt"
             @openSidebar="drawer = true"
             @saveCurrentData="saveCurrentData"
           />
@@ -661,6 +662,20 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="backupPromptDialog" width="560" persistent>
+      <v-card class="px-5 py-4">
+        <div class="text-h6">{{ $t("Home.そろそろバックアップしませんか？") }}</div>
+        <v-divider class="my-3" />
+        <div class="body-2">{{ $t("Home.前回の編成データのバックアップからわりと時間が経っています。") }}</div>
+        <div class="body-2 mt-1">{{ $t("Home.なんらかの影響で編成データが消えた時のために、バックアップファイルを作成することをオススメします。") }}</div>
+        <div class="caption mt-1">※ {{ $t("Home.この通知は、最後のバックアップからだいたい1ヵ月くらいに1度表示されます。今回はスキップした場合も、再度1か月後くらいに通知されます。") }}</div>
+        <v-divider class="my-4" />
+        <div class="d-flex justify-end">
+          <v-btn class="mr-2" color="primary" @click="backupNowFromPrompt()">{{ $t("Home.今すぐバックアップ") }}</v-btn>
+          <v-btn color="error" @click="skipBackupPrompt()">{{ $t("Home.今回はスキップ") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="areaOverwriteConfirmDialog" transition="scroll-x-transition" width="700">
       <v-card class="pa-3">
         <div class="ma-4">
@@ -728,6 +743,9 @@ import ShipStockDiff from './classes/fleet/shipStockDiff';
 import Airbase from './classes/airbase/airbase';
 import AirbaseInfo from './classes/airbase/airbaseInfo';
 
+/** バックアップ通知の間隔 (1ヵ月) */
+const BACKUP_PROMPT_INTERVAL = 1000 * 60 * 60 * 24 * 30;
+
 export default Vue.extend({
   name: 'App',
   components: {
@@ -773,6 +791,8 @@ export default Vue.extend({
     backupString: undefined as undefined | string,
     fileValue: undefined as File | undefined,
     backupSelectDialog: false,
+    backupPromptDialog: false,
+    backupPromptChecked: false,
     isImportSaveData: true,
     isImportShipData: true,
     isImportItemData: true,
@@ -889,6 +909,12 @@ export default Vue.extend({
     getCompletedAll(value) {
       if (value) {
         this.loadURLInformation();
+        if (!this.backupPromptChecked) {
+          this.backupPromptChecked = true;
+          this.$nextTick(() => {
+            this.checkAutoBackupPrompt();
+          });
+        }
       }
 
       if (!this.urlParameters || !this.urlParameters.stockid) {
@@ -988,6 +1014,41 @@ export default Vue.extend({
     showSiteSetting() {
       this.updateIsMobile();
       this.configDialog = true;
+    },
+    openBackupPrompt() {
+      this.backupPromptDialog = true;
+    },
+    hasAnyBackupSaveData(saveData: SaveData): boolean {
+      if (!saveData.isDirectory) {
+        return true;
+      }
+      return saveData.childItems.some((v) => this.hasAnyBackupSaveData(v));
+    },
+    hasBackupPromptTargetData(): boolean {
+      const hasSaveData = this.hasAnyBackupSaveData(this.saveData);
+      const hasShipStock = (this.$store.state.shipStock as ShipStock[]).length > 0;
+      const hasItemStock = (this.$store.state.itemStock as ItemStock[]).length > 0;
+      const hasOutputHistories = this.$store.state.outputHistories.length > 0;
+      return hasSaveData || hasShipStock || hasItemStock || hasOutputHistories;
+    },
+    checkAutoBackupPrompt() {
+      if (this.backupPromptDialog || !this.hasBackupPromptTargetData()) {
+        return;
+      }
+
+      const lastActionAt = Math.max(this.setting.lastBackupCreatedAt ?? 0, this.setting.lastBackupPromptAt ?? 0);
+      if (!lastActionAt || Date.now() - lastActionAt >= BACKUP_PROMPT_INTERVAL) {
+        this.openBackupPrompt();
+      }
+    },
+    skipBackupPrompt() {
+      this.setting.lastBackupPromptAt = Date.now();
+      this.$store.dispatch('updateSetting', this.setting);
+      this.backupPromptDialog = false;
+    },
+    backupNowFromPrompt() {
+      this.downloadBackupFile();
+      this.backupPromptDialog = false;
     },
     async loadURLInformation() {
       // 展開待ち中のデータがあれば読み込んで消す
@@ -1642,6 +1703,7 @@ export default Vue.extend({
       }
     },
     downloadBackupFile() {
+      const now = Date.now();
       const backUpData = {
         savedata: this.saveData.getMinifyData(),
         shipStock: ShipStock.createFleetAnalyticsCode(this.$store.state.shipStock as ShipStock[]),
@@ -1653,6 +1715,9 @@ export default Vue.extend({
       const minify = LZString.compressToUTF16(JSON.stringify(backUpData));
       const blob = new Blob([minify], { type: 'application/octet-stream' });
       saveAs(blob, `backup_${Convert.formatDate(new Date(), 'yyyyMMdd')}`);
+      this.setting.lastBackupCreatedAt = now;
+      this.setting.lastBackupPromptAt = now;
+      this.$store.dispatch('updateSetting', this.setting);
     },
     async handleFileSelect(file: File) {
       this.backupString = undefined;

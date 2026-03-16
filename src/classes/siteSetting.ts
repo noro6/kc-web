@@ -157,6 +157,12 @@ export default class SiteSetting {
   /** データ利用を許可 */
   public allowDataUse: boolean;
 
+  /** 最後にバックアップを作成した日時 */
+  public lastBackupCreatedAt: number;
+
+  /** 最後にバックアップ通知を表示した日時 */
+  public lastBackupPromptAt: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -206,6 +212,8 @@ export default class SiteSetting {
       this.isAvoidSpoiler = setting.isAvoidSpoiler ?? true;
       this.showItemCompareDialog = setting.showItemCompareDialog ?? true;
       this.importShipMinLevel = setting.importShipMinLevel ?? 1;
+      this.lastBackupCreatedAt = setting.lastBackupCreatedAt ?? 0;
+      this.lastBackupPromptAt = setting.lastBackupPromptAt ?? 0;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -308,6 +316,8 @@ export default class SiteSetting {
       this.importShipMinLevel = 1;
       this.userId = uuidv4();
       this.allowDataUse = true;
+      this.lastBackupCreatedAt = 0;
+      this.lastBackupPromptAt = 0;
     }
   }
 }
