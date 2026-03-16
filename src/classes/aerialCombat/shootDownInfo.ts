@@ -393,8 +393,8 @@ export default class ShootDownInfo {
       // 46種 (35.6改三 or 改四, 対空電探, 特殊機銃)
       if (specialKijuCount && antiAirRadarCount && items.some((v) => v.data.id === 502 || v.data.id === 503)) cutInIds.push(46);
     }
-    if (shipId === 426 || shipId === 981 || shipId === 983 || shipId === 986 || shipId === 987 || type2 === 54) {
-      // 吹雪改二 / 白雪改二 / 初雪改二 / 藤波改二 / 浜波改二 / 秋月型
+    if (shipId === 426 || shipId === 981 || shipId === 983 || shipId === 986 || shipId === 987 || shipId === 1033 || type2 === 54) {
+      // 吹雪改二 / 白雪改二 / 初雪改二 / 藤波改二 / 浜波改二 / 玉波改二 / 秋月型
       // 10cm連装高角砲改+高射装置改
       const aaGunCount = items.filter((v) => v.data.id === 533).length;
       // 10cm連装高角砲改
