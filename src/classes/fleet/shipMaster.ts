@@ -279,4 +279,25 @@ export default class ShipMaster {
     const hasConvertOriginalIds = originalIds.filter((v) => v.isConvert).map((v) => v.id);
     return ships.filter((v) => hasConvertOriginalIds.includes(v.id));
   }
+
+  /** 艦娘の日本wikiURLを返却 */
+  static getWikiURL(data: ShipMaster): string {
+    if (data.id === 645) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('宗谷(灯台補給船)')}`;
+    }
+    if (data.id === 650) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('宗谷(南極観測船)')}`;
+    }
+    if (data.id === 1027) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('Glorious(正規空母)')}`;
+    }
+    if (data.id === 741) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('Glorious改(正規空母)')}`;
+    }
+    if (data.id === 740) {
+      return `https://wikiwiki.jp/kancolle/${encodeURI('Glorious改(巡洋戦艦)')}`;
+    }
+
+    return `https://wikiwiki.jp/kancolle/${encodeURI(data.name.replaceAll('/', '／').replaceAll('+', '＋').replaceAll('&', '＆'))}`;
+  }
 }

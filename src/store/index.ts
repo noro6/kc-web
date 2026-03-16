@@ -32,7 +32,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.50.3',
+    siteVersion: '2.51.0',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */

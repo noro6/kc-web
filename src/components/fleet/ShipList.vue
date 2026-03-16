@@ -2088,8 +2088,7 @@ export default Vue.extend({
     },
     clickedShip(ship: ViewShip, event?: MouseEvent) {
       if (event && event.ctrlKey && ship && ship.ship) {
-        const wikiURL = `https://wikiwiki.jp/kancolle/${encodeURI(ship.ship.name.replaceAll('/', '／').replaceAll('+', '＋'))}`;
-        window.open(wikiURL);
+        window.open(ShipMaster.getWikiURL(ship.ship));
         return;
       }
 

@@ -711,7 +711,7 @@
               <v-icon>mdi-heart</v-icon>
             </v-btn>
             <div class="align-self-center ml-3" v-if="versionButtons[version]">
-              <a :href="`https://wikiwiki.jp/kancolle/${encodeURI(versionButtons[version].name)}`" target="_blank">wiki</a>
+              <a :href="getWikiURL(versionButtons[version])" target="_blank">wiki</a>
             </div>
           </div>
           <div class="ship-edit-card-buttons ml-sm-auto">
@@ -1542,6 +1542,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    getWikiURL(ship: ShipMaster): string {
+      return ShipMaster.getWikiURL(ship);
+    },
     initialize() {
       // 全データ取得
       this.all = this.$store.state.ships as ShipMaster[];
