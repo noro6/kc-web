@@ -106,7 +106,7 @@ export default class SpecialAttack {
     const starShellCorr = 4;
     // 見張員補正
     let personnelCorr = hasPersonnel ? 5 : 0;
-    if (hasSkilledPersonnel && (parent.data.type === SHIP_TYPE.DD || parent.data.type === SHIP_TYPE.CL || parent.data.type === SHIP_TYPE.CLT)) {
+    if (hasSkilledPersonnel && (parent.data.type === SHIP_TYPE.DD || parent.data.type === SHIP_TYPE.CL || parent.data.type === SHIP_TYPE.CLT || parent.data.type === SHIP_TYPE.CT)) {
       // 水雷見張員補正 => 駆逐 & 軽巡級 +7
       personnelCorr += 7;
     }
