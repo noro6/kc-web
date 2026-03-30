@@ -183,12 +183,29 @@ export default class SpecialAttack {
       }
     }
 
+    // 空母Jetカットイン判定 => 噴式艦上戦闘機必須
+    if (parent.items.some((v) => v.fullSlot && v.data.isJet && v.data.isFighter)) {
+      const jetBomberCount = items.filter((v) => v.fullSlot && v.data.isJet && v.data.isAttacker).length;
+      // jFjBjB => 噴式戦闘爆撃機 x2
+      if (jetBomberCount >= 2) {
+        specialAttacks.push({ text: 'jFjBjB', value: 135 });
+      }
+      // jFjB => 噴式戦闘爆撃機 x1
+      if (jetBomberCount) {
+        specialAttacks.push({ text: 'jFjB', value: 125 });
+      }
+      // jFBA => 艦攻 + 艦爆
+      if (parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 7) && parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 8)) {
+        specialAttacks.push({ text: 'jFBA', value: 115 });
+      }
+    }
+
     // 空母カットイン判定
     if (parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 8) && parent.data.speed !== 0) {
       // 艦攻は必須
       const bomberCount = items.filter((v) => v.fullSlot && v.data.apiTypeId === 7).length;
       // FBA => 艦攻 + 艦爆 + 艦戦
-      if (parent.items.some((v) => v.fullSlot && v.data.apiTypeId === 6) && bomberCount) {
+      if (parent.items.some((v) => v.fullSlot && v.data.isFighter) && bomberCount) {
         specialAttacks.push({ text: 'FBA', value: 125 });
       }
       // BBA => 艦攻 + 艦爆2

@@ -222,6 +222,7 @@ export default class SiteSetting {
           { id: 8, level: 0 },
           { id: 9, level: 100 },
           { id: 57, level: 0 },
+          { id: 56, level: 100 },
           { id: 10, level: 100 },
           { id: 11, level: 0 },
           { id: 45, level: 100 },
@@ -233,7 +234,6 @@ export default class SiteSetting {
           { id: 25, level: 0 },
           { id: 26, level: 0 },
         ];
-        this.contentOrder = [];
       } else {
         this.planeInitialLevels = setting.planeInitialLevels;
 
@@ -243,6 +243,9 @@ export default class SiteSetting {
         }
         if (!this.planeInitialLevels.find((v) => v.id === 26)) {
           this.planeInitialLevels.push({ id: 26, level: 0 });
+        }
+        if (!this.planeInitialLevels.find((v) => v.id === 56)) {
+          this.planeInitialLevels.push({ id: 56, level: 100 });
         }
       }
       this.contentOrder = setting.contentOrder ? setting.contentOrder : [];
@@ -286,6 +289,7 @@ export default class SiteSetting {
         { id: 8, level: 0 },
         { id: 9, level: 100 },
         { id: 57, level: 0 },
+        { id: 56, level: 100 },
         { id: 10, level: 100 },
         { id: 11, level: 0 },
         { id: 45, level: 100 },

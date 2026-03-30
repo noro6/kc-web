@@ -298,15 +298,17 @@ export default class Calculator {
       item.slot -= Math.floor(0.6 * CommonCalc.getStage1ShootDownValue(AIR_STATE.KAKUHO, item.slot));
 
       // ====== STAGE2 ======
-      // 撃墜担当を選出
-      const index = Math.floor(Math.random() * randomRange);
-      if (Math.random() >= 0.5) {
+      if (!item.data.isFighter) {
+        // 撃墜担当を選出
+        const index = Math.floor(Math.random() * randomRange);
+        if (Math.random() >= 0.5) {
         // 割合撃墜 50%で成功
-        item.slot -= Math.floor(stage2List[item.data.avoidId].rateDownList[index] * item.slot);
-      }
-      if (Math.random() >= 0.5) {
+          item.slot -= Math.floor(stage2List[item.data.avoidId].rateDownList[index] * item.slot);
+        }
+        if (Math.random() >= 0.5) {
         // 固定撃墜 50%で成功
-        item.slot -= stage2List[item.data.avoidId].fixDownList[index];
+          item.slot -= stage2List[item.data.avoidId].fixDownList[index];
+        }
       }
 
       // 制空値を更新
