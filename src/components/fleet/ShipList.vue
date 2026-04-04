@@ -187,6 +187,7 @@
               selected: data.batchListIndex >= 0,
               'blue-ribbon': data.spEffectItemId === 1,
               'white-ribbon': data.spEffectItemId === 2,
+              'has-special-partner': !isBatchMode && specialAttackPartnerHintSet.has(data.ship.id),
             }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data, $event)"
@@ -839,6 +840,12 @@
   padding: 0.4px 2.8px;
 }
 
+/** 装備一覧の装備ボーナス（has-bonus）と同系のシアンで、特殊攻撃の組み合わせ候補を示す */
+.ship-list.has-special-partner {
+  outline: 2px solid rgba(3, 169, 244, 0.85);
+  outline-offset: 0;
+}
+
 .ship-list > div {
   align-self: center;
 }
@@ -1083,6 +1090,7 @@ import ShipFilter from '@/classes/fleet/shipFilter';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Convert from '@/classes/convert';
+import getSpecialAttackPartnerHintMasterIds from '@/classes/fleet/fleetSpecialAttackPartnerHint';
 import { sum } from 'lodash';
 
 export interface ViewShip {
@@ -1180,6 +1188,7 @@ export default Vue.extend({
     isMobile: true,
     phase1: true,
     phase2: true,
+    specialAttackPartnerHintIds: [] as number[],
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1323,6 +1332,9 @@ export default Vue.extend({
       // 在籍モード かつ ケツのuniqueId が意味のある数字
       return this.isStockOnly && this.shipStock.length && this.shipStock[this.shipStock.length - 1].uniqueId !== this.shipStock.length;
     },
+    specialAttackPartnerHintSet(): Set<number> {
+      return new Set(this.specialAttackPartnerHintIds);
+    },
   },
   methods: {
     updateIsMobile() {
@@ -1453,12 +1465,25 @@ export default Vue.extend({
         this.shipFilter.nationalities[i].isChecked = checked;
       }
     },
-    initialize(enabledUserShip = true, batchMax = 0) {
+    initialize(
+      enabledUserShip?: boolean,
+      batchMax?: number,
+      specialAttackHint?: { flagshipMasterId: number; targetSlotIndex: number; fleetMasterIds: number[] },
+    ) {
+      const useUserShipFilter = enabledUserShip !== false;
+      const batch = typeof batchMax === 'number' ? batchMax : 0;
       // 一括編成モード
-      this.isBatchMode = batchMax > 0;
+      this.isBatchMode = batch > 0;
       this.isCheckedOnly = false;
-      this.batchMax = batchMax;
+      this.batchMax = batch;
       this.batchList = [];
+
+      if (this.isBatchMode || !specialAttackHint) {
+        this.specialAttackPartnerHintIds = [];
+      } else {
+        const { targetSlotIndex, fleetMasterIds } = specialAttackHint;
+        this.specialAttackPartnerHintIds = getSpecialAttackPartnerHintMasterIds(targetSlotIndex, fleetMasterIds);
+      }
 
       this.updateIsMobile();
 
@@ -1488,7 +1513,7 @@ export default Vue.extend({
       const mainData = this.$store.state.mainSaveData as SaveData;
       if (mainData) {
         const manager = mainData.tempData[mainData.tempIndex];
-        if (enabledUserShip && manager) {
+        if (useUserShipFilter && manager) {
           let allShips: Ship[] = [];
           for (let i = 0; i < manager.fleetInfo.fleets.length; i += 1) {
             const fleet = manager.fleetInfo.fleets[i];

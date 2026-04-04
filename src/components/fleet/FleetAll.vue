@@ -1187,7 +1187,15 @@ export default Vue.extend({
       this.isMobile = window.innerWidth < 600;
       this.sparkleMouseEvent = event;
       await (this.shipListDialog = true);
-      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize();
+      const fleet = this.fleetInfo.fleets[fleetIndex];
+      const flagship = fleet.ships[0];
+      const flagshipMasterId = flagship && !flagship.isEmpty && flagship.data.id > 0 ? flagship.data.id : 0;
+      const fleetMasterIds = fleet.ships.map((s) => (!s.isEmpty && s.data.id > 0 ? s.data.id : 0));
+      (this.$refs.shipList as InstanceType<typeof ShipList>).initialize(true, 0, {
+        flagshipMasterId,
+        targetSlotIndex: shipIndex,
+        fleetMasterIds,
+      });
     },
     async showBatchShipList(fleetIndex: number) {
       this.shipDialogTarget = [fleetIndex, 0];

@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "tsx tests/itemBonus.test.ts",
+    "test": "tsx tests/fleetSpecialAttackPartnerHint.test.ts",
+    "test:item-bonus": "tsx tests/itemBonus.test.ts",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
