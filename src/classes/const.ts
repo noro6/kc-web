@@ -909,10 +909,10 @@ export default class Const {
       id: 9, text: '9種', rateBonus: 1.3, c1: 1, c2: 2, rate: 40, remarks: '汎用',
     },
     {
-      id: 10, text: '10種', rateBonus: 1.65, c1: 3, c2: 6, rate: 60, remarks: '摩耶改二',
+      id: 10, text: '10種', rateBonus: 1.65, c1: 3, c2: 6, rate: 60, remarks: '摩耶改二 / 飛龍改三',
     },
     {
-      id: 11, text: '11種', rateBonus: 1.5, c1: 2, c2: 5, rate: 55, remarks: '摩耶改二',
+      id: 11, text: '11種', rateBonus: 1.5, c1: 2, c2: 5, rate: 55, remarks: '摩耶改二 / 飛龍改三',
     },
     {
       id: 12, text: '12種', rateBonus: 1.25, c1: 1, c2: 3, rate: 45, remarks: '汎用',
@@ -960,7 +960,7 @@ export default class Const {
       id: 26, text: '26種', rateBonus: 1.4, c1: 6, c2: 1, rate: 60, remarks: '武蔵改二',
     },
     {
-      id: 27, text: '27種', rateBonus: 1.55, c1: 6, c2: 1, rate: 55, remarks: '大淀',
+      id: 27, text: '27種', rateBonus: 1.55, c1: 6, c2: 1, rate: 55, remarks: '大淀 / 飛龍改三',
     },
     {
       id: 28, text: '28種', rateBonus: 1.4, c1: 4, c2: 1, rate: 56, remarks: '伊勢型 / 武蔵',
