@@ -638,12 +638,16 @@ export default Vue.extend({
           // 艦種フィルタ
           continue;
         }
-        // 初期改造状態を含めず
-        if (!this.shipFilter.includeInitial && ship.version === 0) continue;
-        // 中間改造状態を含めず
-        if (!this.shipFilter.includeIntermediate && ship.version !== 0 && !ship.isFinal) continue;
-        // 最終改造状態を含めず
-        if (!this.shipFilter.includeFinal && ship.isFinal) continue;
+        const isInitial = ship.version === 0;
+        const isIntermediate = ship.version > 0 && !ship.isFinal;
+        const isFinal = ship.version > 0 && ship.isFinal;
+        if (
+          (!this.shipFilter.includeInitial && isInitial)
+          || (!this.shipFilter.includeIntermediate && isIntermediate)
+          || (!this.shipFilter.includeFinal && isFinal)
+        ) {
+          continue;
+        }
         // 5スロ
         if (this.shipFilter.slotCount5 && ship.slotCount < 5) continue;
         // 4スロ

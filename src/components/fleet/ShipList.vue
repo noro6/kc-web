@@ -1591,18 +1591,17 @@ export default Vue.extend({
         if (t) {
           result = result.filter((v) => t.types.includes(v.type));
         }
-        if (!this.shipFilter.includeInitial) {
-          // 初期改造状態を含めず
-          result = result.filter((v) => v.version > 0);
-        }
-        if (!this.shipFilter.includeIntermediate) {
-          // 中間改造状態を含めず
-          result = result.filter((v) => v.version === 0 || v.isFinal);
-        }
-        if (!this.shipFilter.includeFinal) {
-          // 最終改造状態を含めず
-          result = result.filter((v) => !v.isFinal);
-        }
+        result = result.filter((v) => {
+          // version === 0 の艦は、isFinal が立っていても未改造として扱う
+          const isInitial = v.version === 0;
+          const isIntermediate = v.version > 0 && !v.isFinal;
+          const isFinal = v.version > 0 && v.isFinal;
+          return (
+            (this.shipFilter.includeInitial && isInitial)
+            || (this.shipFilter.includeIntermediate && isIntermediate)
+            || (this.shipFilter.includeFinal && isFinal)
+          );
+        });
         if (!this.shipFilter.includeFast) {
           // 速力高速
           result = result.filter((v) => v.speed !== 10);

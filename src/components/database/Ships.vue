@@ -1826,12 +1826,16 @@ export default Vue.extend({
         const {
           stockData, ship, luck, hp, asw,
         } = row;
-        // 初期改造状態で絞る
-        if (!this.includeInitial && ship.version === 0) return false;
-        // 中間改造状態で絞る
-        if (!this.includeIntermediate && !(ship.version === 0 || ship.isFinal)) return false;
-        // 最終改造状態で絞る
-        if (!this.includeFinal && ship.isFinal) return false;
+        const isInitial = ship.version === 0;
+        const isIntermediate = ship.version > 0 && !ship.isFinal;
+        const isFinal = ship.version > 0 && ship.isFinal;
+        if (
+          (!this.includeInitial && isInitial)
+          || (!this.includeIntermediate && isIntermediate)
+          || (!this.includeFinal && isFinal)
+        ) {
+          return false;
+        }
         // 第一期で絞る => 第一期がoffかつ第一期艦に該当したら false
         if (!this.phase1 && (ship.id <= 550 || [551, 552, 553, 555, 556, 557, 558, 560, 561, 565, 566, 567, 568, 605, 606, 678, 679, 680, 681, 685].includes(ship.id)) && ![299, 378, 379, 381, 382, 501, 502, 506, 507, 514, 520, 522, 527, 528, 533, 534, 536, 538].includes(ship.id)) return false;
         // 第二期で絞る => 第二期がoffかつ第二期艦に該当したら false

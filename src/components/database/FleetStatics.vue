@@ -1189,18 +1189,16 @@ export default Vue.extend({
         ships = ships.filter((v) => t.types.includes(v.data.type));
       }
 
-      // 初期改造状態で絞る
-      if (!this.includeInitial) {
-        ships = ships.filter((v) => v.data.version !== 0 || v.data.isFinal);
-      }
-      // 中間改造状態で絞る
-      if (!this.includeIntermediate) {
-        ships = ships.filter((v) => v.data.version === 0 || v.data.isFinal);
-      }
-      // 最終改造状態で絞る
-      if (!this.includeFinal) {
-        ships = ships.filter((v) => !v.data.isFinal);
-      }
+      ships = ships.filter((v) => {
+        const isInitial = v.data.version === 0;
+        const isIntermediate = v.data.version > 0 && !v.data.isFinal;
+        const isFinal = v.data.version > 0 && v.data.isFinal;
+        return (
+          (this.includeInitial || !isInitial)
+          && (this.includeIntermediate || !isIntermediate)
+          && (this.includeFinal || !isFinal)
+        );
+      });
 
       const maxTableRows = this.shipType === -1 ? 400 : 500;
 
@@ -1375,12 +1373,16 @@ export default Vue.extend({
         if (!data || !result) continue;
 
         if (t && !t.types.includes(data.type)) continue;
-        // 初期改造状態で絞る
-        if (!this.includeInitial && data.version === 0) continue;
-        // 中間改造状態で絞る
-        if (!this.includeIntermediate && data.version !== 0 && !data.isFinal) continue;
-        // 最終改造状態で絞る
-        if (!this.includeFinal && data.isFinal) continue;
+        const isInitial = data.version === 0;
+        const isIntermediate = data.version > 0 && !data.isFinal;
+        const isFinal = data.version > 0 && data.isFinal;
+        if (
+          (!this.includeInitial && isInitial)
+          || (!this.includeIntermediate && isIntermediate)
+          || (!this.includeFinal && isFinal)
+        ) {
+          continue;
+        }
 
         // 艦とLvが重複していないかチェック
         if (this.deviations.some((v) => v.data.id === stock.id && v.level === stock.level)) continue;
