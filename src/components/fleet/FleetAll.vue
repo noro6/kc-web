@@ -131,12 +131,28 @@
         <div class="d-flex align-center mx-2 mt-1">
           <template v-if="isShow12 && i === 0">
             <div class="primary--text font-weight-bold mr-3">{{ $t("Fleet.主力艦隊") }}</div>
-            <div v-if="unionErrors[0] && unionErrors[0].length" class="flex-grow-1">
-              <v-alert class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[0] }}</v-alert>
+            <div v-if="(unionErrors[0] && unionErrors[0].length) || (specialAttackWarnings[0] && specialAttackWarnings[0].length)" class="flex-grow-1">
+              <v-alert v-if="unionErrors[0] && unionErrors[0].length" class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[0] }}</v-alert>
+              <v-alert
+                v-if="specialAttackWarnings[0] && specialAttackWarnings[0].length"
+                class="ma-0 py-1 pl-3 body-2 mb-1"
+                :class="{ 'mt-1': unionErrors[0] && unionErrors[0].length }"
+                dense
+                outlined
+                type="warning"
+              >{{ specialAttackWarnings[0] }}</v-alert>
             </div>
           </template>
-          <div v-else-if="unionErrors[i] && unionErrors[i].length" class="flex-grow-1">
-            <v-alert class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[i] }}</v-alert>
+          <div v-else-if="(unionErrors[i] && unionErrors[i].length) || (specialAttackWarnings[i] && specialAttackWarnings[i].length)" class="flex-grow-1">
+            <v-alert v-if="unionErrors[i] && unionErrors[i].length" class="ma-0 py-1 pl-3 body-2 mb-1" dense outlined type="error">{{ unionErrors[i] }}</v-alert>
+            <v-alert
+              v-if="specialAttackWarnings[i] && specialAttackWarnings[i].length"
+              class="ma-0 py-1 pl-3 body-2 mb-1"
+              :class="{ 'mt-1': unionErrors[i] && unionErrors[i].length }"
+              dense
+              outlined
+              type="warning"
+            >{{ specialAttackWarnings[i] }}</v-alert>
           </div>
         </div>
         <!-- 連合艦隊かつ12隻表示じゃないか、もしくは第2艦隊以外 -->
@@ -163,8 +179,16 @@
           <v-divider class="mt-2" />
           <div class="d-flex align-center mx-2 mt-1">
             <div class="success--text font-weight-bold mr-3">{{ $t("Fleet.随伴艦隊") }}</div>
-            <div v-if="unionErrors[1] && unionErrors[1].length" class="flex-grow-1 mb-1">
-              <v-alert class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[1] }}</v-alert>
+            <div v-if="(unionErrors[1] && unionErrors[1].length) || (specialAttackWarnings[1] && specialAttackWarnings[1].length)" class="flex-grow-1 mb-1">
+              <v-alert v-if="unionErrors[1] && unionErrors[1].length" class="ma-0 py-1 pl-3 body-2" dense outlined type="error">{{ unionErrors[1] }}</v-alert>
+              <v-alert
+                v-if="specialAttackWarnings[1] && specialAttackWarnings[1].length"
+                class="ma-0 py-1 pl-3 body-2"
+                :class="{ 'mt-1': unionErrors[1] && unionErrors[1].length }"
+                dense
+                outlined
+                type="warning"
+              >{{ specialAttackWarnings[1] }}</v-alert>
             </div>
           </div>
           <fleet-component
@@ -805,6 +829,7 @@ import ItemList from '@/components/item/ItemList.vue';
 import ShipList, { ViewShip } from '@/components/fleet/ShipList.vue';
 import ItemPresetComponent from '@/components/item/ItemPreset.vue';
 import FleetInfo from '@/classes/fleet/fleetInfo';
+import { getSpecialAttackWarningCompanionCounts, hasSatisfiedBattleshipSpecialAttack } from '@/classes/fleet/fleetSpecialAttackPartnerHint';
 import Fleet, { FleetBuilder } from '@/classes/fleet/fleet';
 import Ship, { ShipBuilder } from '@/classes/fleet/ship';
 import ShipValidation from '@/classes/fleet/shipValidation';
@@ -1023,6 +1048,42 @@ export default Vue.extend({
       }
 
       return errorText;
+    },
+    specialAttackWarnings(): string[] {
+      return this.value.fleets.map((fleet) => {
+        const flagship = fleet.ships[0];
+        if (!flagship) {
+          return '';
+        }
+
+        const fleetMasterIds = fleet.ships.map((ship) => ship.data.id);
+        const shipTypeByMasterId = new Map<number, number>();
+        fleet.ships.forEach((ship) => {
+          if (ship.data.id > 0) {
+            shipTypeByMasterId.set(ship.data.id, ship.data.type);
+          }
+        });
+
+        if (flagship.data.type === SHIP_TYPE.AS) {
+          const counts = getSpecialAttackWarningCompanionCounts(fleetMasterIds, shipTypeByMasterId);
+          if (!counts.length) {
+            return '';
+          }
+
+          if (counts.includes(3)) {
+            return `${this.$t('Fleet.潜水艦隊攻撃4隻配置警告')}`;
+          }
+
+          return `${this.$t('Fleet.潜水艦隊攻撃配置警告')}`;
+        }
+
+        const surfaceShipCount = fleet.ships.filter((ship) => ship.data.id > 0 && ship.data.type !== SHIP_TYPE.SS && ship.data.type !== SHIP_TYPE.SSV).length;
+        if (hasSatisfiedBattleshipSpecialAttack(fleetMasterIds, shipTypeByMasterId) && surfaceShipCount < 6) {
+          return `${this.$t('Fleet.戦艦特殊砲撃水上艦不足警告')}`;
+        }
+
+        return '';
+      });
     },
     scoutError(): string[] {
       const fleet = this.value.mainFleet;

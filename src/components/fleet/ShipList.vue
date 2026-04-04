@@ -187,7 +187,7 @@
               selected: data.batchListIndex >= 0,
               'blue-ribbon': data.spEffectItemId === 1,
               'white-ribbon': data.spEffectItemId === 2,
-              'has-special-partner': !isBatchMode && specialAttackPartnerHintSet.has(data.ship.id),
+              'has-special-partner': !isBatchMode && hasSpecialAttackPartnerHint(data.ship.id),
             }"
             v-ripple="{ class: data.count ? 'info--text' : 'red--text' }"
             @click="clickedShip(data, $event)"
@@ -220,8 +220,13 @@
                   <div>{{ selectedSortText }} {{ data.sortValue }}</div>
                 </div>
               </div>
-              <div class="d-flex">
+              <div class="d-flex align-center ship-name-row">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
+                <div v-if="!isBatchMode && getSpecialAttackPartnerHintTier(data.ship.id) > 0" class="special-partner-icon">
+                  <v-icon color="light-blue" :class="{ 'pt-1': getSpecialAttackPartnerHintTier(data.ship.id) === 1 }">
+                    {{ getSpecialAttackPartnerHintIcon(data.ship.id) }}
+                  </v-icon>
+                </div>
               </div>
             </div>
             <div class="ship-count caption" v-if="isStockOnly">
@@ -846,6 +851,24 @@
   outline-offset: 0;
 }
 
+.ship-name-row {
+  position: relative;
+  padding-right: 18px;
+}
+
+.special-partner-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8em;
+  filter: drop-shadow(0 0 2px #fff);
+}
+
+.theme--dark .special-partner-icon {
+  filter: drop-shadow(0 0 2px #000);
+}
+
 .ship-list > div {
   align-self: center;
 }
@@ -1090,7 +1113,7 @@ import ShipFilter from '@/classes/fleet/shipFilter';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Convert from '@/classes/convert';
-import getSpecialAttackPartnerHintMasterIds from '@/classes/fleet/fleetSpecialAttackPartnerHint';
+import getSpecialAttackPartnerHintMasterIds, { DisplayHintTier } from '@/classes/fleet/fleetSpecialAttackPartnerHint';
 import { sum } from 'lodash';
 
 export interface ViewShip {
@@ -1188,7 +1211,7 @@ export default Vue.extend({
     isMobile: true,
     phase1: true,
     phase2: true,
-    specialAttackPartnerHintIds: [] as number[],
+    specialAttackPartnerHintMap: new Map<number, DisplayHintTier>(),
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -1331,9 +1354,6 @@ export default Vue.extend({
     enabledApiIdSearch() {
       // 在籍モード かつ ケツのuniqueId が意味のある数字
       return this.isStockOnly && this.shipStock.length && this.shipStock[this.shipStock.length - 1].uniqueId !== this.shipStock.length;
-    },
-    specialAttackPartnerHintSet(): Set<number> {
-      return new Set(this.specialAttackPartnerHintIds);
     },
   },
   methods: {
@@ -1479,10 +1499,11 @@ export default Vue.extend({
       this.batchList = [];
 
       if (this.isBatchMode || !specialAttackHint) {
-        this.specialAttackPartnerHintIds = [];
+        this.specialAttackPartnerHintMap = new Map<number, DisplayHintTier>();
       } else {
         const { targetSlotIndex, fleetMasterIds } = specialAttackHint;
-        this.specialAttackPartnerHintIds = getSpecialAttackPartnerHintMasterIds(targetSlotIndex, fleetMasterIds);
+        const shipTypeByMasterId = new Map<number, number>(this.all.map((ship) => [ship.id, ship.type] as [number, number]));
+        this.specialAttackPartnerHintMap = getSpecialAttackPartnerHintMasterIds(targetSlotIndex, fleetMasterIds, shipTypeByMasterId);
       }
 
       this.updateIsMobile();
@@ -2191,6 +2212,22 @@ export default Vue.extend({
     clearTooltip() {
       this.enabledTooltip = false;
       window.clearTimeout(this.tooltipTimer);
+    },
+    hasSpecialAttackPartnerHint(masterId: number): boolean {
+      return this.specialAttackPartnerHintMap.has(masterId);
+    },
+    getSpecialAttackPartnerHintTier(masterId: number): DisplayHintTier {
+      return this.specialAttackPartnerHintMap.get(masterId) ?? 0;
+    },
+    getSpecialAttackPartnerHintIcon(masterId: number): string {
+      const tier = this.getSpecialAttackPartnerHintTier(masterId);
+      if (tier === 3) {
+        return 'mdi-chevron-triple-up';
+      }
+      if (tier === 2) {
+        return 'mdi-chevron-double-up';
+      }
+      return 'mdi-chevron-up';
     },
     translate(v: string): string {
       return v ? `${this.$t(v)}` : '';
