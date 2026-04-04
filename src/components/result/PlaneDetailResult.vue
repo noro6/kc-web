@@ -474,9 +474,10 @@ export default Vue.extend({
         const enemies = this.$store.getters.getEnemies as EnemyMaster[];
         // 展開している敵艦隊までの計算に変更 => managerの敵艦隊データをまるっと置き換えるため、いったんセーブデータの方から引き直す
         const baseInfo = saveData.loadManagerData(items, ships, enemies).battleInfo;
+        const fleets = baseInfo.fleets.slice(0, index + 1);
 
         this.manager.mainBattle = index;
-        this.manager.battleInfo = new BattleInfo({ info: baseInfo, fleets: baseInfo.fleets.slice(0, index + 1) });
+        this.manager.battleInfo = new BattleInfo({ info: baseInfo, battleCount: fleets.length, fleets });
       }
       this.setGraphData();
     },
