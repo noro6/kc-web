@@ -72,6 +72,9 @@ export default class ShipFilter {
   /** 増設副砲あり限定 */
   public canEquipExSubGunOnly = false;
 
+  /** 増設小口径主砲限定 */
+  public canEquipExSmallGunOnly = false;
+
   /** 増設13号電探限定 */
   public canEquip13RadarOnly = false;
 

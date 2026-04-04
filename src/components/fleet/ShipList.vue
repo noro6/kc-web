@@ -420,6 +420,7 @@
             <v-checkbox v-model="shipFilter.canEquip22RadarOnly" dense hide-details :label="$t('Fleet.22号電探系')" />
             <v-checkbox v-model="shipFilter.canEquipMastRadarOnly" dense hide-details :label="$t('Fleet.電探マスト')" />
             <v-checkbox v-model="shipFilter.canEquipRadarOnly" dense hide-details :label="$t('Fleet.その他電探')" />
+            <v-checkbox v-model="shipFilter.canEquipExSmallGunOnly" dense hide-details :label="$t('EType.小口径主砲')" />
             <v-checkbox v-model="shipFilter.canEquipExSubGunOnly" dense hide-details :label="$t('EType.副砲')" />
             <v-checkbox v-model="shipFilter.canEquipExCommanderOnly" dense hide-details :label="$t('EType.司令部施設')" />
             <v-checkbox v-model="shipFilter.canEquipExDepthChargeOnly" dense hide-details :label="$t('EType.爆雷')" />
@@ -1715,6 +1716,10 @@ export default Vue.extend({
         if (this.shipFilter.canEquipRadarOnly) {
           // 増設その他の電探限定
           result = filterShip(result, [30, 124, 142, 410, 460, 527, 528], false, true);
+        }
+        if (this.shipFilter.canEquipExSmallGunOnly) {
+          // 増設小口径主砲
+          result = filterShip(result, [379], false, true);
         }
         if (this.shipFilter.canEquipExSubGunOnly) {
           // 増設副砲
