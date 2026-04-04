@@ -2092,6 +2092,10 @@ export default Vue.extend({
           }
         } else if (key === 'level') {
           // 練度毎にタイプ分け
+          const maxLevelShips = viewShips.filter((v) => v.sortValue === this.maxLevel);
+          if (maxLevelShips.length) {
+            resultShips.push({ typeName: `${this.maxLevel}`, ships: maxLevelShips, needOrOver: false });
+          }
           // 最大値を10の倍数に均す
           maxValue = Math.floor(maxValue / 10) * 10;
           for (let i = maxValue; i >= 0; i -= 10) {
@@ -2101,12 +2105,12 @@ export default Vue.extend({
               if (lv99.length) {
                 resultShips.push({ typeName: '99', ships: lv99, needOrOver: false });
               }
-              const ships = viewShips.filter((v) => v.sortValue >= 90 && v.sortValue < 99);
+              const ships = viewShips.filter((v) => v.sortValue >= 90 && v.sortValue < 99 && v.sortValue !== this.maxLevel);
               if (ships.length) {
                 resultShips.push({ typeName: `${i}`, ships, needOrOver: true });
               }
             } else {
-              const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10);
+              const ships = viewShips.filter((v) => v.sortValue >= i && v.sortValue < i + 10 && v.sortValue !== this.maxLevel);
               if (ships.length) {
                 resultShips.push({ typeName: `${Math.max(i, 1)}`, ships, needOrOver: true });
               }
