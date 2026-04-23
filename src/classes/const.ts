@@ -551,6 +551,18 @@ export default class Const {
     {
       shipId: 963, index: [4], itemType: [1, 5, 13], itemIDs: [0],
     },
+    // 時雨改三 4スロットに 主砲、魚雷 不可
+    {
+      shipId: 961, index: [4], itemType: [1, 5], itemIDs: [0],
+    },
+    // 吹雪改三 4スロットに 主砲、魚雷 不可
+    {
+      shipId: 1035, index: [4], itemType: [1, 5], itemIDs: [0],
+    },
+    // 吹雪改三護(六式) 4スロットに 主砲、魚雷 不可
+    {
+      shipId: 1040, index: [4], itemType: [1, 5], itemIDs: [0],
+    },
   ];
 
   /**
