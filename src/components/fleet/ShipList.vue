@@ -222,6 +222,9 @@
               </div>
               <div class="d-flex align-center ship-name-row">
                 <div class="ship-name text-truncate">{{ getShipName(data.ship) }}</div>
+                <v-btn icon small class="ml-2" @click.stop="showUsage(data)">
+                  <v-icon>mdi-map-marker</v-icon>
+                </v-btn>
                 <div v-if="!isBatchMode && getSpecialAttackPartnerHintTier(data.ship.id) > 0" class="special-partner-icon">
                   <v-icon color="light-blue" :class="{ 'pt-1': getSpecialAttackPartnerHintTier(data.ship.id) === 1 }">
                     {{ getSpecialAttackPartnerHintIcon(data.ship.id) }}
@@ -721,6 +724,30 @@
     <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog" :fullscreen="isMobile">
       <ship-bookmark-edit :handle-close="closeBookmarkDialog" />
     </v-dialog>
+
+    <v-dialog v-model="usageDialog" width="680" @input="toggleUsageDialog" :fullscreen="isMobile">
+      <v-card>
+        <div class="d-flex pb-1 px-2 pt-2">
+          <div class="align-self-center ml-3">使用位置</div>
+          <v-spacer />
+          <v-btn icon @click.stop="closeUsageDialog()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <v-divider />
+        <v-card-text>
+          <div v-if="!usageList || !usageList.length" class="body-2 text-center mt-4">該当なし</div>
+          <v-list v-else dense>
+            <v-list-item v-for="(u, i) in usageList" :key="i">
+              <v-list-item-content>
+                <v-list-item-title>艦隊 {{ u.fleetIndex + 1 }} - スロット {{ u.shipIndex + 1 }} <span v-if="u.isUnion">(連合)</span></v-list-item-title>
+                <v-list-item-subtitle>マッチ: {{ u.matchBy }} - マスタID: {{ (u.ship && u.ship.data && u.ship.data.id) ? u.ship.data.id : '-' }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -1115,6 +1142,7 @@ import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import Convert from '@/classes/convert';
 import getSpecialAttackPartnerHintMasterIds, { DisplayHintTier } from '@/classes/fleet/fleetSpecialAttackPartnerHint';
+import { findShipUsage, ShipUsage } from '@/classes/fleet/findShipUsage';
 import { sum } from 'lodash';
 
 export interface ViewShip {
@@ -1213,6 +1241,10 @@ export default Vue.extend({
     phase1: true,
     phase2: true,
     specialAttackPartnerHintMap: new Map<number, DisplayHintTier>(),
+    // usage dialog
+    usageDialog: false,
+    usageList: [] as ShipUsage[],
+    usageTarget: null as ViewShip | null,
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -2180,6 +2212,39 @@ export default Vue.extend({
         this.confirmDialog = true;
       }
     },
+    async showUsage(viewShip: ViewShip) {
+      // Prevent tooltip and parent click
+      this.clearTooltip();
+      // find current manager from main save data
+      const mainData = this.$store.state.mainSaveData as SaveData;
+      let usages: ShipUsage[] = [];
+      if (mainData) {
+        const manager = mainData.tempData[mainData.tempIndex];
+        if (manager && manager.fleetInfo) {
+          if (viewShip.uniqueId) {
+            usages = findShipUsage(manager.fleetInfo, { uniqueId: viewShip.uniqueId, includeEmpty: true });
+          } else {
+            // fallback: match by visible properties similar to existing logic
+            const { id: masterId } = viewShip.ship;
+            const { level: lv, hp, luck, area, asw: improveAsw, spEffectItemId, expanded } = viewShip;
+            usages = findShipUsage(manager.fleetInfo, {
+              predicate: (s) => (s.data && s.data.id === masterId
+                  && s.level === lv
+                  && s.hp === hp
+                  && s.luck === luck
+                  && s.area === area
+                  && s.improveAsw === improveAsw
+                  && s.spEffectItemId === spEffectItemId
+                  && s.releaseExpand === expanded),
+            });
+          }
+        }
+      }
+
+      this.usageList = usages;
+      this.usageTarget = viewShip;
+      this.usageDialog = true;
+    },
     changeMultiLine(isMulti: boolean) {
       this.handleChangeWidth(isMulti ? 1200 : 696);
       this.multiLine = isMulti;
@@ -2279,9 +2344,19 @@ export default Vue.extend({
       this.bookmarksDialog = false;
       this.toggleBookmarkDialog();
     },
+    closeUsageDialog() {
+      this.usageDialog = false;
+      this.usageList = [];
+      this.usageTarget = null;
+    },
     toggleBookmarkDialog() {
       if (!this.bookmarksDialog) {
         this.filter();
+      }
+    },
+    toggleUsageDialog() {
+      if (!this.usageDialog) {
+        // no-op placeholder to keep symmetry
       }
     },
     getSortItemText(item: { text: string }): string {

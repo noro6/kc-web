@@ -334,6 +334,47 @@
           </v-card>
         </v-dialog>
         <div>
+          <v-dialog v-model="usageDialog" width="680" @input="toggleUsageDialog" :fullscreen="isMobile">
+            <v-card>
+              <div class="d-flex pb-1 px-2 pt-2">
+                <div class="align-self-center ml-3">使用位置</div>
+                <v-spacer />
+                <v-btn icon @click.stop="closeUsageDialog()">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </div>
+              <v-divider />
+              <v-card-text>
+                <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">該当なし</div>
+                <v-list v-else dense>
+                  <v-list-item v-for="(entry, i) in usageSaveList" :key="i" two-line>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ entry.saveName }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ entry.occurrences.length }} 件の一致</v-list-item-subtitle>
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-btn small text @click.stop="toggleSaveOccurrences(i)">{{ expandedSaveIndex === i ? $t('Common.閉じる') : $t('Common.表示') }}</v-btn>
+                    </v-list-item-action>
+
+                    <v-expand-transition>
+                      <div v-if="expandedSaveIndex === i" class="pl-4 pr-2 pb-2">
+                        <v-list dense>
+                          <v-list-item v-for="(occ, mi) in entry.occurrences" :key="mi">
+                            <v-list-item-content>
+                              <v-list-item-title>Manager #{{ occ.managerIndex + 1 }} — {{ occ.usages.length }} 件</v-list-item-title>
+                              <v-list-item-subtitle>
+                                <div v-for="(u, ui) in occ.usages" :key="ui">艦隊 {{ u.fleetIndex + 1 }} - スロット {{ u.shipIndex + 1 }} <span v-if="u.isUnion">(連合)</span> — マッチ: {{ u.matchBy }}</div>
+                              </v-list-item-subtitle>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list>
+                      </div>
+                    </v-expand-transition>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
           <v-card v-if="!viewShips.length" class="text-center my-10 py-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
           </v-card>
@@ -412,7 +453,12 @@
                           <v-img v-else :src="`./img/util/tasuki.png`" height="40" width="16" />
                         </div>
                       </div>
-                      <div class="ship-name text-truncate" :title="item.ship.name">{{ getShipName(item.ship) }}</div>
+                      <div class="ship-name text-truncate" :title="item.ship.name">
+                        {{ getShipName(item.ship) }}
+                        <v-btn icon small class="ml-2" @click.stop="showUsageForRow(item)">
+                          <v-icon>mdi-map-marker</v-icon>
+                        </v-btn>
+                      </div>
                     </div>
                     <div class="d-flex d-md-none align-center">
                       <div class="edit-stock-img">
@@ -1189,6 +1235,8 @@ import Convert from '@/classes/convert';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ManualCheckbox from '@/components/common/ManualCheckbox.vue';
+import SaveData from '@/classes/saveData/saveData';
+import { findShipUsage, ShipUsage } from '@/classes/fleet/findShipUsage';
 
 interface ShipRowData {
   count: number;
@@ -1406,6 +1454,10 @@ export default Vue.extend({
       { text: '射程', value: 'range' },
     ],
     isMobile: true,
+    usageDialog: false,
+    usageSaveList: [] as { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
+    usageTarget: undefined as ShipMaster | undefined,
+    expandedSaveIndex: -1,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1971,6 +2023,95 @@ export default Vue.extend({
       this.editLuck = rowData.luck;
       this.editDialog = true;
       this.btnPushed = false;
+    },
+    showUsageForRow(row: ShipRowData) {
+      // Detailed debug logging for reverse-lookup
+      console.groupCollapsed(`[findShipUsage] showUsageForRow called — masterId=${row.ship.id} name=${row.ship.name}`);
+      try {
+        this.clearTooltip();
+        const root = this.$store.state.saveData as SaveData;
+        console.log('[findShipUsage] root saveData:', root ? root.name : '(none)');
+
+        const results: { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
+
+        const walk = (sd: SaveData | undefined) => {
+          if (!sd) return;
+          console.log('[findShipUsage] Visiting SaveData:', sd.name, 'isDirectory=', !!sd.isDirectory);
+          if (sd.isDirectory && sd.childItems && sd.childItems.length) {
+            for (let i = 0; i < sd.childItems.length; i += 1) {
+              walk(sd.childItems[i]);
+            }
+            return;
+          }
+
+          const occurrences: { managerIndex: number; usages: ShipUsage[] }[] = [];
+          const tempLen = sd.tempData ? sd.tempData.length : 0;
+          console.log(`[findShipUsage] ${sd.name} has ${tempLen} manager(s)`);
+          // If no tempData is loaded but a saved manager string exists, load it to populate tempData
+          if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
+            try {
+              console.log(`[findShipUsage] Loading manager data for '${sd.name}' from saved string`);
+              // loadManagerData requires (items, shipMasters, enemyMasters)
+              // Use store masters to restore CalcManager/fleetInfo instances
+              sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+              console.log(`[findShipUsage] After load, ${sd.name} has ${sd.tempData ? sd.tempData.length : 0} manager(s)`);
+            } catch (e) {
+              console.log(`[findShipUsage] Failed to load manager for '${sd.name}':`, e);
+            }
+          }
+          if (sd.tempData && sd.tempData.length) {
+            for (let mi = 0; mi < sd.tempData.length; mi += 1) {
+              console.log(`[findShipUsage] Checking manager #${mi} in '${sd.name}'`);
+              const manager = sd.tempData[mi];
+              if (manager && manager.fleetInfo) {
+                const usages = findShipUsage(manager.fleetInfo, { id: row.ship.id, includeEmpty: true });
+                console.log(`[findShipUsage] manager #${mi} returned ${usages.length} usage(s)`);
+                if (usages && usages.length) {
+                  // Log each usage detail
+                  for (let ui = 0; ui < usages.length; ui += 1) {
+                    const u = usages[ui];
+                    try {
+                      console.log(`[findShipUsage]  - usage: save='${sd.name}' manager=${mi} fleetIndex=${u.fleetIndex} shipIndex=${u.shipIndex} isUnion=${u.isUnion} matchBy=${u.matchBy} masterId=${u.ship && u.ship.data ? u.ship.data.id : '-'} `);
+                    } catch (e) {
+                      console.log('[findShipUsage]  - usage: (error logging usage details)', e);
+                    }
+                  }
+                  occurrences.push({ managerIndex: mi, usages });
+                }
+              }
+            }
+          }
+
+          if (occurrences.length) {
+            console.log(`[findShipUsage] Found ${occurrences.length} occurrence(s) in SaveData '${sd.name}'`);
+            results.push({ saveName: sd.name, occurrences });
+          }
+        };
+
+        walk(root);
+
+        console.log('[findShipUsage] total save entries with matches:', results.length, results);
+        this.usageSaveList = results;
+        this.usageTarget = row.ship;
+        this.expandedSaveIndex = results.length ? 0 : -1;
+        this.usageDialog = true;
+      } finally {
+        console.groupEnd();
+      }
+    },
+    toggleSaveOccurrences(index: number) {
+      this.expandedSaveIndex = this.expandedSaveIndex === index ? -1 : index;
+    },
+    closeUsageDialog() {
+      this.usageDialog = false;
+      this.usageSaveList = [];
+      this.usageTarget = undefined;
+      this.expandedSaveIndex = -1;
+    },
+    toggleUsageDialog() {
+      if (!this.usageDialog) {
+        // placeholder for symmetry with v-dialog input
+      }
     },
     toggleArea(area: number) {
       this.editRow.stockData.area = this.editRow.stockData.area !== area ? area : 0;
