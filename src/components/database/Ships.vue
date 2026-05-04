@@ -2005,78 +2005,52 @@ export default Vue.extend({
       this.btnPushed = false;
     },
     showUsageForRow(row: ShipRowData) {
-      // Detailed debug logging for reverse-lookup
-      console.groupCollapsed(`[findShipUsage] showUsageForRow called — masterId=${row.ship.id} name=${row.ship.name}`);
-      try {
-        this.clearTooltip();
-        const root = this.$store.state.saveData as SaveData;
-        console.log('[findShipUsage] root saveData:', root ? root.name : '(none)');
+      this.clearTooltip();
+      const root = this.$store.state.saveData as SaveData;
 
-        const results: { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
+      const results: { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
 
-        const walk = (sd: SaveData | undefined) => {
-          if (!sd) return;
-          console.log('[findShipUsage] Visiting SaveData:', sd.name, 'isDirectory=', !!sd.isDirectory);
-          if (sd.isDirectory && sd.childItems && sd.childItems.length) {
-            for (let i = 0; i < sd.childItems.length; i += 1) {
-              walk(sd.childItems[i]);
-            }
-            return;
+      const walk = (sd: SaveData | undefined) => {
+        if (!sd) return;
+        if (sd.isDirectory && sd.childItems && sd.childItems.length) {
+          for (let i = 0; i < sd.childItems.length; i += 1) {
+            walk(sd.childItems[i]);
           }
+          return;
+        }
 
-          const occurrences: { managerIndex: number; usages: ShipUsage[] }[] = [];
-          const tempLen = sd.tempData ? sd.tempData.length : 0;
-          console.log(`[findShipUsage] ${sd.name} has ${tempLen} manager(s)`);
-          // If no tempData is loaded but a saved manager string exists, load it to populate tempData
-          if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
-            try {
-              console.log(`[findShipUsage] Loading manager data for '${sd.name}' from saved string`);
-              // loadManagerData requires (items, shipMasters, enemyMasters)
-              // Use store masters to restore CalcManager/fleetInfo instances
-              sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
-              console.log(`[findShipUsage] After load, ${sd.name} has ${sd.tempData ? sd.tempData.length : 0} manager(s)`);
-            } catch (e) {
-              console.log(`[findShipUsage] Failed to load manager for '${sd.name}':`, e);
-            }
+        const occurrences: { managerIndex: number; usages: ShipUsage[] }[] = [];
+        // If tempData is empty, try to populate it from the saved manager string
+        if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
+          try {
+            sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+          } catch (e) {
+            // ignore load errors
           }
-          if (sd.tempData && sd.tempData.length) {
-            for (let mi = 0; mi < sd.tempData.length; mi += 1) {
-              console.log(`[findShipUsage] Checking manager #${mi} in '${sd.name}'`);
-              const manager = sd.tempData[mi];
-              if (manager && manager.fleetInfo) {
-                const usages = findShipUsage(manager.fleetInfo, { id: row.ship.id, includeEmpty: true });
-                console.log(`[findShipUsage] manager #${mi} returned ${usages.length} usage(s)`);
-                if (usages && usages.length) {
-                  // Log each usage detail
-                  for (let ui = 0; ui < usages.length; ui += 1) {
-                    const u = usages[ui];
-                    try {
-                      console.log(`[findShipUsage]  - usage: save='${sd.name}' manager=${mi} fleetIndex=${u.fleetIndex} shipIndex=${u.shipIndex} isUnion=${u.isUnion} matchBy=${u.matchBy} masterId=${u.ship && u.ship.data ? u.ship.data.id : '-'} `);
-                    } catch (e) {
-                      console.log('[findShipUsage]  - usage: (error logging usage details)', e);
-                    }
-                  }
-                  occurrences.push({ managerIndex: mi, usages });
-                }
+        }
+
+        if (sd.tempData && sd.tempData.length) {
+          for (let mi = 0; mi < sd.tempData.length; mi += 1) {
+            const manager = sd.tempData[mi];
+            if (manager && manager.fleetInfo) {
+              const usages = findShipUsage(manager.fleetInfo, { id: row.ship.id, includeEmpty: true });
+              if (usages && usages.length) {
+                occurrences.push({ managerIndex: mi, usages });
               }
             }
           }
+        }
 
-          if (occurrences.length) {
-            console.log(`[findShipUsage] Found ${occurrences.length} occurrence(s) in SaveData '${sd.name}'`);
-            results.push({ saveName: sd.name, occurrences });
-          }
-        };
+        if (occurrences.length) {
+          results.push({ saveName: sd.name, occurrences });
+        }
+      };
 
-        walk(root);
+      walk(root);
 
-        console.log('[findShipUsage] total save entries with matches:', results.length, results);
-        this.usageSaveList = results;
-        this.usageTarget = row.ship;
-        this.usageDialog = true;
-      } finally {
-        console.groupEnd();
-      }
+      this.usageSaveList = results;
+      this.usageTarget = row.ship;
+      this.usageDialog = true;
     },
     closeUsageDialog() {
       this.usageDialog = false;
