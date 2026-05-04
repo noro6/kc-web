@@ -347,29 +347,10 @@
               <v-card-text>
                 <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">該当なし</div>
                 <v-list v-else dense>
-                  <v-list-item v-for="(entry, i) in usageSaveList" :key="i" two-line>
+                  <v-list-item v-for="(entry, i) in usageSaveList" :key="i">
                     <v-list-item-content>
                       <v-list-item-title>{{ entry.saveName }}</v-list-item-title>
-                      <v-list-item-subtitle>{{ entry.occurrences.length }} 件の一致</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-action>
-                      <v-btn small text @click.stop="toggleSaveOccurrences(i)">{{ expandedSaveIndex === i ? $t('Common.閉じる') : $t('Common.表示') }}</v-btn>
-                    </v-list-item-action>
-
-                    <v-expand-transition>
-                      <div v-if="expandedSaveIndex === i" class="pl-4 pr-2 pb-2">
-                        <v-list dense>
-                          <v-list-item v-for="(occ, mi) in entry.occurrences" :key="mi">
-                            <v-list-item-content>
-                              <v-list-item-title>Manager #{{ occ.managerIndex + 1 }} — {{ occ.usages.length }} 件</v-list-item-title>
-                              <v-list-item-subtitle>
-                                <div v-for="(u, ui) in occ.usages" :key="ui">艦隊 {{ u.fleetIndex + 1 }} - スロット {{ u.shipIndex + 1 }} <span v-if="u.isUnion">(連合)</span> — マッチ: {{ u.matchBy }}</div>
-                              </v-list-item-subtitle>
-                            </v-list-item-content>
-                          </v-list-item>
-                        </v-list>
-                      </div>
-                    </v-expand-transition>
                   </v-list-item>
                 </v-list>
               </v-card-text>
@@ -1457,7 +1438,6 @@ export default Vue.extend({
     usageDialog: false,
     usageSaveList: [] as { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
     usageTarget: undefined as ShipMaster | undefined,
-    expandedSaveIndex: -1,
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -2093,20 +2073,15 @@ export default Vue.extend({
         console.log('[findShipUsage] total save entries with matches:', results.length, results);
         this.usageSaveList = results;
         this.usageTarget = row.ship;
-        this.expandedSaveIndex = results.length ? 0 : -1;
         this.usageDialog = true;
       } finally {
         console.groupEnd();
       }
     },
-    toggleSaveOccurrences(index: number) {
-      this.expandedSaveIndex = this.expandedSaveIndex === index ? -1 : index;
-    },
     closeUsageDialog() {
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
-      this.expandedSaveIndex = -1;
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
