@@ -349,7 +349,9 @@
                 <v-list v-else dense>
                   <v-list-item v-for="(entry, i) in usageSaveList" :key="i">
                     <v-list-item-content>
-                      <v-list-item-title>{{ entry.saveName }}</v-list-item-title>
+                      <v-list-item-title>
+                        <a href="#" @click.prevent="openSaveInAircalc(entry.saveData)">{{ entry.saveName }}</a>
+                      </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
@@ -1436,7 +1438,7 @@ export default Vue.extend({
     ],
     isMobile: true,
     usageDialog: false,
-    usageSaveList: [] as { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
+    usageSaveList: [] as { saveName: string; saveData?: SaveData; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
     usageTarget: undefined as ShipMaster | undefined,
   }),
   mounted() {
@@ -2008,7 +2010,7 @@ export default Vue.extend({
       this.clearTooltip();
       const root = this.$store.state.saveData as SaveData;
 
-      const results: { saveName: string; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
+      const results: { saveName: string; saveData?: SaveData; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
 
       const walk = (sd: SaveData | undefined) => {
         if (!sd) return;
@@ -2042,7 +2044,7 @@ export default Vue.extend({
         }
 
         if (occurrences.length) {
-          results.push({ saveName: sd.name, occurrences });
+          results.push({ saveName: sd.name, saveData: sd, occurrences });
         }
       };
 
@@ -2056,6 +2058,18 @@ export default Vue.extend({
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
+    },
+    openSaveInAircalc(save?: SaveData) {
+      if (!save) return;
+      try {
+        save.isMain = true;
+        save.isActive = true;
+      } catch (e) {
+        // ignore
+      }
+      this.$store.dispatch('setMainSaveData', save);
+      this.usageDialog = false;
+      this.$router.push({ name: 'AirCalculator' });
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
