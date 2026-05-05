@@ -337,7 +337,7 @@
           <v-dialog v-model="usageDialog" width="420" @input="toggleUsageDialog" :fullscreen="isMobile">
             <v-card class="usage-dialog-card">
               <div class="d-flex pb-1 px-2 pt-2">
-                <div class="align-self-center ml-3">使用位置</div>
+                <div class="align-self-center ml-3">{{ $t("SaveData.使用位置") }}</div>
                 <v-spacer />
                 <v-btn icon @click.stop="closeUsageDialog()">
                   <v-icon>mdi-close</v-icon>
@@ -345,7 +345,7 @@
               </div>
               <v-divider />
               <v-card-text>
-                <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">該当なし</div>
+                <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">{{ $t("Common.該当なし") }}</div>
                 <div v-else>
                   <div v-for="(entry, i) in usageSaveList" :key="(entry.saveData && entry.saveData.id) ? entry.saveData.id : i">
                     <save-item
@@ -400,6 +400,7 @@
               mobile-breakpoint="0"
             >
               <template v-slot:[`header.name`] />
+              <template v-slot:[`header.actions`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.hp`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.impLuck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
