@@ -352,6 +352,8 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('aircalc');
         }
+        // notify parent that a save was opened
+        this.$emit('opened', data);
         return;
       }
       data.isOpen = !data.isOpen;
@@ -379,6 +381,7 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('aircalc');
         }
+        this.$emit('opened', newData);
         return;
       }
       data.isOpen = !data.isOpen;

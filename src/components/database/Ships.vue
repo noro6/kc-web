@@ -353,7 +353,7 @@
                       :index="i"
                       :handle-delete="noopHandleDelete"
                       :parent-directory="$store.state.saveData"
-                      @click.native.prevent="openSaveInAircalc(entry.saveData)"
+                      @opened="onUsageSaveOpened"
                     />
                   </div>
                 </div>
@@ -2125,6 +2125,12 @@ export default Vue.extend({
     },
     noopHandleDelete(index: number) {
       // no-op delete handler for SaveItem usage rendering
+    },
+    onUsageSaveOpened(save?: SaveData) {
+      // Close the usage dialog when a SaveItem reports it was opened
+      this.usageDialog = false;
+      this.usageSaveList = [];
+      this.usageTarget = undefined;
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
