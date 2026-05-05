@@ -220,6 +220,7 @@
   flex-grow: 1;
   margin-left: 4px;
   align-self: center;
+  text-align: left;
 }
 .file-action-buttons {
   display: flex;

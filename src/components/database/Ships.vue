@@ -347,17 +347,14 @@
               <v-card-text>
                 <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">該当なし</div>
                 <div v-else>
-                  <div v-for="(entry, i) in usageSaveList" :key="i" class="save-list-item pl-1 d-flex align-center">
-                    <v-icon class="v-icon notranslate mdi mdi-file-eye theme--dark blue--text text--lighten-3" style="font-size:16px;" />
-                    <v-btn
-                      text
-                      small
-                      class="pa-0 text-left item-name text-truncate green--text text--lighten-2 flex-grow-1"
-                      :title="entry.saveName"
-                      style="margin-left:8px; min-width:0; text-align:left"
-                      @click.stop="openSaveInAircalc(entry.saveData)">
-                      {{ entry.saveName }}
-                    </v-btn>
+                  <div v-for="(entry, i) in usageSaveList" :key="(entry.saveData && entry.saveData.id) ? entry.saveData.id : i">
+                    <save-item
+                      :value="entry.saveData"
+                      :index="i"
+                      :handle-delete="noopHandleDelete"
+                      :parent-directory="$store.state.saveData"
+                      @click.native.prevent="openSaveInAircalc(entry.saveData)"
+                    />
                   </div>
                 </div>
               </v-card-text>
@@ -1245,6 +1242,7 @@ import Convert from '@/classes/convert';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ManualCheckbox from '@/components/common/ManualCheckbox.vue';
+import SaveItem from '@/components/saveData/SaveItem.vue';
 import SaveData from '@/classes/saveData/saveData';
 import { findShipUsage, ShipUsage } from '@/classes/fleet/findShipUsage';
 
@@ -1283,6 +1281,7 @@ export default Vue.extend({
     ShipTooltip,
     AreaManager,
     StatusUpLineList,
+    SaveItem,
     ManualCheckbox,
   },
   data: () => ({
@@ -2123,6 +2122,9 @@ export default Vue.extend({
       this.$store.dispatch('setMainSaveData', save);
       this.usageDialog = false;
       this.$router.push({ name: 'AirCalculator' });
+    },
+    noopHandleDelete(index: number) {
+      // no-op delete handler for SaveItem usage rendering
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
