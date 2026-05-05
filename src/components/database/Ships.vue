@@ -334,8 +334,8 @@
           </v-card>
         </v-dialog>
         <div>
-          <v-dialog v-model="usageDialog" width="680" @input="toggleUsageDialog" :fullscreen="isMobile">
-            <v-card>
+          <v-dialog v-model="usageDialog" width="420" @input="toggleUsageDialog" :fullscreen="isMobile">
+            <v-card class="usage-dialog-card">
               <div class="d-flex pb-1 px-2 pt-2">
                 <div class="align-self-center ml-3">使用位置</div>
                 <v-spacer />
@@ -1208,6 +1208,11 @@
 
 .manual-column-select {
   width: 180px;
+}
+
+/* 使用位置ダイアログの最大幅を制限 */
+.usage-dialog-card {
+  max-width: 420px;
 }
 
 </style>
