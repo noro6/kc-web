@@ -1209,8 +1209,7 @@
 .manual-column-select {
   width: 180px;
 }
-
-/* Left-align the v-btn content inside usage list items */
+/* 使用位置リスト内の v-btn__content を左寄せにする */
 .save-list-item {
   align-items: center;
 }
@@ -1487,11 +1486,11 @@ export default Vue.extend({
         this.editDialog = false;
       }
       if (mutation.type === 'updateSaveData' || mutation.type === 'setShipStock' || mutation.type === 'setShips') {
-        // recompute usage counts when save data or masters change
+        // セーブデータやマスターが変更されたときに使用数を再計算する
         try {
           this.computeUsageCounts();
         } catch (e) {
-          // ignore
+          // エラーは無視する
         }
       }
     });
@@ -1500,11 +1499,11 @@ export default Vue.extend({
     if (this.isMobile) {
       this.changeViewMode(false);
     }
-    // initial compute
+    // 初期計算を実行
     try {
       this.computeUsageCounts();
     } catch (e) {
-      // ignore
+      // エラーは無視する
     }
   },
   watch: {
@@ -1674,7 +1673,7 @@ export default Vue.extend({
       try {
         this.computeUsageCounts();
       } catch (e) {
-        // ignore
+        // エラーは無視する
       }
     },
     toggleDaihatsuFilter() {
@@ -2074,12 +2073,12 @@ export default Vue.extend({
         }
 
         const occurrences: { managerIndex: number; usages: ShipUsage[] }[] = [];
-        // If tempData is empty, try to populate it from the saved manager string
+        // tempDataが空なら、保存されたmanager文字列から復元を試みる
         if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
           try {
             sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
           } catch (e) {
-            // ignore load errors
+            // 読み込みエラーは無視する
           }
         }
 
@@ -2117,7 +2116,7 @@ export default Vue.extend({
         save.isMain = true;
         save.isActive = true;
       } catch (e) {
-        // ignore
+        // エラーは無視する
       }
       this.$store.dispatch('setMainSaveData', save);
       this.usageDialog = false;
@@ -2135,7 +2134,7 @@ export default Vue.extend({
             try {
               root.sortChild();
             } catch (e) {
-              // ignore
+              // エラーは無視する
             }
             this.$store.dispatch('updateSaveData', root);
             if (!root.getMainData()) {
@@ -2158,19 +2157,19 @@ export default Vue.extend({
         try {
           this.computeUsageCounts();
         } catch (e) {
-          // ignore
+          // エラーは無視する
         }
       }
     },
     onUsageSaveOpened(save?: SaveData) {
-      // Close the usage dialog when a SaveItem reports it was opened
+      // SaveItemから開かれたことを受けて、使用位置ダイアログを閉じる
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
-        // placeholder for symmetry with v-dialog input
+        // v-dialogのinputイベントとの整合のためのプレースホルダ
       }
     },
     toggleArea(area: number) {
@@ -2231,7 +2230,7 @@ export default Vue.extend({
           return;
         }
 
-        // ensure tempData is populated
+        // tempDataが復元されていることを保証する
         if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
           try {
             sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
