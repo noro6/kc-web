@@ -346,15 +346,20 @@
               <v-divider />
               <v-card-text>
                 <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">該当なし</div>
-                <v-list v-else dense>
-                  <v-list-item v-for="(entry, i) in usageSaveList" :key="i">
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        <a href="#" @click.prevent="openSaveInAircalc(entry.saveData)">{{ entry.saveName }}</a>
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
+                <div v-else>
+                  <div v-for="(entry, i) in usageSaveList" :key="i" class="save-list-item pl-1 d-flex align-center">
+                    <v-icon class="v-icon notranslate mdi mdi-file-eye theme--dark blue--text text--lighten-3" style="font-size:16px;" />
+                    <v-btn
+                      text
+                      small
+                      class="pa-0 text-left item-name text-truncate green--text text--lighten-2 flex-grow-1"
+                      :title="entry.saveName"
+                      style="margin-left:8px; min-width:0; text-align:left"
+                      @click.stop="openSaveInAircalc(entry.saveData)">
+                      {{ entry.saveName }}
+                    </v-btn>
+                  </div>
+                </div>
               </v-card-text>
             </v-card>
           </v-dialog>
@@ -1206,6 +1211,17 @@
 
 .manual-column-select {
   width: 180px;
+}
+
+/* Left-align the v-btn content inside usage list items */
+.save-list-item {
+  align-items: center;
+}
+.save-list-item >>> .v-btn__content {
+  justify-content: flex-start !important;
+  width: 100% !important;
+  text-align: left !important;
+  padding-left: 0 !important;
 }
 </style>
 
