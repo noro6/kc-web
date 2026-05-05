@@ -1209,16 +1209,7 @@
 .manual-column-select {
   width: 180px;
 }
-/* 使用位置リスト内の v-btn__content を左寄せにする */
-.save-list-item {
-  align-items: center;
-}
-.save-list-item >>> .v-btn__content {
-  justify-content: flex-start !important;
-  width: 100% !important;
-  text-align: left !important;
-  padding-left: 0 !important;
-}
+
 </style>
 
 <script lang="ts">
@@ -2109,18 +2100,6 @@ export default Vue.extend({
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
-    },
-    openSaveInAircalc(save?: SaveData) {
-      if (!save) return;
-      try {
-        save.isMain = true;
-        save.isActive = true;
-      } catch (e) {
-        // エラーは無視する
-      }
-      this.$store.dispatch('setMainSaveData', save);
-      this.usageDialog = false;
-      this.$router.push({ name: 'AirCalculator' });
     },
     handleUsageSaveDelete(save?: SaveData) {
       if (!save) return;
