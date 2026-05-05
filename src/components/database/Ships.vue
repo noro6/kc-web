@@ -459,9 +459,18 @@
                     </div>
                   </td>
                   <td class="text-center" style="width:56px;">
-                    <v-btn icon small @click.stop="showUsageForRow(item)">
-                      <v-icon>mdi-map-marker</v-icon>
-                    </v-btn>
+                    <template v-if="usageCount(item.ship.id) > 0">
+                      <v-badge :content="usageCount(item.ship.id)" color="primary" overlap>
+                        <v-btn icon small @click.stop="showUsageForRow(item)">
+                          <v-icon>mdi-map-marker</v-icon>
+                        </v-btn>
+                      </v-badge>
+                    </template>
+                    <template v-else>
+                      <v-btn icon small @click.stop="showUsageForRow(item)">
+                        <v-icon>mdi-map-marker</v-icon>
+                      </v-btn>
+                    </template>
                   </td>
                   <td class="text-right">{{ item.level ? item.level : "-" }}</td>
                   <td class="text-right">
@@ -1448,6 +1457,7 @@ export default Vue.extend({
     usageDialog: false,
     usageSaveList: [] as { saveName: string; saveData?: SaveData; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
     usageTarget: undefined as ShipMaster | undefined,
+    usageCounts: {} as { [masterId: number]: number },
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1461,11 +1471,25 @@ export default Vue.extend({
         this.masterFilter();
         this.editDialog = false;
       }
+      if (mutation.type === 'updateSaveData' || mutation.type === 'setShipStock' || mutation.type === 'setShips') {
+        // recompute usage counts when save data or masters change
+        try {
+          this.computeUsageCounts();
+        } catch (e) {
+          // ignore
+        }
+      }
     });
 
     this.isMobile = window.innerWidth < 600;
     if (this.isMobile) {
       this.changeViewMode(false);
+    }
+    // initial compute
+    try {
+      this.computeUsageCounts();
+    } catch (e) {
+      // ignore
     }
   },
   watch: {
@@ -1632,6 +1656,11 @@ export default Vue.extend({
         this.selectedArea.push(i);
       }
       this.masterFilter();
+      try {
+        this.computeUsageCounts();
+      } catch (e) {
+        // ignore
+      }
     },
     toggleDaihatsuFilter() {
       if (this.isDaihatsu) {
@@ -2129,6 +2158,52 @@ export default Vue.extend({
       this.$store.dispatch('setNeedShipStockDiff', false);
       this.$store.dispatch('updateShipStock', stockAll);
       this.shipStock = stockAll;
+    },
+    computeUsageCounts() {
+      const counts: { [key: number]: number } = {};
+      const root = this.$store.state.saveData as SaveData;
+      const walk = (sd: SaveData | undefined) => {
+        if (!sd) return;
+        if (sd.isDirectory && sd.childItems && sd.childItems.length) {
+          for (let i = 0; i < sd.childItems.length; i += 1) {
+            walk(sd.childItems[i]);
+          }
+          return;
+        }
+
+        // ensure tempData is populated
+        if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
+          try {
+            sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        if (sd.tempData && sd.tempData.length) {
+          for (let mi = 0; mi < sd.tempData.length; mi += 1) {
+            const manager = sd.tempData[mi];
+            if (!manager || !manager.fleetInfo || !manager.fleetInfo.fleets) continue;
+            for (let fi = 0; fi < manager.fleetInfo.fleets.length; fi += 1) {
+              const fleet = manager.fleetInfo.fleets[fi];
+              if (!fleet || !fleet.ships) continue;
+              for (let si = 0; si < fleet.ships.length; si += 1) {
+                const ship = fleet.ships[si];
+                if (!ship || !ship.data || !ship.data.id) continue;
+                // eslint-disable-next-line prefer-destructuring
+                const id = ship.data.id;
+                counts[id] = (counts[id] || 0) + 1;
+              }
+            }
+          }
+        }
+      };
+
+      walk(root);
+      this.usageCounts = counts;
+    },
+    usageCount(masterId: number) {
+      return (this.usageCounts && this.usageCounts[masterId]) ? this.usageCounts[masterId] : 0;
     },
     updateStock() {
       this.btnPushed = true;
