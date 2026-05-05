@@ -2220,7 +2220,7 @@ export default Vue.extend({
           try {
             sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
           } catch (e) {
-            // ignore
+            // エラーは無視する
           }
         }
 

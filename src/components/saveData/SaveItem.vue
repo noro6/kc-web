@@ -352,7 +352,7 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('aircalc');
         }
-        // notify parent that a save was opened
+        // 保存が開かれたことを通知する
         this.$emit('opened', data);
         return;
       }
