@@ -351,7 +351,7 @@
                     <save-item
                       :value="entry.saveData"
                       :index="i"
-                      :handle-delete="noopHandleDelete"
+                      :handle-delete="(idx) => handleUsageSaveDelete(entry.saveData)"
                       :parent-directory="$store.state.saveData"
                       @opened="onUsageSaveOpened"
                     />
@@ -2123,8 +2123,44 @@ export default Vue.extend({
       this.usageDialog = false;
       this.$router.push({ name: 'AirCalculator' });
     },
-    noopHandleDelete(index: number) {
-      // no-op delete handler for SaveItem usage rendering
+    handleUsageSaveDelete(save?: SaveData) {
+      if (!save) return;
+      const root = this.$store.state.saveData as SaveData;
+
+      const removeRecursively = (parent: SaveData, targetId: string): boolean => {
+        for (let i = 0; i < parent.childItems.length; i += 1) {
+          const child = parent.childItems[i];
+          if (child.id === targetId) {
+            parent.childItems.splice(i, 1);
+            try {
+              root.sortChild();
+            } catch (e) {
+              // ignore
+            }
+            this.$store.dispatch('updateSaveData', root);
+            if (!root.getMainData()) {
+              this.$store.dispatch('setMainSaveData', undefined);
+            }
+            return true;
+          }
+          if (child.childItems && child.childItems.length) {
+            if (removeRecursively(child, targetId)) return true;
+          }
+        }
+        return false;
+      };
+
+      const removed = removeRecursively(root, save.id);
+      if (removed) {
+        this.usageDialog = false;
+        this.usageSaveList = [];
+        this.usageTarget = undefined;
+        try {
+          this.computeUsageCounts();
+        } catch (e) {
+          // ignore
+        }
+      }
     },
     onUsageSaveOpened(save?: SaveData) {
       // Close the usage dialog when a SaveItem reports it was opened
