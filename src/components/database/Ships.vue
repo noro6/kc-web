@@ -438,9 +438,6 @@
                       </div>
                       <div class="ship-name text-truncate" :title="item.ship.name">
                         {{ getShipName(item.ship) }}
-                        <v-btn icon small class="ml-2" @click.stop="showUsageForRow(item)">
-                          <v-icon>mdi-map-marker</v-icon>
-                        </v-btn>
                       </div>
                     </div>
                     <div class="d-flex d-md-none align-center">
@@ -460,6 +457,11 @@
                         </div>
                       </div>
                     </div>
+                  </td>
+                  <td class="text-center" style="width:56px;">
+                    <v-btn icon small @click.stop="showUsageForRow(item)">
+                      <v-icon>mdi-map-marker</v-icon>
+                    </v-btn>
                   </td>
                   <td class="text-right">{{ item.level ? item.level : "-" }}</td>
                   <td class="text-right">
@@ -1370,6 +1372,12 @@ export default Vue.extend({
         text: '艦娘名',
         value: 'name',
         sortable: false,
+      },
+      {
+        text: '逆引き',
+        value: 'actions',
+        sortable: false,
+        align: 'center',
       },
       {
         text: 'Lv',
