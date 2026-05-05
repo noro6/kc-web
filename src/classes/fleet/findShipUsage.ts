@@ -2,26 +2,26 @@ import FleetInfo from './fleetInfo';
 import Ship from './ship';
 
 export interface ShipUsage {
-    fleetIndex: number;
-    shipIndex: number;
-    /** true if the fleet object reports itself as union */
-    isUnion: boolean;
-    matchBy: 'uniqueId' | 'id' | 'predicate';
-    ship: Ship;
+  fleetIndex: number;
+  shipIndex: number;
+  /** 艦隊が連合かどうかを示す（true の場合は連合艦隊） */
+  isUnion: boolean;
+  matchBy: 'uniqueId' | 'id' | 'predicate';
+  ship: Ship;
 }
 
 export interface FindShipOpts {
-    uniqueId?: number;
-    id?: number;
-    predicate?: (ship: Ship) => boolean;
-    includeEmpty?: boolean;
+  uniqueId?: number;
+  id?: number;
+  predicate?: (ship: Ship) => boolean;
+  includeEmpty?: boolean;
 }
 
 /**
- * Find usages of a ship inside FleetInfo.fleets.
+ * FleetInfo.fleets 内での艦娘の使用箇所を検索します。
  *
- * Matching priority: `uniqueId` -> `id` -> `predicate` (if provided).
- * Returns array of matches with fleet index and ship index.
+ * マッチ優先度: `uniqueId` → `id` → `predicate`（指定されている場合）。
+ * 検出結果は艦隊インデックスと艦インデックスを含む配列で返します。
  */
 export function findShipUsage(fleetInfo: FleetInfo, opts: FindShipOpts): ShipUsage[] {
   if (!fleetInfo) return [];

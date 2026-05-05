@@ -22,7 +22,7 @@ describe('findShipUsage', () => {
     deepEqual([byUnique[0].fleetIndex, byUnique[0].shipIndex], [0, 0]);
 
     const byId = findShipUsage(info, { id: 1 });
-    // two matches: fleet0[0] and fleet1[1]
+    // 2つの一致: fleet0[0] と fleet1[1]
     deepEqual(byId.map((u) => [u.fleetIndex, u.shipIndex]), [[0, 0], [1, 1]]);
   });
 

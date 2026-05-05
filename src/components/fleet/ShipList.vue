@@ -722,7 +722,7 @@
       <ship-bookmark-edit :handle-close="closeBookmarkDialog" />
     </v-dialog>
 
-    <!-- usage dialog removed -->
+    <!-- 使用位置ダイアログは移設済み -->
   </v-card>
 </template>
 
@@ -1215,7 +1215,7 @@ export default Vue.extend({
     phase1: true,
     phase2: true,
     specialAttackPartnerHintMap: new Map<number, DisplayHintTier>(),
-    // usage dialog removed
+    // 使用位置ダイアログは移設済み
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;
@@ -2183,7 +2183,6 @@ export default Vue.extend({
         this.confirmDialog = true;
       }
     },
-    // showUsage removed
     changeMultiLine(isMulti: boolean) {
       this.handleChangeWidth(isMulti ? 1200 : 696);
       this.multiLine = isMulti;
