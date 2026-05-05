@@ -2140,7 +2140,7 @@ export default Vue.extend({
         }
       }
     },
-    onUsageSaveOpened(save?: SaveData) {
+    onUsageSaveOpened() {
       // SaveItemから開かれたことを受けて、使用位置ダイアログを閉じる
       this.usageDialog = false;
       this.usageSaveList = [];
