@@ -9,7 +9,7 @@ export interface ShipUsage {
   ship: Ship;
 }
 
-/** Search a FleetInfo for a ship by uniqueId and return ShipUsage[] */
+/** uniqueId で FleetInfo を検索し、一致する ShipUsage の配列を返す */
 export function findShipUsageInFleet(
   fleetInfo: FleetInfo,
   uniqueId: number | undefined,
