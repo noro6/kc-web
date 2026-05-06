@@ -462,8 +462,8 @@
                     </div>
                   </td>
                   <td class="text-center" style="width:56px;">
-                    <template v-if="usageCount(item.ship.id) > 0">
-                      <v-badge :content="usageCount(item.ship.id)" color="primary" overlap>
+                    <template v-if="usageCount(item.stockData.uniqueId) > 0">
+                      <v-badge :content="usageCount(item.stockData.uniqueId)" color="primary" overlap>
                         <v-btn icon small @click.stop="showUsageForRow(item)">
                           <v-icon>mdi-map-marker</v-icon>
                         </v-btn>
@@ -1240,7 +1240,7 @@ import ShipValidation from '@/classes/fleet/shipValidation';
 import ManualCheckbox from '@/components/common/ManualCheckbox.vue';
 import SaveItem from '@/components/saveData/SaveItem.vue';
 import SaveData from '@/classes/saveData/saveData';
-import { findShipUsage, ShipUsage } from '@/classes/fleet/findShipUsage';
+import { collectUsage } from '@/classes/fleet/collectUsage';
 
 interface ShipRowData {
   count: number;
@@ -1466,9 +1466,11 @@ export default Vue.extend({
     ],
     isMobile: true,
     usageDialog: false,
-    usageSaveList: [] as { saveName: string; saveData?: SaveData; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[],
+    usageSaveList: [] as { saveName: string; saveData?: SaveData }[],
     usageTarget: undefined as ShipMaster | undefined,
-    usageCounts: {} as { [masterId: number]: number },
+    // 対象の uniqueId（個体識別子）
+    usageUniqueId: undefined as number | undefined,
+    usageCounts: {} as { [uniqueId: number]: number },
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1486,6 +1488,16 @@ export default Vue.extend({
         // セーブデータやマスターが変更されたときに使用数を再計算する
         try {
           this.computeUsageCounts();
+          // 使用位置ダイアログが開いていて対象が選択されている場合は、表示中の検索結果も再実行する
+          if (mutation.type === 'updateSaveData' && this.usageDialog && typeof this.usageUniqueId !== 'undefined') {
+            try {
+              const root = this.$store.state.saveData as SaveData;
+              const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies, { targetUniqueId: this.usageUniqueId });
+              this.usageSaveList = res.usageSaveList;
+            } catch (e) {
+              // ignore
+            }
+          }
         } catch (e) {
           // エラーは無視する
         }
@@ -2058,54 +2070,21 @@ export default Vue.extend({
       this.clearTooltip();
       const root = this.$store.state.saveData as SaveData;
 
-      const results: { saveName: string; saveData?: SaveData; occurrences: { managerIndex: number; usages: ShipUsage[] }[] }[] = [];
-
-      const walk = (sd: SaveData | undefined) => {
-        if (!sd) return;
-        if (sd.isDirectory && sd.childItems && sd.childItems.length) {
-          for (let i = 0; i < sd.childItems.length; i += 1) {
-            walk(sd.childItems[i]);
-          }
-          return;
-        }
-
-        const occurrences: { managerIndex: number; usages: ShipUsage[] }[] = [];
-        // tempDataが空なら、保存されたmanager文字列から復元を試みる
-        if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
-          try {
-            sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
-          } catch (e) {
-            // 読み込みエラーは無視する
-          }
-        }
-
-        if (sd.tempData && sd.tempData.length) {
-          for (let mi = 0; mi < sd.tempData.length; mi += 1) {
-            const manager = sd.tempData[mi];
-            if (manager && manager.fleetInfo) {
-              const usages = findShipUsage(manager.fleetInfo, { id: row.ship.id, includeEmpty: true });
-              if (usages && usages.length) {
-                occurrences.push({ managerIndex: mi, usages });
-              }
-            }
-          }
-        }
-
-        if (occurrences.length) {
-          results.push({ saveName: sd.name, saveData: sd, occurrences });
-        }
-      };
-
-      walk(root);
-
-      this.usageSaveList = results;
+      try {
+        const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies, { targetUniqueId: row.stockData ? row.stockData.uniqueId : undefined });
+        this.usageSaveList = res.usageSaveList;
+      } catch (e) {
+        this.usageSaveList = [];
+      }
       this.usageTarget = row.ship;
+      this.usageUniqueId = row.stockData ? row.stockData.uniqueId : undefined;
       this.usageDialog = true;
     },
     closeUsageDialog() {
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
+      this.usageUniqueId = undefined;
     },
     handleUsageSaveDelete(save?: SaveData) {
       if (!save) return;
@@ -2139,6 +2118,7 @@ export default Vue.extend({
         this.usageDialog = false;
         this.usageSaveList = [];
         this.usageTarget = undefined;
+        this.usageUniqueId = undefined;
         try {
           this.computeUsageCounts();
         } catch (e) {
@@ -2151,6 +2131,7 @@ export default Vue.extend({
       this.usageDialog = false;
       this.usageSaveList = [];
       this.usageTarget = undefined;
+      this.usageUniqueId = undefined;
     },
     toggleUsageDialog() {
       if (!this.usageDialog) {
@@ -2204,50 +2185,17 @@ export default Vue.extend({
       this.shipStock = stockAll;
     },
     computeUsageCounts() {
-      const counts: { [key: number]: number } = {};
       const root = this.$store.state.saveData as SaveData;
-      const walk = (sd: SaveData | undefined) => {
-        if (!sd) return;
-        if (sd.isDirectory && sd.childItems && sd.childItems.length) {
-          for (let i = 0; i < sd.childItems.length; i += 1) {
-            walk(sd.childItems[i]);
-          }
-          return;
-        }
-
-        // tempDataが復元されていることを保証する
-        if ((!sd.tempData || sd.tempData.length === 0) && sd.manager && sd.manager.length) {
-          try {
-            sd.loadManagerData(this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
-          } catch (e) {
-            // エラーは無視する
-          }
-        }
-
-        if (sd.tempData && sd.tempData.length) {
-          for (let mi = 0; mi < sd.tempData.length; mi += 1) {
-            const manager = sd.tempData[mi];
-            if (!manager || !manager.fleetInfo || !manager.fleetInfo.fleets) continue;
-            for (let fi = 0; fi < manager.fleetInfo.fleets.length; fi += 1) {
-              const fleet = manager.fleetInfo.fleets[fi];
-              if (!fleet || !fleet.ships) continue;
-              for (let si = 0; si < fleet.ships.length; si += 1) {
-                const ship = fleet.ships[si];
-                if (!ship || !ship.data || !ship.data.id) continue;
-                // eslint-disable-next-line prefer-destructuring
-                const id = ship.data.id;
-                counts[id] = (counts[id] || 0) + 1;
-              }
-            }
-          }
-        }
-      };
-
-      walk(root);
-      this.usageCounts = counts;
+      try {
+        const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+        this.usageCounts = res.counts;
+      } catch (e) {
+        // ignore
+        this.usageCounts = {};
+      }
     },
-    usageCount(masterId: number) {
-      return (this.usageCounts && this.usageCounts[masterId]) ? this.usageCounts[masterId] : 0;
+    usageCount(uniqueId: number) {
+      return (this.usageCounts && this.usageCounts[uniqueId]) ? this.usageCounts[uniqueId] : 0;
     },
     updateStock() {
       this.btnPushed = true;
