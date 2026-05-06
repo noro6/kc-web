@@ -1471,6 +1471,7 @@ export default Vue.extend({
     // 対象の uniqueId（個体識別子）
     usageUniqueId: undefined as number | undefined,
     usageCounts: {} as { [uniqueId: number]: number },
+    usageMap: {} as { [uniqueId: number]: { saveName: string; saveData?: SaveData }[] },
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1488,15 +1489,9 @@ export default Vue.extend({
         // セーブデータやマスターが変更されたときに使用数を再計算する
         try {
           this.computeUsageCounts();
-          // 使用位置ダイアログが開いていて対象が選択されている場合は、表示中の検索結果も再実行する
-          if (mutation.type === 'updateSaveData' && this.usageDialog && typeof this.usageUniqueId !== 'undefined') {
-            try {
-              const root = this.$store.state.saveData as SaveData;
-              const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies, { targetUniqueId: this.usageUniqueId });
-              this.usageSaveList = res.usageSaveList;
-            } catch (e) {
-              // ignore
-            }
+          // ダイアログが開いていれば usageSaveList を usageMap から即時更新
+          if (this.usageDialog && typeof this.usageUniqueId !== 'undefined') {
+            this.usageSaveList = this.usageMap[this.usageUniqueId] || [];
           }
         } catch (e) {
           // エラーは無視する
@@ -2068,16 +2063,10 @@ export default Vue.extend({
     },
     showUsageForRow(row: ShipRowData) {
       this.clearTooltip();
-      const root = this.$store.state.saveData as SaveData;
-
-      try {
-        const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies, { targetUniqueId: row.stockData ? row.stockData.uniqueId : undefined });
-        this.usageSaveList = res.usageSaveList;
-      } catch (e) {
-        this.usageSaveList = [];
-      }
+      const uid = row.stockData ? row.stockData.uniqueId : undefined;
+      this.usageSaveList = (uid && this.usageMap[uid]) ? this.usageMap[uid] : [];
       this.usageTarget = row.ship;
-      this.usageUniqueId = row.stockData ? row.stockData.uniqueId : undefined;
+      this.usageUniqueId = uid;
       this.usageDialog = true;
     },
     closeUsageDialog() {
@@ -2189,9 +2178,11 @@ export default Vue.extend({
       try {
         const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
         this.usageCounts = res.counts;
+        this.usageMap = res.usageMap;
       } catch (e) {
         // ignore
         this.usageCounts = {};
+        this.usageMap = {};
       }
     },
     usageCount(uniqueId: number) {

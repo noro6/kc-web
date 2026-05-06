@@ -9,34 +9,32 @@ export interface UsageSaveEntry {
 }
 
 export interface CollectUsageResult {
+  /** Number of times each ship (by uniqueId) appears across all saves. */
   counts: { [uniqueId: number]: number };
-  usageSaveList: UsageSaveEntry[];
-}
-
-export interface CollectUsageOptions {
-  targetUniqueId?: number;
+  /** For each uniqueId, the list of save files that contain it. */
+  usageMap: { [uniqueId: number]: UsageSaveEntry[] };
 }
 
 /**
- * Traverse the SaveData tree in a single pass.
- * - Accumulates counts keyed by uniqueId.
- * - If targetUniqueId is given, collects every save file that contains the ship.
- * - Prefers parsing the saved `manager` string; falls back to `tempData`.
+ * Traverse the SaveData tree in a single pass and build both:
+ * - `counts`: appearance count per uniqueId
+ * - `usageMap`: reverse index from uniqueId to the save files that contain it
+ * Prefers parsing the saved `manager` string; falls back to `tempData`.
  */
 export function collectUsage(
   root: SaveData,
   items: ItemMaster[],
   ships: ShipMaster[],
   defaultEnemies: EnemyMaster[],
-  opts?: CollectUsageOptions,
 ): CollectUsageResult {
   const counts: { [uniqueId: number]: number } = {};
-  const usageSaveList: UsageSaveEntry[] = [];
-  const target = opts && typeof opts.targetUniqueId === 'number' ? opts.targetUniqueId : undefined;
+  const usageMap: { [uniqueId: number]: UsageSaveEntry[] } = {};
 
-  /** Count ships in a fleet list and return whether target was found. */
-  const processFleets = (fleetInfo: { fleets: { ships: { uniqueId: number; data?: { id: number } }[] }[] }): boolean => {
-    let found = false;
+  /** Process all fleets, updating counts and usageMap for this save entry. */
+  const processFleets = (
+    fleetInfo: { fleets: { ships: { uniqueId: number; data?: { id: number } }[] }[] },
+    entry: UsageSaveEntry,
+  ) => {
     for (let fi = 0; fi < fleetInfo.fleets.length; fi += 1) {
       const fleet = fleetInfo.fleets[fi];
       if (!fleet || !fleet.ships) continue;
@@ -44,10 +42,13 @@ export function collectUsage(
         const ship = fleet.ships[si];
         if (!ship || !ship.data || !ship.data.id || !ship.uniqueId) continue;
         counts[ship.uniqueId] = (counts[ship.uniqueId] || 0) + 1;
-        if (typeof target !== 'undefined' && ship.uniqueId === target) found = true;
+        if (!usageMap[ship.uniqueId]) usageMap[ship.uniqueId] = [];
+        // Avoid adding the same save file twice (e.g. multiple fleets in same file)
+        if (!usageMap[ship.uniqueId].includes(entry)) {
+          usageMap[ship.uniqueId].push(entry);
+        }
       }
     }
-    return found;
   };
 
   const walk = (sd: SaveData | undefined) => {
@@ -59,13 +60,14 @@ export function collectUsage(
       return;
     }
 
+    const entry: UsageSaveEntry = { saveName: sd.name, saveData: sd };
+
     // Try parse saved manager string first
     if (sd.manager && sd.manager.length) {
       try {
         const manager = SaveData.loadSaveDataManagerString(sd.manager, items, ships, defaultEnemies);
         if (manager && manager.fleetInfo && manager.fleetInfo.fleets) {
-          const found = processFleets(manager.fleetInfo);
-          if (found) usageSaveList.push({ saveName: sd.name, saveData: sd });
+          processFleets(manager.fleetInfo, entry);
           return;
         }
       } catch (e) {
@@ -75,17 +77,15 @@ export function collectUsage(
 
     // Fallback: use tempData if present
     if (sd.tempData && sd.tempData.length) {
-      let foundInFile = false;
       for (let mi = 0; mi < sd.tempData.length; mi += 1) {
         const manager = sd.tempData[mi];
         if (!manager || !manager.fleetInfo || !manager.fleetInfo.fleets) continue;
-        if (processFleets(manager.fleetInfo)) foundInFile = true;
+        processFleets(manager.fleetInfo, entry);
       }
-      if (foundInFile) usageSaveList.push({ saveName: sd.name, saveData: sd });
     }
   };
 
   walk(root);
 
-  return { counts, usageSaveList };
+  return { counts, usageMap };
 }
