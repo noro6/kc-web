@@ -559,6 +559,16 @@ export default class Const {
     {
       shipId: 1035, index: [4], itemType: [1, 5], itemIDs: [0],
     },
+    // 改二補シリーズ 4スロットに 機銃、おにぎりのみ
+    {
+      shipId: 743, index: [4], itemType: [1, 2, 5, 12, 13, 14, 15, 17, 23, 24, 27, 28, 29, 30, 31, 33, 34, 36, 37, 39, 46, 54, 55], itemIDs: [0],
+    },
+    {
+      shipId: 744, index: [4], itemType: [1, 2, 5, 12, 13, 14, 15, 17, 23, 24, 27, 28, 29, 30, 31, 33, 34, 36, 37, 39, 46, 54, 55], itemIDs: [0],
+    },
+    {
+      shipId: 745, index: [4], itemType: [1, 2, 5, 12, 13, 14, 15, 17, 23, 24, 27, 28, 29, 30, 31, 33, 34, 36, 37, 39, 46, 54, 55], itemIDs: [0],
+    },
   ];
 
   /**
@@ -841,7 +851,14 @@ export default class Const {
    * @static
    * @memberof Const
    */
-  public static readonly MAX_LEVEL = 185;
+  public static readonly MAX_LEVEL = 188;
+
+  /**
+   * 1つ前の実装最大レベル フィルタ補正用
+   * @static
+   * @memberof Const
+   */
+  public static readonly PREVIOUS_MAX_LEVEL = 185;
 
   /**
    * 対空射撃回避
@@ -1056,6 +1073,9 @@ export default class Const {
    * @memberof Const
    */
   public static readonly LEVEL_BORDERS = [
+    { lv: 188, req: 20000000 },
+    { lv: 187, req: 18600000 },
+    { lv: 186, req: 17200000 },
     { lv: 185, req: 16000000 },
     { lv: 184, req: 15000000 },
     { lv: 183, req: 14200000 },

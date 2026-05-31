@@ -265,7 +265,7 @@ export default class ShipFilter {
     }
 
     // Lv上限解放による補正
-    if (data.levelRange[1] === Const.MAX_LEVEL - 5) {
+    if (data.levelRange[1] === Const.PREVIOUS_MAX_LEVEL) {
       data.levelRange[1] = Const.MAX_LEVEL;
     }
     return data;
