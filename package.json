@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.4.3",
-    "axios": "^1.13.6",
+    "axios": "^1.18.0",
     "chart.js": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "core-js": "^3.6.5",
@@ -21,7 +21,7 @@
     "firebase": "^9.23.0",
     "gkcoi": "^1.7.0",
     "html2canvas": "^1.4.1",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "lz-string": "^1.4.4",
     "party-js": "^2.2.0",
     "uuid": "^9.0.1",
@@ -57,15 +57,35 @@
     "gh-pages": "^6.1.1",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
-    "tsx": "^4.20.5",
+    "tsx": "^4.22.4",
     "typescript": "^4.9.5",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-template-compiler": "2.6.14",
-    "vuetify-loader": "^1.7.0"
+    "vuetify-loader": "1.7.3"
   },
   "overrides": {
     "nanoid": ">=3.3.8",
-    "@grpc/grpc-js": ">=1.8.22",
-    "webpack-dev-server": ">=4.15.0"
+    "@grpc/grpc-js": ">=1.14.4",
+    "@babel/plugin-transform-modules-systemjs": ">=7.29.7",
+    "@protobufjs/utf8": ">=1.1.1",
+    "body-parser": ">=1.20.5",
+    "express": ">=4.22.2 <5",
+    "fast-uri": ">=3.1.2 <4",
+    "flatted": ">=3.4.2",
+    "joi": ">=17.13.4 <18",
+    "js-yaml": ">=3.14.2 <4",
+    "lodash-es": ">=4.18.1",
+    "node-forge": ">=1.4.0 <2",
+    "path-to-regexp": ">=0.1.13 <0.2",
+    "picomatch": ">=2.3.2 <3",
+    "postcss": ">=8.5.15",
+    "qs": ">=6.15.2 <7",
+    "shell-quote": ">=1.8.4",
+    "svgo": ">=2.8.1 <3",
+    "terser-webpack-plugin": ">=5.3.17 <6",
+    "webpack": ">=5.104.1 <6",
+    "webpack-dev-server": ">=4.15.0",
+    "ws": ">=8.21.0 <9",
+    "yaml": ">=1.10.3 <2"
   }
 }
