@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "tsx tests/fleetSpecialAttackPartnerHint.test.ts",
+    "test": "tsx tests/fleetSpecialAttackPartnerHint.test.ts && tsx tests/shipValidation.test.ts && tsx tests/shipCi.test.ts",
     "test:item-bonus": "tsx tests/itemBonus.test.ts",
     "deploy": "gh-pages -d dist"
   },
@@ -19,7 +19,7 @@
     "dexie": "^3.2.2",
     "file-saver": "^2.0.5",
     "firebase": "^9.23.0",
-    "gkcoi": "^1.5.2",
+    "gkcoi": "^1.7.0",
     "html2canvas": "^1.4.1",
     "lodash": "^4.17.23",
     "lz-string": "^1.4.4",
@@ -57,8 +57,8 @@
     "gh-pages": "^6.1.1",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
-    "typescript": "^4.9.5",
     "tsx": "^4.20.5",
+    "typescript": "^4.9.5",
     "vue-cli-plugin-vuetify": "^2.5.8",
     "vue-template-compiler": "2.6.14",
     "vuetify-loader": "^1.7.0"

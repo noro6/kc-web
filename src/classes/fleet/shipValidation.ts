@@ -2,6 +2,7 @@ import store from '@/store/index';
 import Const, { SHIP_TYPE } from '../const';
 import ItemMaster from '../item/itemMaster';
 import ShipMaster from './shipMaster';
+import isRestrictedByShipSlotEquipRule from './shipSlotEquipRestriction';
 
 /**
  * 搭載可否の情報クラス
@@ -110,16 +111,13 @@ export default class ShipValidation {
 
     // スロット番号制限チェック
     if (slotIndex >= 0) {
-      const forbiddenItems = Const.FORBIDDEN_LINK_SHIP_ITEM.find((v) => v.shipId === ship.id && v.index.includes(slotIndex + 1));
-      if (forbiddenItems) {
-        // 禁止カテゴリに存在したら終わり
-        if (forbiddenItems.itemType.includes(item.apiTypeId)) {
-          return false;
-        }
-        // 禁止装備 キメ撃ち
-        if (forbiddenItems.itemIDs.includes(item.id)) {
-          return false;
-        }
+      if (isRestrictedByShipSlotEquipRule({
+        shipId: ship.id,
+        slotNumber: slotIndex + 1,
+        itemApiTypeId: item.apiTypeId,
+        itemId: item.id,
+      })) {
+        return false;
       }
     }
 
