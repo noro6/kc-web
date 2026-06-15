@@ -113,6 +113,14 @@
                     <div>{{ $t("Database.上限Lvに達しました。") }}</div>
                     <div>{{ $t("Database.おめでとうございます！") }}</div>
                   </template>
+                  <template v-else-if="log.title === 'Lv99折り返し'">
+                    <div>{{ $t("Database.Lv99までの折り返し地点を超えました。") }}</div>
+                    <div>{{ $t("Database.後半戦もガンバレ！！！！") }}</div>
+                  </template>
+                  <template v-else-if="log.title === 'カンスト拡張折り返し'">
+                    <div>{{ $t("Database.LvoldからLvcurrentまでの折り返し地点を超えました。", { old: log.old, current: log.current }) }}</div>
+                    <div>{{ $t("Database.後半戦もガンバレ！！！！") }}</div>
+                  </template>
                   <template v-else-if="log.title === 'Lv'">
                     <div>{{ $t("Database.Lvが上昇しました。") }}</div>
                     <div class="d-flex">
@@ -273,6 +281,21 @@ export default Vue.extend({
       }
       return ship.name || '';
     },
+    hasReachedLevelHalfway(targetLevel: number, currentExp: number, oldExp: number): boolean {
+      const targetLevelBorder = Const.LEVEL_BORDERS.find((v) => v.lv === targetLevel);
+      if (!targetLevelBorder) return false;
+
+      const halfwayExp = Math.floor(targetLevelBorder.req / 2);
+      return currentExp >= halfwayExp && oldExp < halfwayExp;
+    },
+    hasReachedLevelRangeHalfway(fromLevel: number, toLevel: number, currentExp: number, oldExp: number): boolean {
+      const fromLevelBorder = Const.LEVEL_BORDERS.find((v) => v.lv === fromLevel);
+      const toLevelBorder = Const.LEVEL_BORDERS.find((v) => v.lv === toLevel);
+      if (!fromLevelBorder || !toLevelBorder) return false;
+
+      const halfwayExp = fromLevelBorder.req + Math.floor((toLevelBorder.req - fromLevelBorder.req) / 2);
+      return currentExp >= halfwayExp && oldExp < halfwayExp;
+    },
     generateTable() {
       this.isMobile = window.innerWidth < 600;
       const all = this.$store.state.ships as ShipMaster[];
@@ -365,6 +388,24 @@ export default Vue.extend({
                   title: '最大Lv',
                   current: '',
                   old: '',
+                  diff: 0,
+                });
+              }
+              if (this.hasReachedLevelHalfway(99, current.exp, old.exp)) {
+                logs.push({
+                  type: 12,
+                  title: 'Lv99折り返し',
+                  current: '',
+                  old: '',
+                  diff: 0,
+                });
+              }
+              if (this.hasReachedLevelRangeHalfway(Const.PREVIOUS_MAX_LEVEL, Const.MAX_LEVEL, current.exp, old.exp)) {
+                logs.push({
+                  type: 13,
+                  title: 'カンスト拡張折り返し',
+                  current: Const.MAX_LEVEL.toLocaleString(),
+                  old: Const.PREVIOUS_MAX_LEVEL.toLocaleString(),
                   diff: 0,
                 });
               }
