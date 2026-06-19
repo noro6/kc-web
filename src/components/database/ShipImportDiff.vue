@@ -391,7 +391,7 @@ export default Vue.extend({
                   diff: 0,
                 });
               }
-              if (this.hasReachedLevelHalfway(99, current.exp, old.exp)) {
+              if (current.level < 99 && this.hasReachedLevelHalfway(99, current.exp, old.exp)) {
                 logs.push({
                   type: 12,
                   title: 'Lv99折り返し',
@@ -400,7 +400,7 @@ export default Vue.extend({
                   diff: 0,
                 });
               }
-              if (this.hasReachedLevelRangeHalfway(Const.PREVIOUS_MAX_LEVEL, Const.MAX_LEVEL, current.exp, old.exp)) {
+              if (current.level < Const.MAX_LEVEL && this.hasReachedLevelRangeHalfway(Const.PREVIOUS_MAX_LEVEL, Const.MAX_LEVEL, current.exp, old.exp)) {
                 logs.push({
                   type: 13,
                   title: 'カンスト拡張折り返し',
