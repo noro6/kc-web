@@ -721,6 +721,8 @@
     <v-dialog v-model="bookmarksDialog" width="1200" @input="toggleBookmarkDialog" :fullscreen="isMobile">
       <ship-bookmark-edit :handle-close="closeBookmarkDialog" />
     </v-dialog>
+
+    <!-- 使用位置ダイアログは移設済み -->
   </v-card>
 </template>
 
@@ -1213,6 +1215,7 @@ export default Vue.extend({
     phase1: true,
     phase2: true,
     specialAttackPartnerHintMap: new Map<number, DisplayHintTier>(),
+    // 使用位置ダイアログは移設済み
   }),
   mounted() {
     this.maxAreas = this.$store.state.areaCount as number;

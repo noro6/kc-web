@@ -334,6 +334,32 @@
           </v-card>
         </v-dialog>
         <div>
+          <v-dialog v-model="usageDialog" width="420" @input="toggleUsageDialog" :fullscreen="isMobile">
+            <v-card class="usage-dialog-card">
+              <div class="d-flex pb-1 px-2 pt-2">
+                <div class="align-self-center ml-3">{{ $t("SaveData.使用位置") }}</div>
+                <v-spacer />
+                <v-btn icon @click.stop="closeUsageDialog()">
+                  <v-icon>mdi-close</v-icon>
+                </v-btn>
+              </div>
+              <v-divider />
+              <v-card-text>
+                <div v-if="!usageSaveList || !usageSaveList.length" class="body-2 text-center mt-4">{{ $t("Common.該当なし") }}</div>
+                <div v-else>
+                  <div v-for="(entry, i) in usageSaveList" :key="(entry.saveData && entry.saveData.id) ? entry.saveData.id : i">
+                    <save-item
+                      :value="entry.saveData"
+                      :index="i"
+                      :handle-delete="(idx) => handleUsageSaveDelete(entry.saveData)"
+                      :parent-directory="$store.state.saveData"
+                      @opened="onUsageSaveOpened"
+                    />
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
           <v-card v-if="!viewShips.length" class="text-center my-10 py-10">
             <div>{{ $t("Common.探したけど見つからなかったよ") }}&#128546;</div>
           </v-card>
@@ -374,6 +400,7 @@
               mobile-breakpoint="0"
             >
               <template v-slot:[`header.name`] />
+              <template v-slot:[`header.actions`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.hp`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.luck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
               <template v-slot:[`header.impLuck`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -412,7 +439,9 @@
                           <v-img v-else :src="`./img/util/tasuki.png`" height="40" width="16" />
                         </div>
                       </div>
-                      <div class="ship-name text-truncate" :title="item.ship.name">{{ getShipName(item.ship) }}</div>
+                      <div class="ship-name text-truncate" :title="item.ship.name">
+                        {{ getShipName(item.ship) }}
+                      </div>
                     </div>
                     <div class="d-flex d-md-none align-center">
                       <div class="edit-stock-img">
@@ -431,6 +460,20 @@
                         </div>
                       </div>
                     </div>
+                  </td>
+                  <td class="text-center" style="width:56px;">
+                    <template v-if="usageCount(item.stockData.uniqueId) > 0">
+                      <v-badge :content="usageCount(item.stockData.uniqueId)" color="primary" overlap>
+                        <v-btn icon small @click.stop="showUsageForRow(item)">
+                          <v-icon>mdi-map-marker</v-icon>
+                        </v-btn>
+                      </v-badge>
+                    </template>
+                    <template v-else>
+                      <v-btn icon small @click.stop="showUsageForRow(item)">
+                        <v-icon>mdi-map-marker</v-icon>
+                      </v-btn>
+                    </template>
                   </td>
                   <td class="text-right">{{ item.level ? item.level : "-" }}</td>
                   <td class="text-right">
@@ -1167,6 +1210,12 @@
 .manual-column-select {
   width: 180px;
 }
+
+/* 使用位置ダイアログの最大幅を制限 */
+.usage-dialog-card {
+  max-width: 420px;
+}
+
 </style>
 
 <script lang="ts">
@@ -1189,6 +1238,9 @@ import Convert from '@/classes/convert';
 import ItemMaster from '@/classes/item/itemMaster';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ManualCheckbox from '@/components/common/ManualCheckbox.vue';
+import SaveItem from '@/components/saveData/SaveItem.vue';
+import SaveData from '@/classes/saveData/saveData';
+import { collectUsage } from '@/classes/fleet/collectUsage';
 
 interface ShipRowData {
   count: number;
@@ -1225,6 +1277,7 @@ export default Vue.extend({
     ShipTooltip,
     AreaManager,
     StatusUpLineList,
+    SaveItem,
     ManualCheckbox,
   },
   data: () => ({
@@ -1341,6 +1394,12 @@ export default Vue.extend({
         sortable: false,
       },
       {
+        text: '逆引き',
+        value: 'actions',
+        sortable: false,
+        align: 'center',
+      },
+      {
         text: 'Lv',
         align: 'end',
         value: 'level',
@@ -1406,6 +1465,12 @@ export default Vue.extend({
       { text: '射程', value: 'range' },
     ],
     isMobile: true,
+    usageDialog: false,
+    usageSaveList: [] as { saveName: string; saveData?: SaveData }[],
+    // 対象の uniqueId（個体識別子）
+    usageUniqueId: undefined as number | undefined,
+    usageCounts: {} as { [uniqueId: number]: number },
+    usageMap: {} as { [uniqueId: number]: { saveName: string; saveData?: SaveData }[] },
   }),
   mounted() {
     if (this.$store.getters.getExistsTempStock) {
@@ -1419,11 +1484,29 @@ export default Vue.extend({
         this.masterFilter();
         this.editDialog = false;
       }
+      if (mutation.type === 'updateSaveData' || mutation.type === 'setShipStock' || mutation.type === 'setShips') {
+        // セーブデータやマスターが変更されたときに使用数を再計算する
+        try {
+          this.computeUsageCounts();
+          // ダイアログが開いていれば usageSaveList を usageMap から即時更新
+          if (this.usageDialog && typeof this.usageUniqueId !== 'undefined') {
+            this.usageSaveList = this.usageMap[this.usageUniqueId] || [];
+          }
+        } catch (e) {
+          // エラーは無視する
+        }
+      }
     });
 
     this.isMobile = window.innerWidth < 600;
     if (this.isMobile) {
       this.changeViewMode(false);
+    }
+    // 初期計算を実行
+    try {
+      this.computeUsageCounts();
+    } catch (e) {
+      // エラーは無視する
     }
   },
   watch: {
@@ -1590,6 +1673,11 @@ export default Vue.extend({
         this.selectedArea.push(i);
       }
       this.masterFilter();
+      try {
+        this.computeUsageCounts();
+      } catch (e) {
+        // エラーは無視する
+      }
     },
     toggleDaihatsuFilter() {
       if (this.isDaihatsu) {
@@ -1972,6 +2060,68 @@ export default Vue.extend({
       this.editDialog = true;
       this.btnPushed = false;
     },
+    showUsageForRow(row: ShipRowData) {
+      this.clearTooltip();
+      const uid = row.stockData ? row.stockData.uniqueId : undefined;
+      this.usageSaveList = (uid && this.usageMap[uid]) ? this.usageMap[uid] : [];
+      this.usageUniqueId = uid;
+      this.usageDialog = true;
+    },
+    closeUsageDialog() {
+      this.usageDialog = false;
+      this.usageSaveList = [];
+      this.usageUniqueId = undefined;
+    },
+    handleUsageSaveDelete(save?: SaveData) {
+      if (!save) return;
+      const root = this.$store.state.saveData as SaveData;
+
+      const removeRecursively = (parent: SaveData, targetId: string): boolean => {
+        for (let i = 0; i < parent.childItems.length; i += 1) {
+          const child = parent.childItems[i];
+          if (child.id === targetId) {
+            parent.childItems.splice(i, 1);
+            try {
+              root.sortChild();
+            } catch (e) {
+              // エラーは無視する
+            }
+            this.$store.dispatch('updateSaveData', root);
+            if (!root.getMainData()) {
+              this.$store.dispatch('setMainSaveData', undefined);
+            }
+            return true;
+          }
+          if (child.childItems && child.childItems.length) {
+            if (removeRecursively(child, targetId)) return true;
+          }
+        }
+        return false;
+      };
+
+      const removed = removeRecursively(root, save.id);
+      if (removed) {
+        this.usageDialog = false;
+        this.usageSaveList = [];
+        this.usageUniqueId = undefined;
+        try {
+          this.computeUsageCounts();
+        } catch (e) {
+          // エラーは無視する
+        }
+      }
+    },
+    onUsageSaveOpened() {
+      // SaveItemから開かれたことを受けて、使用位置ダイアログを閉じる
+      this.usageDialog = false;
+      this.usageSaveList = [];
+      this.usageUniqueId = undefined;
+    },
+    toggleUsageDialog() {
+      if (!this.usageDialog) {
+        // v-dialogのinputイベントとの整合のためのプレースホルダ
+      }
+    },
     toggleArea(area: number) {
       this.editRow.stockData.area = this.editRow.stockData.area !== area ? area : 0;
     },
@@ -2017,6 +2167,21 @@ export default Vue.extend({
       this.$store.dispatch('setNeedShipStockDiff', false);
       this.$store.dispatch('updateShipStock', stockAll);
       this.shipStock = stockAll;
+    },
+    computeUsageCounts() {
+      const root = this.$store.state.saveData as SaveData;
+      try {
+        const res = collectUsage(root, this.$store.state.items, this.$store.state.ships, this.$store.state.defaultEnemies);
+        this.usageCounts = res.counts;
+        this.usageMap = res.usageMap;
+      } catch (e) {
+        // ignore
+        this.usageCounts = {};
+        this.usageMap = {};
+      }
+    },
+    usageCount(uniqueId: number) {
+      return (this.usageCounts && this.usageCounts[uniqueId]) ? this.usageCounts[uniqueId] : 0;
     },
     updateStock() {
       this.btnPushed = true;
