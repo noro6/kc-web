@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/kc-web/' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/noro6/' : '/',
   transpileDependencies: ['vuetify', 'gkcoi'],
   pages: {
     index: {
