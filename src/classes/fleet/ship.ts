@@ -844,12 +844,13 @@ export default class Ship implements ShipBase {
    * @memberof Ship
    */
   public static getRequiredLuckCI(target: number, level: number): number {
-    const luck = Math.ceil(target - (15 + 0.75 * Math.sqrt(level)));
-    if (luck > 50) {
-      // 運50を超える場合は別式
-      return Math.ceil((target - (65 + 0.8 * Math.sqrt(level))) ** 2 + 50);
+    const MAX_LUCK = 200;
+    for (let luck = 0; luck <= MAX_LUCK; luck += 1) {
+      if (Ship.getCIValue(level, luck) >= target) {
+        return luck;
+      }
     }
-    return luck;
+    return MAX_LUCK + 1;
   }
 
   /**
