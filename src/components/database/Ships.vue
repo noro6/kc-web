@@ -1467,7 +1467,6 @@ export default Vue.extend({
     isMobile: true,
     usageDialog: false,
     usageSaveList: [] as { saveName: string; saveData?: SaveData }[],
-    usageTarget: undefined as ShipMaster | undefined,
     // 対象の uniqueId（個体識別子）
     usageUniqueId: undefined as number | undefined,
     usageCounts: {} as { [uniqueId: number]: number },
@@ -2065,14 +2064,12 @@ export default Vue.extend({
       this.clearTooltip();
       const uid = row.stockData ? row.stockData.uniqueId : undefined;
       this.usageSaveList = (uid && this.usageMap[uid]) ? this.usageMap[uid] : [];
-      this.usageTarget = row.ship;
       this.usageUniqueId = uid;
       this.usageDialog = true;
     },
     closeUsageDialog() {
       this.usageDialog = false;
       this.usageSaveList = [];
-      this.usageTarget = undefined;
       this.usageUniqueId = undefined;
     },
     handleUsageSaveDelete(save?: SaveData) {
@@ -2106,7 +2103,6 @@ export default Vue.extend({
       if (removed) {
         this.usageDialog = false;
         this.usageSaveList = [];
-        this.usageTarget = undefined;
         this.usageUniqueId = undefined;
         try {
           this.computeUsageCounts();
@@ -2119,7 +2115,6 @@ export default Vue.extend({
       // SaveItemから開かれたことを受けて、使用位置ダイアログを閉じる
       this.usageDialog = false;
       this.usageSaveList = [];
-      this.usageTarget = undefined;
       this.usageUniqueId = undefined;
     },
     toggleUsageDialog() {
