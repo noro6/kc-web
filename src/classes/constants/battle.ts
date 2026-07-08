@@ -215,16 +215,16 @@ export const ANTI_AIR_CUTIN = [
     id: 37, text: '37種', rateBonus: 1.45, c1: 2, c2: 3, rate: 44, remarks: 'Fletcher級',
   },
   {
-    id: 38, text: '38種', rateBonus: 1.85, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta',
+    id: 38, text: '38種', rateBonus: 1.85, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta級',
   },
   {
-    id: 39, text: '39種', rateBonus: 1.7, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta',
+    id: 39, text: '39種', rateBonus: 1.7, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta級',
   },
   {
-    id: 40, text: '40種', rateBonus: 1.7, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta',
+    id: 40, text: '40種', rateBonus: 1.7, c1: 6, c2: 5, rate: 60, remarks: 'Atlanta級',
   },
   {
-    id: 41, text: '41種', rateBonus: 1.65, c1: 5, c2: 5, rate: 60, remarks: 'Atlanta',
+    id: 41, text: '41種', rateBonus: 1.65, c1: 5, c2: 5, rate: 60, remarks: 'Atlanta級',
   },
   {
     id: 42, text: '42種', rateBonus: 1.7, c1: 10, c2: 1, rate: 65, remarks: '大和型改二',
