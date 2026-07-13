@@ -1,21 +1,19 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="general-container my-2 px-4 py-0" v-if="false">
+    <v-card class="general-container my-2 px-4 py-0" v-if="true">
       <div class="d-flex">
         <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
         <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
           <v-radio :label="$t('Common.なし')" value="" />
-          <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" />
-          <v-radio label="25秋 前段" value="61-1" />
-          <v-radio label="25秋 E-4" value="61-4" />
-          <v-radio label="25秋 E-5" value="61-5" />
+          <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
+          <v-radio label="26夏 E-3" value="62-3" />
         </v-radio-group>
       </div>
-      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '61-1'">
-        <div>参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank">@yukicacoon 様のツイートより</a></div>
-        <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
+      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '62-3'">
+        <div>参考元: <a href="https://x.com/yukicacoon/status/2076251017486967172?s=20" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <!-- <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
         <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
-        <div>基地は C1, C2, C3 カテゴリのみ有効です。</div>
+        <div>基地は C1, C2, C3 カテゴリのみ有効です。</div> -->
       </div>
     </v-card>
     <div class="general-container d-flex">
