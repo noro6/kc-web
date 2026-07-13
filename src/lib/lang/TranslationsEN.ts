@@ -1002,6 +1002,7 @@ export default {
       'LvoldからLvcurrentまでの折り返し地点を超えました。': 'Passed the halfway point from Lv. {old} to Lv. {current}.',
       '後半戦もガンバレ！！！！': 'Go crush the second half!!!!',
       'Lvが上昇しました。': 'Lv. increased.',
+      '第xスロットの搭載数をy機拡張しました！': 'Slot {slot} capacity increased by {count} aircraft!',
       'xしました。': '{x}.',
       '増加経験値合計': 'Total Exp Increased ',
       '統計': 'Statistics',

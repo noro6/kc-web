@@ -15,6 +15,8 @@ export interface ShipBuilder {
   master?: ShipMaster;
   /** 装備 未指定ならshipの装備で作成 */
   items?: Item[];
+  /** 艦娘個体ごとの最大搭載数 未指定ならshipまたはマスタの搭載数で作成 */
+  slots?: number[];
   /** 補強増設 未指定ならshipの補強増設で作成 */
   exItem?: Item;
   /** 練度 */
@@ -67,6 +69,9 @@ export default class Ship implements ShipBase {
 
   /** 装備一覧 */
   public readonly items: Item[];
+
+  /** 艦娘個体ごとの最大搭載数 */
+  public readonly slots: number[];
 
   /** 補強増設枠 */
   public readonly exItem: Item;
@@ -254,6 +259,7 @@ export default class Ship implements ShipBase {
   constructor(builder: ShipBuilder = {}) {
     if (builder.ship) {
       this.data = builder.master !== undefined ? builder.master : builder.ship.data;
+      this.slots = Ship.getSlots(builder.slots ?? (builder.master ? builder.master.slots : builder.ship.slots), this.data);
       this.level = builder.level !== undefined ? builder.level : builder.ship.level;
       this.luck = builder.luck !== undefined ? builder.luck : builder.ship.luck;
       this.asw = builder.asw !== undefined ? builder.asw : builder.ship.asw;
@@ -271,6 +277,7 @@ export default class Ship implements ShipBase {
       this.spEffectItemId = builder.spEffectItemId !== undefined ? builder.spEffectItemId : builder.ship.spEffectItemId;
     } else {
       this.data = builder.master !== undefined ? builder.master : new ShipMaster();
+      this.slots = Ship.getSlots(builder.slots, this.data);
       this.level = builder.level !== undefined ? builder.level : 99;
       this.luck = builder.luck !== undefined ? builder.luck : this.data.luck;
       this.asw = builder.asw !== undefined ? builder.asw : Ship.getStatusFromLevel(this.level, this.data.maxAsw, this.data.minAsw);
@@ -292,7 +299,7 @@ export default class Ship implements ShipBase {
     if (this.items.length < this.data.slotCount) {
       // 少ないケース => 追加
       for (let i = this.items.length; i < this.data.slotCount; i += 1) {
-        this.items.push(new Item({ slot: this.data.slots[i] }));
+        this.items.push(new Item({ slot: this.slots[i] }));
       }
     } else if (this.items.length > this.data.slotCount) {
       // 多いケース => 絞る
@@ -301,7 +308,7 @@ export default class Ship implements ShipBase {
 
     // 空の装備の搭載数を戻す
     for (let i = 0; i < this.data.slotCount; i += 1) {
-      const fullSlot = this.data.slots[i];
+      const fullSlot = this.slots[i];
       const item = this.items[i];
       if (item.data.id === 0 && fullSlot > 0) {
         this.items[i] = new Item({ slot: fullSlot });
@@ -1687,5 +1694,16 @@ export default class Ship implements ShipBase {
     }
     // 搭載失敗
     return this;
+  }
+
+  private static getSlots(slots: number[] | undefined, master: ShipMaster): number[] {
+    const result: number[] = [];
+    const source = slots && slots.length ? slots : master.slots;
+    for (let i = 0; i < master.slotCount; i += 1) {
+      const defaultSlot = master.slots[i] ?? 0;
+      const slot = source[i] ?? defaultSlot;
+      result.push(Number.isFinite(slot) && slot >= 0 ? Math.floor(slot) : defaultSlot);
+    }
+    return result;
   }
 }

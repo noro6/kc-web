@@ -31,6 +31,8 @@ interface SavedShip {
   i: number,
   /** 装備 */
   is: Item[],
+  /** 艦娘個体ごとの最大搭載数 */
+  sl?: number[],
   /** 対空値 */
   aa?: number,
   /** レベル */
@@ -586,6 +588,7 @@ export default class SaveData {
         const data = {
           i: v.data.id, is: v.items, ac: v.isActive, es: v.isEscort, re: v.releaseExpand,
         } as SavedShip;
+        if (v.slots.some((slot, index) => slot !== v.data.slots[index])) data.sl = v.slots;
         if (v.hp) data.hp = v.hp;
         if (v.asw) data.as = v.asw;
         if (v.luck) data.lu = v.luck;
@@ -856,12 +859,12 @@ export default class SaveData {
         const spEffectItemId = ship.sp ?? 0;
         if (shipMaster) {
           ships.push(new Ship({
-            master: shipMaster, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId: (clearUniqueId ? 0 : uniqueId), releaseExpand: ship.re, spEffectItemId,
+            master: shipMaster, slots: ship.sl, items, exItem: expandItem, antiAir: ship.aa, hp: ship.hp, asw: ship.as, luck: ship.lu, level: ship.lv, isActive: ship.ac, isEscort: ship.es, area, uniqueId: (clearUniqueId ? 0 : uniqueId), releaseExpand: ship.re, spEffectItemId,
           }));
         } else {
           // いなければ空データ 装備は引き継ぐが…
           ships.push(new Ship({
-            items, exItem: expandItem, level: ship.lv, isEscort: ship.es, area, uniqueId,
+            slots: ship.sl, items, exItem: expandItem, level: ship.lv, isEscort: ship.es, area, uniqueId,
           }));
         }
       }

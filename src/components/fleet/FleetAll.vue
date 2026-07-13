@@ -1428,6 +1428,7 @@ export default Vue.extend({
     },
     replaceShip(viewShip: ViewShip, fleetIndex: number, index: number) {
       const { ship } = viewShip;
+      const slots = viewShip.slots.length ? viewShip.slots : ship.slots;
       const fleet = this.fleetInfo.fleets[fleetIndex];
       // もともとここに配備されていた艦娘の装備情報を抜き取る
       const oldShip = fleet.ships[index];
@@ -1440,7 +1441,7 @@ export default Vue.extend({
       }
 
       for (let slotIndex = 0; slotIndex < ship.slotCount; slotIndex += 1) {
-        const slot = ship.slots[slotIndex] > 0 ? ship.slots[slotIndex] : 0;
+        const slot = slots[slotIndex] > 0 ? slots[slotIndex] : 0;
         if (slotIndex < oldItems.length) {
           const oldItem = oldItems[slotIndex];
           const itemMaster = oldItem.data;
@@ -1469,6 +1470,7 @@ export default Vue.extend({
       // 元々いた艦娘を置き換える
       fleet.ships[index] = new Ship({
         master: ship,
+        slots,
         items: newItems,
         exItem,
         isActive: oldShip.isActive,
@@ -1924,12 +1926,12 @@ export default Vue.extend({
         }
         const { ships } = fleets[i];
         for (let j = 0; j < ships.length; j += 1) {
-          const shipMaster = ships[j].data;
+          const shipSlots = ships[j].slots;
           const { items } = ships[j];
           for (let k = 0; k < items.length; k += 1) {
             if (!onlyFighter || (onlyFighter && items[k].data.isFighter)) {
               const isPlane = items[k] && items[k].data.isPlane;
-              const slot = itemBuilder.slot ? Math.min(itemBuilder.slot, shipMaster.slots[k]) : shipMaster.slots[k];
+              const slot = itemBuilder.slot ? Math.min(itemBuilder.slot, shipSlots[k]) : shipSlots[k];
               items[k] = new Item({
                 item: items[k],
                 slot: isResetSlot && isPlane ? slot : undefined,

@@ -45,6 +45,9 @@ export default class ShipStock {
   /** 出撃海域札 */
   public area = 0;
 
+  /** 個体ごとの最大搭載数 */
+  public slots: number[] = [];
+
   /** たすきとかりぼんとか */
   public spEffectItems: SpecialEffectItem[] = [];
 
@@ -83,6 +86,7 @@ export default class ShipStock {
           area: stock.area,
           ex: stock.releaseExpand ? 1 : 0,
           sp: stock.spEffectItems ? stock.spEffectItems.map((v) => v.kind) : [],
+          slots: stock.slots && stock.slots.length ? stock.slots : undefined,
         };
         shipJSONRows.push(data);
       }

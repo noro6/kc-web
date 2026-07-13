@@ -97,7 +97,7 @@
               <div v-if="row.type === 1 && !showExpMode">{{ $t("Database.着任しました。") }}</div>
               <div v-if="row.type === 3 && !showExpMode">{{ $t("Database.除籍されました。") }}</div>
               <template v-if="row.logs">
-                <div v-for="log in row.logs" :key="log.title" class="d-flex align-center flex-wrap">
+                <div v-for="(log, logIndex) in row.logs" :key="`${log.title}-${logIndex}`" class="d-flex align-center flex-wrap">
                   <template v-if="log.title === '改造'">{{ $t("Database.xから改造されました。", { base: log.old }) }}</template>
                   <template v-else-if="log.title === '補強増設'">
                     <div>{{ $t("Database.補強増設を使用しました。") }}</div>
@@ -143,6 +143,9 @@
                       </div>
                       <div class="ml-2">( {{ addMinusString(log.diff) }} )</div>
                     </div>
+                  </template>
+                  <template v-else-if="log.title === '搭載数拡張'">
+                    <div>{{ $t("Database.第xスロットの搭載数をy機拡張しました！", { slot: log.slot, count: log.diff }) }}</div>
                   </template>
                   <template v-else>
                     <div>{{ $t("Database.xしました。", { x: log.title }) }}</div>
@@ -224,6 +227,7 @@ type logText = {
   current: string;
   old: string;
   diff: number;
+  slot?: number;
 };
 
 type tableRow = {
@@ -454,6 +458,23 @@ export default Vue.extend({
                   current: '',
                   old: '',
                   diff: 0,
+                });
+              }
+              const currentSlots = current.slots.length ? current.slots : master.slots;
+              const oldSlots = old.slots.length ? old.slots : master.slots;
+              for (let slotIndex = 0; slotIndex < currentSlots.length; slotIndex += 1) {
+                const currentSlot = currentSlots[slotIndex] ?? 0;
+                const oldSlot = oldSlots[slotIndex] ?? 0;
+                const slotDiff = currentSlot - oldSlot;
+                if (slotDiff <= 0) continue;
+
+                logs.push({
+                  type: 7,
+                  title: '搭載数拡張',
+                  current: currentSlot.toLocaleString(),
+                  old: oldSlot.toLocaleString(),
+                  diff: slotDiff,
+                  slot: slotIndex + 1,
                 });
               }
             }

@@ -289,16 +289,16 @@
               v-for="(ship, i) in ships"
               :key="`ammo${i}`"
               :class="{
-                top: maxStatuses[`slot${j}`] === ship.data.slots[j - 1],
-                min: minStatuses[`slot${j}`] === ship.data.slots[j - 1],
+                top: maxStatuses[`slot${j}`] === ship.slots[j - 1],
+                min: minStatuses[`slot${j}`] === ship.slots[j - 1],
                 empty: ship.isEmpty || !maxStatuses[`slot${j}`] || maxStatuses[`slot${j}`] === minStatuses[`slot${j}`],
               }"
             >
               <template v-if="!isDiffMode || i === 0 || ship.isEmpty">
-                {{ ship.data.slots[j - 1] >= 0 ? ship.data.slots[j - 1] : "-" }}
+                {{ ship.slots[j - 1] >= 0 ? ship.slots[j - 1] : "-" }}
               </template>
               <template v-else>
-                {{ diffValueToString((ship.data.slots[j - 1] ? ship.data.slots[j - 1] : 0) - (ships[0].data.slots[j - 1] ? ships[0].data.slots[j - 1] : 0)) }}
+                {{ diffValueToString((ship.slots[j - 1] ? ship.slots[j - 1] : 0) - (ships[0].slots[j - 1] ? ships[0].slots[j - 1] : 0)) }}
               </template>
             </td>
           </tr>
@@ -516,6 +516,7 @@ export default Vue.extend({
       this.shipListDialog = false;
       const newShip = new Ship({
         master: viewShip.ship,
+        slots: viewShip.slots,
         hp: viewShip.hp,
         level: viewShip.level,
         luck: viewShip.luck,
@@ -566,11 +567,11 @@ export default Vue.extend({
         this.maxStatuses.luck = max(targets.map((v) => v.displayStatus.luck)) ?? 0;
         this.maxStatuses.fuel = min(targets.map((v) => v.fuel)) ?? 0;
         this.maxStatuses.ammo = min(targets.map((v) => v.ammo)) ?? 0;
-        this.maxStatuses.slot1 = max(targets.map((v) => v.data.slots[0])) ?? 0;
-        this.maxStatuses.slot2 = max(targets.map((v) => v.data.slots[1])) ?? 0;
-        this.maxStatuses.slot3 = max(targets.map((v) => v.data.slots[2])) ?? 0;
-        this.maxStatuses.slot4 = max(targets.map((v) => v.data.slots[3])) ?? 0;
-        this.maxStatuses.slot5 = max(targets.map((v) => v.data.slots[4])) ?? 0;
+        this.maxStatuses.slot1 = max(targets.map((v) => v.slots[0])) ?? 0;
+        this.maxStatuses.slot2 = max(targets.map((v) => v.slots[1])) ?? 0;
+        this.maxStatuses.slot3 = max(targets.map((v) => v.slots[2])) ?? 0;
+        this.maxStatuses.slot4 = max(targets.map((v) => v.slots[3])) ?? 0;
+        this.maxStatuses.slot5 = max(targets.map((v) => v.slots[4])) ?? 0;
       } else {
         Object.keys(this.maxStatuses).forEach((key) => {
           this.maxStatuses[key as keyof displayStatus] = 0;
@@ -592,11 +593,11 @@ export default Vue.extend({
         this.minStatuses.luck = min(targets.map((v) => v.displayStatus.luck)) ?? 0;
         this.minStatuses.fuel = max(targets.map((v) => v.fuel)) ?? 0;
         this.minStatuses.ammo = max(targets.map((v) => v.ammo)) ?? 0;
-        this.minStatuses.slot1 = min(targets.map((v) => v.data.slots[0])) ?? 0;
-        this.minStatuses.slot2 = min(targets.map((v) => v.data.slots[1])) ?? 0;
-        this.minStatuses.slot3 = min(targets.map((v) => v.data.slots[2])) ?? 0;
-        this.minStatuses.slot4 = min(targets.map((v) => v.data.slots[3])) ?? 0;
-        this.minStatuses.slot5 = min(targets.map((v) => v.data.slots[4])) ?? 0;
+        this.minStatuses.slot1 = min(targets.map((v) => v.slots[0])) ?? 0;
+        this.minStatuses.slot2 = min(targets.map((v) => v.slots[1])) ?? 0;
+        this.minStatuses.slot3 = min(targets.map((v) => v.slots[2])) ?? 0;
+        this.minStatuses.slot4 = min(targets.map((v) => v.slots[3])) ?? 0;
+        this.minStatuses.slot5 = min(targets.map((v) => v.slots[4])) ?? 0;
       } else {
         Object.keys(this.minStatuses).forEach((key) => {
           this.minStatuses[key as keyof displayStatus] = 0;

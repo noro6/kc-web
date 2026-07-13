@@ -316,9 +316,10 @@ export default Vue.extend({
       const oldShip = this.ship;
       const oldItems: Item[] = oldShip.items.concat();
       const newItems: Item[] = [];
+      const slots = viewShip.slots.length ? viewShip.slots : ship.slots;
 
       for (let slotIndex = 0; slotIndex < ship.slotCount; slotIndex += 1) {
-        const slot = ship.slots[slotIndex] > 0 ? ship.slots[slotIndex] : 0;
+        const slot = slots[slotIndex] > 0 ? slots[slotIndex] : 0;
         if (slotIndex < oldItems.length) {
           const oldItem = oldItems[slotIndex];
           const itemMaster = oldItem.data;
@@ -347,6 +348,7 @@ export default Vue.extend({
       // 元々いた艦娘を置き換える
       const newShip = new Ship({
         master: ship,
+        slots,
         items: newItems,
         exItem,
         isActive: oldShip.isActive,

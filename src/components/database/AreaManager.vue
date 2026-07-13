@@ -569,25 +569,42 @@ export default Vue.extend({
     putShip(ship: ViewShip) {
       // 登録艦娘から検索
       const stocks = this.$store.state.shipStock as ShipStock[];
-      const improvement = {
-        hp: ship.hp - (ship.level > 99 ? ship.ship.hp2 : ship.ship.hp),
-        asw: ship.asw,
-        luck: ship.luck - ship.ship.luck,
-      };
-      const ships = stocks.filter(
-        (v) => v.id === ship.ship.id
-          && v.level === ship.level
-          && v.area === ship.area
-          && v.releaseExpand === ship.expanded
-          && v.improvement.hp === improvement.hp
-          && v.improvement.asw === improvement.asw
-          && v.improvement.luck === improvement.luck,
-      );
+      let target: ShipStock | undefined;
 
-      if (ships.length) {
-        ships.sort((a, b) => a.area - b.area);
-        ships[0].area = this.selectedArea;
+      // 在籍個体が特定できるなら uniqueId を最優先（搭載数拡張あり/なしの取り違え防止）
+      if (ship.uniqueId) {
+        target = stocks.find((v) => v.uniqueId === ship.uniqueId);
+      } else {
+        const improvement = {
+          hp: ship.hp - (ship.level > 99 ? ship.ship.hp2 : ship.ship.hp),
+          asw: ship.asw,
+          luck: ship.luck - ship.ship.luck,
+        };
+        const masterSlots = ship.ship.slots;
+        const isMasterSlots = ship.slots.length === masterSlots.length
+          && ship.slots.every((slot, index) => slot === masterSlots[index]);
+        const ships = stocks.filter(
+          (v) => v.id === ship.ship.id
+            && v.level === ship.level
+            && v.area === ship.area
+            && v.releaseExpand === ship.expanded
+            && v.improvement.hp === improvement.hp
+            && v.improvement.asw === improvement.asw
+            && v.improvement.luck === improvement.luck
+            && (
+              (v.slots.length === ship.slots.length && v.slots.every((slot, index) => slot === ship.slots[index]))
+              || (!v.slots.length && isMasterSlots)
+            ),
+        );
 
+        if (ships.length) {
+          ships.sort((a, b) => a.area - b.area);
+          [target] = ships;
+        }
+      }
+
+      if (target) {
+        target.area = this.selectedArea;
         this.$store.dispatch('updateShipStock', stocks);
       }
       this.shipListDialog = false;
@@ -614,15 +631,23 @@ export default Vue.extend({
         return;
       }
       const stocks = this.$store.state.shipStock as ShipStock[];
-      const target = stocks.find(
-        (v) => v.id === ship.data.id
-          && v.level === ship.level
-          && v.area === area
-          && v.releaseExpand === ship.expand
-          && v.improvement.hp === ship.impHP
-          && v.improvement.asw === ship.impASW
-          && v.improvement.luck === ship.impLuck,
-      );
+      let target: ShipStock | undefined;
+
+      // 在籍個体が特定できるなら uniqueId を最優先（搭載数拡張あり/なしの取り違え防止）
+      if (ship.unique) {
+        target = stocks.find((v) => v.uniqueId === ship.unique && v.area === area);
+      } else {
+        target = stocks.find(
+          (v) => v.id === ship.data.id
+            && v.level === ship.level
+            && v.area === area
+            && v.releaseExpand === ship.expand
+            && v.improvement.hp === ship.impHP
+            && v.improvement.asw === ship.impASW
+            && v.improvement.luck === ship.impLuck,
+        );
+      }
+
       if (target) {
         target.area = 0;
         this.$store.dispatch('updateShipStock', stocks);

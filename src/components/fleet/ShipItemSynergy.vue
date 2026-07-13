@@ -797,7 +797,7 @@ export default Vue.extend({
     },
     putShip(viewShip: ViewShip) {
       this.shipListDialog = false;
-      this.ship = new Ship({ master: viewShip.ship });
+      this.ship = new Ship({ master: viewShip.ship, slots: viewShip.slots });
       this.showMultiple = true;
       this.showOneTime = true;
       this.setItemBonus();

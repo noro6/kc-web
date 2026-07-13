@@ -236,7 +236,7 @@
             <div v-if="data.batchListIndex >= 0" class="batch-index">{{ data.batchListIndex + 1 }}</div>
             <template v-if="!multiLine">
               <div class="ship-status" v-for="i in 5" :key="`ship_slot${i - 1}`">
-                {{ data.ship.slots[i - 1] ? data.ship.slots[i - 1] : "" }}
+                {{ data.slots[i - 1] ? data.slots[i - 1] : "" }}
               </div>
             </template>
           </div>
@@ -1128,6 +1128,8 @@ export interface ViewShip {
   luck: number;
   /** 対潜 改修値!! */
   asw: number;
+  /** 艦娘個体ごとの最大搭載数 */
+  slots: number[];
   /** 補強増設空いてるかどうか */
   expanded: boolean;
   /** ソート用ステータス */
@@ -1841,6 +1843,7 @@ export default Vue.extend({
               hp: shipData.improvement.hp + (shipData.level > 99 ? master.hp2 : master.hp),
               luck: shipData.improvement.luck + master.luck,
               asw: shipData.improvement.asw,
+              slots: shipData.slots.length ? shipData.slots : master.slots,
               area: shipData.area <= this.maxAreas ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
               sortValue: 0,
@@ -1927,6 +1930,7 @@ export default Vue.extend({
                   && v.luck === viewShip.luck
                   && v.area === viewShip.area
                   && v.improveAsw === viewShip.asw
+                  && this.isSameSlots(v.slots, viewShip.slots)
                   && v.spEffectItemId === viewShip.spEffectItemId
                   && v.releaseExpand === viewShip.expanded)
                 || (v.uniqueId === viewShip.uniqueId && v.data.id === master.id),
@@ -1945,6 +1949,7 @@ export default Vue.extend({
                 && v.area === viewShip.area
                 && v.hp === viewShip.hp
                 && v.asw === viewShip.asw
+                && this.isSameSlots(v.slots, viewShip.slots)
                 && v.expanded === viewShip.expanded
                 && v.spEffectItemId === viewShip.spEffectItemId,
             );
@@ -2006,6 +2011,7 @@ export default Vue.extend({
             luck: master.luck,
             area: -1,
             asw: 0,
+            slots: master.slots,
             expanded: false,
             sortValue: 0,
             uniqueId: 0,
@@ -2047,7 +2053,7 @@ export default Vue.extend({
           } else if (key === 'luckRemodel') {
             v.sortValue = v.luck - v.ship.luck;
           } else if (key === 'slotSize') {
-            v.sortValue = sum(v.ship.slots);
+            v.sortValue = sum(v.slots);
           } else if (key === 'scout') {
             v.sortValue = Ship.getStatusFromLevel(v.level, v.ship.maxScout, v.ship.minScout);
           } else if (key === 'avoid') {
@@ -2212,6 +2218,7 @@ export default Vue.extend({
           level: viewShip.level,
           luck: viewShip.luck,
           asw: baseAsw + viewShip.asw,
+          slots: viewShip.slots,
         });
         this.tooltipShip = ship;
         this.enabledTooltip = true;
@@ -2236,6 +2243,9 @@ export default Vue.extend({
         return 'mdi-chevron-double-up';
       }
       return 'mdi-chevron-up';
+    },
+    isSameSlots(a: number[], b: number[]): boolean {
+      return a.length === b.length && a.every((slot, index) => slot === b[index]);
     },
     translate(v: string): string {
       return v ? `${this.$t(v)}` : '';

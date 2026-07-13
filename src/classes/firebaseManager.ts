@@ -30,12 +30,16 @@ export default class FirebaseManager {
         const stArray = [st.fire, st.torpedo, st.antiAir, st.armor, st.luck, st.hp, st.asw];
         const releaseExpand = data.releaseExpand ? 1 : 0;
         const sp = data.spEffectItems ? data.spEffectItems.map((v) => v.kind) : [];
+        const detail = [data.uniqueId, data.level, data.exp, stArray, data.area, releaseExpand, sp];
+        if (data.slots && data.slots.length) {
+          detail.push(data.slots);
+        }
         const postShip = postShips.find((v) => v[0] === data.id);
         if (postShip) {
-          // ユニークid, Lv, 経験値, 改修値, 海域, 増設, 特殊アイテムの順
-          postShip[1].push([data.uniqueId, data.level, data.exp, stArray, data.area, releaseExpand, sp]);
+          // ユニークid, Lv, 経験値, 改修値, 海域, 増設, 特殊アイテム, 搭載数の順
+          postShip[1].push(detail);
         } else {
-          postShips.push([data.id, [[data.uniqueId, data.level, data.exp, stArray, data.area, releaseExpand, sp]]]);
+          postShips.push([data.id, [detail]]);
         }
       }
       result.ships = LZString.compressToEncodedURIComponent(JSON.stringify(postShips));
@@ -168,6 +172,10 @@ export default class FirebaseManager {
               newStock.spEffectItems.push({ kind, fire: 2, avoid: 2 });
             }
           }
+        }
+        const slots = detail[7];
+        if (slots && slots.length) {
+          newStock.slots = slots.map((v: number) => Math.floor(v)).filter((v: number) => Number.isFinite(v) && v >= 0);
         }
         array.push(newStock);
       }

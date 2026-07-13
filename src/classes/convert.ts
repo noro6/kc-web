@@ -165,8 +165,8 @@ interface DeckBuilder {
   s?: DeckBuilderSortieData,
 }
 
-type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number, 'api_sp_effect_items': { 'api_kind': number }[] };
-type shipStockJson2 = { 'id': number, 'ship_id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number, 'sp': number[] };
+type shipStockJson = { 'api_id': number, 'api_ship_id': number, 'api_lv': number, 'api_exp': number[], 'api_kyouka': number[], 'api_slot_ex': number, 'api_sally_area': number, 'api_sp_effect_items': { 'api_kind': number }[], 'api_onslot_max'?: number[], 'api_slotnum'?: number };
+type shipStockJson2 = { 'id': number, 'ship_id': number, 'lv': number, 'exp': number[], 'st': number[], 'ex': number, 'area': number, 'sp': number[], 'slots'?: number[] };
 type itemStockJson = { 'api_slotitem_id': number, 'api_level': number };
 type itemStockJson2 = { 'id': number, 'lv': number };
 
@@ -601,6 +601,11 @@ export default class Convert {
         shipStock.area = data.area;
       }
 
+      const slots = Convert.getShipStockSlots(data);
+      if (slots.length) {
+        shipStock.slots = slots;
+      }
+
       // 拡張情報 -海色リボン 白たすき
       if ('api_sp_effect_items' in data && data.api_sp_effect_items.length) {
         for (let j = 0; j < data.api_sp_effect_items.length; j += 1) {
@@ -647,6 +652,25 @@ export default class Convert {
       shipList.push(shipStock);
     }
     return shipList;
+  }
+
+  private static getShipStockSlots(data: shipStockJson | shipStockJson2): number[] {
+    let rawSlots: number[] | undefined;
+    if ('api_onslot_max' in data && data.api_onslot_max) {
+      rawSlots = data.api_onslot_max;
+    } else if ('slots' in data) {
+      rawSlots = data.slots;
+    }
+
+    if (!rawSlots || !rawSlots.length) {
+      return [];
+    }
+
+    const slotCount = 'api_slotnum' in data && data.api_slotnum !== undefined ? data.api_slotnum : rawSlots.length;
+    return rawSlots
+      .slice(0, slotCount)
+      .map((slot) => Math.floor(slot))
+      .filter((slot) => Number.isFinite(slot) && slot >= 0);
   }
 
   /**

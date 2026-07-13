@@ -181,6 +181,8 @@ export default new Vuex.Store({
 
       if (state.needShipStockDiff) {
         const diff = new ShipStockDiff();
+        const hasSlotDiff = (current: ShipStock, old: ShipStock) => current.slots.length > 0
+          && current.slots.some((slot, index) => slot !== old.slots[index]);
         // 差分チェック => uniqueIdが仕事しているかチェック
         if (olds.length && olds.length !== olds[olds.length - 1].uniqueId && values.length && values.length !== values[values.length - 1].uniqueId) {
           for (let i = 0; i < values.length; i += 1) {
@@ -197,7 +199,8 @@ export default new Vuex.Store({
                 || current.releaseExpand !== old.releaseExpand
                 || current.improvement.hp !== old.improvement.hp
                 || current.improvement.asw !== old.improvement.asw
-                || current.improvement.luck !== old.improvement.luck)
+                || current.improvement.luck !== old.improvement.luck
+                || hasSlotDiff(current, old))
             ) {
               // 過去データと何か違っていたので差分あり
               diff.diffs.push(old);
