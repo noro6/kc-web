@@ -1843,7 +1843,7 @@ export default Vue.extend({
               hp: shipData.improvement.hp + (shipData.level > 99 ? master.hp2 : master.hp),
               luck: shipData.improvement.luck + master.luck,
               asw: shipData.improvement.asw,
-              slots: shipData.slots.length ? shipData.slots : master.slots,
+              slots: shipData.slots?.length ? shipData.slots : master.slots,
               area: shipData.area <= this.maxAreas ? Math.max(shipData.area, 0) : 0,
               expanded: shipData.releaseExpand,
               sortValue: 0,
@@ -2244,8 +2244,10 @@ export default Vue.extend({
       }
       return 'mdi-chevron-up';
     },
-    isSameSlots(a: number[], b: number[]): boolean {
-      return a.length === b.length && a.every((slot, index) => slot === b[index]);
+    isSameSlots(a: number[] | undefined, b: number[] | undefined): boolean {
+      const left = a ?? [];
+      const right = b ?? [];
+      return left.length === right.length && left.every((slot, index) => slot === right[index]);
     },
     translate(v: string): string {
       return v ? `${this.$t(v)}` : '';

@@ -592,8 +592,10 @@ export default Vue.extend({
             && v.improvement.asw === improvement.asw
             && v.improvement.luck === improvement.luck
             && (
-              (v.slots.length === ship.slots.length && v.slots.every((slot, index) => slot === ship.slots[index]))
-              || (!v.slots.length && isMasterSlots)
+              (Array.isArray(v.slots)
+                && v.slots.length === ship.slots.length
+                && v.slots.every((slot, index) => slot === ship.slots[index]))
+              || ((!v.slots || !v.slots.length) && isMasterSlots)
             ),
         );
 

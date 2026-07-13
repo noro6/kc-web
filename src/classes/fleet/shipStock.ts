@@ -55,6 +55,26 @@ export default class ShipStock {
   public isManualInput = false;
 
   /**
+   * IndexedDB等から復元した旧データ向けに slots を正規化する
+   * @static
+   * @param {ShipStock[]} stocks
+   * @returns {ShipStock[]}
+   * @memberof ShipStock
+   */
+  public static normalize(stocks: ShipStock[]): ShipStock[] {
+    if (!stocks || !stocks.length) {
+      return stocks ?? [];
+    }
+
+    for (let i = 0; i < stocks.length; i += 1) {
+      if (!Array.isArray(stocks[i].slots)) {
+        stocks[i].slots = [];
+      }
+    }
+    return stocks;
+  }
+
+  /**
    * 艦隊分析コードを生成
    * @static
    * @param {ShipStock[]} stocks

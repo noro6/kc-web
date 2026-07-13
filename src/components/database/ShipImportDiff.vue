@@ -460,8 +460,8 @@ export default Vue.extend({
                   diff: 0,
                 });
               }
-              const currentSlots = current.slots.length ? current.slots : master.slots;
-              const oldSlots = old.slots.length ? old.slots : master.slots;
+              const currentSlots = current.slots?.length ? current.slots : master.slots;
+              const oldSlots = old.slots?.length ? old.slots : master.slots;
               for (let slotIndex = 0; slotIndex < currentSlots.length; slotIndex += 1) {
                 const currentSlot = currentSlots[slotIndex] ?? 0;
                 const oldSlot = oldSlots[slotIndex] ?? 0;

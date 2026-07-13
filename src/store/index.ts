@@ -32,7 +32,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.53.1',
+    siteVersion: '2.53.2',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -177,16 +177,21 @@ export default new Vuex.Store({
     },
     setShipStock: (state, values: ShipStock[]) => {
       const olds = state.shipStock.concat();
-      state.shipStock = values;
+      const stocks = ShipStock.normalize(values);
+      state.shipStock = stocks;
 
       if (state.needShipStockDiff) {
         const diff = new ShipStockDiff();
-        const hasSlotDiff = (current: ShipStock, old: ShipStock) => current.slots.length > 0
-          && current.slots.some((slot, index) => slot !== old.slots[index]);
+        const hasSlotDiff = (current: ShipStock, old: ShipStock) => {
+          const currentSlots = current.slots ?? [];
+          const oldSlots = old.slots ?? [];
+          return currentSlots.length > 0
+            && currentSlots.some((slot, index) => slot !== oldSlots[index]);
+        };
         // 差分チェック => uniqueIdが仕事しているかチェック
-        if (olds.length && olds.length !== olds[olds.length - 1].uniqueId && values.length && values.length !== values[values.length - 1].uniqueId) {
-          for (let i = 0; i < values.length; i += 1) {
-            const current = values[i];
+        if (olds.length && olds.length !== olds[olds.length - 1].uniqueId && stocks.length && stocks.length !== stocks[stocks.length - 1].uniqueId) {
+          for (let i = 0; i < stocks.length; i += 1) {
+            const current = stocks[i];
             const old = olds.find((v) => v.uniqueId === current.uniqueId);
             if (!old) {
               // 過去データにいない
@@ -208,7 +213,7 @@ export default new Vuex.Store({
           }
 
           // 過去にはいて今はいないものをチェック
-          diff.expulsionShips = olds.filter((old) => !values.some((v) => old.uniqueId === v.uniqueId));
+          diff.expulsionShips = olds.filter((old) => !stocks.some((v) => old.uniqueId === v.uniqueId));
         }
         state.shipStockDiff = diff;
       } else {
@@ -225,7 +230,7 @@ export default new Vuex.Store({
       state.tempItemStock = values;
     },
     updateTempShipStock: (state, values: ShipStock[]) => {
-      state.tempShipStock = values;
+      state.tempShipStock = ShipStock.normalize(values);
     },
     updateTempDate: (state, values: string) => {
       state.tempDate = values;

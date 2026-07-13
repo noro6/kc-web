@@ -98,6 +98,31 @@ describe('Ship stock slot max', () => {
     deepEqual(restored.slots, stock.slots);
   });
 
+  it('IndexedDB旧データのように slots 未定義でも正規化できる', () => {
+    const legacy = {
+      uniqueId: 1443,
+      id: 888,
+      level: 184,
+      exp: 15131130,
+      improvement: {
+        fire: 0, torpedo: 0, antiAir: 0, armor: 0, luck: 0, hp: 0, asw: 0,
+      },
+      releaseExpand: true,
+      area: 0,
+      spEffectItems: [],
+      isManualInput: false,
+    } as unknown as ShipStock;
+
+    equal(legacy.slots, undefined);
+
+    const [normalized] = ShipStock.normalize([legacy]);
+    deepEqual(normalized.slots, []);
+    // 一覧生成相当: slots 未定義でも落ちずにマスタ搭載数へフォールバックできる
+    const master = createShipMaster();
+    const slots = normalized.slots?.length ? normalized.slots : master.slots;
+    deepEqual(slots, master.slots);
+  });
+
   it('Ship 生成時に個体ごとの最大搭載数を初期スロットへ反映する', () => {
     const master = createShipMaster();
     const ship = new Ship({ master, slots: [21, 21, 15, 6] });
