@@ -7,13 +7,21 @@
           <v-radio :label="$t('Common.なし')" value="" />
           <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
           <v-radio label="26夏 E-3" value="62-3" />
+          <v-radio label="25秋 前段（参考）" value="61-1" />
         </v-radio-group>
       </div>
       <div class="pb-3 body-2" v-if="setting.displayBonusKey === '62-3'">
-        <div>参考元: <a href="https://x.com/yukicacoon/status/2076251017486967172?s=20" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <div>参考元: <a href="https://x.com/yukicacoon/status/2076251017486967172" target="_blank">@yukicacoon 様のツイートより</a></div>
         <!-- <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
         <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
         <div>基地は C1, C2, C3 カテゴリのみ有効です。</div> -->
+      </div>
+      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '61-1'">
+        <div class="error--text">※ 欧州特効艦載機の参考です。去年の情報ですのでご注意ください。</div>
+        <div class="mt-2">参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank">@yukicacoon 様のツイートより</a></div>
+        <div class="mt-2">全く同じカテゴリの機体は倍率が重複しませんでした。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
+        <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストでした。</div>
+        <div>基地は C1, C2, C3 カテゴリのみ有効でした。</div>
       </div>
     </v-card>
     <div class="general-container d-flex">
