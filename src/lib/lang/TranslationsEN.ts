@@ -148,6 +148,8 @@ export default {
       'スクリーンショットを保存': 'Save screenshot',
       '最小化': 'Minimize',
       '探したけど見つからなかったよ': 'No matching data found',
+      '該当なし': 'No matches',
+      '逆引き': 'Reverse lookup',
       'もしかして': 'Please check your',
       '検索条件': ' search criteria',
       '既に配備されています。': 'Already deployed.',
@@ -366,6 +368,7 @@ export default {
       '雑です。': 'Very rough.',
     },
     SaveData: {
+      '使用位置': 'Where used',
       '新しい編成を作成': 'New File',
       '新しいフォルダーを作成': 'New Folder',
       'フォルダーを全て開く': 'Expand Folders',
