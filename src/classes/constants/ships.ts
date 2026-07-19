@@ -134,12 +134,16 @@ export const SHIP_TYPES_ALT_INFO = [
   { id: 70, name: 'C.Teste級' },
   { id: 128, name: 'La Galissonnière級' },
   { id: 129, name: 'Mogador級' },
+  { id: 138, name: 'Algérie級' },
+  { id: 139, name: 'Aigle級' },
+  { id: 141, name: 'Béarn級' },
 
   { id: 73, name: 'Гангут級' },
   { id: 81, name: 'Ташкент級' },
   { id: 131, name: 'Киров級' },
 
   { id: 89, name: 'Gotland級' },
+  { id: 140, name: 'Visby級' },
 
   { id: 98, name: 'De Ruyter級' },
 
@@ -348,11 +352,11 @@ export const GBR = [67, 78, 82, 88, 108, 112, 134, 135];
 
 export const DEU = [47, 48, 55, 57, 63];
 
-export const FRA = [70, 79, 128, 129];
+export const FRA = [70, 79, 128, 129, 138, 139, 141];
 
 export const RUS = [73, 81, 131];
 
-export const SWE = [89];
+export const SWE = [89, 140];
 
 export const AUS = [96];
 
