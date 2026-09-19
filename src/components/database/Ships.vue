@@ -160,7 +160,7 @@
                     />
                   </template>
                 </v-range-slider>
-                <v-range-slider class="mt-4 px-sm-3" v-model="aswRange" dense thumb-label min="0" max="150" hide-details>
+                <v-range-slider class="mt-4 px-sm-3" v-model="aswRange" dense thumb-label min="0" max="200" hide-details>
                   <template v-slot:prepend>
                     <v-text-field
                       :label="$t('Database.対潜下限')"
@@ -1253,7 +1253,7 @@ export default Vue.extend({
     levelRange: [1, Const.MAX_LEVEL],
     luckRange: [1, 200],
     luckImpRange: [0, 100],
-    aswRange: [0, 150],
+    aswRange: [0, 200],
     aswImpRange: [0, 9],
     okDaihatsu: [] as number[],
     okKamisha: [] as number[],
@@ -1650,7 +1650,7 @@ export default Vue.extend({
       this.luckRange = [1, 200];
       this.levelRange = [1, Const.MAX_LEVEL];
       this.luckImpRange = [0, 100];
-      this.aswRange = [0, 150];
+      this.aswRange = [0, 200];
       this.aswImpRange = [0, 9];
       this.addHP0 = true;
       this.addHP1 = true;

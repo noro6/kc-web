@@ -131,7 +131,7 @@ export const ANTI_AIR_CUTIN = [
     id: 9, text: '9種', rateBonus: 1.3, c1: 1, c2: 2, rate: 40, remarks: '汎用',
   },
   {
-    id: 10, text: '10種', rateBonus: 1.65, c1: 3, c2: 6, rate: 60, remarks: '摩耶改二 / 飛龍改三',
+    id: 10, text: '10種', rateBonus: 1.65, c1: 3, c2: 6, rate: 60, remarks: '摩耶改二 / 飛龍改三 / 北上改三',
   },
   {
     id: 11, text: '11種', rateBonus: 1.5, c1: 2, c2: 5, rate: 55, remarks: '摩耶改二 / 飛龍改三',
@@ -143,7 +143,7 @@ export const ANTI_AIR_CUTIN = [
     id: 13, text: '13種', rateBonus: 1.35, c1: 1, c2: 4, rate: 35, remarks: '汎用',
   },
   {
-    id: 14, text: '14種', rateBonus: 1.45, c1: 4, c2: 1, rate: 63, remarks: '五十鈴改二',
+    id: 14, text: '14種', rateBonus: 1.45, c1: 4, c2: 1, rate: 63, remarks: '五十鈴改二 / 北上改三',
   },
   {
     id: 15, text: '15種', rateBonus: 1.3, c1: 3, c2: 1, rate: 54, remarks: '五十鈴改二',
@@ -164,7 +164,7 @@ export const ANTI_AIR_CUTIN = [
     id: 20, text: '20種', rateBonus: 1.25, c1: 3, c2: 1, rate: 65, remarks: '鬼怒改二',
   },
   {
-    id: 21, text: '21種', rateBonus: 1.45, c1: 5, c2: 1, rate: 60, remarks: '由良改二',
+    id: 21, text: '21種', rateBonus: 1.45, c1: 5, c2: 1, rate: 60, remarks: '由良改二 / 北上改三 / 吹雪改三 / 時雨改三',
   },
   {
     id: 22, text: '22種', rateBonus: 1.2, c1: 2, c2: 1, rate: 65, remarks: '文月改二',
@@ -260,6 +260,6 @@ export const ANTI_AIR_CUTIN = [
     id: 52, text: '52種', rateBonus: 1.4, c1: 5, c2: 1, rate: 50, remarks: '一部吹雪型 / 一部夕雲型 / 秋月型',
   },
   {
-    id: 53, text: '53種', rateBonus: 1.6, c1: 4, c2: 1, rate: 60, remarks: '飛龍改三',
+    id: 53, text: '53種', rateBonus: 1.6, c1: 4, c2: 1, rate: 60, remarks: '飛龍改三 / 北上改三',
   },
 ];

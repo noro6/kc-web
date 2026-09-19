@@ -875,8 +875,8 @@ export default class Ship implements ShipBase {
 
     if (this.data.speed === 10) {
       // 高速
-      if ([22, 81, 43, 33, 31, 9].includes(this.data.type2) || this.data.id === 951 || this.data.id === 1031 || this.data.id === 1040 || this.data.id === 1058) {
-        // 島風型, Ташкент級, 天津風改二, 大鳳型, 翔鶴型, 利根型, 最上型, 飛龍改三, 吹雪改三護(六式), Vautour改
+      if ([22, 81, 43, 33, 31, 9, 139, 140].includes(this.data.type2) || this.data.id === 951 || this.data.id === 1031 || this.data.id === 1040) {
+        // 島風型, Ташкент級, 天津風改二, 大鳳型, 翔鶴型, 利根型, 最上型, 飛龍改三, 吹雪改三護(六式), Vautour, Visby
         if ((hasTurbine && newModelBoilerCount) || (hasTurbine && totalBoilerCount >= 2) || remodeledNewModelBoilerCount >= 2) {
           // タービン + 新型缶 または タービン + いずれかの缶x2 または 改修★+7以上の新型缶x2 => 最速
           return 20;
@@ -885,8 +885,8 @@ export default class Ship implements ShipBase {
           // いずれかの缶 または 改修★+7以上の新型缶
           return 15;
         }
-      } else if ([41, 17, 25, 6, 65, 37].includes(this.data.type2) || [181, 404, 331].includes(this.data.originalId)) {
-        // 阿賀野型, 蒼龍型, 飛龍型, 金剛型, Iowa級, 大和型
+      } else if ([41, 17, 25, 6, 65, 37].includes(this.data.type2) || [181, 404, 331].includes(this.data.originalId) || this.data.id === 1035 || this.data.id === 1071) {
+        // 阿賀野型, 蒼龍型, 飛龍型, 金剛型, Iowa級, 大和型, 北上改三, 吹雪改三
         // 天津風, 雲龍, 天城
         if (hasTurbine && newModelBoilerCount && totalBoilerCount >= 2) {
           // 新型缶 + いずれかの缶 => 最速
@@ -975,8 +975,8 @@ export default class Ship implements ShipBase {
           // タービン + いずれかの缶 || 新型缶 => 高速
           return 10;
         }
-      } else if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV || [45, 49, 60].includes(this.data.type2)) {
-        // 潜水艦, 潜水空母, 特種船丙型, 工作艦, 改風早型
+      } else if (this.data.type === SHIP_TYPE.SS || this.data.type === SHIP_TYPE.SSV || [45, 49, 60, 141].includes(this.data.type2)) {
+        // 潜水艦, 潜水空母, 特種船丙型, 工作艦, 改風早型, Béarn
         if (hasTurbine && totalBoilerCount) {
           // タービン + いずれかの缶 => 高速
           return 10;
