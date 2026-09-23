@@ -174,11 +174,13 @@
 #active-tab-list {
   font-size: 12px;
   width: 100%;
+  min-width: 0;
   display: flex;
   align-items: center;
 }
 .tab-scroll-wrapper {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
+  width: 0;
   min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
