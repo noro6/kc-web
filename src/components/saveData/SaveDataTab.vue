@@ -1,92 +1,97 @@
 <template>
-  <div id="active-tab-list">
-    <draggable animation="150" class="d-flex" handle=".drag-tab-handle" @end="sortEnd" v-if="!reload">
-      <div
-        class="tab-item"
-        v-for="(saveData, i) in viewData"
-        :id="saveData.id"
-        :key="i"
-        :class="{ active: saveData.isMain }"
-        @click="clickSaveData(saveData)"
-        @mousedown.middle="handleCloseTab(saveData, $event)"
-        @keypress.enter="clickSaveData(saveData)"
-        @keypress.delete="handleCloseTab(saveData)"
-      >
-        <div class="drag-tab-handle tab-item-icon">
-          <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
-          <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
-        </div>
-        <v-tooltip bottom color="black" open-delay="300">
-          <template v-slot:activator="{ on, attrs }">
-            <div class="tab-item-name text-truncate" v-bind="attrs" v-on="on">{{ saveData.name }}</div>
-          </template>
-          <span>{{ saveData.name }}</span>
-        </v-tooltip>
-        <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
-          <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
-            <v-icon small>mdi-close</v-icon>
-          </v-btn>
-        </div>
-      </div>
-      <div
-        v-if="externalData && externalData.length"
-        class="tab-item cursor-pointer"
-        :class="{ active: isExternalMain || showExternals }"
-        :id="saveData.id"
-        @click="showExternalMenu($event)"
-        @keypress.enter="showExternalMenu($event)"
-      >
-        <div class="tab-item-icon">
-          <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
-        </div>
-        <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} ( {{ externalData.length }} )</div>
-        <v-menu
-          v-model="showExternals"
-          absolute
-          :position-x="externalsX"
-          :position-y="externalsY"
-          :close-on-content-click="false"
-          dark
-          transition="slide-y-transition"
+  <div id="active-tab-list" class="d-flex align-center">
+    <div class="tab-scroll-wrapper">
+      <draggable animation="150" class="d-flex" handle=".drag-tab-handle" @end="sortEnd" v-if="!reload">
+        <div
+          class="tab-item"
+          v-for="(saveData, i) in viewData"
+          :id="saveData.id"
+          :key="i"
+          :class="{ active: saveData.isMain }"
+          @click="clickSaveData(saveData)"
+          @mousedown.middle="handleCloseTab(saveData, $event)"
+          @keypress.enter="clickSaveData(saveData)"
+          @keypress.delete="handleCloseTab(saveData)"
         >
-          <v-card>
-            <div class="external-tabs">
-              <div
-                v-for="(saveData, i) in externalData"
-                :key="`ex_${i}`"
-                class="external-tab-item"
-                :class="{ active: saveData.isMain }"
-                @click="clickSaveData(saveData)"
-                @mousedown.middle="handleCloseTab(saveData, $event)"
-                @keypress.enter="clickSaveData(saveData)"
-                @keypress.delete="handleCloseTab(saveData)"
-              >
-                <div class="tab-item-icon">
-                  <v-icon small>mdi-file-import</v-icon>
-                </div>
-                <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
-                <div class="ml-auto caption font-weight-bold">{{ externalWorlds[i] }}</div>
-                <div class="ml-1 btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
-                  <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
-                    <v-icon small>mdi-close</v-icon>
-                  </v-btn>
+          <div class="drag-tab-handle tab-item-icon">
+            <v-icon v-if="saveData.isUnsaved" small>mdi-file-question</v-icon>
+            <v-icon v-else color="green lighten-3" small>mdi-file</v-icon>
+          </div>
+          <v-tooltip bottom color="black" open-delay="300">
+            <template v-slot:activator="{ on, attrs }">
+              <div class="tab-item-name text-truncate" v-bind="attrs" v-on="on">{{ saveData.name }}</div>
+            </template>
+            <span>{{ saveData.name }}</span>
+          </v-tooltip>
+          <div class="ml-auto btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
+            <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
+              <v-icon small>mdi-close</v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <div
+          v-if="externalData && externalData.length"
+          class="tab-item cursor-pointer"
+          :class="{ active: isExternalMain || showExternals }"
+          :id="saveData.id"
+          @click="showExternalMenu($event)"
+          @keypress.enter="showExternalMenu($event)"
+        >
+          <div class="tab-item-icon">
+            <v-icon color="yellow lighten-1" small>{{ showExternals ? "mdi-folder-open" : "mdi-folder" }}</v-icon>
+          </div>
+          <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} ( {{ externalData.length }} )</div>
+          <v-menu
+            v-model="showExternals"
+            absolute
+            :position-x="externalsX"
+            :position-y="externalsY"
+            :close-on-content-click="false"
+            dark
+            transition="slide-y-transition"
+          >
+            <v-card>
+              <div class="external-tabs">
+                <div
+                  v-for="(saveData, i) in externalData"
+                  :key="`ex_${i}`"
+                  class="external-tab-item"
+                  :class="{ active: saveData.isMain }"
+                  @click="clickSaveData(saveData)"
+                  @mousedown.middle="handleCloseTab(saveData, $event)"
+                  @keypress.enter="clickSaveData(saveData)"
+                  @keypress.delete="handleCloseTab(saveData)"
+                >
+                  <div class="tab-item-icon">
+                    <v-icon small>mdi-file-import</v-icon>
+                  </div>
+                  <div class="tab-item-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
+                  <div class="ml-auto caption font-weight-bold">{{ externalWorlds[i] }}</div>
+                  <div class="ml-1 btn-close" :class="{ edited: saveData.isEdited && !saveData.isUnsaved }">
+                    <v-btn icon x-small @click.stop="handleCloseTab(saveData, $event)">
+                      <v-icon small>mdi-close</v-icon>
+                    </v-btn>
+                  </div>
                 </div>
               </div>
-            </div>
-          </v-card>
-        </v-menu>
-        <div class="ml-auto btn-close text--secondary align-self-center">
-          <v-btn icon x-small @click.stop="closeExternalConfirmDialog = true">
-            <v-icon small>mdi-close</v-icon>
-          </v-btn>
+            </v-card>
+          </v-menu>
+          <div class="ml-auto btn-close text--secondary align-self-center">
+            <v-btn icon x-small @click.stop="closeExternalConfirmDialog = true">
+              <v-icon small>mdi-close</v-icon>
+            </v-btn>
+          </div>
         </div>
-      </div>
-      <div class="tab-add-button">
-        <v-btn icon small @click.stop="addNewFile()">
-          <v-icon small>mdi-plus</v-icon>
-        </v-btn>
-      </div>
-    </draggable>
+      </draggable>
+    </div>
+    <div class="tab-add-button d-flex">
+      <v-btn icon small @click.stop="closeAllTabs()">
+        <v-icon small>mdi-close-box-multiple</v-icon>
+      </v-btn>
+      <v-btn icon small @click.stop="addNewFile()">
+        <v-icon small>mdi-plus</v-icon>
+      </v-btn>
+    </div>
     <v-dialog v-model="deleteConfirmDialog" transition="scroll-x-transition" width="580">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
@@ -169,6 +174,17 @@
 #active-tab-list {
   font-size: 12px;
   width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.tab-scroll-wrapper {
+  flex: 1 1 0%;
+  width: 0;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 .tab-item,
 .external-tab-item {
@@ -235,6 +251,7 @@
   opacity: 1;
 }
 .tab-add-button {
+  flex-shrink: 0;
   opacity: 0.8;
   margin-left: 0.25rem;
   text-align: center;
@@ -549,6 +566,12 @@ export default Vue.extend({
       this.saveData.childItems.push(data);
 
       this.clickSaveData(data);
+    },
+    closeAllTabs() {
+      const dataToClose = [...this.viewData];
+      dataToClose.forEach((data) => {
+        this.closeTab(data);
+      });
     },
     keydownHandler(event: KeyboardEvent) {
       if (event.ctrlKey && event.code === 'KeyS') {
