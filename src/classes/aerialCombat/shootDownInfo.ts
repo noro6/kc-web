@@ -459,8 +459,6 @@ export default class ShootDownInfo {
       if (hasKokaku && hasRadar) cutInIds.push(2);
       // 21種 (高角砲, 対空電探)
       if (hasKokaku && antiAirRadarCount) cutInIds.push(21);
-      // 24種 (高角砲, 通常機銃)
-      if (allKokaku && kijuCount) cutInIds.push(24);
       // 34種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30改+GFCS Mk.37)
       if (items.filter((v) => v.data.id === 308).length >= 2) cutInIds.push(34);
       // 35種 (5inch単装砲 Mk.30改+GFCS Mk.37, 5inch単装砲 Mk.30 / 改)
