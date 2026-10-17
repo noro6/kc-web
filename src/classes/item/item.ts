@@ -356,7 +356,9 @@ export default class Item {
         this.actualDefenseAntiAir = this.data.defenseAntiAir + this.bonusAntiAir;
         // 制空値更新
         this.fullAirPower = Math.floor(this.actualAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
-        this.fullDefenseAirPower = Math.floor(this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower);
+        this.fullDefenseAirPower = Math.floor(
+          this.actualDefenseAntiAir * Math.sqrt(this.fullSlot) + this.bonusAirPower,
+        );
       }
 
       this.supportAirPower = Math.floor(this.data.antiAir * Math.sqrt(this.fullSlot));
@@ -374,7 +376,9 @@ export default class Item {
       if (this.fullSlot > 0 && this.data.isPlane) {
         for (let slot = 0; slot <= this.fullSlot; slot += 1) {
           this.calculatedAirPower.push(Math.floor(this.actualAntiAir * Math.sqrt(slot) + this.bonusAirPower));
-          this.calculatedDefenseAirPower.push(Math.floor(this.actualDefenseAntiAir * Math.sqrt(slot) + this.bonusAirPower));
+          this.calculatedDefenseAirPower.push(
+            Math.floor(this.actualDefenseAntiAir * Math.sqrt(slot) + this.bonusAirPower),
+          );
         }
       }
     } else {
@@ -450,7 +454,12 @@ export default class Item {
    * @memberof Item
    */
   private getBonusAirPower(): number {
-    if (this.data.id === 0 || this.fullSlot === 0 || !this.data.isPlane || (this.data.isAswPlane && !this.data.antiAir)) {
+    if (
+      this.data.id === 0
+      || this.fullSlot === 0
+      || !this.data.isPlane
+      || (this.data.isAswPlane && !this.data.antiAir)
+    ) {
       return 0;
     }
     const type = this.data.apiTypeId;
@@ -501,8 +510,8 @@ export default class Item {
    * @memberof Item
    */
   private getBonusFirePower(): number {
-    // 大口径主砲
-    if (this.data.apiTypeId === 3) {
+    // 火力13以上の主砲
+    if ((this.data.apiTypeId === 1 || this.data.apiTypeId === 2 || this.data.apiTypeId === 3) && this.data.fire >= 13) {
       return 1.5 * Math.sqrt(this.remodel);
     }
     // その他主砲 / 副砲 / 三式弾 / 徹甲弾 / 機銃 / 探照灯 / 高射装置 / 大発 / 水上艦要員 / 航空要員 / 潜水艦魚雷 / 特型内火艇 / 対地装備 / 司令部施設 / 発煙装置
@@ -789,7 +798,10 @@ export default class Item {
       return 1.7 * Math.sqrt(this.remodel);
     }
     // 主砲 副砲 徹甲弾 三式弾 高射装置 探照灯 ソナ－ 上陸用舟艇
-    if ([1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 24, 29, 36, 37, 39, 40, 42].includes(this.data.apiTypeId) && !this.data.isStrictDepthCharge) {
+    if (
+      [1, 2, 3, 4, 12, 13, 14, 15, 18, 19, 24, 29, 36, 37, 39, 40, 42].includes(this.data.apiTypeId)
+      && !this.data.isStrictDepthCharge
+    ) {
       return Math.sqrt(this.remodel);
     }
     return 0;
