@@ -21,6 +21,7 @@ import { UploadedPreset } from '@/classes/interfaces/uploadedPreset';
 import ShipStockDiff from '@/classes/fleet/shipStockDiff';
 import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import Airbase from '@/classes/airbase/airbase';
+import TabSync from '@/classes/tabSync';
 
 const MASTER_DATA_BASE_URL = 'https://noro6.net/kc-web-data';
 const MASTER_JSON_URL = `${MASTER_DATA_BASE_URL}/master.json`;
@@ -31,7 +32,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     /** サイトバージョン */
-    siteVersion: '2.53.10',
+    siteVersion: '2.54.0',
     /** 装備マスタデータ */
     items: [] as ItemMaster[],
     /** 艦船マスタデータ */
@@ -294,6 +295,7 @@ export default new Vuex.Store({
         if (minifyData) {
           if (!context.state.disabledDatabase) {
             context.state.kcWebDatabase.savedata.put(minifyData);
+            TabSync.notify('savedata');
           }
           context.commit('updateSaveData', value);
         } else {
@@ -317,7 +319,9 @@ export default new Vuex.Store({
     updateItemStock: (context, values: ItemStock[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.items.clear().then(() => {
-          context.state.kcWebDatabase.items.bulkAdd(values);
+          context.state.kcWebDatabase.items.bulkAdd(values).then(() => {
+            TabSync.notify('items');
+          });
         });
       }
       context.commit('setItemStock', values);
@@ -325,7 +329,9 @@ export default new Vuex.Store({
     updateShipStock: (context, values: ShipStock[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.ships.clear().then(() => {
-          context.state.kcWebDatabase.ships.bulkAdd(values);
+          context.state.kcWebDatabase.ships.bulkAdd(values).then(() => {
+            TabSync.notify('ships');
+          });
         });
       }
       context.commit('setShipStock', values);
@@ -357,7 +363,9 @@ export default new Vuex.Store({
     updateItemPresets: (context, values: ItemPreset[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.itemPresets.clear().then(() => {
-          context.state.kcWebDatabase.itemPresets.bulkAdd(values);
+          context.state.kcWebDatabase.itemPresets.bulkAdd(values).then(() => {
+            TabSync.notify('itemPresets');
+          });
         });
       }
       context.commit('updateItemPresets', values);
@@ -365,7 +373,9 @@ export default new Vuex.Store({
     updateManualEnemies: (context, values: EnemyMaster[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.manualEnemies.clear().then(() => {
-          context.state.kcWebDatabase.manualEnemies.bulkAdd(values);
+          context.state.kcWebDatabase.manualEnemies.bulkAdd(values).then(() => {
+            TabSync.notify('manualEnemies');
+          });
         });
       }
       context.commit('updateManualEnemies', values);
@@ -373,7 +383,9 @@ export default new Vuex.Store({
     updateOutputHistories: (context, values: OutputHistory[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.outputHistories.clear().then(() => {
-          context.state.kcWebDatabase.outputHistories.bulkAdd(values);
+          context.state.kcWebDatabase.outputHistories.bulkAdd(values).then(() => {
+            TabSync.notify('outputHistories');
+          });
         });
       }
       context.commit('updateOutputHistories', values);
@@ -381,7 +393,9 @@ export default new Vuex.Store({
     updateQuests: (context, values: Quest[]) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.quests.clear().then(() => {
-          context.state.kcWebDatabase.quests.bulkAdd(values);
+          context.state.kcWebDatabase.quests.bulkAdd(values).then(() => {
+            TabSync.notify('quests');
+          });
         });
       }
       context.commit('updateQuests', values);
@@ -389,6 +403,7 @@ export default new Vuex.Store({
     updateSetting: (context, value: SiteSetting) => {
       if (!context.state.disabledDatabase) {
         context.state.kcWebDatabase.setting.put(value, 'setting');
+        TabSync.notify('setting');
       }
       context.commit('updateSetting', value);
     },
@@ -547,7 +562,9 @@ export default new Vuex.Store({
         if (setting) {
           context.commit('updateSetting', new SiteSetting(setting));
         } else {
-          context.commit('updateSetting', new SiteSetting());
+          const created = new SiteSetting();
+          await db.setting.put(created, 'setting');
+          context.commit('updateSetting', created);
         }
         context.commit('settingLoadCompleted', true);
       } catch (error) {

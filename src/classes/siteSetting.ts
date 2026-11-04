@@ -163,6 +163,9 @@ export default class SiteSetting {
   /** 最後にバックアップ通知を表示した日時 */
   public lastBackupPromptAt: number;
 
+  /** このブラウザで最初にサイトを開いた日時。0 は機能追加前からの利用者 */
+  public firstVisitedAt: number;
+
   constructor(setting?: SiteSetting) {
     if (setting) {
       this.id = setting.id;
@@ -214,6 +217,7 @@ export default class SiteSetting {
       this.importShipMinLevel = setting.importShipMinLevel ?? 1;
       this.lastBackupCreatedAt = setting.lastBackupCreatedAt ?? 0;
       this.lastBackupPromptAt = setting.lastBackupPromptAt ?? 0;
+      this.firstVisitedAt = setting.firstVisitedAt ?? 0;
 
       if (!setting.planeInitialLevels || !setting.planeInitialLevels.length) {
         this.planeInitialLevels = [
@@ -322,6 +326,7 @@ export default class SiteSetting {
       this.allowDataUse = true;
       this.lastBackupCreatedAt = 0;
       this.lastBackupPromptAt = 0;
+      this.firstVisitedAt = Date.now();
     }
   }
 }

@@ -1678,11 +1678,11 @@ export default Vue.extend({
         }
         if (this.visibleSpBomberFilter) {
           if (this.shipFilter.spBomberOK) {
-            // 水爆搭載可(Lateでテスト)
-            result = filterShip(result, [194]);
+            // 水爆搭載可(Late、Swordfish(水上機型)でテスト)
+            result = filterShip(result, [194, 367]);
           } else if (this.shipFilter.spBomberNG) {
-            // 水爆搭載不可(Lateでテスト)
-            result = filterShip(result, [194], true);
+            // 水爆搭載不可(Late、Swordfish(水上機型)でテスト)
+            result = filterShip(result, [194, 367], true);
           }
         }
         if (this.visibleFighterFilter) {

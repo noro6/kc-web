@@ -146,6 +146,29 @@
             <v-textarea class="mt-4" v-model.trim="inputText" outlined dense hide-details no-resize :label="$t('Database.反映エリア')" />
             <v-btn class="mt-4" color="primary" block @click="readJson()">{{ $t("Database.反映") }}</v-btn>
           </v-card>
+          <v-card class="tutorial_box">
+            <div class="mb-2">{{ $t("Database.共有URL発行機能") }}</div>
+            <div class="body-2">{{ $t("Database.自分の艦隊、装備情報を他の人に見てもらうためのURLを発行します。") }}</div>
+            <div class="body-2">
+              {{ $t("Database.発行された情報は閲覧専用です。発行されたURLを他人に公開しても、自分の艦娘や装備情報が書き換えられてしまうことはありません。") }}
+            </div>
+            <div class="body-2 mb-3">{{ $t("Database.閲覧する側は、共有された艦娘や装備情報を元に編成を作成することができます。") }}</div>
+            <div class="shared-url-container">
+              <v-btn color="primary" v-show="!createdURL" :loading="loadingURL" :disabled="loadingURL || !reflectedInSession" @click="requestURLKey()">
+                {{ $t("Database.共有URL作成") }}
+              </v-btn>
+              <div v-if="!reflectedInSession" class="body-2 mt-2 grey--text">{{ $t("Database.反映後に利用できます") }}</div>
+              <v-text-field
+                v-show="createdURL"
+                readonly
+                append-icon="mdi-content-copy"
+                v-model="createdURL"
+                :hint="copiedURLHint ? $t(`Common.${copiedURLHint}`) : ''"
+                @click:append="copyURL"
+                @blur="clearURLHint"
+              />
+            </div>
+          </v-card>
         </div>
       </v-tab-item>
       <v-tab-item>
@@ -449,6 +472,7 @@ export default Vue.extend({
     loading: false,
     successCopy: false,
     showHowToDoIt: false,
+    reflectedInSession: false,
     areaOverwriteConfirmDialog: false,
     readyImportShipStock: [] as ShipStock[],
     maxLevel: Const.MAX_LEVEL,
@@ -549,10 +573,12 @@ export default Vue.extend({
           this.inputText = '';
           return;
         }
+        this.reflectedInSession = true;
         this.$emit('inform', '在籍艦娘データの更新が完了しました。');
         this.loadingURL = false;
       } else if (this.setItemStock()) {
         // 所持装備データ読み込み試行
+        this.reflectedInSession = true;
         this.$emit('inform', '所持装備データの更新が完了しました。');
         this.loadingURL = false;
       } else {
@@ -570,6 +596,7 @@ export default Vue.extend({
       if (this.readyImportShipStock) {
         this.$store.dispatch('updateShipStock', this.readyImportShipStock);
         this.areaOverwriteConfirmDialog = false;
+        this.reflectedInSession = true;
         this.$emit('inform', '在籍艦娘データの更新が完了しました。');
         // 後始末と通知
         this.inputText = '';
@@ -591,6 +618,7 @@ export default Vue.extend({
         }
         this.$store.dispatch('updateShipStock', this.readyImportShipStock);
         this.areaOverwriteConfirmDialog = false;
+        this.reflectedInSession = true;
         this.$emit('inform', '在籍艦娘データの更新が完了しました。');
         // 後始末と通知
         this.inputText = '';
@@ -665,6 +693,7 @@ export default Vue.extend({
       const stockData = FirebaseManager.createFirebaseStockObject(shipStock, itemStock);
 
       if (!stockData.ships && !stockData.items) {
+        this.loadingURL = false;
         this.$emit('inform', '艦娘、装備情報が登録されていません。', true);
         return;
       }
@@ -681,6 +710,7 @@ export default Vue.extend({
         const db = getDatabase();
         const { key } = push(child(ref(db), 'stocks'));
         if (!key) {
+          this.loadingURL = false;
           this.$emit('inform', '共有URLの生成に失敗しました。', true);
           return;
         }
@@ -710,15 +740,18 @@ export default Vue.extend({
               })
               .catch((error) => {
                 console.error(error);
+                this.loadingURL = false;
                 this.$emit('inform', '共有URLの生成に失敗しました。', true);
               });
           })
           .catch((error) => {
             console.error(error);
+            this.loadingURL = false;
             this.$emit('inform', '共有URLの生成に失敗しました。', true);
           });
       } catch (error) {
         console.error(error);
+        this.loadingURL = false;
         this.$emit('inform', '共有URLの生成に失敗しました。', true);
       }
     },
@@ -751,10 +784,19 @@ export default Vue.extend({
       this.$emit('inform', '共有URLを生成しました。');
     },
     copyURL() {
+      const text = this.readOnlyMode && this.tempURL ? this.tempURL : this.createdURL;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.copiedURLHint = 'コピーされました。';
+        });
+        return;
+      }
       const textToCopy = document.getElementById('created-url') as HTMLInputElement;
-      textToCopy.select();
-      document.execCommand('copy');
-      this.copiedURLHint = 'コピーされました。';
+      if (textToCopy) {
+        textToCopy.select();
+        document.execCommand('copy');
+        this.copiedURLHint = 'コピーされました。';
+      }
     },
     clearURLHint() {
       this.copiedURLHint = '';

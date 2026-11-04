@@ -658,6 +658,32 @@
         </div>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="tabSyncNotice" width="520" persistent>
+      <v-card class="px-5 py-4">
+        <div>{{ $t("Home.他のタブでデータが更新されました") }}</div>
+        <v-divider class="my-3" />
+        <div class="body-2">{{ $t("Home.別のタブで編成や所持データが保存されたため、このタブの情報が古い可能性があります。") }}</div>
+        <div class="body-2 mt-1">{{ $t("Home.最新の状態に合わせるため、ページ再読み込みをしてください。") }}</div>
+        <div class="body-2 mt-3 text--secondary caption">{{ $t("Home.一応、下の無視ボタン押せば無視できますが、データがなんかおかしくなるかもしれません。") }}</div>
+        <v-divider class="my-4" />
+        <div class="d-flex justify-end">
+          <v-btn class="mr-2" color="primary" @click="reloadForTabSync">{{ $t("Home.再読み込み") }}</v-btn>
+          <v-btn color="secondary" @click="openTabSyncIgnoreConfirm">{{ $t("Home.無視") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="tabSyncIgnoreConfirm" width="480" persistent>
+      <v-card class="px-5 py-4">
+        <div>{{ $t("Home.ほんとに無視しますか？") }}</div>
+        <v-divider class="my-3" />
+        <div class="body-2">{{ $t("Home.このまま続けると、別タブで保存した内容と食い違ってデータが壊れるかもしれません。") }}</div>
+        <v-divider class="my-4" />
+        <div class="d-flex justify-end">
+          <v-btn class="mr-2" color="primary" @click="reloadForTabSync">{{ $t("Home.再読み込み") }}</v-btn>
+          <v-btn color="error" @click="confirmTabSyncIgnore">{{ $t("Home.無視する") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="backupPromptDialog" width="560" persistent>
       <v-card class="px-5 py-4">
         <div class="text-h6">{{ $t("Home.そろそろバックアップしませんか？") }}</div>
@@ -670,6 +696,28 @@
           <v-btn class="mr-2" color="primary" @click="backupNowFromPrompt()">{{ $t("Home.今すぐバックアップ") }}</v-btn>
           <v-btn color="error" @click="skipBackupPrompt()">{{ $t("Home.今回はスキップ") }}</v-btn>
         </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="releaseNoteDialog" width="600" scrollable>
+      <v-card>
+        <v-card-title class="d-flex align-center">
+          <v-icon class="mr-2" color="primary">mdi-new-box</v-icon>
+          <span>{{ $t("Home.サイトが更新されました") }}</span>
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pt-2">
+          <div v-if="!isJapanese" class="caption mt-2">{{ $t("Home.更新内容は日本語のみの提供です。") }}</div>
+          <release-note-list :releases="unreadReleases" />
+        </v-card-text>
+        <v-divider />
+        <v-card-actions>
+          <v-btn text small href="https://github.com/noro6/kc-web/releases" target="_blank" rel="noopener noreferrer">
+            <v-icon small>mdi-github</v-icon>
+            <span class="mx-1">GitHub Releases</span>
+          </v-btn>
+          <v-spacer />
+          <v-btn color="secondary" @click="releaseNoteDialog = false">{{ $t("Common.閉じる") }}</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="areaOverwriteConfirmDialog" transition="scroll-x-transition" width="700">
@@ -725,6 +773,8 @@ import ShareDialog from '@/components/saveData/ShareDialog.vue';
 import UploadSaveData from '@/components/saveData/UploadSaveData.vue';
 import SettingInitialLevel from '@/components/item/SettingInitialLevel.vue';
 import ShipImportDiff from '@/components/database/ShipImportDiff.vue';
+import ReleaseNoteList from '@/components/common/ReleaseNoteList.vue';
+import ReleaseNoteManager, { ReleaseNote } from '@/classes/releaseNote';
 import SaveData from '@/classes/saveData/saveData';
 import SiteSetting, { SiteTheme } from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
@@ -738,6 +788,7 @@ import Const, { AB_MODE } from './classes/const';
 import ShipStockDiff from './classes/fleet/shipStockDiff';
 import Airbase from './classes/airbase/airbase';
 import AirbaseInfo from './classes/airbase/airbaseInfo';
+import TabSync from './classes/tabSync';
 
 /** バックアップ通知の間隔 (1ヵ月) */
 const BACKUP_PROMPT_INTERVAL = 1000 * 60 * 60 * 24 * 30;
@@ -752,6 +803,7 @@ export default Vue.extend({
     SettingInitialLevel,
     UploadSaveData,
     SaveDataMobileTab,
+    ReleaseNoteList,
   },
   data: () => ({
     saveData: new SaveData(),
@@ -765,6 +817,9 @@ export default Vue.extend({
     readInform: false,
     readInformText: '',
     readResultColor: 'success',
+    tabSyncNotice: false,
+    tabSyncIgnoreConfirm: false,
+    unsubscribeTabSync: undefined as undefined | (() => void),
     setting: new SiteSetting(),
     editDialog: false,
     editedName: '',
@@ -789,6 +844,8 @@ export default Vue.extend({
     backupSelectDialog: false,
     backupPromptDialog: false,
     backupPromptChecked: false,
+    releaseNoteDialog: false,
+    unreadReleases: [] as ReleaseNote[],
     isImportSaveData: true,
     isImportShipData: true,
     isImportItemData: true,
@@ -909,6 +966,7 @@ export default Vue.extend({
           this.backupPromptChecked = true;
           this.$nextTick(() => {
             this.checkAutoBackupPrompt();
+            this.checkReleaseNotes();
           });
         }
       }
@@ -978,6 +1036,9 @@ export default Vue.extend({
     }
   },
   mounted() {
+    this.unsubscribeTabSync = TabSync.subscribe(() => {
+      this.tabSyncNotice = true;
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     w.loadShipData = this.setShipStock;
@@ -1032,6 +1093,12 @@ export default Vue.extend({
         return;
       }
 
+      // 初回訪問から1か月未満は出さない。0 は機能追加前からの利用者なので対象外。
+      const firstVisitedAt = this.setting.firstVisitedAt ?? 0;
+      if (firstVisitedAt && Date.now() - firstVisitedAt < BACKUP_PROMPT_INTERVAL) {
+        return;
+      }
+
       const lastActionAt = Math.max(this.setting.lastBackupCreatedAt ?? 0, this.setting.lastBackupPromptAt ?? 0);
       if (!lastActionAt || Date.now() - lastActionAt >= BACKUP_PROMPT_INTERVAL) {
         this.openBackupPrompt();
@@ -1045,6 +1112,24 @@ export default Vue.extend({
     backupNowFromPrompt() {
       this.downloadBackupFile();
       this.backupPromptDialog = false;
+    },
+    async checkReleaseNotes() {
+      // 他の通知と重ならないよう、出ている場合は既読にせず次回へ回す
+      if (this.backupPromptDialog) {
+        return;
+      }
+
+      const releases = await ReleaseNoteManager.fetchReleases(this.$store.state.siteVersion);
+      if (!releases.length || this.backupPromptDialog || this.tabSyncNotice) {
+        return;
+      }
+
+      const unread = ReleaseNoteManager.getUnreadReleases(releases, this.setting.firstVisitedAt ?? 0);
+      ReleaseNoteManager.markAsRead(releases[0].tag);
+      if (unread.length) {
+        this.unreadReleases = unread;
+        this.releaseNoteDialog = true;
+      }
     },
     async loadURLInformation() {
       // 展開待ち中のデータがあれば読み込んで消す
@@ -1830,10 +1915,24 @@ export default Vue.extend({
     scrollTop() {
       window.scroll({ top: 0, behavior: 'smooth' });
     },
+    reloadForTabSync() {
+      window.location.reload();
+    },
+    openTabSyncIgnoreConfirm() {
+      this.tabSyncNotice = false;
+      this.tabSyncIgnoreConfirm = true;
+    },
+    confirmTabSyncIgnore() {
+      this.tabSyncIgnoreConfirm = false;
+      this.tabSyncNotice = false;
+    },
   },
   beforeDestroy() {
     if (this.unsubscribe) {
       (this.unsubscribe as () => void)();
+    }
+    if (this.unsubscribeTabSync) {
+      this.unsubscribeTabSync();
     }
   },
   destroyed() {

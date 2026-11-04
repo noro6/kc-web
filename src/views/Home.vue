@@ -136,7 +136,17 @@
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-divider />
-              <div class="mt-4 ml-4 body-2 d-flex align-center">
+              <div class="mt-2">
+                <div v-if="releasesLoading" class="d-flex justify-center py-4">
+                  <v-progress-circular indeterminate size="24" />
+                </div>
+                <template v-else-if="releases.length">
+                  <div v-if="needTrans" class="caption mt-2">{{ $t("Home.更新内容は日本語のみの提供です。") }}</div>
+                  <release-note-list :releases="releases" />
+                </template>
+                <div v-else class="mt-2 body-2 text--secondary">{{ $t("Home.更新履歴を取得できませんでした。") }}</div>
+              </div>
+              <div class="mt-2 body-2 d-flex align-center">
                 <div class="mr-3">{{ $t("Home.雑です。") }}</div>
                 <v-btn text href="https://github.com/noro6/kc-web/releases" target="_blank" outlined small>
                   <v-icon>mdi-github</v-icon>
@@ -314,14 +324,25 @@ import Convert, { OldShipStockJson } from '@/classes/convert';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import ShipMaster from '@/classes/fleet/shipMaster';
+import ReleaseNoteManager, { ReleaseNote } from '@/classes/releaseNote';
+import ReleaseNoteList from '@/components/common/ReleaseNoteList.vue';
+
+/** ホーム画面に並べるリリース数 */
+const HOME_RELEASE_COUNT = 5;
 
 export default Vue.extend({
   name: 'TopPage',
+  components: {
+    ReleaseNoteList,
+  },
   mounted() {
     const saveData = this.$store.state.saveData as SaveData;
     saveData.disabledMain();
+    this.loadReleases();
   },
   data: () => ({
+    releases: [] as ReleaseNote[],
+    releasesLoading: true,
     created: false,
     imported: false,
     importConfirmDialog: false,
@@ -417,6 +438,11 @@ export default Vue.extend({
     },
   },
   methods: {
+    async loadReleases() {
+      const releases = await ReleaseNoteManager.fetchReleases(this.$store.state.siteVersion);
+      this.releases = releases.slice(0, HOME_RELEASE_COUNT);
+      this.releasesLoading = false;
+    },
     clickedButton(page: { url: string; clicked: boolean }) {
       if (page.clicked) return;
       switch (page.url) {

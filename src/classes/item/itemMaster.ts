@@ -298,9 +298,6 @@ export default class ItemMaster {
 
   /** 装備の日本wikiURLを返却 */
   public static getWikiURL(data: ItemMaster): string {
-    if (data.id === 144) {
-      return `https://wikiwiki.jp/kancolle/${encodeURI('天山(村田隊)')}`;
-    }
     if (data.id === 278) {
       return `https://wikiwiki.jp/kancolle/${encodeURI('SKレーダー')}`;
     }

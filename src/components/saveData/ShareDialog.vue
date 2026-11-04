@@ -61,14 +61,7 @@
         </v-btn>
       </div>
       <div class="my-6">
-        <v-btn
-          block
-          :dark="!!deckBuilder"
-          color="deep-purple darken-3"
-          :disabled="!deckBuilder"
-          :href="`http://kancolle-calc.net/deckbuilder.html?predeck=${encodeURIComponent(deckBuilder)}`"
-          target="_blank"
-        >
+        <v-btn block color="deep-purple darken-3" disabled>
           {{ $t("SaveData.デッキビルダーで開く") }}
         </v-btn>
       </div>
