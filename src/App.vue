@@ -658,29 +658,30 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="tabSyncNotice" width="520" persistent>
+    <v-snackbar :value="tabSyncNotice" timeout="-1" bottom right min-width="0">
+      <div class="d-flex flex-column align-center">
+        <div class="d-flex align-center caption">
+          <span>{{ $t("Home.他のタブでデータが更新されました") }}</span>
+          <v-btn icon x-small class="ml-1" @click="tabSyncHelpDialog = true">
+            <v-icon small>mdi-help-circle-outline</v-icon>
+          </v-btn>
+        </div>
+        <div class="d-flex mt-1">
+          <v-btn color="primary" tonal small class="mx-2" @click="reloadForTabSync">{{ $t("Home.再読み込み") }}</v-btn>
+          <v-btn color="secondary" small class="mx-2" @click="dismissTabSyncNotice">{{ $t("Home.無視") }}</v-btn>
+        </div>
+      </div>
+    </v-snackbar>
+    <v-dialog v-model="tabSyncHelpDialog" width="480">
       <v-card class="px-5 py-4">
         <div>{{ $t("Home.他のタブでデータが更新されました") }}</div>
         <v-divider class="my-3" />
-        <div class="body-2">{{ $t("Home.別のタブで編成や所持データが保存されたため、このタブの情報が古い可能性があります。") }}</div>
-        <div class="body-2 mt-1">{{ $t("Home.最新の状態に合わせるため、ページ再読み込みをしてください。") }}</div>
-        <div class="body-2 mt-3 text--secondary caption">{{ $t("Home.一応、下の無視ボタン押せば無視できますが、データがなんかおかしくなるかもしれません。") }}</div>
+        <div class="body-2">{{ $t("Home.別のタブで編成データが保存されたため、このタブの情報が古い可能性があります。") }}</div>
+        <div class="body-2 mt-2">{{ $t("Home.最新の状態に合わせるため、ページ再読み込みをしてください。") }}</div>
+        <div class="body-2 mt-2">{{ $t("Home.無視すると、別タブで保存した内容と食い違ってデータがおかしくなることがあります。") }}</div>
         <v-divider class="my-4" />
         <div class="d-flex justify-end">
-          <v-btn class="mr-2" color="primary" @click="reloadForTabSync">{{ $t("Home.再読み込み") }}</v-btn>
-          <v-btn color="secondary" @click="openTabSyncIgnoreConfirm">{{ $t("Home.無視") }}</v-btn>
-        </div>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="tabSyncIgnoreConfirm" width="480" persistent>
-      <v-card class="px-5 py-4">
-        <div>{{ $t("Home.ほんとに無視しますか？") }}</div>
-        <v-divider class="my-3" />
-        <div class="body-2">{{ $t("Home.このまま続けると、別タブで保存した内容と食い違ってデータが壊れるかもしれません。") }}</div>
-        <v-divider class="my-4" />
-        <div class="d-flex justify-end">
-          <v-btn class="mr-2" color="primary" @click="reloadForTabSync">{{ $t("Home.再読み込み") }}</v-btn>
-          <v-btn color="error" @click="confirmTabSyncIgnore">{{ $t("Home.無視する") }}</v-btn>
+          <v-btn color="secondary" @click="tabSyncHelpDialog = false">{{ $t("Common.閉じる") }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -818,7 +819,8 @@ export default Vue.extend({
     readInformText: '',
     readResultColor: 'success',
     tabSyncNotice: false,
-    tabSyncIgnoreConfirm: false,
+    tabSyncDismissed: false,
+    tabSyncHelpDialog: false,
     unsubscribeTabSync: undefined as undefined | (() => void),
     setting: new SiteSetting(),
     editDialog: false,
@@ -1036,8 +1038,12 @@ export default Vue.extend({
     }
   },
   mounted() {
-    this.unsubscribeTabSync = TabSync.subscribe(() => {
-      this.tabSyncNotice = true;
+    this.unsubscribeTabSync = TabSync.subscribe((scope) => {
+      // 編成データの保存だけを通知する。所持データや設定の更新では出さない
+      // 他タブの自動保存のたびに出し直すと邪魔なので、一度閉じたら再読み込みまで出さない
+      if (scope === 'savedata' && !this.tabSyncDismissed) {
+        this.tabSyncNotice = true;
+      }
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
@@ -1120,7 +1126,7 @@ export default Vue.extend({
       }
 
       const releases = await ReleaseNoteManager.fetchReleases(this.$store.state.siteVersion);
-      if (!releases.length || this.backupPromptDialog || this.tabSyncNotice) {
+      if (!releases.length || this.backupPromptDialog) {
         return;
       }
 
@@ -1918,13 +1924,10 @@ export default Vue.extend({
     reloadForTabSync() {
       window.location.reload();
     },
-    openTabSyncIgnoreConfirm() {
+    dismissTabSyncNotice() {
       this.tabSyncNotice = false;
-      this.tabSyncIgnoreConfirm = true;
-    },
-    confirmTabSyncIgnore() {
-      this.tabSyncIgnoreConfirm = false;
-      this.tabSyncNotice = false;
+      this.tabSyncHelpDialog = false;
+      this.tabSyncDismissed = true;
     },
   },
   beforeDestroy() {
