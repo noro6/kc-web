@@ -105,10 +105,22 @@
         @dragend.stop="dragEnd($event)"
         v-show="!isShow12 || i !== 2"
       >
-        <template v-if="fleetInfo.isUnion && i === 1 && isShow12">{{ $t("Fleet.連合艦隊") }}</template>
-        <template v-else-if="fleetInfo.isUnion && i === 1 && !isShow12">{{ $t("Fleet.主力艦隊") }}</template>
-        <template v-else-if="fleetInfo.isUnion && i === 2">{{ $t("Fleet.随伴艦隊") }}</template>
-        <template v-else>{{ $t("Fleet.第x艦隊", { number: i }) }}</template>
+        <span class="d-flex align-center">
+          <span>{{ fleetTabLabel(i) }}</span>
+          <v-tooltip v-if="canEditFleetName(i)" bottom color="black">
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                small
+                class="fleet-name-edit"
+                v-bind="attrs"
+                v-on="on"
+                @click.stop.prevent="openFleetNameDialog(i - 1)"
+                @mousedown.stop
+              >mdi-pencil</v-icon>
+            </template>
+            <span>{{ $t("Fleet.艦隊名を編集") }}</span>
+          </v-tooltip>
+        </span>
       </v-tab>
       <v-btn v-if="fleetCount < 28" large text tile @click="createNewFleet" class="btn-create-feet">{{ $t("Fleet.艦隊追加") }}</v-btn>
       <v-tab href="#gkcoi" @click="initializeOutput()">{{ $t("Fleet.画像出力") }}</v-tab>
@@ -624,6 +636,25 @@
         :is-mobile="isMobile"
       ></item-preset-component>
     </v-dialog>
+    <v-dialog v-model="fleetNameDialog" width="400">
+      <v-card class="pa-4">
+        <v-text-field
+          v-model.trim="fleetNameDraft"
+          dense
+          outlined
+          :counter="12"
+          maxlength="12"
+          :label="$t('Fleet.艦隊名')"
+          @keydown.enter.prevent="commitFleetName"
+          ref="fleetNameInput"
+        />
+        <div class="caption text--secondary">{{ $t("Fleet.空欄にすると「第n艦隊」に戻ります。") }}</div>
+        <div class="d-flex mt-4">
+          <v-btn class="ml-auto" color="primary" @click="commitFleetName">{{ $t("Common.OK") }}</v-btn>
+          <v-btn class="ml-3" color="secondary" @click="fleetNameDialog = false">{{ $t("Common.戻る") }}</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -769,8 +800,23 @@
   width: 140px;
 }
 
-.v-tab {
+.fleet-tabs-container.v-tabs:not(.v-tabs--vertical) >>> .v-tab {
+  font-size: 0.8125rem;
+  letter-spacing: 0;
+  min-width: 64px;
+  padding: 0 10px;
   text-transform: none;
+  white-space: nowrap;
+}
+
+.fleet-name-edit {
+  cursor: pointer;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+.fleet-name-edit:hover {
+  opacity: 1;
 }
 
 .btn-create-feet {
@@ -927,6 +973,11 @@ export default Vue.extend({
     sparkleMouseEvent: null as MouseEvent | null,
     backScrollY: 0,
     backScrollX: 0,
+    fleetNameDialog: false,
+    fleetNameDraft: '',
+    editingFleetIndex: -1,
+    swappedFleetTabIndex: -1,
+    suppressFleetTabChange: false,
   }),
   mounted() {
     if (this.$i18n.locale === 'en') {
@@ -1660,6 +1711,56 @@ export default Vue.extend({
 
       this.setInfo(new FleetInfo({ info: this.fleetInfo, fleetType: this.fleetInfo.fleetType, isUnion }));
     },
+    fleetTabLabel(index: number): string {
+      if (this.fleetInfo.isUnion && index === 1 && this.isShow12) {
+        return `${this.$t('Fleet.連合艦隊')}`;
+      }
+      if (this.fleetInfo.isUnion && index === 1) {
+        return `${this.$t('Fleet.主力艦隊')}`;
+      }
+      if (this.fleetInfo.isUnion && index === 2) {
+        return `${this.$t('Fleet.随伴艦隊')}`;
+      }
+      const name = this.fleetInfo.fleetNames[index - 1];
+      if (name) {
+        return name;
+      }
+      return `${this.$t('Fleet.第x艦隊', { number: index })}`;
+    },
+    canEditFleetName(index: number): boolean {
+      if (this.tab !== `fleet${index - 1}`) {
+        return false;
+      }
+      return !(this.fleetInfo.isUnion && (index === 1 || index === 2));
+    },
+    openFleetNameDialog(index: number) {
+      this.editingFleetIndex = index;
+      this.fleetNameDraft = this.fleetInfo.fleetNames[index] ?? '';
+      this.fleetNameDialog = true;
+      this.$nextTick(() => {
+        const input = this.$refs.fleetNameInput as Vue & { focus: () => void };
+        if (input) {
+          input.focus();
+        }
+      });
+    },
+    commitFleetName() {
+      const index = this.editingFleetIndex;
+      this.fleetNameDialog = false;
+      if (index < 0 || index >= this.fleetInfo.fleets.length) {
+        return;
+      }
+      const nextName = FleetInfo.normalizeFleetName(this.fleetNameDraft);
+      if (nextName === (this.fleetInfo.fleetNames[index] ?? '')) {
+        return;
+      }
+      const fleetNames = this.fleetInfo.fleetNames.concat();
+      while (fleetNames.length < this.fleetInfo.fleets.length) {
+        fleetNames.push('');
+      }
+      fleetNames[index] = nextName;
+      this.setInfo(new FleetInfo({ info: this.fleetInfo, fleetNames }));
+    },
     createNewFleet() {
       // 艦隊追加タブによる艦隊追加
       this.fleetInfo.fleets.push(new Fleet());
@@ -1670,7 +1771,8 @@ export default Vue.extend({
       // 艦隊追加タブによる艦隊追加
       this.tab = `fleet${index - 1}`;
       const newFleets = this.fleetInfo.fleets.filter((v, i) => i !== index);
-      const info = new FleetInfo({ info: this.fleetInfo, fleets: newFleets, mainFleetIndex: index - 1 });
+      const fleetNames = this.fleetInfo.fleetNames.filter((v, i) => i !== index);
+      const info = new FleetInfo({ info: this.fleetInfo, fleets: newFleets, fleetNames, mainFleetIndex: index - 1 });
       this.setInfo(info);
     },
     changedShow12() {
@@ -1683,8 +1785,15 @@ export default Vue.extend({
       }
     },
     changedTab() {
+      if (this.suppressFleetTabChange) {
+        this.suppressFleetTabChange = false;
+        return;
+      }
       if (this.tab && this.tab.includes('fleet')) {
         const index = +this.tab.replaceAll('fleet', '');
+        if (index === this.fleetInfo.mainFleetIndex) {
+          return;
+        }
         const info = new FleetInfo({ info: this.fleetInfo, mainFleetIndex: index });
         // 編成が変更されたわけではないので履歴への追加を起こさない
         info.ignoreHistory = true;
@@ -1772,15 +1881,20 @@ export default Vue.extend({
         this.capturing = false;
       }
     },
+    fleetTabElement(node: EventTarget | null): HTMLElement | null {
+      if (!(node instanceof Element)) {
+        return null;
+      }
+      return node.closest('.fleet-tab');
+    },
     dragStart(e: DragEvent) {
-      const target = e.target as HTMLDivElement;
-      if (target && target.classList && target.classList.contains('fleet-tab')) {
-        target.style.opacity = '0.4';
-        target.style.backgroundColor = 'rgba(20, 120, 255, 0.2)';
-        target.id = 'dragging-item';
-      } else {
+      const target = this.fleetTabElement(e.target);
+      if (!target) {
         return;
       }
+      target.style.opacity = '0.4';
+      target.style.backgroundColor = 'rgba(20, 120, 255, 0.2)';
+      target.id = 'dragging-item';
 
       const transfer = e.dataTransfer as DataTransfer;
       const rect = target.getBoundingClientRect();
@@ -1789,11 +1903,19 @@ export default Vue.extend({
       }
     },
     dragLeave(e: DragEvent) {
-      (e.target as HTMLDivElement).style.backgroundColor = '';
+      const target = this.fleetTabElement(e.target);
+      if (!target) {
+        return;
+      }
+      const related = e.relatedTarget;
+      if (related instanceof Node && target.contains(related)) {
+        return;
+      }
+      target.style.backgroundColor = '';
     },
     dragEnter(e: DragEvent): void {
       const draggingDiv = document.getElementById('dragging-item');
-      const target = e.target as HTMLDivElement;
+      const target = this.fleetTabElement(e.target);
       if (!draggingDiv || !target) {
         return;
       }
@@ -1808,8 +1930,11 @@ export default Vue.extend({
         return;
       }
 
-      // ドロップされる要素
-      const target = e.target as HTMLDivElement;
+      // ドロップされる要素。ラベルや編集アイコン上でもタブ自体を対象にする
+      const target = this.fleetTabElement(e.target);
+      if (!target) {
+        return;
+      }
       target.style.backgroundColor = '';
       if (target.id) {
         // 自身へのドロップ なにもなし
@@ -1834,15 +1959,39 @@ export default Vue.extend({
 
         this.fleetInfo.fleets[toIndex] = new Fleet({ fleet: fromFleet });
         this.fleetInfo.fleets[fromIndex] = new Fleet({ fleet: toFleet });
+
+        const names = this.fleetInfo.fleetNames.concat();
+        while (names.length < this.fleetInfo.fleets.length) {
+          names.push('');
+        }
+        const movedName = names[fromIndex];
+        names[fromIndex] = names[toIndex];
+        names[toIndex] = movedName;
+        this.fleetInfo.fleetNames.splice(0, this.fleetInfo.fleetNames.length, ...names);
+        // 12隻表示の第2艦隊タブは非表示なので、そこへ追従すると空の画面になる
+        this.swappedFleetTabIndex = this.isShow12 && toIndex === 1 ? -1 : toIndex;
       }
     },
     dragEnd(e: DragEvent) {
       // 後片付け
-      const target = e.target as HTMLDivElement;
-      if (target && target.classList && target.classList.contains('fleet-tab')) {
+      const target = this.fleetTabElement(e.target);
+      if (target) {
         target.style.opacity = '1';
         target.style.backgroundColor = '';
         target.id = '';
+      }
+
+      const movedIndex = this.swappedFleetTabIndex;
+      this.swappedFleetTabIndex = -1;
+      if (movedIndex >= 0) {
+        // タブ追従の change で履歴用の更新を上書きしない
+        this.suppressFleetTabChange = true;
+        this.tab = `fleet${movedIndex}`;
+        this.setInfo(new FleetInfo({ info: this.fleetInfo, mainFleetIndex: movedIndex }));
+        this.$nextTick(() => {
+          this.suppressFleetTabChange = false;
+        });
+        return;
       }
 
       this.setInfo(new FleetInfo({ info: this.fleetInfo }));

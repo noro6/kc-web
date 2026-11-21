@@ -15,11 +15,30 @@ export interface FleetInfoBuilder {
   mainFleetIndex?: number;
   /** 艦隊形式 */
   fleetType?: number;
+  /** 艦隊タブ名。空文字は未設定で、表示は「第n艦隊」に戻る */
+  fleetNames?: string[];
 }
 
 export default class FleetInfo {
+  /** 艦隊タブ名の最大文字数。全角も1文字 */
+  public static readonly FLEET_NAME_MAX_LENGTH = 12;
+
+  /**
+   * 保存・表示に使う艦隊名へ正規化する。
+   * 空、空白のみ、文字列でない値は未設定として空文字を返す。
+   */
+  public static normalizeFleetName(value: unknown): string {
+    if (typeof value !== 'string') {
+      return '';
+    }
+    return value.replace(/[\r\n]/g, '').trim().slice(0, FleetInfo.FLEET_NAME_MAX_LENGTH);
+  }
+
   /** 艦隊一覧 */
   public readonly fleets: Fleet[];
+
+  /** 艦隊タブ名。fleets と同じ長さ。空文字は未設定 */
+  public readonly fleetNames: string[];
 
   /** 連合艦隊？ */
   public readonly isUnion: boolean;
@@ -65,6 +84,14 @@ export default class FleetInfo {
         this.fleets.push(new Fleet());
       }
     }
+
+    const rawNames = builder.fleetNames ?? builder.info?.fleetNames;
+    const sourceNames = Array.isArray(rawNames) ? rawNames : [];
+    const fleetNames: string[] = [];
+    for (let i = 0; i < this.fleets.length; i += 1) {
+      fleetNames.push(FleetInfo.normalizeFleetName(sourceNames[i]));
+    }
+    this.fleetNames = fleetNames;
 
     // 艦隊形式がおかしそうなら矯正
     if (this.isUnion && !(this.fleetType === FLEET_TYPE.CTF || this.fleetType === FLEET_TYPE.STF || this.fleetType === FLEET_TYPE.TCF)) {

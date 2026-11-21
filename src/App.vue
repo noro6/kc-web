@@ -1395,6 +1395,14 @@ export default Vue.extend({
             }
           }
 
+          // タブ名はセーブデータの枠に残す。デッキビルダー側には名前がない
+          const baseNames = currentManager.fleetInfo.fleetNames ?? [];
+          const fleetNames: string[] = [];
+          for (let i = 0; i < newFleets.length; i += 1) {
+            fleetNames.push(FleetInfo.normalizeFleetName(baseNames[i]));
+          }
+          manager.fleetInfo.fleetNames.splice(0, manager.fleetInfo.fleetNames.length, ...fleetNames);
+
           // 今開いているデータが連合かどうか
           if (currentManager.fleetInfo.isUnion) {
             manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, isUnion: true, fleetType: currentManager.fleetInfo.fleetType });
