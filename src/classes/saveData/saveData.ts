@@ -93,6 +93,9 @@ export default class SaveData {
   /** 保存されていないデータ 新規追加されたやつ アプリ終了時に消しとばす => 残すことになった */
   public isUnsaved: boolean;
 
+  /** URLなどから読み込んだ外部データ 未保存の間はタブの「外部データ」フォルダーにまとめる */
+  public isExternal: boolean;
+
   /** 読み取り専用 専らルートディレクトリ直下の「保存されたデータ」ディレクトリだけ */
   public isReadonly: boolean;
 
@@ -146,6 +149,7 @@ export default class SaveData {
     this.tempData = [];
     this.tempIndex = -1;
     this.isUnsaved = true;
+    this.isExternal = false;
     this.tempSavedIndex = -1;
     this.isReadonly = false;
     this.editedDate = Date.now();
@@ -169,6 +173,8 @@ export default class SaveData {
     saveData.isActive = data.isActive;
     saveData.isOpen = data.isOpen;
     saveData.isUnsaved = false;
+    // isExternal が無いころに保存された外部データは、名前で見分ける
+    saveData.isExternal = data.isExternal ?? data.name === '外部データ';
     saveData.editedDate = data.editedDate;
     saveData.order = data.order ?? 0;
     saveData.activeOrder = data.activeOrder ?? 0;
@@ -269,7 +275,7 @@ export default class SaveData {
     const replacer = (key: unknown, v: unknown) => {
       if (v instanceof SaveData) {
         return {
-          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, editedDate: v.editedDate, color: v.color, order: v.order, activeOrder: v.activeOrder,
+          id: v.id, name: v.name, remarks: v.remarks, manager: v.manager, isDirectory: v.isDirectory, childItems: v.childItems, isOpen: v.isOpen, isActive: v.isActive, isExternal: v.isExternal, editedDate: v.editedDate, color: v.color, order: v.order, activeOrder: v.activeOrder,
         };
       }
       return v;
@@ -697,6 +703,7 @@ export default class SaveData {
   public static decodeURLSaveData(param: string): SaveData {
     const data = new SaveData();
     data.name = '外部データ';
+    data.isExternal = true;
     const json = LZString.decompressFromEncodedURIComponent(param);
     if (json) {
       data.manager = json;

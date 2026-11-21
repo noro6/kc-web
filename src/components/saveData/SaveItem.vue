@@ -8,7 +8,7 @@
     @dragleave.stop="dragLeave($event)"
     @dragstart.stop="dragStart($event)"
     @dragend.stop="dragEnd($event)"
-    v-if="!value.isUnsaved || value.name !== '外部データ'"
+    v-if="!value.isUnsaved || !value.isExternal"
   >
     <div
       v-ripple

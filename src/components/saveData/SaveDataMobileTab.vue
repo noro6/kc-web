@@ -49,7 +49,7 @@
                 @keypress.delete="handleCloseTab(saveData)"
               >
                 <v-icon small>mdi-file-import</v-icon>
-                <div class="save-data-name text-truncate">{{ $t("Common.外部データ") }} {{ i + 1 }}</div>
+                <div class="save-data-name text-truncate">{{ saveData.name !== "外部データ" ? saveData.name : `${$t("Common.外部データ")} ${i + 1}` }}</div>
                 <div class="ml-auto caption font-weight-bold">{{ externalWorlds[i] }}</div>
                 <v-btn icon @click.stop="handleCloseTab(saveData, $event)" small>
                   <v-icon small>mdi-close</v-icon>
@@ -221,7 +221,7 @@ export default Vue.extend({
       let activeData: SaveData[] = [];
       const data = this.saveData.childItems;
       for (let i = 0; i < data.length; i += 1) {
-        const actives = data[i].fetchActiveData().filter((v) => !v.isUnsaved || v.name !== '外部データ');
+        const actives = data[i].fetchActiveData().filter((v) => !v.isUnsaved || !v.isExternal);
         if (actives) {
           activeData = activeData.concat(actives);
         }
@@ -236,7 +236,7 @@ export default Vue.extend({
       let activeData: SaveData[] = [];
       const data = this.saveData.childItems;
       for (let i = 0; i < data.length; i += 1) {
-        const actives = data[i].fetchActiveData().filter((v) => v.isUnsaved && v.name === '外部データ');
+        const actives = data[i].fetchActiveData().filter((v) => v.isUnsaved && v.isExternal);
         if (actives) {
           activeData = activeData.concat(actives);
         }
@@ -288,7 +288,7 @@ export default Vue.extend({
       const isMain = this.externalData.some((v) => v.isMain);
 
       // 外部データのみ消し飛ばす
-      this.saveData.childItems = this.saveData.childItems.filter((v) => v.name !== '外部データ' || !v.isUnsaved);
+      this.saveData.childItems = this.saveData.childItems.filter((v) => !v.isExternal || !v.isUnsaved);
 
       if (isMain) {
         const actives = this.saveData.fetchActiveData();

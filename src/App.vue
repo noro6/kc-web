@@ -672,6 +672,15 @@
         </div>
       </div>
     </v-snackbar>
+    <v-snackbar :value="deckShareNotice" timeout="-1" bottom min-width="0">
+      <div class="d-flex flex-column align-center">
+        <div class="caption">{{ $t("Home.共有データの読み込みに失敗しました。") }}</div>
+        <div class="d-flex mt-1">
+          <v-btn color="primary" small class="mx-2" :loading="deckShareLoading" @click="loadDeckShare">{{ $t("Home.再試行") }}</v-btn>
+          <v-btn color="secondary" small class="mx-2" :disabled="deckShareLoading" @click="dismissDeckShareNotice">{{ $t("Home.無視") }}</v-btn>
+        </div>
+      </div>
+    </v-snackbar>
     <v-dialog v-model="tabSyncHelpDialog" width="480">
       <v-card class="px-5 py-4">
         <div>{{ $t("Home.他のタブでデータが更新されました") }}</div>
@@ -777,6 +786,7 @@ import ShipImportDiff from '@/components/database/ShipImportDiff.vue';
 import ReleaseNoteList from '@/components/common/ReleaseNoteList.vue';
 import ReleaseNoteManager, { ReleaseNote } from '@/classes/releaseNote';
 import SaveData from '@/classes/saveData/saveData';
+import DeckShare from '@/classes/saveData/deckShare';
 import SiteSetting, { SiteTheme } from '@/classes/siteSetting';
 import FirebaseManager from '@/classes/firebaseManager';
 import LZString from 'lz-string';
@@ -830,7 +840,10 @@ export default Vue.extend({
     selectedColor: '',
     saveDataOrder: 0,
     shareDialog: false,
-    urlParameters: {} as { data?: string; predeck?: string; stockid?: string },
+    urlParameters: {} as { data?: string; d?: string; predeck?: string; stockid?: string },
+    deckShareCode: '',
+    deckShareNotice: false,
+    deckShareLoading: false,
     urlFragments: {} as { predeck?: string; ships?: ShipStock[]; items?: ItemStock[]; saveData?: string },
     unsubscribe: undefined as unknown,
     rules: {
@@ -973,7 +986,7 @@ export default Vue.extend({
         }
       }
 
-      if (!this.urlParameters || !this.urlParameters.stockid) {
+      if (!this.urlParameters || (!this.urlParameters.stockid && !this.urlParameters.d)) {
         this.loading = !value;
       }
       this.disabledIndexedDB = this.$store.state.disabledDatabase;
@@ -1142,15 +1155,11 @@ export default Vue.extend({
       if (Object.keys(this.urlParameters).length) {
         if (this.urlParameters.data) {
           // 編成データ解析
-          const urlData = SaveData.decodeURLSaveData(this.urlParameters.data);
-          urlData.isMain = true;
-          urlData.isActive = true;
-          this.saveData.childItems.push(urlData);
-          this.$store.dispatch('setMainSaveData', urlData);
-          if (!this.isAirCalcPage) {
-            // ページ遷移
-            this.$router.push('aircalc');
-          }
+          this.openURLSaveData(SaveData.decodeURLSaveData(this.urlParameters.data));
+        } else if (this.urlParameters.d) {
+          // 共有URL 取得に失敗したら再試行できるよう、コードは残しておく
+          this.deckShareCode = this.urlParameters.d;
+          await this.loadDeckShare();
         } else if (this.urlParameters.predeck && this.loadAndOpenFromDeckBuilder(this.urlParameters.predeck)) {
           // デッキビルダー解析
           this.inform('編成の読み込みが完了しました。');
@@ -1402,6 +1411,7 @@ export default Vue.extend({
       } else {
         mainData = new SaveData();
         mainData.name = '外部データ';
+        mainData.isExternal = true;
         mainData.isActive = true;
         mainData.isMain = true;
         mainData.tempData = [manager];
@@ -1566,6 +1576,7 @@ export default Vue.extend({
           this.saveDataOrder = 0;
           newData.editedDate = Date.now();
           newData.isUnsaved = false;
+          newData.isExternal = false;
           newData.saveManagerData();
 
           let folder = this.saveData.childItems.find((v) => v.isDirectory);
@@ -1695,9 +1706,47 @@ export default Vue.extend({
         this.$store.dispatch('updateSetting', this.setting);
       }
     },
+    openURLSaveData(urlData: SaveData) {
+      urlData.isMain = true;
+      urlData.isActive = true;
+      this.saveData.childItems.push(urlData);
+      this.$store.dispatch('setMainSaveData', urlData);
+      if (!this.isAirCalcPage) {
+        // ページ遷移
+        this.$router.push('aircalc');
+      }
+    },
+    async loadDeckShare() {
+      this.deckShareLoading = true;
+      const result = await DeckShare.fetch(this.deckShareCode);
+      if (result.ok) {
+        const urlData = SaveData.decodeURLSaveData(result.data.manager);
+        if (result.data.name) {
+          urlData.name = result.data.name;
+        }
+        urlData.remarks = result.data.remarks;
+        this.openURLSaveData(urlData);
+        this.deckShareCode = '';
+        this.deckShareNotice = false;
+      } else if (result.status === 404) {
+        this.deckShareCode = '';
+        this.deckShareNotice = false;
+        this.inform('共有データが見つかりません。', true);
+      } else {
+        this.deckShareNotice = true;
+      }
+      this.deckShareLoading = false;
+      this.loading = false;
+    },
+    dismissDeckShareNotice() {
+      this.deckShareNotice = false;
+      this.deckShareCode = '';
+    },
     async clickedShare() {
       await (this.shareDialog = true);
-      (this.$refs.shareDialog as InstanceType<typeof ShareDialog>).createdURL = '';
+      const shareDialog = this.$refs.shareDialog as InstanceType<typeof ShareDialog>;
+      shareDialog.createdURL = '';
+      shareDialog.includeRemarks = true;
     },
     getUrlParams(value: string) {
       this.urlParameters = {};
