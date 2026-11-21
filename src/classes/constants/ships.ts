@@ -248,8 +248,8 @@ export const SHIP_SLOT_EQUIP_RESTRICTIONS: ShipSlotEquipRestriction[] = [
   {
     shipIds: [748, 749],
     slots: [4, 5],
-    deny: { apiTypeIds: [1, 2, 3, 4, 12, 13, 14, 15, 34, 40] },
-    note: '扶桑型改二補シリーズ 4,5スロットは主砲副砲電探対潜装備司令部は不可',
+    deny: { apiTypeIds: [1, 2, 3, 4, 10, 12, 13, 14, 15, 34, 40, 45] },
+    note: '扶桑型改二補シリーズ 4,5スロットは主砲/副砲/電探/対潜装備/司令部/水偵/水戦は不可',
   },
   {
     shipIds: [1071],

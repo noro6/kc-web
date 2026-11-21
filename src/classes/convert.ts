@@ -258,6 +258,8 @@ export default class Convert {
               radius: cellMaster.r,
             }));
           } else {
+            // マス一覧に無くても、基地の sp がこの戦闘を指せるようにセルidを残す
+            cellIds.push([cell.c]);
             enemyFleets.push(new EnemyFleet({ enemies, formation: cell.ef, mainFleetFormation: cell.pf }));
           }
         }
@@ -278,8 +280,10 @@ export default class Convert {
 
       // 艦娘情報の取得と生成
       const fleets: Fleet[] = [];
+      const fleetNames: string[] = [];
       for (let f = 1; f <= 4; f += 1) {
         const fleet = json[`f${f}` as 'f1' | 'f2' | 'f3' | 'f4'];
+        fleetNames.push(Convert.readDeckBuilderFleetName(fleet?.name, f));
         if (fleet) {
           const ships: Ship[] = [];
           for (let s = 1; s <= 7; s += 1) {
@@ -310,7 +314,7 @@ export default class Convert {
       info.airbaseInfo = new AirbaseInfo({ airbases });
       // 艦隊データ投入
       info.fleetInfo = new FleetInfo({
-        fleets, admiralLevel, isUnion, fleetType,
+        fleets, admiralLevel, isUnion, fleetType, fleetNames,
       });
       // 戦闘データ投入
       info.battleInfo = new BattleInfo({ info: sortieInfo });
@@ -698,12 +702,13 @@ export default class Convert {
     } as DeckBuilder;
     try {
       // 艦隊データ
-      const { fleets, fleetType } = manager.fleetInfo;
+      const { fleets, fleetType, fleetNames } = manager.fleetInfo;
       for (let i = 0; i < fleets.length; i += 1) {
         if (i >= 4) break;
         const ships = fleets[i].ships.filter((v) => v.isActive && !v.isEmpty);
         if (ships.length) {
-          const builder = { name: `第${i + 1}艦隊`, t: fleetType };
+          const customName = FleetInfo.normalizeFleetName(fleetNames[i]);
+          const builder = { name: customName || `第${i + 1}艦隊`, t: fleetType };
           Convert.setDeckBuilderFleet(builder, ships, includeStatus);
           deckBuilder[`f${i + 1}` as 'f1' | 'f2' | 'f3' | 'f4'] = builder;
         }
@@ -847,6 +852,22 @@ export default class Convert {
 
   private static getDeckBuilderAircraftCount(item: DeckBuilderItem, defaultSlot: number): number {
     return item.ac !== undefined && Number.isFinite(item.ac) && item.ac >= 0 ? Math.floor(item.ac) : defaultSlot;
+  }
+
+  /**
+   * デッキビルダーの艦隊名をタブ名として読む。
+   * 空欄と、形式側の定型名（第1艦隊 / 第一艦隊）は未設定として空文字を返す。
+   */
+  private static readDeckBuilderFleetName(value: unknown, fleetNumber: number): string {
+    const name = FleetInfo.normalizeFleetName(value);
+    if (!name || name === `第${fleetNumber}艦隊`) {
+      return '';
+    }
+    const kanji = ['一', '二', '三', '四'][fleetNumber - 1];
+    if (kanji && name === `第${kanji}艦隊`) {
+      return '';
+    }
+    return name;
   }
 
   /**

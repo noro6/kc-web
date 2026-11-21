@@ -1,4 +1,4 @@
-import { equal, ok } from 'node:assert/strict';
+import { deepEqual, equal, ok } from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import Convert from '../src/classes/convert';
 import CalcManager from '../src/classes/calcManager';
@@ -116,5 +116,103 @@ describe('DeckBuilder aircraft count', () => {
     const deck = Convert.createDeckBuilder(manager, []);
 
     equal(deck.f1?.s1?.items.i1.ac, 19);
+  });
+});
+
+describe('DeckBuilder fleet name', () => {
+  it('fx.name を艦隊タブ名として読み、定型名と12文字超は落とす', () => {
+    const converter = new Convert([], []);
+    const manager = converter.loadDeckBuilder(JSON.stringify({
+      version: 4,
+      hqlv: 120,
+      f1: {
+        name: 'うおおお',
+        s1: {
+          id: 1, lv: 99, luck: -1, items: {},
+        },
+      },
+      f2: {
+        name: '  第二艦隊  ',
+        s1: {
+          id: 1, lv: 99, luck: -1, items: {},
+        },
+      },
+      f3: {
+        name: '第3艦隊',
+        s1: {
+          id: 1, lv: 99, luck: -1, items: {},
+        },
+      },
+      f4: {
+        name: 'あいうえおかきくけこさしすせそ',
+        s1: {
+          id: 1, lv: 99, luck: -1, items: {},
+        },
+      },
+    }));
+
+    ok(manager);
+    equal(manager.fleetInfo.fleetNames[0], 'うおおお');
+    equal(manager.fleetInfo.fleetNames[1], '');
+    equal(manager.fleetInfo.fleetNames[2], '');
+    equal(manager.fleetInfo.fleetNames[3], 'あいうえおかきくけこさし');
+  });
+
+  it('名前がない艦隊は空文字のまま', () => {
+    const converter = new Convert([], []);
+    const manager = converter.loadDeckBuilder(JSON.stringify({
+      version: 4,
+      hqlv: 120,
+      f1: {
+        s1: {
+          id: 1, lv: 99, luck: -1, items: {},
+        },
+      },
+    }));
+
+    ok(manager);
+    equal(manager.fleetInfo.fleetNames[0], '');
+  });
+
+  it('出力時は設定済みの艦隊名を書き、未設定は定型名にする', () => {
+    const shipMaster = createShipMaster();
+    const manager = new CalcManager();
+    const ship = new Ship({ master: shipMaster });
+    manager.fleetInfo = new FleetInfo({
+      fleets: [new Fleet({ ships: [ship] }), new Fleet({ ships: [ship] })],
+      fleetNames: ['うおおお', ''],
+      admiralLevel: 120,
+    });
+
+    const deck = Convert.createDeckBuilder(manager, []);
+
+    equal(deck.f1?.name, 'うおおお');
+    equal(deck.f2?.name, '第2艦隊');
+  });
+});
+
+describe('DeckBuilder airbase target', () => {
+  it('海域マスタが無くても sp のセルidで2戦目へ向ける', () => {
+    const converter = new Convert([], []);
+    const manager = converter.loadDeckBuilder(JSON.stringify({
+      version: 4,
+      hqlv: 120,
+      a1: {
+        mode: 1,
+        items: {},
+        sp: [1, 1],
+      },
+      s: {
+        a: 0,
+        i: 0,
+        c: [
+          { c: 0, pf: 1, ef: 1, f1: { s: [{ id: 1, items: [] }] } },
+          { c: 1, pf: 1, ef: 1, f1: { s: [{ id: 1, items: [] }] } },
+        ],
+      },
+    }));
+
+    ok(manager);
+    deepEqual(manager.airbaseInfo.airbases[0].battleTarget, [1, 1]);
   });
 });

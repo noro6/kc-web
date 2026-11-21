@@ -605,7 +605,7 @@
               <v-icon v-if="row.selected" color="primary">mdi-checkbox-outline</v-icon>
               <v-icon v-else color="secondary">mdi-checkbox-blank-outline</v-icon>
             </div>
-            <div class="align-self-end body-2 ml-3">{{ $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
+            <div class="align-self-end body-2 ml-3">{{ row.name || $t("Fleet.第x艦隊", { number: i + 1 }) }}</div>
             <div class="align-self-end caption ml-auto">{{ $t("Common.支援") }} {{ row.supportTypeName }}</div>
           </div>
           <div class="d-flex flex-wrap">
@@ -867,7 +867,7 @@ export default Vue.extend({
     isImportURLData: true,
     disabledIndexedDB: false,
     fleetSelectDialog: false,
-    selectableFleets: [] as { selected: boolean; fleet: Fleet; supportTypeName: string }[],
+    selectableFleets: [] as { selected: boolean; fleet: Fleet; name: string; supportTypeName: string }[],
     tempManager: undefined as undefined | CalcManager,
     fileColors: Const.FILE_COLORS,
     areaOverwriteConfirmDialog: false,
@@ -1298,6 +1298,7 @@ export default Vue.extend({
             this.selectableFleets.push({
               selected: i === 0,
               fleet,
+              name: manager.fleetInfo.fleetNames[i] ?? '',
               supportTypeName: fleet
                 .getSupportTypeNames()
                 .map((v) => this.$t(`Result.${v}`))
@@ -1343,9 +1344,11 @@ export default Vue.extend({
       if (!manager) {
         return;
       }
-      const fleets = this.selectableFleets.filter((v) => v.selected).map((v) => v.fleet);
-      // 選択された艦隊で置き換え
-      manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets });
+      const selectedFleets = this.selectableFleets.filter((v) => v.selected);
+      const fleets = selectedFleets.map((v) => v.fleet);
+      const fleetNames = selectedFleets.map((v) => v.name);
+      // 選択された艦隊で置き換え。名前は選んだ艦隊に揃える
+      manager.fleetInfo = new FleetInfo({ info: manager.fleetInfo, fleets, fleetNames });
       this.expandCalcManager(manager);
       this.fleetSelectDialog = false;
       this.inform('デッキビルダー形式編成データを読み込みました。');
@@ -1395,11 +1398,13 @@ export default Vue.extend({
             }
           }
 
-          // タブ名はセーブデータの枠に残す。デッキビルダー側には名前がない
+          // デッキビルダーに名前があればそれを使い、なければ今のタブ名を残す
+          const importedNames = manager.fleetInfo.fleetNames ?? [];
           const baseNames = currentManager.fleetInfo.fleetNames ?? [];
           const fleetNames: string[] = [];
           for (let i = 0; i < newFleets.length; i += 1) {
-            fleetNames.push(FleetInfo.normalizeFleetName(baseNames[i]));
+            const importedName = FleetInfo.normalizeFleetName(importedNames[i]);
+            fleetNames.push(importedName || FleetInfo.normalizeFleetName(baseNames[i]));
           }
           manager.fleetInfo.fleetNames.splice(0, manager.fleetInfo.fleetNames.length, ...fleetNames);
 

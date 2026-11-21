@@ -152,6 +152,25 @@
                   https://noro6.github.io/kc-web#import:{"predeck":{...},"ships":[{"api_ship_id":1,"api_lv":1,"api_kyouka":[0,0,0,0,0,0,0],"api_exp":[0,100,0],"api_slot_ex":0,"api_sally_area":0}],"items":[{"api_slotitem_id":1,"api_level":10}]}
                 </div>
               </div>
+              <div class="mt-6">
+                <div class="d-flex align-center flex-wrap">
+                  <div>{{ $t("Home.このサイトが読み込めるデッキビルダー形式の例です。") }}</div>
+                  <v-btn class="ml-auto" small text @click="copyDeckBuilderSample">
+                    <v-icon small left>{{ deckSampleCopied ? 'mdi-check' : 'mdi-content-copy' }}</v-icon>
+                    {{ deckSampleCopied ? $t("Common.コピーされました。") : $t("Common.コードをコピー") }}
+                  </v-btn>
+                </div>
+                <pre class="deck-sample mt-1">{{ deckBuilderSample }}</pre>
+                <section v-for="group in deckBuilderNoteGroups" :key="group.title" class="deck-note-group">
+                  <div class="deck-note-title">{{ $t(group.title) }}</div>
+                  <ul class="deck-sample-notes">
+                    <li v-for="note in group.notes" :key="`${group.title}-${note.label}`">
+                      <span class="deck-sample-key">{{ note.label }}</span>
+                      <span>{{ $t(note.text) }}</span>
+                    </li>
+                  </ul>
+                </section>
+              </div>
             </v-expansion-panel-content>
           </v-expansion-panel>
           <v-expansion-panel>
@@ -526,6 +545,52 @@
   opacity: 0.85;
 }
 
+.deck-sample {
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  color: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(128, 128, 128, 0.28);
+  border-radius: 8px;
+}
+.theme--dark .deck-sample {
+  background: rgba(0, 0, 0, 0.28);
+}
+.deck-note-group {
+  margin-top: 14px;
+}
+.deck-note-title {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.deck-sample-notes {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.deck-sample-notes li {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 2px 14px;
+  align-items: baseline;
+}
+.deck-sample-key {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+.deck-sample-notes li span:last-child {
+  opacity: 0.78;
+}
+
 .info-area {
   margin-top: 32px;
   padding-top: 14px;
@@ -580,6 +645,174 @@ import ReleaseNoteList from '@/components/common/ReleaseNoteList.vue';
 /** ホーム画面に並べるリリース数 */
 const HOME_RELEASE_COUNT = 5;
 
+/** サイト連携に載せる、このサイトが読み込むデッキビルダー形式の例 */
+const DECK_BUILDER_SAMPLE = `{
+  "version": 4,
+  "hqlv": 120,
+  "f1": {
+    "name": "春雨艦隊",
+    "t": 0,
+    "s1": {
+      "id": 975,
+      "lv": 188,
+      "luck": 79,
+      "hp": 37,
+      "asw": 132,
+      "exa": true,
+      "items": {
+        "i1": { "id": 577, "rf": 10 },
+        "i2": { "id": 577, "rf": 10 },
+        "i3": { "id": 577, "rf": 10 },
+        "ix": { "id": 412, "rf": 10 }
+      },
+      "spi": [{ "kind": 1, "fp": 0, "tp": 1, "ar": 1, "ev": 0 }]
+    },
+    "s2": {
+      "id": 975,
+      "lv": 188,
+      "luck": -1,
+      "items": {
+        "i1": { "id": 529, "rf": 10 }
+      }
+    }
+  },
+  "f2": {
+    "name": "支援",
+    "s1": {
+      "id": 975,
+      "lv": 188,
+      "luck": -1,
+      "items": {
+        "i1": { "id": 529, "rf": 10 }
+      }
+    }
+  },
+  "a1": {
+    "name": "第1基地航空隊",
+    "mode": 1,
+    "items": {
+      "i1": { "id": 312, "rf": 2, "mas": 7, "ac": 4 },
+      "i2": { "id": 225, "rf": 0, "mas": 7, "ac": 18 },
+      "i3": { "id": 484, "rf": 10, "mas": 7, "ac": 18 },
+      "i4": { "id": 484, "rf": 10, "mas": 7, "ac": 18 }
+    },
+    "sp": [1, 1]
+  },
+  "a2": {
+    "name": "第2基地航空隊",
+    "mode": 2,
+    "items": {
+      "i1": { "id": 312, "rf": 0, "mas": 7, "ac": 4 }
+    }
+  },
+  "s": {
+    "a": 0,
+    "i": 0,
+    "c": [
+      {
+        "c": 0,
+        "pf": 1,
+        "ef": 1,
+        "f1": {
+          "s": [
+            { "id": 1512, "items": [{ "id": 1519 }, { "id": 1523 }, { "id": 1516 }] },
+            { "id": 1513, "items": [{ "id": 1519 }] }
+          ]
+        }
+      },
+      {
+        "c": 1,
+        "pf": 1,
+        "ef": 1,
+        "f1": {
+          "s": [
+            { "id": 1512, "items": [{ "id": 1519 }, { "id": 1523 }, { "id": 1516 }] },
+            { "id": 1513, "items": [{ "id": 1519 }] }
+          ]
+        }
+      }
+    ]
+  }
+}`;
+
+const DECK_BUILDER_NOTE_GROUPS = [
+  {
+    title: 'Home.デッキ例の全体',
+    notes: [
+      { label: 'version', text: 'Home.形式のバージョンです。このサイトは数値を見ていません。' },
+      { label: 'hqlv', text: 'Home.司令部レベルです。無いときは 120 です。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の艦隊',
+    notes: [
+      { label: 'name', text: 'Home.艦隊名です。空欄と、「第1艦隊」「第一艦隊」のような定型名は未設定になり、12文字で切ります。' },
+      { label: 't', text: 'Home.f1 だけ見ます。0 が通常艦隊、1 が空母機動部隊、2 が水上打撃部隊、3 が輸送護衛部隊です。1 以上で連合になります。' },
+      { label: 's1〜s7', text: 'Home.艦娘の位置です。s7 は7隻目で、空の枠は s6 まで作ります。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の艦娘',
+    notes: [
+      { label: 'id', text: 'Home.艦娘idです。' },
+      { label: 'lv', text: 'Home.レベルです。無いときは 99 です。' },
+      { label: 'luck', text: 'Home.運です。0 以下か無いときは、素の運です。' },
+      { label: 'hp', text: 'Home.耐久です。0 以下か無いときは、レベルに応じた素の耐久です。' },
+      { label: 'asw', text: 'Home.表示対潜です。装備と改修を除いた差分を、対潜改修として取り込みます。0 以下は見ません。' },
+      { label: 'exa', text: 'Home.補強増設を開放しているとき true です。' },
+      { label: 'items', text: 'Home.装備です。' },
+      { label: 'spi', text: 'Home.spi の先頭の kind だけ見ます。1 が海色リボン、2 が白たすきです。fp などの数値は見ません。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の装備',
+    notes: [
+      { label: 'i1〜', text: 'Home.スロット順の装備です。艦娘はマスタのスロット数まで、基地は i1 から i4 まで読みます。' },
+      { label: 'ix', text: 'Home.補強増設です。スロット数+1 のキーでも読めます。' },
+      { label: 'id', text: 'Home.装備idです。' },
+      { label: 'rf', text: 'Home.改修値です。' },
+      { label: 'mas', text: 'Home.熟練度です。0 がなし、1 から 7 が熟練度です。' },
+      { label: 'ac', text: 'Home.搭載数です。無いときは、艦娘はマスタの搭載数、基地は機種ごとの既定値です。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の基地',
+    notes: [
+      { label: 'name', text: 'Home.基地名です。このサイトでは読み込みません。' },
+      { label: 'mode', text: 'Home.0 が待機、1 が出撃、2 が防空です。' },
+      { label: 'items', text: 'Home.基地の装備です。項目は艦娘の装備と同じです。' },
+      { label: 'sp', text: 'Home.第1波と第2波の派遣先です。出撃 s のセル c と一致する戦闘へ送り、一致しなければ最後の戦闘です。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の出撃',
+    notes: [
+      { label: 'a', text: 'Home.海域idです。' },
+      { label: 'i', text: 'Home.マップidです。' },
+      { label: 'c', text: 'Home.セルの配列です。並びが戦闘順になります。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例のセル',
+    notes: [
+      { label: 'c', text: 'Home.セルidです。a と i と組んで、このサイトのマス一覧を引きます。1-1 の A なら a が 1、i が 1、c が 1、2026夏 E-1 の A なら a が 62、i が 1、c が 1 です。当たるとマス名と戦闘形式と半径が入り、当たらないときは敵と陣形だけ入ります。' },
+      { label: 'pf', text: 'Home.味方陣形です。1 単縦、2 複縦、3 輪形、4 梯形、5 単横、6 警戒、11 第一警戒、12 第二警戒、13 第三警戒、14 第四警戒です。最後のセルの値が、艦隊の陣形にもなります。' },
+      { label: 'ef', text: 'Home.敵陣形です。番号は pf と同じです。' },
+      { label: 'f1', text: 'Home.敵の第1艦隊です。先頭から 6 隻まで、id があるものだけ読みます。' },
+      { label: 'f2', text: 'Home.敵の第2艦隊です。id がある敵艦を随伴として読みます。' },
+    ],
+  },
+  {
+    title: 'Home.デッキ例の敵',
+    notes: [
+      { label: 'id', text: 'Home.敵艦idです。' },
+      { label: 'items', text: 'Home.敵の装備idです。このサイトでは読み込みません。' },
+    ],
+  },
+];
+
+let deckSampleCopyTimer = 0;
+
 const CARD_ACCENT: Record<string, string> = {
   green: '#22c55e',
   blue: '#3b82f6',
@@ -611,6 +844,9 @@ export default Vue.extend({
     importFileName: '引き継ぎデータ',
     confirmDialog: false,
     importedStock: false,
+    deckBuilderSample: DECK_BUILDER_SAMPLE,
+    deckBuilderNoteGroups: DECK_BUILDER_NOTE_GROUPS,
+    deckSampleCopied: false,
     mainPages: [
       {
         title: 'Home.制空権シミュレータ',
@@ -707,6 +943,35 @@ export default Vue.extend({
     },
     accentOf(color: string): string {
       return CARD_ACCENT[color] || '#94a3b8';
+    },
+    copyDeckBuilderSample() {
+      const showCopied = () => {
+        this.deckSampleCopied = true;
+        window.clearTimeout(deckSampleCopyTimer);
+        deckSampleCopyTimer = window.setTimeout(() => {
+          this.deckSampleCopied = false;
+        }, 1600);
+      };
+      const text = this.deckBuilderSample;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showCopied).catch(() => {
+          this.copyDeckBuilderSampleByTextarea(text, showCopied);
+        });
+        return;
+      }
+      this.copyDeckBuilderSampleByTextarea(text, showCopied);
+    },
+    copyDeckBuilderSampleByTextarea(text: string, done: () => void) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', 'true');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      document.body.removeChild(area);
+      done();
     },
     pageLead(page: { text?: string | string[] }): string {
       const { text } = page;
