@@ -257,6 +257,12 @@ export const SHIP_SLOT_EQUIP_RESTRICTIONS: ShipSlotEquipRestriction[] = [
     deny: { apiTypeIds: [1, 2, 5, 10, 11, 45] },
     note: '北上改三 5スロットは主砲魚雷水偵水爆は不可',
   },
+  {
+    shipIds: [978],
+    slots: [3],
+    deny: { apiTypeIds: [2] },
+    note: 'Thonburi改 3スロットは中口径主砲不可',
+  },
 ];
 
 /**
