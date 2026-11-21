@@ -601,11 +601,11 @@ export default class SaveData {
         if (v.level) data.lv = v.level;
         if (v.exItem) data.ex = v.exItem;
         if (v.antiAir) data.aa = v.antiAir;
+        if (v.spEffectItemId) data.sp = v.spEffectItemId;
         if (!isURLData) {
-          // URLでの出力情報には載せないもの
+          // 札と所持艦の識別子は、URLでの出力には載せない
           if (v.area > 0) data.ar = v.area;
           if (v.uniqueId) data.un = v.uniqueId;
-          if (v.spEffectItemId) data.sp = v.spEffectItemId;
         }
         return data;
       }

@@ -1,6 +1,6 @@
 /**
  * ItemBonus まわりのユニットテスト（未実装）。
- * 実装する場合は `npm run test:item-bonus` で実行。
+ * tests/*.test.ts には含めず、実装する場合は `npm run test:item-bonus` で実行。
  */
 import { describe, it } from 'node:test';
 
