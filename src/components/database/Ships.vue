@@ -474,20 +474,17 @@
               </template>
             </v-data-table>
           </v-card>
-          <div v-else-if="viewShips.length">
+          <div v-else-if="viewShips.length" class="analysis-board">
             <!-- 艦隊分析表示 -->
-            <div class="d-flex flex-wrap">
-              <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container pa-1 pa-sm-2 mb-2 mr-sm-2">
-                <div class="mx-2 mt-1">{{ getShipTypeName(typeData.typeName) }}</div>
-                <div class="type-divider" />
-                <div class="ship-cards">
-                  <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card ma-sm-1 px-1 px-sm-2 pt-1">
-                    <div v-for="(row, i) in outer" :key="`row_${i}`" class="mt-1 mb-2">
-                      <div class="d-flex">
-                        <div class="ship-name text-truncate">{{ getShipName(row.master) }}</div>
-                        <v-spacer />
-                        <div v-if="row.count" class="caption align-self-end text-no-wrap">{{ $t("Database.在籍") }} {{ row.count }}</div>
-                      </div>
+            <div v-for="(typeData, x) in altViewShips" :key="`type_row${x}`" class="type-container">
+              <div class="type-name">{{ getShipTypeName(typeData.typeName) }}</div>
+              <div class="ship-cards">
+                <div v-for="(outer, y) in typeData.rows" :key="`outer_row_${y}`" class="ship-card">
+                  <div v-for="(row, i) in outer" :key="`row_${i}`" class="ship-block">
+                    <div class="ship-card-head">
+                      <div class="ship-name text-truncate">{{ getShipName(row.master) }}</div>
+                      <div v-if="row.count" class="ship-count">{{ $t("Database.在籍") }} {{ row.count }}</div>
+                    </div>
                       <div class="status-img" :class="{ no_ship: row.count === 0, 'avoid-spoiler': isAvoidSpoiler }">
                         <img class="status-img" :src="`./img/ship/banner/${row.master.id}.png`" :alt="`ship-${row.master.id}`" />
                       </div>
@@ -570,7 +567,6 @@
                 </div>
               </div>
             </div>
-          </div>
           <div class="mt-2" v-if="modeTable && viewShips.length">
             <v-pagination v-model="page" :length="pageLength" />
           </div>
@@ -856,7 +852,7 @@
 }
 .ship-card .ship-tr:hover {
   color: #000;
-  background-color: rgba(255, 242, 128, 0.753);
+  background-color: rgba(255, 242, 128, 0.92);
 }
 
 .ship-table >>> th,
@@ -1033,65 +1029,102 @@
 }
 
 .type-container {
-  border-radius: 0.25rem;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  width: max-content;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(22, 26, 34, 0.16);
+  border-radius: 12px;
   background-color: #fff;
+  box-shadow: 0 1px 3px rgba(16, 20, 28, 0.08);
 }
 .theme--dark .type-container {
-  background-color: rgba(128, 128, 128, 0.1);
+  background-color: #2a2f3a;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
 }
-.type-divider {
-  width: 100%;
-  height: 1px;
-  background-color: #64b4ff;
-  margin-bottom: 0.25rem;
+.deep-sea .theme--dark .type-container {
+  background-color: #1b2430;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.type-name {
+  margin: 2px 4px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+.analysis-board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
 }
 .ship-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 4px;
-  row-gap: 4px;
-}
-@media (min-width: 560px) {
-  .ship-cards {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
-@media (min-width: 600px) {
-  .ship-cards {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: unset;
-    row-gap: unset;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
 }
 .ship-card {
-  border-radius: 0.25rem;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+  width: 160px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(22, 26, 34, 0.18);
+  border-radius: 8px;
+  background-color: #f7f8fa;
+  box-shadow: 0 1px 2px rgba(16, 20, 28, 0.08);
 }
 .theme--dark .ship-card {
-  background-color: rgba(128, 128, 128, 0.2);
+  background-color: #3a4150;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+.deep-sea .theme--dark .ship-card {
+  background-color: #243140;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.ship-block + .ship-block {
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+}
+.ship-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 10px;
 }
 .ship-card .ship-name {
-  flex-grow: 1;
-  width: 100px;
-  font-size: 12px;
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
 }
-@media (min-width: 600px) {
-  .ship-card .ship-name {
-    font-size: unset;
-  }
+.ship-count {
+  flex: none;
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+  opacity: 0.72;
 }
-
 .detail-row {
   display: flex;
   position: relative;
   align-items: center;
   justify-content: space-between;
+  min-height: 28px;
+  padding: 1px 2px 1px 4px;
 }
 .status-img {
-  height: 40px;
-  width: 160px;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.status-img img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 .basic-status-cols {
   display: grid;
@@ -1109,9 +1142,14 @@
   text-align: right;
 }
 @media (min-width: 600px) {
-  .status-img {
-    height: 60px;
+  .ship-card {
     width: 240px;
+  }
+  .type-name {
+    font-size: 15px;
+  }
+  .ship-card .ship-name {
+    font-size: 14px;
   }
   .basic-status-cols {
     display: flex;

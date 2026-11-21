@@ -1,60 +1,87 @@
 <template>
   <div>
-    <div class="d-flex align-end content">
-      <div>{{ $t("Common.制空権シミュレータ") }}</div>
-      <div class="ml-1 body-2">v{{ $store.state.siteVersion }}</div>
-    </div>
-    <div class="content">
-      <div class="body-2">{{ $t("Home.メインメニュー") }}</div>
-      <v-divider></v-divider>
-      <div class="main-content-buttons">
-        <v-tooltip left bottom color="black" max-width="400px" open-delay="500" v-for="page in mainPages" :key="page.title" :disabled="!page.text">
+    <div class="home">
+      <header class="home-hero">
+        <div>
+          <h1 class="home-title">{{ $t("Common.制空権シミュレータ") }}</h1>
+        </div>
+        <button type="button" class="version-pill" :title="$t('Home.更新履歴')" @click="releaseDialog = true">v{{ $store.state.siteVersion }}</button>
+      </header>
+
+      <div class="section-head">{{ $t("Home.メインメニュー") }}</div>
+      <div class="main-grid">
+        <div class="nav-slot" :class="{ 'nav-slot--feature': index === 0 }" v-for="(page, index) in mainPages" :key="page.title">
+        <v-tooltip
+          bottom
+          color="black"
+          max-width="400px"
+          open-delay="400"
+          :disabled="!page.text"
+        >
           <template v-slot:activator="{ on, attrs }">
             <button
-              class="content-button"
+              class="nav-card"
+              :class="{ 'nav-card--feature': index === 0 }"
+              :style="{ '--accent': accentOf(page.color) }"
               v-bind="attrs"
               v-on="on"
               v-ripple="{ class: `${page.color}--text` }"
               @click="clickedButton(page)"
               :disabled="page.clicked"
             >
-              <div>
-                <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
+              <div class="nav-icon">
+                <v-icon>{{ page.icon }}</v-icon>
               </div>
-              <div class="content-button-title">{{ $t(`${page.title}`) }}</div>
+              <div class="nav-card-body">
+                <div class="nav-card-title-row">
+                  <div class="nav-card-title">{{ $t(`${page.title}`) }}</div>
+                  <v-icon class="nav-go" size="18">mdi-chevron-right</v-icon>
+                </div>
+                <div class="nav-card-desc" v-if="page.text">{{ pageLead(page) }}</div>
+              </div>
             </button>
           </template>
           <div v-if="page.text">
             <div v-for="t in page.text" :key="t">{{ $t(`${t}`) }}</div>
           </div>
         </v-tooltip>
+        </div>
       </div>
-      <div class="mt-4 body-2">{{ $t("Home.おまけ") }}</div>
-      <v-divider></v-divider>
-      <div class="main-content-buttons">
-        <v-tooltip left bottom color="black" max-width="340px" open-delay="500" v-for="page in extraPages" :key="page.title">
+
+      <div class="section-head">{{ $t("Home.おまけ") }}</div>
+      <div class="extra-grid">
+        <div class="nav-slot" v-for="page in extraPages" :key="page.title">
+        <v-tooltip bottom color="black" max-width="340px" open-delay="400">
           <template v-slot:activator="{ on, attrs }">
             <button
-              class="content-button"
+              class="nav-card nav-card--compact"
+              :style="{ '--accent': accentOf(page.color) }"
               v-bind="attrs"
               v-on="on"
               v-ripple="{ class: `${page.color}--text` }"
               @click="clickedButton(page)"
               :disabled="page.clicked"
             >
-              <div>
-                <v-icon x-large :color="page.color">{{ page.icon }}</v-icon>
+              <div class="nav-icon">
+                <v-icon>{{ page.icon }}</v-icon>
               </div>
-              <div class="content-button-title">{{ $t(`${page.title}`) }}</div>
+              <div class="nav-card-body">
+                <div class="nav-card-title-row">
+                  <div class="nav-card-title">{{ $t(`${page.title}`) }}</div>
+                  <v-icon class="nav-go" size="18">mdi-chevron-right</v-icon>
+                </div>
+                <div class="nav-card-desc">{{ pageLead(page) }}</div>
+              </div>
             </button>
           </template>
           <div>{{ $t(`${page.text}`) }}</div>
         </v-tooltip>
+        </div>
       </div>
-      <div class="mt-6">{{ $t("Database.その他") }}</div>
-      <v-divider></v-divider>
+
+      <div class="section-head">{{ $t("Database.その他") }}</div>
       <div class="expansion-area">
-        <v-expansion-panels class="pa-0 mt-3" multiple>
+        <v-expansion-panels class="home-panels" flat multiple>
           <v-expansion-panel>
             <v-expansion-panel-header>
               <div class="d-flex align-center">
@@ -186,16 +213,44 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </div>
+      <footer class="info-area">
+        <div>
+          {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
+        </div>
+        <div>
+          {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
+        </div>
+      </footer>
     </div>
-    <div class="info-area">
-      <v-divider class="mb-2" />
-      <div>
-        {{ $t("Home.著作権法第32条に基づき画像を引用し、著作権は権利者様へ帰属します。権利者様側からの画像等の削除の依頼や警告には速やかに対処いたします。") }}
-      </div>
-      <div>
-        {{ $t("Home.また、本サイトの情報、計算結果によって受けた利益・損害その他あらゆる事象については一切の責任を負いません。") }}
-      </div>
-    </div>
+    <v-dialog v-model="releaseDialog" scrollable width="680">
+      <v-card>
+        <v-card-title>
+          {{ $t("Home.更新履歴") }}
+          <v-spacer />
+          <v-btn icon @click="releaseDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-divider />
+        <v-card-text>
+          <div v-if="releasesLoading" class="d-flex justify-center py-6">
+            <v-progress-circular indeterminate size="24" />
+          </div>
+          <template v-else-if="releases.length">
+            <div v-if="needTrans" class="caption mb-2">{{ $t("Home.更新内容は日本語のみの提供です。") }}</div>
+            <release-note-list :releases="releases" />
+          </template>
+          <div v-else class="body-2 text--secondary">{{ $t("Home.更新履歴を取得できませんでした。") }}</div>
+          <div class="mt-2 body-2 d-flex align-center">
+            <div class="mr-3">{{ $t("Home.雑です。") }}</div>
+            <v-btn text href="https://github.com/noro6/kc-web/releases" target="_blank" outlined small>
+              <v-icon>mdi-github</v-icon>
+              <span class="mx-1">GitHub Releases</span>
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="importConfirmDialog" transition="scroll-x-transition" width="500">
       <v-card class="pa-3">
         <div class="mx-4 mt-4">
@@ -227,93 +282,288 @@
 </template>
 
 <style scoped>
-.content {
-  margin: 20px auto;
-  max-width: 1200px;
+.home {
+  --card-bg: rgba(255, 255, 255, 0.86);
+  --card-border: rgba(22, 26, 34, 0.08);
+  margin: 4px auto 28px;
+  max-width: 1120px;
 }
-.main-content-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 5px;
-  row-gap: 5px;
-  margin-top: 16px;
+.theme--dark .home {
+  --card-bg: rgba(255, 255, 255, 0.045);
+  --card-border: rgba(255, 255, 255, 0.09);
 }
-.content-button {
-  cursor: pointer;
-  padding-top: 20px;
-  padding-bottom: 10px;
-  box-shadow: 0 1px 2px rgba(220, 225, 232, 0.5), 0 1px 2px rgba(220, 225, 232, 0.5);
-  background-color: #fff;
-  transition: 0.12s ease-out;
-  border-radius: 3px;
-}
-.theme--dark .content-button {
-  background-color: rgb(40, 40, 45);
-  box-shadow: 0 1px 2px rgba(29, 32, 36, 0.5), 0 1px 2px rgba(29, 32, 36, 0.5);
-}
-.deep-sea .theme--dark .content-button {
-  background-color: rgba(36, 44, 54, 0.6);
-}
-.content-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 2rem rgb(216, 218, 222);
-}
-.theme--dark .content-button:hover {
-  box-shadow: 0 0.5rem 2.5rem rgb(19, 22, 24);
-}
-.content-button:active {
-  transform: translateY(0);
-  box-shadow: 0 0.125rem 0.75rem rgb(220, 225, 232);
-}
-.theme--dark .content-button:active {
-  box-shadow: 0 0.375rem 0.55rem rgb(35, 40, 44);
-}
-.content-button-title {
-  text-align: center;
-  font-size: 14px;
-  margin-top: 5px;
+.deep-sea .theme--dark .home {
+  --card-bg: rgba(8, 20, 40, 0.5);
+  --card-border: rgba(160, 196, 255, 0.14);
 }
 
-/** その他欄 */
+.home-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.home-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+.version-pill {
+  flex: none;
+  margin: 0;
+  padding: 3px 10px;
+  color: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  border-radius: 999px;
+  opacity: 0.75;
+  transition: opacity 0.16s ease, border-color 0.16s ease;
+}
+.version-pill:hover {
+  opacity: 1;
+  border-color: rgba(128, 128, 128, 0.7);
+}
+.version-pill:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px 2px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.72;
+}
+.section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(128, 128, 128, 0.35);
+}
+
+.main-grid,
+.extra-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.nav-slot {
+  display: flex;
+  min-width: 0;
+}
+.nav-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  min-height: 92px;
+  margin: 0;
+  padding: 16px 16px 15px;
+  overflow: hidden;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 46%),
+    var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(16, 20, 28, 0.04);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+.nav-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.nav-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--card-border));
+  box-shadow: 0 14px 32px rgba(16, 20, 28, 0.12);
+}
+.nav-card:active {
+  transform: translateY(0);
+}
+.nav-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.nav-card:disabled {
+  cursor: progress;
+  opacity: 0.55;
+  transform: none;
+}
+.theme--dark .nav-card {
+  box-shadow: none;
+}
+.theme--dark .nav-card:hover {
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent 48%),
+    rgba(255, 255, 255, 0.07);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32);
+}
+
+.nav-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.nav-icon ::v-deep .v-icon {
+  color: var(--accent);
+  font-size: 22px;
+}
+.nav-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.nav-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-card-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+}
+.nav-card-desc {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.55;
+  opacity: 0.68;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.nav-go {
+  flex: none;
+  opacity: 0.35;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+.nav-card:hover .nav-go {
+  opacity: 0.9;
+  transform: translateX(3px);
+}
+
+.nav-card--feature {
+  min-height: 112px;
+}
+.nav-card--feature .nav-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+}
+.nav-card--feature .nav-icon ::v-deep .v-icon {
+  font-size: 28px;
+}
+.nav-card--feature .nav-card-title {
+  font-size: 16px;
+}
+.nav-card--feature .nav-card-desc {
+  max-width: 68ch;
+  -webkit-line-clamp: 3;
+}
+.nav-card--compact {
+  align-items: center;
+  min-height: 84px;
+  padding: 13px 14px;
+}
+.nav-card--compact .nav-card-desc {
+  -webkit-line-clamp: 2;
+}
+
 .expansion-area {
   font-size: 14px;
 }
+.home-panels {
+  background: transparent !important;
+}
+.home-panels ::v-deep .v-expansion-panel {
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border);
+  border-radius: 14px !important;
+}
+.home-panels ::v-deep .v-expansion-panel::before,
+.home-panels ::v-deep .v-expansion-panel::after {
+  display: none;
+  border: none !important;
+  box-shadow: none !important;
+}
+.home-panels ::v-deep .v-expansion-panel-header {
+  min-height: 52px;
+  padding: 12px 16px;
+}
+.home-panels ::v-deep .v-expansion-panel--active > .v-expansion-panel-header {
+  min-height: 52px;
+}
+.home-panels ::v-deep .v-expansion-panel-header .v-icon {
+  opacity: 0.85;
+}
 
 .info-area {
-  margin-top: 20px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 10px;
-  max-width: 1200px;
-  font-size: 12px;
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(128, 128, 128, 0.22);
+  font-size: 11px;
+  line-height: 1.7;
+  opacity: 0.55;
 }
 .support-buttons {
-  margin-top: 10px;
   display: grid;
   grid-template-columns: 1fr;
-  row-gap: 15px;
+  row-gap: 16px;
+  margin-top: 12px;
 }
-/** タブレット */
-@media (min-width: 600px) {
-  .main-content-buttons {
-    display: flex;
-    flex-wrap: wrap;
+
+@media (min-width: 700px) {
+  .main-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
-  .content-button {
-    cursor: pointer;
-    width: 146px;
-    aspect-ratio: 5/4;
+  .nav-slot--feature {
+    grid-column: 1 / -1;
   }
-  .content-button-title {
-    margin-top: 10px;
-    margin-bottom: 10px;
+  .nav-card--feature {
+    align-items: center;
+    padding: 20px 22px;
+  }
+  .extra-grid {
+    grid-template-columns: 1fr 1fr;
   }
   .support-buttons {
     grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
   }
 }
-/** PC */
-@media (min-width: 960px) {
+@media (min-width: 1100px) {
+  .extra-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 </style>
 
@@ -330,6 +580,17 @@ import ReleaseNoteList from '@/components/common/ReleaseNoteList.vue';
 /** ホーム画面に並べるリリース数 */
 const HOME_RELEASE_COUNT = 5;
 
+const CARD_ACCENT: Record<string, string> = {
+  green: '#22c55e',
+  blue: '#3b82f6',
+  orange: '#f59e0b',
+  grey: '#94a3b8',
+  teal: '#14b8a6',
+  'light-blue': '#0ea5e9',
+  red: '#ef4444',
+  pink: '#ec4899',
+};
+
 export default Vue.extend({
   name: 'TopPage',
   components: {
@@ -343,6 +604,7 @@ export default Vue.extend({
   data: () => ({
     releases: [] as ReleaseNote[],
     releasesLoading: true,
+    releaseDialog: false,
     created: false,
     imported: false,
     importConfirmDialog: false,
@@ -442,6 +704,15 @@ export default Vue.extend({
       const releases = await ReleaseNoteManager.fetchReleases(this.$store.state.siteVersion);
       this.releases = releases.slice(0, HOME_RELEASE_COUNT);
       this.releasesLoading = false;
+    },
+    accentOf(color: string): string {
+      return CARD_ACCENT[color] || '#94a3b8';
+    },
+    pageLead(page: { text?: string | string[] }): string {
+      const { text } = page;
+      if (!text) return '';
+      const key = Array.isArray(text) ? text[text.length - 1] : text;
+      return String(this.$t(key));
     },
     clickedButton(page: { url: string; clicked: boolean }) {
       if (page.clicked) return;
