@@ -1,100 +1,147 @@
 <template>
-  <v-card class="pa-1 pa-sm-3">
-    <div class="asw-result-container">
-      <div class="input-container">
-        <ship-input
-          v-model="fleet.ships[0]"
-          :index="0"
-          :handle-show-ship-list="showShipList"
-          :handle-show-item-list="showItemList"
-          :handle-show-batch-item-list="showBatchItemList"
-          :handle-close-ship="removeShip"
-          :handle-show-item-preset="showItemPreset"
-          :fix-down="ship.fixDown"
-          :rate-down="ship.rateDown"
-          :fleet-ros-corr="fleet.fleetRosCorr"
-          :hide-active-button="true"
-          @input="updateShip"
-        />
-        <div class="pa-2 status-input-container">
+  <div class="asw-calc">
+    <div class="asw-main">
+      <div class="asw-side">
+      <ship-input
+        v-model="fleet.ships[0]"
+        :index="0"
+        :handle-show-ship-list="showShipList"
+        :handle-show-item-list="showItemList"
+        :handle-show-batch-item-list="showBatchItemList"
+        :handle-close-ship="removeShip"
+        :handle-show-item-preset="showItemPreset"
+        :fix-down="ship.fixDown"
+        :rate-down="ship.rateDown"
+        :fleet-ros-corr="fleet.fleetRosCorr"
+        :hide-active-button="true"
+        @input="updateShip"
+      />
+      <div class="asw-board">
+        <div class="asw-total" :title="$t('Extra.対潜内訳表示')">
+          <div class="asw-total-label">{{ $t("Extra.表示対潜") }}</div>
+          <div class="asw-total-value">{{ ship.displayStatus.asw }}</div>
+        </div>
+        <div
+          class="asw-scale"
+          :class="{
+            'has-line': oaswGate.value,
+            'is-over': oaswGate.mode === 'value' && oaswGate.open && oaswMargin >= 0,
+            'is-short': oaswGate.mode === 'value' && oaswMargin < 0,
+            'is-blocked': oaswGate.mode === 'value' && !oaswGate.open,
+          }"
+        >
+          <div class="asw-stack">
+            <i class="seg sw-base" :style="{ width: partWidth(baseAsw) }" />
+            <i class="seg sw-imp" :style="{ width: partWidth(improveAsw) }" />
+            <i class="seg sw-item" :style="{ width: partWidth(ship.itemAsw) }" />
+            <i class="seg sw-bonus" :style="{ width: partWidth(ship.itemBonusStatus.asw) }" />
+          </div>
+          <div v-if="oaswGate.value" class="oasw-mark">
+            <span>{{ oaswGate.value }}</span>
+          </div>
+        </div>
+        <p v-if="oaswLead || oaswGear" class="oasw-state" :class="{ 'is-met': oaswMet }">
+          <span v-if="oaswLead">{{ oaswLead }}</span>
+          <span v-if="oaswGear" class="oasw-gear">{{ oaswGear }}</span>
+        </p>
+        <div class="asw-parts">
+          <div class="asw-part" :title="$t('Extra.対潜内訳素')">
+            <i class="swatch sw-base" />
+            <span>{{ $t("Extra.素対潜") }}</span>
+            <span class="part-num">{{ baseAsw }}</span>
+          </div>
+          <div class="asw-part" :title="$t('Extra.対潜内訳改修')">
+            <i class="swatch sw-imp" />
+            <span>{{ $t("Database.対潜改修") }}</span>
+            <span class="part-num">{{ improveAsw }}</span>
+          </div>
+          <div class="asw-part" :title="$t('Extra.対潜内訳装備')">
+            <i class="swatch sw-item" />
+            <span>{{ $t("Extra.装備対潜合計") }}</span>
+            <span class="part-num">{{ ship.itemAsw }}</span>
+          </div>
+          <div class="asw-part" :title="$t('Extra.対潜内訳ボーナス')">
+            <i class="swatch sw-bonus" />
+            <span>{{ $t("Extra.装備ボーナス合計") }}</span>
+            <span class="part-num">{{ ship.itemBonusStatus.asw }}</span>
+          </div>
+        </div>
+        <div class="asw-edit">
           <v-text-field
+            class="asw-field"
             label="Lv"
             v-model.number="level"
             :max="maxLevel"
             min="1"
             type="number"
+            outlined
+            dense
+            hide-details
+            :disabled="ship.isEmpty"
             @input="statusChanged"
-            :append-icon="appendIcon"
-            :readonly="ship.isEmpty"
           />
           <v-text-field
+            class="asw-field"
             :label="$t('Database.対潜改修')"
             v-model.number="improveAsw"
             max="9"
             min="0"
             type="number"
+            outlined
+            dense
+            hide-details
+            :disabled="ship.isEmpty"
             @input="statusChanged"
-            :append-icon="appendIcon"
-            :readonly="ship.isEmpty"
           />
-          <v-text-field :label="$t('Extra.初期対潜')" v-model.number="minAsw" min="0" type="number" @input="statusChanged" readonly />
-          <v-text-field :label="$t('Extra.最大対潜')" v-model.number="maxAsw" min="0" type="number" @input="statusChanged" readonly />
-          <v-text-field :label="$t('Extra.装備対潜合計')" v-model.number="ship.itemAsw" readonly />
-          <v-text-field :label="$t('Extra.装備ボーナス合計')" v-model.number="ship.itemBonusStatus.asw" readonly />
-          <v-text-field :label="$t('Extra.素対潜')" v-model.number="baseAsw" readonly />
-          <v-text-field :label="$t('Extra.表示対潜')" v-model.number="ship.displayStatus.asw" readonly />
         </div>
       </div>
-      <div class="pa-1">
-        <v-card class="mb-3" v-if="!ship.isEmpty">
-          <div class="result-table">
-            <v-simple-table>
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th>{{ $t("Extra.目標対潜値") }} ( 0 ~ 200 )</th>
-                    <th class="text-right">{{ $t("Fleet.不足対潜値") }}</th>
-                    <th class="text-right">{{ $t("Fleet.必要艦娘Lv") }}</th>
-                    <th class="text-right">{{ $t("Extra.必要Exp") }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(result, i) in results" :key="`result_${i}`" :class="{ ok: !result.missingAsw }">
-                    <td class="py-2" :width="isMobile ? '100px' : '180px'">
-                      <v-text-field v-model.number="result.targetAsw" dense hide-details min="0" max="200" type="number" @input="calculate" />
-                    </td>
-                    <td class="text-right">{{ result.missingAsw }}</td>
-                    <template v-if="result.targetAsw <= 0">
-                      <td class="text-right">-</td>
-                      <td class="text-right">-</td>
-                    </template>
-                    <template v-else-if="minAsw || maxAsw">
-                      <td class="text-right" :class="{ 'red--text': result.requiredLevel > maxLevel }">{{ result.requiredLevel }}</td>
-                      <td class="text-right" v-if="result.requiredLevel > maxLevel">-</td>
-                      <td class="text-right" v-else>{{ result.requiredExp ? result.requiredExp.toLocaleString() : "0" }}</td>
-                    </template>
-                    <template v-else>
-                      <td class="text-center red--text" colspan="2">{{ $t("Extra.到達不可") }}</td>
-                    </template>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </div>
-        </v-card>
-        <div class="d-flex justify-end body-2">
-          <div>{{ $t("Extra.参考") }}:</div>
-          <div class="ml-3">
-            <a href="https://wikiwiki.jp/kancolle/%E5%AF%BE%E6%BD%9C%E6%94%BB%E6%92%83#oasw" target="_blank">
-              {{ $t("Extra.先制対潜発動条件について") }} ( wiki )
-            </a>
-          </div>
-        </div>
       </div>
+      <section class="asw-targets">
+      <div class="target-head">
+        <span>{{ $t("Extra.目標対潜値") }}</span>
+        <span>{{ $t("Extra.表示対潜") }}</span>
+        <span class="num">{{ $t("Fleet.不足対潜値") }}</span>
+        <span class="num">{{ $t("Fleet.必要艦娘Lv") }}</span>
+        <span class="num">{{ $t("Extra.必要Exp") }}</span>
+      </div>
+      <div
+        v-for="(result, i) in results"
+        :key="`result_${i}`"
+        class="target-row"
+        :class="{ 'is-met': isMet(result), 'is-over': isOver(result), 'is-empty': result.targetAsw <= 0 }"
+      >
+        <v-text-field
+          class="target-field"
+          v-model.number="result.targetAsw"
+          dense
+          outlined
+          hide-details
+          min="0"
+          max="200"
+          type="number"
+          @input="calculate"
+        />
+        <div class="target-meter">
+          <i v-if="result.targetAsw > 0" :style="{ width: aswMeter(result.targetAsw) }" />
+        </div>
+        <span class="num">
+          <span class="cell-label">{{ $t("Fleet.不足対潜値") }}</span>
+          <span>{{ missingText(result) }}</span>
+        </span>
+        <span class="num">
+          <span class="cell-label">{{ $t("Fleet.必要艦娘Lv") }}</span>
+          <span>{{ levelText(result) }}</span>
+        </span>
+        <span class="num">
+          <span class="cell-label">{{ $t("Extra.必要Exp") }}</span>
+          <span>{{ expText(result) }}</span>
+        </span>
+      </div>
+    </section>
     </div>
-    <div v-if="ship && ship.data.id">
-      <v-divider class="mt-3" />
-      <v-simple-table dense fixed-header height="64vh" class="text-right">
+    <section v-if="ship && ship.data.id" class="asw-levels">
+      <p class="level-note">{{ $t("Extra.成長表の見方") }}</p>
+      <v-simple-table dense fixed-header height="52vh" class="level-table text-right">
         <template v-slot:default>
           <thead>
             <tr>
@@ -106,17 +153,22 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="level in maxLevel" :key="`all_level_${level}`" class="level-status-list" :class="{ last: level === maxLevel }">
-              <td class="level-td">{{ maxLevel + 1 - level }}</td>
-              <td class="level-td">{{ expResults[level - 1].toLocaleString() }}</td>
-              <td :class="{ increase: aswResults[level] && aswResults[level - 1] - aswResults[level] }">{{ aswResults[level - 1] }}</td>
-              <td :class="{ increase: scoutResults[level] && scoutResults[level - 1] - scoutResults[level] }">{{ scoutResults[level - 1] }}</td>
-              <td :class="{ increase: avoidResults[level] && avoidResults[level - 1] - avoidResults[level] }">{{ avoidResults[level - 1] }}</td>
+            <tr
+              v-for="row in maxLevel"
+              :key="`all_level_${row}`"
+              class="level-status-list"
+              :class="{ 'is-current': rowLevel(row) === level, 'is-goal': goalLevels.indexOf(rowLevel(row)) >= 0 }"
+            >
+              <td class="level-td">{{ rowLevel(row) }}</td>
+              <td class="level-td">{{ expResults[row - 1].toLocaleString() }}</td>
+              <td :class="{ increase: aswResults[row] && aswResults[row - 1] - aswResults[row] }">{{ aswResults[row - 1] }}</td>
+              <td :class="{ increase: scoutResults[row] && scoutResults[row - 1] - scoutResults[row] }">{{ scoutResults[row - 1] }}</td>
+              <td :class="{ increase: avoidResults[row] && avoidResults[row - 1] - avoidResults[row] }">{{ avoidResults[row - 1] }}</td>
             </tr>
           </tbody>
         </template>
       </v-simple-table>
-    </div>
+    </section>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
     </v-dialog>
@@ -126,55 +178,328 @@
     <v-dialog v-model="itemPresetDialog" transition="scroll-x-transition" width="600" :fullscreen="isMobile">
       <item-preset-component v-if="itemPresetDialog" v-model="tempShip" :handle-expand-item-preset="expandItemPreset" :handle-close="closeDialog" />
     </v-dialog>
-  </v-card>
+  </div>
 </template>
 
 <style scoped>
-.all-container {
-  padding: 1rem;
+.asw-calc {
+  --accent: #3b82f6;
+  --met: #22c55e;
+  --surface: #fbfaf8;
+  --surface-2: #f1efeb;
 }
-.status-input-container {
+.theme--dark .asw-calc {
+  --surface: rgb(32, 33, 40);
+  --surface-2: rgb(42, 44, 52);
+}
+.deep-sea .theme--dark .asw-calc {
+  --surface: rgb(16, 28, 48);
+  --surface-2: rgb(24, 40, 64);
+}
+.asw-main,
+.asw-side {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
 }
-@media (min-width: 600px) {
-  .asw-result-container {
-    display: grid;
-    grid-template-columns: auto 1fr;
-  }
-  .status-input-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 1rem;
+@media (min-width: 960px) {
+  .asw-main {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   }
 }
-
-.v-data-table tbody tr.ok {
-  background-color: rgba(0, 255, 64, 0.075);
+.asw-board,
+.asw-targets,
+.asw-levels {
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid rgba(128, 128, 128, 0.22);
+  border-radius: 16px;
 }
-.v-data-table tbody tr.ok:hover {
-  background-color: rgba(0, 255, 64, 0.15) !important;
+.asw-targets {
+  overflow-x: auto;
 }
-
-.level-status-list:not(.last) td {
-  opacity: 0.6;
+.asw-total {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
-.level-status-list td.level-td {
-  opacity: 1;
+.asw-total-label {
+  font-size: 13px;
+  opacity: 0.72;
 }
-.level-status-list.last td:not(.level-td),
-.level-status-list td.increase {
-  opacity: 1;
-  font-weight: bold;
+.asw-total-value {
+  font-size: 28px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-
-table td,
-table th {
+.asw-scale {
+  position: relative;
+  height: 8px;
+  margin-top: 18px;
+  border-radius: 3px;
+  background: rgba(128, 128, 128, 0.16);
+}
+.asw-scale.has-line {
+  background: linear-gradient(90deg, rgba(128, 128, 128, 0.16) 0 90%, rgba(245, 158, 11, 0.34) 90% 100%);
+}
+.asw-scale.has-line.is-over {
+  background: linear-gradient(90deg, rgba(128, 128, 128, 0.16) 0 90%, rgba(34, 197, 94, 0.34) 90% 100%);
+}
+.asw-stack {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.asw-stack .seg {
+  display: block;
+  flex: none;
+  height: 100%;
+}
+.oasw-mark {
+  position: absolute;
+  z-index: 1;
+  left: 90%;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: #f59e0b;
+}
+.oasw-mark span {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-
-.result-table {
-  overflow-x: auto;
+.asw-scale.is-over .oasw-mark {
+  background: #22c55e;
+}
+.oasw-state {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+.oasw-state.is-met {
+  color: #15803d;
+  opacity: 1;
+}
+.theme--dark .oasw-state.is-met {
+  color: #86efac;
+}
+.oasw-gear {
+  color: #c24141;
+}
+.theme--dark .oasw-gear {
+  color: #ff6b6b;
+}
+.sw-base {
+  background: #3b82f6;
+}
+.sw-imp {
+  background: #91ffff;
+}
+.sw-item {
+  background: #14b8a6;
+}
+.sw-bonus {
+  background: #a78bfa;
+}
+.asw-parts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  margin-top: 12px;
+}
+.asw-part {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+}
+.asw-part span:nth-child(2) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.72;
+}
+.swatch {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.part-num {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.asw-edit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+.asw-field {
+  margin-top: 0;
+}
+.asw-levels {
+  margin-top: 12px;
+}
+.target-head,
+.target-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1.6fr) 5.6em 6.6em 6.4em;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.target-head {
+  margin-bottom: 4px;
+  line-height: 1.35;
+  opacity: 0.62;
+}
+.target-head span {
+  white-space: nowrap;
+}
+.cell-label {
+  display: none;
+}
+.target-row {
+  min-height: 40px;
+  padding: 2px 0;
+  border-top: 1px solid rgba(128, 128, 128, 0.16);
+}
+.target-row.is-met .num:nth-of-type(1) {
+  color: #15803d;
+}
+.theme--dark .target-row.is-met .num:nth-of-type(1) {
+  color: #86efac;
+}
+.target-row.is-over .num {
+  color: #dc2626;
+}
+.theme--dark .target-row.is-over .num {
+  color: #fca5a5;
+}
+.target-row.is-empty {
+  opacity: 0.72;
+}
+.target-field {
+  margin-top: 0;
+}
+.target-meter {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(128, 128, 128, 0.16);
+}
+.target-meter i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.target-row.is-met .target-meter i {
+  background: var(--met);
+}
+.target-row.is-over .target-meter i {
+  background: color-mix(in srgb, #ef4444 78%, transparent);
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+@media (max-width: 720px) {
+  .target-head {
+    display: none;
+  }
+  .target-row {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      "field meter meter"
+      "missing level exp";
+    gap: 6px 10px;
+    align-items: end;
+    padding: 8px 0;
+  }
+  .target-field {
+    grid-area: field;
+    min-width: 0;
+  }
+  .target-meter {
+    grid-area: meter;
+    align-self: center;
+  }
+  .target-row > .num:nth-of-type(1) {
+    grid-area: missing;
+  }
+  .target-row > .num:nth-of-type(2) {
+    grid-area: level;
+  }
+  .target-row > .num:nth-of-type(3) {
+    grid-area: exp;
+  }
+  .target-row > .num {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 0;
+    gap: 2px;
+  }
+  .cell-label {
+    display: block;
+    max-width: 100%;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.3;
+    text-align: right;
+    white-space: normal;
+    opacity: 0.62;
+  }
+}
+.level-note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  opacity: 0.68;
+}
+.level-table >>> th,
+.level-table >>> td {
+  white-space: nowrap;
+}
+.level-status-list td {
+  opacity: 0.45;
+}
+.level-status-list td.level-td,
+.level-status-list td.increase,
+.level-status-list.is-current td,
+.level-status-list.is-goal td {
+  opacity: 1;
+}
+.level-status-list td.increase {
+  color: #0f766e;
+}
+.theme--dark .level-status-list td.increase {
+  color: #5eead4;
+}
+.level-status-list.is-current td {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+.level-status-list.is-goal td.level-td {
+  color: #b45309;
+}
+.theme--dark .level-status-list.is-goal td.level-td {
+  color: #fdba74;
 }
 </style>
 
@@ -188,11 +513,90 @@ import Ship from '@/classes/fleet/ship';
 import Fleet from '@/classes/fleet/fleet';
 import Item from '@/classes/item/item';
 import SiteSetting from '@/classes/siteSetting';
-import Const from '@/classes/const';
+import Const, { SHIP_TYPE } from '@/classes/const';
 import ShipValidation from '@/classes/fleet/shipValidation';
 import ItemPreset from '@/classes/item/itemPreset';
 import ItemMaster from '@/classes/item/itemMaster';
 import { cloneDeep } from 'lodash';
+
+interface OpeningAswGate {
+  value: number | null;
+  open: boolean;
+  mode: 'always' | 'value' | 'gear' | 'none';
+}
+
+function openingAswGate(ship: Ship): OpeningAswGate {
+  const { data } = ship;
+  if (!data.id) return { value: null, open: false, mode: 'none' };
+  if (data.minAsw >= 50 && !data.isCV && !data.isBB) {
+    return { value: null, open: true, mode: 'always' };
+  }
+
+  const items = ship.items.concat(ship.exItem);
+  const hasSonar = items.some((v) => v.data.apiTypeId === 14 || v.data.apiTypeId === 40);
+  const { type } = data;
+
+  if (type === SHIP_TYPE.DE) {
+    const lines: number[] = [];
+    if (ship.itemAsw >= 4) lines.push(75);
+    if (hasSonar) lines.push(60);
+    if (lines.length) return { value: Math.min(...lines), open: true, mode: 'value' };
+    return { value: null, open: false, mode: 'gear' };
+  }
+
+  if (data.id === 717) {
+    const hasAttacker = items.some((v) => v.data.isAttacker);
+    const hasAswAttack = items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.isAswPlane);
+    if (hasAttacker && hasSonar && hasAswAttack) return { value: 100, open: true, mode: 'value' };
+    if (!hasAttacker && hasSonar) return { value: 100, open: true, mode: 'value' };
+    return { value: 100, open: false, mode: 'value' };
+  }
+
+  if (
+    type === SHIP_TYPE.DD
+    || type === SHIP_TYPE.CL
+    || type === SHIP_TYPE.CLT
+    || type === SHIP_TYPE.CT
+    || type === SHIP_TYPE.AO
+    || type === SHIP_TYPE.AO_2
+  ) {
+    return { value: 100, open: hasSonar, mode: 'value' };
+  }
+
+  if ((data.type2 === 76 && data.name.indexOf('改') >= 0) || data.id === 646) {
+    return { value: null, open: ship.enabledTSBK, mode: 'gear' };
+  }
+
+  if (type === SHIP_TYPE.CVL) {
+    if (data.id === 508 || data.id === 509) return { value: null, open: false, mode: 'none' };
+    const hasAswPlane = items.some((v) => v.fullSlot && v.data.isAswPlane);
+    const hasEmptyAswPlane = items.some((v) => v.fullSlot === 0 && v.data.isAswPlane);
+    const hasAswAttacker = items.some((v) => v.data.isAttacker && v.data.asw >= 1);
+    const hasStrongAttacker = items.some((v) => v.data.apiTypeId === 8 && v.data.asw >= 7);
+    const hasLoadedAttacker = items.some((v) => v.data.isAttacker && v.data.asw && v.fullSlot);
+    const planeRoute = hasAswPlane || hasStrongAttacker || (hasEmptyAswPlane && hasLoadedAttacker);
+    const lines: number[] = [];
+    if (hasSonar && (hasAswPlane || hasAswAttacker)) lines.push(100);
+    if (planeRoute) lines.push(65);
+    if (hasSonar && planeRoute) lines.push(50);
+    if (lines.length) return { value: Math.min(...lines), open: true, mode: 'value' };
+    return { value: null, open: false, mode: 'gear' };
+  }
+
+  if (data.id === 554) return { value: null, open: ship.enabledTSBK, mode: 'gear' };
+
+  if (data.id === 411 || data.id === 412) {
+    const ready = hasSonar && items.some((v) => v.data.apiTypeId === 11 || v.data.apiTypeId === 15 || v.data.isAswPlane);
+    return { value: 100, open: ready, mode: 'value' };
+  }
+
+  if (type === SHIP_TYPE.BBV || type === SHIP_TYPE.LHA) {
+    const ready = hasSonar && items.some((v) => (v.data.isAttacker && v.data.asw >= 1) || v.data.isAswPlane);
+    return { value: 100, open: ready, mode: 'value' };
+  }
+
+  return { value: null, open: false, mode: 'none' };
+}
 
 export default Vue.extend({
   name: 'RequiredAswCalculator',
@@ -257,12 +661,58 @@ export default Vue.extend({
     baseAsw(): number {
       return this.ship.asw - this.improveAsw;
     },
-    appendIcon(): string {
-      return this.ship.isEmpty ? '' : 'mdi-pencil';
+    goalLevels(): number[] {
+      return this.results
+        .filter((result) => result.targetAsw > 0 && result.requiredLevel > 0 && result.requiredLevel <= this.maxLevel)
+        .map((result) => result.requiredLevel);
+    },
+    oaswGate(): OpeningAswGate {
+      return openingAswGate(this.ship);
+    },
+    oaswScale(): number {
+      const gate = this.oaswGate;
+      if (gate.mode === 'value' && gate.value) return gate.value / 0.9;
+      return Math.max(this.ship.displayStatus.asw, 1);
+    },
+    oaswMargin(): number {
+      if (!this.oaswGate.value) return 0;
+      return this.ship.displayStatus.asw - this.oaswGate.value;
+    },
+    oaswLead(): string {
+      const gate = this.oaswGate;
+      const text = (key: string) => `${this.$t(key)}`;
+      if (!this.ship.data.id) return '';
+      if (gate.mode === 'always') return text('Extra.無条件で先制対潜');
+      if (gate.mode === 'gear') return gate.open ? text('Extra.装備で先制対潜可') : '';
+      if (gate.mode === 'none' || !gate.value) return text('Extra.先制対潜の対象外');
+      if (!gate.open) {
+        if (this.oaswMargin < 0) return `${this.$t('Extra.対潜不足', { asw: -this.oaswMargin })}`;
+        return '';
+      }
+      if (this.oaswMargin > 0) return `${text('Extra.対潜余裕')} +${this.oaswMargin}`;
+      if (this.oaswMargin < 0) return `${this.$t('Extra.対潜不足', { asw: -this.oaswMargin })}`;
+      return text('Extra.達成');
+    },
+    oaswGear(): string {
+      const gate = this.oaswGate;
+      if ((gate.mode === 'gear' || gate.mode === 'value') && !gate.open) return `${this.$t('Extra.装備条件が未達')}`;
+      return '';
+    },
+    oaswMet(): boolean {
+      const gate = this.oaswGate;
+      if (gate.mode === 'always') return true;
+      if (gate.mode === 'gear') return gate.open;
+      return gate.mode === 'value' && !!gate.open && this.oaswMargin >= 0;
     },
   },
   watch: {
     fleet() {
+      if (this.ship.isEmpty) {
+        this.level = 1;
+        this.improveAsw = 0;
+        this.minAsw = 0;
+        this.maxAsw = 0;
+      }
       this.calculate();
     },
   },
@@ -489,6 +939,42 @@ export default Vue.extend({
       this.improveAsw = newShip.improveAsw;
       this.minAsw = newShip.data.minAsw;
       this.maxAsw = newShip.data.maxAsw;
+    },
+    partWidth(value: number): string {
+      const scale = this.oaswScale;
+      if (scale <= 0 || value <= 0) return '0%';
+      return `${(value / scale) * 100}%`;
+    },
+    aswMeter(target: number): string {
+      if (target <= 0) return '0%';
+      return `${Math.min(100, Math.round((this.ship.displayStatus.asw / target) * 100))}%`;
+    },
+    isMet(result: { targetAsw: number; missingAsw: number }): boolean {
+      return result.targetAsw > 0 && !result.missingAsw && !!(this.minAsw || this.maxAsw);
+    },
+    isOver(result: { targetAsw: number; requiredLevel: number }): boolean {
+      if (this.ship.isEmpty || result.targetAsw <= 0) return false;
+      if (!(this.minAsw || this.maxAsw)) return true;
+      return result.requiredLevel > this.maxLevel;
+    },
+    missingText(result: { targetAsw: number; missingAsw: number }): string {
+      if (this.ship.isEmpty || result.targetAsw <= 0) return '-';
+      if (!result.missingAsw) return `${this.$t('Extra.達成')}`;
+      return `${result.missingAsw}`;
+    },
+    levelText(result: { targetAsw: number; requiredLevel: number }): string {
+      if (this.ship.isEmpty || result.targetAsw <= 0) return '-';
+      if (!(this.minAsw || this.maxAsw)) return `${this.$t('Extra.到達不可')}`;
+      if (result.requiredLevel <= 0) return '1';
+      return `${result.requiredLevel}`;
+    },
+    expText(result: { targetAsw: number; requiredLevel: number; requiredExp: number }): string {
+      if (this.ship.isEmpty || result.targetAsw <= 0) return '-';
+      if (!(this.minAsw || this.maxAsw) || result.requiredLevel > this.maxLevel) return '-';
+      return result.requiredExp ? result.requiredExp.toLocaleString() : '0';
+    },
+    rowLevel(row: number): number {
+      return this.maxLevel + 1 - row;
     },
     calculate() {
       const results = this.results.concat();

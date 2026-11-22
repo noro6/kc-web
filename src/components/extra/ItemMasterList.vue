@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="px-3">
+    <v-card class="item-list-card">
       <div class="d-flex align-center flex-wrap">
         <div class="keyword-text mr-3 my-3">
           <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details />
@@ -43,13 +43,13 @@
       </div>
       <v-divider />
       <v-data-table
+        class="item-stat-table"
         dense
         fixed-header
         height="44vh"
         multi-sort
         :headers="headers"
-        :items="items"
-        :search="keyword"
+        :items="visibleItems"
         :footer-props="{
           showFirstLastPage: true,
           firstIcon: 'mdi-chevron-double-left',
@@ -58,7 +58,7 @@
           nextIcon: 'mdi-chevron-right',
           'items-per-page-options': [50, 100, 150],
         }"
-      mobile-breakpoint="0"
+        mobile-breakpoint="0"
       >
         <template v-slot:[`header.name`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
         <template v-slot:[`header.fire`]="{ header }">{{ $t(`Common.${header.text}`) }}</template>
@@ -87,12 +87,83 @@
         <template v-slot:[`item.range`]="{ item }">
           <div class="caption">{{ rangeText[item.range] ? $t(`Common.${rangeText[item.range]}`) : "" }}</div>
         </template>
+        <template v-slot:[`item.fire`]="{ item }">
+          <div class="meter" :class="meterClass('fire', item.fire)">
+            <i :style="{ width: meterWidth('fire', item.fire) }" />
+            <span>{{ item.fire }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.torpedo`]="{ item }">
+          <div class="meter" :class="meterClass('torpedo', item.torpedo)">
+            <i :style="{ width: meterWidth('torpedo', item.torpedo) }" />
+            <span>{{ item.torpedo }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.bomber`]="{ item }">
+          <div class="meter" :class="meterClass('bomber', item.bomber)">
+            <i :style="{ width: meterWidth('bomber', item.bomber) }" />
+            <span>{{ item.bomber }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.antiAir`]="{ item }">
+          <div class="meter" :class="meterClass('antiAir', item.antiAir)">
+            <i :style="{ width: meterWidth('antiAir', item.antiAir) }" />
+            <span>{{ item.antiAir }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.asw`]="{ item }">
+          <div class="meter" :class="meterClass('asw', item.asw)">
+            <i :style="{ width: meterWidth('asw', item.asw) }" />
+            <span>{{ item.asw }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.scout`]="{ item }">
+          <div class="meter" :class="meterClass('scout', item.scout)">
+            <i :style="{ width: meterWidth('scout', item.scout) }" />
+            <span>{{ item.scout }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.accuracy`]="{ item }">
+          <div class="meter" :class="meterClass('accuracy', item.accuracy)">
+            <i :style="{ width: meterWidth('accuracy', item.accuracy) }" />
+            <span>{{ item.accuracy }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.avoid`]="{ item }">
+          <div class="meter" :class="meterClass('avoid', item.avoid)">
+            <i :style="{ width: meterWidth('avoid', item.avoid) }" />
+            <span>{{ item.avoid }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.armor`]="{ item }">
+          <div class="meter" :class="meterClass('armor', item.armor)">
+            <i :style="{ width: meterWidth('armor', item.armor) }" />
+            <span>{{ item.armor }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.interception`]="{ item }">
+          <div class="meter" :class="meterClass('interception', item.interception)">
+            <i :style="{ width: meterWidth('interception', item.interception) }" />
+            <span>{{ item.interception }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.antiBomber`]="{ item }">
+          <div class="meter" :class="meterClass('antiBomber', item.antiBomber)">
+            <i :style="{ width: meterWidth('antiBomber', item.antiBomber) }" />
+            <span>{{ item.antiBomber }}</span>
+          </div>
+        </template>
+        <template v-slot:[`item.radius`]="{ item }">
+          <div class="meter" :class="meterClass('radius', item.radius)">
+            <i :style="{ width: meterWidth('radius', item.radius) }" />
+            <span>{{ item.radius }}</span>
+          </div>
+        </template>
       </v-data-table>
     </v-card>
-    <div class="mt-10 mb-3 mx-2 body-2">{{ $t("Extra.対空射撃回避機体一覧") }}</div>
-    <v-card class="pa-3">
-      <v-divider />
-      <v-simple-table class="item-master-table" dense fixed-header height="70vh">
+    <div class="section-head">{{ $t("Extra.対空射撃回避機体一覧") }}</div>
+    <v-card class="item-list-card aa-card">
+      <v-simple-table class="aa-table" dense fixed-header height="70vh">
         <template v-slot:default>
           <thead>
             <tr>
@@ -136,6 +207,47 @@
 </template>
 
 <style scoped>
+.item-list-card {
+  --accent: #14b8a6;
+  --surface: #fbfaf8;
+  --surface-2: #f1efeb;
+  padding: 8px 12px 10px;
+  overflow: hidden;
+  background: var(--surface) !important;
+  border: 1px solid rgba(22, 26, 34, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.theme--dark .item-list-card {
+  --surface: rgb(32, 33, 40);
+  --surface-2: rgb(42, 44, 52);
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+.deep-sea .theme--dark .item-list-card {
+  --surface: rgb(16, 28, 48);
+  --surface-2: rgb(24, 40, 64);
+  background: var(--surface) !important;
+  border-color: rgba(160, 196, 255, 0.14) !important;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 2px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.72;
+}
+.section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(128, 128, 128, 0.35);
+}
+.aa-card {
+  margin-bottom: 8px;
+}
 .keyword-text {
   width: 160px;
 }
@@ -171,17 +283,18 @@
   border: 1px solid transparent;
   padding: 6px;
   margin-top: 1px;
-  margin-right: 0.5px;
-  margin-left: 0.5px;
+  margin-right: 2px;
+  margin-left: 2px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
 }
 .type-selector:hover {
-  background-color: rgba(128, 200, 255, 0.2);
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 .type-selector.active {
-  border-color: rgba(33, 150, 243, 0.6);
-  background-color: rgba(33, 150, 243, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
 }
 .type-selector.disabled {
   opacity: 0.4;
@@ -195,6 +308,98 @@
   font-weight: bold;
   font-size: 0.9em;
   align-self: center;
+}
+
+.meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 48px;
+  min-height: 22px;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.meter i {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  pointer-events: none;
+}
+.meter.best {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.meter.best i {
+  background: color-mix(in srgb, var(--accent) 58%, transparent);
+}
+.meter span {
+  position: relative;
+}
+.meter.best span {
+  color: #0f766e;
+  font-weight: 700;
+}
+.theme--dark .meter.best span {
+  color: #5eead4;
+}
+.meter.down span {
+  color: #dc2626;
+}
+.theme--dark .meter.down span {
+  color: #fca5a5;
+}
+
+.item-list-card >>> .v-data-table.v-data-table--fixed-header thead th,
+.theme--dark .item-list-card >>> .v-data-table.v-data-table--fixed-header thead th,
+.deep-sea .item-list-card >>> .v-data-table.v-data-table--fixed-header thead th {
+  background-color: var(--surface) !important;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.item-list-card >>> .item-stat-table thead th:nth-child(2),
+.item-list-card >>> .item-stat-table thead th:nth-child(3) {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+.item-list-card >>> .item-stat-table th:nth-child(2),
+.item-list-card >>> .item-stat-table td:nth-child(2),
+.item-list-card >>> .item-stat-table th:nth-child(3),
+.item-list-card >>> .item-stat-table td:nth-child(3) {
+  position: sticky;
+  z-index: 2;
+  background: var(--surface);
+}
+.item-list-card >>> .item-stat-table th:nth-child(2),
+.item-list-card >>> .item-stat-table td:nth-child(2) {
+  left: 0;
+  width: 36px;
+  min-width: 36px;
+}
+.item-list-card >>> .item-stat-table th:nth-child(3),
+.item-list-card >>> .item-stat-table td:nth-child(3) {
+  left: 36px;
+}
+.item-list-card >>> .item-stat-table tbody tr:hover td:nth-child(2),
+.item-list-card >>> .item-stat-table tbody tr:hover td:nth-child(3) {
+  background: color-mix(in srgb, rgb(128, 128, 128) 10%, var(--surface));
+}
+.aa-table >>> tbody td:nth-child(2),
+.aa-table >>> thead th:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--surface);
+}
+.aa-table >>> thead th:nth-child(2) {
+  z-index: 4;
+}
+.aa-table >>> tbody tr:hover td:nth-child(2) {
+  background: var(--surface-2);
 }
 
 .v-card >>> .v-data-table th,
@@ -218,6 +423,37 @@ import ShipValidation from '@/classes/fleet/shipValidation';
 import ItemMaster from '@/classes/item/itemMaster';
 import SiteSetting from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
+
+function buildStatRange(rows: Record<string, number>[], keys: string[]) {
+  const range: Record<string, { max: number; min: number; maxCount: number }> = {};
+  keys.forEach((key) => {
+    let maxValue = 0;
+    let minValue = Number.POSITIVE_INFINITY;
+    let maxCount = 0;
+    rows.forEach((row) => {
+      const value = Number(row[key]) || 0;
+      if (value > maxValue) {
+        maxValue = value;
+        maxCount = 1;
+      } else if (value === maxValue) {
+        maxCount += 1;
+      }
+      if (value < minValue) minValue = value;
+    });
+    range[key] = {
+      max: maxValue,
+      min: Number.isFinite(minValue) ? minValue : 0,
+      maxCount,
+    };
+  });
+  return range;
+}
+
+function peakWidth(range: { max: number } | undefined, value: number) {
+  const peak = range ? range.max : 0;
+  if (!peak || value <= 0) return '0%';
+  return `${Math.min(100, Math.round((value / peak) * 100))}%`;
+}
 
 export default Vue.extend({
   name: 'ItemMasterList',
@@ -393,6 +629,18 @@ export default Vue.extend({
         return ship.name ? ship.name : '';
       };
     },
+    statRange(): Record<string, { max: number; min: number; maxCount: number }> {
+      const keys = ['fire', 'torpedo', 'bomber', 'antiAir', 'asw', 'scout', 'accuracy', 'avoid', 'armor', 'interception', 'antiBomber', 'radius'];
+      return buildStatRange(this.visibleItems.map((item) => item as unknown as Record<string, number>), keys);
+    },
+    visibleItems(): ItemMaster[] {
+      const keyword = (this.keyword || '').trim().toLowerCase();
+      if (!keyword) return this.items;
+      return this.items.filter((item) => {
+        const translated = this.needTrans ? `${this.$t(`${item.name}`)}` : '';
+        return `${item.id} ${item.name} ${translated}`.toLowerCase().includes(keyword);
+      });
+    },
     enabledTypes() {
       const apis = this.baseItems.map((v) => v.apiTypeId);
       const enabledItems = [];
@@ -413,6 +661,19 @@ export default Vue.extend({
     },
   },
   methods: {
+    meterClass(key: string, value: number) {
+      return {
+        best: this.isPeak(this.statRange[key], value),
+        down: value < 0,
+      };
+    },
+    meterWidth(key: string, value: number) {
+      return peakWidth(this.statRange[key], value);
+    },
+    isPeak(range: { max: number; min: number; maxCount: number } | undefined, value: number) {
+      if (!range || value <= 0 || range.max === range.min) return false;
+      return value === range.max && range.maxCount <= 4;
+    },
     toggleType(id: number) {
       if (id === -1) {
         const all = Const.ITEM_TYPES_ALT.map((v) => v.id);

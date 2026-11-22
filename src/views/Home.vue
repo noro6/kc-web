@@ -325,7 +325,7 @@
 .home-title {
   margin: 0;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: unset;
   letter-spacing: 0.02em;
   line-height: 1.3;
 }
@@ -359,7 +359,6 @@
   gap: 12px;
   margin: 26px 2px 12px;
   font-size: 13px;
-  font-weight: 700;
   opacity: 0.72;
 }
 .section-head::after {
@@ -464,7 +463,6 @@
   flex: 1;
   min-width: 0;
   font-size: 15px;
-  font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.35;
 }

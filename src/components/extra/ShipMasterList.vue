@@ -1,5 +1,5 @@
 <template>
-  <v-card class="px-3">
+  <v-card class="ship-list-card">
     <div class="d-flex align-center flex-wrap">
       <div class="keyword-text align-self-end mr-3">
         <v-text-field v-model="keyword" dense :placeholder="$t('Database.名称検索')" prepend-inner-icon="mdi-magnify" clearable hide-details />
@@ -199,8 +199,7 @@
       height="48vh"
       multi-sort
       :headers="headers"
-      :items="ships"
-      :search="keyword"
+      :items="visibleShips"
       :items-per-page="50"
       :footer-props="{
         showFirstLastPage: true,
@@ -239,11 +238,112 @@
       <template v-slot:[`item.range`]="{ item }">
         <div class="caption">{{ $t(`Common.${rangeText[item.range]}`) }}</div>
       </template>
+      <template v-slot:[`item.hp`]="{ item }">
+        <div class="meter" :class="{ best: isBest('hp', item.hp) }">
+          <i :style="{ width: meterWidth('hp', item.hp) }" />
+          <span>{{ item.hp }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.fire`]="{ item }">
+        <div class="meter" :class="{ best: isBest('fire', item.fire) }">
+          <i :style="{ width: meterWidth('fire', item.fire) }" />
+          <span>{{ item.fire }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.armor`]="{ item }">
+        <div class="meter" :class="{ best: isBest('armor', item.armor) }">
+          <i :style="{ width: meterWidth('armor', item.armor) }" />
+          <span>{{ item.armor }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.torpedo`]="{ item }">
+        <div class="meter" :class="{ best: isBest('torpedo', item.torpedo) }">
+          <i :style="{ width: meterWidth('torpedo', item.torpedo) }" />
+          <span>{{ item.torpedo }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.night`]="{ item }">
+        <div class="meter" :class="{ best: isBest('night', item.night) }">
+          <i :style="{ width: meterWidth('night', item.night) }" />
+          <span>{{ item.night }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.maxAvoid`]="{ item }">
+        <div class="meter" :class="{ best: isBest('maxAvoid', item.maxAvoid) }">
+          <i :style="{ width: meterWidth('maxAvoid', item.maxAvoid) }" />
+          <span>{{ item.maxAvoid }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.antiAir`]="{ item }">
+        <div class="meter" :class="{ best: isBest('antiAir', item.antiAir) }">
+          <i :style="{ width: meterWidth('antiAir', item.antiAir) }" />
+          <span>{{ item.antiAir }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.maxAsw`]="{ item }">
+        <div class="meter" :class="{ best: isBest('maxAsw', item.maxAsw) }">
+          <i :style="{ width: meterWidth('maxAsw', item.maxAsw) }" />
+          <span>{{ item.maxAsw }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.maxScout`]="{ item }">
+        <div class="meter" :class="{ best: isBest('maxScout', item.maxScout) }">
+          <i :style="{ width: meterWidth('maxScout', item.maxScout) }" />
+          <span>{{ item.maxScout }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.luck`]="{ item }">
+        <div class="meter" :class="{ best: isBest('luck', item.luck) }">
+          <i :style="{ width: meterWidth('luck', item.luck) }" />
+          <span>{{ item.luck }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.maxLuck`]="{ item }">
+        <div class="meter" :class="{ best: isBest('maxLuck', item.maxLuck) }">
+          <i :style="{ width: meterWidth('maxLuck', item.maxLuck) }" />
+          <span>{{ item.maxLuck }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.fuel`]="{ item }">
+        <div class="meter meter-cost" :class="{ best: isBest('fuel', item.fuel, true) }">
+          <i :style="{ width: meterWidth('fuel', item.fuel) }" />
+          <span>{{ item.fuel }}</span>
+        </div>
+      </template>
+      <template v-slot:[`item.ammo`]="{ item }">
+        <div class="meter meter-cost" :class="{ best: isBest('ammo', item.ammo, true) }">
+          <i :style="{ width: meterWidth('ammo', item.ammo) }" />
+          <span>{{ item.ammo }}</span>
+        </div>
+      </template>
     </v-data-table>
   </v-card>
 </template>
 
 <style scoped>
+.ship-list-card {
+  --accent: #22c55e;
+  --cost: #f59e0b;
+  --surface: #fbfaf8;
+  --surface-2: #f1efeb;
+  padding: 8px 12px 10px;
+  overflow: hidden;
+  background: var(--surface) !important;
+  border: 1px solid rgba(22, 26, 34, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.theme--dark .ship-list-card {
+  --surface: rgb(32, 33, 40);
+  --surface-2: rgb(42, 44, 52);
+  border-color: rgba(255, 255, 255, 0.09) !important;
+}
+.deep-sea .theme--dark .ship-list-card {
+  --surface: rgb(16, 28, 48);
+  --surface-2: rgb(24, 40, 64);
+  background: var(--surface) !important;
+  border-color: rgba(160, 196, 255, 0.14) !important;
+}
 .keyword-text {
   width: 200px;
 }
@@ -269,6 +369,45 @@
   max-width: 128px;
 }
 
+.meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 52px;
+  min-height: 22px;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.meter i {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  pointer-events: none;
+}
+.meter.meter-cost i {
+  background: color-mix(in srgb, var(--cost) 34%, transparent);
+}
+.meter.best {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.meter.best i {
+  background: color-mix(in srgb, var(--accent) 58%, transparent);
+}
+.meter span {
+  position: relative;
+}
+.meter.best span {
+  color: #15803d;
+  font-weight: 700;
+}
+.theme--dark .meter.best span {
+  color: #86efac;
+}
+
 .v-card >>> .v-data-table th,
 .v-card >>> .v-data-table td {
   white-space: nowrap;
@@ -279,6 +418,39 @@
 .v-card >>> .v-data-table td:first-child {
   width: 120px;
   padding: 0 !important;
+}
+
+.v-card >>> .ship-master-table thead th:nth-child(1),
+.v-card >>> .ship-master-table thead th:nth-child(2) {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+.v-card >>> .ship-master-table thead th:nth-child(1),
+.v-card >>> .ship-master-table tbody td:nth-child(1) {
+  left: 0;
+}
+.v-card >>> .ship-master-table thead th:nth-child(2),
+.v-card >>> .ship-master-table tbody td:nth-child(2) {
+  left: 120px;
+}
+.ship-list-card >>> .v-data-table.v-data-table--fixed-header thead th,
+.theme--dark .ship-list-card >>> .v-data-table.v-data-table--fixed-header thead th,
+.deep-sea .ship-list-card >>> .v-data-table.v-data-table--fixed-header thead th {
+  background-color: var(--surface) !important;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.v-card >>> .ship-master-table tbody td:nth-child(1),
+.v-card >>> .ship-master-table tbody td:nth-child(2) {
+  position: sticky;
+  z-index: 1;
+  background: var(--surface);
+}
+.v-card >>> .ship-master-table tbody tr:hover td:nth-child(1),
+.v-card >>> .ship-master-table tbody tr:hover td:nth-child(2) {
+  background: var(--surface-2);
 }
 
 .filter-dialog-card {
@@ -600,6 +772,44 @@ export default Vue.extend({
     isAllUncheckedRange() {
       return !this.shipFilter.includeRange1 && !this.shipFilter.includeRange2 && !this.shipFilter.includeRange3 && !this.shipFilter.includeRange4;
     },
+    visibleShips(): ShipMaster[] {
+      const keyword = (this.keyword || '').trim().toLowerCase();
+      if (!keyword) return this.ships;
+      return this.ships.filter((ship) => this.shipMatchesKeyword(ship, keyword));
+    },
+    statRange(): Record<string, { max: number; min: number; maxCount: number; minCount: number }> {
+      const keys = ['hp', 'fire', 'armor', 'torpedo', 'night', 'maxAvoid', 'antiAir', 'maxAsw', 'maxScout', 'luck', 'maxLuck', 'fuel', 'ammo'];
+      const ships = this.visibleShips;
+      const range: Record<string, { max: number; min: number; maxCount: number; minCount: number }> = {};
+      keys.forEach((key) => {
+        let maxValue = 0;
+        let minValue = Number.POSITIVE_INFINITY;
+        let maxCount = 0;
+        let minCount = 0;
+        ships.forEach((ship) => {
+          const value = Number((ship as unknown as Record<string, number>)[key]) || 0;
+          if (value > maxValue) {
+            maxValue = value;
+            maxCount = 1;
+          } else if (value === maxValue) {
+            maxCount += 1;
+          }
+          if (value < minValue) {
+            minValue = value;
+            minCount = 1;
+          } else if (value === minValue) {
+            minCount += 1;
+          }
+        });
+        range[key] = {
+          max: maxValue,
+          min: Number.isFinite(minValue) ? minValue : 0,
+          maxCount,
+          minCount,
+        };
+      });
+      return range;
+    },
   },
   watch: {
     completed(value) {
@@ -609,6 +819,20 @@ export default Vue.extend({
     },
   },
   methods: {
+    isBest(key: string, value: number, lower = false) {
+      const range = this.statRange[key];
+      if (!range || range.max === range.min) return false;
+      if (lower) return value === range.min && range.minCount <= 4;
+      return value === range.max && range.maxCount <= 4;
+    },
+    meterWidth(key: string, value: number) {
+      const peak = this.statRange[key] ? this.statRange[key].max : 0;
+      if (!peak || value <= 0) return '0%';
+      return `${Math.min(100, Math.round((value / peak) * 100))}%`;
+    },
+    shipMatchesKeyword(ship: ShipMaster, keyword: string) {
+      return `${ship.id} ${ship.name} ${this.getShipName(ship)}`.toLowerCase().includes(keyword);
+    },
     initShips() {
       this.isMobile = window.innerWidth < 600;
 

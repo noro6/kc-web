@@ -1,175 +1,133 @@
 <template>
-  <div>
-    <div class="d-flex">
-      <v-tabs v-model="tab">
-        <v-tab>{{ $t("Extra.未達成") }}</v-tab>
-        <v-tab>{{ $t("Extra.達成済") }}</v-tab>
-      </v-tabs>
-      <div class="ml-3 align-self-center">
-        <v-btn color="secondary" @click="confirmReset()">{{ $t("Common.リセット") }}</v-btn>
+  <div class="quest-page">
+    <div class="quest-toolbar">
+      <div class="quest-switch">
+        <button type="button" :class="{ on: tab === 0 }" @click="tab = 0">
+          {{ $t("Extra.未達成") }}
+          <span>{{ uncompletedQuests.length }}</span>
+        </button>
+        <button type="button" :class="{ on: tab === 1 }" @click="tab = 1">
+          {{ $t("Extra.達成済") }}
+          <span>{{ completedQuests.length }}</span>
+        </button>
+      </div>
+      <v-btn text small class="reset-btn" @click="confirmReset()">{{ $t("Common.リセット") }}</v-btn>
+    </div>
+    <div class="quest-stock">
+      <div class="stock-total">
+        <span>{{ $t("Extra.戦果砲残弾合計") }}</span>
+        <span class="stock-value">{{ totalRankingPoint }}</span>
+      </div>
+      <div class="stock-split">
+        <span>{{ $t("Extra.クォータリー") }} {{ totalQuarterlyRankingPoint }}</span>
+        <span>{{ $t("Extra.イヤーリー") }} {{ totalYearlyRankingPoint }}</span>
+        <span>{{ $t("Extra.単発") }} {{ totalOnceRankingPoint }}</span>
       </div>
     </div>
-    <v-divider />
-    <v-tabs-items v-model="tab" :touchless="true">
-      <v-tab-item>
-        <div class="d-flex align-center mt-3 pr-5 flex-wrap">
-          <div class="ml-3 mb-3 mb-sm-0">
-            <v-select
-              prepend-inner-icon="mdi-magnify"
-              v-model="questType"
-              :items="questTypes"
-              :item-text="getQuestTypeText"
-              hide-details
-              dense
-            />
+    <div v-if="tab === 0" class="quest-filters">
+      <button
+        v-for="type in availableTypes"
+        :key="type.value"
+        type="button"
+        :class="{ on: questType === type.value }"
+        @click="questType = type.value"
+      >
+        {{ getQuestTypeText(type) }}
+        <span>{{ typeCount(type.value) }}</span>
+      </button>
+    </div>
+    <div v-if="tab === 0" class="quest-list">
+      <article v-for="quest in visibleQuests" :key="quest.id" class="quest" :class="{ ready: quest.getProgressValue === 100 }">
+        <div class="quest-icon">
+          <img class="base" :src="'./img/util/sortie_quest.png'" alt="" />
+          <img v-if="typeIcon(quest)" class="mark" :src="typeIcon(quest)" alt="" />
+        </div>
+        <div class="quest-body">
+        <header class="quest-head">
+          <div class="quest-kind">
+            <span class="type" :class="quest.type">{{ typeLabel(quest.type) }}</span>
+            <span class="qid">{{ quest.id }}</span>
           </div>
-          <div class="ml-auto">
-            <div class="d-flex justify-end">
-              <div class="mr-3">{{ $t("Extra.戦果砲残弾合計") }}</div>
-              <div class="total-ranking-point">{{ totalRankingPoint }}</div>
+          <div class="quest-name">{{ $t(`Extra.${quest.name}`) }}</div>
+          <div class="quest-points">
+            <img :src="'./img/util/ranking_point.png'" alt="" />
+            <span>{{ quest.rankingPoint }}</span>
+          </div>
+          <div v-if="quest.type !== 'Once' && deadlines[quest.id]" class="quest-due" :class="deadlines[quest.id].kind">
+            <template v-if="deadlines[quest.id].kind === 'expired'">{{ deadlines[quest.id].text }}</template>
+            <template v-else>{{ $t("Extra.あと") }} {{ deadlines[quest.id].text }}</template>
+          </div>
+          <span class="quest-count">{{ quest.getCompletedCount }}/{{ quest.requires.length }}</span>
+        </header>
+        <div class="quest-row">
+        <div class="checks">
+          <template v-for="(group, gi) in requireGroups(quest)">
+            <button
+              v-if="group.items.length === 1"
+              :key="`${quest.id}-${gi}`"
+              type="button"
+              class="check"
+              :class="{ on: group.items[0].isComplete }"
+              @click="toggleRequire(group.items[0])"
+            >
+              <i class="pip" />
+              <span>{{ group.area }}</span>
+              <span>{{ $t(`Extra.${group.rank}勝利`) }}</span>
+            </button>
+            <div v-else :key="`${quest.id}-${gi}`" class="check multi" :class="{ on: groupDone(group) }">
+              <span>{{ group.area }}</span>
+              <span>{{ $t(`Extra.${group.rank}勝利`) }}</span>
+              <button
+                v-for="(req, ri) in group.items"
+                :key="ri"
+                type="button"
+                class="pip-btn"
+                :class="{ on: req.isComplete }"
+                @click="toggleRequire(req)"
+              />
+              <span class="pip-count">{{ doneCount(group) }}/{{ group.items.length }}</span>
             </div>
-            <div class="d-sm-flex justify-end caption">
-              <div class="d-flex justify-end">
-                <div class="mr-1">{{ $t("Extra.クォータリー") }}</div>
-                <div>{{ totalQuarterlyRankingPoint }}</div>
-                <div class="mx-2 d-none d-sm-block">/</div>
-              </div>
-              <div class="d-flex justify-end">
-                <div class="mr-1">{{ $t("Extra.イヤーリー") }}</div>
-                <div>{{ totalYearlyRankingPoint }}</div>
-                <div class="mx-2 d-none d-sm-block">/</div>
-              </div>
-              <div class="d-flex justify-end">
-                <div class="mr-1">{{ $t("Extra.単発") }}</div>
-                <div>{{ totalOnceRankingPoint }}</div>
-              </div>
-            </div>
+          </template>
+        </div>
+          <div v-if="rewards(quest).length" class="rewards">
+            <span v-for="reward in rewards(quest)" :key="reward.src" class="reward">
+              <img :src="reward.src" alt="" />
+              {{ reward.value }}
+            </span>
+          </div>
+          <div class="quest-actions">
+            <a class="wiki" :href="`https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99#id-${quest.id}`" target="_blank">Japan wiki</a>
+            <a class="wiki" :href="`https://en.kancollewiki.net/Quests#${quest.id}`" target="_blank">English wiki</a>
+            <v-btn small depressed :color="quest.getProgressValue === 100 ? 'primary' : 'secondary'" @click="confirmComplete(quest)">
+              {{ $t("Extra.達成") }}
+            </v-btn>
           </div>
         </div>
-        <div class="pa-2">
-          <v-expansion-panels multiple>
-            <v-expansion-panel v-for="(quest, i) in uncompletedQuests" :key="i" v-show="questType === 'All' || quest.type === questType">
-              <v-expansion-panel-header class="py-3 px-2 px-sm-3" :hide-actions="isMobile">
-                <div class="mr-sm-3">
-                  <div class="d-flex align-center">
-                    <div class="quest-icon">
-                      <v-img :src="`./img/util/sortie_quest.png`" width="48" height="48" />
-                      <div class="quest-type-icon">
-                        <v-img v-if="quest.type === 'Yearly'" :src="`./img/util/yearly_${quest.resetMonth}.png`" width="42" height="43" />
-                        <v-img v-else-if="quest.type === 'Quarterly'" :src="`./img/util/quarterly.png`" width="41" height="40" />
-                        <v-img v-else-if="quest.type === 'Once'" :src="`./img/util/once.png`" width="41" height="40" />
-                      </div>
-                    </div>
-                    <div class="ml-4 flex-grow-1">
-                      <div class="quest-title">
-                        <div class="d-flex align-center">
-                          <div class="flex-grow-1 mr-1 text-caption text-sm-body-2">
-                            {{ $t(`Extra.${quest.name}`) }}
-                          </div>
-                          <template v-if="quest.type !== 'Once'">
-                            <div class="ml-auto d-flex align-center text-no-wrap">
-                              <div class="mr-1 caption">{{ $t("Extra.あと") }}</div>
-                              <div class="text-body-2">{{ timeRemaining[i] }}</div>
-                            </div>
-                          </template>
-                        </div>
-                      </div>
-                      <div class="bar-container">
-                        <div>
-                          <v-progress-linear rounded :value="quest.getProgressValue" :color="getBarColor(quest.getProgressValue)" />
-                        </div>
-                        <div class="progress-count">{{ quest.getCompletedCount }} / {{ quest.requires.length }}</div>
-                      </div>
-                    </div>
-                    <div class="ml-6 d-none d-sm-block">
-                      <div class="mb-1 d-flex align-center">
-                        <v-img :src="`./img/util/fuel.png`" height="18" width="18" />
-                        <div class="resource-reward">{{ quest.fuel }}</div>
-                        <v-img :src="`./img/util/steel.png`" height="18" width="18" />
-                        <div class="resource-reward">{{ quest.steel }}</div>
-                      </div>
-                      <div class="d-flex align-center">
-                        <v-img :src="`./img/util/ammo.png`" height="18" width="18" />
-                        <div class="resource-reward">{{ quest.ammo }}</div>
-                        <v-img :src="`./img/util/bauxite.png`" height="18" width="18" />
-                        <div class="resource-reward">{{ quest.bauxite }}</div>
-                      </div>
-                    </div>
-                    <div class="ml-3 d-none d-sm-flex align-center">
-                      <div>
-                        <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
-                      </div>
-                      <div class="ranking-point-reward">{{ quest.rankingPoint }}</div>
-                    </div>
-                  </div>
-                </div>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-divider />
-                <div class="check-item-container">
-                  <div v-for="(check, j) in quest.requires" :key="`req${j}`">
-                    <v-checkbox
-                      v-model="check.isComplete"
-                      :dense="isMobile"
-                      @change="updateState"
-                      hide-details
-                      :label="`${check.area} ${$t(`Extra.${check.rank}勝利`)}`"
-                    />
-                  </div>
-                </div>
-                <div class="mt-3 mt-sm-6 d-sm-flex align-center">
-                  <v-btn v-if="quest.getProgressValue === 100" color="primary" @click="confirmComplete(quest)" :block="isMobile">{{ $t("Extra.達成") }}</v-btn>
-                  <v-btn v-else depressed color="secondary" @click="confirmComplete(quest)" :block="isMobile">{{ $t("Extra.達成") }}</v-btn>
-                  <div class="ml-sm-auto mt-3 mt-sm-0">
-                    <div class="wiki-button">
-                      <v-btn outlined :block="isMobile" color="info" :href="`https://wikiwiki.jp/kancolle/%E4%BB%BB%E5%8B%99#id-${quest.id}`" target="_blank">
-                        Japan wiki
-                      </v-btn>
-                      <v-btn outlined :block="isMobile" color="info" :href="`https://en.kancollewiki.net/Quests#${quest.id}`" target="_blank">
-                        English wiki
-                      </v-btn>
-                    </div>
-                  </div>
-                </div>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+        <div class="track"><i :style="{ width: `${quest.getProgressValue}%` }" /></div>
         </div>
-      </v-tab-item>
-      <v-tab-item class="pt-3">
-        <v-card class="py-3 px-2 px-sm-6 mx-3 my-1" v-for="(quest, i) in completedQuests" :key="i">
-          <div class="d-flex align-center">
-            <div class="flex-grow-1">
-              <div class="quest-title">
-                <div class="d-flex flex-wrap align-center">
-                  <div class="flex-grow-1 mr-3 text-body-2">
-                    {{ $t(`Extra.${quest.name}`) }}
-                  </div>
-                  <div class="ml-auto text-no-wrap caption">
-                    <div class="d-flex align-center justify-space-between">
-                      <div class="mr-1 caption">{{ $t("Extra.達成日") }}</div>
-                      <div>{{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="bar-container">
-                <div>
-                  <v-progress-linear rounded value="100" color="success" />
-                </div>
-                <div class="progress-count">{{ quest.requires.length }} / {{ quest.requires.length }}</div>
-              </div>
-            </div>
-            <div class="ml-2 ml-sm-6 d-sm-flex align-center">
-              <div>
-                <v-img :src="`./img/util/ranking_point.png`" height="50" width="50" />
-              </div>
-              <div class="text-center text-sm-right ranking-point-reward">{{ quest.rankingPoint }}</div>
-            </div>
+      </article>
+    </div>
+    <div v-else class="quest-list">
+      <p v-if="!completedQuests.length" class="quest-empty">{{ $t("Extra.達成済みの任務はありません") }}</p>
+      <article v-for="quest in completedQuests" :key="quest.id" class="quest is-done">
+        <header class="quest-head">
+          <div class="quest-icon">
+            <img class="base" :src="'./img/util/sortie_quest.png'" alt="" />
+            <img v-if="typeIcon(quest)" class="mark" :src="typeIcon(quest)" alt="" />
           </div>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+          <div class="quest-kind">
+            <span class="type" :class="quest.type">{{ typeLabel(quest.type) }}</span>
+            <span class="qid">{{ quest.id }}</span>
+          </div>
+          <div class="quest-name">{{ $t(`Extra.${quest.name}`) }}</div>
+          <div class="quest-points">
+            <img :src="'./img/util/ranking_point.png'" alt="" />
+            <span>{{ quest.rankingPoint }}</span>
+          </div>
+          <div class="quest-due">{{ $t("Extra.達成日") }} {{ new Date(quest.completedDate).toLocaleString($vuetify.lang.current) }}</div>
+        </header>
+      </article>
+    </div>
     <v-dialog v-model="confirmCompleteDialog" transition="scroll-x-transition" width="500">
       <v-card class="pa-3" v-if="completeTargetQuest.id">
         <div class="ma-4">
@@ -206,74 +164,369 @@
 </template>
 
 <style scoped>
+.quest-page {
+  --accent: #3b82f6;
+  --met: #22c55e;
+  --surface: #fbfaf8;
+  --surface-2: #f1efeb;
+}
+.theme--dark .quest-page {
+  --surface: rgb(32, 33, 40);
+  --surface-2: rgb(42, 44, 52);
+}
+.deep-sea .theme--dark .quest-page {
+  --surface: rgb(16, 28, 48);
+  --surface-2: rgb(24, 40, 64);
+}
+.quest-toolbar,
+.quest-stock,
+.quest-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.quest-toolbar {
+  justify-content: space-between;
+}
+.quest-switch,
+.quest-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.quest-switch button,
+.quest-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(128, 128, 128, 0.28);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.quest-switch button.on,
+.quest-filters button.on {
+  border-color: transparent;
+  background: var(--surface-2);
+}
+.quest-switch span,
+.quest-filters span {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.62;
+}
+.reset-btn {
+  margin-right: 0;
+}
+.quest-stock {
+  margin-top: 14px;
+  justify-content: space-between;
+}
+.stock-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  opacity: 0.72;
+}
+.stock-value {
+  font-size: 28px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  opacity: 1;
+}
+.stock-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+}
+.quest-filters {
+  margin-top: 12px;
+}
+.quest-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.quest {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid rgba(128, 128, 128, 0.22);
+  border-radius: 12px;
+}
+.quest-body {
+  flex: 1;
+  min-width: 0;
+}
+.quest.ready {
+  border-color: rgba(34, 197, 94, 0.45);
+}
+.quest.is-done {
+  opacity: 0.78;
+}
+.quest-head,
+.quest-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.quest-row {
+  margin-top: 6px;
+}
 .quest-icon {
   position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
 }
-.quest-type-icon {
+.quest-icon .base {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+.quest-icon .mark {
   position: absolute;
-  right: -18px;
-  bottom: -10px;
-  transform: scale(0.75);
+  right: -10px;
+  bottom: -4px;
+  width: 34px;
+  height: 32px;
+  transform: scale(0.72);
 }
-
-.quest-title {
+.quest-kind {
   display: flex;
-  flex-direction: column;
-  min-height: 32px;
-  justify-content: center;
+  align-items: center;
+  gap: 6px;
 }
-
-.bar-container {
-  position: relative;
-  margin-top: 4px;
-  margin-bottom: 12px;
+.quest-name {
+  flex: 1 1 160px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.35;
 }
-.progress-count {
-  position: absolute;
-  top: 6px;
-  left: calc(50% - 24px);
+.quest-points {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.quest-points img {
+  width: 18px;
+  height: 18px;
+}
+.quest-count {
   font-size: 12px;
-  width: 48px;
-  text-align: center;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
 }
-.resource-reward {
-  width: 38px;
-  text-align: right;
-  margin-right: 0.5rem;
-  font-size: 0.8em;
+.quest-due {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+  white-space: nowrap;
 }
-.ranking-point-reward {
-  min-width: 36px;
-  text-align: right;
+.quest-due.soon {
+  color: #b45309;
+  opacity: 1;
 }
-.total-ranking-point {
-  width: 36px;
-  text-align: right;
+.quest-due.expired {
+  color: #dc2626;
+  opacity: 1;
 }
-
-.check-item-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.theme--dark .quest-due.soon {
+  color: #fbbf24;
 }
-@media (min-width: 600px) {
-  .check-item-container {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 24px;
+.theme--dark .quest-due.expired {
+  color: #fca5a5;
+}
+.type {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.type.Yearly {
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+.type.Once {
+  background: rgba(124, 58, 237, 0.14);
+  color: #6d28d9;
+}
+.theme--dark .type {
+  color: #93c5fd;
+}
+.theme--dark .type.Yearly {
+  color: #fbbf24;
+}
+.theme--dark .type.Once {
+  color: #d8b4fe;
+}
+.qid {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.5;
+}
+.track {
+  height: 3px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: rgba(128, 128, 128, 0.16);
+}
+.track i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.quest.ready .track i {
+  background: var(--met);
+}
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 0 8px 0 6px;
+  border: 1px solid rgba(128, 128, 128, 0.28);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.check.on {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.12);
+}
+.pip,
+.pip-btn {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 1.5px solid rgba(128, 128, 128, 0.7);
+  border-radius: 3px;
+  background: transparent;
+}
+.pip {
+  display: block;
+}
+.pip-btn {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+.check.on .pip,
+.pip-btn.on {
+  border-color: #22c55e;
+  background: #22c55e;
+}
+.pip-count {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
+}
+.rewards,
+.quest-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.quest-actions >>> .v-btn {
+  height: 24px;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.quest-actions {
+  margin-left: auto;
+}
+@media (max-width: 640px) {
+  .quest {
+    align-items: flex-start;
+  }
+  .quest-toolbar,
+  .quest-page {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .reset-btn {
+    margin-right: 0;
+  }
+  .quest-kind {
+    order: 1;
+  }
+  .quest-points {
+    order: 2;
+  }
+  .quest-due {
+    order: 3;
+  }
+  .quest-count {
+    order: 4;
+  }
+  .quest-name {
+    order: 5;
+    flex-basis: 100%;
+  }
+  .checks {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .quest-actions {
+    margin-left: 0;
   }
 }
-
-.wiki-button {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 8px;
+.reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.reward img {
+  width: 16px;
+  height: 16px;
+}
+.wiki {
+  font-size: 12px;
+  opacity: 0.75;
+}
+.quest-empty {
+  margin: 8px 2px;
+  font-size: 13px;
+  opacity: 0.68;
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
 import Const from '@/classes/const';
-import Quest from '@/classes/quest';
+import Quest, { QuestRequireBattle } from '@/classes/quest';
 import { sum } from 'lodash';
 
 export default Vue.extend({
@@ -296,9 +549,8 @@ export default Vue.extend({
     completeTargetQuest: new Quest(),
     snackBar: false,
     snackBarText: '',
-    timeRemaining: [] as string[],
+    deadlines: {} as Record<string, { text: string; kind: string }>,
     intervalId: 0,
-    isMobile: true,
   }),
   mounted() {
     this.initializeQuests();
@@ -325,31 +577,63 @@ export default Vue.extend({
       const rankingPoints = this.uncompletedQuests.filter((v) => v.type === 'Once').map((v) => v.rankingPoint);
       return sum(rankingPoints) ?? 0;
     },
-    getBarColor() {
-      return (value: number) => {
-        if (value === 0) {
-          return 'grey';
-        }
-        if (value < 50) {
-          return 'amber';
-        }
-        if (value < 75) {
-          return 'lime';
-        }
-        if (value < 80) {
-          return 'light-green';
-        }
-        if (value < 100) {
-          return 'green';
-        }
-        return 'light-blue';
-      };
+    availableTypes(): { value: string; text: string }[] {
+      const present = this.allQuests.map((quest) => `${quest.type}`);
+      return this.questTypes.filter((type) => type.value === 'All' || present.includes(type.value));
+    },
+    visibleQuests(): Quest[] {
+      if (this.questType === 'All') return this.uncompletedQuests;
+      return this.uncompletedQuests.filter((quest) => quest.type === this.questType);
     },
   },
   watch: {},
   methods: {
     getQuestTypeText(item: { value: string; text: string }): string {
       return `${this.$t(`Extra.${item.text}`)}`;
+    },
+    typeIcon(quest: Quest): string {
+      if (quest.type === 'Yearly') return `./img/util/yearly_${quest.resetMonth}.png`;
+      if (quest.type === 'Quarterly') return './img/util/quarterly.png';
+      if (quest.type === 'Once') return './img/util/once.png';
+      return '';
+    },
+    typeLabel(type: string): string {
+      const item = this.questTypes.find((questType) => questType.value === type);
+      return item ? this.getQuestTypeText(item) : type;
+    },
+    typeCount(value: string): number {
+      if (value === 'All') return this.uncompletedQuests.length;
+      return this.uncompletedQuests.filter((quest) => quest.type === value).length;
+    },
+    requireGroups(quest: Quest): { area: string; rank: string; items: QuestRequireBattle[] }[] {
+      const groups: { area: string; rank: string; items: QuestRequireBattle[] }[] = [];
+      quest.requires.forEach((require) => {
+        const last = groups[groups.length - 1];
+        if (last && last.area === require.area && last.rank === require.rank) {
+          last.items.push(require);
+        } else {
+          groups.push({ area: require.area, rank: require.rank, items: [require] });
+        }
+      });
+      return groups;
+    },
+    groupDone(group: { items: QuestRequireBattle[] }): boolean {
+      return group.items.every((require) => require.isComplete);
+    },
+    doneCount(group: { items: QuestRequireBattle[] }): number {
+      return group.items.filter((require) => require.isComplete).length;
+    },
+    rewards(quest: Quest): { src: string; value: number }[] {
+      return [
+        { src: './img/util/fuel.png', value: quest.fuel },
+        { src: './img/util/ammo.png', value: quest.ammo },
+        { src: './img/util/steel.png', value: quest.steel },
+        { src: './img/util/bauxite.png', value: quest.bauxite },
+      ].filter((reward) => reward.value > 0);
+    },
+    toggleRequire(require: QuestRequireBattle) {
+      require.isComplete = !require.isComplete;
+      this.updateState();
     },
     initializeQuests(resetAll = false) {
       if (this.intervalId) {
@@ -483,12 +767,11 @@ export default Vue.extend({
       this.snackBarText = `${this.$t('Extra.リセットしました。')}`;
     },
     setTimeRemaining() {
-      this.isMobile = window.innerWidth < 600;
       const today = this.getToday();
       const todayTime = today.getTime();
       let needUpdate = false;
 
-      const timeRemainingTexts: string[] = [];
+      const deadlines: Record<string, { text: string; kind: string }> = {};
       for (let i = 0; i < this.allQuests.length; i += 1) {
         const quest = this.allQuests[i];
 
@@ -534,12 +817,13 @@ export default Vue.extend({
           timeRemainingText = `${this.$t('Extra.失効')}`;
         }
 
-        if (!quest.isCompleted) {
-          timeRemainingTexts.push(timeRemainingText);
-        }
+        let kind = 'ok';
+        if (remainingDay < 0) kind = 'expired';
+        else if (remainingDay <= 1) kind = 'soon';
+        deadlines[quest.id] = { text: timeRemainingText, kind };
       }
 
-      this.timeRemaining = timeRemainingTexts;
+      this.deadlines = deadlines;
 
       if (needUpdate) {
         // ローカルの任務群に保存
