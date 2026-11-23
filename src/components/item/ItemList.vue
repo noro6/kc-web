@@ -108,7 +108,8 @@
           setting.blacklistItemIds.length }})</v-btn>
       </div>
     </div>
-    <div class="type-selector-container" :class="{ 'ml-3': multiLine && !isMobile, 'ml-1': !multiLine }">
+    <div class="type-selector-container"
+      :class="{ 'ml-3': multiLine && !isMobile, 'ml-1': !multiLine && !isMobile, 'px-2': isMobile, mobile: isMobile }">
       <div v-ripple="{ class: 'info--text' }" class="type-selector"
         :class="{ active: type === -1 && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
         @click="changeType(-1)" @keypress="changeType(-1)">
@@ -117,11 +118,12 @@
       <div v-for="i in enabledTypes" :key="i.id" v-ripple="{ class: 'info--text' }" class="type-selector"
         :class="{ active: type === i.id && !disabledDetailFilter, disabled: keyword, 'batch-max': isBatchListMax }"
         @click="changeType(i.id)" @keypress="changeType(i.id)">
-        <v-img :src="`./img/type/type${isAirbaseMode && i.id === 17 ? 26 : i.id}.png`" height="32" width="32" />
+        <v-img class="type-icon" :src="`./img/type/type${isAirbaseMode && i.id === 17 ? 26 : i.id}.png`" height="28"
+          width="28" />
       </div>
       <div v-if="batchList.length" v-ripple="{ class: 'info--text' }" class="type-selector"
         :class="{ active: isCheckedOnly, disabled: keyword }" @click="toggleCheckedOnly" @keypress="toggleCheckedOnly">
-        {{ $t("Fleet.選択済") }}
+        <div class="type-all-text">{{ $t("Fleet.選択済") }}</div>
       </div>
     </div>
     <v-divider :class="{ 'mx-3': multiLine && !isMobile }" />
@@ -193,16 +195,6 @@
                 <div>
                   <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
-                <!-- 秋刀魚特効表示特別対応 -->
-                <div class="saury-bonus" v-if="item.text[0] === 'Saury'">
-                  <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
-                  <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-                </div>
-                <template v-else-if="item.text.length">
-                  <div v-for="(text, index) in item.text" :key="text" class="item-special-text" :class="[specialTextColorByText(text), specialTextIndexClass(index)]">
-                    <div class="align-self-center">{{ text }}</div>
-                  </div>
-                </template>
                 <!-- 一括配備モード用インデックス -->
                 <div v-if="item.batchListIndexes.length" class="batch-index-container">
                   <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
@@ -216,6 +208,13 @@
                 <div class="text-truncate">
                   {{ needTrans ? $t(`${item.item.data.name}`) : item.item.data.name }}
                 </div>
+                <!-- 秋刀魚特効表示特別対応 -->
+                <v-icon v-if="item.text[0] === 'Saury'" class="saury-bonus" small
+                  :color="$vuetify.theme.dark ? 'light-blue lighten-3' : 'light-blue lighten-2'">mdi-fish mdi-rotate-315</v-icon>
+                <template v-else>
+                  <span v-for="text in item.text" :key="text" class="item-special-text"
+                    :class="specialTextColorByText(text)">{{ text }}</span>
+                </template>
               </div>
               <div v-if="!isCheckedOnly && item.sumBonus" class="bonus-icon">
                 <v-icon v-if="item.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
@@ -234,7 +233,14 @@
                 <span>&times;</span>
                 <span>{{ item.count }}</span>
               </div>
-              <div v-for="key in viewStatus" class="item-status" :key="`status${key}`">{{ formatStatus(item, key) }}
+              <div v-for="key in viewStatus" class="item-status" :class="{ sorted: key === sortKey }"
+                :key="`status${key}`">
+                <div v-if="barWidth(item, key)" class="status-bar" :class="{ weak: key !== sortKey }"
+                  :style="{ width: `${barWidth(item, key)}%` }" />
+                <span class="item-status-value">{{ formatStatus(item, key) }}</span>
+                <span v-if="!isCheckedOnly && statusBonus(item, key)" class="status-bonus"
+                  :class="{ minus: statusBonus(item, key) < 0 }">{{ statusBonus(item, key) > 0 ? '+' : '' }}{{
+                    statusBonus(item, key) }}</span>
               </div>
             </div>
           </div>
@@ -256,16 +262,6 @@
                 <div>
                   <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
-                <!-- 秋刀魚特効表示特別対応 -->
-                <div class="saury-bonus" v-if="v.text[0] === 'Saury'">
-                  <v-icon v-if="$vuetify.theme.dark" color="light-blue lighten-3">mdi-fish mdi-rotate-315</v-icon>
-                  <v-icon v-else color="light-blue lighten-2">mdi-fish mdi-rotate-315</v-icon>
-                </div>
-                <template v-else-if="v.text.length">
-                  <div v-for="(text, index) in v.text" :key="text" class="item-special-text" :class="[specialTextColorByText(text), specialTextIndexClass(index)]">
-                    <div class="align-self-center">{{ text }}</div>
-                  </div>
-                </template>
                 <!-- 一括配備モード用インデックス -->
                 <div v-if="v.batchListIndexes.length" class="batch-index-container">
                   <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
@@ -281,6 +277,13 @@
                     <div class="text-truncate">
                       {{ needTrans ? $t(`${v.item.data.name}`) : v.item.data.name }}
                     </div>
+                    <!-- 秋刀魚特効表示特別対応 -->
+                    <v-icon v-if="v.text[0] === 'Saury'" class="saury-bonus" small
+                      :color="$vuetify.theme.dark ? 'light-blue lighten-3' : 'light-blue lighten-2'">mdi-fish mdi-rotate-315</v-icon>
+                    <template v-else>
+                      <span v-for="text in v.text" :key="text" class="item-special-text"
+                        :class="specialTextColorByText(text)">{{ text }}</span>
+                    </template>
                   </div>
                   <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
                     <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
@@ -301,9 +304,15 @@
                   </div>
                 </div>
                 <div class="mobile-sub-status" v-if="isMobile">
-                  <div v-for="key in viewStatus" class="mobile-sub-status-value" :key="`status${key}`">
+                  <div v-for="key in viewStatus" class="mobile-sub-status-value" :class="{ sorted: key === sortKey }"
+                    :key="`status${key}`">
                     <div class="sub-status-header">{{ $t(`Statuses.${key}`) }}</div>
-                    <div>{{ formatStatus(v, key) }}</div>
+                    <div>
+                      {{ formatStatus(v, key) }}
+                      <span v-if="!isCheckedOnly && statusBonus(v, key)" class="status-bonus"
+                        :class="{ minus: statusBonus(v, key) < 0 }">{{ statusBonus(v, key) > 0 ? '+' : '' }}{{
+                          statusBonus(v, key) }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -655,10 +664,17 @@
 
 <style scoped>
 .list-card {
+  --accent: #14b8a6;
+  --accent-text: #0f766e;
   display: flex;
   flex-direction: column;
   position: relative;
   height: 100vh;
+}
+
+.theme--dark .list-card,
+.theme--dark.list-card {
+  --accent-text: #5eead4;
 }
 
 #item-table-body {
@@ -740,29 +756,53 @@
 
 .type-selector-container {
   margin-top: 0.25rem;
+  padding-top: 4px;
+  padding-bottom: 4px;
   border-top: 1px solid rgba(128, 128, 128, 0.4);
   display: flex;
   flex-wrap: wrap;
+  gap: 2px;
+}
+
+.type-selector-container.mobile {
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.type-selector-container.mobile::-webkit-scrollbar {
+  display: none;
 }
 
 .type-selector {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
+  justify-content: center;
+  height: 34px;
+  min-width: 36px;
+  padding: 0 3px;
   border: 1px solid transparent;
-  padding: 0.2rem 0.4rem;
-  font-size: 12px;
-  text-align: center;
+  border-radius: 10px;
+  font-size: 11px;
+  white-space: nowrap;
   cursor: pointer;
-  transition: 0.2s;
+  user-select: none;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.type-selector .type-icon {
+  flex: 0 0 auto;
 }
 
 .type-selector:hover {
-  background-color: rgba(128, 200, 255, 0.2);
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .type-selector.active {
-  border-color: rgba(33, 150, 243, 0.4);
-  background-color: rgba(33, 150, 243, 0.1);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .type-selector.disabled {
@@ -776,7 +816,7 @@
 }
 
 .type-all-text {
-  width: 32px;
+  padding: 0 5px;
   font-weight: bold;
 }
 
@@ -836,7 +876,7 @@
 }
 
 .list-item:hover {
-  background-color: rgba(0, 164, 255, 0.1);
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .list-item.single {
@@ -853,8 +893,12 @@
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 }
 
+.type-item-container .list-item.no-stock:not(.selected) {
+  opacity: 0.5;
+}
+
 .list-item.no-stock:hover {
-  background-color: rgba(255, 128, 128, 0.1);
+  background-color: rgba(128, 128, 128, 0.12);
 }
 
 .list-item.has-bonus {
@@ -923,10 +967,6 @@
   color: #66bb6a;
 }
 
-.no-stock .item-name-container {
-  color: #ff6464;
-}
-
 .lack-remodel .item-name-container {
   color: #ff6964;
 }
@@ -955,52 +995,32 @@
 .item-count {
   margin-left: 1px;
   width: 22px;
-  font-weight: bold;
-  color: rgb(255, 64, 64);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-special-text {
-  background-color: rgba(250, 250, 255, 0.9);
-  border: 1px solid rgb(83, 158, 255);
-  box-shadow: inset 0 0 3px rgb(83, 158, 255);
-  color: #000;
-  font-weight: bold;
-  position: absolute;
-  display: flex;
-  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  padding: 0 4px;
   min-width: 22px;
-  font-size: 12px;
-  padding: 0px 2px;
-  border-radius: 0.2rem;
-  left: 5px;
-  top: -8px;
-  animation: special-text infinite 3s;
+  border: 1px solid #2196F3;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 15px;
+  text-align: center;
 }
-
-/* テキストの色バリエーション（最大4種） */
-.item-special-text.index0 { transform: translateX(0px); }
-.item-special-text.index1 { transform: translateX(24px); }
-.item-special-text.index2 { transform: translateX(48px); }
-.item-special-text.index3 { transform: translateX(72px); }
 
 /* テキスト内容に応じた色（頻出順で主要色を割り当て） */
-.item-special-text.color-A3 { border-color: #2196F3; box-shadow: inset 0 0 3px #2196F3; }
-.item-special-text.color-C2 { border-color: #4CAF50; box-shadow: inset 0 0 3px #4CAF50; }
-.item-special-text.color-A2 { border-color: #F44336; box-shadow: inset 0 0 3px #F44336; }
-.item-special-text.color-C3 { border-color: #FF9800; box-shadow: inset 0 0 3px #FF9800; }
-.item-special-text.color-A1 { border-color: #3F51B5; box-shadow: inset 0 0 3px #3F51B5; }
-.item-special-text.color-B1 { border-color: #009688; box-shadow: inset 0 0 3px #009688; }
-.item-special-text.color-B2 { border-color: #9C27B0; box-shadow: inset 0 0 3px #9C27B0; }
-.item-special-text.color-B3 { border-color: #757575; box-shadow: inset 0 0 3px #757575; }
-.item-special-text.color-B4 { border-color: #535353; box-shadow: inset 0 0 3px #535353; }
-
-.list-item.single.has-bonus .item-special-text {
-  left: -1px;
-}
-
-.multi .item-special-text {
-  left: 0px;
-}
+.item-special-text.color-A3 { border-color: #2196F3; }
+.item-special-text.color-C2 { border-color: #4CAF50; }
+.item-special-text.color-A2 { border-color: #F44336; }
+.item-special-text.color-C3 { border-color: #FF9800; }
+.item-special-text.color-A1 { border-color: #3F51B5; }
+.item-special-text.color-B1 { border-color: #009688; }
+.item-special-text.color-B2 { border-color: #9C27B0; }
+.item-special-text.color-B3 { border-color: #757575; }
+.item-special-text.color-B4 { border-color: #535353; }
 
 .batch-mode .list-item {
   opacity: 0.8;
@@ -1058,41 +1078,8 @@
 }
 
 .saury-bonus {
-  position: absolute;
-  left: 1px;
-  top: -5px;
-  filter: drop-shadow(0 0 1px #000);
-  animation: special-text infinite 3s;
-}
-
-.theme--dark .saury-bonus {
-  filter: drop-shadow(0 0 3px #000);
-}
-
-.list-item.single.has-bonus .saury-bonus {
-  left: -5px;
-}
-
-.multi .saury-bonus {
-  left: -5px;
-}
-
-@keyframes special-text {
-  0% {
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  85% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
+  flex-shrink: 0;
+  margin-left: 4px;
 }
 
 .item-status-header {
@@ -1118,10 +1105,54 @@
 }
 
 .item-status {
+  position: relative;
   align-self: center;
   text-align: right;
   width: 10%;
   font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+.list-item .item-status.sorted {
+  font-weight: bold;
+}
+
+.status-bar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  pointer-events: none;
+}
+
+.status-bar.weak {
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.item-status-value {
+  position: relative;
+}
+
+.status-bonus {
+  position: relative;
+  margin-left: 1px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #039be5;
+}
+
+.theme--dark .status-bonus {
+  color: #4fc3f7;
+}
+
+.status-bonus.minus {
+  color: #ef5350;
+}
+
+.ignore-bonus .status-bonus {
+  opacity: 0.45;
 }
 
 .item-status-header .item-status {
@@ -1146,8 +1177,14 @@
   opacity: 1;
 }
 
+.item-status-header .item-status.desc,
+.item-status-header .item-status.asc {
+  color: var(--accent-text);
+  font-weight: bold;
+}
+
 .item-status-header .item-status:hover {
-  background-color: rgba(128, 200, 255, 0.1);
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .item-status-header .item-status .v-icon {
@@ -1222,6 +1259,13 @@
   align-items: center;
   font-size: 12px;
   opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.mobile-sub-status-value.sorted {
+  opacity: 1;
+  font-weight: bold;
+  color: var(--accent-text);
 }
 
 .sub-status-header {
@@ -1341,6 +1385,21 @@ type viewItem = {
 };
 
 const actualKey = ['tp', 'tp2', 'airPower', 'defenseAirPower', 'antiAirWeight', 'antiAirBonus', 'nightBattleFirePower'];
+
+/** 表示値にそのまま加算されるボーナスのみ対象 対空・砲戦火力・射程は加算のされ方が異なるため除外 */
+const statusBonusKeys: { [key: string]: (keyof ItemBonusStatus)[] } = {
+  actualFire: ['firePower'],
+  actualTorpedo: ['torpedo'],
+  nightBattleFirePower: ['firePower', 'torpedo'],
+  actualBomber: ['bomber'],
+  actualArmor: ['armor'],
+  actualAsw: ['asw'],
+  actualAvoid: ['avoid'],
+  actualAccuracy: ['accuracy'],
+  actualScout: ['scout'],
+};
+
+const textStatusKeys = ['name', 'id', 'actualRange', 'avoidId'];
 
 export default Vue.extend({
   name: 'ItemList',
@@ -1663,6 +1722,31 @@ export default Vue.extend({
           value = (item.data as { [key: string]: number })[key];
         }
         return value ? `${Math.floor(10 * value) / 10}` : '';
+      };
+    },
+    statusBonus(): (v: viewItem, key: string) => number {
+      return (v: viewItem, key: string) => {
+        const keys = statusBonusKeys[key];
+        if (!keys || !v.bonus) return 0;
+        return keys.reduce((sum, k) => sum + (v.bonus[k] ?? 0), 0);
+      };
+    },
+    barKey(): string {
+      if (this.isCheckedOnly) return '';
+      if (this.sortKey && !textStatusKeys.includes(this.sortKey)) return this.sortKey;
+      const mainKey = this.viewStatus[0];
+      return mainKey && !textStatusKeys.includes(mainKey) ? mainKey : '';
+    },
+    barMaxValue(): number {
+      const key = this.barKey;
+      if (!key) return 0;
+      return this.viewItems.reduce((max, v) => Math.max(max, parseFloat(`${this.formatStatus(v, key)}`) || 0), 0);
+    },
+    barWidth(): (v: viewItem, key: string) => number {
+      return (v: viewItem, key: string) => {
+        if (key !== this.barKey || this.barMaxValue <= 0) return 0;
+        const value = parseFloat(`${this.formatStatus(v, key)}`);
+        return value > 0 ? Math.round((value / this.barMaxValue) * 75) : 0;
       };
     },
     isJapanese() {
@@ -2624,10 +2708,6 @@ export default Vue.extend({
         return `${shipName.map((v) => this.translate(v)).join('')}`;
       }
       return ship.name || '';
-    },
-    specialTextIndexClass(index: number) {
-      const i = index % 4;
-      return `index${i}`;
     },
     specialTextColorByText(text: string) {
       const key = String(text).toUpperCase();
