@@ -20,44 +20,44 @@
     <div class="mt-1 caption grey--text">{{ $t("Common.基本装備性能") }}</div>
     <v-divider :dark="dark" />
     <div class="item-statuses">
-      <template v-if="!dense || value.data.fire">
+      <template v-if="!dense || showZero || value.data.fire">
         <div :class="{ 'no-status': !value.data.fire }">{{ $t("Common.火力") }}</div>
         <div :class="{ 'no-status': !value.data.fire }">{{ value.data.fire }}</div>
       </template>
-      <template v-if="dense && !isAirbaseMode && (value.dayBattleFirePower || value.aircraftDayBattleFirePower)">
-        <div>{{ $t("Common.砲戦火力") }}</div>
-        <div v-if="value.aircraftDayBattleFirePower !== value.dayBattleFirePower">{{ formatActual(value.aircraftDayBattleFirePower) }}</div>
-        <div v-else>{{ formatActual(value.dayBattleFirePower) }}</div>
+      <template v-if="dense && !isAirbaseMode && (showZero || value.dayBattleFirePower || value.aircraftDayBattleFirePower)">
+        <div :class="{ 'no-status': !(value.dayBattleFirePower || value.aircraftDayBattleFirePower) }">{{ $t("Common.砲戦火力") }}</div>
+        <div v-if="value.aircraftDayBattleFirePower !== value.dayBattleFirePower" :class="{ 'no-status': !value.aircraftDayBattleFirePower }">{{ value.aircraftDayBattleFirePower ? formatActual(value.aircraftDayBattleFirePower) : 0 }}</div>
+        <div v-else :class="{ 'no-status': !value.dayBattleFirePower }">{{ value.dayBattleFirePower ? formatActual(value.dayBattleFirePower) : 0 }}</div>
       </template>
-      <template v-if="!dense || value.data.torpedo">
+      <template v-if="!dense || showZero || value.data.torpedo">
         <div :class="{ 'no-status': !value.data.torpedo }">{{ $t("Common.雷装") }}</div>
         <div :class="{ 'no-status': !value.data.torpedo }">{{ value.data.torpedo }}</div>
       </template>
-      <template v-if="!dense || value.data.bomber">
+      <template v-if="!dense || showZero || value.data.bomber">
         <div :class="{ 'no-status': !value.data.bomber }">{{ $t("Common.爆装") }}</div>
         <div :class="{ 'no-status': !value.data.bomber }">{{ value.data.bomber }}</div>
       </template>
-      <template v-if="!dense || value.data.armor">
+      <template v-if="!dense || showZero || value.data.armor">
         <div :class="{ 'no-status': !value.data.armor }">{{ $t("Common.装甲") }}</div>
         <div :class="{ 'no-status': !value.data.armor }">{{ value.data.armor }}</div>
       </template>
-      <template v-if="!dense || value.data.antiAir">
+      <template v-if="!dense || showZero || value.data.antiAir">
         <div :class="{ 'no-status': !value.data.antiAir }">{{ $t("Common.対空") }}</div>
         <div :class="{ 'no-status': !value.data.antiAir }">{{ value.data.antiAir }}</div>
       </template>
-      <template v-if="dense && value.actualAntiAir && value.actualAntiAir !== value.data.antiAir">
-        <div>{{ $t("Common.出撃対空") }}</div>
-        <div>{{ formatActual(value.actualAntiAir) }}</div>
+      <template v-if="dense && value.data.isPlane && (showZero || (value.actualAntiAir && value.actualAntiAir !== value.data.antiAir))">
+        <div :class="{ 'no-status': !value.actualAntiAir }">{{ $t("Common.出撃対空") }}</div>
+        <div :class="{ 'no-status': !value.actualAntiAir }">{{ value.actualAntiAir ? formatActual(value.actualAntiAir) : 0 }}</div>
       </template>
-      <template v-if="dense && isAirbaseMode && value.actualAntiAir !== value.actualDefenseAntiAir">
-        <div>{{ $t("Common.防空対空") }}</div>
-        <div>{{ formatActual(value.actualDefenseAntiAir) }}</div>
+      <template v-if="dense && isAirbaseMode && value.data.isPlane && (showZero || value.actualAntiAir !== value.actualDefenseAntiAir)">
+        <div :class="{ 'no-status': !value.actualDefenseAntiAir }">{{ $t("Common.防空対空") }}</div>
+        <div :class="{ 'no-status': !value.actualDefenseAntiAir }">{{ value.actualDefenseAntiAir ? formatActual(value.actualDefenseAntiAir) : 0 }}</div>
       </template>
-      <template v-if="!dense || value.data.asw">
+      <template v-if="!dense || showZero || value.data.asw">
         <div :class="{ 'no-status': !value.data.asw }">{{ $t("Common.対潜") }}</div>
         <div :class="{ 'no-status': !value.data.asw }">{{ value.data.asw }}</div>
       </template>
-      <template v-if="!dense || value.data.scout">
+      <template v-if="!dense || showZero || value.data.scout">
         <div :class="{ 'no-status': !value.data.scout }">{{ $t("Common.索敵") }}</div>
         <div :class="{ 'no-status': !value.data.scout }">{{ value.data.scout }}</div>
       </template>
@@ -65,7 +65,7 @@
         <div>{{ $t("Common.対爆") }}</div>
         <div>{{ value.data.antiBomber }}</div>
       </template>
-      <template v-else-if="!dense || value.data.accuracy">
+      <template v-else-if="!dense || showZero || value.data.accuracy">
         <div :class="{ 'no-status': !value.data.accuracy }">{{ $t("Common.命中") }}</div>
         <div :class="{ 'no-status': !value.data.accuracy }">{{ value.data.accuracy }}</div>
       </template>
@@ -73,21 +73,21 @@
         <div>{{ $t("Common.迎撃") }}</div>
         <div>{{ value.data.interception }}</div>
       </template>
-      <template v-else-if="!dense || value.data.avoid">
+      <template v-else-if="!dense || showZero || value.data.avoid">
         <div :class="{ 'no-status': !value.data.avoid }">{{ $t("Common.回避") }}</div>
         <div :class="{ 'no-status': !value.data.avoid }">{{ value.data.avoid }}</div>
       </template>
-      <template v-if="value.data.range && (!isAirbaseMode || dense)">
-        <div>{{ $t("Common.射程") }}</div>
-        <div class="text-value">{{ $t(`Common.${rangeText[value.data.range]}`) }}</div>
+      <template v-if="(value.data.range || showZero) && (!isAirbaseMode || dense)">
+        <div :class="{ 'no-status': !value.data.range }">{{ $t("Common.射程") }}</div>
+        <div class="text-value" :class="{ 'no-status': !value.data.range }">{{ value.data.range ? $t(`Common.${rangeText[value.data.range]}`) : '－' }}</div>
       </template>
       <template v-if="isAirbaseMode">
         <div :class="{ 'no-status': !value.data.radius }">{{ $t("Common.半径") }}</div>
         <div :class="{ 'no-status': !value.data.radius }">{{ value.data.radius }}</div>
       </template>
-      <template v-if="dense && isAirbaseMode && value.data.cost">
-        <div>{{ $t("Common.コスト") }}</div>
-        <div>{{ value.data.cost }}</div>
+      <template v-if="dense && isAirbaseMode && (showZero || value.data.cost)">
+        <div :class="{ 'no-status': !value.data.cost }">{{ $t("Common.コスト") }}</div>
+        <div :class="{ 'no-status': !value.data.cost }">{{ value.data.cost }}</div>
       </template>
     </div>
     <template v-if="!isAirbaseMode && (!dense || hasItemBonus)">
@@ -339,6 +339,10 @@ export default Vue.extend({
       default: false,
     },
     dark: {
+      type: Boolean,
+      default: false,
+    },
+    showZero: {
       type: Boolean,
       default: false,
     },

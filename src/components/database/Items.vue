@@ -233,7 +233,7 @@
             </div>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlackListDialog()" :fullscreen="isMobile">
+        <v-dialog v-model="blacklistDialog" width="960" @input="toggleBlackListDialog()" :fullscreen="isMobile">
           <blacklist-item-edit :handle-close="closeBlacklist" />
         </v-dialog>
       </v-tab-item>

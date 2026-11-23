@@ -475,7 +475,7 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog" :fullscreen="isMobile">
+    <v-dialog v-model="blacklistDialog" width="960" @input="toggleBlacklistDialog" :fullscreen="isMobile">
       <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
     <item-list-sheets />

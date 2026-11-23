@@ -1,25 +1,41 @@
 <template>
   <div class="mb-5" @dragover.prevent @drop="dropItem">
-    <v-card class="general-container my-2 px-4 py-0" v-if="false">
-      <div class="d-flex">
-        <div class="align-self-center mr-5">{{ $t("Common.装備特効表示") }}</div>
-        <v-radio-group v-model="setting.displayBonusKey" row @change="changeDisplayBonus">
-          <v-radio :label="$t('Common.なし')" value="" />
-          <!-- <v-radio :label="$t('Common.鎮守府秋刀魚祭り')" value="Saury" /> -->
-          <v-radio label="26夏 E-3" value="62-3" />
-          <v-radio label="26夏 後段" value="62-4" />
-        </v-radio-group>
+    <v-card class="general-container bonus-display my-2" :class="bonusDisplayClass">
+      <div class="bonus-display-main">
+        <div class="bonus-display-label">
+          <span class="bonus-kicker" aria-hidden="true" />
+          <span>{{ $t("Common.装備特効表示") }}</span>
+        </div>
+        <div class="bonus-options" role="radiogroup" :aria-label="$t('Common.装備特効表示')">
+          <button
+            v-for="option in bonusOptions"
+            :key="option.value || 'none'"
+            type="button"
+            role="radio"
+            class="bonus-option"
+            :class="[option.tone, { active: setting.displayBonusKey === option.value }]"
+            :aria-checked="setting.displayBonusKey === option.value"
+            @click="selectDisplayBonus(option.value, $event)"
+          >
+            <v-icon v-if="option.icon" small>{{ option.icon }}</v-icon>
+            <span>{{ option.label }}</span>
+          </button>
+        </div>
+        <div v-if="setting.displayBonusKey === 'Saury'" class="saury-watermark" aria-hidden="true">
+          <v-icon>mdi-fish</v-icon>
+          <v-icon>mdi-fish</v-icon>
+        </div>
       </div>
-      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '62-3'">
-        <div>参考元: <a href="https://x.com/yukicacoon/status/2076251017486967172" target="_blank">@yukicacoon 様のツイートより</a></div>
+      <div class="bonus-note" v-if="setting.displayBonusKey === '62-3'">
+        <div>参考元: <a href="https://x.com/yukicacoon/status/2076251017486967172" target="_blank" rel="noopener noreferrer">@yukicacoon 様のツイートより</a></div>
         <!-- <div class="mt-2">全く同じカテゴリの機体は倍率が重複しません。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
         <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
         <div>基地は C1, C2, C3 カテゴリのみ有効です。</div> -->
       </div>
-      <div class="pb-3 body-2" v-if="setting.displayBonusKey === '62-4'">
-        <div class="mt-2">参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank">@yukicacoon 様のツイートより</a></div>
-        <div class="mt-2">全く同じカテゴリの機体は倍率が重複しませんでした。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
-        <div class="mt-2">できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
+      <div class="bonus-note" v-if="setting.displayBonusKey === '62-4'">
+        <div>参考元: <a href="https://x.com/yukicacoon/status/1984134362624094340" target="_blank" rel="noopener noreferrer">@yukicacoon 様のツイートより</a></div>
+        <div class="mt-1">全く同じカテゴリの機体は倍率が重複しませんでした。見辛いですが色分けしてあります。同色だと、重複しても倍率は伸びないってことです。</div>
+        <div>できるだけ多くの特効カテゴリ（色）を詰め込めればベストです。</div>
       </div>
     </v-card>
     <div class="general-container d-flex">
@@ -170,10 +186,190 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+
+.bonus-display {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px !important;
+}
+
+.bonus-display-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  min-height: 52px;
+  padding: 10px 14px;
+}
+
+.bonus-display-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.bonus-kicker {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(128, 128, 128, 0.7);
+  box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.16);
+}
+
+.is-saury .bonus-kicker {
+  background: #81d4fa;
+  box-shadow: 0 0 0 3px rgba(129, 212, 250, 0.2), 0 0 10px rgba(129, 212, 250, 0.85);
+}
+
+.is-event .bonus-kicker {
+  background: #2dd4bf;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.18);
+}
+
+.bonus-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.bonus-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0.78;
+  transition: background-color 0.16s ease, color 0.16s ease, opacity 0.16s ease;
+}
+
+.bonus-option:hover {
+  opacity: 1;
+  background: rgba(128, 128, 128, 0.16);
+}
+
+.bonus-option:focus {
+  outline: none;
+}
+
+.bonus-option:focus-visible {
+  outline: 2px solid #81d4fa;
+  outline-offset: 1px;
+}
+
+.bonus-option.active {
+  opacity: 1;
+}
+
+.bonus-option.tone-off.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme--light .bonus-option.tone-off.active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.bonus-option.tone-saury >>> .v-icon {
+  color: #4fc3f7;
+}
+
+.theme--dark .bonus-option.tone-saury >>> .v-icon {
+  color: #81d4fa;
+}
+
+.bonus-option.tone-saury.active {
+  color: #e1f5fe;
+  background: rgba(129, 212, 250, 0.18);
+}
+
+.theme--light .bonus-option.tone-saury.active {
+  color: #01579b;
+  background: rgba(3, 169, 244, 0.12);
+}
+
+.bonus-option.tone-event.active {
+  color: #ccfbf1;
+  background: rgba(20, 184, 166, 0.18);
+}
+
+.theme--light .bonus-option.tone-event.active {
+  color: #0f766e;
+  background: rgba(20, 184, 166, 0.12);
+}
+
+.saury-watermark {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.saury-watermark >>> .v-icon {
+  color: #4fc3f7;
+  font-size: 34px;
+  opacity: 0.72;
+}
+
+.theme--light .saury-watermark >>> .v-icon {
+  color: #0277bd;
+  opacity: 0.55;
+}
+
+.saury-watermark >>> .v-icon:first-child {
+  transform: rotate(-24deg);
+}
+
+.saury-watermark >>> .v-icon:last-child {
+  margin-top: 8px;
+  font-size: 22px;
+  transform: rotate(16deg);
+}
+
+.bonus-note {
+  position: relative;
+  z-index: 1;
+  margin: 0 14px 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.12);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.theme--dark .bonus-note a {
+  color: #5eead4;
+}
+
+.theme--light .bonus-note a {
+  color: #0f766e;
+}
+
+@media (max-width: 880px) {
+  .saury-watermark {
+    display: none;
+  }
+}
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
+import party, { Particle } from 'party-js';
 import draggable from 'vuedraggable';
 import EnemyFleetAll from '@/components/enemy/EnemyFleetAll.vue';
 import EditableEnemyList from '@/components/enemy/EditableEnemyList.vue';
@@ -193,6 +389,8 @@ import AirbaseInfo from '@/classes/airbase/airbaseInfo';
 import Optimizer from '@/classes/fleet/optimizer';
 import ShipStock from '@/classes/fleet/shipStock';
 import ItemStock from '@/classes/item/itemStock';
+
+const SAURY_SHAPE = '<span class="mdi mdi-fish" style="display:inline-block;font-size:34px;line-height:1"></span>';
 
 export default Vue.extend({
   name: 'AirCalculator',
@@ -303,6 +501,19 @@ export default Vue.extend({
     },
     disabledSync(): boolean {
       return !this.$store.state.itemStock.length || !this.$store.state.shipStock.length;
+    },
+    bonusOptions(): { value: string; label: string; tone: string; icon?: string }[] {
+      return [
+        { value: '', label: `${this.$t('Common.なし')}`, tone: 'tone-off' },
+        { value: 'Saury', label: `${this.$t('Common.鎮守府秋刀魚祭り')}`, tone: 'tone-saury', icon: 'mdi-fish mdi-rotate-315' },
+        // { value: '62-3', label: '26夏 E-3', tone: 'tone-event' },
+        // { value: '62-4', label: '26夏 後段', tone: 'tone-event' },
+      ];
+    },
+    bonusDisplayClass(): string {
+      if (this.setting.displayBonusKey === 'Saury') return 'is-saury';
+      if (this.setting.displayBonusKey === '62-3' || this.setting.displayBonusKey === '62-4') return 'is-event';
+      return '';
     },
   },
   watch: {
@@ -525,6 +736,69 @@ export default Vue.extend({
         const root = this.$store.state.saveData as SaveData;
         this.$store.dispatch('updateSaveData', root);
       }
+    },
+    selectDisplayBonus(value: string, event: MouseEvent) {
+      if (this.setting.displayBonusKey === value) return;
+      this.setting.displayBonusKey = value;
+      this.changeDisplayBonus();
+      if (value === 'Saury' && event.currentTarget instanceof HTMLElement) {
+        this.splashSaury(event.currentTarget);
+      }
+    },
+    splashSaury(source: HTMLElement) {
+      party.resolvableShapes.saury = SAURY_SHAPE;
+      const colors = ['#81d4fa', '#4fc3f7', '#b3e5fc', '#29b6f6', '#ffe082'];
+      party.scene.current.createEmitter({
+        emitterOptions: {
+          loops: 1,
+          duration: 2,
+          useGravity: false,
+          modules: [
+            new party.ModuleBuilder()
+              .drive('size')
+              .by(new party.NumericSpline(
+                { time: 0, value: 0.65 },
+                { time: 0.12, value: 1 },
+                { time: 0.7, value: 1 },
+                { time: 1, value: 0.3 },
+              ))
+              .through('relativeLifetime')
+              .relative()
+              .build(),
+            new party.ModuleBuilder()
+              .drive('opacity')
+              .by(new party.NumericSpline(
+                { time: 0, value: 0 },
+                { time: 0.08, value: 1 },
+                { time: 0.62, value: 1 },
+                { time: 1, value: 0 },
+              ))
+              .through('relativeLifetime')
+              .build(),
+            (particle: Particle) => {
+              const elapsed = particle.initialLifetime - particle.lifetime;
+              const heading = Math.atan2(particle.velocity.y, particle.velocity.x) * (180 / Math.PI);
+              // mdi-fish は右上を向いているので、進行方向に頭が来るよう補正する
+              particle.rotation.z = heading + 36 + Math.sin(elapsed * 10) * 10;
+            },
+          ],
+        },
+        emissionOptions: {
+          rate: 0,
+          bursts: [{ time: 0, count: party.variation.range(12, 16) }],
+          sourceSampler: party.sources.dynamicSource(source),
+          angle: party.variation.range(0, 360),
+          initialLifetime: party.variation.range(1.3, 1.8),
+          initialSpeed: party.variation.range(160, 320),
+          initialSize: party.variation.range(0.9, 1.25),
+          initialRotation: new party.Vector(0, 0, 0),
+          initialColor: () => party.Color.fromHex(colors[Math.floor(Math.random() * colors.length)]),
+        },
+        rendererOptions: {
+          shapeFactory: 'saury',
+          applyLighting: undefined,
+        },
+      });
     },
     changeDisplayBonus() {
       this.$store.dispatch('updateSetting', this.setting);

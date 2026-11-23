@@ -260,8 +260,8 @@ export default class SiteSetting {
       this.savedItemStatusFilters = restoreItemStatusFilters(setting.savedItemStatusFilters);
       this.savedShipListFilter = ShipFilter.restore(setting.savedShipListFilter);
       this.savedShipListSortKey = setting.savedShipListSortKey ?? '';
-      // this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : '62-4';
-      this.displayBonusKey = '';
+      this.displayBonusKey = setting.displayBonusKey ? setting.displayBonusKey : 'Saury';
+      // this.displayBonusKey = '';
       this.blacklistItemIds = setting.blacklistItemIds ? setting.blacklistItemIds : [337];
       this.isIncludeUnLockShip = !!setting.isIncludeUnLockShip;
       this.isIncludeUnLockItem = !!setting.isIncludeUnLockItem;
@@ -368,8 +368,8 @@ export default class SiteSetting {
         { id: 26, level: 0 },
       ];
       this.contentOrder = [];
-      // this.displayBonusKey = 'Saury';
-      this.displayBonusKey = '';
+      this.displayBonusKey = 'Saury';
+      // this.displayBonusKey = '';
       this.blacklistItemIds = [337];
       this.isIncludeUnLockShip = true;
       this.isIncludeUnLockItem = false;

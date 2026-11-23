@@ -1,169 +1,384 @@
 <template>
   <v-card class="blacklist-card">
-    <div class="d-flex pa-2">
-      <v-checkbox :disabled="!!keyword" v-model="blacklistOnly" @change="filter()" hide-details dense :label="$t('ItemList.ブラックリスト登録済み装備')" />
-      <v-spacer />
+    <div class="blacklist-header">
+      <div class="blacklist-heading">
+        <div class="blacklist-title">{{ $t("ItemList.ブラックリスト") }}</div>
+        <div class="blacklist-hint">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
+      </div>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
       </v-btn>
     </div>
-    <v-divider />
-    <div class="px-1 px-sm-3 pt-3">
-      <div class="body-2 mb-2 ml-2">{{ $t("ItemList.ブラックリストに登録された装備は、装備一覧画面にて表示されなくなります。") }}</div>
-      <div class="input-field">
-        <v-text-field
-          :placeholder="$t('ItemList.図鑑id 名称検索')"
-          clearable
-          v-model="keyword"
-          @input="filter()"
-          hide-details
-          dense
-          prepend-inner-icon="mdi-magnify"
-          :disabled="blacklistOnly"
-        />
-        <v-select
-          dense
-          v-model="type"
-          hide-details
-          :items="types"
-          item-value="id"
-          :item-text="(item) => $t('EType.' + item.text)"
-          @input="filter()"
-          :label="$t('Database.カテゴリ')"
-          :disabled="blacklistOnly"
-        ></v-select>
-      </div>
-      <v-divider class="mt-1" />
+    <div class="blacklist-body">
+      <section class="pane hidden-pane">
+        <div class="pane-head">
+          <span>{{ $t("ItemList.ブラックリスト") }}</span>
+          <span class="pane-count">{{ hiddenItems.length }}</span>
+          <button v-if="hiddenItems.length" type="button" class="text-action" @click="removeAll">
+            {{ $t("ItemList.すべて解除") }}
+          </button>
+        </div>
+        <div v-if="!hiddenItems.length" class="pane-empty">{{ $t("ItemList.まだ隠している装備はありません") }}</div>
+        <div v-else class="pane-list">
+          <div v-for="item in hiddenItems" :key="`hidden-${item.id}`" class="item-row">
+            <v-img v-if="item.iconTypeId" class="item-icon" :src="`./img/type/icon${item.iconTypeId}.png`" height="28" width="28" />
+            <div class="item-text">
+              <div class="item-id">id {{ item.id }}</div>
+              <div class="item-name" :class="{ 'is-special': item.isSpecial }">{{ itemName(item) }}</div>
+            </div>
+            <button type="button" class="row-action" @click="toggleId(item.id)">{{ $t("ItemList.一覧に戻す") }}</button>
+          </div>
+        </div>
+      </section>
+      <section class="pane browse-pane">
+        <div class="browse-tools">
+          <div class="item-search-text">
+            <v-text-field :placeholder="$t('ItemList.図鑑id 名称検索')" clearable v-model="keyword" @input="filter()" hide-details
+              dense prepend-inner-icon="mdi-magnify" />
+          </div>
+        </div>
+        <div class="type-selector-container">
+          <button
+            v-for="category in types"
+            :key="category.id"
+            type="button"
+            class="type-selector"
+            :class="{ active: type === category.id && !keyword, disabled: !!keyword }"
+            :title="$t(`EType.${category.text}`)"
+            @click="changeType(category.id)"
+          >
+            <v-img class="type-icon" :src="`./img/type/type${category.id}.png`" height="28" width="28" />
+          </button>
+        </div>
+        <div v-if="!items.length" class="pane-empty">{{ browseEmptyText }}</div>
+        <div v-else class="pane-list">
+          <div
+            v-for="item in items"
+            :key="`browse-${item.data.id}`"
+            class="item-row"
+            :class="{ 'is-hidden': isHidden(item.data.id) }"
+          >
+            <v-img v-if="item.data.iconTypeId" class="item-icon" :src="`./img/type/icon${item.data.iconTypeId}.png`" height="28" width="28" />
+            <div class="item-text">
+              <div class="item-id">id {{ item.data.id }}</div>
+              <div class="item-name" :class="{ 'is-special': item.data.isSpecial }">{{ itemName(item.data) }}</div>
+            </div>
+            <button type="button" class="row-action" :class="{ restore: isHidden(item.data.id) }" @click="toggleId(item.data.id)">
+              {{ isHidden(item.data.id) ? $t("ItemList.一覧に戻す") : $t("ItemList.隠す") }}
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
-    <div class="list-table px-1 px-sm-3">
-      <v-simple-table dense>
-        <template v-slot:default>
-          <thead>
-            <tr>
-              <th class="icon-td"></th>
-              <th class="text-left">{{ $t("Common.装備名称") }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(item, i) in items"
-              :key="`bl_item_${i}`"
-              v-ripple
-              :class="{ blacklisted: item.isBlacklisted }"
-              @click="toggleBlacklisted(item)"
-              @keypress="toggleBlacklisted(item)"
-              @mouseenter="bootTooltip(item.data, $event)"
-              @mouseleave="clearTooltip"
-              @focus="bootTooltip(item.data, $event)"
-              @blur="clearTooltip"
-            >
-              <td class="text-center">
-                <v-icon v-if="item.isBlacklisted" color="grey">mdi-eye-off</v-icon>
-              </td>
-              <td class="item-name">
-                <div class="d-flex align-center">
-                  <div>
-                    <v-img :src="`./img/type/icon${item.data.iconTypeId}.png`" height="30" width="30" />
-                  </div>
-                  <div class="ml-1">
-                    <div class="info--text caption text-id">id {{ item.data.id }}</div>
-                    <div class="text-name" :class="{ 'is-special': item.data.isSpecial }">
-                      {{ needTrans ? $t(`${item.data.name}`) : item.data.name }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </v-simple-table>
-    </div>
-    <v-divider />
-    <div class="d-flex px-3 py-3">
-      <v-spacer />
-      <v-btn color="secondary" :dark="existsBlacklist" :disabled="!existsBlacklist" @click.stop="removeAll()" :block="isMobile">
-        {{ $t("ItemList.全解除") }}
-      </v-btn>
-    </div>
-    <v-tooltip v-model="enabledTooltip" color="black" bottom right transition="slide-y-transition" :position-x="tooltipX" :position-y="tooltipY">
-      <item-tooltip v-model="tooltipItem" />
-    </v-tooltip>
   </v-card>
 </template>
 
 <style scoped>
-.input-field {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 6px;
-}
-td,
-th {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+.blacklist-card {
+  --accent: #14b8a6;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100%;
 }
 
-.icon-td {
-  width: 50px;
+.blacklist-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 4px 8px 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.28);
 }
-.text-id {
+
+.blacklist-heading {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.blacklist-header >>> .v-btn {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.blacklist-title {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.blacklist-hint {
+  margin-top: 2px;
   font-size: 12px;
-  font-weight: bold;
+  line-height: 1.5;
+  opacity: 0.62;
 }
-.text-name {
+
+.blacklist-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.hidden-pane {
+  flex: 0 1 auto;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.28);
+}
+
+.hidden-pane .pane-list {
+  max-height: 28vh;
+}
+
+.browse-pane {
+  flex: 1;
+}
+
+.pane-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+}
+
+.pane-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-action {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.text-action:hover {
+  opacity: 1;
+}
+
+.browse-tools {
+  padding: 8px 12px 0;
+}
+
+.item-search-text {
+  width: 100%;
+}
+
+.item-search-text >>> .v-input {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.item-search-text >>> .v-input__slot {
+  margin-bottom: 0;
+  min-height: 32px !important;
+  padding: 0 10px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 16px;
+}
+
+.item-search-text >>> .v-input__slot::before,
+.item-search-text >>> .v-input__slot::after {
+  border-style: none !important;
+}
+
+.item-search-text >>> .v-input__prepend-inner,
+.item-search-text >>> .v-input__append-inner {
+  margin-top: 0 !important;
+  align-self: center;
+}
+
+.item-search-text >>> input {
   font-size: 12px;
 }
+
+.item-search-text >>> .v-icon {
+  font-size: 16px !important;
+  height: 16px;
+  width: 16px;
+}
+
+.type-selector-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 6px 12px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.type-selector-container::-webkit-scrollbar {
+  display: none;
+}
+
+.type-selector {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  min-width: 36px;
+  padding: 0 3px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.type-selector:hover {
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.type-selector.active {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.type-selector.disabled {
+  background-color: transparent;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pane-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 8px 12px;
+}
+
+.pane-empty {
+  padding: 20px 16px;
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.55;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.16s ease;
+}
+
+.item-row:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+
+.item-row.is-hidden {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.item-row.is-hidden:hover {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.item-icon {
+  flex: 0 0 28px;
+}
+
+.item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-id {
+  font-size: 11px;
+  line-height: 1.3;
+  opacity: 0.5;
+}
+
+.item-name {
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .is-special {
   color: #3cac42;
 }
+
 .theme--dark .is-special {
   color: #66bb6a;
 }
 
-/** ブラックリストテーブル */
-.v-data-table tbody tr:hover {
+.row-action {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 13px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.blacklisted td > div {
-  opacity: 0.4;
+.row-action:hover {
+  background: rgba(128, 128, 128, 0.14);
 }
 
-.blacklist-card {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+.row-action.restore {
+  opacity: 0.72;
 }
-.list-table {
-  overflow-y: auto;
-}
+
 @media (min-width: 600px) {
   .blacklist-card {
-    display: block;
-    flex-direction: unset;
-    height: unset;
+    height: 72vh;
   }
-  .list-table {
-    height: 65vh;
+
+  .blacklist-body {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  }
+
+  .hidden-pane {
+    flex: none;
+    border-right: 1px solid rgba(128, 128, 128, 0.28);
+    border-bottom: 0;
+  }
+
+  .hidden-pane .pane-list {
+    max-height: none;
+  }
+
+  .type-selector-container {
+    flex-wrap: wrap;
+    overflow-x: visible;
   }
 }
 </style>
 
 <script lang="ts">
 import Vue from 'vue';
-import ItemTooltip from '@/components/item/ItemTooltip.vue';
 import ItemMaster from '@/classes/item/itemMaster';
-import Airbase from '@/classes/airbase/airbase';
-import Enemy from '@/classes/enemy/enemy';
-import Ship from '@/classes/fleet/ship';
 import SiteSetting from '@/classes/siteSetting';
 import Const from '@/classes/const';
-import Item from '@/classes/item/item';
+
+type BrowseItem = { data: ItemMaster; isBlacklisted: boolean };
 
 export default Vue.extend({
   name: 'BlacklistItemEdit',
-  components: { ItemTooltip },
   props: {
     handleClose: {
       type: Function,
@@ -171,20 +386,12 @@ export default Vue.extend({
     },
   },
   data: () => ({
-    itemParent: undefined as undefined | Ship | Airbase | Enemy,
     all: [] as ItemMaster[],
     types: Const.ITEM_TYPES_ALT,
-    type: 6,
-    items: [] as { data: ItemMaster; isBlacklisted: boolean }[],
-    keyword: '' as string | undefined,
-    blacklistOnly: false,
+    type: 47,
+    items: [] as BrowseItem[],
+    keyword: '' as string | null,
     blacklists: [] as number[],
-    enabledTooltip: false,
-    tooltipTimer: undefined as undefined | number,
-    tooltipItem: new Item(),
-    tooltipX: 0,
-    tooltipY: 0,
-    isMobile: true,
   }),
   mounted() {
     const setting = this.$store.state.siteSetting as SiteSetting;
@@ -196,103 +403,67 @@ export default Vue.extend({
         this.all.push(items[i]);
       }
     }
-    this.all.sort((a, b) => a.apiTypeId - b.apiTypeId);
-
+    this.all.sort((a, b) => a.id - b.id);
     this.filter();
   },
   computed: {
-    isNotJapanese(): boolean {
-      return this.$i18n.locale !== 'ja';
-    },
     needTrans(): boolean {
       const setting = this.$store.state.siteSetting as SiteSetting;
       return this.$i18n.locale !== 'ja' && !setting.nameIsNotTranslate;
     },
-    existsBlacklist(): boolean {
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      return !!setting.blacklistItemIds.length;
+    hiddenItems(): ItemMaster[] {
+      const byId = new Map(this.all.map((item) => [item.id, item]));
+      return this.blacklists.map((id) => byId.get(id)).filter((item): item is ItemMaster => !!item);
+    },
+    browseEmptyText(): string {
+      return `${this.$t('Common.探したけど見つからなかったよ')}`;
     },
   },
   methods: {
-    changeType(type = 0): void {
+    itemName(data: ItemMaster): string {
+      return this.needTrans ? `${this.$t(data.name)}` : data.name;
+    },
+    isHidden(id: number): boolean {
+      return this.blacklists.includes(id);
+    },
+    changeType(type: number) {
       this.type = type;
       this.filter();
     },
     filter() {
-      this.isMobile = window.innerWidth < 600;
-      this.items = [];
-
-      const word = this.keyword ? this.keyword.toUpperCase() : '';
+      const word = (this.keyword || '').toUpperCase();
+      let list = this.all;
       if (word) {
-        const typeItems = this.all.filter((v) => v.id === +word || v.name.toUpperCase().indexOf(word) >= 0);
-        for (let i = 0; i < typeItems.length; i += 1) {
-          const data = typeItems[i];
-          this.items.push({ data, isBlacklisted: this.blacklists.includes(data.id) });
-        }
-        return;
+        list = list.filter((item) => item.id === +word || item.name.toUpperCase().indexOf(word) >= 0);
+      } else if (this.type) {
+        const selected = this.types.find((type) => type.id === this.type);
+        if (selected) list = list.filter((item) => selected.types.includes(item.apiTypeId));
       }
-
-      if (this.blacklistOnly) {
-        const typeItems = this.all.filter((v) => this.blacklists.includes(v.id));
-        for (let i = 0; i < typeItems.length; i += 1) {
-          this.items.push({ data: typeItems[i], isBlacklisted: true });
-        }
-        return;
-      }
-
-      const selectedType = this.types.find((v) => v.id === this.type);
-      if (selectedType) {
-        const typeItems = this.all.filter((v) => selectedType.types.includes(v.apiTypeId));
-        for (let i = 0; i < typeItems.length; i += 1) {
-          const data = typeItems[i];
-          this.items.push({ data, isBlacklisted: this.blacklists.includes(data.id) });
-        }
-      }
+      const hidden = new Set(this.blacklists);
+      this.items = list.map((data) => ({ data, isBlacklisted: hidden.has(data.id) }));
     },
-    toggleBlacklisted(item: { data: ItemMaster; isBlacklisted: boolean }) {
-      // ブラックリストの更新
+    toggleId(id: number) {
       const setting = this.$store.state.siteSetting as SiteSetting;
-      item.isBlacklisted = !item.isBlacklisted;
-
-      if (item.isBlacklisted) {
-        setting.blacklistItemIds.push(item.data.id);
-      } else {
-        setting.blacklistItemIds = setting.blacklistItemIds.filter((v) => v !== item.data.id);
-      }
+      const exists = setting.blacklistItemIds.includes(id);
+      setting.blacklistItemIds = exists
+        ? setting.blacklistItemIds.filter((value) => value !== id)
+        : setting.blacklistItemIds.concat(id);
       this.blacklists = setting.blacklistItemIds.concat();
+      const row = this.items.find((item) => item.data.id === id);
+      if (row) row.isBlacklisted = !exists;
+      this.$store.dispatch('updateSetting', setting);
+    },
+    removeAll() {
+      const setting = this.$store.state.siteSetting as SiteSetting;
+      setting.blacklistItemIds = [];
+      this.blacklists = [];
+      this.items.forEach((item) => {
+        item.isBlacklisted = false;
+      });
       this.$store.dispatch('updateSetting', setting);
     },
     close() {
       this.handleClose();
-    },
-    removeAll() {
-      // ブラックリスト全解除
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      setting.blacklistItemIds = [];
-      this.blacklists = [];
-      this.blacklistOnly = false;
-      this.$store.dispatch('updateSetting', setting);
-
-      this.filter();
-    },
-    bootTooltip(item: ItemMaster, e: MouseEvent) {
-      const setting = this.$store.state.siteSetting as SiteSetting;
-      if (setting.disabledItemTooltip || window.innerWidth < 600) {
-        return;
-      }
-      const nameDiv = (e.target as HTMLDivElement).getElementsByClassName('item-name')[0] as HTMLDivElement;
-      window.clearTimeout(this.tooltipTimer);
-      this.tooltipTimer = window.setTimeout(() => {
-        const rect = nameDiv.getBoundingClientRect();
-        this.tooltipX = rect.x + rect.width - 200;
-        this.tooltipY = rect.y + rect.height;
-        this.tooltipItem = new Item({ master: item });
-        this.enabledTooltip = true;
-      }, Math.max(setting.popUpCount, 10));
-    },
-    clearTooltip() {
-      this.enabledTooltip = false;
-      window.clearTimeout(this.tooltipTimer);
     },
   },
 });

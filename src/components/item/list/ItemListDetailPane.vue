@@ -16,7 +16,7 @@
         <span v-for="text in specialTexts" :key="text" class="item-special-text"
           :class="list.specialTextColorByText(text)">{{ text }}</span>
       </div>
-      <item-tooltip v-model="list.detailItem" :bonus="list.detailBonus" :is-airbase-mode="list.isAirbaseMode" />
+      <item-tooltip v-model="list.detailItem" :bonus="list.detailBonus" :is-airbase-mode="list.isAirbaseMode" show-zero />
       <div class="detail-actions">
         <button type="button" class="filter-chip" :disabled="!list.isAirbaseMode && !list.isShipMode"
           @click="list.compareDetail()">
@@ -190,6 +190,12 @@ export default Vue.extend({
   grid-template-columns: minmax(0, 1fr) auto !important;
   column-gap: 8px !important;
   row-gap: 2px;
+}
+
+.detail-pane >>> .item-statuses:not(.remodel-bonus):not(.sub-sub) {
+  /** 値の幅を固定し、小数や射程表記で隣の列が左右に動かないようにする */
+  grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr) 46px !important;
+  column-gap: 16px !important;
 }
 
 .detail-pane >>> .item-statuses > div:nth-child(odd):not(.no-status) {
