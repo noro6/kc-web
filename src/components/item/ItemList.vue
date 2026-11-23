@@ -5,42 +5,50 @@
         <v-text-field :placeholder="$t('ItemList.図鑑id 名称検索')" clearable v-model="keyword" @input="filter()" hide-details
           dense prepend-inner-icon="mdi-magnify" />
       </div>
-      <div v-if="!isMobile" class="status-filter" :class="{ active: +filterStatusValue > 0 }">
-        <v-select class="status-filter-key" dense v-model="filterStatus" hide-details :items="filterStatusItems"
-          @change="changedFilter()" />
-        <v-text-field class="status-filter-value" dense v-model="filterStatusValue" hide-details type="number" max="30"
-          min="0" @input="changedFilter()" />
-        <div class="status-filter-spin">
-          <button type="button" :disabled="+filterStatusValue >= 30" @click="stepFilterValue(1)">
-            <v-icon x-small>mdi-chevron-up</v-icon>
-          </button>
-          <button type="button" :disabled="+filterStatusValue <= 0" @click="stepFilterValue(-1)">
-            <v-icon x-small>mdi-chevron-down</v-icon>
+      <div v-if="!isMobile" class="toolbar-filter">
+        <div class="status-filter" :class="{ active: +filterStatusValue > 0 }">
+          <v-select class="status-filter-key" dense v-model="filterStatus" hide-details :items="filterStatusItems"
+            @change="changedFilter()" />
+          <v-text-field class="status-filter-value" dense v-model="filterStatusValue" hide-details type="number" max="30"
+            min="0" @input="changedFilter()" />
+          <div class="status-filter-spin">
+            <button type="button" :disabled="+filterStatusValue >= 30" @click="stepFilterValue(1)">
+              <v-icon x-small>mdi-chevron-up</v-icon>
+            </button>
+            <button type="button" :disabled="+filterStatusValue <= 0" @click="stepFilterValue(-1)">
+              <v-icon x-small>mdi-chevron-down</v-icon>
+            </button>
+          </div>
+          <span class="status-filter-op">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</span>
+          <button v-if="+filterStatusValue > 0" type="button" class="status-filter-clear" @click="clearStatusValue()">
+            <v-icon x-small>mdi-close</v-icon>
           </button>
         </div>
-        <span class="status-filter-op">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</span>
-        <button v-if="+filterStatusValue > 0" type="button" class="status-filter-clear" @click="clearStatusValue()">
-          <v-icon x-small>mdi-close</v-icon>
+        <button v-if="canSaveStatusFilter" type="button" class="status-save-button"
+          :title="currentStatusFilterLabel" @click="saveStatusFilterPreset()">
+          {{ $t("ItemList.この条件を保存") }}
         </button>
       </div>
-      <v-spacer />
-      <v-switch v-if="!isMobile && itemStock.length && !isEnemyMode" class="toolbar-stock"
-        :label="$t('ItemList.所持装備反映')" v-model="isStockOnly" @click="clickedStockOnly" dense hide-details
-        :disabled="!!batchList.length" />
-      <v-btn-toggle v-if="!isMobile" class="view-toggle" dense v-model="multiLine" borderless mandatory>
-        <v-btn :value="false" :class="{ active: !multiLine }" @click.stop="changeMultiLine(false)">
-          <v-icon small>mdi-view-headline</v-icon>
+      <div class="toolbar-tools">
+        <v-switch v-if="!isMobile && itemStock.length && !isEnemyMode" class="toolbar-stock"
+          :label="$t('ItemList.所持装備反映')" v-model="isStockOnly" @click="clickedStockOnly" dense hide-details
+          :disabled="!!batchList.length" />
+        <v-btn-toggle v-if="!isMobile" class="view-toggle" dense v-model="multiLine" borderless mandatory>
+          <v-btn :value="false" :class="{ active: !multiLine }" @click.stop="changeMultiLine(false)">
+            <v-icon small>mdi-view-headline</v-icon>
+          </v-btn>
+          <v-btn :value="true" :class="{ active: multiLine }" @click.stop="changeMultiLine(true)">
+            <v-icon small>mdi-view-comfy</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+        <v-btn icon @click="close">
+          <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-btn :value="true" :class="{ active: multiLine }" @click.stop="changeMultiLine(true)">
-          <v-icon small>mdi-view-comfy</v-icon>
-        </v-btn>
-      </v-btn-toggle>
-      <v-btn icon @click="close">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+      </div>
     </div>
     <v-divider />
     <div class="item-filter-container" v-if="!isMobile">
+      <div class="filter-row" ref="filterRow">
       <template v-if="!isBatchMode || !isCheckedOnly">
         <button type="button" class="filter-chip" :class="{ active: isEnemyMode }"
           @click="isEnemyMode = !isEnemyMode; filter()">{{ $t("ItemList.敵装備") }}</button>
@@ -93,6 +101,21 @@
             @click="includeSVTorpedo = !includeSVTorpedo; filter()">{{ $t("EType.潜水艦魚雷") }}</button>
         </template>
       </template>
+        <div v-if="statusFilterPresets.length && !presetsOnOwnRow" class="filter-separator preset-separator" />
+        <div v-if="statusFilterPresets.length" class="preset-group" :class="{ own: presetsOnOwnRow }">
+          <transition-group name="preset-pop" tag="div" class="preset-chips" :appear="animatePresetEnter">
+            <div v-for="preset in statusFilterPresets" :key="preset.id" class="filter-chip preset-chip"
+              :class="{ active: isActiveStatusPreset(preset) }">
+              <button type="button" class="preset-apply" @click="applyStatusFilterPreset(preset)">
+                {{ statusFilterPresetLabel(preset) }}
+              </button>
+              <button type="button" class="preset-remove" :title="$t('Common.削除')"
+                @click="removeStatusFilterPreset(preset)">
+                <v-icon x-small>mdi-close</v-icon>
+              </button>
+            </div>
+          </transition-group>
+        </div>
       <div class="filter-right">
         <button v-if="isStockOnly && !multiLine && !isEnemyMode" type="button" class="filter-chip"
           :class="{ active: sortExcludeRemodelStatus }"
@@ -109,6 +132,7 @@
           <v-icon small>mdi-eye-off-outline</v-icon>
           <span class="ml-1">{{ setting.blacklistItemIds.length }}</span>
         </button>
+      </div>
       </div>
     </div>
     <div class="type-selector-container"
@@ -159,6 +183,7 @@
           :class="{ desc: sortKey === 'name' && isDesc, asc: sortKey === 'name' && !isDesc }">
           <div><span class="header-arrow">↓</span>{{ $t(`Common.装備名称`) }}</div>
         </div>
+        <div v-if="isBatchMode" class="batch-index-header" />
         <div v-if="isStockOnly" class="item-remodel-header" />
         <div v-if="isStockOnly && !isEnemyMode" class="item-count-header">{{ $t("ItemList.所持") }}</div>
         <div v-for="(data, i) in headerItems" :key="`item${i}`" @click="toggleSortKey(data.key)"
@@ -206,12 +231,6 @@
                 <div>
                   <v-img :src="`./img/type/icon${item.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
-                <!-- 一括配備モード用インデックス -->
-                <div v-if="item.batchListIndexes.length" class="batch-index-container">
-                  <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
-                    {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
-                  </div>
-                </div>
               </div>
               <div class="item-name-container" :class="{ 'is-special': item.item.data.isSpecial }"
                 @mouseenter="bootTooltip(item.item, item.bonus, $event)" @mouseleave="clearTooltip"
@@ -236,13 +255,20 @@
                 <v-icon v-else
                   :color="item.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
               </div>
-              <div class="item-remodel caption" v-if="isStockOnly">
-                <template v-if="item.remodel > 0">
-                  <v-icon small>mdi-star</v-icon>
-                  <span>{{ item.remodel }}</span>
-                </template>
+              <div class="item-tail">
+                <div v-if="isBatchMode" class="batch-index-container">
+                  <div v-for="value in item.batchListIndexes" class="batch-index" :key="value">
+                    {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+                  </div>
+                </div>
+                <div class="item-remodel caption" v-if="isStockOnly">
+                  <template v-if="item.remodel > 0">
+                    <v-icon small>mdi-star</v-icon>
+                    <span>{{ item.remodel }}</span>
+                  </template>
+                </div>
+                <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">&times;{{ item.count }}</div>
               </div>
-              <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">&times;{{ item.count }}</div>
               <div v-for="key in viewStatus" class="item-status" :class="{ sorted: key === sortKey }"
                 :key="`status${key}`">
                 <div v-if="barWidth(item, key)" class="status-bar" :class="{ weak: key !== sortKey }"
@@ -274,12 +300,6 @@
                 <div>
                   <v-img :src="`./img/type/icon${v.item.data.iconTypeId}.png`" height="30" width="30" />
                 </div>
-                <!-- 一括配備モード用インデックス -->
-                <div v-if="v.batchListIndexes.length" class="batch-index-container">
-                  <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
-                    {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
-                  </div>
-                </div>
               </div>
               <div class="flex-grow-1" :class="{ 'min-width-0': isMobile }">
                 <div class="d-flex align-center">
@@ -306,13 +326,20 @@
                     <v-icon v-else
                       :color="v.batchListIndexes.length ? 'success' : 'light-blue'">mdi-chevron-triple-up</v-icon>
                   </div>
-                  <div class="item-remodel caption mr-1" v-if="isStockOnly && v.remodel > 0">
-                    <v-icon small>mdi-star</v-icon>
-                    <span>{{ v.remodel }}</span>
-                  </div>
-                  <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
-                    <span>&times;</span>
-                    <span>{{ v.count }}</span>
+                  <div class="item-tail">
+                    <div v-if="isBatchMode" class="batch-index-container">
+                      <div v-for="value in v.batchListIndexes" class="batch-index" :key="value">
+                        {{ isShipMode && value + 1 === batchMax ? $t("ItemList.補") : value + 1 }}
+                      </div>
+                    </div>
+                    <div class="item-remodel caption" v-if="isStockOnly && v.remodel > 0">
+                      <v-icon small>mdi-star</v-icon>
+                      <span>{{ v.remodel }}</span>
+                    </div>
+                    <div class="item-count caption" v-if="isStockOnly && !isEnemyMode">
+                      <span>&times;</span>
+                      <span>{{ v.count }}</span>
+                    </div>
                   </div>
                 </div>
                 <div class="mobile-sub-status" v-if="isMobile">
@@ -453,22 +480,23 @@
     </v-dialog>
     <item-list-sheets />
     <v-dialog v-model="compareDialog" transition="scroll-x-transition" width="auto">
-      <v-card class="pa-3 compare-dialog" v-if="menuItem">
-        <div class="compare-close-button">
-          <v-btn class="ml-auto" icon @click="compareDialog = false">
+      <v-card class="compare-dialog" v-if="menuItem">
+        <div class="compare-dialog-header">
+          <div class="compare-dialog-title">{{ $t("ItemList.装備比較") }}</div>
+          <v-btn class="ml-auto" icon small @click="compareDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
         <item-compare :target-item="menuItem.item" :item-parent="itemParent" :slot-index="slotIndex"
           :is-airbase-mode="isAirbaseMode"></item-compare>
-        <v-divider class="my-2" />
-        <div class="d-flex flex-wrap">
-          <v-checkbox v-model="setting.showItemCompareDialog" @click="toggleCompareSetting" hide-details dense
+        <div class="compare-dialog-footer">
+          <v-checkbox class="compare-keep" v-model="setting.showItemCompareDialog" @click="toggleCompareSetting" hide-details dense
             :label="$t('ItemList.装備選択時は常に表示する')" />
-          <div class="ml-auto">
-            <v-btn class="ml-4" color="primary" dark @click.stop="clickedItem(menuItem, $event)" v-if="!isBatchMode">{{
-              $t("Common.配備") }}</v-btn>
-            <v-btn class="ml-4" color="secondary" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</v-btn>
+          <div class="compare-dialog-actions">
+            <button v-if="!isBatchMode" type="button" class="compare-equip" @click.stop="clickedItem(menuItem, $event)">
+              {{ $t("Common.配備") }}
+            </button>
+            <button type="button" class="compare-dismiss" @click.stop="compareDialog = false">{{ $t("Common.閉じる") }}</button>
           </div>
         </div>
       </v-card>
@@ -520,9 +548,23 @@
 
 .list-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   padding: 8px 8px 8px 12px;
+}
+
+.toolbar-filter,
+.toolbar-tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-tools {
+  margin-left: auto;
 }
 
 .item-search-text >>> .v-input {
@@ -561,6 +603,7 @@
 
 .status-filter {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   height: 32px;
   padding: 0 4px 0 10px;
@@ -676,6 +719,23 @@
   background-color: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
+.status-save-button {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent);
+  border-radius: 16px;
+  background-color: transparent;
+  color: var(--accent-text);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.status-save-button:hover {
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
 .toolbar-stock {
   flex-shrink: 0;
   margin-top: 0;
@@ -718,10 +778,77 @@
 
 .item-filter-container {
   display: flex;
+  flex-direction: column;
+  padding: 4px 12px;
+}
+
+.preset-group:not(.own) {
+  display: contents;
+}
+
+.preset-group:not(.own) .preset-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preset-group.own {
+  order: -1;
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.preset-group.own .preset-chips {
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+}
+
+.preset-pop-enter-active {
+  position: relative;
+  z-index: 2;
+  animation: preset-drop 0.48s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.preset-pop-leave-active {
+  position: absolute;
+  z-index: 2;
+  animation: preset-lift 0.2s ease both;
+}
+
+@keyframes preset-drop {
+  from {
+    opacity: 0.4;
+    transform: translateY(-46px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes preset-lift {
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preset-pop-enter-active,
+  .preset-pop-leave-active {
+    animation: none;
+  }
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  position: relative;
 }
 
 .item-filter-container>>>.v-input--switch label {
@@ -756,6 +883,49 @@
 
 .filter-chip.active>>>.v-icon {
   color: inherit;
+}
+
+.preset-chip {
+  padding: 0 4px 0 0;
+  gap: 0;
+  cursor: default;
+}
+
+.filter-chip.preset-pop-enter-active {
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.16);
+}
+
+.theme--dark .filter-chip.preset-pop-enter-active {
+  background-color: rgb(40, 40, 45);
+}
+
+.preset-apply,
+.preset-remove {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.preset-apply {
+  padding: 0 2px 0 10px;
+}
+
+.preset-remove {
+  justify-content: center;
+  width: 18px;
+  border-radius: 9px;
+  opacity: 0.6;
+}
+
+.preset-remove:hover {
+  opacity: 1;
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .filter-tri {
@@ -805,6 +975,12 @@
   height: 18px;
   margin: 0 2px;
   background-color: rgba(128, 128, 128, 0.4);
+}
+
+.filter-separator.preset-separator {
+  height: 14px;
+  margin: 0;
+  background-color: rgba(128, 128, 128, 0.32);
 }
 
 .filter-right {
@@ -1005,11 +1181,15 @@
 }
 
 .type-item-container .list-item.no-stock:not(.selected) {
-  opacity: 0.5;
+  opacity: 0.72;
 }
 
 .list-item.no-stock:hover {
-  background-color: rgba(128, 128, 128, 0.12);
+  background-color: rgba(255, 128, 128, 0.1);
+}
+
+.no-stock .item-name-container {
+  color: #ff6464;
 }
 
 .list-item.has-bonus {
@@ -1085,7 +1265,16 @@
 .item-remodel,
 .item-remodel-header {
   flex-shrink: 0;
-  width: 40px;
+  width: 36px;
+  white-space: nowrap;
+}
+
+.list-item:not(.single) .item-remodel {
+  display: inline-flex;
+  align-items: center;
+  width: 30px;
+  margin-right: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .item-remodel {
@@ -1111,13 +1300,25 @@
 .item-count,
 .item-count-header {
   flex-shrink: 0;
-  width: 40px;
+  width: 32px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.list-item:not(.single) .item-count {
+  width: 24px;
   text-align: right;
 }
 
 .item-count {
   opacity: 0.7;
   font-variant-numeric: tabular-nums;
+}
+
+.no-stock .item-count {
+  opacity: 1;
+  color: #ff6464;
+  font-weight: 700;
 }
 
 .item-count-header {
@@ -1167,23 +1368,22 @@
   position: relative;
 }
 
-.batch-mode .batch-index-container {
-  position: absolute;
+.item-tail {
   display: flex;
-  top: 1px;
-  right: 56%;
+  align-items: center;
+  align-self: center;
+  flex-shrink: 0;
 }
 
-.batch-mode .has-bonus .batch-index-container {
-  right: calc(56% + 3px);
-}
-
-.multi.batch-mode .batch-index-container {
-  right: 1px;
-}
-
-.multi.batch-mode .has-bonus .batch-index-container {
-  right: 2px;
+.batch-index-header,
+.batch-mode .batch-index-container {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  width: max-content;
+  min-width: 20px;
+  margin-right: 4px;
 }
 
 .batch-mode .batch-index {
@@ -1316,6 +1516,14 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  overflow: hidden;
+}
+
+.item-status-header .item-status > div {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .item-status-header .item-status:not(.text-left),
@@ -1417,14 +1625,82 @@
 }
 
 .compare-dialog {
-  position: relative;
-  padding-top: 24px !important;
+  --accent: #14b8a6;
+  --accent-text: #0f766e;
+  width: min(1040px, calc(100vw - 48px));
+  border-radius: 16px !important;
+  overflow: hidden;
 }
 
-.compare-close-button {
-  position: absolute;
-  right: 12px;
-  top: 8px;
+.theme--dark .compare-dialog,
+.compare-dialog.theme--dark {
+  --accent-text: #5eead4;
+}
+
+.compare-dialog-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 0 16px;
+}
+
+.compare-dialog-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.compare-dialog-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 16px 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.28);
+}
+
+.compare-keep {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.compare-keep >>> .v-label {
+  font-size: 12px;
+}
+
+.compare-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.compare-equip,
+.compare-dismiss {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.compare-equip {
+  border: none;
+  background-color: var(--accent);
+  color: #042f2e;
+  font-weight: 600;
+}
+
+.compare-equip:hover {
+  filter: brightness(1.08);
+}
+
+.compare-dismiss {
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  background: transparent;
+  color: inherit;
+}
+
+.compare-dismiss:hover {
+  background-color: rgba(128, 128, 128, 0.12);
 }
 
 /** スマホ版表示 */
@@ -1511,7 +1787,7 @@ import Enemy from '@/classes/enemy/enemy';
 import Ship from '@/classes/fleet/ship';
 import Const from '@/classes/const';
 import Item from '@/classes/item/item';
-import SiteSetting from '@/classes/siteSetting';
+import SiteSetting, { isItemStatusFilterKey, ITEM_STATUS_FILTER_PRESET_LIMIT, ItemStatusFilterPreset } from '@/classes/siteSetting';
 import ItemStock from '@/classes/item/itemStock';
 import SaveData from '@/classes/saveData/saveData';
 import ShipValidation from '@/classes/fleet/shipValidation';
@@ -1563,6 +1839,28 @@ const triStateOptions = [
   { value: 1, text: 'あり' },
   { value: 2, text: 'なし' },
 ];
+
+type PresetLayoutState = {
+  pending: boolean;
+  passes: number;
+  tops: Map<HTMLElement, number>;
+  observer?: ResizeObserver;
+  observed?: HTMLElement;
+  width: number;
+};
+
+const presetLayouts = new WeakMap<Vue, PresetLayoutState>();
+
+function presetLayoutOf(vm: Vue): PresetLayoutState {
+  let layout = presetLayouts.get(vm);
+  if (!layout) {
+    layout = {
+      pending: false, passes: 0, tops: new Map(), width: 0,
+    };
+    presetLayouts.set(vm, layout);
+  }
+  return layout;
+}
 
 export default Vue.extend({
   name: 'ItemList',
@@ -1662,6 +1960,8 @@ export default Vue.extend({
     filterStatus: 'radius',
     filterStatusItems: [] as { text: string; value: string }[],
     filterStatusValue: 0,
+    presetsOnOwnRow: false,
+    animatePresetEnter: false,
     sortKeyItems: [] as { text: string; value: string }[],
     blacklistDialog: false,
     blacklistItems: [] as number[],
@@ -1683,6 +1983,7 @@ export default Vue.extend({
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     itemListHeight: 100,
     isMobile: true,
+    detailPaneFits: false,
     triStateOptions,
     detailItem: null as Item | null,
     detailBonus: '',
@@ -1723,9 +2024,30 @@ export default Vue.extend({
 
     this.updateIsMobile();
     window.addEventListener('resize', this.onViewportResize);
+    this.$nextTick(() => {
+      this.ensureFilterRowObserver();
+      this.syncPresetPlacement();
+    });
+  },
+  beforeUpdate() {
+    const layout = presetLayoutOf(this);
+    if (layout.pending) return;
+    if (this.isMobile || !this.statusFilterPresets.length) {
+      layout.tops.clear();
+      return;
+    }
+    this.captureFilterPositions();
+  },
+  updated() {
+    this.ensureFilterRowObserver();
+    this.syncPresetPlacement();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.onViewportResize);
+    const row = this.$refs.filterRow as HTMLElement | undefined;
+    if (row) row.removeEventListener('animationend', this.onPresetAnimationEnd);
+    const layout = presetLayoutOf(this);
+    if (layout.observer) layout.observer.disconnect();
   },
   watch: {
     confirmDialog(value: boolean) {
@@ -1939,6 +2261,24 @@ export default Vue.extend({
     isCostFilter() {
       return this.filterStatus === 'cost';
     },
+    normalizedStatusFilterValue(): number {
+      const value = Math.floor(+this.filterStatusValue || 0);
+      if (!Number.isFinite(value)) return 0;
+      return Math.max(0, Math.min(30, value));
+    },
+    statusFilterPresets(): ItemStatusFilterPreset[] {
+      const list = this.setting && this.setting.savedItemStatusFilters;
+      return Array.isArray(list) ? list : [];
+    },
+    canSaveStatusFilter(): boolean {
+      const value = this.normalizedStatusFilterValue;
+      if (value <= 0 || !this.filterStatus) return false;
+      if (this.statusFilterPresets.length >= ITEM_STATUS_FILTER_PRESET_LIMIT) return false;
+      return !this.statusFilterPresets.some((v) => v.key === this.filterStatus && v.value === value);
+    },
+    currentStatusFilterLabel(): string {
+      return this.statusFilterPresetLabel({ key: this.filterStatus, value: this.normalizedStatusFilterValue });
+    },
     affectingRangeState(): number {
       if (this.onlyAffectingRange) return 1;
       return this.onlyNotAffectingRange ? 2 : 0;
@@ -1988,7 +2328,7 @@ export default Vue.extend({
       return this.viewStatus.filter((key) => key !== highlight).slice(0, 3);
     },
     showDetailPane(): boolean {
-      return !this.isMobile;
+      return !this.isMobile && this.detailPaneFits;
     },
   },
   methods: {
@@ -2010,7 +2350,9 @@ export default Vue.extend({
     },
     updateIsMobile() {
       const mobile = window.innerWidth < 600;
+      const paneFits = window.innerWidth >= 960;
       this.isMobile = mobile;
+      this.detailPaneFits = paneFits;
       let host = this.$parent as Vue & { isMobile?: boolean; itemDialogWidth?: number };
       while (host) {
         if (typeof host.isMobile === 'boolean' && typeof host.itemDialogWidth === 'number') {
@@ -2019,7 +2361,7 @@ export default Vue.extend({
         }
         host = host.$parent as Vue & { isMobile?: boolean; itemDialogWidth?: number };
       }
-      const pane = mobile ? 0 : 268;
+      const pane = !mobile && paneFits ? 268 : 0;
       const preferred = (this.multiLine ? 1200 : 940) + pane;
       const width = mobile ? window.innerWidth : Math.min(preferred, Math.max(640, window.innerWidth - 32));
       this.handleChangeWidth(width);
@@ -2278,6 +2620,168 @@ export default Vue.extend({
       const next = Math.max(0, Math.min(30, (+this.filterStatusValue || 0) + delta));
       this.filterStatusValue = next;
       this.changedFilter();
+    },
+    statusFilterPresetLabel(preset: { key: string; value: number }): string {
+      const item = this.filterStatusItems.find((v) => v.value === preset.key);
+      const name = item ? item.text : preset.key;
+      const op = preset.key === 'cost' ? `${this.$t('ItemList.以下')}` : `${this.$t('ItemList.以上')}`;
+      const suffix = this.$i18n.locale === 'en' ? ` ${op}` : op;
+      return `${name} ${preset.value}${suffix}`;
+    },
+    isActiveStatusPreset(preset: { key: string; value: number }): boolean {
+      return this.filterStatus === preset.key && this.normalizedStatusFilterValue === preset.value;
+    },
+    applyStatusFilterPreset(preset: ItemStatusFilterPreset) {
+      if (!isItemStatusFilterKey(preset.key)) return;
+      if (this.isActiveStatusPreset(preset)) {
+        this.clearStatusValue();
+        return;
+      }
+      this.keyword = '';
+      this.filterStatus = preset.key;
+      this.filterStatusValue = preset.value;
+      this.changedFilter();
+    },
+    flexBoxes(el: HTMLElement): HTMLElement[] {
+      const boxes: HTMLElement[] = [];
+      for (let i = 0; i < el.children.length; i += 1) {
+        const child = el.children[i] as HTMLElement;
+        if (getComputedStyle(child).display === 'contents') boxes.push(...this.flexBoxes(child));
+        else boxes.push(child);
+      }
+      return boxes;
+    },
+    captureFilterPositions() {
+      const row = this.$refs.filterRow as HTMLElement | undefined;
+      const layout = presetLayoutOf(this);
+      layout.tops.clear();
+      if (!row) return;
+      this.flexBoxes(row).forEach((el) => {
+        layout.tops.set(el, el.getBoundingClientRect().top);
+      });
+    },
+    rowGap(row: HTMLElement): number {
+      const raw = getComputedStyle(row).columnGap;
+      const gap = parseFloat(raw);
+      return Number.isFinite(gap) ? gap : 6;
+    },
+    filterRowWraps(row: HTMLElement): boolean {
+      const boxes = this.flexBoxes(row).filter((el) => !el.classList.contains('preset-pop-leave-active'));
+      if (boxes.length < 2) return false;
+      const tops = boxes.map((el) => el.offsetTop);
+      const min = Math.min(...tops);
+      return tops.some((top) => top - min > 18);
+    },
+    shouldPlacePresetsOnOwnRow(): boolean {
+      if (!this.statusFilterPresets.length || this.isMobile) return false;
+      const row = this.$refs.filterRow as HTMLElement | undefined;
+      if (!row || row.clientWidth < 40) return this.presetsOnOwnRow;
+      if (!this.presetsOnOwnRow) return this.filterRowWraps(row);
+
+      const group = row.querySelector('.preset-group') as HTMLElement | null;
+      const chips = group
+        ? (Array.from(group.querySelectorAll('.preset-chip')) as HTMLElement[])
+          .filter((el) => !el.classList.contains('preset-pop-leave-active'))
+        : [];
+      if (!chips.length) return false;
+      const gap = this.rowGap(row);
+      const presetWidth = chips.reduce((sum, el) => sum + el.offsetWidth, 0) + gap * (chips.length - 1);
+      const others = (Array.from(row.children) as HTMLElement[]).filter((el) => el !== group);
+      const othersWidth = others.reduce((sum, el) => sum + el.offsetWidth, 0) + gap * Math.max(0, others.length - 1);
+      const free = row.clientWidth - othersWidth;
+      const needed = presetWidth + (others.length ? gap + 1 + gap : 0);
+      return needed > free - 2;
+    },
+    syncPresetPlacement() {
+      const layout = presetLayoutOf(this);
+      const should = this.shouldPlacePresetsOnOwnRow();
+      if (should === this.presetsOnOwnRow) {
+        layout.passes = 0;
+        layout.pending = false;
+        this.playFilterMove();
+        return;
+      }
+      layout.passes += 1;
+      if (layout.passes > 2) {
+        layout.passes = 0;
+        layout.pending = false;
+        return;
+      }
+      layout.pending = true;
+      this.presetsOnOwnRow = should;
+    },
+    playFilterMove() {
+      const layout = presetLayoutOf(this);
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      layout.tops.forEach((top, el) => {
+        if (!el.isConnected) return;
+        if (el.classList.contains('preset-pop-enter-active') || el.classList.contains('preset-pop-leave-active')) return;
+        const dy = top - el.getBoundingClientRect().top;
+        if (reduce || Math.abs(dy) < 10) return;
+        el.style.transition = 'none';
+        el.style.transform = `translateY(${dy}px)`;
+        // いったん元の位置に置いてから、折り返し先へ滑らせる
+        const placed = el.getBoundingClientRect().top;
+        if (!Number.isFinite(placed)) return;
+        el.style.transition = 'transform 0.48s cubic-bezier(0.2, 0.7, 0.2, 1)';
+        el.style.transform = '';
+        const clear = (event: TransitionEvent) => {
+          if (event.propertyName !== 'transform') return;
+          el.style.transition = '';
+          el.removeEventListener('transitionend', clear);
+        };
+        el.addEventListener('transitionend', clear);
+      });
+      layout.tops.clear();
+    },
+    ensureFilterRowObserver() {
+      const row = this.$refs.filterRow as HTMLElement | undefined;
+      const layout = presetLayoutOf(this);
+      if (!row) {
+        if (layout.observer) {
+          layout.observer.disconnect();
+          layout.observer = undefined;
+          layout.observed = undefined;
+          layout.width = 0;
+        }
+        return;
+      }
+      if (layout.observer && layout.observed === row) return;
+      if (layout.observer) layout.observer.disconnect();
+      layout.observed = row;
+      layout.width = row.clientWidth;
+      layout.observer = new ResizeObserver(() => this.onFilterRowResize());
+      layout.observer.observe(row);
+      row.addEventListener('animationend', this.onPresetAnimationEnd);
+    },
+    onPresetAnimationEnd(event: AnimationEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target || !target.classList || !target.classList.contains('preset-chip')) return;
+      this.syncPresetPlacement();
+    },
+    onFilterRowResize() {
+      const row = this.$refs.filterRow as HTMLElement | undefined;
+      if (!row) return;
+      const layout = presetLayoutOf(this);
+      if (row.clientWidth === layout.width) return;
+      layout.width = row.clientWidth;
+      if (!layout.pending) this.captureFilterPositions();
+      this.syncPresetPlacement();
+    },
+    saveStatusFilterPreset() {
+      if (!this.canSaveStatusFilter) return;
+      this.animatePresetEnter = true;
+      const value = this.normalizedStatusFilterValue;
+      this.setting.savedItemStatusFilters = this.statusFilterPresets.concat({
+        id: `${Date.now()}`,
+        key: this.filterStatus,
+        value,
+      });
+      this.$store.dispatch('updateSetting', this.setting);
+    },
+    removeStatusFilterPreset(preset: ItemStatusFilterPreset) {
+      this.setting.savedItemStatusFilters = this.statusFilterPresets.filter((v) => v.id !== preset.id);
+      this.$store.dispatch('updateSetting', this.setting);
     },
     toggleLandBaseAttackFilter() {
       if (this.onlyEnabledLandBaseAttack) {
@@ -2693,7 +3197,7 @@ export default Vue.extend({
       if (!this.disabledDetailFilter) {
         // ステータスの数値によるフィルタ => 装備ボーナス分を考慮するため、最後にやる必要がある
         const filterValue = this.filterStatusValue ? +this.filterStatusValue : 0;
-        if (this.filterStatus && filterValue) {
+        if (this.filterStatus && filterValue && isItemStatusFilterKey(this.filterStatus)) {
           let filterKey = this.filterStatus;
           if (withoutRemodel && filterKey.startsWith('actual')) {
             filterKey = filterKey.replace('actual', '');

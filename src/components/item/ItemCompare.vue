@@ -1,200 +1,301 @@
 <template>
-  <div class="compare-cards px-1 pb-1">
-    <div class="d-none d-sm-flex flex-column">
-      <div class="d-flex align-end">
-        <div class="caption">Before</div>
-        <v-icon class="ml-auto" small>mdi-chevron-triple-right</v-icon>
-      </div>
-      <v-divider class="mb-2"></v-divider>
-      <v-card class="px-3 py-2 flex-grow-1">
+  <div class="compare-cards">
+    <div class="compare-column d-none d-sm-flex">
+      <div class="compare-label">{{ $t("ItemList.装備中") }}</div>
+      <div class="compare-panel">
         <item-status-view v-model="originalItem" :bonus="originalItemBonusString" :is-airbase-mode="isAirbaseMode"></item-status-view>
-      </v-card>
+      </div>
     </div>
-    <div class="compare-arrow d-none d-sm-block">
-      <div><v-icon x-large color="light-blue">mdi-chevron-right</v-icon></div>
+    <div class="compare-arrow d-none d-sm-flex">
+      <v-icon small>mdi-chevron-right</v-icon>
     </div>
-    <div class="d-none d-sm-flex flex-column">
-      <div class="caption">After</div>
-      <v-divider class="mb-2"></v-divider>
-      <v-card class="px-3 py-2 flex-grow-1">
+    <div class="compare-column d-none d-sm-flex">
+      <div class="compare-label next">{{ $t("ItemList.変更後") }}</div>
+      <div class="compare-panel candidate">
         <item-status-view v-model="targetItem" :bonus="itemBonusString" :is-airbase-mode="isAirbaseMode"></item-status-view>
-      </v-card>
+      </div>
     </div>
-    <!-- ステータスプレビュー -->
-    <div class="preview-card d-flex flex-column">
-      <div class="caption">Preview</div>
-      <v-divider class="mb-2"></v-divider>
-      <v-card class="px-3 py-2 flex-grow-1">
-        <template v-if="!isAirbaseMode && exchangeParent && itemParent && itemParent.data.id">
-          <div class="d-flex align-center">
-            <div><v-img :src="`./img/ship/banner/${exchangeParent.data.id}.png`" height="30" width="120" /></div>
-            <div class="ml-1">
-              <div class="level-text light-blue--text caption">Lv {{ exchangeParent.level }}</div>
-              <div class="caption">{{ getShipName(exchangeParent.data) }}</div>
-            </div>
+    <div class="compare-column preview-column">
+      <div class="compare-label">{{ $t("ItemList.変化") }}</div>
+      <div class="compare-panel preview-panel">
+        <div v-if="!isAirbaseMode && exchangeParent && itemParent && itemParent.data.id" class="preview-ship">
+          <div class="preview-ship-banner">
+            <v-img :src="`./img/ship/banner/${exchangeParent.data.id}.png`" height="30" width="120" />
           </div>
-          <div class="mt-1 caption text--secondary">{{ $t("Common.表示ステータス") }}</div>
-        </template>
-        <template v-else>
-          <div class="mt-1 caption text--secondary">{{ $t("Common.基本装備性能") }}</div>
-        </template>
-        <v-divider></v-divider>
-        <div class="preview-statuses">
-          <template v-for="(row, i) in displayStatuses">
-            <div :key="`title${i}`">{{ row.text }}</div>
-            <div :key="`before${i}`" :class="{ text: row.hideDiff }">{{ row.before }}</div>
-            <div :key="`arrow${i}`"><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-            <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0, text: row.hideDiff }">{{ row.after }}</div>
-            <div :key="`diff${i}`">
-              <template v-if="row.diff">
-                <v-icon v-if="row.diff > 0" color="light-blue">
-                  {{ row.diff > 15 ? "mdi-chevron-triple-up" : row.diff >= 3 ? "mdi-chevron-double-up" : "mdi-chevron-up" }}
-                </v-icon>
-                <v-icon v-else color="error">
-                  {{ -15 > row.diff ? "mdi-chevron-triple-down" : -3 >= row.diff ? "mdi-chevron-double-down" : "mdi-chevron-down" }}
-                </v-icon>
-                <span>{{ row.hideDiff ? "" : Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
-              </template>
-            </div>
-          </template>
+          <div>
+            <div class="preview-ship-name">{{ getShipName(exchangeParent.data) }}</div>
+            <div class="preview-ship-level">Lv {{ exchangeParent.level }}</div>
+          </div>
+        </div>
+        <div class="preview-section">{{ !isAirbaseMode && itemParent && itemParent.data.id ? $t("Common.表示ステータス") : $t("Common.基本装備性能") }}</div>
+        <div class="preview-list">
+          <div v-for="(row, i) in displayStatuses" :key="`status${i}`" class="preview-row" :class="previewRowClass(row.diff, row.lowerIsBetter)">
+            <div class="preview-name">{{ row.text }}</div>
+            <div class="preview-before" :class="{ text: row.hideDiff }">{{ row.before }}</div>
+            <div class="preview-mark">→</div>
+            <div class="preview-after" :class="{ text: row.hideDiff }">{{ row.after }}</div>
+            <div class="preview-diff">{{ row.diff && !row.hideDiff ? formatPreviewDiff(row.diff) : "" }}</div>
+          </div>
         </div>
         <template v-if="displayStatuses2.length">
-          <div class="mt-1 caption text--secondary" v-if="isAirbaseMode">{{ $t("Common.航空隊ステータス") }}</div>
-          <div class="mt-1 caption text--secondary" v-else>{{ $t("Common.実性能") }}</div>
-          <v-divider></v-divider>
-          <div class="preview-statuses">
-            <template v-for="(row, i) in displayStatuses2">
-              <div :key="`title${i}`">{{ row.text }}</div>
-              <div :key="`before${i}`" :class="{ text: row.hideDiff }">{{ Math.floor(10 * row.before) / 10 }}</div>
-              <div :key="`arrow${i}`"><v-icon small color="grey">mdi-arrow-right-thin</v-icon></div>
-              <div :key="`after${i}`" :class="{ 'light-blue--text': row.diff > 0, 'error--text': row.diff < 0, text: row.hideDiff }">
-                {{ Math.floor(10 * row.after) / 10 }}
-              </div>
-              <div :key="`diff${i}`">
-                <template v-if="row.diff">
-                  <v-icon v-if="row.diff > 0" color="light-blue">
-                    {{ row.diff > 15 ? "mdi-chevron-triple-up" : row.diff >= 3 ? "mdi-chevron-double-up" : "mdi-chevron-up" }}
-                  </v-icon>
-                  <v-icon v-else color="error">
-                    {{ -15 > row.diff ? "mdi-chevron-triple-down" : -3 >= row.diff ? "mdi-chevron-double-down" : "mdi-chevron-down" }}
-                  </v-icon>
-                  <span>{{ Math.floor(10 * Math.abs(row.diff)) / 10 }}</span>
-                </template>
-              </div>
-            </template>
+          <div class="preview-section">{{ isAirbaseMode ? $t("Common.航空隊ステータス") : $t("Common.実性能") }}</div>
+          <div class="preview-list">
+            <div v-for="(row, i) in displayStatuses2" :key="`actual${i}`" class="preview-row" :class="previewRowClass(row.diff)">
+              <div class="preview-name">{{ row.text }}</div>
+              <div class="preview-before">{{ formatPreviewValue(row.before) }}</div>
+              <div class="preview-mark">→</div>
+              <div class="preview-after">{{ formatPreviewValue(row.after) }}</div>
+              <div class="preview-diff">{{ row.diff ? formatPreviewDiff(row.diff) : "" }}</div>
+            </div>
           </div>
         </template>
-      </v-card>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .compare-cards {
+  --accent: #14b8a6;
+  --accent-text: #0f766e;
   display: grid;
   grid-template-columns: 1fr;
-  row-gap: 8px;
+  gap: 8px;
+  max-height: 70vh;
+  padding: 8px 12px 10px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
-.compare-arrow {
-  position: relative;
-  z-index: 1;
-}
-.compare-arrow > div {
-  position: absolute;
-  top: -20px;
-  right: 50%;
-  transform: rotate(90deg) translateY(-20px);
-  filter: drop-shadow(0 0 2px rgba(0, 188, 212, 0.6));
-}
-@media (min-width: 450px) {
-  .compare-cards {
-    display: grid;
-    grid-template-columns: 1fr 8px 1fr;
-  }
-  .preview-card {
-    grid-column-start: 1;
-    grid-column-end: 4;
-  }
-  .compare-arrow > div {
-    top: 50%;
-    right: -16px;
-    transform: unset;
-  }
-}
-@media (min-width: 600px) {
-  .compare-cards {
-    max-height: 70vh;
-  }
-}
-@media (min-width: 800px) {
-  .compare-cards {
-    display: grid;
-    grid-template-columns: 1fr 8px 1fr auto;
-  }
-  .preview-card {
-    grid-column-start: unset;
-    grid-column-end: unset;
-    margin-left: 8px;
-  }
-}
-@media (min-width: 1000px) {
-  .compare-cards {
-    grid-template-columns: 1fr 16px 1fr auto;
-  }
-  .preview-card {
-    margin-left: 16px;
-  }
-  .compare-arrow > div {
-    right: -12px;
-  }
-}
-.level-text {
-  height: 16px;
-}
-.preview-statuses {
-  padding-top: 4px;
-  display: grid;
-  grid-template-columns: auto auto auto auto auto;
-  column-gap: 12px;
-  align-items: center;
-}
-.preview-statuses > div {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  height: 24px;
-  font-size: 14px;
-}
-.preview-statuses > div:nth-child(5n - 4) {
-  justify-content: flex-start;
-  min-width: 50px;
-  font-size: 12px;
-}
-.preview-statuses > div.text {
-  font-size: 12px;
-}
-.preview-statuses > div:nth-child(5n) {
-  display: flex;
-  align-items: center;
-}
-.preview-statuses > div:nth-child(5n) span {
-  display: inline-block;
-  text-align: right;
-  min-width: 30px;
-}
-.preview-statuses.airbase {
-  grid-template-columns: auto 32px auto 32px auto;
+
+.theme--dark .compare-cards {
+  --accent-text: #5eead4;
 }
 
-.text--secondary {
-  filter: drop-shadow(0 0 3px rgba(128, 128, 128, 0.5));
+.compare-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-.light-blue--text {
-  filter: drop-shadow(0 0 4px rgba(0, 188, 212, 0.3));
+
+.compare-label {
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
 }
-.error--text {
-  filter: drop-shadow(0 0 4px rgba(212, 14, 0, 0.3));
+
+.compare-label.next {
+  color: var(--accent-text);
+  opacity: 1;
+}
+
+.compare-panel {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid rgba(128, 128, 128, 0.28);
+  border-radius: 12px;
+  container-type: inline-size;
+  container-name: compare-panel;
+}
+
+.compare-panel.candidate {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.compare-panel >>> .body-2 .item-name {
+  min-width: 0;
+  max-width: 220px;
+}
+
+.compare-cards .compare-panel >>> .item-statuses:not(.synergy-bonus):not(.remodel-bonus):not(.sub-sub) {
+  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr) max-content;
+  column-gap: 16px;
+}
+
+.compare-cards .compare-panel >>> .item-statuses.remodel-bonus {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: unset;
+  column-gap: 12px;
+}
+
+.compare-cards .compare-panel >>> .misc-block {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) max-content;
+  column-gap: 32px;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  padding-top: 4px;
+}
+
+.compare-cards .compare-panel >>> .misc-block .item-statuses.sub-sub,
+.compare-cards .compare-panel >>> .misc-block .grow-speed {
+  display: contents;
+}
+
+.compare-cards .compare-panel >>> .misc-block .ml-8 {
+  margin-left: 0 !important;
+}
+
+.compare-cards .compare-panel >>> .misc-block .text-value {
+  text-align: left;
+}
+
+.compare-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-text);
+}
+
+.preview-ship {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.preview-ship-banner {
+  flex: 0 0 120px;
+  width: 120px;
+  height: 30px;
+}
+
+.preview-ship-name {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.preview-ship-level {
+  font-size: 11px;
+  color: var(--accent-text);
+}
+
+.preview-section {
+  margin: 8px 0 4px;
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+.preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-row {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) 4.6ch 1em 4.6ch 5ch;
+  column-gap: 4px;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 6px;
+  overflow: hidden;
+  border-radius: 6px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-row.same {
+  opacity: 0.4;
+}
+
+.preview-row.up {
+  background-color: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.preview-row.down {
+  background-color: color-mix(in srgb, #ef4444 16%, transparent);
+}
+
+.preview-name {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-before,
+.preview-after,
+.preview-diff,
+.preview-mark {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-before,
+.preview-after,
+.preview-diff {
+  text-align: right;
+}
+
+.preview-after.text {
+  justify-self: start;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.preview-before {
+  opacity: 0.7;
+}
+
+.preview-mark {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.4;
+}
+
+.preview-row.up .preview-after,
+.preview-row.up .preview-diff {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.preview-row.down .preview-after,
+.preview-row.down .preview-diff {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.preview-row .text {
+  font-size: 12px;
+}
+
+@media (min-width: 450px) {
+  .compare-cards {
+    grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr);
+  }
+
+  .preview-column {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 800px) {
+  .compare-cards {
+    grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .preview-column {
+    grid-column: auto;
+    margin-left: 0;
+  }
+}
+</style>
+
+<style>
+@container compare-panel (min-width: 280px) {
+  .compare-cards .compare-panel.compare-panel .item-statuses.remodel-bonus {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+    column-gap: 16px;
+  }
 }
 </style>
 
@@ -232,7 +333,7 @@ export default Vue.extend({
   data: () => ({
     rangeText: ['', '短', '中', '長', '超長', '超長+', '極', '極+', '極長', '極長+'],
     exchangeParent: new Ship(),
-    displayStatuses: [] as { text: string; before: string | number; after: string | number; diff: number; hideDiff?: boolean }[],
+    displayStatuses: [] as { text: string; before: string | number; after: string | number; diff: number; hideDiff?: boolean; lowerIsBetter?: boolean }[],
     displayStatuses2: [] as { text: string; before: number; after: number; diff: number }[],
     avoidTexts: Const.AVOID_TYPE.map((v) => v.text),
     originalItem: new Item(),
@@ -255,6 +356,21 @@ export default Vue.extend({
     },
   },
   methods: {
+    formatPreviewValue(value: string | number): string {
+      if (typeof value === 'number') return `${Math.floor(10 * value) / 10}`;
+      return `${value}`;
+    },
+    formatPreviewDiff(diff: number): string {
+      const abs = Math.floor(10 * Math.abs(diff)) / 10;
+      return diff > 0 ? `+${abs}` : `-${abs}`;
+    },
+    previewRowClass(diff: number, lowerIsBetter?: boolean): string {
+      const improved = lowerIsBetter ? diff < 0 : diff > 0;
+      const worsened = lowerIsBetter ? diff > 0 : diff < 0;
+      if (improved) return 'up';
+      if (worsened) return 'down';
+      return 'same';
+    },
     getSpeedText(value: number) {
       if (value <= 5) {
         return `${this.$t('Fleet.低速')}`;
@@ -474,7 +590,8 @@ export default Vue.extend({
           text: `${this.$t('Common.コスト')}`,
           after: this.targetItem.data.cost,
           before: this.originalItem.data.cost,
-          diff: -(this.targetItem.data.cost - this.originalItem.data.cost),
+          diff: this.targetItem.data.cost - this.originalItem.data.cost,
+          lowerIsBetter: true,
         });
         if (this.originalItem.data.avoidId !== this.targetItem.data.avoidId) {
           this.displayStatuses.push({

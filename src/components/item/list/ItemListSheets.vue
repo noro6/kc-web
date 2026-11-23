@@ -1,30 +1,33 @@
 <template>
   <div class="item-list-sheets-host">
-    <v-dialog v-if="!list.isMobile" v-model="list.sortDialog" width="600">
-      <v-card class="pa-3">
-        <div class="d-flex px-2 align-center">
-          <div>{{ $t("Common.ソート") }}</div>
-          <v-btn class="ml-auto" icon @click="list.sortDialog = false">
+    <v-dialog v-if="!list.isMobile" v-model="list.sortDialog" width="520">
+      <v-card class="sort-dialog-card">
+        <div class="sort-dialog-header">
+          <div class="sort-dialog-title">{{ $t("Common.ソート") }}</div>
+          <v-btn class="ml-auto" icon small @click="list.sortDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-divider class="mt-2 mb-3" />
-        <div class="sort-selector px-2">
-          <div class="sort-key" v-for="(item, j) in list.sortKeyItems" :key="`key${j}`">
-            <v-btn block text :class="{ primary: item.value === list.sortKey }" @click="list.selectSortKey(item.value)">
-              {{ $t(`Common.${item.text}`) }}
-            </v-btn>
+        <div class="sort-dialog-body">
+          <button v-for="(item, j) in list.sortKeyItems" :key="`key${j}`" type="button" class="filter-chip"
+            :class="{ active: item.value === list.sortKey }" @click="list.selectSortKey(item.value)">
+            {{ $t(`Common.${item.text}`) }}
+          </button>
+        </div>
+        <div class="sort-dialog-footer">
+          <div class="filter-segmented sort-order">
+            <button type="button" :class="{ active: !list.isDesc }" @click="list.isDesc = false; list.handleSortItem()">
+              <v-icon x-small>mdi-arrow-up</v-icon>
+              {{ $t("Common.昇順") }}
+            </button>
+            <button type="button" :class="{ active: list.isDesc }" @click="list.isDesc = true; list.handleSortItem()">
+              <v-icon x-small>mdi-arrow-down</v-icon>
+              {{ $t("Common.降順") }}
+            </button>
           </div>
-        </div>
-        <div class="d-flex justify-center">
-          <v-radio-group v-model="list.isDesc" row hide-detail @change="list.handleSortItem">
-            <v-radio class="mx-10" :label="$t('Common.昇順')" :value="false" />
-            <v-radio class="mx-10" :label="$t('Common.降順')" :value="true" />
-          </v-radio-group>
-        </div>
-        <v-divider />
-        <div class="d-flex mt-3 justify-end">
-          <v-btn color="secondary" @click="list.resetOrdering">{{ $t("Common.リセット") }}</v-btn>
+          <button type="button" class="sort-reset" :disabled="!list.sortKey" @click="list.resetOrdering()">
+            {{ $t("Common.リセット") }}
+          </button>
         </div>
       </v-card>
     </v-dialog>
@@ -75,11 +78,27 @@
             <div class="sheet-section-label">{{ $t("ItemList.ステータス条件") }}</div>
             <div class="sheet-status-row">
               <v-select dense v-model="list.filterStatus" hide-details :items="list.filterStatusItems"
-                class="sheet-status-select" @change="list.filter()" />
+                class="sheet-status-select" @change="list.changedFilter()" />
               <button type="button" class="filter-chip sheet-stepper" @click="list.stepFilterValue(-1)">−</button>
               <span class="sheet-status-value">{{ list.filterStatusValue || 0 }}</span>
               <button type="button" class="filter-chip sheet-stepper" @click="list.stepFilterValue(1)">＋</button>
               <span class="caption">{{ list.isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</span>
+              <button v-if="list.canSaveStatusFilter" type="button" class="filter-chip preset-save"
+                :title="list.currentStatusFilterLabel" @click="list.saveStatusFilterPreset()">
+                {{ $t("ItemList.この条件を保存") }}
+              </button>
+            </div>
+            <div v-if="list.statusFilterPresets.length" class="sheet-chip-row mt-2">
+              <div v-for="preset in list.statusFilterPresets" :key="preset.id" class="filter-chip preset-chip"
+                :class="{ active: list.isActiveStatusPreset(preset) }">
+                <button type="button" class="preset-apply" @click="list.applyStatusFilterPreset(preset)">
+                  {{ list.statusFilterPresetLabel(preset) }}
+                </button>
+                <button type="button" class="preset-remove" :title="$t('Common.削除')"
+                  @click="list.removeStatusFilterPreset(preset)">
+                  <v-icon x-small>mdi-close</v-icon>
+                </button>
+              </div>
             </div>
           </div>
           <div class="sheet-section" v-if="!list.isAirbaseMode && (!list.isBatchMode || !list.isCheckedOnly)">
@@ -241,21 +260,83 @@ export default Vue.extend({
   display: contents;
 }
 
-.sort-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+.sort-dialog-card {
+  --accent: #14b8a6;
+  --accent-text: #0f766e;
+  border-radius: 16px !important;
+  overflow: hidden;
 }
 
-@media (min-width: 600px) {
-  .sort-selector {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
+.theme--dark .sort-dialog-card,
+.sort-dialog-card.theme--dark {
+  --accent-text: #5eead4;
 }
 
-.sort-key {
-  text-align: center;
+.sort-dialog-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 0 16px;
+}
+
+.sort-dialog-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sort-dialog-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 16px 14px;
+}
+
+.sort-dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 12px 16px;
+  border-top: 1px solid rgba(128, 128, 128, 0.28);
+}
+
+.sort-order {
+  height: 32px;
+}
+
+.sort-order button {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 12px;
+}
+
+.sort-order >>> .v-icon {
+  font-size: 14px !important;
+  height: 14px;
+  width: 14px;
+  color: inherit;
+}
+
+.sort-reset {
+  margin-left: auto;
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  opacity: 0.7;
   cursor: pointer;
-  border: 1px solid transparent;
+}
+
+.sort-reset:hover:not(:disabled) {
+  opacity: 1;
+  background-color: rgba(128, 128, 128, 0.12);
+}
+
+.sort-reset:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .filter-chip {
@@ -291,6 +372,39 @@ export default Vue.extend({
 .filter-chip:disabled {
   opacity: 0.4;
   pointer-events: none;
+}
+
+.filter-chip.preset-save {
+  border-style: dashed;
+}
+
+.preset-chip {
+  padding: 0 4px 0 0;
+  gap: 0;
+  cursor: default;
+}
+
+.preset-apply,
+.preset-remove {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.preset-apply {
+  padding: 0 2px 0 10px;
+}
+
+.preset-remove {
+  justify-content: center;
+  width: 18px;
+  border-radius: 9px;
+  opacity: 0.6;
 }
 
 .filter-segmented {

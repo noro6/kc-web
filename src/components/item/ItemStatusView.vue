@@ -181,20 +181,21 @@
     <template v-if="!dense || value.data.isPlane || value.data.avoidId || value.data.enabledAttackLandBase">
       <div class="mt-2 caption grey--text">{{ $t("Database.その他") }}</div>
       <v-divider :dark="dark" />
-      <div class="item-statuses sub-sub">
-        <template v-if="value.data.avoidId">
-          <div>{{ $t("Common.射撃回避") }}</div>
-          <div class="text-value">{{ $t(`Common.回避性能.${avoidTexts[value.data.avoidId]}`) }}</div>
-        </template>
-        <template v-if="value.data.enabledAttackLandBase">
-          <div>{{ $t("ItemList.対地攻撃") }}</div>
-          <div class="text-value">
-            <template v-if="!isNotJapanese">{{ $t("Fleet.可") }}</template>
-            <template v-else>&#10004;</template>
-          </div>
-        </template>
-      </div>
-      <div v-if="value.data.isPlane" class="grow-speed">
+      <div class="misc-block">
+        <div class="item-statuses sub-sub">
+          <template v-if="value.data.avoidId">
+            <div>{{ $t("Common.射撃回避") }}</div>
+            <div class="text-value">{{ $t(`Common.回避性能.${avoidTexts[value.data.avoidId]}`) }}</div>
+          </template>
+          <template v-if="value.data.enabledAttackLandBase">
+            <div>{{ $t("ItemList.対地攻撃") }}</div>
+            <div class="text-value">
+              <template v-if="!isNotJapanese">{{ $t("Fleet.可") }}</template>
+              <template v-else>&#10004;</template>
+            </div>
+          </template>
+        </div>
+        <div v-if="value.data.isPlane" class="grow-speed">
         <div class="d-flex align-center">
           <div>
             <v-img :src="`./img/util/prof0.png`" alt="prof0" width="12" height="16" />
@@ -205,6 +206,7 @@
           </div>
         </div>
         <div class="ml-8 text-value">{{ growSpeedString(value.data) }} {{ $t("ItemList.戦") }}</div>
+        </div>
       </div>
     </template>
   </div>
