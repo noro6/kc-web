@@ -10,70 +10,95 @@
         :label="$t('Extra.差分表示')"
       />
       <v-spacer />
-      <v-btn text @click="resetShips">
+      <v-btn v-if="isMobile && emptyIndex >= 0" text small @click="showShipList(emptyIndex)">
+        <v-icon left small>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}
+      </v-btn>
+      <v-btn text :small="isMobile" @click="resetShips">
         <v-icon left>mdi-trash-can-outline</v-icon>{{ $t("Common.リセット") }}
       </v-btn>
     </div>
     <div class="compare-scroll">
-      <div class="ship-row">
-        <div v-for="(ship, i) in ships" :key="`select${i}`" class="ship-head" :class="{ 'is-base': isDiffMode && i === 0 && !ship.isEmpty }">
-          <v-btn v-if="ship.isEmpty" class="add-ship" text block @click="showShipList(i)">
-            <v-icon left>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}
-          </v-btn>
-          <div v-else class="ship-card">
-            <div class="ship-top">
-              <div class="ship-banner" @click="showShipList(i)" @keypress.enter="showShipList(i)" v-ripple="{ class: 'text-primary' }">
-                <v-img :src="`./img/ship/banner/${ship.data.id}.png`" height="30" width="120" />
-              </div>
-              <v-btn icon x-small @click="removeShip(i)">
-                <v-icon small>mdi-close</v-icon>
+      <table class="compare-table" :class="{ 'is-compact': isMobile }" :style="{ width: `${tableWidth}px`, minWidth: `${tableMinWidth}px` }">
+        <colgroup>
+          <col class="col-label" />
+          <col v-for="col in columns" :key="`col${col.index}`" :class="{ 'col-add': col.isAdd }" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="corner" />
+            <th
+              v-for="col in columns"
+              :key="`head${col.index}`"
+              class="ship-head"
+              :class="{ 'is-base': isDiffMode && col.index === 0 && !col.isAdd, 'is-add': col.isAdd }"
+            >
+              <v-btn v-if="col.isAdd" class="add-ship" text block @click="showShipList(col.index)">
+                <v-icon left>mdi-plus</v-icon>{{ $t("Fleet.艦娘選択") }}
               </v-btn>
-            </div>
-            <div class="ship-name" :title="getShipName(ship.data)" @click="showShipList(i)" @keypress.enter="showShipList(i)">
-              {{ getShipName(ship.data) }}
-            </div>
-            <div class="ship-sub">
-              <span class="ship-type">{{ shipTypeName(ship) }}</span>
-              <span class="lv-label">Lv</span>
-              <v-text-field
-                class="level-input"
-                v-model.number="ship.level"
-                dense
-                outlined
-                :max="maxLevel"
-                min="1"
-                type="number"
-                :rules="[rules.level]"
-                hide-details
-                @input="statusChanged(i)"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <p v-if="enabledShipsCount < 2" class="compare-empty">{{ $t("Extra.比較には2隻以上選んでください") }}</p>
-      <template v-else>
-      <section v-for="section in board" :key="section.label" class="compare-section">
-        <div class="section-label">{{ section.label }}</div>
-        <div class="stat-columns">
-          <div v-for="row in section.rows" :key="row.key" class="stat-block">
-            <div class="stat-label">{{ row.label }}</div>
-            <div class="stat-lines">
-              <template v-for="(cell, i) in row.cells">
-                <div v-if="!ships[i].isEmpty" :key="`${row.key}-${i}`" class="cmp-line" :class="{ best: cell.best, worst: cell.worst, mid: cell.mid }">
-                  <img class="cmp-banner" :src="`./img/ship/banner/${ships[i].data.id}.png`" alt="" />
-                  <span class="cmp-who" :title="getShipName(ships[i].data)">{{ getShipName(ships[i].data) }}</span>
-                  <span class="cmp-num" :class="cell.tone">{{ cell.text }}</span>
+              <div v-else class="ship-card">
+                <div
+                  class="ship-banner"
+                  @click="showShipList(col.index)"
+                  @keypress.enter="showShipList(col.index)"
+                  v-ripple="{ class: 'text-primary' }"
+                >
+                  <img :src="`./img/ship/banner/${ships[col.index].data.id}.png`" alt="" />
+                </div>
+                <div class="ship-top">
+                  <div
+                    class="ship-name"
+                    :title="getShipName(ships[col.index].data)"
+                    @click="showShipList(col.index)"
+                    @keypress.enter="showShipList(col.index)"
+                  >
+                    {{ getShipName(ships[col.index].data) }}
+                  </div>
+                  <v-btn icon x-small @click="removeShip(col.index)">
+                    <v-icon small>mdi-close</v-icon>
+                  </v-btn>
+                </div>
+                <div class="ship-sub">
+                  <span class="ship-type">{{ shipTypeName(ships[col.index]) }}</span>
+                  <span class="lv-label">Lv</span>
+                  <v-text-field
+                    class="level-input"
+                    v-model.number="ships[col.index].level"
+                    dense
+                    outlined
+                    :max="maxLevel"
+                    min="1"
+                    type="number"
+                    :rules="[rules.level]"
+                    hide-details
+                    @input="statusChanged(col.index)"
+                  />
+                </div>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody v-if="enabledShipsCount >= 2">
+          <template v-for="section in board">
+            <tr :key="`section-${section.label}`" class="section-row">
+              <th :colspan="columns.length + 1">
+                <span>{{ section.label }}</span>
+              </th>
+            </tr>
+            <tr v-for="row in section.rows" :key="row.key" class="stat-row">
+              <th class="stat-label">{{ row.label }}</th>
+              <td v-for="col in columns" :key="`${row.key}-${col.index}`" :class="cellClass(row.cells[col.index], col.isAdd)">
+                <div v-if="!col.isAdd" class="cmp-cell" :class="{ 'is-text': row.kind === 'text' }">
+                  <span class="cmp-num" :class="row.cells[col.index].tone">{{ row.cells[col.index].text }}</span>
                   <div v-if="row.kind === 'number'" class="cmp-track">
-                    <i :style="{ width: `${cell.bar}%` }" />
+                    <i :style="{ width: `${Math.min(100, row.cells[col.index].bar)}%` }" />
                   </div>
                 </div>
-              </template>
-            </div>
-          </div>
-        </div>
-      </section>
-      </template>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+      <p v-if="enabledShipsCount < 2" class="compare-empty">{{ $t("Extra.比較には2隻以上選んでください") }}</p>
     </div>
     <v-dialog v-model="shipListDialog" transition="scroll-x-transition" :width="shipDialogWidth" :fullscreen="isMobile">
       <ship-list ref="shipList" :handle-decide-ship="putShip" :handle-close="closeDialog" :handle-change-width="changeShipWidth" />
@@ -111,21 +136,40 @@
   padding-top: 0;
 }
 .compare-scroll {
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: auto;
   max-height: 68vh;
   border: 1px solid rgba(128, 128, 128, 0.22);
   border-radius: 12px;
 }
-.ship-row {
+.compare-table {
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.col-label {
+  width: 84px;
+}
+.col-add {
+  width: 148px;
+}
+.compare-table th,
+.compare-table td {
+  padding: 0;
+  font-weight: 400;
+  text-align: left;
+}
+.compare-table thead th {
   position: sticky;
   top: 0;
-  z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px;
+  z-index: 2;
+  vertical-align: top;
   background: var(--surface);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.28);
+}
+.compare-table thead th.corner {
+  left: 0;
+  z-index: 4;
 }
 .compare-empty {
   margin: 28px 12px 32px;
@@ -133,72 +177,72 @@
   letter-spacing: 0.02em;
   opacity: 0.72;
 }
-.stat-block:hover {
-  background: var(--surface-2);
-}
-.section-label {
-  margin: 4px 12px 0;
-  padding-bottom: 6px;
+.section-row th {
+  padding: 12px 12px 6px;
+  background: var(--surface);
   border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+}
+.section-row span {
+  position: sticky;
+  left: 12px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: rgba(22, 26, 34, 0.72);
 }
-.theme--dark .section-label {
+.theme--dark .section-row span {
   color: rgba(255, 255, 255, 0.72);
 }
-.stat-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  padding: 0 8px 8px;
+.stat-row th,
+.stat-row td {
+  height: 32px;
+  background: var(--surface);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.12);
 }
-.stat-block {
-  display: grid;
-  grid-template-columns: 5.5em minmax(0, 1fr);
-  column-gap: 8px;
-  align-items: start;
-  min-width: 0;
-  padding: 6px 8px 8px;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.16);
+.stat-row:hover th,
+.stat-row:hover td {
+  background: var(--surface-2);
 }
 .stat-label {
-  display: flex;
-  align-items: center;
-  min-height: 32px;
-  margin: 0;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding: 0 10px !important;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 700 !important;
   letter-spacing: 0.02em;
-  opacity: 0.72;
   white-space: nowrap;
+  color: rgba(22, 26, 34, 0.72);
 }
-.cmp-line {
+.theme--dark .stat-label {
+  color: rgba(255, 255, 255, 0.72);
+}
+.stat-row td {
+  padding: 0 12px 0 8px;
+}
+.cmp-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 32px;
+  gap: 8px;
+  min-width: 0;
   font-size: 12px;
 }
-.cmp-banner {
+.cmp-num {
   flex: none;
-  width: 120px;
-  height: 30px;
-  object-fit: contain;
-  border-radius: 2px;
-}
-.cmp-who {
-  width: 9.5em;
-  min-width: 0;
-  flex: 0 1 9.5em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 3.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
   font-weight: 400;
+}
+.cmp-cell.is-text .cmp-num {
+  width: auto;
+  min-width: 3.2em;
+  white-space: nowrap;
 }
 .cmp-track {
   position: relative;
   flex: 1;
+  min-width: 24px;
   height: 3px;
   border-radius: 3px;
   background: rgba(128, 128, 128, 0.16);
@@ -211,35 +255,28 @@
   border-radius: 3px;
   background: color-mix(in srgb, var(--accent) 55%, transparent);
 }
-.cmp-line.best .cmp-track i {
+td.best .cmp-track i {
   background: var(--accent);
 }
-.cmp-line.worst .cmp-track i {
+td.worst .cmp-track i {
   background: color-mix(in srgb, #ef4444 78%, transparent);
 }
-.cmp-line.mid .cmp-track i {
+td.mid .cmp-track i {
   background: rgba(90, 96, 104, 0.55);
 }
-.theme--dark .cmp-line.mid .cmp-track i {
+.theme--dark td.mid .cmp-track i {
   background: rgba(176, 180, 188, 0.55);
 }
-.cmp-num {
-  width: 3.2em;
-  flex: none;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 400;
-}
-.cmp-line.best .cmp-num {
+td.best .cmp-num {
   color: #15803d;
 }
-.cmp-line.worst .cmp-num {
+td.worst .cmp-num {
   color: #dc2626;
 }
-.theme--dark .cmp-line.best .cmp-num {
+.theme--dark td.best .cmp-num {
   color: #86efac;
 }
-.theme--dark .cmp-line.worst .cmp-num {
+.theme--dark td.worst .cmp-num {
   color: #fca5a5;
 }
 .cmp-num.up {
@@ -250,7 +287,6 @@
 }
 .cmp-num.flat {
   opacity: 0.45;
-  font-weight: 500;
 }
 .theme--dark .cmp-num.up {
   color: #86efac;
@@ -259,59 +295,69 @@
   color: #fca5a5;
 }
 .ship-head {
-  flex: 1 1 180px;
-  max-width: 240px;
   min-width: 0;
-  padding: 0;
 }
 .ship-head.is-base {
-  box-shadow: inset 0 -3px 0 var(--accent);
+  border-bottom: 2px solid var(--accent) !important;
 }
 .ship-card {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px 8px 10px;
-}
-.ship-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  min-width: 0;
+  padding: 8px 8px 8px;
 }
 .ship-banner {
+  width: 120px;
+  max-width: 100%;
   cursor: pointer;
   border-radius: 2px;
   transition: box-shadow 0.2s;
 }
+.ship-banner img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  object-fit: contain;
+}
 .ship-banner:hover {
   box-shadow: 0 0 12px rgb(128, 128, 128);
 }
+.ship-top {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
 .ship-name {
-  max-width: 152px;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.02em;
-  text-align: left;
   cursor: pointer;
 }
 .ship-sub {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 .ship-type,
 .lv-label {
   font-size: 11px;
+  white-space: nowrap;
   opacity: 0.65;
 }
 .lv-label {
   margin-left: auto;
 }
 .level-input {
-  max-width: 76px;
+  flex: none;
+  width: 64px;
   margin-top: 0;
   padding-top: 0;
 }
@@ -322,9 +368,11 @@
 .level-input >>> input {
   text-align: right !important;
 }
+.ship-head.is-add {
+  padding: 8px !important;
+}
 .add-ship {
   margin: 0;
-  width: 100%;
   min-height: 84px;
   border: 1px dashed rgba(128, 128, 128, 0.45) !important;
   border-radius: 12px;
@@ -333,6 +381,84 @@
 .add-ship:hover {
   border-color: color-mix(in srgb, var(--accent) 55%, transparent) !important;
   background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+@media (max-width: 599px) {
+  .compare-board {
+    padding: 8px;
+  }
+}
+.is-compact .col-label {
+  width: 56px;
+}
+.is-compact .stat-label {
+  padding: 0 6px !important;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.is-compact .stat-row th,
+.is-compact .stat-row td {
+  height: 34px;
+}
+.is-compact .stat-row td {
+  padding: 0 6px;
+}
+.is-compact .cmp-cell {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+.is-compact .cmp-num,
+.is-compact .cmp-cell.is-text .cmp-num {
+  width: auto;
+  min-width: 0;
+  text-align: left;
+}
+.is-compact .cmp-track {
+  flex: none;
+  min-width: 0;
+}
+.is-compact .section-row th {
+  padding: 10px 8px 4px;
+}
+.is-compact .section-row span {
+  left: 8px;
+}
+.is-compact .ship-card {
+  gap: 3px;
+  padding: 6px 4px;
+}
+.is-compact .ship-banner {
+  width: 100%;
+}
+.is-compact .ship-name {
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.is-compact .ship-top >>> .v-btn {
+  width: 18px;
+  height: 18px;
+}
+.is-compact .ship-type {
+  display: none;
+}
+.is-compact .ship-sub {
+  gap: 3px;
+}
+.is-compact .lv-label {
+  margin-left: 0;
+  font-size: 10px;
+}
+.is-compact .level-input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+.is-compact .level-input >>> .v-input__slot {
+  min-height: 24px !important;
+  padding: 0 4px !important;
+}
+.is-compact .level-input >>> input {
+  font-size: 12px;
 }
 </style>
 
@@ -393,6 +519,12 @@ interface TextCompareRow {
 }
 
 type CompareRow = NumberCompareRow | TextCompareRow;
+
+function packShips(ships: Ship[]): Ship[] {
+  const filled = ships.filter((ship) => !ship.isEmpty);
+  while (filled.length < ships.length) filled.push(new Ship());
+  return filled;
+}
 
 function gapIsClear(bestValue: number, worstValue: number): boolean {
   return bestValue !== worstValue;
@@ -593,7 +725,11 @@ export default Vue.extend({
     isMobile: true,
   }),
   mounted() {
-    this.isMobile = window.innerWidth < 600;
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
   },
   computed: {
     completed() {
@@ -626,6 +762,23 @@ export default Vue.extend({
     },
     enabledShipsCount(): number {
       return this.ships.filter((v) => !v.isEmpty).length;
+    },
+    emptyIndex(): number {
+      return this.ships.findIndex((ship) => ship.isEmpty);
+    },
+    columns(): { index: number; isAdd: boolean }[] {
+      const columns = this.ships
+        .map((ship, index) => ({ index, isAdd: ship.isEmpty }))
+        .filter((column) => !column.isAdd);
+      if (this.emptyIndex >= 0 && !this.isMobile) columns.push({ index: this.emptyIndex, isAdd: true });
+      return columns;
+    },
+    tableMinWidth(): number {
+      if (this.isMobile) return this.columns.length * 68 + 56;
+      return this.columns.reduce((sum, column) => sum + (column.isAdd ? 148 : 140), 84);
+    },
+    tableWidth(): number {
+      return this.columns.reduce((sum, column) => sum + (column.isAdd ? 148 : 220), this.isMobile ? 56 : 84);
     },
     board(): { label: string; rows: { key: string; label: string; kind: 'number' | 'text'; lowerBetter: boolean; cells: CompareCell[] }[] }[] {
       const sections = buildCompareSections((key) => `${this.$t(key)}`, this.rangeText);
@@ -690,16 +843,23 @@ export default Vue.extend({
         ships.push(newShip);
       }
 
-      this.ships = ships;
+      this.ships = packShips(ships);
       this.setMaxStatuses();
       this.setMinStatuses();
     },
     removeShip(index: number) {
       const ships = this.ships.concat();
       ships[index] = new Ship();
-      this.ships = ships;
+      this.ships = packShips(ships);
       this.setMaxStatuses();
       this.setMinStatuses();
+    },
+    onResize() {
+      this.isMobile = window.innerWidth < 600;
+    },
+    cellClass(cell: CompareCell, isAdd: boolean) {
+      if (isAdd) return {};
+      return { best: cell.best, worst: cell.worst, mid: cell.mid };
     },
     shipTypeName(ship: Ship) {
       const found = Const.SHIP_TYPES_ALT3.find((v) => v.type === ship.data.type);
