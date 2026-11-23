@@ -1,7 +1,7 @@
 <template>
   <v-card class="list-card">
     <div class="d-flex py-2 pr-2 align-center">
-      <div class="item-search-text ml-3">
+      <div class="item-search-text ml-3" :class="{ 'flex-grow-1 mr-1': isMobile }">
         <v-text-field :placeholder="$t('ItemList.図鑑id 名称検索')" clearable v-model="keyword" @input="filter()" hide-details
           dense prepend-inner-icon="mdi-magnify" />
       </div>
@@ -34,14 +34,6 @@
             </v-btn>
           </v-btn-toggle>
         </div>
-      </template>
-      <template v-else>
-        <v-btn icon @click="filterDialog = true">
-          <v-icon>mdi-filter</v-icon>
-        </v-btn>
-        <v-btn icon @click="sortDialog = true">
-          <v-icon>mdi-sort</v-icon>
-        </v-btn>
       </template>
       <v-btn icon @click="close">
         <v-icon>mdi-close</v-icon>
@@ -139,6 +131,19 @@
         :class="{ active: isCheckedOnly, disabled: keyword }" @click="toggleCheckedOnly" @keypress="toggleCheckedOnly">
         <div class="type-all-text">{{ $t("Fleet.選択済") }}</div>
       </div>
+    </div>
+    <div v-if="isMobile" class="mobile-summary-bar">
+      <span class="filter-count">{{ $t("ItemList.x件", { number: viewItems.length }) }}</span>
+      <v-spacer />
+      <button type="button" class="filter-chip" :class="{ active: sortKey }" @click="sortDialog = true">
+        <v-icon small class="mr-1">mdi-sort</v-icon>
+        <template v-if="sortKey">{{ sortKeyLabel }} {{ isDesc ? "↓" : "↑" }}</template>
+        <template v-else>{{ $t("Common.ソート") }}</template>
+      </button>
+      <button type="button" class="filter-chip" :class="{ active: activeFilterCount }" @click="filterDialog = true">
+        <v-icon small class="mr-1">mdi-filter-variant</v-icon>
+        {{ $t("Common.絞り込み") }}<template v-if="activeFilterCount">&nbsp;{{ activeFilterCount }}</template>
+      </button>
     </div>
     <v-divider :class="{ 'mx-3': multiLine && !isMobile }" />
     <!-- 装備表示一覧部分 -->
@@ -288,7 +293,7 @@
                   </div>
                 </div>
               </div>
-              <div class="flex-grow-1">
+              <div class="flex-grow-1" :class="{ 'min-width-0': isMobile }">
                 <div class="d-flex align-center">
                   <div class="item-name-container" :class="{ 'is-special': v.item.data.isSpecial }"
                     @mouseenter="bootTooltip(v.item, v.bonus, $event)" @mouseleave="clearTooltip"
@@ -304,7 +309,7 @@
                         :class="specialTextColorByText(text)">{{ text }}</span>
                     </template>
                   </div>
-                  <div v-if="!isCheckedOnly && v.sumBonus" class="bonus-icon">
+                  <div v-if="!isCheckedOnly && v.sumBonus && !isMobile" class="bonus-icon">
                     <v-icon v-if="v.sumBonus < 0" color="red lighten-1">mdi-chevron-double-down</v-icon>
                     <v-icon v-else-if="v.sumBonus <= 2" :color="v.batchListIndexes.length ? 'success' : 'light-blue'"
                       class="pt-1">mdi-chevron-up</v-icon>
@@ -323,8 +328,7 @@
                   </div>
                 </div>
                 <div class="mobile-sub-status" v-if="isMobile">
-                  <div v-for="key in viewStatus" class="mobile-sub-status-value" :class="{ sorted: key === sortKey }"
-                    :key="`status${key}`">
+                  <div v-for="key in mobileSubStatusKeys" class="mobile-sub-status-value" :key="`status${key}`">
                     <div class="sub-status-header">{{ $t(`Statuses.${key}`) }}</div>
                     <div>
                       {{ formatStatus(v, key) }}
@@ -334,6 +338,15 @@
                     </div>
                   </div>
                 </div>
+              </div>
+              <div v-if="isMobile && mobileHighlightKey" class="mobile-sort-value">
+                <div class="mobile-sort-number">
+                  {{ formatStatus(v, mobileHighlightKey) }}
+                  <span v-if="!isCheckedOnly && statusBonus(v, mobileHighlightKey)" class="status-bonus"
+                    :class="{ minus: statusBonus(v, mobileHighlightKey) < 0 }">{{ statusBonus(v, mobileHighlightKey) > 0 ? '+' : '' }}{{
+                      statusBonus(v, mobileHighlightKey) }}</span>
+                </div>
+                <div class="mobile-sort-label">{{ $t(`Statuses.${mobileHighlightKey}`) }}</div>
               </div>
               <button v-if="isMobile" type="button" class="item-menu-button" :title="$t('ItemList.メニュー')"
                 @click.stop="openItemMenu(v, $event)" @keypress.stop @mousedown.stop @touchstart.stop>
@@ -349,6 +362,14 @@
           {{ $t("ItemList.条件をリセット") }}
         </v-btn>
       </div>
+    </div>
+    <div v-if="isMobile && isBatchMode" class="mobile-batch-bar">
+      <div>
+        <div class="caption text--secondary">{{ $t("ItemList.一括配備") }}</div>
+        <div class="body-2 font-weight-medium">{{ batchList.length }} / {{ batchMax }} {{ $t("ItemList.選択中") }}</div>
+      </div>
+      <v-spacer />
+      <v-btn color="primary" :disabled="!batchList.length" @click="close()">{{ $t("Common.配備") }}</v-btn>
     </div>
     <v-menu v-model="showMenu" :position-x="menuX" :position-y="menuY" absolute offset-y>
       <v-list dense class="caption" v-if="menuItem">
@@ -440,7 +461,7 @@
     <v-dialog v-model="blacklistDialog" width="660" @input="toggleBlacklistDialog" :fullscreen="isMobile">
       <blacklist-item-edit :handle-close="closeBlacklist" />
     </v-dialog>
-    <v-dialog v-model="sortDialog" width="600">
+    <v-dialog v-if="!isMobile" v-model="sortDialog" width="600">
       <v-card class="pa-3">
         <div class="d-flex px-2 align-center">
           <div>{{ $t("Common.ソート") }}</div>
@@ -468,200 +489,143 @@
         </div>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="filterDialog" @input="toggleFilterDialog" fullscreen>
-      <v-card class="filter-dialog-card">
-        <div class="d-flex px-2 py-1 align-center">
-          <div class="body-2">{{ $t("Common.絞り込み") }}</div>
-          <v-spacer></v-spacer>
-          <v-switch class="mt-0" v-if="itemStock.length && !isEnemyMode" :label="$t('ItemList.所持装備反映')"
-            v-model="isStockOnly" @click="clickedStockOnly" dense
-            :disabled="!!batchList.length || !itemStock.length || isEnemyMode" hide-details />
-          <v-btn class="ml-3" icon @click="closeFilterDialog()">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+    <v-bottom-sheet v-if="isMobile" v-model="sortDialog" scrollable>
+      <v-card class="bottom-sheet-card">
+        <div class="bottom-sheet-header">
+          <div class="body-2 font-weight-medium">{{ $t("Common.ソート") }}</div>
+          <v-btn icon small @click="sortDialog = false"><v-icon>mdi-close</v-icon></v-btn>
         </div>
-        <v-divider />
-        <div class="filter-mobile-inputs pa-2">
-          <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" />
-          <div class="d-flex">
-            <v-text-field dense v-model="filterStatusValue" hide-details type="number" max="30" min="0" />
-            <div class="align-self-end caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</div>
-            <div class="align-self-end ml-1" v-if="filterStatusValue || keyword">
-              <v-btn @click="resetFilter()" icon small>
-                <v-icon>mdi-trash-can-outline</v-icon>
-              </v-btn>
+        <div class="bottom-sheet-body">
+          <div class="sheet-section">
+            <div class="sheet-section-label">{{ $t("ItemList.キー") }}</div>
+            <div class="sheet-chip-row">
+              <button type="button" class="filter-chip" :class="{ active: !sortKey }"
+                @click="resetOrdering(); sortDialog = false">{{ $t("Common.リセット") }}</button>
+              <button v-for="(item, j) in sortKeyItems" :key="`m-sort${j}`" type="button" class="filter-chip"
+                :class="{ active: item.value === sortKey }" @click="selectSortKey(item.value)">
+                {{ $t(`Common.${item.text}`) }}
+              </button>
+            </div>
+          </div>
+          <div class="sheet-section">
+            <div class="sheet-section-label">{{ $t("ItemList.順序") }}</div>
+            <div class="filter-segmented sheet-segmented">
+              <button type="button" :class="{ active: !isDesc }" @click="isDesc = false; handleSortItem()">
+                {{ $t("Common.昇順") }}
+              </button>
+              <button type="button" :class="{ active: isDesc }" @click="isDesc = true; handleSortItem()">
+                {{ $t("Common.降順") }}
+              </button>
             </div>
           </div>
         </div>
-        <v-divider></v-divider>
-        <v-list dense class="pt-0">
-          <template v-if="!isBatchMode || !isCheckedOnly">
-            <template v-if="type === 14">
-              <v-list-item @click="includeSonar = !includeSonar">
-                <v-list-item-icon>
-                  <v-icon v-if="includeSonar" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.ソナー") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item @click="includeDepthCharge = !includeDepthCharge">
-                <v-list-item-icon>
-                  <v-icon v-if="includeDepthCharge" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.爆雷") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item @click="includeDepthChargeLauncher = !includeDepthChargeLauncher">
-                <v-list-item-icon>
-                  <v-icon v-if="includeDepthChargeLauncher" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.爆雷投射機") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-            </template>
-            <template v-if="type === 5">
-              <v-list-item @click="includeTorpedo = !includeTorpedo">
-                <v-list-item-icon>
-                  <v-icon v-if="includeTorpedo" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.魚雷") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item @click="includeSPTorpedo = !includeSPTorpedo">
-                <v-list-item-icon>
-                  <v-icon v-if="includeSPTorpedo" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.特殊潜航艇") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item @click="includeSVTorpedo = !includeSVTorpedo">
-                <v-list-item-icon>
-                  <v-icon v-if="includeSVTorpedo" color="primary">mdi-checkbox-marked</v-icon>
-                  <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("EType.潜水艦魚雷") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-            </template>
-            <v-list-item v-if="!isAirbaseMode" @click="toggleAffectingRangeFilter()">
-              <v-list-item-icon>
-                <v-icon color="primary" v-if="onlyAffectingRange">mdi-checkbox-marked</v-icon>
-                <v-icon color="error" v-else-if="onlyNotAffectingRange">mdi-close-box</v-icon>
-                <v-icon v-else>mdi-minus-box-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("ItemList.射程増加") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="!isAirbaseMode"></v-divider>
-            <v-list-item v-if="setting.displayBonusKey" @click="isSpecialOnly = !isSpecialOnly" :disabled="isEnemyMode">
-              <v-list-item-icon>
-                <v-icon v-if="isSpecialOnly" color="primary">mdi-checkbox-marked</v-icon>
-                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("ItemList.特効装備") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="setting.displayBonusKey"></v-divider>
-            <v-list-item v-if="enabledNightAircraftFilter" @click="onlyNightAircraft = !onlyNightAircraft">
-              <v-list-item-icon>
-                <v-icon v-if="onlyNightAircraft" color="primary">mdi-checkbox-marked</v-icon>
-                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("ItemList.夜間機") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="enabledNightAircraftFilter"></v-divider>
-            <v-list-item v-if="enabledAAResistFilter" @click="onlyAAResistAircraft = !onlyAAResistAircraft">
-              <v-list-item-icon>
-                <v-icon v-if="onlyAAResistAircraft" color="primary">mdi-checkbox-marked</v-icon>
-                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("ItemList.射撃回避") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="enabledAAResistFilter"></v-divider>
-            <v-list-item v-if="type === 7" @click="toggleLandBaseAttackFilter()" :disabled="isEnemyMode">
-              <v-list-item-icon>
-                <v-icon color="primary" v-if="onlyEnabledLandBaseAttack">mdi-checkbox-marked</v-icon>
-                <v-icon color="error" v-else-if="onlyDisabledLandBaseAttack">mdi-close-box</v-icon>
-                <v-icon v-else>mdi-minus-box-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("ItemList.対地攻撃") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider v-if="type === 7"></v-divider>
-          </template>
-          <v-list-item v-if="isStockOnly" @click="sortExcludeRemodelStatus = !sortExcludeRemodelStatus"
-            :disabled="isEnemyMode">
-            <v-list-item-icon>
-              <v-icon v-if="sortExcludeRemodelStatus" color="primary">mdi-checkbox-marked</v-icon>
-              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t("ItemList.改修値無効") }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="isStockOnly"></v-divider>
-          <v-list-item v-if="!isAirbaseMode" @click="sortExcludeSynergyStatus = !sortExcludeSynergyStatus"
-            :disabled="isEnemyMode">
-            <v-list-item-icon>
-              <v-icon v-if="sortExcludeSynergyStatus" color="primary">mdi-checkbox-marked</v-icon>
-              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t("ItemList.装備シナジー無効") }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="!isAirbaseMode"></v-divider>
-          <v-list-item v-if="!isBatchMode || !isCheckedOnly" @click="isEnemyMode = !isEnemyMode">
-            <v-list-item-icon>
-              <v-icon v-if="isEnemyMode" color="primary">mdi-checkbox-marked</v-icon>
-              <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ $t("ItemList.敵装備") }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider v-if="!isBatchMode || !isCheckedOnly"></v-divider>
-          <v-list-item @click="showBlacklist()">
-            <v-list-item-icon>
-              <v-icon>mdi-eye-off</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>
-                <span>{{ $t("ItemList.ブラックリスト") }}</span>
-                ({{ setting.blacklistItemIds.length }})
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider></v-divider>
-        </v-list>
-        <div class="mt-auto">
-          <v-btn block text @click="
-            filter();
-          filterDialog = false;
-          "><v-icon>mdi-close</v-icon>{{ $t("Common.閉じる") }}</v-btn>
+      </v-card>
+    </v-bottom-sheet>
+    <v-bottom-sheet v-model="filterDialog" @input="toggleFilterDialog" scrollable>
+      <v-card class="bottom-sheet-card">
+        <div class="bottom-sheet-header">
+          <div class="body-2 font-weight-medium">{{ $t("Common.絞り込み") }}</div>
+          <v-spacer />
+          <v-switch class="mt-0 mr-1" v-if="itemStock.length && !isEnemyMode" :label="$t('ItemList.所持装備反映')"
+            v-model="isStockOnly" @click="clickedStockOnly" dense
+            :disabled="!!batchList.length || !itemStock.length || isEnemyMode" hide-details />
+          <v-btn icon small @click="closeFilterDialog()"><v-icon>mdi-close</v-icon></v-btn>
+        </div>
+        <div class="bottom-sheet-body">
+          <div class="sheet-section">
+            <div class="sheet-section-label">{{ $t("ItemList.ステータス条件") }}</div>
+            <div class="sheet-status-row">
+              <v-select dense v-model="filterStatus" hide-details :items="filterStatusItems" class="sheet-status-select"
+                @change="filter()" />
+              <button type="button" class="filter-chip sheet-stepper" @click="stepFilterValue(-1)">−</button>
+              <span class="sheet-status-value">{{ filterStatusValue || 0 }}</span>
+              <button type="button" class="filter-chip sheet-stepper" @click="stepFilterValue(1)">＋</button>
+              <span class="caption">{{ isCostFilter ? $t("ItemList.以下") : $t("ItemList.以上") }}</span>
+            </div>
+          </div>
+          <div class="sheet-section" v-if="!isAirbaseMode && (!isBatchMode || !isCheckedOnly)">
+            <div class="sheet-section-label">{{ $t("ItemList.射程増加") }}</div>
+            <div class="filter-segmented sheet-segmented">
+              <button v-for="opt in triStateOptions" :key="`m-range${opt.value}`" type="button"
+                :class="{ active: affectingRangeState === opt.value }" @click="setAffectingRangeState(opt.value)">
+                {{ $t(`ItemList.${opt.text}`) }}
+              </button>
+            </div>
+          </div>
+          <div class="sheet-section" v-if="type === 7 && !isEnemyMode && (!isBatchMode || !isCheckedOnly)">
+            <div class="sheet-section-label">{{ $t("ItemList.対地攻撃") }}</div>
+            <div class="filter-segmented sheet-segmented">
+              <button v-for="opt in triStateOptions" :key="`m-lba${opt.value}`" type="button"
+                :class="{ active: landBaseAttackState === opt.value }" @click="setLandBaseAttackState(opt.value)">
+                {{ $t(`ItemList.${opt.text}`) }}
+              </button>
+            </div>
+          </div>
+          <div class="sheet-section" v-if="!isBatchMode || !isCheckedOnly">
+            <div class="sheet-section-label">{{ $t("ItemList.条件") }}</div>
+            <div class="sheet-chip-row">
+              <button type="button" class="filter-chip" :class="{ active: isEnemyMode }"
+                @click="isEnemyMode = !isEnemyMode; filter()">{{ $t("ItemList.敵装備") }}</button>
+              <button v-if="enabledNightAircraftFilter" type="button" class="filter-chip"
+                :class="{ active: onlyNightAircraft }" @click="onlyNightAircraft = !onlyNightAircraft; filter()">
+                {{ $t("ItemList.夜間機") }}
+              </button>
+              <button v-if="enabledAAResistFilter" type="button" class="filter-chip"
+                :class="{ active: onlyAAResistAircraft }"
+                @click="onlyAAResistAircraft = !onlyAAResistAircraft; filter()">{{ $t("ItemList.射撃回避") }}</button>
+              <button v-if="!isEnemyMode && setting.displayBonusKey" type="button" class="filter-chip"
+                :class="{ active: isSpecialOnly }" @click="isSpecialOnly = !isSpecialOnly; filter()">
+                {{ $t("ItemList.特効装備") }}
+              </button>
+              <template v-if="type === 14">
+                <button type="button" class="filter-chip" :class="{ active: includeSonar }"
+                  @click="includeSonar = !includeSonar; filter()">{{ $t("EType.ソナー") }}</button>
+                <button type="button" class="filter-chip" :class="{ active: includeDepthCharge }"
+                  @click="includeDepthCharge = !includeDepthCharge; filter()">{{ $t("EType.爆雷") }}</button>
+                <button type="button" class="filter-chip" :class="{ active: includeDepthChargeLauncher }"
+                  @click="includeDepthChargeLauncher = !includeDepthChargeLauncher; filter()">
+                  {{ $t("EType.爆雷投射機") }}
+                </button>
+              </template>
+              <template v-if="type === 5">
+                <button type="button" class="filter-chip" :class="{ active: includeTorpedo }"
+                  @click="includeTorpedo = !includeTorpedo; filter()">{{ $t("EType.魚雷") }}</button>
+                <button type="button" class="filter-chip" :class="{ active: includeSPTorpedo }"
+                  @click="includeSPTorpedo = !includeSPTorpedo; filter()">{{ $t("EType.特殊潜航艇") }}</button>
+                <button type="button" class="filter-chip" :class="{ active: includeSVTorpedo }"
+                  @click="includeSVTorpedo = !includeSVTorpedo; filter()">{{ $t("EType.潜水艦魚雷") }}</button>
+              </template>
+            </div>
+          </div>
+          <div class="sheet-section">
+            <div class="sheet-section-label">{{ $t("ItemList.並べ替えの計算") }}</div>
+            <div class="sheet-chip-row">
+              <button v-if="isStockOnly" type="button" class="filter-chip" :class="{ active: sortExcludeRemodelStatus }"
+                :disabled="isEnemyMode" @click="sortExcludeRemodelStatus = !sortExcludeRemodelStatus; filter()">
+                {{ $t("ItemList.改修値無効") }}
+              </button>
+              <button v-if="!isAirbaseMode" type="button" class="filter-chip"
+                :class="{ active: sortExcludeSynergyStatus }" :disabled="isEnemyMode"
+                @click="sortExcludeSynergyStatus = !sortExcludeSynergyStatus; filter()">
+                {{ $t("ItemList.装備シナジー無効") }}
+              </button>
+              <button type="button" class="filter-chip" :class="{ active: setting.blacklistItemIds.length }"
+                @click="showBlacklist()">
+                <v-icon small>mdi-eye-off-outline</v-icon>
+                <span class="ml-1">{{ $t("ItemList.ブラックリスト") }} ({{ setting.blacklistItemIds.length }})</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-sheet-footer">
+          <v-btn text @click="resetAllFilter()">{{ $t("Common.リセット") }}</v-btn>
+          <v-spacer />
+          <v-btn color="primary" @click="closeFilterDialog()">
+            {{ $t("ItemList.x件を表示", { number: viewItems.length }) }}
+          </v-btn>
         </div>
       </v-card>
-    </v-dialog>
+    </v-bottom-sheet>
     <v-dialog v-model="compareDialog" transition="scroll-x-transition" width="auto">
       <v-card class="pa-3 compare-dialog" v-if="menuItem">
         <div class="compare-close-button">
@@ -1002,11 +966,55 @@
 }
 
 .list-item.mobile {
-  padding-top: 2px;
-  padding-bottom: 2px;
+  min-height: 56px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 4px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+}
+
+.min-width-0 {
+  min-width: 0;
+}
+
+.mobile-summary-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+}
+
+.mobile-sort-value {
+  flex-shrink: 0;
+  min-width: 44px;
+  margin-left: 4px;
+  text-align: right;
+}
+
+.mobile-sort-number {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.mobile-sort-label {
+  margin-top: 1px;
+  font-size: 10px;
+  color: var(--accent-text);
+}
+
+.mobile-batch-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(128, 128, 128, 0.4);
 }
 
 .type-item-container .list-item.no-stock:not(.selected) {
@@ -1381,51 +1389,106 @@
 
 /** スマホ版表示 */
 .mobile-sub-status {
+  margin-top: 2px;
   margin-left: 0.1rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
 }
 
 .mobile-sub-status-value {
   display: flex;
   align-items: center;
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }
 
-.mobile-sub-status-value.sorted {
-  opacity: 1;
-  font-weight: bold;
-  color: var(--accent-text);
-}
-
 .sub-status-header {
   opacity: 0.7;
-  margin-right: 8px;
+  margin-right: 4px;
   font-size: 11px;
 }
 
-.filter-dialog-card {
-  height: 100vh;
+.bottom-sheet-card {
+  max-height: 78vh;
   display: flex;
   flex-direction: column;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
-.filter-dialog-card>>>.v-list {
-  background-color: transparent !important;
+.bottom-sheet-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px 8px;
 }
 
-.filter-dialog-card .type-selector {
-  padding: 0.4rem 0.6rem;
-  font-size: 14px;
-  transition: 0.2s;
+.bottom-sheet-body {
+  overflow-y: auto;
+  padding: 4px 12px 12px;
 }
 
-.filter-mobile-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 4px;
+.bottom-sheet-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.sheet-section {
+  margin-bottom: 14px;
+}
+
+.sheet-section-label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.sheet-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sheet-segmented {
+  height: 32px;
+}
+
+.sheet-segmented button {
+  flex: 1;
+  padding: 0 10px;
+}
+
+.sheet-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sheet-status-select {
+  flex: 1;
+  max-width: 140px;
+}
+
+.sheet-status-value {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-stepper {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+  justify-content: center;
+  font-size: 16px;
 }
 
 .detected-parents {
@@ -1923,19 +1986,44 @@ export default Vue.extend({
       return this.onlyDisabledLandBaseAttack ? 2 : 0;
     },
     hasActiveFilter(): boolean {
-      return !!this.keyword
-        || +this.filterStatusValue > 0
-        || this.affectingRangeState > 0
-        || this.landBaseAttackState > 0
-        || this.onlyNightAircraft
-        || this.onlyAAResistAircraft
-        || this.isSpecialOnly
-        || !this.includeSonar
-        || !this.includeDepthCharge
-        || !this.includeDepthChargeLauncher
-        || !this.includeTorpedo
-        || !this.includeSPTorpedo
-        || !this.includeSVTorpedo;
+      return this.activeFilterCount > 0 || !!this.keyword;
+    },
+    activeFilterCount(): number {
+      let count = 0;
+      if (+this.filterStatusValue > 0) count += 1;
+      if (this.affectingRangeState > 0) count += 1;
+      if (this.landBaseAttackState > 0) count += 1;
+      if (this.onlyNightAircraft) count += 1;
+      if (this.onlyAAResistAircraft) count += 1;
+      if (this.isSpecialOnly) count += 1;
+      if (this.isEnemyMode) count += 1;
+      if (this.type === 14) {
+        if (!this.includeSonar) count += 1;
+        if (!this.includeDepthCharge) count += 1;
+        if (!this.includeDepthChargeLauncher) count += 1;
+      }
+      if (this.type === 5) {
+        if (!this.includeTorpedo) count += 1;
+        if (!this.includeSPTorpedo) count += 1;
+        if (!this.includeSVTorpedo) count += 1;
+      }
+      return count;
+    },
+    sortKeyLabel(): string {
+      if (!this.sortKey) return '';
+      if (this.sortKey === 'name') return `${this.$t('Common.装備名称')}`;
+      if (this.sortKey === 'id') return `${this.$t('Common.図鑑ID')}`;
+      const header = this.headerItems.find((v) => v.key === this.sortKey);
+      if (header) return `${this.$t(`Common.${header.text}`)}`;
+      return `${this.$t(`Statuses.${this.sortKey}`)}`;
+    },
+    mobileHighlightKey(): string {
+      if (this.sortKey && this.sortKey !== 'name' && this.sortKey !== 'id') return this.sortKey;
+      return this.viewStatus[0] || '';
+    },
+    mobileSubStatusKeys(): string[] {
+      const highlight = this.mobileHighlightKey;
+      return this.viewStatus.filter((key) => key !== highlight).slice(0, 3);
     },
   },
   methods: {
@@ -2191,6 +2279,7 @@ export default Vue.extend({
       this.onlyNightAircraft = false;
       this.onlyAAResistAircraft = false;
       this.isSpecialOnly = false;
+      this.isEnemyMode = false;
       this.includeSonar = true;
       this.includeDepthCharge = true;
       this.includeDepthChargeLauncher = true;
@@ -2198,6 +2287,11 @@ export default Vue.extend({
       this.includeSPTorpedo = true;
       this.includeSVTorpedo = true;
       this.resetFilter();
+    },
+    stepFilterValue(delta: number) {
+      const next = Math.max(0, Math.min(30, (+this.filterStatusValue || 0) + delta));
+      this.filterStatusValue = next;
+      this.filter();
     },
     toggleLandBaseAttackFilter() {
       if (this.onlyEnabledLandBaseAttack) {
