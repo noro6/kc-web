@@ -280,14 +280,13 @@ export default Vue.extend({
 
 .sort-dialog-title {
   font-size: 14px;
-  font-weight: 600;
 }
 
 .sort-dialog-body {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 12px 16px 14px;
+  gap: 8px 6px;
+  padding: 12px 16px 20px;
 }
 
 .sort-dialog-footer {

@@ -690,7 +690,7 @@ export default Vue.extend({
       if (master.name === '宗谷') {
         return true;
       }
-      return this.value.data.isFinal && ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).length >= 2;
+      return this.value.data.isFinal && ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version >= 1).length >= 2;
     },
     maxAreas(): number {
       return this.$store.state.areaCount as number;
@@ -798,7 +798,7 @@ export default Vue.extend({
       const ships = this.$store.state.ships as ShipMaster[];
       const master = this.value.data;
       // コンバート候補取得
-      let versions = ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version > 1).sort((a, b) => a.version - b.version);
+      let versions = ships.filter((v) => v.originalId === master.originalId && v.isFinal && v.version >= 1).sort((a, b) => a.version - b.version);
       if (master.name === '宗谷') {
         versions = ships.filter((v) => v.name === '宗谷');
       }

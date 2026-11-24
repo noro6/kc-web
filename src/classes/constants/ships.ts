@@ -263,6 +263,24 @@ export const SHIP_SLOT_EQUIP_RESTRICTIONS: ShipSlotEquipRestriction[] = [
     deny: { apiTypeIds: [2] },
     note: 'Thonburi改 3スロットは中口径主砲不可',
   },
+  {
+    shipIds: [750, 751],
+    slots: [4],
+    deny: { apiTypeIds: [1, 2, 5, 13, 22, 24] },
+    note: '由良改二偵/川内改二偵 4スロットは主砲/魚雷/大型電探/特殊潜航艇/大発系不可',
+  },
+  {
+    shipIds: [752],
+    slots: [4],
+    deny: { apiTypeIds: [1, 5, 24] },
+    note: '高波改二偵 4スロットは主砲/魚雷/大発系不可',
+  },
+  {
+    shipIds: [753],
+    slots: [4, 5],
+    deny: { apiTypeIds: [1, 2, 10, 22, 45] },
+    note: '青葉改偵 4,5スロットは主砲/水偵/水戦/特殊潜航艇不可',
+  },
 ];
 
 /**
