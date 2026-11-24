@@ -1840,14 +1840,26 @@ const triStateOptions = [
   { value: 2, text: 'なし' },
 ];
 
+type PresetResizeObserver = {
+  disconnect(): void;
+  observe(target: Element): void;
+};
+
 type PresetLayoutState = {
   pending: boolean;
   passes: number;
   tops: Map<HTMLElement, number>;
-  observer?: ResizeObserver;
+  observer?: PresetResizeObserver;
   observed?: HTMLElement;
   width: number;
 };
+
+function createPresetResizeObserver(callback: () => void): PresetResizeObserver {
+  const Ctor = (window as unknown as {
+    ResizeObserver: new (cb: () => void) => PresetResizeObserver;
+  }).ResizeObserver;
+  return new Ctor(callback);
+}
 
 const presetLayouts = new WeakMap<Vue, PresetLayoutState>();
 
@@ -2750,7 +2762,7 @@ export default Vue.extend({
       if (layout.observer) layout.observer.disconnect();
       layout.observed = row;
       layout.width = row.clientWidth;
-      layout.observer = new ResizeObserver(() => this.onFilterRowResize());
+      layout.observer = createPresetResizeObserver(() => this.onFilterRowResize());
       layout.observer.observe(row);
       row.addEventListener('animationend', this.onPresetAnimationEnd);
     },
