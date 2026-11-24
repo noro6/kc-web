@@ -741,7 +741,28 @@
 .ship-table-body {
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
+
+@media (max-width: 599px) {
+  .list-card {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .list-card > .d-flex,
+  .mobile-summary-bar {
+    flex-shrink: 0;
+  }
+
+  .ship-table-body {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
 @media (min-width: 600px) {
   .list-card {
     display: block;
@@ -927,13 +948,10 @@
 }
 
 .type-selector-container.mobile {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.type-selector-container.mobile::-webkit-scrollbar {
-  display: none;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .type-selector {

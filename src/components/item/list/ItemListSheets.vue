@@ -200,10 +200,10 @@
     <v-bottom-sheet v-model="list.actionSheet" scrollable>
       <v-card class="bottom-sheet-card" v-if="list.menuItem">
         <div class="bottom-sheet-header">
-          <div class="body-2 font-weight-medium text-truncate">
+          <div class="body-2 font-weight-medium text-truncate sheet-header-title">
             {{ list.needTrans ? $t(`${list.menuItem.item.data.name}`) : list.menuItem.item.data.name }}
           </div>
-          <v-btn icon small @click="list.actionSheet = false"><v-icon>mdi-close</v-icon></v-btn>
+          <v-btn class="ml-auto" icon small @click="list.actionSheet = false"><v-icon>mdi-close</v-icon></v-btn>
         </div>
         <div class="bottom-sheet-body">
           <div class="action-stats">
@@ -457,6 +457,11 @@ export default Vue.extend({
   align-items: center;
   gap: 4px;
   padding: 10px 12px 8px;
+}
+
+.sheet-header-title {
+  flex: 1;
+  min-width: 0;
 }
 
 .bottom-sheet-body {
