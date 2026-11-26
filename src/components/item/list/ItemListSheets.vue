@@ -35,7 +35,7 @@
       <v-card class="bottom-sheet-card">
         <div class="bottom-sheet-header">
           <div class="body-2 font-weight-medium">{{ $t("Common.ソート") }}</div>
-          <v-btn icon small @click="list.sortDialog = false"><v-icon>mdi-close</v-icon></v-btn>
+          <v-btn class="ml-auto" icon small @click="list.sortDialog = false"><v-icon>mdi-close</v-icon></v-btn>
         </div>
         <div class="bottom-sheet-body">
           <div class="sheet-section">

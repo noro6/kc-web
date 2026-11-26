@@ -6,7 +6,7 @@ import Const, { FLEET_TYPE, SHIP_TYPE } from '../const';
 import AntiAirCutIn from '../aerialCombat/antiAirCutIn';
 import { ShipBase } from '../interfaces/shipBase';
 import ShootDownInfo from '../aerialCombat/shootDownInfo';
-import ItemBonus, { ItemBonusStatus } from '../item/ItemBonus';
+import ItemBonus, { Bonus, Bonuses, ItemBonusStatus } from '../item/ItemBonus';
 
 export interface ShipBuilder {
   // eslint-disable-next-line no-use-before-define
@@ -1040,12 +1040,94 @@ export default class Ship implements ShipBase {
    * @return {*}  {ItemBonusStatus}
    * @memberof Ship
    */
+  private static countBonusIds(items: Item[], ids: number[], minLevel: number): number {
+    let count = 0;
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i];
+      if (ids.includes(item.data.id) && item.remodel >= minLevel) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  /** requiresId / requiresEquipList を、改修値を満たした個数で判定する */
+  private static bonusGearMatches(bonus: Bonus, items: Item[]): boolean {
+    if (bonus.requiresId) {
+      const need = bonus.requiresIdNum ?? 1;
+      const found = Ship.countBonusIds(items, bonus.requiresId, bonus.requiresIdLevel ?? 0);
+      if (found < need) {
+        return false;
+      }
+    }
+    if (bonus.requiresId2) {
+      const found = Ship.countBonusIds(items, bonus.requiresId2, bonus.requiresIdLevel2 ?? 0);
+      if (found < 1) {
+        return false;
+      }
+    }
+    if (bonus.requiresEquipList) {
+      for (let i = 0; i < bonus.requiresEquipList.length; i += 1) {
+        const group = bonus.requiresEquipList[i];
+        const found = Ship.countBonusIds(items, group.requiresId, group.requiresIdLevel ?? 0);
+        if (found < (group.requiresIdNum ?? 1)) {
+          return false;
+        }
+      }
+    }
+    if (bonus.requiresType && !items.some((v) => bonus.requiresType?.includes(v.data.apiTypeId))) {
+      return false;
+    }
+    return true;
+  }
+
+  /** 未改造 / 艦型 / 国籍 / 艦種 / 艦id の条件を満たすか */
+  public static bonusShipMatches(bonus: Bonus, ship: ShipMaster): boolean {
+    if (bonus.shipBase && !bonus.shipBase.includes(ship.originalId)) {
+      return false;
+    }
+    if (bonus.shipClass && !bonus.shipClass.includes(ship.type2)) {
+      return false;
+    }
+    if (bonus.shipCountry && !bonus.shipCountry.includes(ship.type2)) {
+      return false;
+    }
+    if (bonus.shipType && !bonus.shipType.includes(ship.type)) {
+      return false;
+    }
+    if (bonus.shipId && !bonus.shipId.includes(ship.id)) {
+      return false;
+    }
+    return true;
+  }
+
   public static getItemBonus(ship: ShipMaster, items: Item[]): ItemBonusStatus[] {
+    const sumBonuses: ItemBonusStatus[] = [];
+    const actives = Ship.getActiveItemBonuses(ship, items);
+    for (let i = 0; i < actives.length; i += 1) {
+      const { bonus, sources } = actives[i];
+      for (let j = 0; j < sources.length; j += 1) {
+        sumBonuses.push({ ...bonus.bonus, fromTypeId: sources[j].data.apiTypeId });
+      }
+    }
+    return sumBonuses;
+  }
+
+  /**
+   * 発動している装備ボーナスのエントリと、その発生源となった装備を取得
+   * sources の数だけ bonus.bonus が加算される
+   * @static
+   * @param {ShipMaster} ship
+   * @param {Item[]} items
+   * @return {*}  {{ group: Bonuses; bonus: Bonus; sources: Item[] }[]}
+   * @memberof Ship
+   */
+  public static getActiveItemBonuses(ship: ShipMaster, items: Item[]): { group: Bonuses; bonus: Bonus; sources: Item[] }[] {
     if (!items.some((v) => v.data.id)) {
       return [];
     }
 
-    const sumBonuses: ItemBonusStatus[] = [];
+    const actives: { group: Bonuses; bonus: Bonus; sources: Item[] }[] = [];
 
     let antiAirRadarCount = 0;
     let surfaceRadarCount = 0;
@@ -1066,13 +1148,11 @@ export default class Ship implements ShipBase {
         accuracyRadarCount += 1;
       }
     }
-    const {
-      id, type, type2, originalId,
-    } = ship;
 
     const { bonusData } = ItemBonus;
     for (let i = 0; i < bonusData.length; i += 1) {
-      const { types, ids, bonuses } = bonusData[i];
+      const group = bonusData[i];
+      const { types, ids, bonuses } = group;
       if ((types || ids) && bonuses) {
         /** ボーナスの発生ベースとなる装備 */
         let fitItems: Item[] | undefined;
@@ -1089,24 +1169,7 @@ export default class Ship implements ShipBase {
 
         for (let j = 0; j < bonuses.length; j += 1) {
           const bonus = bonuses[j];
-          // 未改造判定
-          if (bonus.shipBase && !bonus.shipBase.includes(originalId)) {
-            continue;
-          }
-          // 艦型判定
-          if (bonus.shipClass && !bonus.shipClass.includes(type2)) {
-            continue;
-          }
-          // 国籍判定
-          if (bonus.shipCountry && !bonus.shipCountry.includes(type2)) {
-            continue;
-          }
-          // 艦種判定
-          if (bonus.shipType && !bonus.shipType.includes(type)) {
-            continue;
-          }
-          // 艦id判定
-          if (bonus.shipId && !bonus.shipId.includes(id)) {
+          if (!Ship.bonusShipMatches(bonus, ship)) {
             continue;
           }
           // 対空電探判定
@@ -1121,81 +1184,24 @@ export default class Ship implements ShipBase {
           if (bonus.requiresAccR && !accuracyRadarCount) {
             continue;
           }
-          // 装備固有id判定
-          if (bonus.requiresId) {
-            /** このボーナス発生に必要な装備id 複数ある場合はいずれか */
-            const requiredItems = bonus.requiresId;
-            /** このボーナス発生に必要な装備の最低改修値 */
-            const requireRemodel = bonus.requiresIdLevel ?? 0;
-            /** 現在搭載中の装備のうち、ボーナス発生に必要な装備たち */
-            const targetItems = items.filter((v) => requiredItems.includes(v.data.id));
-            // 個数判定
-            if (bonus.requiresIdNum && targetItems.length < bonus.requiresIdNum) {
-              // ボーナス発生に必要な装備個数がたりなかったので却下
-              continue;
-            } else if (requireRemodel && !targetItems.some((v) => v.remodel >= requireRemodel)) {
-              // ボーナス発生に必要な装備の改修値が足りなかったので却下
-              continue;
-            } else if (!targetItems.length) {
-              // ボーナス発生に必要な装備がなかったので却下
-              continue;
-            } else if (bonus.requiresId2) {
-              /** このボーナス発生に必要な装備id 複数ある場合はいずれか */
-              const requiredItems2 = bonus.requiresId2;
-              /** このボーナス発生に必要な装備の最低改修値 */
-              const requireRemodel2 = bonus.requiresIdLevel2 ?? 0;
-              /** 現在搭載中の装備のうち、ボーナス発生に必要な装備たち */
-              const targetItems2 = items.filter((v) => requiredItems2.includes(v.data.id));
-              if (!targetItems2.length) {
-                // ボーナス発生に必要な装備がなかったので却下
-                continue;
-              } else if (requireRemodel2 && !targetItems2.some((v) => v.remodel >= requireRemodel2)) {
-                // ボーナス発生に必要な装備の改修値が足りなかったので却下
-                continue;
-              }
-            }
-          }
-          // 装備種別判定
-          if (bonus.requiresType && !items.some((v) => bonus.requiresType?.includes(v.data.apiTypeId))) {
+          if (!Ship.bonusGearMatches(bonus, items)) {
             continue;
           }
 
-          // 改修判定
-          const minRemodel = bonus.remodel;
-          if (minRemodel) {
-            const remodelFits = fitItems.filter((v) => v.remodel >= minRemodel);
-            // 合致した装備からさらに改修値で判定
-            if (!remodelFits.length) {
-              continue;
-            }
-            // 合致した装備からさらに個数で判定
-            if (bonus.num && remodelFits.length < bonus.num) {
-              continue;
-            } else if (!bonus.num) {
-              // 個数制限がない場合はその数だけ回す
-              for (let b = 0; b < remodelFits.length; b += 1) {
-                sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: remodelFits[b].data.apiTypeId }));
-              }
-            } else {
-              // ようやくBonusを適用
-              sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: remodelFits[0].data.apiTypeId }));
-            }
-          } else if (bonus.num && fitItems.length < bonus.num) {
-            // 合致した装備からさらに個数で判定
+          // 改修判定。level は JSON 側の名前
+          const minRemodel = bonus.remodel ?? bonus.level ?? 0;
+          const remodelFits = minRemodel ? fitItems.filter((v) => v.remodel >= minRemodel) : fitItems;
+          if (!remodelFits.length) {
             continue;
-          } else if (!bonus.num) {
-            // 個数制限がない場合はその数だけ回す
-            for (let b = 0; b < fitItems.length; b += 1) {
-              sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: fitItems[b].data.apiTypeId }));
-            }
-          } else {
-            // ようやくBonusを適用
-            sumBonuses.push(Object.assign(bonus.bonus, { fromTypeId: fitItems[0].data.apiTypeId }));
           }
+          if (bonus.num && remodelFits.length < bonus.num) {
+            continue;
+          }
+          actives.push({ group, bonus, sources: bonus.num ? [remodelFits[0]] : remodelFits });
         }
       }
     }
-    return sumBonuses;
+    return actives;
   }
 
   /**
