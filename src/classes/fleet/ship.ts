@@ -1136,15 +1136,15 @@ export default class Ship implements ShipBase {
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
       // 対空電探カウント
-      if (item.data.iconTypeId === 11 && item.data.antiAir > 1) {
+      if (item.data.isAntiAirRadar) {
         antiAirRadarCount += 1;
       }
       // 水上電探カウント
-      if (item.data.iconTypeId === 11 && item.data.scout > 4) {
+      if (item.data.isSurfaceRadar) {
         surfaceRadarCount += 1;
       }
       // 命中付き電探カウント
-      if (item.data.iconTypeId === 11 && item.data.accuracy >= 8) {
+      if (item.data.isAccuracyRadar) {
         accuracyRadarCount += 1;
       }
     }
@@ -1188,8 +1188,8 @@ export default class Ship implements ShipBase {
             continue;
           }
 
-          // 改修判定。level は JSON 側の名前
-          const minRemodel = bonus.remodel ?? bonus.level ?? 0;
+          // 改修判定
+          const minRemodel = bonus.remodel ?? 0;
           const remodelFits = minRemodel ? fitItems.filter((v) => v.remodel >= minRemodel) : fitItems;
           if (!remodelFits.length) {
             continue;

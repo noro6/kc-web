@@ -59,6 +59,21 @@ describe('ItemBonus の同時装備', () => {
     equal(bonuses.some((b) => b.firePower === 1 && b.accuracy === 1 && !b.antiAir), false);
   });
 
+  it('電探判定は装備種別 (小型/大型電探) で行い、アイコン種別では判定しない', () => {
+    const radar = new ItemMaster({
+      id: 1, type: 12, itype: 11, name: 'r', antiAir: 2, scout: 5, accuracy: 8,
+    } as MasterItem);
+    equal(radar.isAntiAirRadar && radar.isSurfaceRadar && radar.isAccuracyRadar, true);
+    const weak = new ItemMaster({
+      id: 2, type: 13, itype: 11, name: 'w', antiAir: 1, scout: 4, accuracy: 7,
+    } as MasterItem);
+    equal(weak.isAntiAirRadar || weak.isSurfaceRadar || weak.isAccuracyRadar, false);
+    const notRadar = new ItemMaster({
+      id: 3, type: 51, itype: 11, name: 'n', antiAir: 2, scout: 5, accuracy: 8,
+    } as MasterItem);
+    equal(notRadar.isAntiAirRadar || notRadar.isSurfaceRadar || notRadar.isAccuracyRadar, false);
+  });
+
   it('ボーナス定義そのものに fromTypeId を書き込まない', () => {
     const baseShip = shipOf({ id: 1, orig: 132, type2: 1 });
     Ship.getItemBonus(baseShip, [equip(1, 0, 29), equip(2, 0, 29)]);

@@ -400,12 +400,15 @@ type BonusRow = {
   wiki: string;
 };
 
-/** ダミー装備。apiTypeId を 0 にして、種別指定の装備ボーナスに引っかからないようにする */
-const createDummyItem = (id: number, status: { antiAir?: number; scout?: number; accuracy?: number }, itype = 11, type = 0) => new Item({
+/** ダミー装備。id は実在しない値にして、装備id指定の装備ボーナスに引っかからないようにする */
+const createDummyItem = (id: number, type: number, itype: number, status: { antiAir?: number; scout?: number; accuracy?: number } = {}) => new Item({
   master: new ItemMaster({
     id, type, itype, name: 'ダミー装備', ...status,
   }),
 });
+
+/** ダミー電探。種別は小型電探 */
+const createDummyRadar = (id: number, status: { antiAir?: number; scout?: number; accuracy?: number }) => createDummyItem(id, 12, 11, status);
 
 /** ボーナスのグループが指定装備を対象としているか。Ship.getActiveItemBonuses と同じく types を優先する */
 const isBonusGroupOf = (group: Bonuses, item: ItemMaster): boolean => {
@@ -602,7 +605,7 @@ export default Vue.extend({
      */
     createBonusDetail(item: ItemMaster, bonus: Bonus, shipItems: ItemMaster[]): BonusDetail | null {
       const ship = this.ship.data;
-      let remodel = bonus.remodel ?? bonus.level ?? 0;
+      let remodel = bonus.remodel ?? 0;
       let count = bonus.num ?? 1;
       /** 対象装備以外に必要な装備 */
       const others: Item[] = [];
@@ -653,7 +656,7 @@ export default Vue.extend({
         if (!master) {
           return null;
         }
-        others.push(createDummyItem(999996, {}, master.iconTypeId, master.apiTypeId));
+        others.push(createDummyItem(999996, master.apiTypeId, master.iconTypeId));
       }
 
       const subjects: Item[] = [];
@@ -663,14 +666,14 @@ export default Vue.extend({
 
       // 電探条件は、構成内の装備で満たせなければダミー電探で満たす
       const loaded = subjects.concat(others);
-      if (bonus.requiresAR && !loaded.some((v) => v.data.iconTypeId === 11 && v.data.antiAir > 1)) {
-        others.push(createDummyItem(999997, { antiAir: 2 }));
+      if (bonus.requiresAR && !loaded.some((v) => v.data.isAntiAirRadar)) {
+        others.push(createDummyRadar(999997, { antiAir: 2 }));
       }
-      if (bonus.requiresSR && !loaded.some((v) => v.data.iconTypeId === 11 && v.data.scout > 4)) {
-        others.push(createDummyItem(999998, { scout: 5 }));
+      if (bonus.requiresSR && !loaded.some((v) => v.data.isSurfaceRadar)) {
+        others.push(createDummyRadar(999998, { scout: 5 }));
       }
-      if (bonus.requiresAccR && !loaded.some((v) => v.data.iconTypeId === 11 && v.data.accuracy >= 8)) {
-        others.push(createDummyItem(999999, { accuracy: 8 }));
+      if (bonus.requiresAccR && !loaded.some((v) => v.data.isAccuracyRadar)) {
+        others.push(createDummyRadar(999999, { accuracy: 8 }));
       }
 
       if (subjects.length + others.length > ship.slotCount + 1) {

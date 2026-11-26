@@ -21,7 +21,7 @@ export type Bonus = {
   shipBase?: number[];
   /** 艦型(白露型 など) */
   shipClass?: number[];
-  /** 国籍。変換後は対象艦型idの配列 */
+  /** 国籍。対象国の艦型idの配列 */
   shipCountry?: number[];
   /** 艦種(駆逐 軽巡...) */
   shipType?: number[];
@@ -56,8 +56,6 @@ export type Bonus = {
   }[];
   /** 該当装備の最低限必要改修★数 */
   remodel?: number;
-  /** remodel と同じ。JSON側の名前 */
-  level?: number;
   /**
    * これがなければ累積可能
    * 存在する場合、上記の条件を全て満たしている装備の最低限の個数 4連装酸素魚雷辺りがわかりやすい

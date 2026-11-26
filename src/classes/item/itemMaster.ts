@@ -146,6 +146,15 @@ export default class ItemMaster {
   /** 敵装備かどうか */
   public readonly isEnemyItem: boolean;
 
+  /** 装備ボーナスの対空電探判定 (小型/大型電探で対空2以上) */
+  public readonly isAntiAirRadar: boolean;
+
+  /** 装備ボーナスの水上電探判定 (小型/大型電探で索敵5以上) */
+  public readonly isSurfaceRadar: boolean;
+
+  /** 装備ボーナスの命中電探判定 (小型/大型電探で命中8以上) */
+  public readonly isAccuracyRadar: boolean;
+
   /** 特効情報 */
   public readonly bonuses: { key: string, text: string[], isOnlyAB: boolean, isOnlyShip: boolean }[];
 
@@ -232,6 +241,10 @@ export default class ItemMaster {
     this.isTorpedoAttacker = [8, 47, 53].includes(this.apiTypeId);
     this.isSPPlane = Const.SP_PLANE_TYPES.includes(this.apiTypeId);
     this.isEnemyItem = this.id > 1500;
+    const isRadar = this.apiTypeId === 12 || this.apiTypeId === 13;
+    this.isAntiAirRadar = isRadar && this.antiAir >= 2;
+    this.isSurfaceRadar = isRadar && this.scout >= 5;
+    this.isAccuracyRadar = isRadar && this.accuracy >= 8;
     this.airbaseMaxSlot = 18;
 
     if (this.isPlane) {
