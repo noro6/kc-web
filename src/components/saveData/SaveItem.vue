@@ -220,6 +220,7 @@
   flex-grow: 1;
   margin-left: 4px;
   align-self: center;
+  text-align: left;
 }
 .file-action-buttons {
   display: flex;
@@ -351,6 +352,8 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('aircalc');
         }
+        // 保存が開かれたことを通知する
+        this.$emit('opened', data);
         return;
       }
       data.isOpen = !data.isOpen;
@@ -378,6 +381,7 @@ export default Vue.extend({
           // ページ遷移
           this.$router.push('aircalc');
         }
+        this.$emit('opened', newData);
         return;
       }
       data.isOpen = !data.isOpen;
